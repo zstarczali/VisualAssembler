@@ -5403,6 +5403,7 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
 }
 
 .update-dialog {
+  border: 1px solid color-mix(in srgb, var(--text) 22%, var(--panel));
   max-width: 520px;
 }
 
@@ -6334,7 +6335,8 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
 [data-theme="beige"] .customer-message-dialog,
 [data-theme="light"] .splash-panel,
 [data-theme="starlight"] .splash-panel,
-[data-theme="beige"] .splash-panel {
+[data-theme="beige"] .splash-panel,
+:is([data-theme="light"], [data-theme="starlight"], [data-theme="beige"]) :is(.whats-new-dialog, .update-dialog, .knowledge-base-dialog, .hardware-settings-dialog) {
   border-color: color-mix(in srgb, var(--text) 45%, var(--panel));
 }
 
@@ -6476,7 +6478,7 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
 }
 
 .whats-new-dialog {
-  border: none;
+  border: 1px solid color-mix(in srgb, var(--text) 22%, var(--panel));
   border-radius: 4px;
   padding: 0;
   background: var(--panel);
@@ -6557,7 +6559,7 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
 
 /* ── Knowledge Base Dialog ───────────────────────────────────────── */
 .knowledge-base-dialog {
-  border: none;
+  border: 1px solid color-mix(in srgb, var(--text) 22%, var(--panel));
   border-radius: 4px;
   padding: 0;
   background: var(--panel);
@@ -7028,7 +7030,14 @@ html[data-theme="commodore77"] .splash-image {
   margin-top: 0;
 }
 
+/* a box, not the font block glyph: that one reaches into the descent and its anti-aliased
+   edges show as lines on WebKit at fractional sizes; this is a C64 cell (0.875em, like the letters) */
 .splash-cursor {
+  display: inline-block;
+  width: 0.875em;
+  height: 0.875em;
+  vertical-align: baseline;
+  background: currentColor;
   animation: splash-cursor-blink 0.6s step-end infinite;
   opacity: 0;
 }
@@ -7171,7 +7180,7 @@ html[data-theme="commodore77"] .splash-image {
 /* ── Hardware Settings Dialog ─────────────────────────────────────────────── */
 
 .hardware-settings-dialog {
-  border: none;
+  border: 1px solid color-mix(in srgb, var(--text) 22%, var(--panel));
   border-radius: 3px;
   padding: 0;
   background: var(--panel);
@@ -11405,16 +11414,6 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
   height: 30px;
   font-size: 0.78rem;
   font-weight: 600;
-}
-.ps-check input {
-  flex: 0 0 auto;
-  width: 16px;
-  height: 16px;
-  min-height: 0;
-  margin: 0;
-  padding: 0;
-  border: none;
-  box-shadow: none;
 }
 .ps-hint,
 .ps-files {

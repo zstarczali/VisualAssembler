@@ -1,5 +1,7 @@
 # Linux Installation Guide (Ubuntu / Debian)
-Version 2.6.5
+Version 2.6.6
+
+2.6.6: SID player macro (.sid_player [subtune][, raster] inits the .sid tune and plays it from a raster IRQ; .sid defines SID_LOAD / SID_INIT / SID_PLAY), per-project Expert mode only (Project settings), SID Player buffer setting (WebSID 2048-16384 samples, VA SID Core renders 10-30 s ahead), the memory panel docks back collapsed, framed What's New / update / Settings / Knowledge Base windows, VA switches in Project settings; fixed: bug report screenshots (PNG / JPG) in the release build, the splash READY. cursor on macOS, macOS inline predictive text in the code editors.
 
 2.6.5: KickAssembler projects (Import Kick project… builds a whole KickAssembler source tree with #import, .for, .if, .function, .macro, .pseudocommand, scopes and namespaces byte for byte like KickAssembler 5.25), LoadBinary / LoadSid / virtual blocks, Project settings with cmdLineVars and #define, Kick-compatible switch for VMA projects, Build Info in columns, C64 colour palette setting (Colodore by default), colour picker and Ctrl + wheel zoom in the editors, ACME memory map from the ACME build, .byte / .word label expression fix.
 
@@ -64,7 +66,7 @@ Tested on Ubuntu 22.04 and 24.04.
 Download the `.deb` package from the releases page and install:
 
 ```bash
-  sudo dpkg -i "c64-visual-assembler_2.6.5_amd64.deb"
+  sudo dpkg -i "c64-visual-assembler_2.6.6_amd64.deb"
 sudo apt-get install -f   # fix any missing dependencies
 ```
 
@@ -178,4 +180,4 @@ The app propagates `DISPLAY`, `WAYLAND_DISPLAY`, `XDG_RUNTIME_DIR`, `DBUS_SESSIO
 
 ---
 
-**Version:** 2.6.5 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 2.6.6 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64

@@ -3816,6 +3816,30 @@
   "error": null
  },
  {
+  "id": "macro-SID_PLAYER",
+  "caseId": "macro-SID_PLAYER",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": true,
+  "ok": true,
+  "size": 62529,
+  "sha256": "63e4fad761f5a4f4fc1cc9b2065982ff18d3571dbdc0663a691b6623e462b397",
+  "error": null
+ },
+ {
+  "id": "macro-SID_PLAYER@nostub",
+  "caseId": "macro-SID_PLAYER",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": false,
+  "ok": true,
+  "size": 60482,
+  "sha256": "3e3c483435043214f1ca0365818aa6c548dffab1a9ada6529b337c1be12fb0d9",
+  "error": null
+ },
+ {
   "id": "macro-RAND",
   "caseId": "macro-RAND",
   "kind": "text",

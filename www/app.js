@@ -77,54 +77,54 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "kick-265",
+  id: "sid-player-266",
   url: "https://www.c64va.pro/docs.html",
   hu: {
-    eyebrow: "Újdonság a 2.6.5-ben",
+    eyebrow: "Újdonság a 2.6.6-ban",
     title: "Üdvözöl a Visual Assembler",
-    body: `<ul><li><strong>KickAssembler projektek</strong>: Menu → Program → Kick projekt importálása… — a teljes forrásfa (<code>#import</code>, <code>.import binary</code>) egy projektbe; a VA bájtra úgy fordítja, mint a KickAssembler.</li><li><strong>Kick-kompatibilis kapcsoló</strong> a projektpanelen (<code>{K}</code>): <code>.for</code>, <code>.if</code>, <code>.function</code>, <code>.pseudocommand</code>, <code>!</code> címkék, scope-ok és névterek a VA makrók mellett.</li><li><strong>Build Info</strong> több oszlopban.</li><li><strong>C64 színpaletta</strong> (Beállítások → Általános → Szerkesztők, alapból Colodore); <strong>színválasztó</strong> a Hi-Res, Sprite, Karakter és Charset Canvas szerkesztőben (Alt+kattintás); <strong>Ctrl+görgő</strong> nagyítás.</li><li><strong>ACME</strong>: a memóriatérkép az ACME fordítást követi.</li></ul><p>Kérdés, ötlet vagy hiba: <strong>Menu → Támogatás</strong>.</p>`,
+    body: `<ul><li><strong>SID lejátszó makró</strong>: <code>.sid "zene.sid"</code> + <code>.sid_player</code> — init, raszter IRQ és képkockánkénti play egyetlen sorban; a <code>.sid</code> a <code>SID_INIT</code> / <code>SID_PLAY</code> címkéket is megadja.</li><li><strong>Csak Expert mód</strong> projektenként (Projekt beállítások).</li><li><strong>SID Player puffer</strong> a Beállítások → SID előnézet alatt — nagyobb pufferrel nem recseg.</li><li>Javítva: a hibabejelentő elfogadja a PNG / JPG képeket; macOS-en nincs prediktív szöveg a szerkesztőben, és a READY. kurzor is tiszta.</li></ul><p>Kérdés, ötlet vagy hiba: <strong>Menu → Támogatás</strong>.</p>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
-    eyebrow: "New in 2.6.5",
+    eyebrow: "New in 2.6.6",
     title: "Welcome to Visual Assembler",
-    body: `<ul><li><strong>KickAssembler projects</strong>: Menu → Program → Import Kick project… — the whole source tree (<code>#import</code>, <code>.import binary</code>) in one project; VA builds it byte for byte like KickAssembler.</li><li><strong>Kick-compatible switch</strong> in the Project panel (<code>{K}</code>): <code>.for</code>, <code>.if</code>, <code>.function</code>, <code>.pseudocommand</code>, <code>!</code> labels, scopes and namespaces next to the VA macros.</li><li><strong>Build Info</strong> in columns.</li><li><strong>C64 colour palette</strong> (Settings → General → Editors, Colodore by default); <strong>colour picker</strong> in the Hi-Res, Sprite, Character and Charset Canvas editors (Alt+click); <strong>Ctrl+wheel</strong> zoom.</li><li><strong>ACME</strong>: the memory map follows the ACME build.</li></ul><p>Questions, ideas or bugs: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>SID player macro</strong>: <code>.sid "music.sid"</code> + <code>.sid_player</code> — init, raster IRQ and play every frame in one line; <code>.sid</code> also defines the <code>SID_INIT</code> / <code>SID_PLAY</code> labels.</li><li><strong>Expert mode only</strong> per project (Project settings).</li><li><strong>SID Player buffer</strong> in Settings → SID preview — a larger buffer stops the crackle.</li><li>Fixed: the bug report accepts PNG / JPG screenshots; no predictive text in the editors on macOS, and a clean READY. cursor.</li></ul><p>Questions, ideas or bugs: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
-    eyebrow: "Novedad en la 2.6.5",
+    eyebrow: "Novedad en la 2.6.6",
     title: "Bienvenido a Visual Assembler",
-    body: `<ul><li><strong>Proyectos KickAssembler</strong>: Menu → Program → Import Kick project… — todo el árbol de fuentes (<code>#import</code>, <code>.import binary</code>) en un proyecto; VA lo compila byte a byte como KickAssembler.</li><li><strong>Interruptor compatible con Kick</strong> en el panel de proyecto (<code>{K}</code>): <code>.for</code>, <code>.if</code>, <code>.function</code>, <code>.pseudocommand</code>, etiquetas <code>!</code>, ámbitos y espacios de nombres junto a las macros de VA.</li><li><strong>Build Info</strong> en columnas.</li><li><strong>Paleta de colores C64</strong> (Settings → General → Editors, Colodore por defecto); <strong>cuentagotas</strong> en los editores Hi-Res, Sprite, Character y Charset Canvas (Alt+clic); zoom con <strong>Ctrl+rueda</strong>.</li><li><strong>ACME</strong>: el mapa de memoria sigue la compilación de ACME.</li></ul><p>Preguntas, ideas o errores: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Macro reproductor SID</strong>: <code>.sid "music.sid"</code> + <code>.sid_player</code> — init, IRQ raster y play en cada fotograma en una sola línea; <code>.sid</code> también define las etiquetas <code>SID_INIT</code> / <code>SID_PLAY</code>.</li><li><strong>Solo modo Experto</strong> por proyecto (Project settings).</li><li><strong>Búfer del SID Player</strong> en Settings → SID preview: un búfer mayor evita los chasquidos.</li><li>Corregido: el informe de errores acepta capturas PNG / JPG; sin texto predictivo en los editores en macOS y un cursor READY. limpio.</li></ul><p>Preguntas, ideas o errores: <strong>Menu → Support</strong>.</p>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
-    eyebrow: "Neu in 2.6.5",
+    eyebrow: "Neu in 2.6.6",
     title: "Willkommen bei Visual Assembler",
-    body: `<ul><li><strong>KickAssembler-Projekte</strong>: Menu → Program → Import Kick project… — der ganze Quellbaum (<code>#import</code>, <code>.import binary</code>) in einem Projekt; VA übersetzt ihn Byte für Byte wie KickAssembler.</li><li><strong>Kick-kompatibel-Schalter</strong> im Projektfenster (<code>{K}</code>): <code>.for</code>, <code>.if</code>, <code>.function</code>, <code>.pseudocommand</code>, <code>!</code>-Labels, Scopes und Namespaces neben den VA-Makros.</li><li><strong>Build Info</strong> in Spalten.</li><li><strong>C64-Farbpalette</strong> (Settings → General → Editors, standardmäßig Colodore); <strong>Farbpipette</strong> im Hi-Res-, Sprite-, Character- und Charset-Canvas-Editor (Alt+Klick); Zoom mit <strong>Strg+Mausrad</strong>.</li><li><strong>ACME</strong>: die Speicherkarte folgt dem ACME-Build.</li></ul><p>Fragen, Ideen oder Fehler: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>SID-Player-Makro</strong>: <code>.sid "music.sid"</code> + <code>.sid_player</code> — Init, Raster-IRQ und Play in jedem Frame in einer Zeile; <code>.sid</code> definiert auch die Labels <code>SID_INIT</code> / <code>SID_PLAY</code>.</li><li><strong>Nur Expertenmodus</strong> pro Projekt (Project settings).</li><li><strong>SID-Player-Puffer</strong> unter Settings → SID preview — ein größerer Puffer verhindert Knacken.</li><li>Behoben: der Fehlerbericht nimmt PNG- / JPG-Screenshots an; keine Wortvorschläge in den Editoren unter macOS und ein sauberer READY.-Cursor.</li></ul><p>Fragen, Ideen oder Fehler: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
-    eyebrow: "Nieuw in 2.6.5",
+    eyebrow: "Nieuw in 2.6.6",
     title: "Welkom bij Visual Assembler",
-    body: `<ul><li><strong>KickAssembler-projecten</strong>: Menu → Program → Import Kick project… — de hele bronboom (<code>#import</code>, <code>.import binary</code>) in één project; VA bouwt hem byte voor byte zoals KickAssembler.</li><li><strong>Kick-compatibel-schakelaar</strong> in het projectpaneel (<code>{K}</code>): <code>.for</code>, <code>.if</code>, <code>.function</code>, <code>.pseudocommand</code>, <code>!</code>-labels, scopes en namespaces naast de VA-macro's.</li><li><strong>Build Info</strong> in kolommen.</li><li><strong>C64-kleurenpalet</strong> (Settings → General → Editors, standaard Colodore); <strong>kleurkiezer</strong> in de Hi-Res-, Sprite-, Character- en Charset Canvas-editor (Alt+klik); zoom met <strong>Ctrl+scrollwiel</strong>.</li><li><strong>ACME</strong>: de geheugenkaart volgt de ACME-build.</li></ul><p>Vragen, ideeën of bugs: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>SID-spelermacro</strong>: <code>.sid "music.sid"</code> + <code>.sid_player</code> — init, raster-IRQ en play elk frame in één regel; <code>.sid</code> definieert ook de labels <code>SID_INIT</code> / <code>SID_PLAY</code>.</li><li><strong>Alleen Expert-modus</strong> per project (Project settings).</li><li><strong>SID Player-buffer</strong> in Settings → SID preview — een grotere buffer voorkomt gekraak.</li><li>Opgelost: het foutrapport accepteert PNG- / JPG-schermafbeeldingen; geen woordvoorspelling in de editors op macOS en een schone READY.-cursor.</li></ul><p>Vragen, ideeën of bugs: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
-    eyebrow: "Nowość w 2.6.5",
+    eyebrow: "Nowość w 2.6.6",
     title: "Witamy w Visual Assembler",
-    body: `<ul><li><strong>Projekty KickAssemblera</strong>: Menu → Program → Import Kick project… — całe drzewo źródeł (<code>#import</code>, <code>.import binary</code>) w jednym projekcie; VA kompiluje je bajt w bajt jak KickAssembler.</li><li><strong>Przełącznik zgodności z Kick</strong> w panelu projektu (<code>{K}</code>): <code>.for</code>, <code>.if</code>, <code>.function</code>, <code>.pseudocommand</code>, etykiety <code>!</code>, zakresy i przestrzenie nazw obok makr VA.</li><li><strong>Build Info</strong> w kolumnach.</li><li><strong>Paleta kolorów C64</strong> (Settings → General → Editors, domyślnie Colodore); <strong>próbnik koloru</strong> w edytorach Hi-Res, Sprite, Character i Charset Canvas (Alt+klik); powiększanie <strong>Ctrl+kółko</strong>.</li><li><strong>ACME</strong>: mapa pamięci korzysta z kompilacji ACME.</li></ul><p>Pytania, pomysły lub błędy: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Makro odtwarzacza SID</strong>: <code>.sid "music.sid"</code> + <code>.sid_player</code> — init, IRQ rastrowe i play w każdej klatce w jednej linii; <code>.sid</code> definiuje też etykiety <code>SID_INIT</code> / <code>SID_PLAY</code>.</li><li><strong>Tylko tryb Ekspert</strong> dla projektu (Project settings).</li><li><strong>Bufor SID Playera</strong> w Settings → SID preview — większy bufor usuwa trzaski.</li><li>Poprawiono: zgłoszenie błędu przyjmuje zrzuty PNG / JPG; brak podpowiedzi tekstu w edytorach na macOS i czysty kursor READY.</li></ul><p>Pytania, pomysły lub błędy: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
-    eyebrow: "Novità nella 2.6.5",
+    eyebrow: "Novità nella 2.6.6",
     title: "Benvenuto in Visual Assembler",
-    body: `<ul><li><strong>Progetti KickAssembler</strong>: Menu → Program → Import Kick project… — l'intero albero dei sorgenti (<code>#import</code>, <code>.import binary</code>) in un progetto; VA lo compila byte per byte come KickAssembler.</li><li><strong>Interruttore compatibile Kick</strong> nel pannello del progetto (<code>{K}</code>): <code>.for</code>, <code>.if</code>, <code>.function</code>, <code>.pseudocommand</code>, etichette <code>!</code>, scope e namespace accanto alle macro di VA.</li><li><strong>Build Info</strong> in colonne.</li><li><strong>Tavolozza C64</strong> (Settings → General → Editors, Colodore predefinita); <strong>contagocce</strong> negli editor Hi-Res, Sprite, Character e Charset Canvas (Alt+clic); zoom con <strong>Ctrl+rotellina</strong>.</li><li><strong>ACME</strong>: la mappa di memoria segue la compilazione ACME.</li></ul><p>Domande, idee o bug: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Macro player SID</strong>: <code>.sid "music.sid"</code> + <code>.sid_player</code> — init, IRQ raster e play a ogni fotogramma in una riga; <code>.sid</code> definisce anche le etichette <code>SID_INIT</code> / <code>SID_PLAY</code>.</li><li><strong>Solo modalità Esperto</strong> per progetto (Project settings).</li><li><strong>Buffer del SID Player</strong> in Settings → SID preview: un buffer più grande evita i crepitii.</li><li>Corretto: la segnalazione di bug accetta screenshot PNG / JPG; niente testo predittivo negli editor su macOS e un cursore READY. pulito.</li></ul><p>Domande, idee o bug: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
@@ -293,6 +293,7 @@ const mnemonicLibrary = {
     { mnemonic: "SET_BORDER", description: "Keretszin beallitasa: LDA #color / STA $D020.", modes: ["implied"], isSetBorderMacro: true },
     { mnemonic: "SET_BG", description: "Hatter szin beallitasa: LDA #color / STA $D021.", modes: ["implied"], isSetBgMacro: true },
     { mnemonic: "IRQ_SETUP", description: "Raszter IRQ alapbeallitas handlerrel es rasztersorral: vektor, $D012, $D01A, CIA1 IRQ off, CLI.", modes: ["implied"], isIrqSetupMacro: true },
+    { mnemonic: "SID_PLAYER", description: "A .sid makroval betoltott zene lejatszasa: JSR SID_INIT a subtune-nal, CIA1 IRQ off, raszter IRQ, CLI; a beepitett handler kepkockankent JSR SID_PLAY, majd JMP $EA31.", modes: ["implied"], isSidPlayerMacro: true },
     { mnemonic: "RAND", description: "8-bites Galois LFSR PRNG. Seed byte-ot frissit, az uj random ertek A-ban marad.", modes: ["implied"], isRandMacro: true },
     { mnemonic: "ORG", description: "Cimzestarto atvaltasa (*= direktiva). A kovetkező blokkokat az itt megadott cimtol forditja.", modes: ["implied"], isOrgMacro: true }
   ],
@@ -983,6 +984,7 @@ const mnemonicExpertHints = {
   SET_BORDER: mnemonicSyntax("set_border", "color"),
   SET_BG: mnemonicSyntax("set_bg", "color"),
   IRQ_SETUP: mnemonicSyntax("irq_setup", "handler=my_irq", "raster=$FA"),
+  SID_PLAYER: mnemonicSyntax("sid_player", "0", "$FA"),
   RAND: mnemonicSyntax("rand", "seed"),
   SPRITE_INIT: mnemonicSyntax("sprite_init", "0", "$2000", "1", "2"),
   SPRITE_POS: mnemonicSyntax("sprite_pos", "0", "120", "80"),
@@ -4235,6 +4237,8 @@ function _applyEditorTranslations() {
   setText("#sid-preview-engine-lbl", t("sidPreviewEngine"));
   setText("#sid-preview-model-lbl", t("sidPreviewModel"));
   setText("#sid-lcd-color-lbl", t("sidLcdColor"));
+  setText("#sid-player-buffer-lbl", t("sidPlayerBuffer"));
+  setText("#sid-player-buffer-note", t("sidPlayerBufferNote"));
   setText("#editor-settings-label", t("editorSettings"));
   setText("#editor-palette-label", t("editorPalette"));
   setText("#editor-palette-note", t("editorPaletteNote"));
@@ -6233,6 +6237,24 @@ function _createBlockFromPalette(item) {
     };
   }
 
+  if (item.isSidPlayerMacro) {
+    return {
+      id: crypto.randomUUID(),
+      category: categorySelect.value,
+      mnemonic: "SID_PLAYER",
+      operand: "",
+      rawOperand: "",
+      description: item.description,
+      addressingMode: "implied",
+      base: "hex",
+      validationError: "",
+      collapsed: true,
+      isSidPlayerMacro: true,
+      sidPlayerSong: "0",
+      sidPlayerRaster: "FA"
+    };
+  }
+
   if (item.isRandMacro) {
     return {
       id: crypto.randomUUID(),
@@ -6757,6 +6779,7 @@ function _blockToExpertLine(block) {
   if (block.isDelayMacro) return `.delay ${String(block.delayFrames || "1").trim()}`;
   if (block.isSetBorderMacro) return `.set_border ${fmtColorMacroValue(block.colorValue || block.rawOperand || "00")}`;
   if (block.isSetBgMacro) return `.set_bg ${fmtColorMacroValue(block.colorValue || block.rawOperand || "00")}`;
+  if (block.isSidPlayerMacro) return `.sid_player ${block.sidPlayerSong || "0"}, $${(block.sidPlayerRaster || "FA").replace(/^#?\$/, "").toUpperCase()}`;
   if (block.isIrqSetupMacro) return `.irq_setup handler=${block.irqHandler || "my_irq"}, raster=$${(block.irqRaster || "FA").replace(/^#?\$/, "").toUpperCase()}`;
   if (block.isRandMacro) return `.rand ${block.randSeed || "$FB"}`;
   if (block.isDefineMacro)    return `.define ${block.rawOperand || "SYMBOL"}`;
@@ -10005,7 +10028,7 @@ const _DIRECTIVE_TO_MNEM = {
   while:"WHILE", endw:"ENDW", repeat:"REPEAT", until:"UNTIL",
   memcpy:"MEMCPY", memset:"MEMSET", print:"PRINT", print_char:"PRINT_CHAR", print_hex:"PRINT_HEX",
   clear_screen:"CLEAR_SCREEN", wait_key:"WAIT_KEY", set_border:"SET_BORDER", set_bg:"SET_BG",
-  irq_setup:"IRQ_SETUP", rand:"RAND",
+  irq_setup:"IRQ_SETUP", sid_player:"SID_PLAYER", rand:"RAND",
   chardef:"CHARDEF", box_hit:"BOX_HIT",
   exodecrunch:"EXODECRUNCH"
 };
@@ -10068,7 +10091,7 @@ const _AC_DIRECTIVE_DESC = {
   ".memcpy":"copy memory", ".memset":"fill memory", ".print":"print PETSCII",
   ".print_char":"print PETSCII char",
   ".print_hex":"print hex", ".clear_screen":"clear screen", ".wait_key":"wait key", ".delay":"frame delay", ".wait":"frame delay",
-  ".set_border":"set border", ".set_bg":"set background", ".irq_setup":"setup IRQ", ".rand":"random byte",
+  ".set_border":"set border", ".set_bg":"set background", ".irq_setup":"setup IRQ", ".sid_player":"play .sid music", ".rand":"random byte",
   ".end":"RTS alias",
   ".loadfile":"load file KERNAL", ".sprite_init":"init sprite", ".sprite_pos":"set sprite pos",
   ".wait_raster":"wait raster line", ".delay":"frame delay", ".wait":"frame delay", ".joystick":"joystick macro", ".mouse":"1351 mouse macro", ".sprite_col":"sprite collision",
@@ -10940,7 +10963,7 @@ function _expertHighlightLine(raw) {
   if (!code.trim()) return esc(code) + commentHtml;
 
   // Token regex (order matters)
-  const TOKEN_RE = /("(?:[^"\\]|\\.)*")|(\*\s*=)|(\.(?:text|string|rawtext|rawbytes|data|byte|word|fill|align|assert|loop|next|for|endf|push|pull|endif|endregion|region|macro|endm|endw|repeat|until|while|memcpy|memset|print|print_char|print_hex|clear_screen|wait_key|delay|wait|set_border|set_bg|irq_setup|sprite_init|sprite_pos|wait_raster|joystick|mouse|sprite_col|map_copy16x16|map_copy|sprite_anim|score_bcd|define|else|if|const|end|var|incbin|koala|include|sid|petscii|charset|table|loadfile|invoke|call|rand|exodecrunch|reu_check|reu_stash|reu_fetch|reu_swap|turbo_set|turbo_enable|supercpu_detect|chardef|box_hit|level_row|level)\b)|(#?\$[0-9A-Fa-f]+|#\d+\b)|(\b\d+\b)|([A-Za-z_][A-Za-z0-9_]*\s*:)|([A-Za-z_][A-Za-z0-9_]*)|(\{[A-Za-z_][A-Za-z0-9_]*\})|(:[A-Za-z_][A-Za-z0-9_]*)/gi;
+  const TOKEN_RE = /("(?:[^"\\]|\\.)*")|(\*\s*=)|(\.(?:text|string|rawtext|rawbytes|data|byte|word|fill|align|assert|loop|next|for|endf|push|pull|endif|endregion|region|macro|endm|endw|repeat|until|while|memcpy|memset|print|print_char|print_hex|clear_screen|wait_key|delay|wait|set_border|set_bg|irq_setup|sid_player|sprite_init|sprite_pos|wait_raster|joystick|mouse|sprite_col|map_copy16x16|map_copy|sprite_anim|score_bcd|define|else|if|const|end|var|incbin|koala|include|sid|petscii|charset|table|loadfile|invoke|call|rand|exodecrunch|reu_check|reu_stash|reu_fetch|reu_swap|turbo_set|turbo_enable|supercpu_detect|chardef|box_hit|level_row|level)\b)|(#?\$[0-9A-Fa-f]+|#\d+\b)|(\b\d+\b)|([A-Za-z_][A-Za-z0-9_]*\s*:)|([A-Za-z_][A-Za-z0-9_]*)|(\{[A-Za-z_][A-Za-z0-9_]*\})|(:[A-Za-z_][A-Za-z0-9_]*)/gi;
 
   let result = "";
   let lastIdx = 0;
@@ -13145,6 +13168,12 @@ function parseExpertText(text) {
         ? rawValue
         : rawValue.toUpperCase().replace(/^\$/, "").padStart(2, "0");
       blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: isBorder ? "SET_BORDER" : "SET_BG", operand: value, rawOperand: value, description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isSetBorderMacro: isBorder, isSetBgMacro: !isBorder, colorValue: value });
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+    const sidPlayerM = line.match(/^\.sid_player(?:\s+([^,]+?)(?:\s*,\s*(?:#?\$)?([A-Za-z_][A-Za-z0-9_]*|[0-9A-Fa-f]{1,2}))?)?\s*$/i);
+    if (sidPlayerM) {
+      blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "SID_PLAYER", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: "", collapsed: true, isSidPlayerMacro: true, sidPlayerSong: (sidPlayerM[1] || "0").trim(), sidPlayerRaster: (sidPlayerM[2] || "FA").toUpperCase().padStart(2, "0") });
       if (commentText) blocks.push(_importMakeComment(commentText));
       continue;
     }
@@ -17218,6 +17247,13 @@ function updateProgramBlock(index, field, value) {
 
   if (block.isMacroInvoke && field === "invokeArgs") {
     block.invokeArgs = value;
+    renderBlockPreview(index);
+    renderAsmOutput();
+    return;
+  }
+
+  if (block.isSidPlayerMacro && (field === "sidPlayerSong" || field === "sidPlayerRaster")) {
+    block[field] = String(value || "").trim().replace(field === "sidPlayerRaster" ? /^#?\$/ : /^#/, "");
     renderBlockPreview(index);
     renderAsmOutput();
     return;
@@ -24090,6 +24126,13 @@ function setupHardwareSettingsDialog() {
     try { localStorage.setItem("c64va-sid-lcd-color", e.target.value === "red" ? "red" : "green"); } catch (_) {}
     _sidLcdApplyColor();
   });
+  const sidPlayerBuffer = document.getElementById("sid-player-buffer");
+  if (sidPlayerBuffer) {
+    sidPlayerBuffer.value = String(_sidPlayerBufferSize());
+    sidPlayerBuffer.addEventListener("change", function(e) {
+      try { localStorage.setItem("c64va-sid-player-buffer", e.target.value); } catch (_) {}
+    });
+  }
   document.getElementById("sid-preview-model")?.addEventListener("change", function(e) {
     _sidPreviewModel = e.target.value === "6581" ? "6581" : "8580";
     try { localStorage.setItem("c64va-sid-preview-model", _sidPreviewModel); } catch (_) {}
@@ -28527,6 +28570,16 @@ function addLayoutLabels(labelMap, line) {
     }
   };
   if (block.isLabel && block.labelName) labelMap.set(block.labelName, (line.address + (block.labelOffset || 0)) & 0xFFFF);
+  if (block.isSidMacro && block.sidLoadAddress) {
+    // the init / play addresses move with a custom load address
+    const placed = block.sidCustomAddress ? parseAddressValue(block.sidCustomAddress, labelMap) : block.sidLoadAddress;
+    if (typeof placed === "number" && !isNaN(placed)) {
+      const shift = placed - block.sidLoadAddress;
+      labelMap.set("SID_LOAD", placed & 0xFFFF);
+      labelMap.set("SID_INIT", ((block.sidInitAddress || block.sidLoadAddress) + shift) & 0xFFFF);
+      if (block.sidPlayAddress) labelMap.set("SID_PLAY", (block.sidPlayAddress + shift) & 0xFFFF);
+    }
+  }
   if (block.isIncBinMacro && block.incBinLevel) {
     const info = _levelInfo(block);
     if (info.ok) for (const [name, value] of Object.entries(info.labels)) labelMap.set(name, value);
@@ -31490,6 +31543,18 @@ function compileLineBytes(line, labels) {
     return { ok: true, bytes: compileAbsoluteStore(addr, value), comment: `${block.mnemonic} $${value.toString(16).toUpperCase()}` };
   }
 
+  if (block.isSidPlayerMacro) {
+    const init = labels.get("SID_INIT");
+    const play = labels.get("SID_PLAY");
+    if (typeof init !== "number") return { ok: false, error: t("compileSidPlayerNoSid") };
+    if (typeof play !== "number") return { ok: false, error: t("compileSidPlayerNoPlay") };
+    const song = parseMacroNumber(block.sidPlayerSong || "0", labels, "dec");
+    const raster = parseMacroNumber(block.sidPlayerRaster || "FA", labels, "hex");
+    if (song === null || song < 0 || song > 255) return { ok: false, error: t("compileSidPlayerSong") };
+    if (raster === null || raster < 0 || raster > 255) return { ok: false, error: t("compileIrqRasterRange").replace("IRQ_SETUP", "SID_PLAYER") };
+    return { ok: true, bytes: _sidPlayerBytes(line.address, init, play, song, raster), comment: `SID_PLAYER song ${song} @ $${raster.toString(16).toUpperCase().padStart(2, "0")}` };
+  }
+
   if (block.isIrqSetupMacro) {
     const handler = labels.get(block.irqHandler || "");
     const raster = parseMacroNumber(block.irqRaster || "FA", labels, "hex");
@@ -32201,6 +32266,25 @@ function parseMacroCountOrSize(raw, labels = null, preferredBase = "dec", vars =
   const evaluated = _evalAsmExpression(text, labels, vars);
   if (evaluated !== null) return evaluated;
   return parseMacroNumber(raw, labels, preferredBase === "dec" ? "dec" : "hex");
+}
+
+// SID_PLAYER (.sid_player [song][, raster]): init the tune of the .sid block, then a raster IRQ
+// (CIA1 IRQ off) whose handler, right after the setup, calls SID_PLAY once a frame.
+const _SID_PLAYER_SIZE = 58;
+function _sidPlayerBytes(address, init, play, song, raster) {
+  const irq = (address + 49) & 0xFFFF, end = (address + _SID_PLAYER_SIZE) & 0xFFFF;
+  return [
+    0x78,
+    0xA9, song & 0xFF, 0x20, init & 0xFF, (init >> 8) & 0xFF,
+    0xA9, 0x7F, 0x8D, 0x0D, 0xDC, 0xAD, 0x0D, 0xDC,
+    0xA9, irq & 0xFF, 0x8D, 0x14, 0x03, 0xA9, irq >> 8, 0x8D, 0x15, 0x03,
+    0xA9, raster & 0xFF, 0x8D, 0x12, 0xD0,
+    0xAD, 0x11, 0xD0, 0x29, 0x7F, 0x8D, 0x11, 0xD0,
+    0xA9, 0x01, 0x8D, 0x1A, 0xD0, 0x8D, 0x19, 0xD0,
+    0x58,
+    0x4C, end & 0xFF, end >> 8,
+    0x0E, 0x19, 0xD0, 0x20, play & 0xFF, (play >> 8) & 0xFF, 0x4C, 0x31, 0xEA
+  ];
 }
 
 function parseMacroNumber(raw, labels = null, fallbackBase = "hex") {
@@ -33011,6 +33095,7 @@ function getInstructionSize(block) {
   }
   if (block.isSetBorderMacro || block.isSetBgMacro) return 5;
   if (block.isIrqSetupMacro) return 46;
+  if (block.isSidPlayerMacro) return _SID_PLAYER_SIZE;
   if (block.isRandMacro) return 15;
 
   if (block.isMacroDefStart || block.isMacroDefEnd) {
@@ -34361,6 +34446,9 @@ function getBlockDescription(block) {
   }
   if (block.isSetBorderMacro || block.isSetBgMacro) {
     return block.validationError || `${block.mnemonic}: $${(block.colorValue || block.rawOperand || "00").replace(/^#?\$/, "").toUpperCase()}`;
+  }
+  if (block.isSidPlayerMacro) {
+    return block.validationError || `SID_PLAYER: song ${block.sidPlayerSong || "0"} @ $${(block.sidPlayerRaster || "FA").toUpperCase()}`;
   }
   if (block.isIrqSetupMacro) {
     return block.validationError || `IRQ_SETUP: ${block.irqHandler || "?"} @ $${(block.irqRaster || "FA").replace(/^#?\$/, "").toUpperCase()}`;
@@ -36940,6 +37028,23 @@ function renderProgram(virtualScroll = false) {
           </div>
         </label>`
       );
+    } else if (block.isSidPlayerMacro) {
+      inlineField.hidden = true;
+      blockControls.insertAdjacentHTML(
+        "beforeend",
+        `<div class="macro-grid">
+          <label class="mini-field">
+            <span>Song</span>
+            <input class="sid-player-song" type="text" value="${block.sidPlayerSong || "0"}" placeholder="0">
+          </label>
+          <label class="mini-field">
+            <span>Raster</span>
+            <input class="sid-player-raster" type="text" value="${block.sidPlayerRaster || "FA"}" placeholder="FA">
+          </label>
+        </div>`
+      );
+      blockControls.querySelector(".sid-player-song")?.addEventListener("input", (e) => updateProgramBlock(index, "sidPlayerSong", e.target.value));
+      blockControls.querySelector(".sid-player-raster")?.addEventListener("input", (e) => updateProgramBlock(index, "sidPlayerRaster", e.target.value));
     } else if (block.isIrqSetupMacro) {
       inlineField.hidden = true;
       blockControls.insertAdjacentHTML(
@@ -38477,6 +38582,7 @@ function renderAsmOutput() {
     }
     if (line.block.isSetBorderMacro) return `; .set_border ${/^[A-Za-z_][A-Za-z0-9_]*$/.test(String(line.block.colorValue || line.block.rawOperand || "00").trim()) ? String(line.block.colorValue || line.block.rawOperand || "00").trim() : "$" + String(line.block.colorValue || line.block.rawOperand || "00").trim().replace(/^#?\$/, "").toUpperCase()}`;
     if (line.block.isSetBgMacro) return `; .set_bg ${/^[A-Za-z_][A-Za-z0-9_]*$/.test(String(line.block.colorValue || line.block.rawOperand || "00").trim()) ? String(line.block.colorValue || line.block.rawOperand || "00").trim() : "$" + String(line.block.colorValue || line.block.rawOperand || "00").trim().replace(/^#?\$/, "").toUpperCase()}`;
+    if (line.block.isSidPlayerMacro) return `; ${_blockToExpertLine(line.block)}`;
     if (line.block.isIrqSetupMacro) return `; .irq_setup handler=${line.block.irqHandler || "?"}, raster=$${(line.block.irqRaster || "FA").replace(/^#?\$/, "").toUpperCase()}`;
     if (line.block.isRandMacro) return `; .rand ${line.block.randSeed || "$FB"}`;
 
@@ -51465,12 +51571,25 @@ function _webSidAvailable() {
   return typeof SIDBackendAdapter !== "undefined" && typeof ScriptNodePlayer !== "undefined";
 }
 
+// SID Player buffer (Settings → SID preview): WebSID ScriptProcessor samples; the VA SID Core
+// render-ahead grows with it. WebSID builds its audio node once, so a change applies after a restart.
+// Functions, not a const table: the Settings dialog reads them before this point of the script runs.
+function _sidPlayerAheadSeconds(size) {
+  return { 2048: 10, 4096: 15, 8192: 20, 16384: 30 }[size] || 0;
+}
+function _sidPlayerBufferSize() {
+  let n = 2048;
+  try { n = parseInt(localStorage.getItem("c64va-sid-player-buffer"), 10) || 2048; } catch (_) {}
+  return _sidPlayerAheadSeconds(n) ? n : 2048;
+}
+
 function _webSidInit() {
   if (_webSidInitPromise) return _webSidInitPromise;
   if (!_webSidAvailable()) return Promise.resolve(false);
   _webSidInitPromise = new Promise((resolve) => {
     try {
       _webSidBackend = new SIDBackendAdapter();
+      _webSidBackend.setProcessorBufSize?.(_sidPlayerBufferSize());
       const p = ScriptNodePlayer.initialize(_webSidBackend, function(){ _webSidActive = false; });
       const done = () => { _webSidReady = true; resolve(true); };
       const fail = (e) => { console.warn("WebSid init failed:", e); resolve(false); };
@@ -52951,8 +53070,8 @@ async function _vaSidPlayFileBytes(bytes, filename, song = 0) {
   const ac = _sidEnsureAudio();
   // A renderer hosszú DOM-művelet alatt nem fut. Tíz másodpercnyi már az
   // AudioContext szálán ütemezett hang ezért akkor is folytatódik.
-  const aheadTarget = 10;
-  const aheadRefill = 7;
+  const aheadTarget = _sidPlayerAheadSeconds(_sidPlayerBufferSize());
+  const aheadRefill = aheadTarget * 0.7;
   const state = {
     sessionId: crypto.randomUUID(), active: true, busy: false, timer: null,
     queue: Promise.resolve(), nextTime: ac.currentTime + 0.08, fileBytes: Array.from(bytes),
@@ -57533,7 +57652,7 @@ function _memSetDetached(on) {
     globalMemoryPanel.appendChild(content);
     if (badge) globalMemoryPanel.querySelector(".global-memory-title-group")?.appendChild(badge);
     globalMemoryPanel.classList.remove("is-detached");
-    globalMemoryPanel.open = true;
+    globalMemoryPanel.open = false;
     if (dlg.open) dlg.close();
   }
   _memFloatSave({ detached: on });
@@ -58037,12 +58156,11 @@ async function _bugSysInfo() {
   };
 }
 // Képet max _BUG_MAX_SIDE oldalra kicsinyít; PNG marad, ha úgy nem sokkal nagyobb, különben JPEG.
+// The release CSP allows data: images only (no blob:), so the file is read as a data URL.
 function _bugShrinkImage(file) {
   return new Promise(function(resolve, reject) {
-    const url = URL.createObjectURL(file);
     const img = new Image();
     img.onload = function() {
-      URL.revokeObjectURL(url);
       const scale = Math.min(1, _BUG_MAX_SIDE / Math.max(img.naturalWidth, img.naturalHeight));
       const canvas = document.createElement("canvas");
       canvas.width = Math.max(1, Math.round(img.naturalWidth * scale));
@@ -58053,8 +58171,11 @@ function _bugShrinkImage(file) {
       const data = png.length <= jpg.length * 1.5 ? png : jpg;
       resolve({ name: (file.name || "screenshot").replace(/\.[^.]+$/, "") + (data === png ? ".png" : ".jpg"), dataUrl: data });
     };
-    img.onerror = function() { URL.revokeObjectURL(url); reject(new Error("image")); };
-    img.src = url;
+    img.onerror = function() { reject(new Error("image")); };
+    const reader = new FileReader();
+    reader.onload = function() { img.src = reader.result; };
+    reader.onerror = function() { reject(new Error("image")); };
+    reader.readAsDataURL(file);
   });
 }
 async function _bugAddFiles(files) {

@@ -113,7 +113,7 @@ test("VA SID Core renders an external PSID without WebSID", async () => {
     clearInterval() {},
   };
   vm.createContext(ctx);
-  vm.runInContext(`${fnSource("_sidExternalCoreStop")}; ${fnSource("_sidVaCoreLabel")}; ${fnSource("_vaSidPlayFileBytes")}; this.play = _vaSidPlayFileBytes; this.stop = _sidExternalCoreStop;`, ctx);
+  vm.runInContext(`${fnSource("_sidExternalCoreStop")}; ${fnSource("_sidVaCoreLabel")}; ${fnSource("_sidPlayerAheadSeconds")}; ${fnSource("_sidPlayerBufferSize")}; ${fnSource("_vaSidPlayFileBytes")}; this.play = _vaSidPlayFileBytes; this.stop = _sidExternalCoreStop;`, ctx);
   const bytes = new Uint8Array([80, 83, 73, 68]);
   assert.equal(await ctx.play(bytes, "example.sid"), true);
   assert.ok(calls.render.length > 1);
