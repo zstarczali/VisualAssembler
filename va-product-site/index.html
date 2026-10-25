@@ -2132,6 +2132,20 @@
     @media (max-width: 760px) {
       .studio-news-images { grid-template-columns: 1fr }
     }
+    .dc-release-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: start;
+    }
+    .dc-release-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px }
+    .dc-release-note { margin-top: 16px; font-size: 12px; line-height: 1.6; color: var(--txt) }
+    .dc-shots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px }
+    .dc-shots img, .dc-release-grid .kff2-cart-shot img { image-rendering: pixelated }
+    .dc-shots .kff2-cart-shot { box-shadow: none }
+    @media (max-width: 900px) {
+      .dc-release-grid { grid-template-columns: 1fr }
+    }
   </style>
 </head>
 
@@ -2190,6 +2204,54 @@
       <span class="hero-logo"><img class="hero-box-img" src="uploads/visual_assembler_transparent.webp" alt="Visual Assembler logo" width="900" height="900"><img class="hero-logo-shine" src="uploads/visual_assembler_transparent.webp" alt="" aria-hidden="true" width="900" height="900"></span>
     </div>
   </section>
+
+  <!-- STUDIO NEWS: DARK CHAMBERS RELEASED -->
+  <section id="dark-chambers-release" style="background:var(--scr-darker);padding:80px 0" aria-labelledby="dark-chambers-release-title">
+    <div class="sec" style="padding-top:0;padding-bottom:0">
+      <div class="ub-tag">STUDIO NEWS &middot; <time datetime="2026-10-25">25 OCTOBER 2026</time></div>
+      <div class="sec-s">// OUT NOW &mdash; FREE DOWNLOAD</div>
+      <h2 class="sec-t" id="dark-chambers-release-title">DARK CHAMBERS<br><span style="color:var(--ylw)">IS OUT ON THE C64</span></h2>
+      <div class="dc-release-grid">
+        <div>
+          <p class="sec-d"><strong>Cool Valley Game Studio</strong>&rsquo;s Commodore 64 port of the Atari 7800 classic <strong>Dark Chambers</strong> is finished. Fight your way down through 26 levels of monster-filled dungeons, alone or with a friend, then grab the disk image and play it on a real C64 or in an emulator.</p>
+          <div class="feature-list">
+            <div class="fi">
+              <div class="fi-dot">&#9658;</div>
+              <div><b>26 levels:</b> <span>the 7800 mazes, monsters, generators and treasures, levels A to Z.</span></div>
+            </div>
+            <div class="fi">
+              <div class="fi-dot">&#9658;</div>
+              <div><b>One or two players:</b> <span>joysticks in port 2 and port 1, with four difficulty settings.</span></div>
+            </div>
+            <div class="fi">
+              <div class="fi-dot">&#9658;</div>
+              <div><b>The full package:</b> <span>title music, SID sound effects, high score, demo mode and a loading picture.</span></div>
+            </div>
+            <div class="fi">
+              <div class="fi-dot">&#9658;</div>
+              <div><b>How to play:</b> <span>fire shoots, <b>SPACE</b> drops a smart bomb (player 2: <b>RETURN</b>).</span></div>
+            </div>
+          </div>
+          <div class="dc-release-actions">
+            <a class="btn btn-y" href="downloads/games/darkchambers.d64" download="darkchambers.d64">&darr; DOWNLOAD DARK CHAMBERS (D64)</a>
+          </div>
+          <p class="dc-release-note">PAL Commodore 64 &middot; <b>LOAD"*",8,1</b> then <b>RUN</b> &middot; Original game &copy; 1988 Atari Corp.</p>
+        </div>
+        <div>
+          <div class="kff2-cart-shot">
+            <img src="uploads/dark-chambers-title.png" alt="Dark Chambers title screen on the Commodore 64" width="384" height="272" loading="lazy">
+          </div>
+          <div class="dc-shots">
+            <div class="kff2-cart-shot"><img src="uploads/dark-chambers-game1.png" alt="Dark Chambers gameplay: the hero shooting in a maze" width="384" height="272" loading="lazy"></div>
+            <div class="kff2-cart-shot"><img src="uploads/dark-chambers-game2.png" alt="Dark Chambers gameplay: monsters coming out of the corridors" width="384" height="272" loading="lazy"></div>
+            <div class="kff2-cart-shot"><img src="uploads/dark-chambers-game3.png" alt="Dark Chambers gameplay: the exit ladder in a walled room" width="384" height="272" loading="lazy"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="div">
 
   <!-- STUDIO NEWS: DARK CHAMBERS -->
   <section id="dark-chambers" style="background:var(--scr-dark);padding:80px 0" aria-labelledby="dark-chambers-title">
