@@ -15,3 +15,4 @@ path = "src/bin/vma.rs"
 
 [dependencies]
 regex = "1"
+serde_json = "1"

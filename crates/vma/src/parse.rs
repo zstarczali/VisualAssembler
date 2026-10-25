@@ -122,7 +122,13 @@ pub enum Kind {
     LoadFile { name: String, device: String, addr: String, error_label: String },
     Delay { frames: String },
     /// INCBIN / KOALA (`incBinKoala`): `bytes` filled by `files::load_assets`, `error` = its load error
-    IncBin { file: String, addr: String, koala: bool, bytes: Vec<u8>, error: Option<String> },
+    /// INCBIN / KOALA (`incBinKoala`) / LEVEL (`incBinLevel`)
+    IncBin { file: String, addr: String, koala: bool, level: bool, bytes: Vec<u8>, error: Option<String> },
+    /// `.level_row dst, col[, color]`: `syntax_ok` = `_levelRowParse` of the source line
+    LevelRow { raw: String, syntax_ok: bool },
+    /// `.sid "f.sid"[, $addr]`: the PSID header fields and data filled by `files::load_assets`
+    Sid { file: String, custom: String, load: u16, init: u16, play: u16, bytes: Vec<u8>, error: Option<String> },
+    SidPlayer { song: String, raster: String },
     /// A JS directive the Rust compiler does not assemble yet (its mnemonic).
     Unsupported { what: String },
 }
@@ -622,9 +628,7 @@ fn index_suffix(mode: Mode) -> &'static str {
 
 /// The macro directives of the JS compiler that are not ported yet (by their JS regex start).
 const UNPORTED: &[(&str, &str)] = &[
-    (r"(?i)^\.(include|level|sid)\b", "FILE"),
-    (r"(?i)^\.level_row\b", "LEVEL_ROW"),
-    (r"(?i)^\.sid_player\b", "SID_PLAYER"),
+    (r"(?i)^\.(include)\b", "FILE"),
 ];
 
 /// `$hhhh` (4 digits) or a label: the address field of STRING / RAWTEXT / DATA / RAWBYTES.
@@ -656,11 +660,24 @@ fn size_token(raw: &str) -> String {
 
 /// The memory / system macros of `parseExpertText` (in the JS order).
 fn memory_macro(line: &str) -> Option<Kind> {
-    if let Some(c) = regex!(r#"(?i)^\.(koala|incbin)\s+"([^"]*)"\s*(?:,\s*\$([0-9A-Fa-f]{1,4}))?\s*$"#).captures(line) {
-        let koala = c[1].eq_ignore_ascii_case("koala");
-        let default = if koala { "6000" } else { "C000" };
+    if let Some(c) = regex!(r#"(?i)^\.sid\s+"([^"]*)"\s*(?:,\s*\$([0-9A-Fa-f]{1,4}))?\s*$"#).captures(line) {
+        let custom = c.get(2).map(|m| m.as_str().to_uppercase()).unwrap_or_default();
+        return Some(Kind::Sid { file: c[1].to_string(), custom, load: 0, init: 0, play: 0, bytes: Vec::new(), error: None });
+    }
+    if let Some(c) = regex!(r"(?i)^\.sid_player(?:\s+([^,]+?)(?:\s*,\s*(?:#?\$)?([A-Za-z_][A-Za-z0-9_]*|[0-9A-Fa-f]{1,2}))?)?\s*$").captures(line) {
+        let song = c.get(1).map(|m| m.as_str().trim().to_string()).unwrap_or_else(|| "0".into());
+        let raster = format!("{:0>2}", c.get(2).map(|m| m.as_str().to_uppercase()).unwrap_or_else(|| "FA".into()));
+        return Some(Kind::SidPlayer { song, raster });
+    }
+    if let Some(c) = regex!(r#"(?i)^\.(koala|level|incbin)\s+"([^"]*)"\s*(?:,\s*\$([0-9A-Fa-f]{1,4}))?\s*$"#).captures(line) {
+        let (koala, level) = (c[1].eq_ignore_ascii_case("koala"), c[1].eq_ignore_ascii_case("level"));
+        let default = if koala { "6000" } else if level { "2000" } else { "C000" };
         let addr = format!("${}", c.get(3).map(|m| m.as_str().to_uppercase()).unwrap_or_else(|| default.into()));
-        return Some(Kind::IncBin { file: c[2].to_string(), addr, koala, bytes: Vec::new(), error: None });
+        return Some(Kind::IncBin { file: c[2].to_string(), addr, koala, level, bytes: Vec::new(), error: None });
+    }
+    if let Some(c) = regex!(r"(?i)^\.level_row\b\s*(.*)$").captures(line) {
+        let raw = c[1].trim().to_string();
+        return Some(Kind::LevelRow { syntax_ok: crate::level::level_row_parse(&raw).is_some(), raw });
     }
     if let Some(c) = regex!(r#"(?i)^\.loadfile\s+"([^"]*)"\s*,\s*([A-Za-z_][A-Za-z0-9_]*|\d+|\$[0-9A-Fa-f]{1,4})\s*(?:,\s*\$([0-9A-Fa-f]{1,4}))?\s*(?:,\s*([A-Za-z_][A-Za-z0-9_]*))?\s*$"#).captures(line) {
         return Some(Kind::LoadFile {

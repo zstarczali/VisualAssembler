@@ -587,6 +587,8 @@ impl Assembler {
             }
             Kind::Delay { .. } => 5,
             Kind::IncBin { koala, .. } => if *koala { 86 } else { 0 },
+            Kind::SidPlayer { .. } => 58,
+            Kind::LevelRow { .. } => 132,
             Kind::SpritePos { .. } => 18,
             Kind::SpriteCol { .. } => 5,
             Kind::SpriteAnim { .. } => 19,
@@ -759,7 +761,7 @@ impl Assembler {
                             }
                         }
                     }
-                    Kind::RtCmp { raw, .. } | Kind::PrintChar { raw } | Kind::SetColor { raw, .. } | Kind::Text { raw, .. } | Kind::Print { raw, .. } | Kind::CharDef { raw, .. } => {
+                    Kind::RtCmp { raw, .. } | Kind::LevelRow { raw, .. } | Kind::PrintChar { raw } | Kind::SetColor { raw, .. } | Kind::Text { raw, .. } | Kind::Print { raw, .. } | Kind::CharDef { raw, .. } => {
                         if !raw.is_empty() {
                             *raw = rewrite(raw);
                         }
@@ -926,6 +928,26 @@ impl Assembler {
             }
             Kind::RtEndw { end, .. } => self.labels.set(end, (line.address + 3) as f64),
             Kind::RtRepeat { start } => self.labels.set(start, line.address as f64),
+            Kind::Sid { custom, load, init, play, .. } if *load != 0 => {
+                // the init / play addresses move with a custom load address
+                let placed = if custom.is_empty() { Some(*load as f64) } else { Self::address_value(custom, Some(&self.labels)) };
+                if let Some(placed) = placed.filter(|p| !p.is_nan()) {
+                    let shift = placed as i64 - *load as i64;
+                    let base_init = if *init != 0 { *init } else { *load } as i64;
+                    self.labels.set("SID_LOAD", (placed as i64 & 0xFFFF) as f64);
+                    self.labels.set("SID_INIT", ((base_init + shift) & 0xFFFF) as f64);
+                    if *play != 0 {
+                        self.labels.set("SID_PLAY", ((*play as i64 + shift) & 0xFFFF) as f64);
+                    }
+                }
+            }
+            Kind::IncBin { level: true, addr, bytes, .. } => {
+                if let Ok(Some(info)) = crate::level::level_build(bytes, parse_address_value(addr).unwrap_or(0x2000 as f64) as i64) {
+                    for (name, v) in info.labels {
+                        self.labels.set(&name, v);
+                    }
+                }
+            }
             Kind::Table { name, addr } => {
                 let a = if addr.is_empty() { None } else { parse_address_value(addr) };
                 self.labels.set(name, a.unwrap_or(line.address as f64));
@@ -1631,7 +1653,34 @@ impl Assembler {
                 }
                 Ok(out)
             }
-            Kind::IncBin { error: Some(e), .. } => Err(e.clone()),
+            Kind::IncBin { error: Some(e), .. } | Kind::Sid { error: Some(e), .. } => Err(e.clone()),
+            Kind::Sid { .. } => Ok(Vec::new()),
+            Kind::SidPlayer { song, raster } => {
+                let init = self.labels.get("SID_INIT").ok_or("SID_PLAYER: no .sid block (SID_INIT)")?;
+                let play = self.labels.get("SID_PLAY").ok_or("SID_PLAYER: the tune has no play address (SID_PLAY)")?;
+                let s = self.macro_number(if song.is_empty() { "0" } else { song }, &self.labels, Base::Dec);
+                let r = self.macro_number(if raster.is_empty() { "FA" } else { raster }, &self.labels, Base::Hex);
+                let s = s.filter(|v| !(*v < 0.0 || *v > 255.0)).ok_or("SID_PLAYER: the song must be 0-255")?;
+                let r = r.filter(|v| !(*v < 0.0 || *v > 255.0)).ok_or("SID_PLAYER: the raster line must be a byte")?;
+                Ok(sid_player_bytes(address, js_and(init, -1), js_and(play, -1), js_and(s, 0xFF), js_and(r, 0xFF)))
+            }
+            Kind::LevelRow { syntax_ok: false, .. } => Err("LEVEL_ROW: syntax is .level_row dst, col[, color]".into()),
+            Kind::LevelRow { raw, .. } => {
+                let (dst, col, color) = crate::level::level_row_parse(raw).ok_or("LEVEL_ROW: syntax is .level_row dst, col[, color]")?;
+                let mut tab = [0i64; 9];
+                for (i, name) in crate::level::ROW_TABLES.iter().enumerate() {
+                    tab[i] = self.labels.get(name).ok_or("LEVEL_ROW: needs a .level block")? as i64;
+                }
+                let eval = |e: &str| {
+                    self.eval_asm_expr(&substitute_star_pc(e, address), Some(&self.labels)).filter(|v| !v.is_nan()).map(|v| js_and(v, 0xFFFF)).ok_or_else(|| format!("{e}: cannot be evaluated"))
+                };
+                let (d, c) = (eval(&dst)?, eval(&col)?);
+                Ok(crate::level::level_row_bytes(address, d, c, color, &tab))
+            }
+            Kind::IncBin { level: true, addr, bytes, .. } => match crate::level::level_build(bytes, parse_address_value(addr).unwrap_or(0x2000 as f64) as i64) {
+                Err(e) => Err(e),
+                Ok(_) => Ok(Vec::new()),
+            },
             Kind::IncBin { koala: false, .. } => Ok(Vec::new()),
             Kind::IncBin { addr, bytes, .. } => {
                 let a = parse_address_value(addr).unwrap_or(0x6000 as f64) as i64;
@@ -1863,8 +1912,11 @@ impl Assembler {
         for b in program {
             match &b.kind {
                 Kind::Comment { error: Some(e), .. } => return Err(CompileError { line: b.line, message: e.clone() }),
-                Kind::IncBin { file, koala, .. } if file.trim().is_empty() => {
-                    let what = if *koala { "KOALA" } else { "INCBIN" };
+                Kind::Sid { file, .. } if file.trim().is_empty() => {
+                    return Err(CompileError { line: b.line, message: "SID: no file given".into() });
+                }
+                Kind::IncBin { file, koala, level, .. } if file.trim().is_empty() => {
+                    let what = if *koala { "KOALA" } else if *level { "LEVEL" } else { "INCBIN" };
                     return Err(CompileError { line: b.line, message: format!("{what}: no file given") });
                 }
                 _ => {}
@@ -1900,10 +1952,18 @@ impl Assembler {
         }
         let mut deferred: Vec<(i64, Vec<u8>)> = Vec::new();
         for line in &lines {
+            if let Kind::Sid { custom, load, bytes, .. } = &line.block.kind {
+                let at = if custom.is_empty() { None } else { parse_address_value(custom) };
+                let at = at.map(|a| a as i64).unwrap_or(*load as i64);
+                if !bytes.is_empty() && at > 0 {
+                    deferred.push((at, bytes.clone()));
+                }
+                continue;
+            }
             if let Kind::IncBin { addr, .. } = &line.block.kind {
                 let payload = incbin_payload(&line.block.kind);
                 if !payload.is_empty() {
-                    deferred.push((parse_address_value(addr).unwrap_or(0xC000 as f64) as i64, payload.to_vec()));
+                    deferred.push((parse_address_value(addr).unwrap_or(0xC000 as f64) as i64, payload));
                 }
                 continue;
             }
@@ -2167,19 +2227,43 @@ fn raw_operand(kind: &Kind) -> &str {
     match kind {
         Kind::Instr { raw, .. } | Kind::LongBranch { raw, .. } | Kind::Byte { raw, .. } | Kind::Word { raw, .. } | Kind::Fill { raw, .. } | Kind::Align { raw, .. } | Kind::Const { raw, .. } => raw,
         Kind::Assert { expr, .. } => expr,
-        Kind::RtCmp { raw, .. } | Kind::PrintChar { raw } | Kind::SetColor { raw, .. } | Kind::Text { raw, .. } | Kind::Mem { raw, .. } | Kind::Print { raw, .. } | Kind::CharDef { raw, .. } => raw,
+        Kind::RtCmp { raw, .. } | Kind::LevelRow { raw, .. } | Kind::PrintChar { raw } | Kind::SetColor { raw, .. } | Kind::Text { raw, .. } | Kind::Mem { raw, .. } | Kind::Print { raw, .. } | Kind::CharDef { raw, .. } => raw,
         _ => "",
     }
 }
 
 const DELAY_HELPER_LABEL: &str = "__delay_wait_frames";
 
-/// `_incBinPayload`: what an INCBIN puts in memory (a Koala file without its load address)
-fn incbin_payload(kind: &Kind) -> &[u8] {
+/// `_sidPlayerBytes`: SEI, init the tune, CIA1 IRQ off, raster IRQ → the handler after the
+/// setup (ack, JSR SID_PLAY, JMP $EA31), CLI, jump over the handler.
+fn sid_player_bytes(address: i64, init: i64, play: i64, song: i64, raster: i64) -> Vec<u8> {
+    let irq = (address + 49) & 0xFFFF;
+    let end = (address + 58) & 0xFFFF;
+    vec![
+        0x78, 0xA9, song as u8, 0x20, init as u8, (init >> 8) as u8,
+        0xA9, 0x7F, 0x8D, 0x0D, 0xDC, 0xAD, 0x0D, 0xDC,
+        0xA9, irq as u8, 0x8D, 0x14, 0x03, 0xA9, (irq >> 8) as u8, 0x8D, 0x15, 0x03,
+        0xA9, raster as u8, 0x8D, 0x12, 0xD0,
+        0xAD, 0x11, 0xD0, 0x29, 0x7F, 0x8D, 0x11, 0xD0,
+        0xA9, 0x01, 0x8D, 0x1A, 0xD0, 0x8D, 0x19, 0xD0,
+        0x58,
+        0x4C, end as u8, (end >> 8) as u8,
+        0x0E, 0x19, 0xD0, 0x20, play as u8, (play >> 8) as u8, 0x4C, 0x31, 0xEA,
+    ]
+}
+
+/// `_incBinPayload`: what an INCBIN puts in memory (a Koala file without its load address, the
+/// built level data)
+fn incbin_payload(kind: &Kind) -> Vec<u8> {
     match kind {
-        Kind::IncBin { koala: true, bytes, .. } if bytes.len() == 10003 => &bytes[2..],
-        Kind::IncBin { bytes, .. } => bytes,
-        _ => &[],
+        Kind::IncBin { level: true, addr, bytes, .. } => crate::level::level_build(bytes, parse_address_value(addr).unwrap_or(0x2000 as f64) as i64)
+            .ok()
+            .flatten()
+            .map(|l| l.data)
+            .unwrap_or_default(),
+        Kind::IncBin { koala: true, bytes, .. } if bytes.len() == 10003 => bytes[2..].to_vec(),
+        Kind::IncBin { bytes, .. } => bytes.clone(),
+        _ => Vec::new(),
     }
 }
 

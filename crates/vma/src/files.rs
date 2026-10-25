@@ -61,9 +61,42 @@ impl FileProvider for DirFiles {
     }
 }
 
-/// `reloadIncBinBlocks`: the bytes of every INCBIN / KOALA block, or its load error.
+/// The PSID / RSID header (`parse_sid_buffer` of lib.rs): (load, init, play, data)
+pub fn parse_sid(buf: &[u8]) -> Result<(u16, u16, u16, Vec<u8>), String> {
+    if buf.len() < 128 {
+        return Err("File too short to be a SID file.".into());
+    }
+    if &buf[0..4] != b"PSID" && &buf[0..4] != b"RSID" {
+        return Err("Not a valid SID file (missing PSID/RSID header).".into());
+    }
+    let be = |o: usize| ((buf[o] as u16) << 8) | buf[o + 1] as u16;
+    let mut data = buf.get(be(6) as usize..).unwrap_or(&[]).to_vec();
+    let mut load = be(8);
+    if load == 0 && data.len() >= 2 {
+        load = data[0] as u16 | ((data[1] as u16) << 8);
+        data.drain(..2);
+    }
+    Ok((load, be(10), be(12), data))
+}
+
+/// `reloadIncBinBlocks` / `reloadSidBlocks`: the bytes of every INCBIN / KOALA / SID block, or its load error.
 pub fn load_assets(program: &mut [Block], files: &dyn FileProvider) {
     for block in program.iter_mut() {
+        if let Kind::Sid { file, load, init, play, bytes, error, .. } = &mut block.kind {
+            if file.trim().is_empty() {
+                continue;
+            }
+            match files.load(file, &[]).and_then(|b| parse_sid(&b)) {
+                Ok((l, i, p, data)) => {
+                    (*load, *init, *play, *bytes, *error) = (l, i, p, data, None);
+                }
+                Err(e) => {
+                    bytes.clear();
+                    *error = Some(e);
+                }
+            }
+            continue;
+        }
         if let Kind::IncBin { file, bytes, error, .. } = &mut block.kind {
             if file.trim().is_empty() {
                 continue;

@@ -15,14 +15,13 @@ azonos marad a mai JS fordítóéval — ezt a golden korpusz (`tests/vma-golden
 | F2 Rust mag + CLI (`crates/vma`) | ✔ kész | `c0cc68d` |
 | F3 makrók, LOOP/FOR, `.var`, PUSH/PULL | ✔ kész | `536986e` |
 | F4 kódgeneráló makrók | ✔ kész (a SID_PLAYER kódja az F5-tel jön) | `516d372` … |
-| **F5 fájl-makrók** | **folyamatban** — FileProvider + INCBIN / KOALA kész; LEVEL, SID, INCLUDE hátra | — |
+| **F5 fájl-makrók** | **folyamatban** — FileProvider, INCBIN / KOALA, SID + SID_PLAYER, LEVEL / LEVEL_ROW kész; INCLUDE hátra | — |
 | F6 bekötés a VA-ba (Tauri `vma_build`, shadow mód) | hátra | — |
 | F7 WASM, a szinkron UI-elemzések | hátra | — |
 | F8 Kick előfeldolgozó (opcionális), JS mag törlése, dokumentáció | hátra | — |
 
-Golden állás (`node scripts/vma-rust-report.js`): **490 esetből 408 bájtra egyezik, 46 elvárt hiba, 36 a még
-nem portolt LEVEL / LEVEL_ROW / SID / INCLUDE-nál áll meg, 0 eltérés.** A SID_PLAYER kódja a SID-esetek mögött áll
-(`.sid` nélkül nincs `SID_INIT`).
+Golden állás (`node scripts/vma-rust-report.js`): **506 esetből 430 bájtra egyezik, 56 elvárt hiba, 20 a még
+nem portolt INCLUDE-nál áll meg, 0 eltérés.**
 
 Ellenőrzés bármikor: `npm test` (a golden Rust-ága a `crates/vma/target/{debug,release}/vma.exe`-t használja,
 ha le van fordítva), `cargo test --offline` a `crates/vma`-ban, és az esetenkénti riport fent.
@@ -62,9 +61,11 @@ ha le van fordítva), `cargo test --offline` a `crates/vma`-ban, és az esetenk�
    utána a puszta fájlnév ugyanott —, `NoFiles`, `load_assets` = `reloadIncBinBlocks`; `build_with_files`; a CLI
    `--base-dir` (alapból a bemenet mappája) és `--search` mappái); ✔ INCBIN, KOALA (`Kind::IncBin`,
    `koala_show_bytes`, `incbin_payload`; a deferred darabok sorrendje a JS-é, a DELAY helper az INCBIN szakaszát
-   is kerüli; golden: `var-incbin-*`, `var-koala-*`). Hátra: SID (PSID-fejléc, `SID_LOAD` / `SID_INIT` /
-   `SID_PLAY` címkék) + SID_PLAYER kódja (`_sidPlayerBytes`), LEVEL / LEVEL_ROW (`_levelInfo`, `_levelBuild`,
-   `_levelRowBytes`), INCLUDE (`.json` blokk-program és `.asm`, a benne definiált makrók is). Kilépés: minden eset.
+   is kerüli; golden: `var-incbin-*`, `var-koala-*`). ✔ SID (`files::parse_sid`, `Kind::Sid`: `SID_LOAD` / `SID_INIT` /
+   `SID_PLAY` az egyedi címmel eltolva, a deferred darab a betöltési címen) + SID_PLAYER (`sid_player_bytes`);
+   ✔ LEVEL / LEVEL_ROW (`level.rs`: `read_bin_meta` = `_vaReadBinWithMeta`, `level_build` = `_levelBuild` a
+   címkéivel, `level_row_bytes`; a crate második függősége a `serde_json`; golden: `var-sid-*`, `var-level-*`).
+   Hátra: INCLUDE (`.json` blokk-program és `.asm`, a benne definiált makrók is). Kilépés: minden eset.
 3. **F6–F8** — az 5. szakasz táblázata szerint.
 
 Közben észrevett JS-furcsaságok, amelyeket a Rust szándékosan hűen hoz (ha javítani kell, előbb a JS-ben,
@@ -203,7 +204,7 @@ javul, a manifest frissül, és utána a Rust követi.
 
 ### Crate
 
-`crates/vma/` önálló crate (Tauri-függés nélkül, egyetlen függősége a `regex`); az F6-ban a `src-tauri`
+`crates/vma/` önálló crate (Tauri-függés nélkül, függőségei a `regex` és a `serde_json`); az F6-ban a `src-tauri`
 path-függőségként húzza be. Nem workspace, hogy a `src-tauri/target` útvonalak (CI, bundle) ne változzanak.
 
 ```

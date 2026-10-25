@@ -310,6 +310,14 @@ const VARIANTS = {
   "incbin-empty-name-error": '* = $1000\n    .incbin ""\n    rts\n',
   "koala-address-error": '* = $1000\n    .koala "picture.koa", $4000\n    rts\n',
   "koala-size-error": '* = $1000\n    .koala "level.bin"\n    rts\n',
+  "sid-custom-address": '.const SONG = 1\n* = $0900\n    .sid "Ikari_Intro.sid", $2000\n    .sid_player SONG, $30\n    lda #<SID_LOAD\n    ldx #>SID_INIT\n    ldy #<SID_PLAY\n    rts\n',
+  "sid-player-default": '* = $0900\n    .sid "Mad_Ikari.sid"\n    .sid_player\n    rts\n',
+  "sid-player-no-sid-error": "* = $1000\n    .sid_player 0\n    rts\n",
+  "sid-not-psid-error": '* = $1000\n    .sid "picture.koa"\n    rts\n',
+  "level-not-level-error": '* = $1000\n    .level "picture.koa"\n    rts\n',
+  "level-row-no-level-error": "* = $1000\n    .level_row $FB, $FD\n    rts\n",
+  "level-row-syntax-error": '* = $1000\n    .level "level.bin"\n    .level_row $FB\n    rts\n',
+  "level-labels": '* = $1000\n    .level "level.bin", $4000\n    lda #<LEVEL_END\n    ldx #LEVEL_W\n    ldy #LEVEL_OBJ_COUNT\n    .word LEVEL_SLOT_LO, LEVEL_COL_OFS, LEVEL_SIZE, LEVEL_MAX_X\n    .delay 1\n    rts\n',
   "macro-nested-error":".macro border(c)\n    lda #{c}\n    sta $D020\n.endm\n.macro both(c)\n    :border({c})\n.endm\n* = $1000\n    :both(3)\n    rts\n"
 };
 

@@ -7,6 +7,7 @@
 pub mod asm;
 pub mod expr;
 pub mod files;
+pub mod level;
 pub mod num;
 pub mod opcodes;
 pub mod parse;
