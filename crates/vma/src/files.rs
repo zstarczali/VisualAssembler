@@ -91,8 +91,12 @@ fn include_blocks(path: &Path, bytes: &[u8], line: usize) -> Result<Vec<Block>, 
         let text = String::from_utf8_lossy(bytes);
         if text.trim().is_empty() { Vec::new() } else { crate::parse::parse_expert_text(&text) }
     };
-    // errors in an included file point at the `.include` line
+    // errors in an included file point at the `.include` line; its own line is for the .dbg (a JSON
+    // block's stored _srcLine, set in json_block)
     for b in blocks.iter_mut() {
+        if !json {
+            b.file_line = Some(b.line);
+        }
         b.line = line;
         b.included = true;
     }
@@ -161,7 +165,8 @@ fn json_block(b: &Value) -> Block {
             _ => Kind::Unsupported { what: "JSON_INCLUDE_BLOCK".into() },
         }
     };
-    Block { kind, line: 0, included: true }
+    let file_line = b["_srcLine"].as_u64().map(|l| l as usize);
+    Block { kind, line: 0, included: true, file_line }
 }
 
 /// `reloadIncludeBlocks` / `reloadIncBinBlocks` / `reloadSidBlocks` over the top-level program (as in

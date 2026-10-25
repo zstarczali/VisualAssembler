@@ -42,3 +42,4 @@ samples/*.snapshots.json
 !/va-product-site/downloads/VA/.htaccess
 /va-product-site/register/config.php
 /va-product-site/register/geoip-data/
+/crates/vma/target/

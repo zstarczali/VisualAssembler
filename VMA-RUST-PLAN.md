@@ -16,11 +16,11 @@ azonos marad a mai JS fordítóéval — ezt a golden korpusz (`tests/vma-golden
 | F3 makrók, LOOP/FOR, `.var`, PUSH/PULL | ✔ kész | `536986e` |
 | F4 kódgeneráló makrók | ✔ kész (a SID_PLAYER kódja az F5-tel jön) | `516d372` … |
 | F5 fájl-makrók | ✔ kész | `8fce8d3`, `7844c6e`, … |
-| **F6 bekötés a VA-ba (Tauri `vma_build`, shadow mód)** | **folyamatban** — A fázis (PRG) kész: `vma_build`, motorválasztó, shadow-napló; hátra a `BuildResult` és a UI-elemzések | — |
+| **F6 bekötés a VA-ba (Tauri `vma_build`, shadow mód)** | **folyamatban** — A fázis (PRG) kész: `vma_build`, motorválasztó, shadow-napló; B fázis első része kész: a debugger nézet (sidecarok, címkék, töréspontok) Rustból; hátra a memóriasáv / ASM nézet / VICE Monitor és a hibakulcsok | — |
 | F7 WASM, a szinkron UI-elemzések | hátra | — |
 | F8 Kick előfeldolgozó (opcionális), JS mag törlése, dokumentáció | hátra | — |
 
-Golden állás (`node scripts/vma-rust-report.js`): **mind a 516 eset rendben: 458 bájtra egyezik, 58 elvárt hiba
+Golden állás (`node scripts/vma-rust-report.js`): **mind a 518 eset rendben: 460 bájtra egyezik, 58 elvárt hiba
 (a Rust is hibát ad), 0 nem portolt, 0 eltérés.** A Rust fordító a teljes VMA nyelvet és minden makrót fordítja.
 
 Ellenőrzés bármikor: `npm test` (a golden Rust-ága a `crates/vma/target/{debug,release}/vma.exe`-t használja,
@@ -83,6 +83,23 @@ ha le van fordítva), `cargo test --offline` a `crates/vma`-ban, és az esetenk�
    (a valódi CLI-vel is). Hátra: shadow módú próba a felhasználói projekteken a futó appban; `BuildResult`
    (szegmensek, sorok, címkék — a memóriasáv, ASM nézet, debugger sidecar, VICE Monitor hot reload ebből), a
    hibák i18n-kulcsai, az alapérték átállítása `rust`-ra.
+   ✔ B fázis, debugger nézet: `vma::build_result` → `BuildResult` (`built`, `origin`, `info` = a debugger-layout sorai,
+   `symbols` a fájlok sorrendjében, `debug` = .sym / .vs / .dbg; `to_json` = a `vma_build` válasza: `debugOrigin`, `sidecars`,
+   `symbols` `[név, cím]`, `lines` `[cím, méret, kihagyott, forrássor vagy -1]`). `vma_build(…, source_path, line_map)`;
+   a CLI-n `--json` / `--source-path` / `--line-map`. A sortérkép a blokkokból írt forrás sorait a blokkok `_srcLine`-jára
+   képezi (-1: nincs, -2: ugyanannak a blokknak a következő sora — a több sorra írt `.byte` egy tartomány marad). JS:
+   `_vmaBuildInput` (`blocks`, `blockOfLine`, `lineMap`, `sourcePath` = a `runInDebugger` választása), `_vmaRustBuild` →
+   `prg.vma`, `_vmaDebuggerTargets` (címkék, Blokk-töréspontok — a makrótörzs minden kibontása —, Expert-sorok címe),
+   a `_buildDebuggerSidecarPayload` és a `runInDebugger` Rust-ága. Include-olt blokk saját sora: `Block::file_line` (`.asm`:
+   a fájl sora, `.json`: a tárolt `_srcLine`), az include-olt makró kibontása az include fájlé (`Macro::files`).
+   Tesztek: `tests/vma-debug-files.test.js` (szöveg), `tests/vma-debug-targets.test.js` (Blokk mód, sortérkép,
+   töréspontok — a golden szöveges esetein, valódi CLI-vel), `tests/vma-engine.test.js`.
+   Közben javítva: a SID_PLAYER Rust-kódja a 78 bájtos, ROM-ot kikapcsoló változatra (`94f1b8f`); a `bb83d4f` merge négy
+   elavult SID_PLAYER manifest-bejegyzése; JS: az Expert töréspont nem illeszkedik include-olt sorra
+   (`_breakpointAddressForSourceLines`), az include-olt makró kibontása a `.dbg`-ben az include fájlé (`_macroInclude`
+   a `parseUserMacros`-ban — nem `_fromInclude`, hogy a memóriasáv / ASM nézet csoportosítása ne változzon).
+   Megjegyzés: a `crates/vma/target` a gitben van, és Windows-on egy másik folyamat időnként zárolja (os error 1224);
+   ilyenkor `CARGO_TARGET_DIR` + `VMA_BIN` a tesztekhez.
 4. **F7–F8** — az 5. szakasz táblázata szerint.
 
 Közben észrevett JS-furcsaságok, amelyeket a Rust szándékosan hűen hoz (ha javítani kell, előbb a JS-ben,

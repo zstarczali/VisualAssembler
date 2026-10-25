@@ -9551,7 +9551,9 @@ function _applyExpertBreakpointsToBlocks(blocks) {
 }
 
 function _breakpointAddressForSourceLines(layout, sourceLines) {
-  const executable = (layout?.lines || []).filter(line => line.size > 0 && !line.conditionallySkipped);
+  // an included block's _srcLine is a line of its own file, not of the edited source
+  const executable = (layout?.lines || []).filter(line => line.size > 0 && !line.conditionallySkipped
+    && !line.block?._fromInclude && !line.block?._macroInclude);
   return sourceLines.map(sourceLine => {
     const exact = executable.find(line => line.block?._srcLine === sourceLine);
     const next = executable.find(line => typeof line.block?._srcLine === "number" && line.block._srcLine > sourceLine);
@@ -16481,6 +16483,7 @@ function parseUserMacros() {
 
   // Build a flat list: top-level program + any includedBlocks from INCLUDE macros
   const allBlocks = [];
+  const includeOf = new Map();
   for (const block of program) {
     allBlocks.push(block);
     // Include macro definitions from ALL included files (both inline and fixed-address libraries)
@@ -16488,6 +16491,7 @@ function parseUserMacros() {
     if (block.isIncludeMacro && block.includedBlocks?.length) {
       for (const sub of block.includedBlocks) {
         allBlocks.push(sub);
+        includeOf.set(sub, block.id);
       }
     }
   }
@@ -16499,7 +16503,10 @@ function parseUserMacros() {
       macroStart = i;
       macroName = block.macroName;
     } else if (block.isMacroDefEnd && macroStart >= 0 && macroName) {
-      const macroBody = allBlocks.slice(macroStart + 1, i);
+      // the body of an included file's macro keeps its file (`_macroInclude`) for the debugger files:
+      // its _srcLine is a line of that file
+      const macroBody = allBlocks.slice(macroStart + 1, i)
+        .map(b => (includeOf.has(b) ? { ...b, _macroInclude: includeOf.get(b) } : b));
       const macroParamsDef = allBlocks[macroStart].macroParams || "";
       const paramsArray = macroParamsDef.split(",").map(s => s.trim()).filter(Boolean);
       userMacros[macroName] = { params: paramsArray, body: macroBody };
@@ -18928,8 +18935,8 @@ function _buildDebuggerSidecarTexts(layout, originOverride, sourcePathOverride =
     const block = line.block || {};
     const origin = kickOrigin(line);
     if (origin) return origin.file;
-    if (block._fromInclude) {
-      const includeBlock = includeBlocksById.get(block._fromInclude);
+    if (block._fromInclude || block._macroInclude) {
+      const includeBlock = includeBlocksById.get(block._fromInclude || block._macroInclude);
       const includePath = _normalizeIncludeBlockSource(includeBlock) || includeBlock?.includeFileName || "";
       if (includePath) return includePath;
     }
@@ -19040,6 +19047,8 @@ function _buildDebuggerSidecarPayload(prg, { force = false, layout = null, sourc
   }
   // ACME source has no VA layout: the symbols come from ACME's label dump.
   if (assemblerSyntax === "acme" && !ultimateBasicMode) return _acmeDebuggerSidecars(prg?.labels);
+  // A Rust build brings its own (vma_build, the same layout and texts).
+  if (prg?.vma?.sidecars && !layout) return { ...prg.vma.sidecars };
   const kick = _kickBuiltProject();
   const savedProgram = program;
   const savedUserMacros = userMacros;
@@ -19101,28 +19110,32 @@ async function runInDebugger() {
     let breakpoints;
     let expertBreakpoints;
     let debuggerSidecars;
+    // The Expert breakpoint lines: the startup file's tab when the project builds that file.
+    let debuggerSourcePath = "";
+    let expertBreakpointLines = _getTabBreakpointLines("expert");
+    if ((startupProgram || prg.vma?.input.sourcePath) && _expertProjectData?.startupFile) {
+      const startupFile = _expertProjectData.files.find(file => file.path === _expertProjectData.startupFile);
+      if (startupFile && (startupProgram || _normFilePath(_projResolveAbsPath(startupFile.path)) === _normFilePath(prg.vma.input.sourcePath))) {
+        debuggerSourcePath = _projResolveAbsPath(startupFile.path);
+        const normalizedPath = _normFilePath(debuggerSourcePath);
+        const startupTab = tabs.find(tab => tab.filePath && _normFilePath(tab.filePath) === normalizedPath);
+        if (startupTab && Array.isArray(startupTab.expertBreakpointLines)) {
+          expertBreakpointLines = startupTab.expertBreakpointLines;
+        }
+      }
+    }
     if (acme) {
       ({ symbols, breakpoints } = _acmeDebuggerTargets(prg, _getTabBreakpointLines("expert")));
       expertBreakpoints = breakpoints;
+      debuggerSidecars = _buildDebuggerSidecarPayload(prg, { force: true });
+    } else if (prg.vma) {
+      ({ symbols, breakpoints, expertBreakpoints } = _vmaDebuggerTargets(prg.vma, expertBreakpointLines));
       debuggerSidecars = _buildDebuggerSidecarPayload(prg, { force: true });
     } else try {
       if (debuggerProgram?.length) program = debuggerProgram;
       parseUserMacros();
       const layout = getProgramLayout(debugCodeOrigin);
       ({ symbols, breakpoints } = _collectDebuggerSymbols(layout));
-      let debuggerSourcePath = "";
-      let expertBreakpointLines = _getTabBreakpointLines("expert");
-      if (startupProgram && _expertProjectData?.startupFile) {
-        const startupFile = _expertProjectData.files.find(file => file.path === _expertProjectData.startupFile);
-        if (startupFile) {
-          debuggerSourcePath = _projResolveAbsPath(startupFile.path);
-          const normalizedPath = _normFilePath(debuggerSourcePath);
-          const startupTab = tabs.find(tab => tab.filePath && _normFilePath(tab.filePath) === normalizedPath);
-          if (startupTab && Array.isArray(startupTab.expertBreakpointLines)) {
-            expertBreakpointLines = startupTab.expertBreakpointLines;
-          }
-        }
-      }
       const kick = _kickBuiltProject();
       if (kick) {
         symbols = symbols.map(sym => ({ ...sym, name: _kickDisplayLabel(sym.name) })).filter(sym => sym.name);
@@ -27071,37 +27084,85 @@ function _vmaEngine() {
   return v === "rust" || v === "shadow" ? v : "js";
 }
 
-// The VMA source the JS build compiles (buildAutostartPrgForEmulator's choice), its folder and
-// whether its lines are the editor's (so an error line can be shown there).
+// The VMA source the JS build compiles (buildAutostartPrgForEmulator's choice), its folder,
+// whether its lines are the editor's (so an error line can be shown there) and the main source
+// the debugger files name (runInDebugger's choice). A source made of blocks keeps them: the block
+// of each text line (`blockOfLine`) and the line the .dbg names (`lineMap`, the block's _srcLine).
 function _vmaBuildInput() {
   const dirOf = (p) => {
     const s = String(p || "");
     const i = Math.max(s.lastIndexOf("/"), s.lastIndexOf("\\"));
     return i >= 0 ? s.slice(0, i) : "";
   };
+  const fromBlocks = (blocks) => {
+    const texts = blocks.map(_blockToExpertSourceLine);
+    const blockOfLine = texts.flatMap((text, i) => String(text).split("\n").map(() => i));
+    // -2: a further line of the same block (vma_build joins it to the block's range)
+    const lineMap = blockOfLine.map((i, k) => (k > 0 && blockOfLine[k - 1] === i ? -2
+      : typeof blocks[i]?._srcLine === "number" ? blocks[i]._srcLine : -1));
+    return { text: texts.join("\n"), blocks, blockOfLine, lineMap };
+  };
   const activeTab = tabs.find(tab => tab.id === activeTabId);
   const fileDir = dirOf(activeTab?.filePath || _expertAsmFilePath) || workingFolder || "";
+  const startupPath = () => {
+    const file = _expertProjectData?.files.find(f => f.path === _expertProjectData.startupFile);
+    return file ? _projResolveAbsPath(file.path) : "";
+  };
   if (expertMode) {
     const startup = _expertGetStartupSource();
-    if (startup) return { text: startup.text, baseDir: dirOf(startup.path) || fileDir, editorLines: false };
+    if (startup) return { text: startup.text, baseDir: dirOf(startup.path) || fileDir, editorLines: false, sourcePath: startup.path };
     const blocks = _expertGetStartupProgram();
-    if (blocks) return { text: blocks.map(_blockToExpertSourceLine).join("\n"), baseDir: fileDir, editorLines: false };
-    return { text: _expertGetSourceText(), baseDir: fileDir, editorLines: true };
+    if (blocks) return { ...fromBlocks(blocks), baseDir: fileDir, editorLines: false, sourcePath: startupPath() || _getDebuggerPrimarySourcePath() };
+    return { text: _expertGetSourceText(), baseDir: fileDir, editorLines: true, sourcePath: _getDebuggerPrimarySourcePath() };
   }
-  const blocks = _expertGetStartupProgram() || program;
-  return { text: blocks.map(_blockToExpertSourceLine).join("\n"), baseDir: fileDir, editorLines: false };
+  const startupBlocks = _expertGetStartupProgram();
+  return {
+    ...fromBlocks(startupBlocks || program),
+    baseDir: fileDir,
+    editorLines: false,
+    sourcePath: (startupBlocks && startupPath()) || _getDebuggerPrimarySourcePath()
+  };
 }
 
+// The Rust build; `vma` = its debugger view (the sidecars, symbols and lines of vma_build).
 async function _vmaRustBuild() {
   const input = _vmaBuildInput();
-  const r = await window.electronAPI.vmaBuild(input.text, input.baseDir, basicSysToggle ? basicSysToggle.checked : true);
+  const r = await window.electronAPI.vmaBuild(input.text, input.baseDir, basicSysToggle ? basicSysToggle.checked : true,
+    input.sourcePath, input.lineMap || null);
   if (!r?.ok) {
     const text = `[R${String(r?.line || 0).padStart(3, "0")}] ${r?.error || "VMA (Rust) error"}`;
     return { ok: false, error: text, errors: [{ text, asmLine: null, sourceLine: input.editorLines && r?.line ? r.line - 1 : null }] };
   }
   const result = { ok: true, bytes: Uint8Array.from(r.prg || []) };
   if (typeof r.sysAddress === "number") result.sysAddress = r.sysAddress;
+  if (r.sidecars) result.vma = { origin: r.debugOrigin, sidecars: r.sidecars, symbols: r.symbols || [], lines: r.lines || [], input };
   return result;
+}
+
+// RetroDebugger targets of a Rust build (runInDebugger's JS-layout branch on vma_build's lines):
+// the symbols, the Block-mode breakpoints (blocks marked isBreakpoint) and the addresses of the
+// Expert breakpoint lines (the line itself or the next line that emits bytes).
+function _vmaDebuggerTargets(vma, expertBreakpointLines) {
+  const { input, lines } = vma;
+  const symbols = vma.symbols.map(([name, address]) => ({ name, address }));
+  // one per laid-out block, as the JS layout: every expansion of a marked macro body block too,
+  // but the further lines of a block written on more than one line are the same block
+  const breakpoints = [];
+  let previous = -1;
+  for (const [address, , , textLine] of lines) {
+    const index = input.blocks && textLine >= 0 ? input.blockOfLine[textLine] : -1;
+    if (index >= 0 && index !== previous && input.blocks[index]?.isBreakpoint) breakpoints.push(address & 0xFFFF);
+    previous = index;
+  }
+  const sourceLine = (textLine) => (textLine < 0 ? -1 : input.lineMap ? (input.lineMap[textLine] ?? -1) : textLine);
+  const executable = lines
+    .filter(([, size, skipped]) => size > 0 && !skipped)
+    .map(([address, , , textLine]) => ({ address, line: sourceLine(textLine) }));
+  const expertBreakpoints = (expertBreakpointLines || []).map(bp => {
+    const hit = executable.find(l => l.line === bp) || executable.find(l => l.line >= 0 && l.line > bp);
+    return hit?.address;
+  }).filter(Number.isFinite).map(address => address & 0xFFFF);
+  return { symbols, breakpoints, expertBreakpoints };
 }
 
 async function _vaBuildPrg() {

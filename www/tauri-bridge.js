@@ -104,7 +104,7 @@
     chooseUbFile: (initialDir = "") => invoke("choose_ub_file", { initialDir }),
     saveUbFile: (path, content) => invoke("save_ub_file", { path, content }),
     compileUltimateBasic: (source, sourcePath, explicit) => invoke("compile_ultimate_basic", { source, sourcePath, explicit: !!explicit }),
-    vmaBuild: (source, baseDir, basicStub) => invoke("vma_build", { source, baseDir, basicStub: !!basicStub }),
+    vmaBuild: (source, baseDir, basicStub, sourcePath = null, lineMap = null) => invoke("vma_build", { source, baseDir, basicStub: !!basicStub, sourcePath, lineMap }),
     chooseProjMember: (ub = false) => invoke("choose_proj_member", { ub: !!ub }),
     chooseProjFolder: (ub = false) => invoke("choose_proj_folder", { ub: !!ub }),
     readBinFile: (path) => invoke("read_bin_file", { path }),

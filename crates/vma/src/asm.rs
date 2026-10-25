@@ -91,17 +91,21 @@ struct Meta {
 }
 
 /// A laid-out line for the debugger files.
+#[derive(Clone)]
 pub struct LineInfo {
     pub address: i64,
     pub size: i64,
     pub skipped: bool,
-    /// 0-based; None for a block of an included file (the app has no line for it)
+    /// 0-based line of the main source; None for a block of an included file
     pub src_line: Option<usize>,
+    /// 0-based line in the included file (`file`), when the block has one
+    pub file_line: Option<usize>,
     /// the included file, None for the main source
     pub file: Option<String>,
 }
 
 /// What the debugger files are made of: the lines of a layout and `_collectDebuggerSymbols`.
+#[derive(Clone)]
 pub struct DebugInfo {
     pub lines: Vec<LineInfo>,
     /// unique names (first one wins), not sorted
@@ -113,6 +117,8 @@ pub struct DebugInfo {
 struct Macro {
     params: Vec<String>,
     body: Vec<Block>,
+    /// per body block: the included file it comes from (`_macroInclude`, for the debugger files)
+    files: Vec<Option<String>>,
 }
 
 pub struct Assembler {
@@ -607,7 +613,7 @@ impl Assembler {
             }
             Kind::Delay { .. } => 5,
             Kind::IncBin { koala, .. } => if *koala { 86 } else { 0 },
-            Kind::SidPlayer { .. } => 58,
+            Kind::SidPlayer { .. } => SID_PLAYER_SIZE,
             Kind::LevelRow { .. } => 132,
             Kind::SpritePos { .. } => 18,
             Kind::SpriteCol { .. } => 5,
@@ -668,7 +674,7 @@ impl Assembler {
                     let has_params = !params.trim().is_empty();
                     // a parameter-less macro is also a subroutine at its definition (JSR name)
                     if !name.is_empty() && !has_params {
-                        out.push((Block { kind: Kind::Label { name: name.clone(), offset: 0, kick_scope: false }, line: b.line, included: false }, Meta::default()));
+                        out.push((Block { kind: Kind::Label { name: name.clone(), offset: 0, kick_scope: false }, line: b.line, included: false, file_line: None }, Meta::default()));
                     }
                     inside = Some((name.clone(), has_params));
                     continue;
@@ -692,7 +698,7 @@ impl Assembler {
                 }
                 let fixed = !addr.is_empty();
                 let from = || Meta { include_path: Some(path.clone()), ..Meta::default() };
-                let mk = |kind: Kind| (Block { kind, line: b.line, included: false }, from());
+                let mk = |kind: Kind| (Block { kind, line: b.line, included: false, file_line: None }, from());
                 if fixed {
                     out.push(mk(Kind::SaveAddress));
                     out.push(mk(Kind::Org { address: format!("{:0>4}", addr.to_uppercase()) }));
@@ -799,7 +805,7 @@ impl Assembler {
                 r
             };
             out.push((b.clone(), Meta { header: true, ..Meta::default() }));
-            for mb in &mac.body {
+            for (mb, file) in mac.body.iter().zip(&mac.files) {
                 let mut e = mb.clone();
                 let mut buffer = None;
                 match &mut e.kind {
@@ -852,7 +858,8 @@ impl Assembler {
                     Kind::Next { label, .. } if locals.contains(label) => *label = format!("{label}{suffix}"),
                     _ => {}
                 }
-                out.push((e, Meta { from_macro: Some(name.clone()), auto_buffer: buffer, ..Meta::default() }));
+                // an included file's macro: its lines are that file's in the debugger files
+                out.push((e, Meta { from_macro: Some(name.clone()), auto_buffer: buffer, include_path: file.clone(), ..Meta::default() }));
             }
         }
         out
@@ -1115,6 +1122,7 @@ impl Assembler {
                 size: l.size,
                 skipped: l.skipped,
                 src_line: (!l.block.included).then_some(l.block.line),
+                file_line: l.block.file_line,
                 file: l.meta.include_path.clone(),
             })
             .collect();
@@ -2208,10 +2216,13 @@ fn scope_local_labels(program: &mut [(Block, Meta)]) {
 /// program with every include's blocks after it.
 fn user_macros(top: &[Block]) -> HashMap<String, Macro> {
     let mut all: Vec<Block> = Vec::new();
+    let mut files: Vec<Option<String>> = Vec::new();
     for b in top {
         all.push(b.clone());
-        if let Kind::Include { blocks, .. } = &b.kind {
+        files.push(None);
+        if let Kind::Include { blocks, path, .. } = &b.kind {
             all.extend(blocks.iter().cloned());
+            files.extend(blocks.iter().map(|_| Some(path.clone())));
         }
     }
     let program = &all[..];
@@ -2224,7 +2235,7 @@ fn user_macros(top: &[Block]) -> HashMap<String, Macro> {
                 if let Some((s, name, params)) = start.take() {
                     if !name.is_empty() {
                         let params = params.split(',').map(|p| p.trim().to_string()).filter(|p| !p.is_empty()).collect();
-                        macros.insert(name, Macro { params, body: program[s + 1..i].to_vec() });
+                        macros.insert(name, Macro { params, body: program[s + 1..i].to_vec(), files: files[s + 1..i].to_vec() });
                     }
                 }
             }
@@ -2384,11 +2395,18 @@ const DELAY_HELPER_LABEL: &str = "__delay_wait_frames";
 
 /// `_sidPlayerBytes`: SEI, init the tune, CIA1 IRQ off, raster IRQ → the handler after the
 /// setup (ack, JSR SID_PLAY, JMP $EA31), CLI, jump over the handler.
+/// `_SID_PLAYER_SIZE`
+const SID_PLAYER_SIZE: i64 = 78;
+
 fn sid_player_bytes(address: i64, init: i64, play: i64, song: i64, raster: i64) -> Vec<u8> {
-    let irq = (address + 49) & 0xFFFF;
-    let end = (address + 58) & 0xFFFF;
+    // the init and the play call with the KERNAL / BASIC ROM off ($01 = $35): a tune under the ROM
+    let irq = (address + 59) & 0xFFFF;
+    let end = (address + SID_PLAYER_SIZE) & 0xFFFF;
     vec![
-        0x78, 0xA9, song as u8, 0x20, init as u8, (init >> 8) as u8,
+        0x78,
+        0xA5, 0x01, 0x48, 0xA9, 0x35, 0x85, 0x01,
+        0xA9, song as u8, 0x20, init as u8, (init >> 8) as u8,
+        0x68, 0x85, 0x01,
         0xA9, 0x7F, 0x8D, 0x0D, 0xDC, 0xAD, 0x0D, 0xDC,
         0xA9, irq as u8, 0x8D, 0x14, 0x03, 0xA9, (irq >> 8) as u8, 0x8D, 0x15, 0x03,
         0xA9, raster as u8, 0x8D, 0x12, 0xD0,
@@ -2396,7 +2414,11 @@ fn sid_player_bytes(address: i64, init: i64, play: i64, song: i64, raster: i64) 
         0xA9, 0x01, 0x8D, 0x1A, 0xD0, 0x8D, 0x19, 0xD0,
         0x58,
         0x4C, end as u8, (end >> 8) as u8,
-        0x0E, 0x19, 0xD0, 0x20, play as u8, (play >> 8) as u8, 0x4C, 0x31, 0xEA,
+        0x0E, 0x19, 0xD0,
+        0xA5, 0x01, 0x48, 0xA9, 0x35, 0x85, 0x01,
+        0x20, play as u8, (play >> 8) as u8,
+        0x68, 0x85, 0x01,
+        0x4C, 0x31, 0xEA,
     ]
 }
 

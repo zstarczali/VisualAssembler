@@ -153,8 +153,10 @@ pub struct Block {
     pub kind: Kind,
     /// 0-based source line
     pub line: usize,
-    /// from an included file (its line is the `.include` line; the app has no source line for it)
+    /// from an included file (its line is the `.include` line)
     pub included: bool,
+    /// the line in its included file (the app's `_srcLine` of an included block), for the `.dbg`
+    pub file_line: Option<usize>,
 }
 
 macro_rules! regex {
@@ -918,7 +920,7 @@ pub fn parse_expert_text(text: &str) -> Vec<Block> {
     let mut rt_repeat: Vec<String> = Vec::new();
     let mut rt_count = 0usize;
     for (n, raw_line) in lines.iter().enumerate() {
-        let push = |blocks: &mut Vec<Block>, kind: Kind| blocks.push(Block { kind, line: n, included: false });
+        let push = |blocks: &mut Vec<Block>, kind: Kind| blocks.push(Block { kind, line: n, included: false, file_line: None });
         let (code, comment) = split_comment(raw_line);
         let line = code.trim();
         if line.is_empty() {
@@ -1149,7 +1151,7 @@ pub fn parse_expert_text(text: &str) -> Vec<Block> {
 
 /// One code line through the `parseAsmText` rules (the comment is already split off).
 fn parse_asm_line(line: &str, comment: &str, n: usize) -> Vec<Block> {
-    let b = |kind: Kind| Block { kind, line: n, included: false };
+    let b = |kind: Kind| Block { kind, line: n, included: false, file_line: None };
     if let Some(c) = regex!(&format!(r"(?i)^({LABEL_NAME}):\s*\.word\s+(.+)$")).captures(line) {
         return vec![b(make_label(&c[1])), b(make_word(c[2].trim()))];
     }

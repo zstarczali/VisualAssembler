@@ -87,3 +87,26 @@ test("block-mode source text through the Rust CLI", { skip: !findRustCli() && "n
     fs.rmSync(tmp, { recursive: true, force: true });
   }
 });
+
+// The debugger view of a Rust build: vma_build gets the main source and the line map, the
+// sidecars of the answer are the ones the app writes / hands to the debugger.
+test("rust engine: source path, line map and the debugger files of the answer", async () => {
+  let seen = null;
+  const sidecars = { sym: ".label start=$1000", vs: "al C:1000 .start", dbg: "<C64debugger/>" };
+  const app = appWith(async (source, baseDir, basicStub, sourcePath, lineMap) => {
+    seen = { source, sourcePath, lineMap };
+    // [address, size, skipped, line of the source]: the ORG, LDA, STA, RTS of SOURCE
+    return { ok: true, prg: [0, 16, 0xEA], debugOrigin: 0x1000, sidecars, symbols: [["start", 0x1000]],
+      lines: [[0x1000, 0, 0, 0], [0x1000, 2, 0, 1], [0x1002, 3, 0, 2], [0x1005, 1, 0, 3]] };
+  }, "rust");
+  app.run("program.forEach((b, i) => { b._srcLine = i + 10; b.isBreakpoint = i === 2; })");
+  app.__r = await app.run("_vaBuildPrg()");
+  assert.ok(seen.sourcePath.endsWith(".asm"));
+  const plain = (v) => JSON.parse(JSON.stringify(v));
+  assert.deepEqual(plain(seen.lineMap), plain(app.run("program.map((b, i) => i + 10)")));
+  assert.deepEqual(plain(app.run("_buildDebuggerSidecarPayload(__r, { force: true })")), sidecars);
+  const targets = plain(app.run("_vmaDebuggerTargets(__r.vma, [11, 12, 13])"));
+  assert.deepEqual(targets.symbols, [{ name: "start", address: 0x1000 }]);
+  assert.deepEqual(targets.breakpoints, [0x1002]);              // the block marked isBreakpoint
+  assert.deepEqual(targets.expertBreakpoints, [0x1000, 0x1002, 0x1005]);
+});

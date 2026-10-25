@@ -4583,13 +4583,22 @@ impl vma::FileProvider for AppFiles<'_> {
 }
 
 /// VMA source → PRG with the Rust compiler (crates/vma), the files found as the reload commands find them.
+/// With `source_path` the debugger view too (`vma::BuildResult::to_json`; the .dbg names the main
+/// source `source_path`, its lines through `line_map`).
 #[tauri::command]
-fn vma_build(app: AppHandle, source: String, base_dir: Option<String>, basic_stub: Option<bool>) -> serde_json::Value {
+fn vma_build(app: AppHandle, source: String, base_dir: Option<String>, basic_stub: Option<bool>, source_path: Option<String>, line_map: Option<Vec<i64>>) -> serde_json::Value {
     let options = vma::BuildOptions { basic_stub: basic_stub.unwrap_or(true) };
     let files = AppFiles { app: &app, base_dir };
-    match vma::build_full(&source, &options, &files) {
-        Ok(built) => serde_json::json!({ "ok": true, "prg": built.prg, "sysAddress": built.sys_address }),
-        Err(e) => serde_json::json!({ "ok": false, "error": e.message, "line": e.line + 1 }),
+    let error = |e: vma::CompileError| serde_json::json!({ "ok": false, "error": e.message, "line": e.line + 1 });
+    let Some(source_path) = source_path else {
+        return match vma::build_full(&source, &options, &files) {
+            Ok(built) => serde_json::json!({ "ok": true, "prg": built.prg, "sysAddress": built.sys_address }),
+            Err(e) => error(e),
+        };
+    };
+    match vma::build_result(&source, &options, &files, &source_path, line_map.as_deref()) {
+        Ok(r) => r.to_json(),
+        Err(e) => error(e),
     }
 }
 

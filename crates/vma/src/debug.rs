@@ -43,7 +43,14 @@ fn locale_cmp(a: &str, b: &str) -> Ordering {
     a.len().cmp(&b.len())
 }
 
-/// The three files; `origin` = the debugger layout's origin (lines below it are the "BASIC Stub"
+/// The symbols in the files' order (`_collectDebuggerSymbols`: address, then `localeCompare`).
+pub fn sorted_symbols(info: &DebugInfo) -> Vec<(String, i64)> {
+    let mut symbols = info.symbols.clone();
+    symbols.sort_by(|a, b| a.1.cmp(&b.1).then_with(|| locale_cmp(&a.0, &b.0)));
+    symbols
+}
+
+/// The three files; `origin` =the debugger layout's origin (lines below it are the "BASIC Stub"
 /// block), `primary` = the main source's path.
 pub fn debug_files(info: &DebugInfo, origin: i64, primary: &str) -> DebugFiles {
     let primary = if primary.is_empty() { "program.asm" } else { primary };
@@ -58,7 +65,9 @@ pub fn debug_files(info: &DebugInfo, origin: i64, primary: &str) -> DebugFiles {
                 sources.len() - 1
             }
         };
-        let src_line = line.src_line.map(|l| l + 1).unwrap_or(index + 1);
+        // the block's _srcLine (in its own file), else the file's index
+        let own = if line.file.is_some() { line.file_line } else { line.src_line };
+        let src_line = own.map(|l| l + 1).unwrap_or(index + 1);
         let name = if path == primary {
             if line.address < origin { "BASIC Stub".to_string() } else { "Main".to_string() }
         } else {
@@ -76,8 +85,7 @@ pub fn debug_files(info: &DebugInfo, origin: i64, primary: &str) -> DebugFiles {
             None => blocks.push((name, vec![entry])),
         }
     }
-    let mut symbols = info.symbols.clone();
-    symbols.sort_by(|a, b| a.1.cmp(&b.1).then_with(|| locale_cmp(&a.0, &b.0)));
+    let symbols = sorted_symbols(info);
 
     let mut dbg = vec![r#"<C64debugger version="1.0">"#.to_string(), r#"   <Sources values="INDEX,FILE">"#.to_string()];
     dbg.extend(sources.iter().enumerate().map(|(i, s)| format!("      {i},{}", xml(s))));
