@@ -11281,6 +11281,29 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
   max-height: 92vh;
   overflow: hidden;
 }
+.pal-ed-dialog { width: min(680px, 94vw); }
+.pal-ed-hdr-icon {
+  width: 14px; height: 14px; border-radius: 2px;
+  background: conic-gradient(#813338, #edf171, #56ac4d, #75cec8, #2e2c9b, #8e3c97, #813338);
+}
+.pal-ed-tools { display: flex; align-items: flex-end; gap: 8px; flex-wrap: wrap; }
+.pal-ed-tools .ps-field { width: 180px; }
+.pal-ed-tools button { height: 30px; min-height: 0; padding: 0 12px; font-size: 0.78rem; }
+.pal-ed-spacer { flex: 1 1 auto; }
+.pal-ed-grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: repeat(8, auto); grid-auto-flow: column; gap: 6px 18px; }
+.pal-ed-row { display: grid; grid-template-columns: 22px 34px minmax(0, 1fr) 88px; align-items: center; gap: 8px; font-size: 0.78rem; }
+.pal-ed-idx { color: var(--muted); font-family: "IBM Plex Mono", monospace; text-align: right; }
+.pal-ed-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pal-ed-color { width: 34px; height: 26px; min-height: 0; padding: 0; border: 1px solid var(--panel-border); border-radius: 2px; background: none; box-shadow: none; cursor: pointer; }
+.pal-ed-color::-webkit-color-swatch-wrapper { padding: 0; }
+.pal-ed-color::-webkit-color-swatch { border: none; border-radius: 1px; }
+.pal-ed-hex { height: 26px; font-family: "IBM Plex Mono", monospace; font-size: 0.76rem; text-transform: uppercase; }
+.pal-ed-hex.is-invalid { border-color: var(--danger, #c0392b); }
+/* the colours side by side, as the C64 shows them next to each other */
+.pal-ed-preview { display: grid; grid-template-columns: repeat(16, 1fr); height: 28px; border: 1px solid var(--panel-border); border-radius: 2px; overflow: hidden; }
+.pal-ed-preview span { display: block; }
+@media (max-width: 620px) { .pal-ed-grid { grid-template-columns: 1fr; grid-template-rows: none; grid-auto-flow: row; } }
+
 .ps-dialog::backdrop {
   background: rgba(0, 0, 0, 0.48);
   -webkit-backdrop-filter: blur(4px);

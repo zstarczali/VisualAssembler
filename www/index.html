@@ -999,6 +999,42 @@ PRINTABLE CHARACTERS
     </div>
   </dialog>
 
+  <dialog id="palette-editor-dialog" class="ps-dialog pal-ed-dialog" aria-labelledby="pal-ed-title">
+    <div class="ps-card">
+      <div class="ps-hdr">
+        <span class="pal-ed-hdr-icon" aria-hidden="true"></span>
+        <span class="ps-title" id="pal-ed-title">Custom C64 palette</span>
+        <button id="pal-ed-close" class="ps-xbtn" type="button" aria-label="Close">×</button>
+      </div>
+      <div class="ps-body">
+        <p id="pal-ed-note" class="menu-note">Set the 16 colours the editors draw with (RGB per colour). Import a Photoshop .act, VICE .vpl, GIMP .gpl palette or a list of hex colours; export .act or .vpl to compare in Photoshop or VICE. Only the display changes, your data keeps its colour indexes.</p>
+        <div class="pal-ed-tools">
+          <label class="ps-field"><span id="pal-ed-base-label">Start from</span>
+            <select id="pal-ed-base" class="ps-input">
+              <option value="colodore">Colodore</option>
+              <option value="pepto">Pepto</option>
+              <option value="vice">VICE</option>
+              <option value="deekay">Deekay</option>
+              <option value="c64wiki">C64 Wiki / Godot</option>
+            </select>
+          </label>
+          <button id="pal-ed-load-base" class="secondary" type="button">Copy</button>
+          <span class="pal-ed-spacer"></span>
+          <button id="pal-ed-import" class="secondary" type="button">Import…</button>
+          <button id="pal-ed-export-act" class="secondary" type="button">Export .act</button>
+          <button id="pal-ed-export-vpl" class="secondary" type="button">Export .vpl</button>
+        </div>
+        <div id="pal-ed-grid" class="pal-ed-grid"></div>
+        <div id="pal-ed-preview" class="pal-ed-preview" aria-hidden="true"></div>
+        <p id="pal-ed-status" class="form-status" role="status"></p>
+      </div>
+      <div class="ps-footer">
+        <button id="pal-ed-cancel" class="secondary" type="button">Cancel</button>
+        <button id="pal-ed-save" class="primary" type="button">Save</button>
+      </div>
+    </div>
+  </dialog>
+
   <dialog id="project-settings-dialog" class="ps-dialog" aria-labelledby="ps-title">
     <div class="ps-card">
       <div class="ps-hdr">
@@ -1465,6 +1501,9 @@ PRINTABLE CHARACTERS
         </li>
         <li>
           <strong>SID Player buffer:</strong> <em>Settings → General → SID preview → SID Player buffer</em> sets 2048–16384 samples. A larger buffer stops the crackle while the app is busy. WebSID uses it after a restart; VA SID Core renders 10 / 15 / 20 / 30 s ahead.
+        </li>
+        <li>
+          <strong>Custom C64 palette:</strong> <em>Settings → General → Editors → Edit custom palette…</em> sets your own RGB value for each of the 16 colours (colour picker or hex), starting from any built-in palette. Import a Photoshop <code>.act</code>, VICE <code>.vpl</code>, GIMP <code>.gpl</code> palette or a list of hex colours, and export <code>.act</code> / <code>.vpl</code> to compare in Photoshop or VICE. <em>Custom</em> then appears next to Colodore, Pepto and the others, also in the Hi-Res image import.
         </li>
         <li>
           <strong>Look:</strong> the C64 memory panel docks back collapsed; the What&#39;s New, update, Settings and Knowledge Base windows have the same frame as the About box; the Project settings checkboxes are VA switches.
@@ -3698,8 +3737,10 @@ PRINTABLE CHARACTERS
                 <option value="vice">VICE</option>
                 <option value="deekay">Deekay</option>
                 <option value="c64wiki">C64 Wiki / Godot</option>
+                <option value="custom">Custom</option>
               </select>
             </label>
+            <button id="editor-palette-edit" class="secondary" type="button">Edit custom palette…</button>
             <p id="editor-palette-note" class="menu-note">Used by the sprite, character, Charset Canvas, Hi-Res, map and level editors. Colodore is the closest to real C64 hardware.</p>
           </section>
         </div>

@@ -82,49 +82,49 @@ const CUSTOMER_MESSAGE = {
   hu: {
     eyebrow: "Újdonság a 2.6.6-ban",
     title: "Üdvözöl a Visual Assembler",
-    body: `<ul><li><strong>SID lejátszó makró</strong>: <code>.sid "zene.sid"</code> + <code>.sid_player</code> — init, raszter IRQ és képkockánkénti play egyetlen sorban; a <code>.sid</code> a <code>SID_INIT</code> / <code>SID_PLAY</code> címkéket is megadja.</li><li><strong>Csak Expert mód</strong> projektenként (Projekt beállítások).</li><li><strong>SID Player puffer</strong> a Beállítások → SID előnézet alatt — nagyobb pufferrel nem recseg.</li><li>Javítva: a hibabejelentő elfogadja a PNG / JPG képeket; macOS-en nincs prediktív szöveg a szerkesztőben, és a READY. kurzor is tiszta.</li></ul><p>Kérdés, ötlet vagy hiba: <strong>Menu → Támogatás</strong>.</p>`,
+    body: `<ul><li><strong>SID lejátszó makró</strong>: <code>.sid "zene.sid"</code> + <code>.sid_player</code> — init, raszter IRQ és képkockánkénti play egyetlen sorban; a <code>.sid</code> a <code>SID_INIT</code> / <code>SID_PLAY</code> címkéket is megadja.</li><li><strong>Csak Expert mód</strong> projektenként (Projekt beállítások).</li><li><strong>SID Player puffer</strong> a Beállítások → SID előnézet alatt — nagyobb pufferrel nem recseg.</li><li><strong>Egyéni C64 paletta</strong>: Beállítások → Szerkesztők → Egyéni paletta szerkesztése… (Photoshop .act / VICE .vpl import és export).</li><li>Javítva: a hibabejelentő elfogadja a PNG / JPG képeket; macOS-en nincs prediktív szöveg a szerkesztőben, és a READY. kurzor is tiszta.</li></ul><p>Kérdés, ötlet vagy hiba: <strong>Menu → Támogatás</strong>.</p>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
     eyebrow: "New in 2.6.6",
     title: "Welcome to Visual Assembler",
-    body: `<ul><li><strong>SID player macro</strong>: <code>.sid "music.sid"</code> + <code>.sid_player</code> — init, raster IRQ and play every frame in one line; <code>.sid</code> also defines the <code>SID_INIT</code> / <code>SID_PLAY</code> labels.</li><li><strong>Expert mode only</strong> per project (Project settings).</li><li><strong>SID Player buffer</strong> in Settings → SID preview — a larger buffer stops the crackle.</li><li>Fixed: the bug report accepts PNG / JPG screenshots; no predictive text in the editors on macOS, and a clean READY. cursor.</li></ul><p>Questions, ideas or bugs: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>SID player macro</strong>: <code>.sid "music.sid"</code> + <code>.sid_player</code> — init, raster IRQ and play every frame in one line; <code>.sid</code> also defines the <code>SID_INIT</code> / <code>SID_PLAY</code> labels.</li><li><strong>Expert mode only</strong> per project (Project settings).</li><li><strong>SID Player buffer</strong> in Settings → SID preview — a larger buffer stops the crackle.</li><li><strong>Custom C64 palette</strong>: Settings → Editors → Edit custom palette… (Photoshop .act / VICE .vpl import and export).</li><li>Fixed: the bug report accepts PNG / JPG screenshots; no predictive text in the editors on macOS, and a clean READY. cursor.</li></ul><p>Questions, ideas or bugs: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
     eyebrow: "Novedad en la 2.6.6",
     title: "Bienvenido a Visual Assembler",
-    body: `<ul><li><strong>Macro reproductor SID</strong>: <code>.sid "music.sid"</code> + <code>.sid_player</code> — init, IRQ raster y play en cada fotograma en una sola línea; <code>.sid</code> también define las etiquetas <code>SID_INIT</code> / <code>SID_PLAY</code>.</li><li><strong>Solo modo Experto</strong> por proyecto (Project settings).</li><li><strong>Búfer del SID Player</strong> en Settings → SID preview: un búfer mayor evita los chasquidos.</li><li>Corregido: el informe de errores acepta capturas PNG / JPG; sin texto predictivo en los editores en macOS y un cursor READY. limpio.</li></ul><p>Preguntas, ideas o errores: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Macro reproductor SID</strong>: <code>.sid "music.sid"</code> + <code>.sid_player</code> — init, IRQ raster y play en cada fotograma en una sola línea; <code>.sid</code> también define las etiquetas <code>SID_INIT</code> / <code>SID_PLAY</code>.</li><li><strong>Solo modo Experto</strong> por proyecto (Project settings).</li><li><strong>Búfer del SID Player</strong> en Settings → SID preview: un búfer mayor evita los chasquidos.</li><li><strong>Paleta C64 personalizada</strong>: Settings → Editors → Edit custom palette… (importar y exportar .act de Photoshop / .vpl de VICE).</li><li>Corregido: el informe de errores acepta capturas PNG / JPG; sin texto predictivo en los editores en macOS y un cursor READY. limpio.</li></ul><p>Preguntas, ideas o errores: <strong>Menu → Support</strong>.</p>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
     eyebrow: "Neu in 2.6.6",
     title: "Willkommen bei Visual Assembler",
-    body: `<ul><li><strong>SID-Player-Makro</strong>: <code>.sid "music.sid"</code> + <code>.sid_player</code> — Init, Raster-IRQ und Play in jedem Frame in einer Zeile; <code>.sid</code> definiert auch die Labels <code>SID_INIT</code> / <code>SID_PLAY</code>.</li><li><strong>Nur Expertenmodus</strong> pro Projekt (Project settings).</li><li><strong>SID-Player-Puffer</strong> unter Settings → SID preview — ein größerer Puffer verhindert Knacken.</li><li>Behoben: der Fehlerbericht nimmt PNG- / JPG-Screenshots an; keine Wortvorschläge in den Editoren unter macOS und ein sauberer READY.-Cursor.</li></ul><p>Fragen, Ideen oder Fehler: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>SID-Player-Makro</strong>: <code>.sid "music.sid"</code> + <code>.sid_player</code> — Init, Raster-IRQ und Play in jedem Frame in einer Zeile; <code>.sid</code> definiert auch die Labels <code>SID_INIT</code> / <code>SID_PLAY</code>.</li><li><strong>Nur Expertenmodus</strong> pro Projekt (Project settings).</li><li><strong>SID-Player-Puffer</strong> unter Settings → SID preview — ein größerer Puffer verhindert Knacken.</li><li><strong>Eigene C64-Palette</strong>: Settings → Editors → Edit custom palette… (Import und Export von Photoshop-.act / VICE-.vpl).</li><li>Behoben: der Fehlerbericht nimmt PNG- / JPG-Screenshots an; keine Wortvorschläge in den Editoren unter macOS und ein sauberer READY.-Cursor.</li></ul><p>Fragen, Ideen oder Fehler: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
     eyebrow: "Nieuw in 2.6.6",
     title: "Welkom bij Visual Assembler",
-    body: `<ul><li><strong>SID-spelermacro</strong>: <code>.sid "music.sid"</code> + <code>.sid_player</code> — init, raster-IRQ en play elk frame in één regel; <code>.sid</code> definieert ook de labels <code>SID_INIT</code> / <code>SID_PLAY</code>.</li><li><strong>Alleen Expert-modus</strong> per project (Project settings).</li><li><strong>SID Player-buffer</strong> in Settings → SID preview — een grotere buffer voorkomt gekraak.</li><li>Opgelost: het foutrapport accepteert PNG- / JPG-schermafbeeldingen; geen woordvoorspelling in de editors op macOS en een schone READY.-cursor.</li></ul><p>Vragen, ideeën of bugs: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>SID-spelermacro</strong>: <code>.sid "music.sid"</code> + <code>.sid_player</code> — init, raster-IRQ en play elk frame in één regel; <code>.sid</code> definieert ook de labels <code>SID_INIT</code> / <code>SID_PLAY</code>.</li><li><strong>Alleen Expert-modus</strong> per project (Project settings).</li><li><strong>SID Player-buffer</strong> in Settings → SID preview — een grotere buffer voorkomt gekraak.</li><li><strong>Eigen C64-palet</strong>: Settings → Editors → Edit custom palette… (import en export van Photoshop-.act / VICE-.vpl).</li><li>Opgelost: het foutrapport accepteert PNG- / JPG-schermafbeeldingen; geen woordvoorspelling in de editors op macOS en een schone READY.-cursor.</li></ul><p>Vragen, ideeën of bugs: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
     eyebrow: "Nowość w 2.6.6",
     title: "Witamy w Visual Assembler",
-    body: `<ul><li><strong>Makro odtwarzacza SID</strong>: <code>.sid "music.sid"</code> + <code>.sid_player</code> — init, IRQ rastrowe i play w każdej klatce w jednej linii; <code>.sid</code> definiuje też etykiety <code>SID_INIT</code> / <code>SID_PLAY</code>.</li><li><strong>Tylko tryb Ekspert</strong> dla projektu (Project settings).</li><li><strong>Bufor SID Playera</strong> w Settings → SID preview — większy bufor usuwa trzaski.</li><li>Poprawiono: zgłoszenie błędu przyjmuje zrzuty PNG / JPG; brak podpowiedzi tekstu w edytorach na macOS i czysty kursor READY.</li></ul><p>Pytania, pomysły lub błędy: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Makro odtwarzacza SID</strong>: <code>.sid "music.sid"</code> + <code>.sid_player</code> — init, IRQ rastrowe i play w każdej klatce w jednej linii; <code>.sid</code> definiuje też etykiety <code>SID_INIT</code> / <code>SID_PLAY</code>.</li><li><strong>Tylko tryb Ekspert</strong> dla projektu (Project settings).</li><li><strong>Bufor SID Playera</strong> w Settings → SID preview — większy bufor usuwa trzaski.</li><li><strong>Własna paleta C64</strong>: Settings → Editors → Edit custom palette… (import i eksport .act z Photoshopa / .vpl z VICE).</li><li>Poprawiono: zgłoszenie błędu przyjmuje zrzuty PNG / JPG; brak podpowiedzi tekstu w edytorach na macOS i czysty kursor READY.</li></ul><p>Pytania, pomysły lub błędy: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
     eyebrow: "Novità nella 2.6.6",
     title: "Benvenuto in Visual Assembler",
-    body: `<ul><li><strong>Macro player SID</strong>: <code>.sid "music.sid"</code> + <code>.sid_player</code> — init, IRQ raster e play a ogni fotogramma in una riga; <code>.sid</code> definisce anche le etichette <code>SID_INIT</code> / <code>SID_PLAY</code>.</li><li><strong>Solo modalità Esperto</strong> per progetto (Project settings).</li><li><strong>Buffer del SID Player</strong> in Settings → SID preview: un buffer più grande evita i crepitii.</li><li>Corretto: la segnalazione di bug accetta screenshot PNG / JPG; niente testo predittivo negli editor su macOS e un cursore READY. pulito.</li></ul><p>Domande, idee o bug: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Macro player SID</strong>: <code>.sid "music.sid"</code> + <code>.sid_player</code> — init, IRQ raster e play a ogni fotogramma in una riga; <code>.sid</code> definisce anche le etichette <code>SID_INIT</code> / <code>SID_PLAY</code>.</li><li><strong>Solo modalità Esperto</strong> per progetto (Project settings).</li><li><strong>Buffer del SID Player</strong> in Settings → SID preview: un buffer più grande evita i crepitii.</li><li><strong>Tavolozza C64 personalizzata</strong>: Settings → Editors → Edit custom palette… (import ed export .act di Photoshop / .vpl di VICE).</li><li>Corretto: la segnalazione di bug accetta screenshot PNG / JPG; niente testo predittivo negli editor su macOS e un cursore READY. pulito.</li></ul><p>Domande, idee o bug: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
@@ -4243,6 +4243,18 @@ function _applyEditorTranslations() {
   setText("#editor-palette-label", t("editorPalette"));
   setText("#editor-palette-note", t("editorPaletteNote"));
   setText('#editor-palette option[value="colodore"]', t("editorPaletteColodore"));
+  setText('#editor-palette option[value="custom"]', t("editorPaletteCustom"));
+  setText("#editor-palette-edit", t("editorPaletteEdit"));
+  setText("#pal-ed-title", t("palEdTitle"));
+  setText("#pal-ed-note", t("palEdNote"));
+  setText("#pal-ed-base-label", t("palEdStartFrom"));
+  setText("#pal-ed-load-base", t("palEdCopy"));
+  setText("#pal-ed-import", t("palEdImport"));
+  setText("#pal-ed-export-act", t("palEdExportAct"));
+  setText("#pal-ed-export-vpl", t("palEdExportVpl"));
+  setText("#pal-ed-cancel", t("cancel"));
+  setText("#pal-ed-save", t("psSave"));
+  document.getElementById("pal-ed-close")?.setAttribute("aria-label", t("close"));
   const sidLcdColor = document.getElementById("sid-lcd-color");
   if (sidLcdColor) {
     if (sidLcdColor.options[0]) sidLcdColor.options[0].textContent = t("sidLcdColorGreen");
@@ -24122,6 +24134,7 @@ function setupHardwareSettingsDialog() {
     } catch (_) {}
     editorPaletteSel.addEventListener("change", function(e) { _setEditorPalette(e.target.value); });
   }
+  setupPaletteEditor();
   document.getElementById("sid-lcd-color")?.addEventListener("change", function(e) {
     try { localStorage.setItem("c64va-sid-lcd-color", e.target.value === "red" ? "red" : "green"); } catch (_) {}
     _sidLcdApplyColor();
@@ -41071,7 +41084,17 @@ const _C64_PALETTES = {
   deekay:   [0x000000, 0xFFFFFF, 0x882000, 0x68D0A8, 0xA838A0, 0x50B818, 0x181090, 0xF0E858, 0xA04800, 0x472B1B, 0xC87870, 0x484848, 0x808080, 0x98FF98, 0x5090D0, 0xB8B8B8],
   c64wiki:  [0x000000, 0xFFFFFF, 0x880000, 0xAAFFEE, 0xCC44CC, 0x00CC55, 0x0000AA, 0xEEEE77, 0xDD8855, 0x664400, 0xFF7777, 0x333333, 0x777777, 0xAAFF66, 0x0088FF, 0xBBBBBB]
 };
-const _C64_PALETTE_NAMES = { colodore: "Colodore", pepto: "Pepto", vice: "VICE", deekay: "Deekay", c64wiki: "C64 Wiki / Godot" };
+const _C64_PALETTE_NAMES = { colodore: "Colodore", pepto: "Pepto", vice: "VICE", deekay: "Deekay", c64wiki: "C64 Wiki / Godot", custom: "Custom" };
+// Custom palette (Settings → General → Editors → Edit custom palette…, `c64va-custom-palette`):
+// 16 RGB values the user sets; until then a copy of Colodore.
+_C64_PALETTES.custom = _C64_PALETTES.colodore.slice();
+try {
+  const c = JSON.parse(localStorage.getItem("c64va-custom-palette") || "null");
+  if (_palIsValid(c)) _C64_PALETTES.custom = c.slice();
+} catch (_) {}
+function _palIsValid(c) {
+  return Array.isArray(c) && c.length === 16 && c.every(function(v) { return Number.isInteger(v) && v >= 0 && v <= 0xFFFFFF; });
+}
 // Editor palette (Settings → General, `c64va-editor-palette`): every editor draws with
 // _CE_COLORS; _setEditorPalette refills it in place, so the references stay valid.
 let _editorPalette = "colodore";
@@ -41108,6 +41131,153 @@ function _setEditorPalette(name) {
     if (open("hires-editor-dialog")) { _hgRenderAll(); _hgUpdatePaperSwatch(); }
     if (open("sprite-editor-dialog")) { _spBuildColors(); _spRender(); }
   } catch (err) { console.error("editor palette redraw failed:", err); }
+}
+
+// Text palette files → 16 RGB values: GIMP .gpl (decimal "R G B name"), VICE .vpl ("RR GG BB dither"
+// per line, hex) or any list of #RRGGBB / $RRGGBB / 0xRRGGBB values; null when fewer than 16 colours.
+function _palParseText(text) {
+  const lines = String(text || "").replace(/\r/g, "").split("\n");
+  const out = [];
+  if (/^\s*GIMP Palette/i.test(lines[0] || "")) {
+    for (const line of lines) {
+      const m = line.match(/^\s*(\d{1,3})\s+(\d{1,3})\s+(\d{1,3})(?:\s|$)/);
+      if (m) out.push((Math.min(255, +m[1]) << 16) | (Math.min(255, +m[2]) << 8) | Math.min(255, +m[3]));
+    }
+    return out.length >= 16 ? out.slice(0, 16) : null;
+  }
+  const hex6 = String(text).match(/(?:#|\$|0x)[0-9a-f]{6}\b/gi);
+  if (hex6 && hex6.length >= 16) return hex6.slice(0, 16).map(function(h) { return parseInt(h.replace(/^(?:#|\$|0x)/i, ""), 16); });
+  for (const line of lines) {
+    const body = line.replace(/#.*$/, "").trim();
+    const m = body.match(/^([0-9a-f]{1,2})\s+([0-9a-f]{1,2})\s+([0-9a-f]{1,2})(?:\s|$)/i);
+    if (m) out.push((parseInt(m[1], 16) << 16) | (parseInt(m[2], 16) << 8) | parseInt(m[3], 16));
+  }
+  return out.length >= 16 ? out.slice(0, 16) : null;
+}
+// Photoshop .act: RGB triplets (256 × 3 bytes, optionally + colour count and transparency index).
+function _palParseAct(bytes) {
+  if (!bytes || bytes.length < 48) return null;
+  const out = [];
+  for (let i = 0; i < 16; i++) out.push((bytes[i * 3] << 16) | (bytes[i * 3 + 1] << 8) | bytes[i * 3 + 2]);
+  return out;
+}
+function _palToAct(colors) {
+  const out = new Uint8Array(772);
+  colors.forEach(function(v, i) { out[i * 3] = v >> 16; out[i * 3 + 1] = (v >> 8) & 255; out[i * 3 + 2] = v & 255; });
+  out[769] = 16;                              // colour count (big-endian 16-bit)
+  out[770] = 0xFF; out[771] = 0xFF;           // no transparent colour
+  return out;
+}
+function _palToVpl(colors) {
+  const hex = function(v) { return v.toString(16).toUpperCase().padStart(2, "0"); };
+  return "# VICE Palette file\n#\n# Made by C64 Visual Assembler\n#\n# Syntax:\n# Red Green Blue Dither\n#\n\n" +
+    colors.map(function(v, i) { return hex(v >> 16) + " " + hex((v >> 8) & 255) + " " + hex(v & 255) + " " + (i < 2 ? "0" : "4"); }).join("\n") + "\n";
+}
+
+function _palEdStatus(text, kind) {
+  const el = document.getElementById("pal-ed-status");
+  if (!el) return;
+  el.textContent = text || "";
+  el.className = "form-status" + (kind ? " form-status--" + kind : "");
+}
+function _palEdRender(dlg) {
+  const grid = document.getElementById("pal-ed-grid");
+  const preview = document.getElementById("pal-ed-preview");
+  if (!grid || !preview) return;
+  if (!grid.children.length) {
+    for (let i = 0; i < 16; i++) {
+      const row = document.createElement("div");
+      row.className = "pal-ed-row";
+      row.innerHTML = '<span class="pal-ed-idx">' + i + '</span><input class="pal-ed-color" type="color">' +
+        '<span class="pal-ed-name"></span><input class="ps-input pal-ed-hex" type="text" maxlength="7" spellcheck="false" autocomplete="off" writingsuggestions="false">';
+      const color = row.querySelector(".pal-ed-color"), hex = row.querySelector(".pal-ed-hex");
+      color.addEventListener("input", function() { dlg._colors[i] = parseInt(color.value.slice(1), 16); _palEdRender(dlg); });
+      hex.addEventListener("input", function() {
+        const m = hex.value.trim().match(/^(?:#|\$)?([0-9a-f]{6})$/i);
+        hex.classList.toggle("is-invalid", !m);
+        if (!m) return;
+        dlg._colors[i] = parseInt(m[1], 16);
+        color.value = "#" + m[1].toLowerCase();
+        _palEdRenderPreview(dlg);
+      });
+      grid.appendChild(row);
+      preview.appendChild(document.createElement("span"));
+    }
+  }
+  Array.from(grid.children).forEach(function(row, i) {
+    const v = "#" + dlg._colors[i].toString(16).padStart(6, "0");
+    row.querySelector(".pal-ed-color").value = v;
+    const hex = row.querySelector(".pal-ed-hex");
+    if (document.activeElement !== hex) { hex.value = v.toUpperCase(); hex.classList.remove("is-invalid"); }
+    row.querySelector(".pal-ed-name").textContent = t("c64Color" + i);
+  });
+  _palEdRenderPreview(dlg);
+}
+function _palEdRenderPreview(dlg) {
+  const preview = document.getElementById("pal-ed-preview");
+  if (preview) Array.from(preview.children).forEach(function(el, i) { el.style.background = "#" + dlg._colors[i].toString(16).padStart(6, "0"); });
+}
+function openPaletteEditor() {
+  const dlg = document.getElementById("palette-editor-dialog");
+  if (!dlg) return;
+  dlg._colors = _C64_PALETTES.custom.slice();
+  const base = document.getElementById("pal-ed-base");
+  if (base && _editorPalette !== "custom" && base.querySelector('option[value="' + _editorPalette + '"]')) base.value = _editorPalette;
+  _palEdStatus("");
+  _palEdRender(dlg);
+  try { dlg.showModal(); } catch (_) { dlg.show(); }
+}
+function setupPaletteEditor() {
+  const dlg = document.getElementById("palette-editor-dialog");
+  if (!dlg) return;
+  document.getElementById("editor-palette-edit")?.addEventListener("click", openPaletteEditor);
+  const close = function() { dlg.close(); };
+  document.getElementById("pal-ed-close")?.addEventListener("click", close);
+  document.getElementById("pal-ed-cancel")?.addEventListener("click", close);
+  document.getElementById("pal-ed-load-base")?.addEventListener("click", function() {
+    const name = document.getElementById("pal-ed-base")?.value;
+    if (!_C64_PALETTES[name]) return;
+    dlg._colors = _C64_PALETTES[name].slice();
+    _palEdRender(dlg);
+    _palEdStatus(tf("palEdCopied", { name: _C64_PALETTE_NAMES[name] }), "ok");
+  });
+  const fileIn = document.createElement("input");
+  fileIn.type = "file";
+  fileIn.accept = ".act,.vpl,.gpl,.txt,.pal,.hex";
+  fileIn.hidden = true;
+  dlg.appendChild(fileIn);
+  document.getElementById("pal-ed-import")?.addEventListener("click", function() { fileIn.click(); });
+  fileIn.addEventListener("change", function() {
+    const file = fileIn.files && fileIn.files[0];
+    fileIn.value = "";
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function() {
+      const bytes = new Uint8Array(reader.result);
+      const colors = /\.act$/i.test(file.name) ? _palParseAct(bytes) : _palParseText(new TextDecoder().decode(bytes));
+      if (!colors) { _palEdStatus(t("palEdImportFailed"), "error"); return; }
+      dlg._colors = colors;
+      _palEdRender(dlg);
+      _palEdStatus(tf("palEdImported", { name: file.name }), "ok");
+    };
+    reader.onerror = function() { _palEdStatus(t("palEdImportFailed"), "error"); };
+    reader.readAsArrayBuffer(file);
+  });
+  document.getElementById("pal-ed-export-act")?.addEventListener("click", function() {
+    _saveBinFile(_palToAct(dlg._colors), "c64-palette.act");
+  });
+  document.getElementById("pal-ed-export-vpl")?.addEventListener("click", function() {
+    _saveBinFile(new TextEncoder().encode(_palToVpl(dlg._colors)), "c64-palette.vpl");
+  });
+  document.getElementById("pal-ed-save")?.addEventListener("click", function() {
+    if (!_palIsValid(dlg._colors)) return;
+    _C64_PALETTES.custom = dlg._colors.slice();
+    try { localStorage.setItem("c64va-custom-palette", JSON.stringify(_C64_PALETTES.custom)); } catch (_) {}
+    const sel = document.getElementById("editor-palette");
+    if (sel) sel.value = "custom";
+    _setEditorPalette("custom");
+    dlg.close();
+  });
 }
 
 const _C64_COLORS = [
@@ -47374,7 +47544,7 @@ function _hgPngConvert(rgba, w, h, multi, opts) {
 var _hgPng = { img: null, name: "", opts: null, timer: 0, result: null, seq: 0, view: 1 };
 const _HG_PNG_FIELDS = [
   ["mode", "select", ["hires", "multi"]],
-  ["palette", "select", ["editor", "colodore", "pepto", "vice", "deekay", "c64wiki"]],
+  ["palette", "select", ["editor", "colodore", "pepto", "vice", "deekay", "c64wiki", "custom"]],
   ["scale", "select", ["smooth", "pixel"]],
   ["fit", "select", ["fit", "fill", "stretch"]],
   ["-"],
@@ -47402,7 +47572,8 @@ const _HG_PNG_LABELS = {
 function _hgPngOptionText(key, value) {
   const names = { hires: "hgPngHires", multi: "hgPngMulti", smooth: "hgPngSmooth", pixel: "hgPngPixel",
     stretch: "hgPngStretch", fit: "hgPngFitIn", fill: "hgPngFill" };
-  if (key === "palette") return value === "editor" ? tf("hgPngPaletteEditor", { name: _C64_PALETTE_NAMES[_editorPalette] }) : _C64_PALETTE_NAMES[value] || value;
+  const palName = function(p) { return p === "custom" ? t("editorPaletteCustom") : _C64_PALETTE_NAMES[p] || p; };
+  if (key === "palette") return value === "editor" ? tf("hgPngPaletteEditor", { name: palName(_editorPalette) }) : palName(value);
   return names[value] ? t(names[value]) : value;
 }
 function _hgPngLoadOpts() {

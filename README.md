@@ -12,6 +12,7 @@ Visual Assembler is free and open source (GPLv3): every feature — editors, bui
 - **SID labels** — the `.sid` macro defines `SID_LOAD`, `SID_INIT` and `SID_PLAY` (moved with a custom load address), so your own IRQ handler can `JSR SID_PLAY`.
 - **Expert mode only** — a Project settings switch that closes block mode for the project's files, whatever their size (saved in the `.proj`).
 - **SID Player buffer** — Settings → General → SID preview → SID Player buffer: 2048–16384 samples; a larger buffer stops the crackle while the app is busy (WebSID after a restart; VA SID Core renders 10 / 15 / 20 / 30 s ahead).
+- **Custom C64 palette** — Settings → General → Editors → *Edit custom palette…*: your own RGB value for each of the 16 colours (colour picker or hex), starting from any built-in palette; import Photoshop `.act`, VICE `.vpl`, GIMP `.gpl` or a hex list, export `.act` / `.vpl`. *Custom* is then a palette like Colodore or Pepto, also in the Hi-Res image import.
 - **Look** — the C64 memory panel docks back collapsed; the What's New, update, Settings and Knowledge Base windows have the About box frame; VA switches in Project settings.
 - **Fixes** — the bug report accepts PNG / JPG screenshots in the release build; the splash `READY.` cursor is a solid C64 cell (no lines on macOS); macOS inline predictive text is off in the Expert and Ultimate Basic editors.
 
