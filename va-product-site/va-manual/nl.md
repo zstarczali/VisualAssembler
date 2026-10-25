@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Gebruikershandleiding
 
-**Versie 2.6.5**
+**Versie 2.6.6**
 
 Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw
 programma's door instructieblokken te slepen en neer te zetten, en bekijk de
@@ -12,6 +12,7 @@ gegenereerde assembly- en machinecode in realtime.
 
 - [C64 Visual Assembler —
   Gebruikershandleiding](#c64-visual-assembler--user-manual)
+    - [Hoogtepunten van versie 2.6.6](#version-266-highlights)
     - [Hoogtepunten van versie 2.6.5](#version-265-highlights)
     - [Hoogtepunten van versie 2.6.4](#version-264-highlights)
     - [Hoogtepunten van versie 2.6.3](#version-263-highlights)
@@ -124,6 +125,7 @@ gegenereerde assembly- en machinecode in realtime.
       - [NIVEAU](#level)
       - [NIVEAU_RIJ](#level_row)
     - [SID](#sid)
+    - [SID_PLAYER](#sid_player)
     - [INCLUDE](#include)
     - [TABEL](#table)
     - [ORG](#org)
@@ -209,6 +211,43 @@ gegenereerde assembly- en machinecode in realtime.
     - [Curve-editor](#curve-editor)
     - [Tabelgenerator](#table-generator)
     - [Nummeromzetter](#number-converter)
+
+---
+
+## Hoogtepunten van versie 2.6.6
+
+- **SID-speler macro** — `.sid_player [subtune][, raster]` (**SID_PLAYER** in
+  het palet) speelt de melodie van de `.sid` macro: het roept de init-routine
+  aan met de subtune, schakelt de CIA1-timer-IRQ uit, onderschept een raster-IRQ
+  en roept de afspeelroutine elke frame aan vanuit de ingebouwde handler. Een
+  programma met muziek is nu `.sid "music.sid"` + `.sid_player`. Zie
+  [SID_PLAYER](#sid_player).
+- **SID-labels** — de `.sid`-macro definieert `SID_LOAD`, `SID_INIT` en
+  `SID_PLAY`, samen verplaatst met een aangepast laadadres, zodat uw eigen
+  IRQ-handler `JSR SID_PLAY` kan schrijven. Zie [SID](#sid).
+- **Alleen expertmodus** — **Projectinstellingen** heeft een schakelaar waarmee
+  de blokmodus voor de projectbestanden kan worden uitgeschakeld, ongeacht hun
+  grootte (opgeslagen in het `.proj`). Zie [Projectpaneel en
+  tabbladen](#project-panel--tabs).
+- **SID Player buffer** — **Instellingen → Algemeen → SID-voorbeeld → SID Player
+  buffer** stelt 2048–16384 samples in; een grotere buffer voorkomt het gekraak
+  terwijl de app bezig is. WebSID gebruikt deze na een herstart, VA SID Core
+  rendert 10 / 15 / 20 / 30 s vooruit. Zie [SID Player](#sid-player).
+- **Aangepast C64-palet** — **Instellingen → Algemeen → Editors → Aangepast
+  palet bewerken…** stelt uw eigen RGB-waarde in voor elk van de 16 kleuren,
+  beginnend bij een ingebouwd palet; importeer een Photoshop `.act`, VICE
+  `.vpl`, GIMP `.gpl` palet of een lijst met hexadecimale kleuren, exporteer
+  `.act` / `.vpl`. Zie [14. Visuele editors
+  (Toolkit)](#14-visual-editors-toolkit).
+- **Kijk** — het C64-geheugenpaneel klapt terug; de vensters 'Wat is nieuw',
+  'Update', 'Instellingen' en 'Kennisbank' hebben hetzelfde kader als het
+  'Over'-venster; de selectievakjes voor projectinstellingen zijn
+  VA-schakelaars.
+- **Oplossingen** — het bugrapport accepteert PNG- en JPG-screenshots in de
+  releaseversie; de knipperende cursor na `READY.` op het opstartscherm is een
+  effen C64-cel, zonder de lijnen die macOS erop tekende; de inline
+  voorspellende tekst van macOS is uitgeschakeld in de Expert- en Ultimate
+  Basic-editors.
 
 ---
 
@@ -890,10 +929,10 @@ gegenereerde assembly- en machinecode in realtime.
 ## Hoogtepunten van versie 2.3.9
 
 - **`*` in elke expressie** — het programmatellersymbool werkt nu binnen
-  operandexpressies, niet alleen op zichzelf: `BNE *-5`, `JMP *+20`, `LDA
-  #<*`, `LDA #>(*+63)`. Een `*` die volgt op een waarde (`STRIDE*2`) is
-  nog steeds vermenigvuldiging. Zie [Addressing Modes → De `*` programmateller
-  in expressies](#d64-editor-browse--edit-an-existing-disk-image).
+  operandexpressies, niet alleen op zichzelf: `BNE *-5`, `JMP *+20`, `LDA #<*`,
+  `LDA #>(*+63)`. Een `*` die volgt op een waarde (`STRIDE*2`) is nog steeds
+  vermenigvuldiging. Zie [Addressing Modes → De `*` programmateller in
+  expressies](#d64-editor-browse--edit-an-existing-disk-image).
 - **Lokale (gestippelde) labels** — een label zoals `.loop` behoort tot het
   bereik van het dichtstbijzijnde voorafgaande *globale* (niet-gestippelde)
   label, zodat `DrawSprite` en `ClearScreen` elk hun eigen `.loop` kunnen
@@ -903,10 +942,10 @@ gegenereerde assembly- en machinecode in realtime.
   een `JMP` (altijd 5 bytes), zodat het doel zich op elke willekeurige afstand
   kan bevinden. Nieuwe paletcategorie **Lange vertakkingen**. Zie [LBNE / LBEQ /
   … (Lange vertakkingen)]{1}.
-- **`.assert` directive** — `.assert end - start <= 256` or `.assert * <
-  $A000, "message"` wordt geëvalueerd tijdens het assembleren en de build
-  mislukt (waarbij de werkelijke waarde wordt weergegeven) wanneer de expressie
-  onwaar is. Zie [.ASSERT]{1}.
+- **`.assert` directive** — `.assert end - start <= 256` or `.assert * < $A000,
+  "message"` wordt geëvalueerd tijdens het assembleren en de build mislukt
+  (waarbij de werkelijke waarde wordt weergegeven) wanneer de expressie onwaar
+  is. Zie [.ASSERT]{1}.
 - **Operandlabels voor zelfmodificerende code** — `LDA-waarde:#$00` definieert
   het label `waarde` dat naar de operandbyte van de instructie wijst, zodat
   `STA-waarde` deze direct patcht. Zie [Operandlabels voor zelfmodificerende
@@ -925,10 +964,10 @@ gegenereerde assembly- en machinecode in realtime.
 De app is opgedeeld in drie hoofdpanelen:
 
 - **`*` in elke expressie** — het programmatellersymbool werkt nu binnen
-  operandexpressies, niet alleen op zichzelf: `BNE *-5`, `JMP *+20`, `LDA
-  #<*`, `LDA #>(*+63)`. Een `*` die volgt op een waarde (`STRIDE*2`) is
-  nog steeds vermenigvuldiging. Zie [Addressing Modes → De `*` programmateller
-  in expressies](#the--program-counter-in-expressions).
+  operandexpressies, niet alleen op zichzelf: `BNE *-5`, `JMP *+20`, `LDA #<*`,
+  `LDA #>(*+63)`. Een `*` die volgt op een waarde (`STRIDE*2`) is nog steeds
+  vermenigvuldiging. Zie [Addressing Modes → De `*` programmateller in
+  expressies](#the--program-counter-in-expressions).
 - **Lokale (gestippelde) labels** — een label zoals `.loop` behoort tot het
   bereik van het dichtstbijzijnde voorafgaande *globale* (niet-gestippelde)
   label, zodat `DrawSprite` en `ClearScreen` elk hun eigen `.loop` kunnen
@@ -939,10 +978,10 @@ De app is opgedeeld in drie hoofdpanelen:
   een `JMP` (altijd 5 bytes), zodat het doel zich op elke willekeurige afstand
   kan bevinden. Nieuwe paletcategorie **Lange vertakkingen**. Zie [LBNE / LBEQ /
   … (Lange vertakkingen)](#lbne--lbeq---long-branches).
-- **`.assert` directive** — `.assert end - start <= 256` or `.assert * <
-  $A000, "message"` wordt geëvalueerd tijdens het assembleren en de build
-  mislukt (waarbij de werkelijke waarde wordt weergegeven) wanneer de expressie
-  onwaar is. Zie [.ASSERT](#assert).
+- **`.assert` directive** — `.assert end - start <= 256` or `.assert * < $A000,
+  "message"` wordt geëvalueerd tijdens het assembleren en de build mislukt
+  (waarbij de werkelijke waarde wordt weergegeven) wanneer de expressie onwaar
+  is. Zie [.ASSERT](#assert).
 - **Operandlabels voor zelfmodificerende code** — `LDA-waarde:#$00` definieert
   het label `waarde` dat naar de operandbyte van de instructie wijst, zodat
   `STA-waarde` deze direct patcht. Zie [Operandlabels voor zelfmodificerende
@@ -1708,7 +1747,7 @@ die in beide voorkomen, worden onderscheiden door hun vorm:
 
 | VA (VMA)                                          | KickAssembler                                                                                                          |
 | ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| `.voor X, $0A, voor1` … `.einde voor1`            | `.for (var i = 0; i < 10; i++) { … }`                                                                               |
+| `.voor X, $0A, voor1` … `.einde voor1`            | `.for (var i = 0; i < 10; i++) { … }`                                                                                  |
 | `.if DEBUG` … `.else` … `.endif`                  | `.if (expressie) { … } anders { … }`                                                                                   |
 | `.macro name(p)` … `.endm`, called with `.invoke` | `.macro Name(p) { … }`, aangeroepen als `Name(arg)`                                                                    |
 | `.var name = value` (een runtime-variabele)       | `.var name = value` (een scriptvariabele) — in een Kick-compatibel project is `.var` altijd de KickAssembler-variabele |
@@ -1725,9 +1764,9 @@ Ondersteund:
 - `.const` / `.label` in willekeurige volgorde, met expressies; nulpagina- of
   absolute adressering volgt de waarde zoals in KickAssembler (`.abs` / `.zp`
   dwingen het nog steeds af)
-- `.for (var i = 0; i < n; i++) { … }` en de éénregelige vorm, `.var`,
-  `.eval` (`=`, `+=`, `++` …), `.if (…) { … } else .if (…) { … } else { … }` en
-  de éénregelige vorm
+- `.for (var i = 0; i < n; i++) { … }` en de éénregelige vorm, `.var`, `.eval`
+  (`=`, `+=`, `++` …), `.if (…) { … } else .if (…) { … } else { … }` en de
+  éénregelige vorm
 - `.functie Naam(params) { .return expr }` en `.macro Naam(params) { … }`
   aangeroepen als `Naam(args)` of `:Naam(args)`
 - multi-labels `!:` / `!name:` met `!+`, `!-`, `!++`, `!name+`, `!name-`
@@ -2257,14 +2296,15 @@ projecten met meerdere bestanden `.proj`:
   op dezelfde manier naar een hele map (bijvoorbeeld een map met bestanden).
   Items die alleen een verwijzing bevatten, tonen een knop voor verwijderen (✕),
   maar worden niet geopend wanneer u erop klikt.
-- **Projectinstellingen** (de knop met het tandwiel in de paneelheader, of
-  **Menu → Bestand → Projectinstellingen…**) toont en bewerkt het project: naam,
-  `.proj` pad, opstartbestand, assembler (VMA of ACME),
-  **KickAssembler-compatibel**, en voor een Kick-project de
-  preprocessor-symbolen (`#define`, zoals KickAssembler's `-define`) en de
-  opdrachtregelvariabelen (`cmdLineVars`, één `naam=waarde` per regel, zoals
-  `:naam=waarde`), plus het aantal bron- en andere bestanden. Alles wordt
-  opgeslagen in `.proj`.
+- **Projectinstellingen** (de tandwielknop in de paneelheader, of **Menu →
+  Bestand → Projectinstellingen…**) toont en bewerkt het project: naam, `.proj`
+  pad, opstartbestand, assembler (VMA of ACME), **KickAssembler-compatibel**, en
+  voor een Kick-project de preprocessor-symbolen (`#define`, zoals
+  KickAssembler's `-define`) en de opdrachtregelvariabelen (`cmdLineVars`, één
+  `naam=waarde` per regel, zoals `:naam=waarde`), plus het aantal bron- en
+  andere bestanden, en **Alleen expertmodus**: de blokmodus is gesloten voor de
+  bestanden van het project, ongeacht hun grootte. Alles wordt opgeslagen in het
+  `.proj`.
 - Mappen in de boomstructuur hebben een inklap-/uitklappijl, en **klik met de
   rechtermuisknop op een map** om een of meer bestanden die eronder genest zijn
   toe te voegen (ingesprongen weergegeven).
@@ -2444,9 +2484,9 @@ geen label nodig voor korte relatieve sprongen of PC-relatieve gegevenslezingen.
 
 **PC versus vermenigvuldiging.** `*` wordt alleen als programmateller behandeld
 wanneer deze zich in *waardepositie* bevindt — aan het begin van de expressie,
-of direct na een operator, `(`, `,`, `<`, `>` of witruimte. Een `*` die
-volgt op een getal, `)` of een identifier is gewone vermenigvuldiging, dus
-`LDA-tabel*2` en `CONST_A*4` blijven ongewijzigd.
+of direct na een operator, `(`, `,`, `<`, `>` of witruimte. Een `*` die volgt op
+een getal, `)` of een identifier is gewone vermenigvuldiging, dus `LDA-tabel*2`
+en `CONST_A*4` blijven ongewijzigd.
 
 **Waar het werkt.** Elke operand die al een expressie accepteert:
 vertakkingsdoelen, `JMP` / `JSR`, `LDA`/`STA`/… absolute en geïndexeerde,
@@ -3518,8 +3558,8 @@ de schermen. Een level kan maximaal 7 × 10 schermen bevatten.
 | `LEVEL_ATTR`, `LEVEL_ATTR_SOLID` … `LEVEL_ATTR_COLLECT`                       | Karakterattributentabel (één vlagbyte per schermcode; alleen wanneer het level attributen heeft) en de bijbehorende bits: 1, 2, 4, 8                |
 | `LEVEL_BORDER`, `LEVEL_SCR_COLORS`, `LEVEL_SCR_BG/BORDER/MC1/MC2`             | Niveaugrens; kleurentabellen per slot (rij-georiënteerd zoals `LEVEL_SLOT_*`) wanneer een scherm zijn eigen kleuren heeft (`LEVEL_SCR_COLORS` = 1)  |
 
-Typische beveiliging: `.assert LEVEL_END <= $9200, "niveaugegevens komen in
-de code terecht"`.
+Typische beveiliging: `.assert LEVEL_END <= $9200, "niveaugegevens komen in de
+code terecht"`.
 
 #### NIVEAU_RIJ
 
@@ -3587,7 +3627,48 @@ opgegeven adres geplaatst als een uitgesteld blok in de PRG.
 
 > **Typisch gebruik:** Plaats een ORG-blok vóór het SID-blok om het adres ervan
 > in te stellen. Roep Init eenmaal aan bij het opstarten en roep vervolgens Play
-> aan voor elk frame vanuit een raster-IRQ-handler.
+> elke frame aan vanuit een raster-IRQ-handler — of laat
+> [SID_PLAYER](#sid_player) beide doen.
+
+**Labels:** Het SID-blok definieert `SID_LOAD` (waar de data wordt geplaatst),
+`SID_INIT` en `SID_PLAY` (de init- en play-adressen, samen verplaatst met een
+aangepast adres). `SID_PLAY` ontbreekt wanneer de tune geen play-adres heeft
+(een RSID die zijn eigen IRQ installeert). Gebruik ze in je eigen code,
+bijvoorbeeld `JSR SID_PLAY` in een IRQ-handler.
+
+---
+
+### SID_PLAYER
+
+Speelt de melodie van de **SID** macro af met één blok: het initialiseert de
+melodie en blijft de afspeelroutine aanroepen vanuit een rasteronderbreking,
+zodat uw programma verder kan gaan met zijn eigen werk.
+
+| Veld   | Beschrijving                                                            |
+| ------ | ----------------------------------------------------------------------- |
+| Liedje | Subtuneringsnummer doorgegeven aan de init-routine in A (standaard `0`) |
+| Raster | Rasterlijn van de interrupt, `$00`–`$FF` (standaard `$FA`)              |
+
+Wat het doet: `SEI`, `LDA #song` / `JSR SID_INIT`, schakelt de CIA1 timer IRQ
+uit (`$DC0D`), stelt de IRQ-vector (`$0314/$0315`) in op de ingebouwde handler,
+de rasterlijn (`$D012`, bit 8 van `$D011` gewist) en de raster-IRQ (`$D01A`),
+`CLI`, en springt vervolgens over de handler heen. De handler bevestigt de
+interrupt (`ASL $D019`), roept `JSR SID_PLAY` aan en gaat verder naar de KERNAL
+(`JMP $EA31`, die ook het toetsenbord scant).
+
+**Expert syntax:**
+```
+.sid "Ikari_Warriors.sid"
+.sid_player
+.sid_player 1, $80
+```
+
+**Grootte in code: ** 58 bytes.
+
+> **Opmerking:** Er is een SID-blok nodig in het programma (`SID_INIT` en
+> `SID_PLAY`); anders stopt de build met een fout. Met de CIA1 timer IRQ
+> uitgeschakeld, voert de KERNAL één keer per frame uit vanaf de raster IRQ —
+> toetsenbord en `GETIN` blijven werken.
 
 ---
 
@@ -4234,10 +4315,10 @@ een expressie tijdens het assembleren; als deze onwaar is (`0`), stopt de build
 met een duidelijke foutmelding die de werkelijke waarde bevat. Als deze waar is
 (niet nul), wordt er niets weergegeven.
 
-| Veld        | Beschrijving                                                                                                                                                 |
-| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Veld        | Beschrijving                                                                                                                                     |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Uitdrukking | Elke assembler-expressie: labels, `CONST`s, `*` (programmateller), rekenkundige bewerkingen en vergelijkingen (`<`, `<=`, `>`, `>=`, `==`, `!=`) |
-| Bericht     | Optionele tekst die aan de foutmelding kan worden toegevoegd                                                                                                 |
+| Bericht     | Optionele tekst die aan de foutmelding kan worden toegevoegd                                                                                     |
 
 **Expert syntax:**
 ```
@@ -4250,8 +4331,8 @@ met een duidelijke foutmelding die de werkelijke waarde bevat. Als deze waar is
 
 - **Grootte:** 0 bytes.
 - Een onjuiste bewering zorgt ervoor dat de assemblage wordt afgebroken:
-  `` `.assert end - start <= 256` is onjuist (waarde: 0). spritetabel loopt
-  over één pagina ``
+  `` `.assert end - start <= 256` is onjuist (waarde: 0). spritetabel loopt over
+  één pagina ``
 - Een bewering die niet kan worden geëvalueerd (ongedefinieerd label, enz.)
   mislukt ook, met *"kan niet worden geëvalueerd tijdens de assemblage"*.
 - Vergelijkingen leveren `1` / `0` op; plaats `.assert` ergens in de
@@ -5099,7 +5180,7 @@ draait.
 
 | Veld                            | Beschrijving                                                                                                                                                                                                                        |
 | ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Bestandsnaam                    | Bestandsnaam op de schijf (max. 16 tekens, automatisch hoofdletters; tekens zoals `,`, `"`, `/`, `\`, `:`, `*`, `?`, `<`, `>`, `|` worden gefilterd)                                                                          |
+| Bestandsnaam                    | Bestandsnaam op de schijf (max. 16 tekens, automatisch hoofdletters; tekens zoals `,`, `"`, `/`, `\`, `:`, `*`, `?`, `<`, `>`, `|` worden gefilterd)                                                                                |
 | Apparaat                        | Apparaatnummer 8–30 (standaard `8`)                                                                                                                                                                                                 |
 | Adres overschrijven (optioneel) | Hexadecimaal laadadres (bijv. `C000`). Indien ingesteld, wordt het bestand naar dit adres geladen (`sec=0`, waarbij de PRG-header wordt genegeerd). Laat leeg om de eigen 2-byte PRG-header van het bestand te gebruiken (`sec=1`). |
 | Foutlabel (optioneel)           | Indien ingesteld, wordt na JSR LOAD een `BCS`-instructie gegenereerd. Als de KERNAL terugkeert met een ingestelde carry (fout), springt de uitvoering naar dit label.                                                               |
@@ -6253,6 +6334,17 @@ blijven hetzelfde. Bij het importeren van afbeeldingen in hoge resolutie wordt
 ook het kleurenpalet van de editor gebruikt, tenzij je daar een ander palet
 selecteert.
 
+**Aangepast palet:** Als geen van de kleuren overeenkomt met je monitor of je
+echte C64, kies dan **Aangepast** en klik op **Aangepast palet bewerken…**. Elk
+van de 16 kleuren krijgt een kleurenkiezer en een hex-veld (`#RRGGBB`);
+**Beginnen bij** + **Kopiëren** vult alle 16 kleuren vanuit een ingebouwd palet.
+**Importeren…** leest een Photoshop `.act`, een VICE `.vpl`, een GIMP `.gpl` of
+een tekstbestand met 16 `#RRGGBB` / `$RRGGBB` waarden (de eerste 16 kleuren
+worden gebruikt); **Exporteren .act** en **Exporteren .vpl** schrijven het palet
+voor Photoshop of voor VICE (*Instellingen → Video → Palet* in VICE), zodat je
+dezelfde kleuren in de emulator kunt vergelijken. **Opslaan** slaat het op en
+schakelt over naar **Aangepast**.
+
 Dialoogvensters van de visuele editor kunnen aan hun koptekst over de volledige
 werkruimte van Visual Assembler worden gesleept. Een dialoogvenster zonder
 opgeslagen positie wordt gecentreerd geopend; nadat het is verplaatst, wordt de
@@ -6703,6 +6795,10 @@ HVSC-collectie.
   Core-engine. WebSID kan niet zoeken, dus deze bedieningselementen zijn daarmee
   uitgeschakeld.
 - **Volume:** De knop wordt gedeeld met het hoofdvolume van de SID Editor.
+- **Buffer:** **Instellingen → Algemeen → SID-voorbeeld → SID-spelerbuffer**
+  (2048, 4096, 8192 of 16384 samples). Een grotere buffer voorkomt het gekraak
+  terwijl de app bezig is. WebSID gebruikt de nieuwe grootte na een herstart; VA
+  SID Core rendert 10 / 15 / 20 / 30 seconden vooruit vanaf de volgende melodie.
 - **Engine:** Het venster toont welke engine wordt gebruikt (WebSID of VA SID
   Core met de bijbehorende versie en SID-chip); kies deze in **Instellingen →
   SID-voorbeeld**. VA SID Core voert de tune uit op een native Rust C64-core met
