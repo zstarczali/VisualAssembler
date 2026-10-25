@@ -14,16 +14,15 @@ azonos marad a mai JS fordítóéval — ezt a golden korpusz (`tests/vma-golden
 | F1 JS-hibák javítása, korpusz bővítése | ✔ kész | `8291481`, `c029369` |
 | F2 Rust mag + CLI (`crates/vma`) | ✔ kész | `c0cc68d` |
 | F3 makrók, LOOP/FOR, `.var`, PUSH/PULL | ✔ kész | `536986e` |
-| **F4 kódgeneráló makrók** | **folyamatban** — 1. adag (fix kódú makrók) és 2. adag (szöveg / adat) kész, a 3. adag jön | — |
+| **F4 kódgeneráló makrók** | **folyamatban** — 1–3. adag (fix kódú, szöveg / adat, sprite / input makrók) kész, a 4. adag jön | — |
 | F5 fájl-makrók | hátra | — |
 | F6 bekötés a VA-ba (Tauri `vma_build`, shadow mód) | hátra | — |
 | F7 WASM, a szinkron UI-elemzések | hátra | — |
 | F8 Kick előfeldolgozó (opcionális), JS mag törlése, dokumentáció | hátra | — |
 
-Golden állás (`node scripts/vma-rust-report.js`): **442 esetből 270 bájtra egyezik, 16 elvárt hiba, 156 egy még
-nem portolt direktívánál áll meg, 0 eltérés.** A legtöbb esetet blokkoló direktívák: FILE 44 (F5), SPRITE 26,
-RUNTIME_IF 18, MAP_COPY 10, JOYSTICK 10, DELAY 8, MEMCPY 8, REU 8, RUNTIME_LOOP 8, majd 2–4 esettel a többi
-(MACRO_BUFFER 2 = a 6. adag).
+Golden állás (`node scripts/vma-rust-report.js`): **456 esetből 310 bájtra egyezik, 28 elvárt hiba, 118 egy még
+nem portolt direktívánál áll meg, 0 eltérés.** A blokkoló direktívák: FILE 48 (F5), RUNTIME_IF 18, MAP_COPY 10, DELAY 8, MEMCPY 8, REU 8, RUNTIME_LOOP 8, LOADFILE 4, IRQ_SETUP 4, MACRO_BUFFER 2
+(MACRO_BUFFER = a 6. adag).
 
 Ellenőrzés bármikor: `npm test` (a golden Rust-ága a `crates/vma/target/{debug,release}/vma.exe`-t használja,
 ha le van fordítva), `cargo test --offline` a `crates/vma`-ban, és az esetenkénti riport fent.
@@ -42,8 +41,9 @@ ha le van fordítva), `cargo test --offline` a `crates/vma`-ban, és az esetenk�
       második menetében; golden: `var-text-data-macros`, `var-table-macro`, `var-text-in-macro`,
       `var-chardef-count-error`, `var-print-too-long-error`). Makrótörzsben a csupasz paraméter mint cím
       (auto buffer) egyelőre `MACRO_BUFFER` „nem támogatott” hiba — a 6. adag;
-   3. sprite / input: SPRITE_INIT, SPRITE_POS, SPRITE_COL, SPRITE_ANIM, JOYSTICK (mindkét mód), MOUSE,
-      BOX_HIT, SCORE_BCD;
+   3. ✔ sprite / input: SPRITE_INIT, SPRITE_POS, SPRITE_COL, SPRITE_ANIM, JOYSTICK (mindkét mód), MOUSE,
+      BOX_HIT, SCORE_BCD (`parse.rs` `sprite_macro`, `asm.rs` `mouse_bytes` a belső címkékkel; golden:
+      `var-sprite-input-macros` és hat hibaág-eset);
    4. vezérlés / memória: futásidejű IF / ELSE / ENDIF, WHILE / ENDW, REPEAT / UNTIL, MEMCPY, MEMSET,
       MAP_COPY, MAP_COPY16X16, REU_STASH / FETCH / SWAP, IRQ_SETUP, LOADFILE, DELAY (+ a közös helper);
    5. SID_PLAYER kódja (a `_sidPlayerBytes` port), a `SID_INIT` / `SID_PLAY` címke az F5-tel jön;
@@ -74,10 +74,16 @@ utána golden-frissítés):
   kódolással számol (a hossz ugyanaz);
 - a DATA / RAWBYTES bájtjai címkék nélkül értékelődnek ki (`parseByteMacro(raw, base)`), a CHARDEF bájtjai hexák
   (`129` = $129 → hiba);
-- a `macroLabel` címe `parseAddressValue` címkék nélkül: címkés célcímnél $C000.
+- a `macroLabel` címe `parseAddressValue` címkék nélkül: címkés célcímnél $C000;
+- a sprite / input makrók mezőit (`spriteNum`, `joyPort` …) a makró-kibontás nem helyettesíti, csak a
+  `rawOperand`-ot: makrótörzsben paraméterrel feloldatlanok (`null` → 0 vagy hiba);
+- a JOYSTICK mérete a portot címkék nélkül oldja fel (`_joyPortValue`), a bájtok címkékkel — címkés port 3-nál
+  a méret 3 bájttal kevesebb, mint a kód;
+- a SPRITE_ANIM feloldatlan képkocka-száma hiba (`null < 1`), a sprite száma és a ZP-cím 0.
 
-F4 közben javított JS-hiba: feloldatlan címkéjű `.wait_raster` TypeError-ral szállt el a `compileLineBytes`-ban
-(`rl.toString` `null`-on) — most `compileWaitRasterByte` hibát ad.
+F4 közben javított JS-hibák (mindkettő TypeError volt `null.toString`-on a `compileLineBytes`-ban): feloldatlan
+címkéjű `.wait_raster` — most `compileWaitRasterByte`; feloldatlan `.sprite_init` adatlap — most
+`compileSpriteInitPageByte`.
 
 ---
 

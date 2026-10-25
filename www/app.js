@@ -30876,7 +30876,7 @@ function compileLineBytes(line, labels) {
       return { ok: false, error: t("compileSpriteInitColorRange") };
     }
     const page = parseMacroNumber(block.spriteDataPage || "21", labels, "hex");
-    if (isNaN(page) || page < 0 || page > 255) {
+    if (page === null || isNaN(page) || page < 0 || page > 255) {
       return { ok: false, error: t("compileSpriteInitPageByte") };
     }
     const ptrAddr = 0x07F8 + num;

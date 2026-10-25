@@ -96,6 +96,15 @@ pub enum Kind {
     Print { raw: String, lower: bool },
     CharDef { base: String, index: String, raw: String },
     Table { name: String, addr: String },
+    SpriteInit { num: String, color: String, page: String, mc: bool },
+    SpritePos { num: String, x: String, y: String },
+    SpriteCol { num: String, bg: bool },
+    SpriteAnim { num: String, list: String, count: String, zp: String },
+    /// sprite mode when `vx` and `vy` are empty
+    Joystick { port: String, sprite: String, vx: String, vy: String, fire: String },
+    Mouse { port: String, num: String, zpx: String, zpy: String },
+    BoxHit { b1: String, b2: String },
+    ScoreBcd { addr: String, digits: u8, points: String, screen: String },
     /// A JS directive the Rust compiler does not assemble yet (its mnemonic).
     Unsupported { what: String },
 }
@@ -595,16 +604,11 @@ fn index_suffix(mode: Mode) -> &'static str {
 
 /// The macro directives of the JS compiler that are not ported yet (by their JS regex start).
 const UNPORTED: &[(&str, &str)] = &[
-    (r"(?i)^\.box_hit\s", "BOX_HIT"),
     (r"(?i)^\.loadfile\s", "LOADFILE"),
     (r"(?i)^\.(include|incbin|koala|level|sid)\b", "FILE"),
     (r"(?i)^\.level_row\b", "LEVEL_ROW"),
-    (r"(?i)^\.sprite_(init|pos|col|anim)\s", "SPRITE"),
     (r"(?i)^\.?(delay|wait)\s+", "DELAY"),
-    (r"(?i)^\.joystick\s", "JOYSTICK"),
-    (r"(?i)^\.mouse\s", "MOUSE"),
     (r"(?i)^\.map_copy(16x16)?\s", "MAP_COPY"),
-    (r"(?i)^\.score_bcd\s", "SCORE_BCD"),
     (r"(?i)^\.reu_(stash|fetch|swap)\b", "REU"),
     (r"(?i)^\.mem(cpy|set)\s", "MEMCPY"),
     (r"(?i)^\.sid_player\b", "SID_PLAYER"),
@@ -619,6 +623,40 @@ fn mem_address(hex: Option<regex::Match>, name: Option<regex::Match>) -> String 
         Some(h) => format!("${:0>4}", h.as_str().to_uppercase()),
         None => name.map(|m| m.as_str().to_string()).unwrap_or_default(),
     }
+}
+
+/// The sprite / input macros of `parseExpertText` (in the JS order).
+fn sprite_macro(line: &str) -> Option<Kind> {
+    if let Some(c) = regex!(r"(?i)^\.box_hit\s+\$?([0-9A-Fa-f]{1,2})\s*,\s*\$?([0-9A-Fa-f]{1,2})\s*$").captures(line) {
+        return Some(Kind::BoxHit { b1: format!("${:0>2}", c[1].to_uppercase()), b2: format!("${:0>2}", c[2].to_uppercase()) });
+    }
+    if let Some(c) = regex!(r"(?i)^\.sprite_init\s+([A-Za-z_][A-Za-z0-9_]*|\d)\s*,\s*([A-Za-z_][A-Za-z0-9_]*|\d{1,2})\s*,\s*(?:#?\$)?([A-Za-z_][A-Za-z0-9_]*|[0-9A-Fa-f]{1,2})(?:\s*,\s*(multicolor|mc|mono|off|on|true|false|1|0))?\s*$").captures(line) {
+        let mc = c.get(4).is_some_and(|m| !regex!(r"(?i)^(mono|off|false|0)$").is_match(m.as_str()));
+        return Some(Kind::SpriteInit { num: c[1].to_string(), color: c[2].to_string(), page: format!("{:0>2}", c[3].to_uppercase()), mc });
+    }
+    if let Some(c) = regex!(r"(?i)^\.sprite_pos\s+([A-Za-z_][A-Za-z0-9_]*|\d)\s*,\s*([A-Za-z_][A-Za-z0-9_]*|\d+)\s*,\s*([A-Za-z_][A-Za-z0-9_]*|\d+)\s*$").captures(line) {
+        return Some(Kind::SpritePos { num: c[1].to_string(), x: c[2].to_string(), y: c[3].to_string() });
+    }
+    if let Some(c) = regex!(r"(?i)^\.joystick\s+([123]|[A-Za-z_][A-Za-z0-9_]*)\s*,\s*([A-Za-z_][A-Za-z0-9_]*|\d)\s*$").captures(line) {
+        return Some(Kind::Joystick { port: c[1].to_string(), sprite: c[2].to_string(), vx: String::new(), vy: String::new(), fire: String::new() });
+    }
+    if let Some(c) = regex!(r"(?i)^\.joystick\s+([123]|[A-Za-z_][A-Za-z0-9_]*)\s*,\s*([^,]+?)\s*,\s*([^,]+?)\s*(?:,\s*([^,]+?)\s*)?$").captures(line) {
+        let fire = c.get(4).map(|m| m.as_str().to_string()).unwrap_or_default();
+        return Some(Kind::Joystick { port: c[1].to_string(), sprite: "0".into(), vx: c[2].to_string(), vy: c[3].to_string(), fire });
+    }
+    if let Some(c) = regex!(r"(?i)^\.mouse\s+([12]|[A-Za-z_][A-Za-z0-9_]*)\s*,\s*([A-Za-z_][A-Za-z0-9_]*|\d)\s*,\s*(?:#?\$)?([A-Za-z_][A-Za-z0-9_]*|[0-9A-Fa-f]{1,2})\s*,\s*(?:#?\$)?([A-Za-z_][A-Za-z0-9_]*|[0-9A-Fa-f]{1,2})\s*$").captures(line) {
+        return Some(Kind::Mouse { port: c[1].to_string(), num: c[2].to_string(), zpx: c[3].to_uppercase(), zpy: c[4].to_uppercase() });
+    }
+    if let Some(c) = regex!(r"(?i)^\.sprite_col\s+([A-Za-z_][A-Za-z0-9_]*|\d)\s*,\s*(sprite|background)\s*$").captures(line) {
+        return Some(Kind::SpriteCol { num: c[1].to_string(), bg: c[2].eq_ignore_ascii_case("background") });
+    }
+    if let Some(c) = regex!(r"(?i)^\.sprite_anim\s+([A-Za-z_][A-Za-z0-9_]*|\d)\s*,\s*(?:#?\$)?([A-Za-z_][A-Za-z0-9_]*|[0-9A-Fa-f]{1,4})\s*,\s*([A-Za-z_][A-Za-z0-9_]*|\d+)\s*,\s*(?:#?\$)?([A-Za-z_][A-Za-z0-9_]*|[0-9A-Fa-f]{1,2})\s*$").captures(line) {
+        return Some(Kind::SpriteAnim { num: c[1].to_string(), list: c[2].to_uppercase(), count: c[3].to_string(), zp: c[4].to_uppercase() });
+    }
+    if let Some(c) = regex!(r"(?i)^\.score_bcd\s+\$?([0-9A-Fa-f]{1,4})\s*,\s*([246])\s*,\s*(\d+)\s*,\s*\$?([0-9A-Fa-f]{1,4})\s*$").captures(line) {
+        return Some(Kind::ScoreBcd { addr: c[1].to_uppercase(), digits: c[2].parse().unwrap(), points: c[3].to_string(), screen: c[4].to_uppercase() });
+    }
+    None
 }
 
 /// The text / data macros of `parseExpertText` after the Kick `.text` (in the JS order).
@@ -826,7 +864,7 @@ pub fn parse_expert_text(text: &str) -> Vec<Block> {
             push(&mut blocks, if c[1].eq_ignore_ascii_case("push") { Kind::Push { regs } } else { Kind::Pull { regs } });
             continue;
         }
-        if let Some(kind) = data_macro(line).or_else(|| simple_macro(line)) {
+        if let Some(kind) = data_macro(line).or_else(|| sprite_macro(line)).or_else(|| simple_macro(line)) {
             push(&mut blocks, kind);
             continue;
         }

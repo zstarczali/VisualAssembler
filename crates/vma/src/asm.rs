@@ -217,6 +217,81 @@ impl Assembler {
         self.eval_word(normalized, Some(labels), false)
     }
 
+    /// The MOUSE macro: 1351 delta decoding, its branches resolved inside the routine.
+    fn mouse_bytes(&self, port: &str, num: &str, zpx: &str, zpy: &str, address: i64) -> Result<Vec<u8>, String> {
+        let p = self.numeric_value(if port.is_empty() { "2" } else { port }, Some(&self.labels), Base::Dec);
+        let select = match p {
+            Some(v) if v == 1.0 => 0x40,
+            Some(v) if v == 2.0 => 0x80,
+            _ => return Err("MOUSE: the port must be 1 or 2".into()),
+        };
+        let n = self.numeric_value(if num.is_empty() { "0" } else { num }, Some(&self.labels), Base::Dec).unwrap_or(0.0);
+        if n.is_nan() || !(0.0..=7.0).contains(&n) {
+            return Err("MOUSE: the sprite number must be 0-7".into());
+        }
+        let zp = |v: &str, d: &str| {
+            let v = if v.is_empty() { d } else { v };
+            self.numeric_value(v.strip_prefix('$').unwrap_or(v), Some(&self.labels), Base::Hex).unwrap_or(0.0)
+        };
+        let (zx, zy) = (zp(zpx, "FD"), zp(zpy, "FE"));
+        if zx.is_nan() || !(0.0..=255.0).contains(&zx) {
+            return Err("MOUSE: the X zero page address must be a byte".into());
+        }
+        if zy.is_nan() || !(0.0..=255.0).contains(&zy) {
+            return Err("MOUSE: the Y zero page address must be a byte".into());
+        }
+        let (zx, zy, n) = (zx as u8, zy as u8, n as i64);
+        let (xa, ya, msb) = (0xD000 + n * 2, 0xD001 + n * 2, 1u8 << n);
+        let (xl, xh, yl, yh) = (xa as u8, (xa >> 8) as u8, ya as u8, (ya >> 8) as u8);
+        let mut b: Vec<u8> = Vec::new();
+        let mut marks: Vec<(&str, usize)> = Vec::new();
+        let mut fix: Vec<(bool, usize, &str)> = Vec::new();
+        macro_rules! branch {
+            ($op:expr, $l:expr) => {{
+                b.extend([$op, 0]);
+                fix.push((true, b.len() - 1, $l));
+            }};
+        }
+        b.extend([0xAD, 0x00, 0xDC, 0x29, 0x3F, 0x09, select, 0x8D, 0x00, 0xDC, 0xA2, 0x67, 0xCA, 0xD0, 0xFD]);
+        b.extend([0xAD, 0x19, 0xD4, 0xA8, 0x38, 0xE5, zx, 0x29, 0x7F, 0xA2, 0x00, 0xC9, 0x40]);
+        branch!(0xB0, "xNeg");
+        b.push(0x4A);
+        branch!(0xF0, "xDone");
+        b.extend([0x84, zx, 0x18, 0x6D, xl, xh, 0x8D, xl, xh, 0x8A, 0x69, 0x00, 0x29, 0x01]);
+        branch!(0xF0, "xDone");
+        b.extend([0xAD, 0x10, 0xD0, 0x49, msb, 0x8D, 0x10, 0xD0, 0x4C, 0, 0]);
+        fix.push((false, b.len() - 2, "xDone"));
+        marks.push(("xNeg", b.len()));
+        b.extend([0x09, 0xC0, 0xC9, 0xFF]);
+        branch!(0xF0, "xDone");
+        b.extend([0x38, 0x6A, 0xCA, 0x84, zx, 0x18, 0x6D, xl, xh, 0x8D, xl, xh, 0x8A, 0x69, 0x00, 0x29, 0x01]);
+        branch!(0xF0, "xDone");
+        b.extend([0xAD, 0x10, 0xD0, 0x49, msb, 0x8D, 0x10, 0xD0]);
+        marks.push(("xDone", b.len()));
+        b.extend([0xAD, 0x1A, 0xD4, 0xAA, 0x38, 0xE5, zy, 0x29, 0x7F, 0xC9, 0x40]);
+        branch!(0xB0, "yNeg");
+        b.push(0x4A);
+        branch!(0xF0, "yDone");
+        b.extend([0x86, zy, 0x49, 0xFF, 0x38, 0x6D, yl, yh, 0x8D, yl, yh, 0x4C, 0, 0]);
+        fix.push((false, b.len() - 2, "yDone"));
+        marks.push(("yNeg", b.len()));
+        b.extend([0x09, 0xC0, 0xC9, 0xFF]);
+        branch!(0xF0, "yDone");
+        b.extend([0x38, 0x6A, 0x86, zy, 0x49, 0xFF, 0x38, 0x6D, yl, yh, 0x8D, yl, yh]);
+        marks.push(("yDone", b.len()));
+        for (rel, at, label) in fix {
+            let target = marks.iter().find(|(m, _)| *m == label).unwrap().1 as i64;
+            if rel {
+                b[at] = (target - (at as i64 + 1)) as u8;
+            } else {
+                let abs = address + target;
+                b[at] = abs as u8;
+                b[at + 1] = (abs >> 8) as u8;
+            }
+        }
+        Ok(b)
+    }
+
     /// `parseAddressValue(raw, labels)`: a label only by its exact name
     fn address_value(raw: &str, labels: Option<&Labels>) -> Option<f64> {
         if let Some(v) = parse_address_value(raw) {
@@ -421,6 +496,28 @@ impl Assembler {
             Kind::Mem { op: MemOp::Data, raw, .. } => self.byte_values(raw, Base::Hex, None).len() as i64 * 5,
             Kind::Print { raw, lower } => 17 + encode_petscii(raw, *lower).len() as i64,
             Kind::CharDef { .. } => 40,
+            Kind::SpriteInit { .. } => 26,
+            Kind::SpritePos { .. } => 18,
+            Kind::SpriteCol { .. } => 5,
+            Kind::SpriteAnim { .. } => 19,
+            Kind::BoxHit { .. } => 30,
+            Kind::Mouse { .. } => 142,
+            Kind::ScoreBcd { digits, .. } => {
+                let b = *digits as i64 / 2;
+                3 + b * 8 + b * 21
+            }
+            Kind::Joystick { port, vx, vy, fire, .. } => {
+                // `_joyPortValue`: without labels
+                let read = match self.numeric_value(if port.is_empty() { "2" } else { port }, None, Base::Dec) {
+                    Some(v) if v == 3.0 => 6,
+                    _ => 3,
+                };
+                if vx.trim().is_empty() && vy.trim().is_empty() {
+                    read + 24
+                } else {
+                    8 + read + 24 + if fire.trim().is_empty() { 0 } else { 7 }
+                }
+            }
             // an INVOKE (or a bare macro name) left unexpanded: the size of the body
             Kind::Invoke { name, .. } => self.macros.get(name).map(|m| m.body.iter().map(|b| self.size(b)).sum()).unwrap_or(0),
             Kind::Instr { mnem, .. } if self.macros.contains_key(mnem) => self.macros[mnem].body.iter().map(|b| self.size(b)).sum(),
@@ -992,6 +1089,160 @@ impl Assembler {
                 out.extend([0x00, 0xA2, 0x00, 0xBD, data_addr as u8, (data_addr >> 8) as u8, 0xF0, 0x06, 0x20, 0xD2, 0xFF, 0xE8, 0xD0, 0xF5]);
                 Ok(out)
             }
+            Kind::SpriteInit { num, color, page, mc } => {
+                // null passes as 0 (sprite number, colour), NaN fails
+                let n = self.macro_number(if num.is_empty() { "0" } else { num }, &self.labels, Base::Dec).unwrap_or(0.0);
+                if n.is_nan() || !(0.0..=7.0).contains(&n) {
+                    return Err("SPRITE_INIT: the sprite number must be 0-7".into());
+                }
+                let col = self.macro_number(if color.is_empty() { "7" } else { color }, &self.labels, Base::Dec).unwrap_or(0.0);
+                if col.is_nan() || !(0.0..=15.0).contains(&col) {
+                    return Err("SPRITE_INIT: the colour must be 0-15".into());
+                }
+                let pg = self.macro_number(if page.is_empty() { "21" } else { page }, &self.labels, Base::Hex).unwrap_or(f64::NAN);
+                if pg.is_nan() || !(0.0..=255.0).contains(&pg) {
+                    return Err("SPRITE_INIT: the data page must be a byte".into());
+                }
+                let n = n as i64;
+                let (ptr, col_addr, bit) = (0x07F8 + n, 0xD027 + n, 1u8 << n);
+                Ok(vec![
+                    0xA9, to_uint8(pg), 0x8D, ptr as u8, (ptr >> 8) as u8,
+                    0xAD, 0x15, 0xD0, 0x09, bit, 0x8D, 0x15, 0xD0,
+                    0xAD, 0x1C, 0xD0, if *mc { 0x09 } else { 0x29 }, if *mc { bit } else { 0xFF ^ bit }, 0x8D, 0x1C, 0xD0,
+                    0xA9, to_uint8(col), 0x8D, col_addr as u8, (col_addr >> 8) as u8,
+                ])
+            }
+            Kind::SpritePos { num, x, y } => {
+                let get = |v: &str, d: &str| self.macro_number(if v.is_empty() { d } else { v }, &self.labels, Base::Dec);
+                let n = get(num, "0").filter(|n| !(*n < 0.0 || *n > 7.0)).ok_or("SPRITE_POS: the sprite number must be 0-7")?;
+                let xv = get(x, "152").filter(|v| !(*v < 0.0 || *v > 319.0)).ok_or("SPRITE_POS: X must be 0-319")?;
+                let yv = get(y, "100").filter(|v| !(*v < 0.0 || *v > 255.0)).ok_or("SPRITE_POS: Y must be 0-255")?;
+                let n = crate::expr::to_int32(n) as i64;
+                let (xa, ya) = (0xD000 + n * 2, 0xD001 + n * 2);
+                let bit = (1i64 << (n & 31)) as i64;
+                let (op, mask) = if xv > 255.0 { (0x09, bit & 0xFF) } else { (0x29, !bit & 0xFF) };
+                Ok(vec![
+                    0xA9, js_and(xv, 0xFF) as u8, 0x8D, xa as u8, (xa >> 8) as u8,
+                    0xAD, 0x10, 0xD0, op, mask as u8, 0x8D, 0x10, 0xD0,
+                    0xA9, to_uint8(yv), 0x8D, ya as u8, (ya >> 8) as u8,
+                ])
+            }
+            Kind::SpriteCol { num, bg } => {
+                let n = self.numeric_value(if num.is_empty() { "0" } else { num }, Some(&self.labels), Base::Dec).unwrap_or(0.0);
+                if n.is_nan() || !(0.0..=7.0).contains(&n) {
+                    return Err("SPRITE_COL: the sprite number must be 0-7".into());
+                }
+                Ok(vec![0xAD, if *bg { 0x1F } else { 0x1E }, 0xD0, 0x29, 1u8 << (n as u32)])
+            }
+            Kind::SpriteAnim { num, list, count, zp } => {
+                let n = self.numeric_value(if num.is_empty() { "0" } else { num }, Some(&self.labels), Base::Dec).unwrap_or(0.0);
+                if n.is_nan() || !(0.0..=7.0).contains(&n) {
+                    return Err("SPRITE_ANIM: the sprite number must be 0-7".into());
+                }
+                // null < 1: an unresolved count fails
+                let cnt = self.numeric_value(if count.is_empty() { "4" } else { count }, Some(&self.labels), Base::Dec).unwrap_or(0.0);
+                if cnt.is_nan() || !(1.0..=255.0).contains(&cnt) {
+                    return Err("SPRITE_ANIM: the frame count must be 1-255".into());
+                }
+                let z = self.numeric_value(if zp.is_empty() { "FB" } else { zp }, Some(&self.labels), Base::Hex).unwrap_or(0.0);
+                if z.is_nan() || !(0.0..=255.0).contains(&z) {
+                    return Err("SPRITE_ANIM: the zero page counter must be $00-$FF".into());
+                }
+                let l = js_parse_int(if list.is_empty() { "C100" } else { list }, 16);
+                if l.is_nan() || !(0.0..=65535.0).contains(&l) {
+                    return Err("SPRITE_ANIM: invalid frame list address".into());
+                }
+                let (z, l, ptr) = (to_uint8(z), l as i64, 0x07F8 + n as i64);
+                Ok(vec![0xE6, z, 0xA5, z, 0xC9, to_uint8(cnt), 0x90, 0x04, 0xA9, 0x00, 0x85, z, 0xAA, 0xBD, l as u8, (l >> 8) as u8, 0x8D, ptr as u8, (ptr >> 8) as u8])
+            }
+            Kind::BoxHit { b1, b2 } => {
+                let z1 = parse_address_value(b1).unwrap_or(0xFB as f64);
+                let z2 = parse_address_value(b2).unwrap_or(0xF7 as f64);
+                if !(0.0..=252.0).contains(&z1) || !(0.0..=252.0).contains(&z2) {
+                    return Err("BOX_HIT zero-page addresses must be 0-$FC (need 4 bytes)".into());
+                }
+                let (a, b) = (z1 as u8, z2 as u8);
+                let off = |pos: i32, target: i32| (target - (pos + 2)) as u8;
+                Ok(vec![
+                    0xA5, a + 2, 0xC5, b, 0x90, off(4, 28),
+                    0xA5, b + 2, 0xC5, a, 0x90, off(10, 28),
+                    0xA5, a + 3, 0xC5, b + 1, 0x90, off(16, 28),
+                    0xA5, b + 3, 0xC5, a + 1, 0x90, off(22, 28),
+                    0xA9, 0x01, 0xD0, off(26, 30), 0xA9, 0x00,
+                ])
+            }
+            Kind::ScoreBcd { addr, digits, points, screen } => {
+                let a = js_parse_int(if addr.is_empty() { "C200" } else { addr }, 16);
+                if a.is_nan() || !(0.0..=65535.0).contains(&a) {
+                    return Err("SCORE_BCD: invalid BCD storage address".into());
+                }
+                let scr = js_parse_int(if screen.is_empty() { "0400" } else { screen }, 16);
+                if scr.is_nan() || !(0.0..=65535.0).contains(&scr) {
+                    return Err("SCORE_BCD: invalid screen address".into());
+                }
+                let pts = js_parse_int(if points.is_empty() { "100" } else { points }, 10);
+                let pts = if pts.is_nan() { 0.0 } else { pts };
+                let bcd = |v: f64| ((v / 10.0).floor() % 10.0 * 16.0 + v % 10.0) as u8;
+                let vals = [bcd(pts % 100.0), bcd((pts / 100.0).floor() % 100.0), bcd((pts / 10000.0).floor() % 100.0)];
+                let (a, scr) = (a as i64, scr as i64);
+                let n = *digits as i64 / 2;
+                let mut out = vec![0xF8, 0x18];
+                for i in 0..n {
+                    let at = a + i;
+                    out.extend([0xAD, at as u8, (at >> 8) as u8, 0x69, vals[i as usize], 0x8D, at as u8, (at >> 8) as u8]);
+                }
+                out.push(0xD8);
+                for i in (0..n).rev() {
+                    let at = a + i;
+                    let pos = scr + (n - 1 - i) * 2;
+                    let (s0, s1) = (pos & 0xFFFF, (pos + 1) & 0xFFFF);
+                    out.extend([0xAD, at as u8, (at >> 8) as u8, 0x48, 0x4A, 0x4A, 0x4A, 0x4A, 0x09, 0x30, 0x8D, s0 as u8, (s0 >> 8) as u8, 0x68, 0x29, 0x0F, 0x09, 0x30, 0x8D, s1 as u8, (s1 >> 8) as u8]);
+                }
+                Ok(out)
+            }
+            Kind::Joystick { port, sprite, vx, vy, fire } => {
+                let p = self.numeric_value(if port.is_empty() { "2" } else { port }, Some(&self.labels), Base::Dec);
+                let p = match p {
+                    Some(v) if v == 1.0 || v == 2.0 || v == 3.0 => v as u8,
+                    _ => return Err("JOYSTICK: the port must be 1, 2 or 3".into()),
+                };
+                let read: Vec<u8> = match p {
+                    3 => vec![0xAD, 0x00, 0xDC, 0x2D, 0x01, 0xDC],
+                    1 => vec![0xAD, 0x01, 0xDC],
+                    _ => vec![0xAD, 0x00, 0xDC],
+                };
+                let dirs = |out: &mut Vec<u8>, x: i64, y: i64| {
+                    for (op, a) in [(0xCE, y), (0xEE, y), (0xCE, x), (0xEE, x)] {
+                        out.extend([0x4A, 0xB0, 0x03, op, a as u8, (a >> 8) as u8]);
+                    }
+                };
+                if vx.trim().is_empty() && vy.trim().is_empty() {
+                    let n = self.numeric_value(if sprite.is_empty() { "0" } else { sprite }, Some(&self.labels), Base::Dec).unwrap_or(0.0);
+                    if n.is_nan() || !(0.0..=7.0).contains(&n) {
+                        return Err("JOYSTICK: the sprite number must be 0-7".into());
+                    }
+                    let n = n as i64;
+                    let mut out = read;
+                    dirs(&mut out, 0xD000 + n * 2, 0xD001 + n * 2);
+                    return Ok(out);
+                }
+                let resolve = |e: &str| {
+                    self.eval_asm_expr(&substitute_star_pc(e.trim(), address), Some(&self.labels)).filter(|v| !v.is_nan()).map(|v| js_and(v, 0xFFFF))
+                };
+                let (x, y) = (resolve(vx), resolve(vy));
+                let f = if fire.trim().is_empty() { Some(None) } else { resolve(fire).map(Some) };
+                let (Some(x), Some(y), Some(f)) = (x, y, f) else {
+                    return Err("JOYSTICK: the variables cannot be resolved".into());
+                };
+                let mut out = vec![0xA9, 0x00, 0x8D, x as u8, (x >> 8) as u8, 0x8D, y as u8, (y >> 8) as u8];
+                out.extend(read);
+                dirs(&mut out, x, y);
+                if let Some(f) = f {
+                    out.extend([0x29, 0x01, 0x49, 0x01, 0x8D, f as u8, (f >> 8) as u8]);
+                }
+                Ok(out)
+            }
+            Kind::Mouse { port, num, zpx, zpy } => self.mouse_bytes(port, num, zpx, zpy, address),
             Kind::CharDef { base, index, raw } => {
                 let b = parse_address_value(base).unwrap_or(0x3800 as f64);
                 let idx = js_parse_int(if index.is_empty() { "0" } else { index }, 10);

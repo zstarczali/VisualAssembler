@@ -286,6 +286,13 @@ const VARIANTS = {
   "text-in-macro": ".macro say(x, msg)\n    .text x, 0, \"{msg}\"\n    .rawbytes $C400, {x}, $FF\n.endm\n* = $1000\n    :say(3, HI)\n    rts\n",
   "chardef-count-error": "* = $1000\n    .chardef $3800, 0, 1, 2, 3\n    rts\n",
   "print-too-long-error": "* = $1000\n    .print \"" + "A".repeat(256) + "\"\n    rts\n",
+  "sprite-input-macros": ".const N = 3\n.const PORT = 1\n.const ZPX = $FB\n* = $1000\n    .sprite_init N, 14, $80\n    .sprite_init 7, 1, FF, mono\n    .sprite_init 0, 2, 21, mc\n    .sprite_pos N, 300, 50\n    .sprite_pos 0, 255, 0\n    .sprite_col N, background\n    .sprite_col 7, sprite\n    .sprite_anim N, $C100, 8, $FB\n    .sprite_anim 0, frames, 2, FC\n    .joystick PORT, N\n    .joystick 3, 7\n    .joystick 2, vx+1, vy, fire\n    .mouse 1, N, ZPX, FC\n    .mouse 2, 0, $FD, $FE\n    .box_hit $F0, $F4\n    .score_bcd $C200, 2, 5, $0400\n    .score_bcd C300, 6, 123456, 0428\n    .score_bcd $C310, 4, 9999, $0450\n    rts\nframes:\n    .byte $80, $81\nvx: .byte 0, 0\nvy: .byte 0\nfire: .byte 0\n",
+  "sprite-init-page-error": "* = $1000\n    .sprite_init 0, 1, nothing\n    rts\n",
+  "sprite-pos-range-error": "* = $1000\n    .sprite_pos 0, 320, 10\n    rts\n",
+  "sprite-anim-count-error": "* = $1000\n    .sprite_anim 0, $C100, nothing, $FB\n    rts\n",
+  "mouse-port-error": ".const P = 3\n* = $1000\n    .mouse P, 0, $FB, $FC\n    rts\n",
+  "joystick-var-unresolved-error": "* = $1000\n    .joystick 2, nothing, $FC\n    rts\n",
+  "box-hit-range-error": "* = $1000\n    .box_hit $FD, $10\n    rts\n",
   "macro-nested-error":".macro border(c)\n    lda #{c}\n    sta $D020\n.endm\n.macro both(c)\n    :border({c})\n.endm\n* = $1000\n    :both(3)\n    rts\n"
 };
 
