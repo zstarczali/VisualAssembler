@@ -8,6 +8,7 @@ yarn-error.log*
 
 # Tauri / Rust
 src-tauri/target/
+crates/vma/target/
 src-tauri/gen/
 src-tauri/icons/generated/
 
