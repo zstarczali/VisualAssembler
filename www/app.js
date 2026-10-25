@@ -12618,8 +12618,15 @@ function parseExpertText(text) {
   let kickEncoding = "screencode_mixed";
   const sourceLines = String(text).split("\n");
   const kickBraceStack = [];
+  // every block gets the source line it came from ("label: lda #1" gives two blocks)
+  let srcLineNo = -1;
+  blocks.push = (...items) => {
+    for (const item of items) if (item && typeof item === "object" && item._srcLine === undefined) item._srcLine = srcLineNo;
+    return Array.prototype.push.apply(blocks, items);
+  };
 
   for (let rawLine of acmeSyntax ? sourceLines : _kickScopeRewrite(sourceLines)) {
+    srcLineNo++;
     const { code, commentText } = _splitAsmLineComment(rawLine);
     let line = code;
     // ACME uses !byte/!word/!macro/... where the internal parser uses dots.
@@ -13480,6 +13487,7 @@ function parseExpertText(text) {
       inlineBlockIdx++;
     }
   }
+  delete blocks.push;
   return blocks;
 }
 
@@ -13487,6 +13495,8 @@ function parseExpertText(text) {
 // Sets block._srcLine = lineIndex for the first block produced by each source line.
 function _addSrcLineToBlocks(text, blocks) {
   if (!blocks.length) return;
+  // parseExpertText already stamps every block with its own line
+  if (blocks.every(block => typeof block?._srcLine === "number")) return;
   const srcLines = text.split("\n");
   let bIdx = 0;
   for (let li = 0; li < srcLines.length && bIdx < blocks.length; li++) {

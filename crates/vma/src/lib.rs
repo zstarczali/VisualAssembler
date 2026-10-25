@@ -5,6 +5,7 @@
 //! output: tests/vma-golden.test.js runs the `vma` CLI over the golden corpus.
 
 pub mod asm;
+pub mod debug;
 pub mod expr;
 pub mod files;
 pub mod level;
@@ -37,6 +38,15 @@ pub fn build(source: &str, options: &BuildOptions) -> Result<Vec<u8>, CompileErr
 /// VMA source → PRG, the files of `.incbin` / `.koala` … read through `files`.
 pub fn build_with_files(source: &str, options: &BuildOptions, files: &dyn FileProvider) -> Result<Vec<u8>, CompileError> {
     build_full(source, options, files).map(|b| b.prg)
+}
+
+/// VMA source → PRG with the debugger files (`.sym`, `.vs`, `.dbg`); `source_path` names the main
+/// source in the `.dbg`.
+pub fn build_with_debug(source: &str, options: &BuildOptions, files: &dyn FileProvider, source_path: &str) -> Result<(Built, debug::DebugFiles), CompileError> {
+    let mut program = parse::parse_expert_text(source);
+    files::load_assets(&mut program, files);
+    let (built, info, origin) = prg::build_prg_debug(&program, options.basic_stub)?;
+    Ok((built, debug::debug_files(&info, origin, source_path)))
 }
 
 /// VMA source → PRG and its start address (what the app's Run / Build use).

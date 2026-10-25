@@ -127,7 +127,8 @@ pub enum Kind {
     /// `.level_row dst, col[, color]`: `syntax_ok` = `_levelRowParse` of the source line
     LevelRow { raw: String, syntax_ok: bool },
     /// `.include "f"[, $addr]`: `blocks` filled by `files::load_assets`; `addr` = hex digits or empty
-    Include { file: String, addr: String, blocks: Vec<Block> },
+    /// `path` = where the file was found (the app's `includeFile` after a reload)
+    Include { file: String, addr: String, blocks: Vec<Block>, path: String },
     /// the address cursor saved before / restored after an include at its own address
     SaveAddress,
     RestoreAddress,
@@ -152,6 +153,8 @@ pub struct Block {
     pub kind: Kind,
     /// 0-based source line
     pub line: usize,
+    /// from an included file (its line is the `.include` line; the app has no source line for it)
+    pub included: bool,
 }
 
 macro_rules! regex {
@@ -667,7 +670,7 @@ fn memory_macro(line: &str) -> Option<Kind> {
     if let Some(c) = regex!(r#"(?i)^\.include\s+"([^"]*)"\s*(?:,\s*\$([0-9A-Fa-f]{1,4}))?\s*$"#).captures(line) {
         let name = c[1].to_string();
         let file = if name.is_empty() || regex!(r"(?i)\.(json|inc|asm|s)$").is_match(&name) { name } else { format!("{name}.json") };
-        return Some(Kind::Include { file, addr: c.get(2).map(|m| m.as_str().to_uppercase()).unwrap_or_default(), blocks: Vec::new() });
+        return Some(Kind::Include { file, addr: c.get(2).map(|m| m.as_str().to_uppercase()).unwrap_or_default(), blocks: Vec::new(), path: String::new() });
     }
     if let Some(c) = regex!(r#"(?i)^\.sid\s+"([^"]*)"\s*(?:,\s*\$([0-9A-Fa-f]{1,4}))?\s*$"#).captures(line) {
         let custom = c.get(2).map(|m| m.as_str().to_uppercase()).unwrap_or_default();
@@ -915,7 +918,7 @@ pub fn parse_expert_text(text: &str) -> Vec<Block> {
     let mut rt_repeat: Vec<String> = Vec::new();
     let mut rt_count = 0usize;
     for (n, raw_line) in lines.iter().enumerate() {
-        let push = |blocks: &mut Vec<Block>, kind: Kind| blocks.push(Block { kind, line: n });
+        let push = |blocks: &mut Vec<Block>, kind: Kind| blocks.push(Block { kind, line: n, included: false });
         let (code, comment) = split_comment(raw_line);
         let line = code.trim();
         if line.is_empty() {
@@ -1146,7 +1149,7 @@ pub fn parse_expert_text(text: &str) -> Vec<Block> {
 
 /// One code line through the `parseAsmText` rules (the comment is already split off).
 fn parse_asm_line(line: &str, comment: &str, n: usize) -> Vec<Block> {
-    let b = |kind: Kind| Block { kind, line: n };
+    let b = |kind: Kind| Block { kind, line: n, included: false };
     if let Some(c) = regex!(&format!(r"(?i)^({LABEL_NAME}):\s*\.word\s+(.+)$")).captures(line) {
         return vec![b(make_label(&c[1])), b(make_word(c[2].trim()))];
     }

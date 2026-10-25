@@ -196,6 +196,22 @@ pub fn build_prg(program: &[Block], basic_stub: bool) -> Result<Vec<u8>, Compile
     build_prg_full(program, basic_stub).map(|b| b.prg)
 }
 
+/// The PRG and the debugger view of it: `_buildDebuggerSidecarPayload` lays the program out again at
+/// `_getDebuggerCodeOrigin` (the SYS address, else the PRG's load address); that origin is returned too.
+pub fn build_prg_debug(program: &[Block], basic_stub: bool) -> Result<(Built, crate::asm::DebugInfo, i64), CompileError> {
+    let built = build_prg_full(program, basic_stub)?;
+    let origin = match built.sys_address {
+        Some(sys) => sys,
+        None if built.prg.len() >= 2 => built.prg[0] as i64 | ((built.prg[1] as i64) << 8),
+        None => {
+            let o = origin_of(program);
+            if o == 0x0801 { 0xC000 } else { o }
+        }
+    };
+    let info = Assembler::new(program).debug_info(program, origin)?;
+    Ok((built, info, origin))
+}
+
 /// `_buildAutostartPrgCore` with its `sysAddress`.
 pub fn build_prg_full(program: &[Block], basic_stub: bool) -> Result<Built, CompileError> {
     let origin = origin_of(program);

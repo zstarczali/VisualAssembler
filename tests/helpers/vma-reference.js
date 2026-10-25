@@ -81,10 +81,13 @@ function createReference() {
     return app.run(`(() => {
       parseUserMacros();
       const r = _buildAutostartPrgCore();
+      // opts.debugSource: the debugger files too, the main source named so in the .dbg
+      const debug = r.ok && __opts.debugSource ? _buildDebuggerSidecarPayload(r, { force: true, sourcePath: __opts.debugSource }) : null;
       return {
         ok: !!r.ok,
         error: r.ok ? "" : String(r.error || (r.errors || []).map(e => e.message || e).join("; ") || "error"),
-        bytes: r.ok && r.bytes ? Array.from(r.bytes) : null
+        bytes: r.ok && r.bytes ? Array.from(r.bytes) : null,
+        debug
       };
     })()`);
   }

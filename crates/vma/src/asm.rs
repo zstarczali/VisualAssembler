@@ -86,6 +86,26 @@ struct Meta {
     auto_buffer: Option<String>,
     /// `_autoBufferAddress`: after the end of the layout
     auto_buffer_address: Option<i64>,
+    /// `_fromInclude`: the included file this block was laid out from
+    include_path: Option<String>,
+}
+
+/// A laid-out line for the debugger files.
+pub struct LineInfo {
+    pub address: i64,
+    pub size: i64,
+    pub skipped: bool,
+    /// 0-based; None for a block of an included file (the app has no line for it)
+    pub src_line: Option<usize>,
+    /// the included file, None for the main source
+    pub file: Option<String>,
+}
+
+/// What the debugger files are made of: the lines of a layout and `_collectDebuggerSymbols`.
+pub struct DebugInfo {
+    pub lines: Vec<LineInfo>,
+    /// unique names (first one wins), not sorted
+    pub symbols: Vec<(String, i64)>,
 }
 
 /// A user macro of `parseUserMacros`.
@@ -648,7 +668,7 @@ impl Assembler {
                     let has_params = !params.trim().is_empty();
                     // a parameter-less macro is also a subroutine at its definition (JSR name)
                     if !name.is_empty() && !has_params {
-                        out.push((Block { kind: Kind::Label { name: name.clone(), offset: 0, kick_scope: false }, line: b.line }, Meta::default()));
+                        out.push((Block { kind: Kind::Label { name: name.clone(), offset: 0, kick_scope: false }, line: b.line, included: false }, Meta::default()));
                     }
                     inside = Some((name.clone(), has_params));
                     continue;
@@ -665,13 +685,14 @@ impl Assembler {
                 }
                 continue;
             }
-            if let Kind::Include { addr, blocks, .. } = &b.kind {
+            if let Kind::Include { addr, blocks, path, .. } = &b.kind {
                 out.push((b.clone(), Meta { header: true, ..Meta::default() }));
                 if blocks.is_empty() {
                     continue;
                 }
                 let fixed = !addr.is_empty();
-                let mk = |kind: Kind| (Block { kind, line: b.line }, Meta::default());
+                let from = || Meta { include_path: Some(path.clone()), ..Meta::default() };
+                let mk = |kind: Kind| (Block { kind, line: b.line, included: false }, from());
                 if fixed {
                     out.push(mk(Kind::SaveAddress));
                     out.push(mk(Kind::Org { address: format!("{:0>4}", addr.to_uppercase()) }));
@@ -698,11 +719,11 @@ impl Assembler {
                     }
                     if let Some(has_params) = lib {
                         if fixed && !has_params {
-                            out.push((sub.clone(), Meta::default()));
+                            out.push((sub.clone(), from()));
                         }
                         continue;
                     }
-                    out.push((sub.clone(), Meta::default()));
+                    out.push((sub.clone(), from()));
                 }
                 if fixed {
                     out.push(mk(Kind::RestoreAddress));
@@ -1038,6 +1059,66 @@ impl Assembler {
         if let Some(label) = &line.meta.auto_buffer {
             self.labels.set(label, line.meta.auto_buffer_address.unwrap_or(line.address) as f64);
         }
+    }
+
+    /// The layout the debugger files describe (`getProgramLayout(originOverride)`), its labels
+    /// resolved as the build resolves them, and `_collectDebuggerSymbols` over every line
+    /// (conditionally skipped ones too).
+    pub fn debug_info(&mut self, program: &[Block], origin: i64) -> Result<DebugInfo, CompileError> {
+        let lines = self.layout(program, origin, true)?;
+        let mut symbols: Vec<(String, i64)> = Vec::new();
+        let push = |symbols: &mut Vec<(String, i64)>, name: &str, address: f64| {
+            let name = name.trim();
+            if !name.is_empty() && address.is_finite() && !symbols.iter().any(|(n, _)| n == name) {
+                symbols.push((name.to_string(), js_and(address, 0xFFFF)));
+            }
+        };
+        for line in &lines {
+            self.add_labels(line);
+            let a = line.address as f64;
+            match &line.block.kind {
+                Kind::Label { name, offset, .. } if !name.is_empty() => push(&mut symbols, name, ((line.address + offset) & 0xFFFF) as f64),
+                Kind::Loop { label, .. } | Kind::For { label, .. } if !label.is_empty() => push(&mut symbols, label, a + 2.0),
+                _ => {}
+            }
+            if let Some(label) = &line.meta.auto_buffer {
+                push(&mut symbols, label, a);
+            }
+            match &line.block.kind {
+                Kind::Table { name, .. } if !name.is_empty() => push(&mut symbols, name, a),
+                Kind::Const { name, raw, value, .. } if !name.is_empty() => {
+                    // the block's constValue: the top-level const is the one the layout resolved
+                    let own = match line.meta.const_index {
+                        Some(ci) => self.consts[ci].value.or(*value),
+                        None => *value,
+                    };
+                    let v = own.filter(|v| v.is_finite()).or_else(|| {
+                        let t = raw.trim();
+                        parse_address_value(t).or_else(|| is_ident(t).then(|| symbols.iter().find(|(n, _)| n == t).map(|(_, v)| *v as f64)).flatten())
+                    });
+                    if let Some(v) = v {
+                        push(&mut symbols, name, v);
+                    }
+                }
+                Kind::Var { name, .. } if !name.is_empty() => {
+                    if let Some(v) = line.meta.var_address {
+                        push(&mut symbols, name, v as f64);
+                    }
+                }
+                _ => {}
+            }
+        }
+        let lines = lines
+            .iter()
+            .map(|l| LineInfo {
+                address: l.address,
+                size: l.size,
+                skipped: l.skipped,
+                src_line: (!l.block.included).then_some(l.block.line),
+                file: l.meta.include_path.clone(),
+            })
+            .collect();
+        Ok(DebugInfo { lines, symbols })
     }
 
     /// `buildOperandPreview` → its error (the validation of `getLiveValidationError`).

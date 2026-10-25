@@ -94,6 +94,7 @@ fn include_blocks(path: &Path, bytes: &[u8], line: usize) -> Result<Vec<Block>, 
     // errors in an included file point at the `.include` line
     for b in blocks.iter_mut() {
         b.line = line;
+        b.included = true;
     }
     Ok(blocks)
 }
@@ -160,7 +161,7 @@ fn json_block(b: &Value) -> Block {
             _ => Kind::Unsupported { what: "JSON_INCLUDE_BLOCK".into() },
         }
     };
-    Block { kind, line: 0 }
+    Block { kind, line: 0, included: true }
 }
 
 /// `reloadIncludeBlocks` / `reloadIncBinBlocks` / `reloadSidBlocks` over the top-level program (as in
@@ -168,7 +169,7 @@ fn json_block(b: &Value) -> Block {
 pub fn load_assets(program: &mut [Block], files: &dyn FileProvider) {
     for block in program.iter_mut() {
         let line = block.line;
-        if let Kind::Include { file, blocks, .. } = &mut block.kind {
+        if let Kind::Include { file, blocks, path: found, .. } = &mut block.kind {
             if file.trim().is_empty() {
                 continue;
             }
@@ -176,6 +177,8 @@ pub fn load_assets(program: &mut [Block], files: &dyn FileProvider) {
             if let Ok((path, bytes)) = files.load(file, &[".json", ".asm", ".inc", ".s"]) {
                 if let Ok(b) = include_blocks(&path, &bytes, line) {
                     *blocks = b;
+                    // `a/./b` → `a\b` as path.join gives it
+                    *found = path.components().collect::<PathBuf>().display().to_string();
                 }
             }
             continue;
