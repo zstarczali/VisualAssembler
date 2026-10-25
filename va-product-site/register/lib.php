@@ -304,6 +304,23 @@ function vaUpdateApproved(PDO $db, bool $supporter = false): string
     return $s !== '' && version_compare($s, $everyone, '>') ? $s : $everyone;
 }
 
+// Hotfix: egy már kiadott verzió telepítőit újra feltöltöd (ugyanaz a fájlnév), és a release.php HOTFIX
+// gombja növeli a verzió hotfix-számát. A downloads/VA/ lista <meta name="va-hotfix" content="<ver> <n>">
+// sorban közli; az app ezt a verziót újra felajánlja ("hotfix"), ha még kisebb számút telepített.
+const VA_HOTFIX_SETTING_PREFIX = 'update_hotfix_';
+
+/** A verzió hotfix-száma (0 = nincs); $bump = true eggyel növeli és az újat adja. */
+function vaUpdateHotfix(PDO $db, string $version, bool $bump = false): int
+{
+    $key = VA_HOTFIX_SETTING_PREFIX . $version;
+    $level = (int) vaSetting($db, $key);
+    if ($bump) {
+        $level++;
+        vaSetting($db, $key, (string) $level);
+    }
+    return $level;
+}
+
 /** A telepítő fájlnevéből a verzió ("2.6.2"), vagy null. */
 function vaInstallerVersion(string $name): ?string
 {

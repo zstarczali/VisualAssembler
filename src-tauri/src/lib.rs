@@ -5229,6 +5229,38 @@ fn find_latest_asset_version(html: &str, prefix: &str, suffix: &str) -> Option<(
     best
 }
 
+/// A `downloads/VA/` lista hotfix-jelölője: `<meta name="va-hotfix" content="2.6.6 2">` = a kiadott
+/// verzió telepítőit újra feltöltötték, ez a 2. hotfix (register/release.php HOTFIX). 0, ha nincs.
+fn find_hotfix_level(html: &str, version: (u32, u32, u32)) -> u32 {
+    let mut level = 0;
+    let mut rest = html;
+    while let Some(pos) = rest.find("name=\"va-hotfix\"") {
+        rest = &rest[pos + 16..];
+        let Some(c) = rest.find("content=\"") else { break };
+        let body = &rest[c + 9..];
+        let end = body.find('"').unwrap_or(body.len());
+        let mut parts = body[..end].split_whitespace();
+        if let (Some(v), Some(n)) = (parts.next(), parts.next()) {
+            if parse_version_triplet(v) == Some(version) {
+                level = level.max(n.parse().unwrap_or(0));
+            }
+        }
+        rest = &body[end..];
+    }
+    level
+}
+
+/// A telepített hotfix szintje a config `hotfixInstalled` ({version, level}) mezőjéből; csak a futó
+/// verzióra érvényes, egy új verzió 0-ról indul.
+fn installed_hotfix_level(cfg: &serde_json::Value, current: &str) -> u32 {
+    let h = &cfg["hotfixInstalled"];
+    if h["version"].as_str() == Some(current) {
+        h["level"].as_u64().unwrap_or(0) as u32
+    } else {
+        0
+    }
+}
+
 fn update_http_client(app: &AppHandle, timeout_secs: u64) -> Result<reqwest::Client, String> {
     reqwest::Client::builder()
         .timeout(Duration::from_secs(timeout_secs))
@@ -5252,7 +5284,9 @@ async fn check_for_update(app: AppHandle) -> Result<serde_json::Value, String> {
 
     let mut latest: Option<(u32, u32, u32)> = None;
     let mut last_err = String::new();
-    for url in &pages {
+    let mut found_html = String::new();
+    let mut found_on = 0;
+    for (i, url) in pages.iter().enumerate() {
         match client
             .get(url)
             .send()
@@ -5260,7 +5294,11 @@ async fn check_for_update(app: AppHandle) -> Result<serde_json::Value, String> {
             .and_then(|r| r.error_for_status())
         {
             Ok(resp) => match resp.text().await {
-                Ok(html) => latest = find_latest_asset_version(&html, prefix, suffix),
+                Ok(html) => {
+                    latest = find_latest_asset_version(&html, prefix, suffix);
+                    found_html = html;
+                    found_on = i;
+                }
                 Err(e) => last_err = e.to_string(),
             },
             Err(e) => last_err = e.to_string(),
@@ -5280,11 +5318,30 @@ async fn check_for_update(app: AppHandle) -> Result<serde_json::Value, String> {
     let latest_str = format!("{}.{}.{}", ma, mi, pa);
     let current_v = parse_version_triplet(&current).unwrap_or((0, 0, 0));
     let file_name = update_asset_name(&latest_str).unwrap_or_default();
+    // the same version again: a hotfix (re-uploaded installers) this app has not installed yet
+    let mut hotfix = 0;
+    if (ma, mi, pa) == current_v {
+        if found_on != 1 {
+            if let Ok(resp) = client
+                .get(&pages[1])
+                .send()
+                .await
+                .and_then(|r| r.error_for_status())
+            {
+                found_html = resp.text().await.unwrap_or_default();
+            }
+        }
+        let level = find_hotfix_level(&found_html, (ma, mi, pa));
+        if level > installed_hotfix_level(&read_config(&app), &current) {
+            hotfix = level;
+        }
+    }
     Ok(serde_json::json!({
         "supported": true,
         "currentVersion": current,
         "latestVersion": latest_str,
-        "updateAvailable": (ma, mi, pa) > current_v,
+        "updateAvailable": (ma, mi, pa) > current_v || hotfix > 0,
+        "hotfix": hotfix,
         "fileName": file_name,
         "url": format!("{}{}", download_base, urlencoding::encode(&file_name)),
         "server": server,
@@ -5435,6 +5492,7 @@ exec "$EXE"
 async fn download_and_install_update(
     app: AppHandle,
     version: String,
+    hotfix: Option<u32>,
 ) -> Result<serde_json::Value, String> {
     use tauri::Emitter;
 
@@ -5499,6 +5557,14 @@ async fn download_and_install_update(
     fs::rename(&partial, &target).map_err(|e| e.to_string())?;
 
     let restarting = launch_update_installer(&app, &target)?;
+    // a hotfix of the running version: remember it, or the same installer would be offered again
+    if let Some(level) = hotfix.filter(|&l| l > 0) {
+        if version == app.package_info().version.to_string() {
+            let mut cfg = read_config(&app);
+            cfg["hotfixInstalled"] = serde_json::json!({ "version": version, "level": level });
+            write_config(&app, &cfg);
+        }
+    }
     if restarting {
         let handle = app.clone();
         thread::spawn(move || {
@@ -5531,6 +5597,25 @@ mod update_tests {
             find_latest_asset_version(html, "C64 Visual Assembler_", "_x64.dmg"),
             None
         );
+    }
+
+    #[test]
+    fn reads_the_hotfix_level_of_a_version() {
+        let html = r#"<meta name="va-hotfix" content="2.6.5 4">
+            <meta name="va-hotfix" content="2.6.6 2"><ul><li>x</li></ul>"#;
+        assert_eq!(find_hotfix_level(html, (2, 6, 6)), 2);
+        assert_eq!(find_hotfix_level(html, (2, 6, 5)), 4);
+        assert_eq!(find_hotfix_level(html, (2, 6, 7)), 0);
+        assert_eq!(find_hotfix_level("<ul></ul>", (2, 6, 6)), 0);
+        assert_eq!(find_hotfix_level(r#"<meta name="va-hotfix" content="2.6.6 x">"#, (2, 6, 6)), 0);
+    }
+
+    #[test]
+    fn installed_hotfix_counts_only_for_the_running_version() {
+        let cfg = serde_json::json!({ "hotfixInstalled": { "version": "2.6.6", "level": 2 } });
+        assert_eq!(installed_hotfix_level(&cfg, "2.6.6"), 2);
+        assert_eq!(installed_hotfix_level(&cfg, "2.6.7"), 0);
+        assert_eq!(installed_hotfix_level(&serde_json::json!({}), "2.6.6"), 0);
     }
 
     #[test]

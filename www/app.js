@@ -20885,12 +20885,22 @@ function _updateShow({ title, msg, install = false, skip = false, closeLabel = t
 }
 
 // UB statusbar jelző: "Naprakész (vX)" vagy kattintható "Frissítés elérhető: vY".
+// "2.6.6" or, for a re-released build of the same version, "2.6.6 hotfix".
+function _updateLatestLabel(info) {
+  return info.hotfix > 0 ? `${info.latestVersion} ${t("updateHotfix")}` : info.latestVersion;
+}
+
+// What "Skip this version" remembers: a later hotfix of a skipped version is offered again.
+function _updateSkipId(info) {
+  return info.hotfix > 0 ? `${info.latestVersion}+hotfix${info.hotfix}` : info.latestVersion;
+}
+
 function _updateRenderStatusbar() {
   const info = _updateInfo;
   const show = !!(info?.supported && info.latestVersion);
   const available = show && !!info.updateAvailable;
   const text = !show ? "" : available
-    ? tf("updateStatusAvailable", { latest: info.latestVersion })
+    ? tf("updateStatusAvailable", { latest: _updateLatestLabel(info) })
     : tf("updateStatusUpToDate", { version: info.currentVersion });
   document.querySelectorAll("[data-update-status]").forEach(el => {
     el.hidden = !show;
@@ -20904,7 +20914,9 @@ function _updateShowAvailable() {
   if (!info?.updateAvailable) return;
   _updateShow({
     title: t("updateAvailableTitle"),
-    msg: tf("updateAvailableMsg", { latest: info.latestVersion, current: info.currentVersion }),
+    msg: info.hotfix > 0
+      ? tf("updateHotfixMsg", { version: info.latestVersion })
+      : tf("updateAvailableMsg", { latest: info.latestVersion, current: info.currentVersion }),
     install: true,
     skip: true,
     closeLabel: t("updateLater")
@@ -20948,7 +20960,7 @@ async function checkForAppUpdate({ silent = false } = {}) {
   }
   let skipped = "";
   try { skipped = localStorage.getItem(_UPDATE_SKIP_KEY) || ""; } catch (_) {}
-  if (silent && skipped === info.latestVersion) return;
+  if (silent && skipped === _updateSkipId(info)) return;
   _updateShowAvailable();
 }
 
@@ -20962,7 +20974,7 @@ async function _updateInstall() {
   els.install.hidden = true;
   els.skip.hidden = true;
   els.close.disabled = true;
-  els.msg.textContent = tf("updateDownloading", { version });
+  els.msg.textContent = tf("updateDownloading", { version: _updateLatestLabel(_updateInfo) });
   _updateSetProgress(-1);
 
   let unlisten = null;
@@ -20975,7 +20987,7 @@ async function _updateInstall() {
   } catch (_) { /* progress nélkül is megy */ }
 
   try {
-    const res = await window.electronAPI.downloadAndInstallUpdate(version);
+    const res = await window.electronAPI.downloadAndInstallUpdate(version, _updateInfo.hotfix || 0);
     _updateSetProgress(100, "");
     els.msg.textContent = res?.restarting ? t("updateRestarting") : t("updateInstallerOpened");
   } catch (err) {
@@ -20994,7 +21006,7 @@ async function _updateInstall() {
   els.install?.addEventListener("click", _updateInstall);
   els.close?.addEventListener("click", () => { if (!_updateBusy) els.dlg?.close(); });
   els.skip?.addEventListener("click", () => {
-    try { if (_updateInfo?.latestVersion) localStorage.setItem(_UPDATE_SKIP_KEY, _updateInfo.latestVersion); } catch (_) {}
+    try { if (_updateInfo?.latestVersion) localStorage.setItem(_UPDATE_SKIP_KEY, _updateSkipId(_updateInfo)); } catch (_) {}
     els.dlg?.close();
   });
   els.dlg?.addEventListener("cancel", e => { if (_updateBusy) e.preventDefault(); });
