@@ -12,7 +12,8 @@ const extractFunction = require("./helpers/extract-function");
 const extractFunctionSource = name => extractFunction(appJs, name);
 
 function loadFunctions(names, extraContext = {}) {
-  const context = { ...extraContext };
+  // the compiling dialog's step line (setWorkStep) is not part of these tests
+  const context = { setWorkStep() {}, _workStepSource: () => "", ...extraContext };
   vm.createContext(context);
   for (const name of names) {
     vm.runInContext(`${extractFunctionSource(name)}; this["${name}"] = ${name};`, context);
@@ -282,7 +283,7 @@ test("ACME Build opens the normal compiler-error dialog with all diagnostics", a
     showCompileErrorDialog: errors => { shown = errors; },
     _expertDisasmVisible: false, _expertMonitorVisible: false,
     _acmeScheduleAutoBuild: () => {}, _acmeUpdateAnalysis: () => {}, _acmeBuildRunning: false, _acmePreviewError: null,
-    renderMemoryMap: () => {},
+    _acmeRenderMemoryMap: () => {},
     t: key => key
   });
   await ctx._acmeBuildPreview();
@@ -937,4 +938,30 @@ test("ACME memory dump below $0801: no stub shift, start loader around the plain
   assert.equal(preview.bytes.length, image.length);
   assert.equal(preview.sysAddress, 0x0801);
   assert.equal(preview.stubGenerated, false);
+});
+
+test("ACME Disassembly / Monitor panels draw once per build and stay dimmed while the source changes", () => {
+  let source = "lda #1";
+  const preview = { tabId: "tab-1", sourceText: "lda #1" };
+  const classes = new Set();
+  const el = { classList: { toggle: (c, on) => (on ? classes.add(c) : classes.delete(c)), remove: c => classes.delete(c) } };
+  const ctx = loadFunctions(["_acmeRenderPanel", "_acmePreviewCurrent", "_acmePreviewErrorCurrent", "_acmePreviewMessage"], {
+    assemblerSyntax: "acme", expertMode: true, activeTabId: "tab-1",
+    _acmePreview: preview, _acmePreviewError: null,
+    _expertGetSourceText: () => source,
+    t: key => key
+  });
+  let builds = 0, messages = 0;
+  const render = () => ctx._acmeRenderPanel(el, () => { builds++; }, () => { messages++; });
+  render();
+  render();
+  assert.equal(builds, 1);                 // the same build is not drawn again
+  source = "lda #2";                       // typing: the last output stays, dimmed
+  render();
+  assert.equal(builds + messages, 1);
+  assert.ok(classes.has("is-stale"));
+  source = "lda #1";
+  render();
+  assert.equal(builds, 1);
+  assert.ok(!classes.has("is-stale"));
 });

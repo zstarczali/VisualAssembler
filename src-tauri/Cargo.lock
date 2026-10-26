@@ -336,7 +336,7 @@ dependencies = [
 
 [[package]]
 name = "c64-visual-assembler"
-version = "2.6.6"
+version = "2.6.7"
 dependencies = [
  "base64 0.22.1",
  "emulator_6502",
@@ -353,6 +353,7 @@ dependencies = [
  "tauri-plugin-window-state",
  "ultimate-basic",
  "urlencoding",
+ "vma",
 ]
 
 [[package]]
@@ -4853,6 +4854,15 @@ name = "version_check"
 version = "0.9.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
+
+[[package]]
+name = "vma"
+version = "2.0.0"
+source = "git+https://github.com/zstarczali/VMA.git?branch=main#2c6c37e4da9d53c61056bb0833d1d9f8876d53e4"
+dependencies = [
+ "regex",
+ "serde_json",
+]
 
 [[package]]
 name = "vswhom"

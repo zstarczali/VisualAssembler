@@ -12,6 +12,7 @@
   window.electronAPI = {
     getAppVersion: () => invoke("get_app_version"),
     getUltimateBasicVersion: () => invoke("get_ultimate_basic_version"),
+    getVmaVersion: () => invoke("get_vma_version"),
     renderSidPreview: (payload) => invoke("render_sid_preview", { payload }),
     releaseSidPreview: (sessionId) => invoke("release_sid_preview", { sessionId }),
     renderSidFile: (payload) => invoke("render_sid_file", { payload }),
@@ -104,6 +105,7 @@
     chooseUbFile: (initialDir = "") => invoke("choose_ub_file", { initialDir }),
     saveUbFile: (path, content) => invoke("save_ub_file", { path, content }),
     compileUltimateBasic: (source, sourcePath, explicit) => invoke("compile_ultimate_basic", { source, sourcePath, explicit: !!explicit }),
+    vmaBuild: (source, baseDir, basicStub, sourcePath = null, lineMap = null, raw = false) => invoke("vma_build", { source, baseDir, basicStub: !!basicStub, sourcePath, lineMap, raw: !!raw }),
     chooseProjMember: (ub = false) => invoke("choose_proj_member", { ub: !!ub }),
     chooseProjFolder: (ub = false) => invoke("choose_proj_folder", { ub: !!ub }),
     readBinFile: (path) => invoke("read_bin_file", { path }),

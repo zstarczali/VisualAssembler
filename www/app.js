@@ -77,54 +77,54 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "sid-player-266",
+  id: "vma-267",
   url: "https://www.c64va.pro/docs.html",
   hu: {
-    eyebrow: "Újdonság a 2.6.6-ban",
+    eyebrow: "Újdonság a 2.6.7-ben",
     title: "Üdvözöl a Visual Assembler",
-    body: `<ul><li><strong>SID lejátszó makró</strong>: <code>.sid "zene.sid"</code> + <code>.sid_player</code> — init, raszter IRQ és képkockánkénti play egyetlen sorban; a <code>.sid</code> a <code>SID_INIT</code> / <code>SID_PLAY</code> címkéket is megadja.</li><li><strong>Csak Expert mód</strong> projektenként (Projekt beállítások).</li><li><strong>SID Player puffer</strong> a Beállítások → SID előnézet alatt — nagyobb pufferrel nem recseg.</li><li><strong>Egyéni C64 paletta</strong>: Beállítások → Szerkesztők → Egyéni paletta szerkesztése… (Photoshop .act / VICE .vpl import és export).</li><li>Javítva: a hibabejelentő elfogadja a PNG / JPG képeket; macOS-en nincs prediktív szöveg a szerkesztőben, és a READY. kurzor is tiszta.</li></ul><p>Kérdés, ötlet vagy hiba: <strong>Menu → Támogatás</strong>.</p>`,
+    body: `<ul><li><strong>Rust VMA fordító</strong>: Beállítások → Általános → Program → VMA fordító — JavaScript (alapértelmezett), Rust, vagy Rust + JavaScript ellenőrzés; ugyanazok a bájtok és a fordított hibaüzenetek.</li><li><strong>A VMA nyílt forráskódú</strong>: <code>github.com/zstarczali/VMA</code> (2.0.0), magyar és angol nyelvi kézikönyvvel; a verzió az About ablakban.</li><li><strong>Projekt szimbólumok és konstansok</strong> (<code>.define</code> / <code>.const</code>) a Projekt beállításokban.</li><li>A fordítás ablak kiírja, épp mit csinál; a Build info a fájl útvonalát és ACME-nél a valódi ACME eredményt mutatja.</li><li>Gyorsabb gépelés ACME módban és nagy Kick projekteknél; Fel / Le mozgatás a projektfában.</li><li>Javítva: az <code>.asm</code> mentése és a verziókezelés pillanatképei ismét sima szöveget írnak; makró-paraméterek a felhasználói makrókban.</li></ul><p>Kérdés, ötlet vagy hiba: <strong>Menu → Támogatás</strong>.</p>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
-    eyebrow: "New in 2.6.6",
+    eyebrow: "New in 2.6.7",
     title: "Welcome to Visual Assembler",
-    body: `<ul><li><strong>SID player macro</strong>: <code>.sid "music.sid"</code> + <code>.sid_player</code> — init, raster IRQ and play every frame in one line; <code>.sid</code> also defines the <code>SID_INIT</code> / <code>SID_PLAY</code> labels.</li><li><strong>Expert mode only</strong> per project (Project settings).</li><li><strong>SID Player buffer</strong> in Settings → SID preview — a larger buffer stops the crackle.</li><li><strong>Custom C64 palette</strong>: Settings → Editors → Edit custom palette… (Photoshop .act / VICE .vpl import and export).</li><li>Fixed: the bug report accepts PNG / JPG screenshots; no predictive text in the editors on macOS, and a clean READY. cursor.</li></ul><p>Questions, ideas or bugs: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Rust VMA compiler</strong>: Settings → General → Program → VMA compiler — JavaScript (default), Rust, or Rust + JavaScript check; the same bytes and translated error messages.</li><li><strong>VMA is open source</strong>: <code>github.com/zstarczali/VMA</code> (2.0.0), with English and Hungarian language manuals; its version is in the About box.</li><li><strong>Project symbols and constants</strong> (<code>.define</code> / <code>.const</code>) in Project settings.</li><li>The compiling dialog shows what it is doing; Build info shows the file path and, for ACME, the real ACME result.</li><li>Faster typing in ACME mode and in big Kick projects; Move up / down in the project tree.</li><li>Fixed: saving an <code>.asm</code> and version control snapshots write plain text again; macro parameters inside user macros.</li></ul><p>Questions, ideas or bugs: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
-    eyebrow: "Novedad en la 2.6.6",
+    eyebrow: "Novedad en la 2.6.7",
     title: "Bienvenido a Visual Assembler",
-    body: `<ul><li><strong>Macro reproductor SID</strong>: <code>.sid "music.sid"</code> + <code>.sid_player</code> — init, IRQ raster y play en cada fotograma en una sola línea; <code>.sid</code> también define las etiquetas <code>SID_INIT</code> / <code>SID_PLAY</code>.</li><li><strong>Solo modo Experto</strong> por proyecto (Project settings).</li><li><strong>Búfer del SID Player</strong> en Settings → SID preview: un búfer mayor evita los chasquidos.</li><li><strong>Paleta C64 personalizada</strong>: Settings → Editors → Edit custom palette… (importar y exportar .act de Photoshop / .vpl de VICE).</li><li>Corregido: el informe de errores acepta capturas PNG / JPG; sin texto predictivo en los editores en macOS y un cursor READY. limpio.</li></ul><p>Preguntas, ideas o errores: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Compilador VMA en Rust</strong>: Settings → General → Program → VMA compiler — JavaScript (predeterminado), Rust o Rust + comprobación JavaScript; los mismos bytes y mensajes de error traducidos.</li><li><strong>VMA es código abierto</strong>: <code>github.com/zstarczali/VMA</code> (2.0.0), con manuales del lenguaje en inglés y húngaro; su versión aparece en About.</li><li><strong>Símbolos y constantes del proyecto</strong> (<code>.define</code> / <code>.const</code>) en Project settings.</li><li>El diálogo de compilación muestra qué está haciendo; Build info muestra la ruta del archivo y, con ACME, el resultado real de ACME.</li><li>Escritura más rápida en modo ACME y en proyectos Kick grandes; Move up / down en el árbol del proyecto.</li><li>Corregido: guardar un <code>.asm</code> y las instantáneas del control de versiones vuelven a escribir texto plano; parámetros de macros dentro de macros de usuario.</li></ul><p>Preguntas, ideas o errores: <strong>Menu → Support</strong>.</p>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
-    eyebrow: "Neu in 2.6.6",
+    eyebrow: "Neu in 2.6.7",
     title: "Willkommen bei Visual Assembler",
-    body: `<ul><li><strong>SID-Player-Makro</strong>: <code>.sid "music.sid"</code> + <code>.sid_player</code> — Init, Raster-IRQ und Play in jedem Frame in einer Zeile; <code>.sid</code> definiert auch die Labels <code>SID_INIT</code> / <code>SID_PLAY</code>.</li><li><strong>Nur Expertenmodus</strong> pro Projekt (Project settings).</li><li><strong>SID-Player-Puffer</strong> unter Settings → SID preview — ein größerer Puffer verhindert Knacken.</li><li><strong>Eigene C64-Palette</strong>: Settings → Editors → Edit custom palette… (Import und Export von Photoshop-.act / VICE-.vpl).</li><li>Behoben: der Fehlerbericht nimmt PNG- / JPG-Screenshots an; keine Wortvorschläge in den Editoren unter macOS und ein sauberer READY.-Cursor.</li></ul><p>Fragen, Ideen oder Fehler: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Rust-VMA-Compiler</strong>: Settings → General → Program → VMA compiler — JavaScript (Standard), Rust oder Rust + JavaScript-Prüfung; dieselben Bytes und übersetzte Fehlermeldungen.</li><li><strong>VMA ist Open Source</strong>: <code>github.com/zstarczali/VMA</code> (2.0.0), mit Sprachhandbüchern auf Englisch und Ungarisch; die Version steht im About-Fenster.</li><li><strong>Projektsymbole und -konstanten</strong> (<code>.define</code> / <code>.const</code>) in Project settings.</li><li>Der Kompilierdialog zeigt, was er gerade tut; Build info zeigt den Dateipfad und bei ACME das echte ACME-Ergebnis.</li><li>Schnelleres Tippen im ACME-Modus und in großen Kick-Projekten; Move up / down im Projektbaum.</li><li>Behoben: das Speichern einer <code>.asm</code> und die Snapshots der Versionsverwaltung schreiben wieder reinen Text; Makroparameter in Benutzermakros.</li></ul><p>Fragen, Ideen oder Fehler: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
-    eyebrow: "Nieuw in 2.6.6",
+    eyebrow: "Nieuw in 2.6.7",
     title: "Welkom bij Visual Assembler",
-    body: `<ul><li><strong>SID-spelermacro</strong>: <code>.sid "music.sid"</code> + <code>.sid_player</code> — init, raster-IRQ en play elk frame in één regel; <code>.sid</code> definieert ook de labels <code>SID_INIT</code> / <code>SID_PLAY</code>.</li><li><strong>Alleen Expert-modus</strong> per project (Project settings).</li><li><strong>SID Player-buffer</strong> in Settings → SID preview — een grotere buffer voorkomt gekraak.</li><li><strong>Eigen C64-palet</strong>: Settings → Editors → Edit custom palette… (import en export van Photoshop-.act / VICE-.vpl).</li><li>Opgelost: het foutrapport accepteert PNG- / JPG-schermafbeeldingen; geen woordvoorspelling in de editors op macOS en een schone READY.-cursor.</li></ul><p>Vragen, ideeën of bugs: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Rust VMA-compiler</strong>: Settings → General → Program → VMA compiler — JavaScript (standaard), Rust of Rust + JavaScript-controle; dezelfde bytes en vertaalde foutmeldingen.</li><li><strong>VMA is open source</strong>: <code>github.com/zstarczali/VMA</code> (2.0.0), met taalhandleidingen in het Engels en Hongaars; de versie staat in het About-venster.</li><li><strong>Projectsymbolen en -constanten</strong> (<code>.define</code> / <code>.const</code>) in Project settings.</li><li>Het compileervenster toont wat het doet; Build info toont het bestandspad en bij ACME het echte ACME-resultaat.</li><li>Sneller typen in ACME-modus en in grote Kick-projecten; Move up / down in de projectboom.</li><li>Opgelost: een <code>.asm</code> opslaan en de snapshots van versiebeheer schrijven weer platte tekst; macroparameters binnen gebruikersmacro's.</li></ul><p>Vragen, ideeën of bugs: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
-    eyebrow: "Nowość w 2.6.6",
+    eyebrow: "Nowość w 2.6.7",
     title: "Witamy w Visual Assembler",
-    body: `<ul><li><strong>Makro odtwarzacza SID</strong>: <code>.sid "music.sid"</code> + <code>.sid_player</code> — init, IRQ rastrowe i play w każdej klatce w jednej linii; <code>.sid</code> definiuje też etykiety <code>SID_INIT</code> / <code>SID_PLAY</code>.</li><li><strong>Tylko tryb Ekspert</strong> dla projektu (Project settings).</li><li><strong>Bufor SID Playera</strong> w Settings → SID preview — większy bufor usuwa trzaski.</li><li><strong>Własna paleta C64</strong>: Settings → Editors → Edit custom palette… (import i eksport .act z Photoshopa / .vpl z VICE).</li><li>Poprawiono: zgłoszenie błędu przyjmuje zrzuty PNG / JPG; brak podpowiedzi tekstu w edytorach na macOS i czysty kursor READY.</li></ul><p>Pytania, pomysły lub błędy: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Kompilator VMA w Rust</strong>: Settings → General → Program → VMA compiler — JavaScript (domyślny), Rust lub Rust + kontrola JavaScript; te same bajty i przetłumaczone komunikaty błędów.</li><li><strong>VMA jest otwartoźródłowy</strong>: <code>github.com/zstarczali/VMA</code> (2.0.0), z podręcznikami języka po angielsku i węgiersku; wersja w oknie About.</li><li><strong>Symbole i stałe projektu</strong> (<code>.define</code> / <code>.const</code>) w Project settings.</li><li>Okno kompilacji pokazuje, co właśnie robi; Build info pokazuje ścieżkę pliku, a dla ACME prawdziwy wynik ACME.</li><li>Szybsze pisanie w trybie ACME i w dużych projektach Kick; Move up / down w drzewie projektu.</li><li>Poprawiono: zapis <code>.asm</code> i migawki kontroli wersji znów zapisują zwykły tekst; parametry makr w makrach użytkownika.</li></ul><p>Pytania, pomysły lub błędy: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
-    eyebrow: "Novità nella 2.6.6",
+    eyebrow: "Novità nella 2.6.7",
     title: "Benvenuto in Visual Assembler",
-    body: `<ul><li><strong>Macro player SID</strong>: <code>.sid "music.sid"</code> + <code>.sid_player</code> — init, IRQ raster e play a ogni fotogramma in una riga; <code>.sid</code> definisce anche le etichette <code>SID_INIT</code> / <code>SID_PLAY</code>.</li><li><strong>Solo modalità Esperto</strong> per progetto (Project settings).</li><li><strong>Buffer del SID Player</strong> in Settings → SID preview: un buffer più grande evita i crepitii.</li><li><strong>Tavolozza C64 personalizzata</strong>: Settings → Editors → Edit custom palette… (import ed export .act di Photoshop / .vpl di VICE).</li><li>Corretto: la segnalazione di bug accetta screenshot PNG / JPG; niente testo predittivo negli editor su macOS e un cursore READY. pulito.</li></ul><p>Domande, idee o bug: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Compilatore VMA in Rust</strong>: Settings → General → Program → VMA compiler — JavaScript (predefinito), Rust o Rust + controllo JavaScript; gli stessi byte e messaggi di errore tradotti.</li><li><strong>VMA è open source</strong>: <code>github.com/zstarczali/VMA</code> (2.0.0), con manuali del linguaggio in inglese e ungherese; la versione è nella finestra About.</li><li><strong>Simboli e costanti del progetto</strong> (<code>.define</code> / <code>.const</code>) in Project settings.</li><li>La finestra di compilazione mostra cosa sta facendo; Build info mostra il percorso del file e, con ACME, il vero risultato di ACME.</li><li>Digitazione più veloce in modalità ACME e nei grandi progetti Kick; Move up / down nell'albero del progetto.</li><li>Corretto: il salvataggio di un <code>.asm</code> e le istantanee del controllo versione scrivono di nuovo testo semplice; parametri delle macro dentro le macro utente.</li></ul><p>Domande, idee o bug: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
@@ -1343,6 +1343,9 @@ function initPalette() {
     const ubVersion = await window.electronAPI?.getUltimateBasicVersion?.();
     const ubVersionValue = document.getElementById("about-ub-version-value");
     if (ubVersionValue) ubVersionValue.textContent = ubVersion ? `v${ubVersion}` : "v?";
+    const vmaVersion = await window.electronAPI?.getVmaVersion?.();
+    const vmaVersionValue = document.getElementById("about-vma-version-value");
+    if (vmaVersionValue) vmaVersionValue.textContent = vmaVersion ? `v${vmaVersion}` : "v?";
     const dlg = document.getElementById("about-dialog");
     dlg?.querySelectorAll("a[href^='mailto:'], a[href^='http://'], a[href^='https://']").forEach(a => {
       if (a.dataset.externalBound) return;
@@ -1397,6 +1400,9 @@ function initPalette() {
   document.getElementById("vice-remote-monitor")?.addEventListener("change", saveUiSettings);
   writeDebugSidecarsToggle?.addEventListener("change", saveUiSettings);
   ubAsmSidecarToggle?.addEventListener("change", saveUiSettings);
+  document.getElementById("vma-engine")?.addEventListener("change", (event) => {
+    try { localStorage.setItem("c64va-vma-engine", event.target.value); } catch (_) {}
+  });
   document.getElementById("assembler-syntax")?.addEventListener("change", async (event) => {
     const select = event.target;
     const syntax = select.value === "acme" ? "acme" : "kick";
@@ -1818,10 +1824,6 @@ function initPalette() {
   document.getElementById("build-info-close")?.addEventListener("click", () => {
     document.getElementById("build-info-dialog")?.close();
   });
-  document.getElementById("build-info-dialog")?.addEventListener("click", (e) => {
-    if (e.target === document.getElementById("build-info-dialog"))
-      document.getElementById("build-info-dialog").close();
-  });
 
   expertProjectBtn?.addEventListener("click", () => {
     _expertProjectVisible = !_expertProjectVisible;
@@ -1870,7 +1872,6 @@ function initPalette() {
   document.getElementById("expert-project-save-btn")?.addEventListener("click", _expertSaveProject);
   document.getElementById("expert-project-add-btn")?.addEventListener("click",  _expertAddProjMember);
   document.getElementById("expert-project-add-folder-btn")?.addEventListener("click", _expertAddProjFolder);
-  document.getElementById("expert-project-kick-btn")?.addEventListener("click", _kickToggleProject);
   setupProjectSettings();
 
   expertEditor?.addEventListener("beforeinput", (e) => {
@@ -3086,6 +3087,8 @@ function _applyUiSettingsToDOM() {
   acmePath = savedUiSettings.acmePath || "";
   const assemblerSyntaxSelect = document.getElementById("assembler-syntax");
   if (assemblerSyntaxSelect) assemblerSyntaxSelect.value = assemblerSyntax;
+  const vmaEngineSelect = document.getElementById("vma-engine");
+  if (vmaEngineSelect) vmaEngineSelect.value = _vmaEngine();
   _acmeBuildButtonSync();
   const acmePathInput = document.getElementById("acme-path");
   if (acmePathInput) acmePathInput.value = acmePath;
@@ -3326,6 +3329,7 @@ function _applyUiSettingsToDOM() {
       expertProjectBtn?.classList.add("expert-hl-toggle--on");
       expertProjectBtn?.setAttribute("aria-pressed", "true");
       expertProjectPanel?.removeAttribute("hidden");
+      _expertRenderProjectTree();
       if (typeof _savedProjectSymbolsHeight === "number" && Number.isFinite(_savedProjectSymbolsHeight)) {
         _expertProjectSymbolsHeight = Math.max(48, Math.min(1200, _savedProjectSymbolsHeight));
       }
@@ -3405,6 +3409,7 @@ function applyTranslations() {
     setText("#about-sid-credit-license", t("aboutSidCreditLicense"));
     setText("#about-repo-label", t("aboutRepoLabel"));
     setText("#about-ub-version-label", t("aboutUbVersionLabel"));
+    setText("#about-vma-version-label", t("aboutVmaVersionLabel"));
   document.getElementById("undo-action")?.setAttribute("aria-label", t("undoAction"));
   document.getElementById("redo-action")?.setAttribute("aria-label", t("redoAction"));
   if (helpManualButton) helpManualButton.textContent = t("helpManual");
@@ -3617,10 +3622,13 @@ function applyTranslations() {
     setText("#ps-defines-label", t("psDefines"));
     setText("#ps-vars-label", t("psVars"));
     setText("#ps-vars-hint", t("psVarsHint"));
+    setText("#ps-section-vma", t("psSectionVma"));
+    setText("#ps-vma-defines-label", t("psVmaDefines"));
+    setText("#ps-vma-consts-label", t("psVmaConsts"));
+    setText("#ps-vma-consts-hint", t("psVmaConstsHint"));
     setText("#ps-files-label", t("psFiles"));
     setText("#ps-cancel", t("cancel"));
     setText("#ps-save", t("psSave"));
-    _kickSyncProjectButton();
     document.getElementById("import-kick-project")?.setAttribute("aria-label", t("importKickProjectTip"));
     setText("#copy-asm", t("copyAsm"));
     setText("#save-project", t("saveProject"));
@@ -3726,6 +3734,10 @@ function applyTranslations() {
   setText("#assembler-syntax-label", t("assemblerSyntax"));
     setText('#assembler-syntax option[value="kick"]', t("assemblerModeVma"));
     setText('#assembler-syntax option[value="acme"]', t("assemblerModeAcme"));
+    setText("#vma-engine-label", t("vmaEngine"));
+    setText('#vma-engine option[value="js"]', t("vmaEngineJs"));
+    setText('#vma-engine option[value="rust"]', t("vmaEngineRust"));
+    setText('#vma-engine option[value="shadow"]', t("vmaEngineShadow"));
     setText("#asm-output-settings-label", t("asmOutputSettings"));
     setText("#snapshot-settings-label", t("snapshotSettings"));
     if (macroSourceToggleText) macroSourceToggleText.textContent = t("macroSourceToggle");
@@ -6872,8 +6884,21 @@ if (block.isSpritePosMacro) return `.sprite_pos ${block.spriteNum || 0}, ${block
   return op.trimEnd();
 }
 
+// The fields of a block as parseExpertText stores them in `_macroPrint` (keep the two the same).
+function _blockFieldPrint(block) {
+  return Object.entries(block)
+    .filter(([k, v]) => typeof v === "string" && !/^(id|description|validationError|category)$/.test(k) && !k.startsWith("_"))
+    .map(([k, v]) => `${k}=${v}`).join("\u0001");
+}
+
+// The source line a library macro block was parsed from, while its fields are unchanged ("" else):
+// its arguments as written (a macro parameter among them), not the normalised fields.
+function _macroLineFor(block) {
+  return block?._macroLine && block._macroPrint === _blockFieldPrint(block) ? block._macroLine : "";
+}
+
 function _blockToExpertSourceLine(block) {
-  const line = _blockToExpertLine(block);
+  const line = (block?._macroLine && _macroLineFor(block)) || _blockToExpertLine(block);
   const inlineComment = String(block?.inlineComment || "").trim();
   return inlineComment ? `${line} ; ${inlineComment}` : line;
 }
@@ -7005,7 +7030,7 @@ function setExpertMode(on, { keepText = false, switchingToUb = false } = {}) {
     showViceToast?.(t("asmUbFileBlocked"), true);
     return;
   }
-  if (on && ultimateBasicMode) setUltimateBasicMode(false);
+  if (on && ultimateBasicMode) setUltimateBasicMode(false, { restoreAssemblerMode: false });
   let cursorSourceLine = -1;
   if (!on && expertMode) {
     // Capture the caret's source line BEFORE syncing / rebuilding, so we can
@@ -8243,7 +8268,7 @@ function _isBoundUbTab(tab = _getActiveTab()) {
   return /\.ub$/i.test(tab?.filePath || "");
 }
 
-function setUltimateBasicMode(on) {
+function setUltimateBasicMode(on, { restoreAssemblerMode = true } = {}) {
   if (!on && ultimateBasicMode && _isBoundUbTab()) {
     showViceToast?.(t("asmUbFileBlocked"), true);
     return;
@@ -8254,6 +8279,7 @@ function setUltimateBasicMode(on) {
     return;
   }
   const previousAssemblerEditorMode = expertMode ? "expert" : "block";
+  const leavingUb = !on && ultimateBasicMode;
   if (!on && ultimateBasicMode) {
     const current = _getActiveTab();
     if (current?.id === _ubEditorTabId && current.editorMode === "ub" && ubEditor) {
@@ -8297,6 +8323,12 @@ function setUltimateBasicMode(on) {
     _ubRefreshEditor();
     _ubRenderProjectFiles();
     _ubRenderCommandReference();
+  }
+  // back to the assembler editor the user left: ACME and block-locked projects have text only
+  if (leavingUb && restoreAssemblerMode && !expertMode
+      && (lastAssemblerEditorMode === "expert" || assemblerSyntax === "acme" || _blockModeBlocked())) {
+    setExpertMode(true);
+    return;
   }
   if (!ultimateBasicMode && !expertMode && _programCardsStale) renderProgram();
   renderMemoryMap();
@@ -9174,6 +9206,7 @@ function _ubRenderProjectFiles() {
     list.appendChild(empty);
     return;
   }
+  const moved = () => { _ubTouchProject(); _ubRenderProjectFiles(); };
   const renderNode = (file, container, depth) => {
     const isFolder = file.type === "folder";
     const remove = _makeProjDelBtn(() => {
@@ -9210,7 +9243,7 @@ function _ubRenderProjectFiles() {
         _ubRenderProjectFiles();
       });
       item.addEventListener("contextmenu", e => {
-        _projShowFolderMenu(e, () => _ubAddFile(file.children || (file.children = [])));
+        _projShowItemMenu(e, { container, entry: file, onMoved: moved, onAddFile: () => _ubAddFile(file.children || (file.children = [])) });
       });
       list.appendChild(item);
       if (!collapsed) (file.children || []).forEach(child => renderNode(child, file.children, depth + 1));
@@ -9251,6 +9284,7 @@ function _ubRenderProjectFiles() {
       if (tab) _tabActivate(tab.id);
       else if (isUb) _ubOpenProjectFile(file);
     });
+    item.addEventListener("contextmenu", e => _projShowItemMenu(e, { container, entry: file, onMoved: moved }));
     list.appendChild(item);
   };
 
@@ -9542,7 +9576,9 @@ function _applyExpertBreakpointsToBlocks(blocks) {
 }
 
 function _breakpointAddressForSourceLines(layout, sourceLines) {
-  const executable = (layout?.lines || []).filter(line => line.size > 0 && !line.conditionallySkipped);
+  // an included block's _srcLine is a line of its own file, not of the edited source
+  const executable = (layout?.lines || []).filter(line => line.size > 0 && !line.conditionallySkipped
+    && !line.block?._fromInclude && !line.block?._macroInclude);
   return sourceLines.map(sourceLine => {
     const exact = executable.find(line => line.block?._srcLine === sourceLine);
     const next = executable.find(line => typeof line.block?._srcLine === "number" && line.block._srcLine > sourceLine);
@@ -9735,6 +9771,7 @@ async function _ubApplyExomizer(result, label = "ultimate-basic") {
 async function _ubCompile(showProgress = false, options = {}) {
   _ubSetStatus("Building…");
   if (showProgress) await showWorkProgress("ubBuildProgress", { indeterminate: true });
+  setWorkStep("stepUb", { file: _workStepName(_ubFilePath) || "main.ub" });
   let result;
   try {
     result = await window.electronAPI?.compileUltimateBasic?.(ubEditor.value, _ubCompileSourcePath(_ubFilePath), _ubExplicit);
@@ -9840,6 +9877,7 @@ async function _ubRun(mode) {
 
 async function _ubCompileSource(source, sourcePath, label = "startup file", options = {}) {
   _ubSetStatus(`Building ${label}…`);
+  setWorkStep("stepUb", { file: _workStepName(sourcePath) || label });
   const result = await window.electronAPI?.compileUltimateBasic?.(source, _ubCompileSourcePath(sourcePath), _ubExplicit);
   _ubLastResult = result;
   _ubLineCostMap = null;
@@ -10448,13 +10486,14 @@ function _expertFormatSource() {
 
 // ── VASM file I/O ────────────────────────────────────────────────────────────
 
+// true when the file was written
 async function _expertSaveAsm(forceSaveAs = false) {
-  if (!expertEditor) return;
+  if (!expertEditor) return false;
   _expertSyncSourceTextFromEditor();
   const content = _expertGetSourceText();
   try {
     const tab = _getActiveTab();
-    const asmPath = !forceSaveAs && tab?.filePath && /\.(asm|s|a65)$/i.test(tab.filePath) ? tab.filePath : "";
+    const asmPath = !forceSaveAs && _isSourceFilePath(tab?.filePath) ? tab.filePath : "";
     const res = await window.electronAPI?.saveAsmFile?.(asmPath, content);
     if (!res || res.canceled) return;
     if (!res.ok) {
@@ -10465,9 +10504,11 @@ async function _expertSaveAsm(forceSaveAs = false) {
     const name = res.filePath.replace(/\\/g, "/").split("/").pop();
     _setCurrentFile(name, name, res.filePath);
     _expertSetStatus(t("vasmSavedStatus") + ": " + name, "ok");
+    return true;
   } catch (e) {
     _expertSetStatus(t("vasmSaveError") + ": " + String(e), "error");
   }
+  return false;
 }
 
 async function _expertLoadAsmFromPath(filePath, content, sourceName = "") {
@@ -10611,6 +10652,9 @@ async function showBuildInfoDialog() {
     `<tr class="build-info-row"><th class="build-info-row-key">${key}</th><td class="build-info-row-val">${val}</td><td class="build-info-row-note">${extra}</td></tr>`;
   const makeMessageRow = (message, isError = false) =>
     `<tr class="build-info-row${isError ? " build-info-err" : ""}"><td class="build-info-row-val build-info-row-message" colspan="3">${message}</td></tr>`;
+  // the source the build compiles, on top of every view
+  const sourcePath = await _buildInfoSourcePath();
+  const pathHtml = `<div class="build-info-path"><span class="build-info-path-key">${t("buildInfoFile")}</span><code class="build-info-path-val">${_escHtml(sourcePath || t("buildInfoUnsaved"))}</code></div>`;
   const makeSection = (label, rows) => {
     if (!rows.length) return "";
     return `
@@ -10628,7 +10672,7 @@ async function showBuildInfoDialog() {
     const result = _ubLastResult;
     const map = result?.map;
     if (!map) {
-      buildInfoContent.innerHTML = makeMessageRow(t("ubBuildInfoBuildFirst"));
+      buildInfoContent.innerHTML = pathHtml + makeMessageRow(t("ubBuildInfoBuildFirst"));
       buildInfoDialog.showModal();
       return;
     }
@@ -10639,7 +10683,7 @@ async function showBuildInfoDialog() {
       makeRow(t("buildInfoSize"), `${map.codeSize || 0} bytes`),
       makeRow(t("ubBuildInfoPrgSize"), `${(result.outputPrg || result.prg || []).length} bytes`, result.outputPrg ? "Exomizer" : "")
     ];
-    let html = makeSection(t("ubBuildInfoSummary"), rows);
+    let html = pathHtml + makeSection(t("ubBuildInfoSummary"), rows);
     const errors = result.errors || (result.error ? [result.error] : []);
     if (!result.ok && errors.length) html += makeSection(t("buildInfoErrors"), errors.map(error => makeMessageRow(_ubEsc(error), true)));
     if (map.variables?.length) html += makeSection(t("ubBuildInfoVariables"), map.variables.map(item => makeRow(_ubEsc(item.name), fmtAddr(item.address), _ubEsc(item.type || ""))));
@@ -10669,7 +10713,42 @@ async function showBuildInfoDialog() {
         <ul class="build-info-list${isError ? " build-info-list--err" : ""}">${lines.map(l => `<li>${_escHtml(l)}</li>`).join("")}</ul>
       </section>`;
   if (kick && !kick.ok) {
-    buildInfoContent.innerHTML = makeList(t("buildInfoErrors"), kick.errors.map(e => e.text), true);
+    buildInfoContent.innerHTML = pathHtml + makeList(t("buildInfoErrors"), kick.errors.map(e => e.text), true);
+    buildInfoDialog.showModal();
+    return;
+  }
+
+  // ACME: the real ACME build (not the VMA compiler): its bytes, report and label dump.
+  if (assemblerSyntax === "acme" && expertMode) {
+    const fmtAddr = a => "$" + (a & 0xFFFF).toString(16).toUpperCase().padStart(4, "0");
+    let prg;
+    try { prg = await _buildAcmePrg(true, { preview: true }); } catch (e) { prg = { ok: false, error: String(e?.message || e) }; }
+    let html = pathHtml;
+    const memory = prg?.ok ? _acmePrgMemory(prg.bytes) : null;
+    if (!prg?.ok || !memory) {
+      const lines = prg?.errors?.length ? prg.errors.map(e => e.text) : [prg?.error || t("acmeBuildFirst")];
+      html += makeList(t("buildInfoErrors"), lines, true);
+    } else {
+      const rows = _acmeReportRows(prg.report, prg.sourceLineOffset ?? null);
+      const ranges = rows.length
+        ? _acmeOccupiedRanges(rows, memory)
+        : (_acmePreviewSegments(prg, true)?.segments || []).map(seg => ({ start: seg.origin, end: seg.origin + seg.payload.length - 1 }));
+      const used = ranges.filter(r => r.end >= r.start);
+      const size = used.reduce((n, r) => n + r.end - r.start + 1, 0);
+      html += makeStats([
+        [t("buildInfoOrigin"), fmtAddr(used[0]?.start ?? memory.origin)],
+        [t("buildInfoEnd"), fmtAddr(used.length ? used[used.length - 1].end : memory.origin)],
+        [t("buildInfoSize"), size + " bytes"],
+        [t("buildInfoSegments"), used.length]
+      ]);
+      if (used.length > 1) html += makeGrid(t("buildInfoSegments"), used.map(r => [`${fmtAddr(r.start)}–${fmtAddr(r.end)}`, `${r.end - r.start + 1} bytes`]));
+      const labels = [..._acmeParseLabels(prg.labels).entries()]
+        .sort((a, b) => a[0] - b[0])
+        .flatMap(([address, names]) => names.map(name => [name, fmtAddr(address)]));
+      html += makeGrid(t("buildInfoLabels"), labels);
+      if (!labels.length) html += makeMessageRow(t("buildInfoNoErrors"));
+    }
+    buildInfoContent.innerHTML = html;
     buildInfoDialog.showModal();
     return;
   }
@@ -10796,8 +10875,26 @@ async function showBuildInfoDialog() {
     userMacros = savedUserMacros;
   }
 
-  buildInfoContent.innerHTML = infoHtml;
+  buildInfoContent.innerHTML = pathHtml + infoHtml;
   buildInfoDialog.showModal();
+}
+
+// The file the Build info describes: the UB source, the Kick project's startup file, the project's
+// startup file, or the active tab's file ("" for an unsaved tab).
+async function _buildInfoSourcePath() {
+  const tab = tabs.find(tb => tb.id === activeTabId);
+  if (ultimateBasicMode) {
+    const startup = _ubStartupTabId !== null ? tabs.find(tb => tb.id === _ubStartupTabId) : null;
+    return startup?.ubFilePath || startup?.filePath || _ubFilePath || tab?.filePath || "";
+  }
+  if (_kickProjectActive()) return _kickNormPath(_projResolveAbsPath(_expertProjectData.startupFile));
+  if (expertMode) {
+    const startup = _expertGetStartupSource();
+    if (startup?.path) return startup.path;
+  }
+  const startupFile = _expertProjectData?.startupFile;
+  if (startupFile && _expertGetStartupProgram()) return _projResolveAbsPath(startupFile);
+  return tab?.filePath || (expertMode && typeof _expertAsmFilePath === "string" ? _expertAsmFilePath : "") || "";
 }
 
 // ACME syntax: !directives, +macro calls, labels without a colon in column 0,
@@ -12181,7 +12278,9 @@ function _blockDrawMinimap() {
   const W = 56;
   const H = panel.offsetHeight;
   if (!W || !H) {
-    if (_blockMinimapEnabled) setTimeout(() => _blockScheduleMinimapRedraw(), 30);
+    // Not laid out yet: try again. A hidden panel (Expert / UB mode) is not polled — that forced a
+    // layout every 30 ms; the panel's ResizeObserver redraws once it is shown.
+    if (_blockMinimapEnabled && panel.getClientRects().length) setTimeout(() => _blockScheduleMinimapRedraw(), 30);
     return;
   }
 
@@ -12597,6 +12696,14 @@ function _splitAsmLineComment(rawLine) {
 }
 
 function parseExpertText(text) {
+  // Library macros whose arguments the parser stores in fields of their own (colorValue, spriteNum,
+  // joyPort …, often normalised): a macro parameter among them is filled in by parsing the line again.
+  const MACRO_RELINE = new Set([
+    "SET_BORDER", "SET_BG", "SPRITE_INIT", "SPRITE_POS", "SPRITE_COL", "SPRITE_ANIM", "JOYSTICK", "MOUSE",
+    "BOX_HIT", "SCORE_BCD", "WAIT_RASTER", "TURBO_SET", "MEMCPY", "MEMSET", "MAP_COPY", "MAP_COPY16X16",
+    "REU_STASH", "REU_FETCH", "REU_SWAP", "IRQ_SETUP", "LOADFILE", "DELAY", "RAND", "EXODECRUNCH",
+    "SID_PLAYER", "CHARDEF", "TEXT"
+  ]);
   const BRANCH_MNEMS = new Set(["BEQ","BNE","BCC","BCS","BMI","BPL","BVC","BVS","BRA"]);
   const blocks = [];
   // Track nested runtime IF blocks so that .else/.endif can resolve to
@@ -12608,9 +12715,17 @@ function parseExpertText(text) {
   const acmeSyntax = typeof assemblerSyntax !== "undefined" && assemblerSyntax === "acme";
   let kickEncoding = "screencode_mixed";
   const sourceLines = String(text).split("\n");
+  const codeLines = acmeSyntax ? sourceLines : _kickScopeRewrite(sourceLines);
   const kickBraceStack = [];
+  // every block gets the source line it came from ("label: lda #1" gives two blocks)
+  let srcLineNo = -1;
+  blocks.push = (...items) => {
+    for (const item of items) if (item && typeof item === "object" && item._srcLine === undefined) item._srcLine = srcLineNo;
+    return Array.prototype.push.apply(blocks, items);
+  };
 
-  for (let rawLine of acmeSyntax ? sourceLines : _kickScopeRewrite(sourceLines)) {
+  for (let rawLine of codeLines) {
+    srcLineNo++;
     const { code, commentText } = _splitAsmLineComment(rawLine);
     let line = code;
     // ACME uses !byte/!word/!macro/... where the internal parser uses dots.
@@ -13471,6 +13586,19 @@ function parseExpertText(text) {
       inlineBlockIdx++;
     }
   }
+  delete blocks.push;
+  // A library macro whose arguments are parsed into fields of their own keeps its source line:
+  // a macro body's copy of it is parsed again with the parameters filled in (getProgramLayout).
+  for (const block of blocks) {
+    if (MACRO_RELINE.has(block.mnemonic) && block._srcLine >= 0) {
+      // the line without a `label:` in front (that is a block of its own) and the fields it gave
+      // (_blockFieldPrint: an edited block no longer matches its line)
+      block._macroLine = _splitAsmLineComment(codeLines[block._srcLine] ?? "").code.trim().replace(/^[A-Za-z_][\w.]*:\s*/, "");
+      block._macroPrint = Object.entries(block)
+        .filter(([k, v]) => typeof v === "string" && !/^(id|description|validationError|category)$/.test(k) && !k.startsWith("_"))
+        .map(([k, v]) => `${k}=${v}`).join("\u0001");
+    }
+  }
   return blocks;
 }
 
@@ -13478,6 +13606,8 @@ function parseExpertText(text) {
 // Sets block._srcLine = lineIndex for the first block produced by each source line.
 function _addSrcLineToBlocks(text, blocks) {
   if (!blocks.length) return;
+  // parseExpertText already stamps every block with its own line
+  if (blocks.every(block => typeof block?._srcLine === "number")) return;
   const srcLines = text.split("\n");
   let bIdx = 0;
   for (let li = 0; li < srcLines.length && bIdx < blocks.length; li++) {
@@ -14034,7 +14164,7 @@ function _expertValidate() {
       : _acmePreviewMessage(), preview ? "ok" : _acmePreviewErrorCurrent() ? "error" : "");
     if (_expertDisasmVisible) _expertRenderDisasm();
     if (_expertMonitorVisible) _expertRenderMonitor();
-    renderMemoryMap();
+    _acmeRenderMemoryMap();
     _acmeScheduleAutoBuild();
     return;
   }
@@ -14510,6 +14640,11 @@ function _buildBasicStubDisasmLines(section) {
 // Build syntax-highlighted disassembler HTML from current program[].
 // Caller must ensure program[] is set to the desired block list before calling.
 function _buildDisasmHTML(originOverride, basicStubSection = null) {
+  return _buildDisasmLines(originOverride, basicStubSection).join("\n");
+}
+
+// The disassembly as HTML lines (one string per line).
+function _buildDisasmLines(originOverride, basicStubSection = null) {
   const esc = _escHtml;
   const lines = _buildBasicStubDisasmLines(basicStubSection);
   try {
@@ -14714,7 +14849,25 @@ function _buildDisasmHTML(originOverride, basicStubSection = null) {
   } catch (e) {
     lines.push(`<span class="asm-tok-comment">; Error: ${esc(String(e))}</span>`);
   }
-  return lines.join("\n");
+  return lines;
+}
+
+// A long disassembly (a whole Kick project: ~40 000 spans) in one <pre> made every layout of the
+// page slow (each click in the project tree forced several): chunks the browser skips while they
+// are off screen (.dsm-chunk, content-visibility). The text (copy) stays the same.
+const _DISASM_CHUNK_LINES = 200;
+function _setDisasmLines(el, lines) {
+  if (lines.length <= _DISASM_CHUNK_LINES * 2) {
+    el.innerHTML = lines.join("\n");
+    return;
+  }
+  const parts = [];
+  for (let i = 0; i < lines.length; i += _DISASM_CHUNK_LINES) {
+    const part = lines.slice(i, i + _DISASM_CHUNK_LINES);
+    const last = i + _DISASM_CHUNK_LINES >= lines.length;
+    parts.push(`<div class="dsm-chunk" style="contain-intrinsic-size: auto calc(${part.length} * 1.6em)">${part.join("\n")}${last ? "" : "\n"}</div>`);
+  }
+  el.innerHTML = parts.join("");
 }
 
 function renderDisasmOutput() {
@@ -14724,7 +14877,7 @@ function renderDisasmOutput() {
     el.innerHTML = `<span class="asm-tok-comment">; ${t("disassemblyWillAppearHere")}</span>`;
     return;
   }
-  el.innerHTML = _buildDisasmHTML(_getDisassemblyCodeOrigin(), _getGeneratedBasicStubSection());
+  _setDisasmLines(el, _buildDisasmLines(_getDisassemblyCodeOrigin(), _getGeneratedBasicStubSection()));
 }
 
 function _acmePreviewMessage() {
@@ -15088,15 +15241,58 @@ function _acmeMonitorText(preview) {
   return _formatMonitorMemory(bytes, view.segments[0]?.origin || 0);
 }
 
-function _expertRenderDisasm() {
-  if (!expertDisasmOutput) return;
-  if (assemblerSyntax === "acme") {
-    const preview = _acmePreviewCurrent();
-    expertDisasmOutput.innerHTML = preview
-      ? _acmeDisasmHTML(preview)
-      : `<span class="asm-tok-comment">; ${_escHtml(_acmePreviewMessage())}</span>`;
+// An ACME Disassembly / Monitor panel is drawn once per build (a large program's output is costly):
+// the same build is not drawn again, and while the source differs from the last build of this tab
+// (typing, before the automatic rebuild) the last output stays, dimmed. `el._acmeShown` = the build
+// or the message shown.
+function _acmeRenderPanel(el, drawBuild, drawMessage) {
+  const preview = _acmePreviewCurrent();
+  const stale = !preview && !_acmePreviewErrorCurrent() && _acmePreview?.tabId === activeTabId && el._acmeShown === _acmePreview;
+  el.classList.toggle("is-stale", stale);
+  if (stale || (preview && el._acmeShown === preview)) return;
+  if (preview) {
+    drawBuild(el, preview);
+    el._acmeShown = preview;
     return;
   }
+  const message = _acmePreviewMessage();
+  if (el._acmeShown === message) return;
+  drawMessage(el, message);
+  el._acmeShown = message;
+}
+
+// A panel drawn by the VA / Kick path: the next ACME render draws it again.
+function _acmeForgetPanel(el) {
+  el._acmeShown = null;
+  el.classList.remove("is-stale");
+}
+
+// The memory panel in ACME mode: typing does not redraw it, only a new build / another tab.
+// `memoryMap._acmeShown` = the build (or the tab id without one) it was drawn from; any other
+// renderMemoryMap call clears it.
+function _acmeRenderMemoryMap() {
+  const key = _acmePreview?.tabId === activeTabId ? _acmePreview : activeTabId;
+  if (memoryMap && key === memoryMap._acmeShown) return;
+  renderMemoryMap();
+  if (memoryMap) memoryMap._acmeShown = key;
+}
+
+// What the Expert disassembly shows (a Kick project: the _kickLast it was built from): the same
+// build is not rendered again on every tab switch / check.
+let _expertDisasmShown = null;
+
+function _expertRenderDisasm() {
+  if (!expertDisasmOutput) return;
+  const kickShown = !ultimateBasicMode && assemblerSyntax !== "acme" && _kickProjectActive() && _kickLast?.ok ? _kickLast : null;
+  const stubOn = basicSysToggle ? basicSysToggle.checked : true;
+  if (kickShown && _expertDisasmShown?.kick === kickShown && _expertDisasmShown.stubOn === stubOn) return;
+  _expertDisasmShown = null;
+  if (assemblerSyntax === "acme") {
+    _acmeRenderPanel(expertDisasmOutput, (el, preview) => _setDisasmLines(el, _acmeDisasmHTML(preview).split("\n")),
+      (el, message) => { el.innerHTML = `<span class="asm-tok-comment">; ${_escHtml(message)}</span>`; });
+    return;
+  }
+  _acmeForgetPanel(expertDisasmOutput);
   const kickProject = !ultimateBasicMode && _kickProjectActive();
   if (kickProject && !_kickLast?.ok) {
     expertDisasmOutput.innerHTML = `<span class="asm-tok-comment">; ${_escHtml(t("kickBuildFirst"))}</span>`;
@@ -15109,7 +15305,8 @@ function _expertRenderDisasm() {
     program = blocks;
     parseUserMacros();
     try {
-      expertDisasmOutput.innerHTML = _buildDisasmHTML(_getDisassemblyCodeOrigin(), _getGeneratedBasicStubSection());
+      _setDisasmLines(expertDisasmOutput, _buildDisasmLines(_getDisassemblyCodeOrigin(), _getGeneratedBasicStubSection()));
+      if (kickShown) _expertDisasmShown = { kick: kickShown, stubOn };
     } finally {
       program = saved;
       userMacros = savedUserMacros;
@@ -15122,10 +15319,11 @@ function _expertRenderDisasm() {
 function _expertRenderMonitor() {
   if (!expertMonitorOutput) return;
   if (assemblerSyntax === "acme") {
-    const preview = _acmePreviewCurrent();
-    expertMonitorOutput.textContent = preview ? _acmeMonitorText(preview) : `; ${_acmePreviewMessage()}`;
+    _acmeRenderPanel(expertMonitorOutput, (el, preview) => { el.textContent = _acmeMonitorText(preview); },
+      (el, message) => { el.textContent = `; ${message}`; });
     return;
   }
+  _acmeForgetPanel(expertMonitorOutput);
   const kickProject = !ultimateBasicMode && _kickProjectActive();
   if (kickProject && !_kickLast?.ok) {
     expertMonitorOutput.textContent = `; ${t("kickBuildFirst")}`;
@@ -15336,7 +15534,6 @@ function _expertRenderProjectTree() {
   const treeEl = document.getElementById("expert-project-tree");
   if (!nameEl || !treeEl) return;
   _projUpdateSaveBtn("expert-project-save-btn", !!_expertProjectData, _expertProjectDirty);
-  _kickSyncProjectButton();
 
   if (!_expertProjectData) {
     nameEl.textContent = t("projNoProject");
@@ -15378,6 +15575,7 @@ function _expertRenderProjectTree() {
   const activeTab = tabs.find(t => t.id === activeTabId);
   const activeFilePath = _normFilePath(activeTab?.filePath || "");
 
+  const moved = () => { _expertTouchProject(); _expertRenderProjectTree(); };
   const renderNode = (file, container, depth) => {
     if (!file._id) file._id = crypto.randomUUID();
     const isFolder = file.type === "folder";
@@ -15429,7 +15627,7 @@ function _expertRenderProjectTree() {
         _expertRenderProjectTree();
       });
       item.addEventListener("contextmenu", e => {
-        _projShowFolderMenu(e, () => _expertAddFileIntoFolder(file));
+        _projShowItemMenu(e, { container, entry: file, onMoved: moved, onAddFile: () => _expertAddFileIntoFolder(file) });
       });
       treeEl.appendChild(item);
       if (!collapsed) (file.children || []).forEach(child => renderNode(child, file.children, depth + 1));
@@ -15456,6 +15654,7 @@ function _expertRenderProjectTree() {
       if (e.target === delBtn || delBtn.contains(e.target) || e.target === starBtn || starBtn.contains(e.target)) return;
       _expertProjectOpenFile(file);
     });
+    item.addEventListener("contextmenu", e => _projShowItemMenu(e, { container, entry: file, onMoved: moved }));
     treeEl.appendChild(item);
   };
 
@@ -15490,9 +15689,20 @@ function _makeProjDelBtn(onDelete) {
   return btn;
 }
 
-// Small right-click menu for a project-panel folder row: "Add file" to nest a
-// file reference under that folder. Reuses the tab-bar context menu's CSS.
-function _projShowFolderMenu(e, onAddFile) {
+// One project-panel entry `delta` places up (-1) / down (+1) in its folder; false at the edge.
+function _projMoveEntry(container, entry, delta) {
+  const index = container.indexOf(entry);
+  const target = index + delta;
+  if (index < 0 || target < 0 || target >= container.length) return false;
+  container.splice(index, 1);
+  container.splice(target, 0, entry);
+  return true;
+}
+
+// Right-click menu of a project-panel row: "Add file" for a folder (a file reference nested under
+// it), and Move up / Move down within its folder (`container`, the order the .proj keeps; `onMoved`
+// marks the project dirty and redraws). Reuses the tab-bar context menu's CSS.
+function _projShowItemMenu(e, { container, entry, onMoved, onAddFile = null }) {
   e.preventDefault();
   e.stopPropagation();
   let menu = document.getElementById("proj-folder-ctx-menu");
@@ -15502,14 +15712,29 @@ function _projShowFolderMenu(e, onAddFile) {
     menu.className = "block-ctx-menu";
     document.body.appendChild(menu);
   }
-  const label = currentLanguage === "hu" ? "Fájl hozzáadása" : "Add file";
-  const iPlus = `<svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>`;
-  menu.innerHTML = `<button class="block-ctx-item" data-action="add">${iPlus} ${_escHtml(label)}</button>`;
-  menu.querySelector('[data-action="add"]').addEventListener("click", (ev) => {
-    ev.stopPropagation();
-    menu.setAttribute("hidden", "");
-    onAddFile();
-  }, { once: true });
+  const index = container.indexOf(entry);
+  const move = (delta) => { if (_projMoveEntry(container, entry, delta)) onMoved(); };
+  const icon = (d) => `<svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="${d}" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  const items = [
+    ...(onAddFile ? [{ label: t("projAddFileToFolder"), icon: icon("M8 3v10M3 8h10"), run: onAddFile }] : []),
+    { label: t("projMoveTop"), icon: icon("M3 3h10M8 14V6M4 10l4-4 4 4"), disabled: index <= 0, run: () => move(-index) },
+    { label: t("projMoveUp"), icon: icon("M8 13V3M4 7l4-4 4 4"), disabled: index <= 0, run: () => move(-1) },
+    { label: t("projMoveDown"), icon: icon("M8 3v10M4 9l4 4 4-4"), disabled: index < 0 || index >= container.length - 1, run: () => move(1) },
+    { label: t("projMoveBottom"), icon: icon("M3 13h10M8 2v8M4 6l4 4 4-4"), disabled: index < 0 || index >= container.length - 1, run: () => move(container.length - 1 - index) }
+  ];
+  menu.innerHTML = "";
+  for (const item of items) {
+    const btn = document.createElement("button");
+    btn.className = "block-ctx-item" + (item.disabled ? " block-ctx-item--disabled" : "");
+    btn.disabled = !!item.disabled;
+    btn.innerHTML = `${item.icon} ${_escHtml(item.label)}`;
+    btn.addEventListener("click", (ev) => {
+      ev.stopPropagation();
+      menu.setAttribute("hidden", "");
+      item.run();
+    });
+    menu.appendChild(btn);
+  }
   menu.style.visibility = "hidden";
   menu.style.left = "0px";
   menu.style.top = "0px";
@@ -15538,11 +15763,9 @@ function _projUpdateSaveBtn(btnId, hasProject, dirty) {
   const saved = hasProject && !dirty;
   btn.disabled = saved;
   btn.classList.toggle("expert-project-icon-btn--saved", saved);
-  const label = saved
-    ? (currentLanguage === "hu" ? "Elmentve" : "Saved")
-    : (currentLanguage === "hu" ? "Projekt mentése" : "Save project");
-  btn.setAttribute("aria-label", label);
-  btn.title = label;
+  // the custom aria-label tooltip only: a native title doubled it
+  btn.setAttribute("aria-label", t(saved ? "projSaved" : "projSaveProjectBtn"));
+  btn.removeAttribute("title");
 }
 
 function _ubTouchProject() {
@@ -16462,6 +16685,7 @@ function parseUserMacros() {
 
   // Build a flat list: top-level program + any includedBlocks from INCLUDE macros
   const allBlocks = [];
+  const includeOf = new Map();
   for (const block of program) {
     allBlocks.push(block);
     // Include macro definitions from ALL included files (both inline and fixed-address libraries)
@@ -16469,6 +16693,7 @@ function parseUserMacros() {
     if (block.isIncludeMacro && block.includedBlocks?.length) {
       for (const sub of block.includedBlocks) {
         allBlocks.push(sub);
+        includeOf.set(sub, block.id);
       }
     }
   }
@@ -16480,7 +16705,10 @@ function parseUserMacros() {
       macroStart = i;
       macroName = block.macroName;
     } else if (block.isMacroDefEnd && macroStart >= 0 && macroName) {
-      const macroBody = allBlocks.slice(macroStart + 1, i);
+      // the body of an included file's macro keeps its file (`_macroInclude`) for the debugger files:
+      // its _srcLine is a line of that file
+      const macroBody = allBlocks.slice(macroStart + 1, i)
+        .map(b => (includeOf.has(b) ? { ...b, _macroInclude: includeOf.get(b) } : b));
       const macroParamsDef = allBlocks[macroStart].macroParams || "";
       const paramsArray = macroParamsDef.split(",").map(s => s.trim()).filter(Boolean);
       userMacros[macroName] = { params: paramsArray, body: macroBody };
@@ -18909,8 +19137,8 @@ function _buildDebuggerSidecarTexts(layout, originOverride, sourcePathOverride =
     const block = line.block || {};
     const origin = kickOrigin(line);
     if (origin) return origin.file;
-    if (block._fromInclude) {
-      const includeBlock = includeBlocksById.get(block._fromInclude);
+    if (block._fromInclude || block._macroInclude) {
+      const includeBlock = includeBlocksById.get(block._fromInclude || block._macroInclude);
       const includePath = _normalizeIncludeBlockSource(includeBlock) || includeBlock?.includeFileName || "";
       if (includePath) return includePath;
     }
@@ -19021,6 +19249,8 @@ function _buildDebuggerSidecarPayload(prg, { force = false, layout = null, sourc
   }
   // ACME source has no VA layout: the symbols come from ACME's label dump.
   if (assemblerSyntax === "acme" && !ultimateBasicMode) return _acmeDebuggerSidecars(prg?.labels);
+  // A Rust build brings its own (vma_build, the same layout and texts).
+  if (prg?.vma?.sidecars && !layout) return { ...prg.vma.sidecars };
   const kick = _kickBuiltProject();
   const savedProgram = program;
   const savedUserMacros = userMacros;
@@ -19072,6 +19302,7 @@ async function runInDebugger() {
     }
 
     setWorkProgress(50);
+    setWorkStep("stepDebugFiles");
 
     const debugCodeOrigin = _getDebuggerCodeOrigin(prg);
     const savedProgram = program;
@@ -19082,28 +19313,32 @@ async function runInDebugger() {
     let breakpoints;
     let expertBreakpoints;
     let debuggerSidecars;
+    // The Expert breakpoint lines: the startup file's tab when the project builds that file.
+    let debuggerSourcePath = "";
+    let expertBreakpointLines = _getTabBreakpointLines("expert");
+    if ((startupProgram || prg.vma?.input.sourcePath) && _expertProjectData?.startupFile) {
+      const startupFile = _expertProjectData.files.find(file => file.path === _expertProjectData.startupFile);
+      if (startupFile && (startupProgram || _normFilePath(_projResolveAbsPath(startupFile.path)) === _normFilePath(prg.vma.input.sourcePath))) {
+        debuggerSourcePath = _projResolveAbsPath(startupFile.path);
+        const normalizedPath = _normFilePath(debuggerSourcePath);
+        const startupTab = tabs.find(tab => tab.filePath && _normFilePath(tab.filePath) === normalizedPath);
+        if (startupTab && Array.isArray(startupTab.expertBreakpointLines)) {
+          expertBreakpointLines = startupTab.expertBreakpointLines;
+        }
+      }
+    }
     if (acme) {
       ({ symbols, breakpoints } = _acmeDebuggerTargets(prg, _getTabBreakpointLines("expert")));
       expertBreakpoints = breakpoints;
+      debuggerSidecars = _buildDebuggerSidecarPayload(prg, { force: true });
+    } else if (prg.vma) {
+      ({ symbols, breakpoints, expertBreakpoints } = _vmaDebuggerTargets(prg.vma, expertBreakpointLines));
       debuggerSidecars = _buildDebuggerSidecarPayload(prg, { force: true });
     } else try {
       if (debuggerProgram?.length) program = debuggerProgram;
       parseUserMacros();
       const layout = getProgramLayout(debugCodeOrigin);
       ({ symbols, breakpoints } = _collectDebuggerSymbols(layout));
-      let debuggerSourcePath = "";
-      let expertBreakpointLines = _getTabBreakpointLines("expert");
-      if (startupProgram && _expertProjectData?.startupFile) {
-        const startupFile = _expertProjectData.files.find(file => file.path === _expertProjectData.startupFile);
-        if (startupFile) {
-          debuggerSourcePath = _projResolveAbsPath(startupFile.path);
-          const normalizedPath = _normFilePath(debuggerSourcePath);
-          const startupTab = tabs.find(tab => tab.filePath && _normFilePath(tab.filePath) === normalizedPath);
-          if (startupTab && Array.isArray(startupTab.expertBreakpointLines)) {
-            expertBreakpointLines = startupTab.expertBreakpointLines;
-          }
-        }
-      }
       const kick = _kickBuiltProject();
       if (kick) {
         symbols = symbols.map(sym => ({ ...sym, name: _kickDisplayLabel(sym.name) })).filter(sym => sym.name);
@@ -19124,6 +19359,7 @@ async function runInDebugger() {
     }
 
     setWorkProgress(80);
+    setWorkStep("stepDebugger", { file: debuggerSourcePath ? _workStepName(debuggerSourcePath) : _workStepSource() || "PRG" });
     const result = await window.electronAPI.launchDebugger({
       bytes: Array.from(prg.bytes),
       fileName: `c64-visual-assembler-${Date.now()}.prg`,
@@ -19534,10 +19770,24 @@ function _getCurrentProjectSnapshotPayload(tab = _getActiveTab()) {
     const ubText = tab.id === activeTabId && ubEditor ? ubEditor.value : (tab.ubText || "");
     return { version: 1, app: "c64-visual-assembler", kind: "ub", ubText };
   }
+  // a source file (.asm / .s / .inc …): its text, as the file holds it — not the VA JSON payload
+  if (_isSourceFilePath(tab.filePath)) {
+    return { version: 1, app: "c64-visual-assembler", kind: "source", sourceText: _vcSourceTabText(tab) };
+  }
   if (tab.id === activeTabId) {
     return getProjectPayload();
   }
   return _buildSnapshotPayloadFromTab(tab);
+}
+
+// The text a source-file tab saves (_saveSourceTab): the Expert editor's, else the blocks as Expert lines.
+function _vcSourceTabText(tab) {
+  if (tab.id === activeTabId) {
+    if (expertMode) return _expertGetSourceText();
+    return program.map(_blockToExpertSourceLine).join("\n") + "\n";
+  }
+  if (tab.editorMode === "expert" || (tab.expertText && !tab.program?.length)) return tab.expertText || "";
+  return (tab.program || []).map(_blockToExpertSourceLine).join("\n") + "\n";
 }
 
 function _clearProjectSnapshotTimer(tabId) {
@@ -19610,6 +19860,7 @@ function _vcProgramText(payload) {
 function _vcPayloadText(payload) {
   if (!payload) return "";
   if (typeof payload.ubText === "string") return payload.ubText;
+  if (typeof payload.sourceText === "string") return payload.sourceText;
   if (typeof payload.expertText === "string" && payload.expertText.trim()) return payload.expertText;
   return _vcProgramText(payload);
 }
@@ -19618,6 +19869,10 @@ function _vcPayloadText(payload) {
 function _vcComparable(oldPayload, newPayload) {
   if (typeof oldPayload?.ubText === "string" || typeof newPayload?.ubText === "string") {
     return [oldPayload?.ubText || "", newPayload?.ubText || ""];
+  }
+  // a source-file snapshot against an older (JSON) one of the same file: both as source text
+  if (typeof oldPayload?.sourceText === "string" || typeof newPayload?.sourceText === "string") {
+    return [_vcPayloadText(oldPayload), _vcPayloadText(newPayload)];
   }
   const hasSrc = (pl) => typeof pl?.expertText === "string" && pl.expertText.trim() !== "";
   if (hasSrc(oldPayload) && hasSrc(newPayload)) return [oldPayload.expertText, newPayload.expertText];
@@ -20414,8 +20669,9 @@ async function _restoreProjectSnapshotByIndex(index) {
     return ok;
   }
   if (!await _showConfirm(t("snapshotConfirmRestore"))) return false;
-  const ok = typeof entry.payload.ubText === "string"
-    ? await _vcApplyText(tab, entry.payload.ubText)
+  const text = typeof entry.payload.ubText === "string" ? entry.payload.ubText : entry.payload.sourceText;
+  const ok = typeof text === "string"
+    ? await _vcApplyText(tab, text)
     : await _applyProjectPayload(entry.payload, { keepFilePath: true, sourceLabel: entry.note || entry.createdAt || "" });
   if (ok) {
     if (projectSnapshotDialog?.open) await _renderProjectSnapshotHistory();
@@ -21452,6 +21708,30 @@ function _updateTabScrollButtons() {
   new ResizeObserver(_updateTabScrollButtons).observe(tabBar);
 }());
 
+function _isSourceFilePath(path) {
+  return /\.(asm|s|inc|a|a65|lib)$/i.test(String(path || ""));
+}
+
+// Saves a source-file tab as text: the Expert editor's text, in block mode the blocks written as
+// Expert lines (_blockToExpertSourceLine, the same text the build uses).
+async function _saveSourceTab(tab, forceSaveAs = false) {
+  if (expertMode) {
+    if (await _expertSaveAsm(forceSaveAs)) markTabClean();
+    return;
+  }
+  const content = program.map(_blockToExpertSourceLine).join("\n") + "\n";
+  const res = await window.electronAPI?.saveAsmFile?.(forceSaveAs ? "" : tab.filePath, content);
+  if (!res || res.canceled) return;
+  if (!res.ok) {
+    if (emulatorStatus) emulatorStatus.textContent = res.error || t("projectSaveFailed");
+    return;
+  }
+  const name = res.filePath.replace(/\\/g, "/").split("/").pop();
+  _setCurrentFile(name, name, res.filePath);
+  if (emulatorStatus) emulatorStatus.textContent = `${t("projectSaved")}: ${res.filePath}`;
+  markTabClean();
+}
+
 async function saveProjectToFile({ forceSaveAs = false } = {}) {
   if (ultimateBasicMode) {
     await _ubSave();
@@ -21466,6 +21746,12 @@ async function saveProjectToFile({ forceSaveAs = false } = {}) {
   }
 
   const tab = tabs?.find(t => t.id === activeTabId);
+  // A source file stays text: the VA JSON payload only goes to .json / .c64va (Ctrl+S on an .asm
+  // tab used to write the payload into the .asm, which only the app could read back).
+  if (_isSourceFilePath(tab?.filePath)) {
+    await _saveSourceTab(tab, forceSaveAs);
+    return;
+  }
   const existingPath = forceSaveAs ? "" : (tab?.filePath || "");
   const previousSnapshotPath = await _getProjectSnapshotStoragePath(tab);
   const defaultName  = (tab?.name || "program").replace(/\.(json|c64va)$/i, "") + ".json";
@@ -21585,6 +21871,8 @@ async function showWorkProgress(messageKey, opts = {}) {
 
   if (workProgressTitle) workProgressTitle.textContent = t("workProgressTitle");
   if (workProgressSubtitle) workProgressSubtitle.textContent = t(messageKey);
+  const stepLine = document.getElementById("work-progress-step");
+  if (stepLine && !workProgressDialog.open) stepLine.textContent = "";
 
   if (indeterminate) {
     workProgressValue = 0;
@@ -21610,6 +21898,27 @@ async function showWorkProgress(messageKey, opts = {}) {
     workProgressValue = Math.min(92, workProgressValue + 3);
     if (workProgressBar) workProgressBar.style.width = `${workProgressValue}%`;
   }, 120);
+}
+
+// The step line under the bar: what the running build / run does right now (a no-op while the
+// dialog is closed, so the build paths can call it from any caller).
+function setWorkStep(key, values = {}) {
+  const el = document.getElementById("work-progress-step");
+  if (!el || !workProgressDialog?.open) return;
+  el.textContent = key ? tf(key, values) : "";
+}
+
+// The file name of a path (the last / or \ part).
+function _workStepName(path) {
+  return String(path || "").replace(/\\/g, "/").split("/").pop() || "";
+}
+
+// The source a VA build compiles, for the step line: the project's startup file or the active tab.
+function _workStepSource() {
+  const startup = _expertProjectData?.startupFile;
+  if (startup) return _workStepName(startup);
+  const tab = tabs.find(tb => tb.id === activeTabId);
+  return _workStepName(tab?.filePath) || tab?.name || "";
 }
 
 function setWorkProgress(value) {
@@ -21643,6 +21952,7 @@ async function completeWorkProgress(successMessageKey, delayMs = 1200) {
   }
   if (workProgressTitle) workProgressTitle.textContent = t("workProgressDoneTitle");
   if (workProgressSubtitle) workProgressSubtitle.textContent = t(successMessageKey);
+  setWorkStep("");
   if (workProgressBar) {
     workProgressBar.classList.remove("work-progress-bar--indeterminate");
     workProgressBar.style.width = "100%";
@@ -21834,6 +22144,7 @@ async function buildProjectToFiles() {
         continue;
       }
 
+      setWorkStep("stepBuildFile", { file: fileName, index: i + 1, count: targets.length });
       const prg = target.kind === "ub"
         ? await _buildProjectUbTarget(target, target.text)
         : await _buildProjectAsmTarget(target);
@@ -21846,6 +22157,7 @@ async function buildProjectToFiles() {
     }
     // Kick project: .file / outPrg / outBin / .disk next to the startup file
     if (_kickProjectActive() && _kickLast?.ok && _kickLast.outputs?.length) {
+      setWorkStep("stepKickOutputs", { count: _kickLast.outputs.length });
       results.push(...await _kickWriteOutputs(_kickLast, _projResolveAbsPath(_expertProjectData.startupFile)));
     }
   } finally {
@@ -23321,6 +23633,7 @@ async function confirmD64Export() {
       if (f.loadAddress === 0x0801) {
         // sfx sys: self-extracting PRG, load address header prepended for Exomizer
         const prgForExo = [f.loadAddress & 0xFF, (f.loadAddress >> 8) & 0xFF, ...f.bytes];
+        setWorkStep("stepExomizer", { file: f.name, bytes: prgForExo.length });
         crunchResult = await window.electronAPI.buildExomizerPrg({ bytes: prgForExo, fileName: f.name + ".prg" });
         if (crunchResult?.ok) {
           f.bytes = Array.from(crunchResult.bytes);
@@ -23366,6 +23679,7 @@ async function confirmD64Export() {
 
   let result;
   try {
+    setWorkStep("stepD64", { disk: diskName || "disk", count: files.length });
     if (isUltimateMode) {
       const host = (document.getElementById("ultimate-host")?.value || ultimateHost).trim();
       const password = (document.getElementById("ultimate-password")?.value || ultimatePassword).trim() || null;
@@ -23649,6 +23963,7 @@ async function buildRunPrgForCurrentMode() {
 // `preview`: the plain build (panels, VICE hot reload), never wrapped in a start loader.
 async function _buildAcmePrg(useCurrentEditor = false, options = null) {
   const preview = !!options?.preview;
+  if (!preview) setWorkStep("stepAcme", { file: _workStepSource() });
   if (!window.electronAPI?.buildAcmePrg) {
     return { ok: false, error: "Az ACME fordítás csak a desktop alkalmazásban érhető el." };
   }
@@ -23878,7 +24193,6 @@ function _setAssemblerSyntax(syntax) {
   const syntaxSelect = document.getElementById("assembler-syntax");
   if (syntaxSelect) syntaxSelect.value = assemblerSyntax;
   _acmeBuildButtonSync();
-  _kickSyncProjectButton();
   if (assemblerSyntax === "acme" && !expertMode && !ultimateBasicMode) setExpertMode(true);
 }
 
@@ -23991,7 +24305,7 @@ async function _acmeBuildPreview(options) {
     _acmeUpdateAnalysis();
     if (_expertDisasmVisible) _expertRenderDisasm();
     if (_expertMonitorVisible) _expertRenderMonitor();
-    renderMemoryMap();
+    _acmeRenderMemoryMap();
   } catch (error) {
     if (tabId === activeTabId) {
       _acmePreview = null;
@@ -24044,6 +24358,7 @@ async function _applyExomizerToPrg(prg) {
   }
 
   try {
+    setWorkStep("stepExomizer", { file: _workStepSource() || "PRG", bytes: prg.bytes.length });
     const result = await window.electronAPI.buildExomizerPrg({
       bytes: Array.from(prg.bytes),
       fileName: `c64-visual-assembler-${Date.now()}.prg`
@@ -24290,6 +24605,7 @@ async function runOnUltimate() {
   }
   const password = (document.getElementById("ultimate-password")?.value || ultimatePassword).trim() || null;
   await showWorkProgress("workProgressRunUltimate");
+  setWorkStep("stepUltimate", { bytes: prg.bytes.length, host });
   const result = await window.electronAPI?.runOnUltimate(host, password, Array.from(prg.bytes));
   if (result?.ok) {
     await completeWorkProgress("workProgressSuccessUltimate");
@@ -24316,6 +24632,7 @@ async function runOnKff2() {
     return;
   }
   await showWorkProgress("workProgressRunKff2");
+  setWorkStep("stepKff2", { bytes: prg.bytes.length, port });
   const result = await window.electronAPI?.runOnKff2(port, Array.from(prg.bytes));
   if (result?.ok) {
     await completeWorkProgress("workProgressSuccessKff2");
@@ -26918,14 +27235,39 @@ function _kickErrorEntry(file, line, message) {
 }
 
 // Preprocesses the startup file of the Kick project; null when no Kick project is active.
+// The same source tree (texts, binaries, options) → the last result: a tab switch or a click in the
+// project tree reads the tree again but changes nothing, and preprocess + parse took ~0.3 s on a big
+// project. Not for a tree with VA assets (.include / .incbin / .sid): those files are not in the tree.
+let _kickPrepareCache = null;
+function _kickSameTree(a, b) {
+  if (!a || a.size !== b.size) return false;
+  for (const [k, v] of b) {
+    if (!a.has(k)) return false;
+    const w = a.get(k);
+    if (v instanceof Uint8Array && w instanceof Uint8Array) {
+      if (v.length !== w.length || v.some((x, i) => x !== w[i])) return false;
+    } else if (v !== w) return false;
+  }
+  return true;
+}
+
 async function _kickPrepare() {
   if (!_kickProjectActive()) return null;
   const entry = _kickNormPath(_projResolveAbsPath(_expertProjectData.startupFile));
+  setWorkStep("stepKickRead", { file: _workStepName(entry) });
   const { texts, bins, pictures } = await _kickReadTree(entry);
+  const options = JSON.stringify([entry, _expertProjectData.kickDefines || [], _expertProjectData.kickVars || {}]);
+  const cache = _kickPrepareCache;
+  if (cache && cache.options === options && _kickSameTree(cache.texts, texts) && _kickSameTree(cache.bins, bins)) {
+    _kickLast = cache.result;
+    return cache.result;
+  }
+  setWorkStep("stepKickPreprocess", { file: _workStepName(entry), files: texts.size });
   const pre = _kickPreprocess(entry, p => texts.get(p) ?? null, p => bins.get(p) ?? null,
     { defines: _expertProjectData.kickDefines || [], vars: _expertProjectData.kickVars || {}, readPicture: p => pictures.get(p) ?? null });
   const result = {
     ok: pre.ok,
+    entry,
     text: pre.text,
     origins: pre.origins,
     errors: pre.errors.map(e => _kickErrorEntry(e.file, e.line, e.text)),
@@ -26954,6 +27296,8 @@ async function _kickPrepare() {
     }
   }
   _kickLast = result;
+  const vaAssets = result.program?.some(b => b.isIncludeMacro || b.isIncBinMacro || b.isSidMacro);
+  _kickPrepareCache = vaAssets ? null : { options, texts, bins, result };
   return result;
 }
 
@@ -26972,32 +27316,47 @@ function _kickMapResult(result, kick = _kickLast) {
 
 // An extra output of a Kick project (.file, outPrg / outBin, a file of .disk): the bytes as
 // KickAssembler writes them — a PRG with its load address, a BIN from the lowest address.
-function _kickBuildOutput(output) {
+// The image of an extra output: the Rust engine (vma_build raw) or assembleProgramToPrg.
+async function _kickOutputImage(output, baseDir) {
+  const engine = window.electronAPI?.vmaBuild ? _vmaEngine() : "js";
+  if (engine === "rust") {
+    const input = { text: output.text, baseDir, editorLines: false, kick: true };
+    const r = await window.electronAPI.vmaBuild(output.text, baseDir, false, null, null, true);
+    if (r?.ok) return { ok: true, bytes: Uint8Array.from(r.prg || []) };
+    const lines = String(output.text).split("\n");
+    const list = r?.errors?.length ? r.errors : [{ line: r?.line || 0, message: r?.error || "VMA (Rust) error", key: "", params: {}, address: null }];
+    const errors = list.map(e => _vmaErrorEntry(e, input, lines));
+    return { ok: false, error: errors[0].text, errors };
+  }
   const saved = program;
   const savedMacros = userMacros;
   try {
     program = parseExpertText(output.text);
     _addSrcLineToBlocks(output.text, program);
     parseUserMacros();
-    const res = _kickMapResult(assembleProgramToPrg(), { origins: output.origins });
-    if (!res.ok) return res;
-    let bytes = Array.from(res.bytes);
-    const p = output.params || {};
-    let load = bytes[0] | (bytes[1] << 8);
-    let body = bytes.slice(2);
-    if (body.length === 0) load = p.min ?? load;
-    if (p.fill && p.min !== undefined && p.max !== undefined) {
-      const before = Math.max(0, load - p.min);
-      const after = Math.max(0, p.max + 1 - (load + body.length));
-      body = [...new Array(before).fill(p.fillByte ?? 0), ...body, ...new Array(after).fill(p.fillByte ?? 0)];
-      load = Math.min(load, p.min);
-    }
-    bytes = output.type === "bin" ? body : [load & 0xFF, load >> 8, ...body];
-    return { ok: true, bytes: Uint8Array.from(bytes) };
+    return assembleProgramToPrg();
   } finally {
     program = saved;
     userMacros = savedMacros;
   }
+}
+
+async function _kickBuildOutput(output, baseDir = "") {
+  const res = _kickMapResult(await _kickOutputImage(output, baseDir), { origins: output.origins });
+  if (!res.ok) return res;
+  let bytes = Array.from(res.bytes);
+  const p = output.params || {};
+  let load = bytes[0] | (bytes[1] << 8);
+  let body = bytes.slice(2);
+  if (body.length === 0) load = p.min ?? load;
+  if (p.fill && p.min !== undefined && p.max !== undefined) {
+    const before = Math.max(0, load - p.min);
+    const after = Math.max(0, p.max + 1 - (load + body.length));
+    body = [...new Array(before).fill(p.fillByte ?? 0), ...body, ...new Array(after).fill(p.fillByte ?? 0)];
+    load = Math.min(load, p.min);
+  }
+  bytes = output.type === "bin" ? body : [load & 0xFF, load >> 8, ...body];
+  return { ok: true, bytes: Uint8Array.from(bytes) };
 }
 
 // Writes the extra outputs of a Kick project beside its startup file; Build project report rows.
@@ -27013,7 +27372,7 @@ async function _kickWriteOutputs(kick, startupPath) {
       if (!formatted?.ok) { results.push({ name: output.name, error: formatted?.error || where(output) }); continue; }
       let failed = null;
       for (const file of output.files) {
-        const res = _kickBuildOutput({ ...file, type: "prg" });
+        const res = await _kickBuildOutput({ ...file, type: "prg" }, dir);
         if (!res.ok) { failed = res.error; break; }
         const added = await api?.d64AddFile?.(outPath, Array.from(res.bytes), file.name, null, file.type === "bin" ? "prg" : file.type);
         if (!added?.ok) { failed = added?.error || file.name; break; }
@@ -27021,7 +27380,7 @@ async function _kickWriteOutputs(kick, startupPath) {
       results.push(failed ? { name: output.name, error: failed } : { name: output.name, outPath, size: output.files.length });
       continue;
     }
-    const res = _kickBuildOutput(output);
+    const res = await _kickBuildOutput(output, dir);
     if (!res.ok) { results.push({ name: output.name, error: res.error }); continue; }
     const write = await api?.writeBinFile?.(outPath, Array.from(res.bytes), null);
     results.push(write?.ok ? { name: output.name, outPath, size: res.bytes.length } : { name: output.name, error: write?.error || t("savePrgFailed") });
@@ -27030,16 +27389,230 @@ async function _kickWriteOutputs(kick, startupPath) {
 }
 
 // PRG of the Kick project through the VA assembler (the same as Run); null without one.
-async function _kickBuildPrg(build = buildAutostartPrgForEmulator) {
+// The VMA engine builds the preprocessed text (Rust: kick.text through vma_build).
+async function _kickBuildPrg() {
   const kick = await _kickPrepare();
   if (!kick) return null;
   if (!kick.ok) return { ok: false, error: kick.errors[0]?.text || "", errors: kick.errors };
-  return _kickMapResult(await build(), kick);
+  return _kickMapResult(await _vaBuildPrg(kick), kick);
 }
 
 // The PRG every build path uses: the Kick project's, or the VA build of the editor.
 async function _kickOrVaPrg() {
-  return (await _kickBuildPrg()) || buildAutostartPrgForEmulator();
+  return (await _kickBuildPrg()) || _vaBuildPrg();
+}
+
+/* VMA compiler engine (Settings → General, `c64va-vma-engine`): "js" = the app.js compiler,
+   "rust" = the VMA crate (github.com/zstarczali/VMA) through the vma_build command (the source text in, the files read by Rust),
+   "shadow" = the JS result is used, the Rust one is built too and every difference is logged
+   (console + _vaErrorLog). Without the desktop app (no vmaBuild) always JS. */
+function _vmaEngine() {
+  let v = "js";
+  try { v = localStorage.getItem("c64va-vma-engine") || "js"; } catch (_) {}
+  return v === "rust" || v === "shadow" ? v : "js";
+}
+
+// The VMA source the JS build compiles (buildAutostartPrgForEmulator's choice), its folder,
+// whether its lines are the editor's (so an error line can be shown there) and the main source
+// the debugger files name (runInDebugger's choice). A source made of blocks keeps them: the block
+// of each text line (`blockOfLine`) and the line the .dbg names (`lineMap`, the block's _srcLine).
+// A Kick project (`kick` = its _kickPrepare result): the preprocessed text, its lines mapped back to
+// file:line by _kickMapResult (sourceLine = the text line).
+function _vmaBuildInput(kick = null) {
+  const dirOf = (p) => {
+    const s = String(p || "");
+    const i = Math.max(s.lastIndexOf("/"), s.lastIndexOf("\\"));
+    return i >= 0 ? s.slice(0, i) : "";
+  };
+  if (kick) return { text: kick.text, baseDir: dirOf(kick.entry), editorLines: false, kick: true, sourcePath: kick.entry };
+  const fromBlocks = (blocks) => {
+    const texts = blocks.map(_blockToExpertSourceLine);
+    const blockOfLine = texts.flatMap((text, i) => String(text).split("\n").map(() => i));
+    // -2: a further line of the same block (vma_build joins it to the block's range)
+    const lineMap = blockOfLine.map((i, k) => (k > 0 && blockOfLine[k - 1] === i ? -2
+      : typeof blocks[i]?._srcLine === "number" ? blocks[i]._srcLine : -1));
+    return { text: texts.join("\n"), blocks, blockOfLine, lineMap };
+  };
+  const activeTab = tabs.find(tab => tab.id === activeTabId);
+  const fileDir = dirOf(activeTab?.filePath || _expertAsmFilePath) || workingFolder || "";
+  const startupPath = () => {
+    const file = _expertProjectData?.files.find(f => f.path === _expertProjectData.startupFile);
+    return file ? _projResolveAbsPath(file.path) : "";
+  };
+  if (expertMode) {
+    const startup = _expertGetStartupSource();
+    if (startup) return { text: startup.text, baseDir: dirOf(startup.path) || fileDir, editorLines: false, sourcePath: startup.path };
+    const blocks = _expertGetStartupProgram();
+    if (blocks) return { ...fromBlocks(blocks), baseDir: fileDir, editorLines: false, sourcePath: startupPath() || _getDebuggerPrimarySourcePath() };
+    return { text: _expertGetSourceText(), baseDir: fileDir, editorLines: true, sourcePath: _getDebuggerPrimarySourcePath() };
+  }
+  const startupBlocks = _expertGetStartupProgram();
+  return {
+    ...fromBlocks(startupBlocks || program),
+    baseDir: fileDir,
+    editorLines: false,
+    sourcePath: (startupBlocks && startupPath()) || _getDebuggerPrimarySourcePath()
+  };
+}
+
+// The project's VMA prelude (_projVmaPrelude) in front of a Rust build input: its lines name no
+// source line and no block; `prelude` = their count (an error line is shifted back by it).
+function _vmaWithPrelude(input) {
+  const prelude = input.kick ? "" : _projVmaPrelude();
+  if (!prelude) return input;
+  const count = prelude.split("\n").length;
+  const ownLines = String(input.text).split("\n").length;
+  const none = new Array(count).fill(-1);
+  return {
+    ...input,
+    text: `${prelude}\n${input.text}`,
+    prelude: count,
+    lineMap: [...none, ...(input.lineMap || Array.from({ length: ownLines }, (_, i) => i))],
+    ...(input.blockOfLine ? { blockOfLine: [...none, ...input.blockOfLine] } : {})
+  };
+}
+
+// The Rust build; `vma` = its debugger view (the sidecars, symbols and lines of vma_build), the
+// ranges it writes (`segments` [[address, bytes]]) and the memory panel's view (`memory`).
+async function _vmaRustBuild(kick = null) {
+  const input = _vmaWithPrelude(_vmaBuildInput(kick));
+  const r = await window.electronAPI.vmaBuild(input.text, input.baseDir, basicSysToggle ? basicSysToggle.checked : true,
+    input.sourcePath, input.lineMap || null);
+  if (!r?.ok) {
+    const lines = String(input.text || "").split("\n");
+    const list = r?.errors?.length ? r.errors : [{ line: r?.line || 0, message: r?.error || "VMA (Rust) error", key: "", params: {}, address: null }];
+    const errors = list.map(e => _vmaErrorEntry(e, input, lines));
+    return { ok: false, error: errors[0].text, errors };
+  }
+  const result = { ok: true, bytes: Uint8Array.from(r.prg || []) };
+  if (typeof r.sysAddress === "number") result.sysAddress = r.sysAddress;
+  // a Kick project keeps the JS debugger view (its file:line map, _kickBuiltProject)
+  if (r.sidecars && !input.kick) {
+    result.vma = { origin: r.debugOrigin, sidecars: r.sidecars, symbols: r.symbols || [], lines: r.lines || [],
+      segments: r.segments || [], entry: r.entry, memory: r.memory || null, input };
+  }
+  return result;
+}
+
+// The text of a Rust compile error in the app's language: tf(key, params) as the JS compiler
+// composes it (`_prefix` "LOOP: …", `_suffix` "… 12).", `_replace` for IRQ_SETUP), the English
+// message without a key.
+function _vmaErrorMessage(e) {
+  const params = e.params || {};
+  if (!e.key || !(e.key in translations.en)) return String(e.message || "");
+  const values = Object.fromEntries(Object.entries(params).filter(([name]) => !name.startsWith("_")));
+  let text = tf(e.key, values);
+  if (params._replace) text = text.replace("IRQ_SETUP", params._replace);
+  if (params._prefix) text = `${params._prefix}: ${text}`;
+  if (params._suffix) text = `${text} ${params._suffix}`;
+  return text;
+}
+
+// A Rust compile error (vma_build `errors[]`) as the JS compiler's list entry:
+// "[Lnnn] $addr  LDA #$01 — message". A source made of blocks names the block (its ASM view line,
+// mnemonic and operand, _srcLine), the editor's own text its line ([Rnnn], the line's text).
+function _vmaErrorEntry(e, input, lines) {
+  const line = Number(e.line) || 0;
+  const block = input.blocks && line > 0 ? input.blocks[input.blockOfLine?.[line - 1]] : null;
+  const asmLine = block && asmBlockRanges[block.id] ? asmBlockRanges[block.id].firstLine + 1 : null;
+  const tag = asmLine ? `L${String(asmLine).padStart(3, "0")}` : `R${String(line).padStart(3, "0")}`;
+  const head = block
+    ? `${block.mnemonic || "?"}${block.operand ? ` ${block.operand}` : ""}`
+    : String(lines[line - 1] ?? "").trim();
+  const addr = typeof e.address === "number" ? `${formatAddress(e.address & 0xFFFF)}  ` : "";
+  const message = _vmaErrorMessage(e);
+  const own = line - (input.prelude || 0);
+  const sourceLine = block
+    ? (typeof block._srcLine === "number" ? block._srcLine : null)
+    : ((input.editorLines || input.kick) && own > 0 ? own - 1 : null);
+  return { text: `[${tag}] ${addr}${head ? `${head} — ` : ""}${message}`, asmLine, sourceLine };
+}
+
+// RetroDebugger targets of a Rust build (runInDebugger's JS-layout branch on vma_build's lines):
+// the symbols, the Block-mode breakpoints (blocks marked isBreakpoint) and the addresses of the
+// Expert breakpoint lines (the line itself or the next line that emits bytes).
+function _vmaDebuggerTargets(vma, expertBreakpointLines) {
+  const { input, lines } = vma;
+  const symbols = vma.symbols.map(([name, address]) => ({ name, address }));
+  // one per laid-out block, as the JS layout: every expansion of a marked macro body block too,
+  // but the further lines of a block written on more than one line are the same block
+  const breakpoints = [];
+  let previous = -1;
+  for (const [address, , , textLine] of lines) {
+    const index = input.blocks && textLine >= 0 ? input.blockOfLine[textLine] : -1;
+    if (index >= 0 && index !== previous && input.blocks[index]?.isBreakpoint) breakpoints.push(address & 0xFFFF);
+    previous = index;
+  }
+  const sourceLine = (textLine) => (textLine < 0 ? -1 : input.lineMap ? (input.lineMap[textLine] ?? -1) : textLine);
+  const executable = lines
+    .filter(([, size, skipped]) => size > 0 && !skipped)
+    .map(([address, , , textLine]) => ({ address, line: sourceLine(textLine) }));
+  const expertBreakpoints = (expertBreakpointLines || []).map(bp => {
+    const hit = executable.find(l => l.line === bp) || executable.find(l => l.line >= 0 && l.line > bp);
+    return hit?.address;
+  }).filter(Number.isFinite).map(address => address & 0xFFFF);
+  return { symbols, breakpoints, expertBreakpoints };
+}
+
+async function _vaBuildPrg(kick = null) {
+  const engine = window.electronAPI?.vmaBuild ? _vmaEngine() : "js";
+  const file = kick ? _workStepName(kick.entry) : _workStepSource();
+  setWorkStep("stepVma", { file, engine: engine === "rust" ? "Rust" : "JS" });
+  if (engine === "rust") return _vmaStepDone(await _vmaRustBuild(kick));
+  const js = _vmaStepDone(buildAutostartPrgForEmulator());
+  if (engine === "shadow") {
+    try {
+      setWorkStep("stepVmaShadow", { file });
+      const rust = await _vmaRustBuild(kick);
+      const diff = _vmaShadowDiff(js, rust) || _vmaShadowMemoryDiff(rust);
+      if (diff) {
+        console.warn("[vma-shadow]", diff);
+        _vaLogError("vma-shadow", diff);
+      }
+    } catch (e) {
+      _vaLogError("vma-shadow", "Rust build failed: " + (e?.message || e));
+    }
+  }
+  return js;
+}
+
+// The step line after a VMA build: the size and load address of the PRG.
+function _vmaStepDone(prg) {
+  if (prg?.ok && prg.bytes?.length >= 2) {
+    setWorkStep("stepVmaDone", { bytes: prg.bytes.length - 2, from: formatAddress(prg.bytes[0] | (prg.bytes[1] << 8)) });
+  }
+  return prg;
+}
+
+// The first difference between the JS and the Rust build ("" when they agree).
+function _vmaShadowDiff(js, rust) {
+  if (!!js.ok !== !!rust.ok) return js.ok ? `JS ok, Rust: ${rust.error}` : `Rust ok, JS: ${js.error}`;
+  if (!js.ok) return "";
+  const a = js.bytes, b = rust.bytes;
+  if ((js.sysAddress ?? null) !== (rust.sysAddress ?? null)) return `SYS ${js.sysAddress} vs ${rust.sysAddress}`;
+  const n = Math.min(a.length, b.length);
+  for (let i = 0; i < n; i++) {
+    if (a[i] !== b[i]) return `${a.length} vs ${b.length} bytes, first difference at offset ${i} ($${i.toString(16)})`;
+  }
+  return a.length === b.length ? "" : `${a.length} vs ${b.length} bytes`;
+}
+
+// The memory panel's usage (getMemoryUsage) of a Rust build's `memory`.
+function _vmaMemoryUsage(memory) {
+  return _memoryUsageOf(null, memory.code, memory.deferred, memory.regions.map(([address, end]) => ({ address, end, type: "code" })));
+}
+
+// The first difference between the memory view of the JS layout and of the Rust build ("" when
+// they agree): the occupied ranges, the deferred sections, the overlaps.
+function _vmaShadowMemoryDiff(rust) {
+  if (!rust.ok || !rust.vma?.memory) return "";
+  const js = _vmWithProgram((layout) => getMemoryUsage(layout), rust.vma.input.blocks);
+  const vma = _vmaMemoryUsage(rust.vma.memory);
+  const ranges = (u) => u.mergedOccupied.map(r => `${formatAddress(r.start)}-${formatAddress(r.end)}`).join(",");
+  if (ranges(js) !== ranges(vma)) return `memory: JS ${ranges(js)} vs Rust ${ranges(vma)}`;
+  const sections = (u) => u.deferredSections.map(d => `${d.type}@${d.address}-${d.end}`).join(",");
+  if (sections(js) !== sections(vma)) return `deferred sections: JS ${sections(js)} vs Rust ${sections(vma)}`;
+  return js.overlaps.length === vma.overlaps.length ? "" : `overlaps: JS ${js.overlaps.length} vs Rust ${vma.overlaps.length}`;
 }
 
 async function _kickGotoError(file, line) {
@@ -27058,6 +27631,10 @@ async function _kickGotoError(file, line) {
 
 // Editor check of a Kick project after a typing pause: errors of the whole tree,
 // the lines of the open file marked, and the memory panel from the built program.
+// The build and memory usage of the last checked tree: the same _kickPrepare result (nothing
+// changed, e.g. only another file was opened) is not built again.
+let _kickCheckCache = null;
+
 function _kickScheduleCheck() {
   clearTimeout(_expertParseTimer);
   _expertParseTimer = setTimeout(async () => {
@@ -27072,10 +27649,13 @@ function _kickScheduleCheck() {
       try {
         program = kick.program;
         parseUserMacros();
-        const res = _kickMapResult(_buildAutostartPrgCore(), kick);
+        if (_kickCheckCache?.kick !== kick) {
+          _kickCheckCache = { kick, res: _kickMapResult(_buildAutostartPrgCore(), kick), usage: getMemoryUsage() };
+        }
+        const { res, usage } = _kickCheckCache;
         if (res.ok) bytes = Math.max(0, (res.bytes?.length || 2) - 2);
         else errors = res.errors;
-        renderMemoryMap(getMemoryUsage());
+        renderMemoryMap(usage);
         const activePath = tabs.find(t => t.id === activeTabId)?.filePath || "";
         if (_expertCyclesEnabled && res.ok) {
           _expertCycleMap = _kickCycleMap(kick, activePath);
@@ -27236,36 +27816,48 @@ function _kickCycleMap(kick, filePath) {
   return map;
 }
 
-// Project panel switch: the project is KickAssembler compatible (VMA mode only, saved
-// as "kick": true). On, the Kick script runs before the VA assembler; off, plain VMA.
-function _kickSyncProjectButton() {
-  const btn = document.getElementById("expert-project-kick-btn");
-  if (!btn) return;
-  btn.style.display = _expertProjectData && assemblerSyntax !== "acme" ? "" : "none";
-  const on = !!_expertProjectData?.kick;
-  btn.setAttribute("aria-pressed", String(on));
-  btn.setAttribute("aria-label", t(on ? "projKickOn" : "projKickOff"));
-}
-
-async function _kickToggleProject() {
-  if (!_expertProjectData || assemblerSyntax === "acme") return;
-  _expertProjectData.kick = !_expertProjectData.kick;
-  if (!_expertProjectData.kick) delete _expertProjectData.kick;
-  _kickLast = null;
-  _kickSyncProjectButton();
-  _expertProjectDirty = true;
-  if (_expertProjectData._projPath) await _expertSaveProject();
-  else _expertRenderProjectTree();
-  _expertValidate();
-  _expertSetStatus(t(_expertProjectData.kick ? "projKickEnabled" : "projKickDisabled"), "ok");
-}
-
 // The optional settings of a .proj: Kick preprocessor symbols (#define), command-line
-// variables (cmdLineVars) and "Expert mode only" (noBlockMode), only when set.
+// variables (cmdLineVars), the VMA symbols (.define) and constants (.const) and "Expert mode only"
+// (noBlockMode), only when set.
 function _projKickFields(proj) {
-  const defines = Array.isArray(proj?.kickDefines) ? proj.kickDefines.map(String).filter(d => /^[A-Za-z_]\w*$/.test(d)) : [];
-  const vars = proj?.kickVars && typeof proj.kickVars === "object" ? Object.fromEntries(Object.entries(proj.kickVars).filter(([k]) => /^[A-Za-z_]\w*$/.test(k)).map(([k, v]) => [k, String(v)])) : {};
-  return { ...(defines.length ? { kickDefines: defines } : {}), ...(Object.keys(vars).length ? { kickVars: vars } : {}), ...(proj?.noBlockMode === true ? { noBlockMode: true } : {}) };
+  const names = (list) => (Array.isArray(list) ? list.map(String).filter(d => /^[A-Za-z_]\w*$/.test(d)) : []);
+  const values = (map) => (map && typeof map === "object" ? Object.fromEntries(Object.entries(map).filter(([k]) => /^[A-Za-z_]\w*$/.test(k)).map(([k, v]) => [k, String(v)])) : {});
+  const defines = names(proj?.kickDefines);
+  const vars = values(proj?.kickVars);
+  const vmaDefines = names(proj?.vmaDefines);
+  const vmaConsts = values(proj?.vmaConsts);
+  return {
+    ...(defines.length ? { kickDefines: defines } : {}),
+    ...(Object.keys(vars).length ? { kickVars: vars } : {}),
+    ...(vmaDefines.length ? { vmaDefines } : {}),
+    ...(Object.keys(vmaConsts).length ? { vmaConsts } : {}),
+    ...(proj?.noBlockMode === true ? { noBlockMode: true } : {})
+  };
+}
+
+// The VMA lines of the project settings (Project settings → VMA): `.define NAME` per symbol and
+// `.const NAME = value` per constant, in front of the source the project builds — a `.if NAME`
+// sees them. Only for a VMA project (not Kick, not ACME) building its own files; "" otherwise.
+function _projVmaPrelude() {
+  const data = _expertProjectData;
+  if (!data || data.kick || assemblerSyntax === "acme" || ultimateBasicMode) return "";
+  const defines = data.vmaDefines || [];
+  const consts = Object.entries(data.vmaConsts || {}).filter(([, v]) => String(v).trim() !== "");
+  if (!defines.length && !consts.length) return "";
+  const active = tabs.find(tab => tab.id === activeTabId);
+  if (!data.startupFile && !(active?.filePath && _projHasFile(active.filePath))) return "";
+  return [...defines.map(name => `.define ${name}`), ...consts.map(([name, value]) => `.const ${name} = ${String(value).trim()}`)].join("\n");
+}
+
+// The program with the prelude blocks in front (the blocks are kept per prelude text: the layout
+// updates their constValue in place, as a const of the source).
+let _projVmaPreludeCache = { text: "", blocks: [] };
+
+function _projVmaWithPrelude(blocks) {
+  const text = _projVmaPrelude();
+  if (!text) return blocks;
+  if (_projVmaPreludeCache.text !== text) _projVmaPreludeCache = { text, blocks: parseExpertText(text) };
+  return [..._projVmaPreludeCache.blocks, ...blocks];
 }
 
 // "name=value" lines ↔ { name: value }; a line without "=" gives an empty value.
@@ -27323,9 +27915,12 @@ async function openProjectSettings() {
   set("ps-no-blocks", "checked", !!data.noBlockMode);
   set("ps-defines", "value", (data.kickDefines || []).join(", "));
   set("ps-vars", "value", Object.entries(data.kickVars || {}).map(([k, v]) => `${k}=${v}`).join("\n"));
+  set("ps-vma-defines", "value", (data.vmaDefines || []).join(", "));
+  set("ps-vma-consts", "value", Object.entries(data.vmaConsts || {}).map(([k, v]) => `${k}=${v}`).join("\n"));
   const assets = files.length - sources.length;
   set("ps-files", "textContent", tf("psFileCount", { count: files.length, sources: sources.length, assets }));
   _projSettingsSync();
+  dlg._applyPosition?.();
   dlg.showModal();
 }
 
@@ -27336,6 +27931,7 @@ function _projSettingsSync() {
   if (kickBox) { kickBox.disabled = acme; if (acme) kickBox.checked = false; }
   const on = !acme && !!kickBox?.checked;
   document.querySelectorAll("#project-settings-dialog .ps-kick-only").forEach(el => { el.hidden = !on; });
+  document.querySelectorAll("#project-settings-dialog .ps-vma-only").forEach(el => { el.hidden = acme || on; });
 }
 
 async function _projSettingsSave() {
@@ -27352,6 +27948,10 @@ async function _projSettingsSave() {
   const vars = _projParseKickVars(document.getElementById("ps-vars")?.value);
   if (defines.length) data.kickDefines = defines; else delete data.kickDefines;
   if (Object.keys(vars).length) data.kickVars = vars; else delete data.kickVars;
+  const vmaDefines = String(document.getElementById("ps-vma-defines")?.value || "").split(/[\s,]+/).filter(d => /^[A-Za-z_]\w*$/.test(d));
+  const vmaConsts = Object.fromEntries(Object.entries(_projParseKickVars(document.getElementById("ps-vma-consts")?.value)).filter(([, v]) => v !== ""));
+  if (vmaDefines.length) data.vmaDefines = vmaDefines; else delete data.vmaDefines;
+  if (Object.keys(vmaConsts).length) data.vmaConsts = vmaConsts; else delete data.vmaConsts;
   if (document.getElementById("ps-no-blocks")?.checked) data.noBlockMode = true; else delete data.noBlockMode;
   dlg?.close();
   if (syntax !== assemblerSyntax) {
@@ -28514,6 +29114,8 @@ function normalizeMacroInvokeArg(arg) {
   if (trimmed.length >= 2) {
     const first = trimmed[0];
     const last = trimmed[trimmed.length - 1];
+    // 'A' stays a character literal (its code), any other quoted argument loses the quotes
+    if (first === "'" && last === "'" && trimmed.length === 3) return trimmed;
     if ((first === '"' && last === '"') || (first === "'" && last === "'")) {
       return trimmed.slice(1, -1);
     }
@@ -29640,6 +30242,7 @@ async function runInEmulator() {
     }
 
     setWorkProgress(72);
+    setWorkStep("stepVice", { file: _workStepSource() || "PRG", bytes: prg.bytes.length });
 
     const result = await window.electronAPI.launchVice({
       bytes: Array.from(prg.bytes),
@@ -30539,7 +31142,7 @@ function compileLineBytes(line, labels) {
 
   if (block.isWaitRasterMacro) {
     const rl = parseMacroNumber(block.rasterLine || "FF", labels, "hex");
-    if (isNaN(rl) || rl < 0 || rl > 255) {
+    if (rl === null || isNaN(rl) || rl < 0 || rl > 255) {
       return { ok: false, error: t("compileWaitRasterByte") };
     }
     const rlHex = rl.toString(16).toUpperCase().padStart(2, "0");
@@ -30904,7 +31507,7 @@ function compileLineBytes(line, labels) {
       return { ok: false, error: t("compileSpriteInitColorRange") };
     }
     const page = parseMacroNumber(block.spriteDataPage || "21", labels, "hex");
-    if (isNaN(page) || page < 0 || page > 255) {
+    if (page === null || isNaN(page) || page < 0 || page > 255) {
       return { ok: false, error: t("compileSpriteInitPageByte") };
     }
     const ptrAddr = 0x07F8 + num;
@@ -32404,7 +33007,7 @@ function resolveProgramConstValue(name) {
   const target = String(name ?? "").trim().replace(/^#/, "");
   if (!target) return null;
   const lower = target.toLowerCase();
-  for (const block of program) {
+  for (const block of _projVmaWithPrelude(program)) {
     if (!block?.isConstMacro || !block.constName) continue;
     if (block.constName.toLowerCase() !== lower) continue;
     if (typeof block.constValue === "number" && !Number.isNaN(block.constValue)) return block.constValue;
@@ -33234,8 +33837,9 @@ function getProgramLayout(originOverride) {
   let insideMacroDef = false;
   let currentMacroName = null;
   let currentMacroHasParams = false;
+  const sourceProgram = _projVmaWithPrelude(program);
 
-  for (const block of program) {
+  for (const block of sourceProgram) {
     if (block.isMacroDefStart) {
       insideMacroDef = true;
       currentMacroName = block.macroName || null;
@@ -33465,6 +34069,25 @@ function getProgramLayout(originOverride) {
         if (macroBlock.isNextMacro && macroBlock.nextLabel && localLabels.has(macroBlock.nextLabel)) {
           expanded.nextLabel = macroBlock.nextLabel + localSuffix;
         }
+        // the runtime IF / WHILE / REPEAT labels: unique per call
+        for (const field of ["runtimeIfElseLabel", "runtimeIfEndLabel", "whileStartLabel", "whileEndLabel", "repeatStartLabel"]) {
+          if (macroBlock[field]) expanded[field] = macroBlock[field] + localSuffix;
+        }
+        // a library macro with fields of its own: its line again, parameters and locals filled in
+        const macroLine = macroBlock._macroLine && !opcodeMap[macroBlock.mnemonic] ? _macroLineFor(macroBlock) : "";
+        const relined = macroLine
+          ? macroLine.match(/^((?:[A-Za-z_][\w.]*:\s*)?\.?[A-Za-z_]\w*)(.*)$/)
+          : null;
+        if (relined) {
+          const args = rewriteOperand(relined[2]);
+          if (args !== relined[2]) {
+            const again = parseExpertText(relined[1] + args).find(b => b.mnemonic === macroBlock.mnemonic);
+            if (again) {
+              const { id, _srcLine, _macroLine, _macroPrint, ...fields } = again;
+              Object.assign(expanded, fields);
+            }
+          }
+        }
         expandedProgram.push(expanded);
       }
     } else {
@@ -33503,7 +34126,7 @@ function getProgramLayout(originOverride) {
 
   // Collect active defines from DEFINE blocks in the program
   const activeDefines = new Set(
-    program.filter(b => b.isDefineMacro && b.defineSymbol).flatMap(b =>
+    sourceProgram.filter(b => b.isDefineMacro && b.defineSymbol).flatMap(b =>
       b.defineSymbol.split(",").map(s => s.trim()).filter(Boolean)
     )
   );
@@ -33964,20 +34587,27 @@ function getMemoryUsage(layout) {
   if (ultimateBasicMode) return _ubMemoryUsage();
   if (assemblerSyntax === "acme" && expertMode) return _acmeMemoryUsage();
   layout = layout || getProgramLayout();
+  const code = program.length && layout.start <= layout.end ? [layout.start, layout.end] : null;
+  return _memoryUsageOf(layout, code, getDeferredMemorySections(layout), _memoryCodeRegions(layout));
+}
+
+// The memory panel's usage of a VMA build: `code` = [start, end] of the layout or null, the
+// deferred sections ({type, address, end, label}) and the contiguous code regions ({address, end}).
+// The JS layout or the `memory` of a Rust build (vma_build) gives them.
+function _memoryUsageOf(layout, code, deferredSections, codeRegions) {
   const occupiedRanges = [];
 
-  if (program.length && layout.start <= layout.end) {
+  if (code) {
     occupiedRanges.push({
-      start: layout.start,
-      end: layout.end,
+      start: code[0],
+      end: code[1],
       type: "code",
-      label: `Kodresz ${formatAddress(layout.start)} - ${formatAddress(layout.end)}`
+      label: `Kodresz ${formatAddress(code[0])} - ${formatAddress(code[1])}`
     });
   }
 
-  const deferredSections = getDeferredMemorySections(layout);
   deferredSections.forEach((section) => {
-    if (!section.bytes.length) {
+    if (section.end < section.address) {
       return;
     }
 
@@ -34005,12 +34635,12 @@ function getMemoryUsage(layout) {
     totalRamBytes,
     occupiedRamBytes,
     freeRamBytes: Math.max(0, totalRamBytes - occupiedRamBytes),
-    overlaps: detectMemoryOverlaps(layout, deferredSections)
+    overlaps: _memoryOverlaps(codeRegions, deferredSections)
   };
 }
 
-function detectMemoryOverlaps(layout, deferredSections) {
-  // Build contiguous inline code regions (split at gaps/ORG jumps)
+// Contiguous inline code regions of a layout (split at gaps / ORG jumps).
+function _memoryCodeRegions(layout) {
   const codeRegions = [];
   let runStart = null;
   let runEnd = null;
@@ -34041,14 +34671,18 @@ function detectMemoryOverlaps(layout, deferredSections) {
   if (runStart !== null) {
     codeRegions.push({ address: runStart, end: runEnd, type: "code" });
   }
+  return codeRegions;
+}
 
+// The overlapping pairs of the code regions and the non-empty deferred sections.
+function _memoryOverlaps(codeRegions, deferredSections) {
   const labeledCode = codeRegions.map(r => ({
     ...r,
     label: `${t("memoryOverlapCode")} ${formatAddress(r.address)}\u2013${formatAddress(r.end)}`
   }));
 
   const deferredRegions = deferredSections
-    .filter(s => s.bytes.length > 0)
+    .filter(s => s.end >= s.address)
     .map(s => ({ address: s.address, end: s.end, type: s.type, label: s.label }));
 
   const allRegions = [...labeledCode, ...deferredRegions];
@@ -34258,6 +34892,7 @@ function _zpRenderPanel(layout) {
 }
 
 function renderMemoryMap(precomputedUsage) {
+  if (memoryMap) memoryMap._acmeShown = null;
   const usage = precomputedUsage || getMemoryUsage();
   const layout = usage.layout;
   memoryMap.innerHTML = "";
@@ -40176,7 +40811,7 @@ async function openTutorialEditor(lessonId) {
   const data = _tutUserLessons.find(function(l) { return l.id === lessonId; }) || _tutUserLessons[0] || _teNewLesson();
   _teOpenLesson(data);
   document.getElementById("tutorial-dialog")?.close();
-  if (!dlg.open) dlg.showModal();
+  if (!dlg.open) { dlg._applyPosition?.(); dlg.showModal(); }
 }
 async function _teSave() {
   if (!_teData) return false;
@@ -57936,11 +58571,13 @@ function _vmApi() {
 }
 
 // fn(layout) a build által futtatott programmal (Expert módban a szerkesztő szövegéből).
-function _vmWithProgram(fn) {
+// `blocks`: the program to lay out (default: the editor's, in Expert mode the startup file's).
+function _vmWithProgram(fn, blocks = null) {
   const saved = program;
   const savedMacros = userMacros;
   try {
-    if (expertMode) program = _expertGetStartupProgram() || _expertBuildProgram();
+    if (blocks) program = blocks;
+    else if (expertMode) program = _expertGetStartupProgram() || _expertBuildProgram();
     parseUserMacros();
     return fn(getProgramLayout());
   } finally {
@@ -58187,6 +58824,10 @@ async function _vmBuildSegments() {
   }
   const prg = await _kickOrVaPrg();
   if (!prg?.ok || !prg.bytes || prg.bytes.length < 3) return null;
+  // a Rust build names what it writes (at its own addresses, also behind a relocating loader)
+  if (prg.vma?.segments?.length) {
+    return { segments: prg.vma.segments.map(([address, bytes]) => ({ address, bytes })), sys: prg.vma.entry };
+  }
   const load = prg.bytes[0] | (prg.bytes[1] << 8);
   const data = prg.bytes.slice(2);
   const ranges = _vmWithProgram((layout) => getMemoryUsage(layout).mergedOccupied);
