@@ -4,11 +4,15 @@ const path = require("node:path");
 const { spawnSync } = require("node:child_process");
 const { repo } = require("./vma-reference");
 
-// VMA_BIN, or {crates/vma,src-tauri}/target/{release,debug}/vma[.exe]
+// The VMA compiler's repository (github.com/zstarczali/VMA): VMA_DIR, or ../VMA next to this one.
+function vmaDir() {
+  return process.env.VMA_DIR || path.join(repo, "..", "VMA");
+}
+
+// VMA_BIN, or <VMA_DIR>/target/{release,debug}/vma[.exe]
 function findRustCli() {
   const exe = process.platform === "win32" ? "vma.exe" : "vma";
-  const candidates = [process.env.VMA_BIN, ...["crates/vma", "src-tauri"].flatMap(dir =>
-    ["release", "debug"].map(p => path.join(repo, dir, "target", p, exe)))];
+  const candidates = [process.env.VMA_BIN, ...["release", "debug"].map(p => path.join(vmaDir(), "target", p, exe))];
   return candidates.find(p => p && fs.existsSync(p)) || null;
 }
 
@@ -43,4 +47,4 @@ function compareCase(c, run) {
     : { status: "diff", detail: `${run.bytes.length} vs ${c.size} bytes, first difference at offset ${at} ($${at.toString(16)})` };
 }
 
-module.exports = { findRustCli, runRustCli, firstDiff, compareCase };
+module.exports = { vmaDir, findRustCli, runRustCli, firstDiff, compareCase };

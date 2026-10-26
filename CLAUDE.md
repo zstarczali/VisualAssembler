@@ -36,6 +36,8 @@ programok vizuális, drag-and-drop szerkesztéséhez. Nincs UI framework — Van
 | `samples/*.sid` `samples/*.bin` | SID zenék, sprite-ok, egyéb assetek |
 | `.github/copilot-instructions.md` | Teljes referencia (1600 sor) |
 | `.github/copilot-plugin/` | C64AssemblyExpert plugin (agents + skills) |
+| `F:\Development\VMA` (külön repó) | A VMA fordító Rustban (lib + `vma` CLI), git-függőség — lásd 10. szakasz |
+| `VMA-RUST-PLAN.md` | A Rust VMA port terve, állapota, a JS-furcsaságok listája |
 
 ---
 
@@ -345,6 +347,29 @@ a `.ub` sablon fejléce `# @kulcs érték`, a projekt `main.ub` + `.proj` `"app"
 
 ### Exomizer
 `launch_exomizer` és `build_exomizer_prg` Tauri commands; tömörített SFX PRG.
+
+### VMA fordító Rustban — külön repó
+
+A VMA fordító Rust portja **külön repóban** van: **https://github.com/zstarczali/VMA** (publikus, GPLv3), helyben
+**`F:\Development\VMA`** (a VA mellett). A `crates/vma` már nincs a VA-ban. Részletes állapot és napló:
+[VMA-RUST-PLAN.md](VMA-RUST-PLAN.md).
+
+- **Függőség:** `src-tauri/Cargo.toml` → `vma = { git = "https://github.com/zstarczali/VMA.git", branch = "main" }`
+  (mint az `ultimate-basic`). A `Cargo.lock` egy commitot rögzít: VMA-módosítás után ott commit + push, majd a VA-ban
+  `cargo update -p vma`. Egyszerre fejlesztéshez ideiglenesen
+  `[patch."https://github.com/zstarczali/VMA.git"] vma = { path = "../../VMA" }` (ezt ne commitold).
+- **A JS fordító megmarad** (`www/app.js`, alapmotor). Motorválasztó: Beállítások → Általános → Program `#vma-engine`
+  (`c64va-vma-engine`: `js` alapérték / `rust` / `shadow`). Az alapértéket ne állítsd `rust`-ra, amíg a felhasználó nem kéri.
+  Belépő: `_kickOrVaPrg` → `_kickBuildPrg` / `_vaBuildPrg` → `_vmaRustBuild` (`vma_build` Tauri command; Kick projektnél a
+  `kick.text`, extra kimenetek `raw`-val).
+- **Szabály:** a Rust a JS-t követi bájtra. Viselkedésváltozás előbb a JS-ben, utána golden-frissítés
+  (`node scripts/vma-golden.js --update`, csak a szándékolt esetek változhatnak), végül a Rust a VMA repóban.
+- **Tesztek:** a golden korpusz és a JS referencia a VA-ban marad (`tests/vma-golden/`, `tests/helpers/vma-reference.js`).
+  A CLI-t a `VMA_BIN` vagy `VMA_DIR` (alapból `../VMA`) `target/{release,debug}/vma.exe` adja → előbb `cargo build` a
+  `F:\Development\VMA`-ban. Riport: `node scripts/vma-rust-report.js`; valós projektek: `node scripts/vma-shadow-scan.js <.proj|mappa>`;
+  a VMA saját tesztje: `cargo test --offline` ott. Opkód-tábla generálás: `node scripts/vma-gen-opcodes.js` (a VMA repóba ír).
+- **Hibák:** a Rust `Msg { key, params }`-t ad a JS fordítókulcsaival (`_vmaErrorMessage` / `_vmaErrorEntry` fordítja);
+  új Rust-hibakulcs mind a 7 nyelven kell (`tests/vma-error-keys.test.js`).
 
 ---
 

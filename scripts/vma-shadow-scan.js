@@ -17,7 +17,7 @@ if (!args.length) {
 }
 const cli = findRustCli();
 if (!cli) {
-  console.error("no Rust VMA CLI (cargo build in crates/vma, or VMA_BIN)");
+  console.error("no Rust VMA CLI (cargo build in the VMA repository: VMA_DIR, default ../VMA; or VMA_BIN)");
   process.exit(2);
 }
 

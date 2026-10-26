@@ -36,6 +36,19 @@ async function buildCorpus() {
 
 const toManifest = (corpus) => corpus.map(({ input, bytes, ...entry }) => entry);
 
+// Windows: an editor or indexer can hold the manifest for a moment (UNKNOWN / EBUSY) — try again.
+function writeRetrying(file, text) {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      fs.writeFileSync(file, text);
+      return;
+    } catch (e) {
+      if (attempt >= 40 || !["UNKNOWN", "EBUSY", "EPERM"].includes(e.code)) throw e;
+      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 250);
+    }
+  }
+}
+
 async function main() {
   const args = process.argv.slice(2);
   const corpus = await buildCorpus();
@@ -48,7 +61,7 @@ async function main() {
     console.log(`${inputs.length} inputs → ${dir}`);
   }
   if (args.includes("--update")) {
-    fs.writeFileSync(manifestPath, JSON.stringify(toManifest(corpus), null, 1) + "\n");
+    writeRetrying(manifestPath, JSON.stringify(toManifest(corpus), null, 1) + "\n");
     console.log(`manifest: ${corpus.length} entries, ${corpus.filter(e => e.ok).length} PRG`);
     return;
   }

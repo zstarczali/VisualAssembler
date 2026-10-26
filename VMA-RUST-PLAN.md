@@ -137,29 +137,35 @@ ha le van fordítva), `cargo test --offline` a `crates/vma`-ban, és az esetenk�
    felhasználó választ (Beállítások → Általános → Program). Compiling ablak: `#work-progress-step` lépéssor (`setWorkStep`,
    `step*` kulcsok mind a 7 nyelven: Kick beolvasás / előfeldolgozás, VMA JS / Rust / shadow, PRG méret, ACME, UB, Exomizer,
    VICE, Ultimate, KFF2, c1541, Build project fájlonként, Kick kimenetek, debugger).
-   Megjegyzés: a `crates/vma/target` a gitben van, és Windows-on egy másik folyamat időnként zárolja (os error 1224);
-   ilyenkor `CARGO_TARGET_DIR` + `VMA_BIN` a tesztekhez.
+   ✔ Külön repó: a crate a `crates/vma` történetével (`git subtree split`) a `F:\Development\VMA` repóba költözött
+   = `github.com/zstarczali/VMA` (publikus, GPLv3; README, LICENSE). A VA `src-tauri` git-függőségként húzza be
+   (`branch = "main"`, mint a `ultimate-basic`; a `Cargo.lock` a commitot rögzíti, frissítés: `cargo update -p vma`;
+   helyi fejlesztéshez `[patch."https://github.com/zstarczali/VMA.git"] vma = { path = "../../VMA" }`). A VA tesztjei / szkriptjei a `VMA_DIR` (alapból
+   `../VMA`) és a `VMA_BIN` alapján találják a CLI-t és a forrást (`tests/helpers/vma-rust.js` `vmaDir()`); a golden
+   korpusz és a JS referencia a VA-ban marad. A JS fordító (`www/app.js`) változatlanul megmarad, az alapmotor.
+   ✔ Mentés: a Ctrl+S / Menü → Save / verziókezelés forrásfájlon (`.asm` / `.s` / `.inc` / `.a` / `.a65` / `.lib`) szöveget ír
+   (`_saveSourceTab`; blokk módban a `_blockToExpertSourceLine` sorai), nem a VA JSON payloadot (`tests/save-source-file.test.js`).
+   ✔ Makró-javítások (JS + Rust, golden `var-macro-field-params`, `var-macro-char-literal-arg`,
+   `var-macro-runtime-control-twice`, `var-set-color-in-macro`): a saját mezős könyvtári makrók (`MACRO_RELINE` /
+   `Kind::reparsed_in_macro`) makrótörzsben a forrássorukból (`_macroLine` / `Block::text`) újraelemződnek a paraméterekkel
+   és a lokális címkékkel — csak amíg a blokk mezői változatlanok (`_macroPrint`, `_macroLineFor`), és a blokkokból írt
+   szöveg is ezt a sort adja; a futásidejű `.if` / `.while` / `.repeat` címkék hívásonként utótagot kapnak; a `'A'`
+   makró-argumentum karakter-literál marad (`normalizeMacroInvokeArg`). Teszt `tests/macro-field-params.test.js`.
 4. **F7–F8** — az 5. szakasz táblázata szerint.
 
 Közben észrevett JS-furcsaságok, amelyeket a Rust szándékosan hűen hoz (ha javítani kell, előbb a JS-ben,
 utána golden-frissítés):
-- makró-argumentumról az idézőjel lekerül, így `'A'` → `A` (karakter-literál nem adható át makrónak);
 - `lda.zp c` → `LDA $0C`: hexa-jegyekből álló szimbólumnevet a `.zp` ág számnak vesz;
 - `JMP (címke)` fordítási hiba (az indirekt mód csak `($hhhh)` alakot ismer);
 - `lda $1234+1` fordítási hiba (`$`-ral kezdődő kifejezés nem megy át az operandus-ellenőrzésen);
 - a paraméter nélküli makró törzse a definíció helyén is lefordul — az első `* =` előtti definíció a
   program elejére kerül, és a következő ORG felülírja;
-- a futásidejű IF / WHILE címkéi (`_if_else_…`) makrón belül nem lesznek hívásonként egyediek;
-- `.set_border` / `.set_bg` makrótörzsben paraméterrel hibát ad: a kibontás a `rawOperand`-ot helyettesíti,
-  a fordító a `colorValue`-t olvassa (`var-set-color-in-macro-error`);
 - feloldatlan TURBO_SET sebesség 0-val fordul (`null` mint 0);
 - a TEXT a `charOffset`-et (`.text X, Y, "s", 80`) elemzi, de nem használja; a méret mindig a nagybetűs
   kódolással számol (a hossz ugyanaz);
 - a DATA / RAWBYTES bájtjai címkék nélkül értékelődnek ki (`parseByteMacro(raw, base)`), a CHARDEF bájtjai hexák
   (`129` = $129 → hiba);
 - a `macroLabel` címe `parseAddressValue` címkék nélkül: címkés célcímnél $C000;
-- a sprite / input makrók mezőit (`spriteNum`, `joyPort` …) a makró-kibontás nem helyettesíti, csak a
-  `rawOperand`-ot: makrótörzsben paraméterrel feloldatlanok (`null` → 0 vagy hiba);
 - a JOYSTICK mérete a portot címkék nélkül oldja fel (`_joyPortValue`), a bájtok címkékkel — címkés port 3-nál
   a méret 3 bájttal kevesebb, mint a kód;
 - a SPRITE_ANIM feloldatlan képkocka-száma hiba (`null < 1`), a sprite száma és a ZP-cím 0;
@@ -279,7 +285,7 @@ javul, a manifest frissül, és utána a Rust követi.
 
 ### Crate
 
-`crates/vma/` önálló crate (Tauri-függés nélkül, függőségei a `regex` és a `serde_json`); a `src-tauri`
+`crates/vma/` (most: a külön `VMA` repó) önálló crate (Tauri-függés nélkül, függőségei a `regex` és a `serde_json`); a `src-tauri`
 path-függőségként húzza be (F6). Nem workspace, hogy a `src-tauri/target` útvonalak (CI, bundle) ne változzanak.
 
 ```

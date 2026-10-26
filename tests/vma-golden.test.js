@@ -1,6 +1,6 @@
 // VMA golden corpus (scripts/vma-golden.js): the JS compiler output is pinned in
 // tests/vma-golden/manifest.json, and the Rust VMA CLI must build the same PRG bytes.
-// Rust CLI: VMA_BIN, or {crates/vma,src-tauri}/target/{release,debug}/vma[.exe]; without it that
+// Rust CLI: VMA_BIN, or <VMA_DIR, default ../VMA>/target/{release,debug}/vma[.exe]; without it that
 // test skips. A summary per case: node scripts/vma-rust-report.js
 const test = require("node:test");
 const assert = require("node:assert/strict");
@@ -42,7 +42,7 @@ test("block programs build the same PRG through their Expert text", async () => 
 // that names it) and is only counted; everything else must be byte for byte the JS output.
 test("the Rust VMA CLI builds every golden case it supports byte for byte", async (t) => {
   const cli = findRustCli();
-  if (!cli) { t.skip("no Rust VMA CLI (VMA_BIN, or cargo build in crates/vma)"); return; }
+  if (!cli) { t.skip("no Rust VMA CLI (VMA_BIN, or cargo build in ../VMA)"); return; }
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "vma-golden-"));
   const failures = [];
   let matched = 0, unsupported = 0;

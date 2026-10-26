@@ -4848,27 +4848,99 @@
   "error": null
  },
  {
-  "id": "var-set-color-in-macro-error",
-  "caseId": "var-set-color-in-macro-error",
+  "id": "var-set-color-in-macro",
+  "caseId": "var-set-color-in-macro",
   "kind": "text",
   "file": null,
   "baseDir": "tests/vma-golden/files",
   "basicStub": true,
   "ok": true,
   "size": 2055,
-  "sha256": "1c840d5562b4106b9b05a2f18574cab0b9a7fde0a50e896f8b7ee88db49ce99b",
+  "sha256": "4b2a2eeca3ce77b829c1e024ccc1cc5cc8d6ada175f8cb169300c05e9c6922ed",
   "error": null
  },
  {
-  "id": "var-set-color-in-macro-error@nostub",
-  "caseId": "var-set-color-in-macro-error",
+  "id": "var-set-color-in-macro@nostub",
+  "caseId": "var-set-color-in-macro",
   "kind": "text",
   "file": null,
   "baseDir": "tests/vma-golden/files",
   "basicStub": false,
   "ok": true,
   "size": 8,
-  "sha256": "01bae8a63fd4c09b3fc6a543c8d7fe4273e06e435bd5ec9097df8ef0bc75e9dc",
+  "sha256": "4b32a41aa8f3f0f1acd779f8f3c6722e09fa80061a8965ff337c9db0c86ce12d",
+  "error": null
+ },
+ {
+  "id": "var-macro-field-params",
+  "caseId": "var-macro-field-params",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": true,
+  "ok": true,
+  "size": 2799,
+  "sha256": "0c1ac55ad67e8dda5b71ad69ee48e852dfe40c9fe5cf5d4dedd2dcd89ab9b688",
+  "error": null
+ },
+ {
+  "id": "var-macro-field-params@nostub",
+  "caseId": "var-macro-field-params",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": false,
+  "ok": true,
+  "size": 752,
+  "sha256": "faefde56b19c31dcecc0e7a0a017a06f4465c74e5c37d665ae465dbfc14c154f",
+  "error": null
+ },
+ {
+  "id": "var-macro-char-literal-arg",
+  "caseId": "var-macro-char-literal-arg",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": true,
+  "ok": true,
+  "size": 2064,
+  "sha256": "2cc737ebd141e19da877cadc5d11a84358b89976e595fc242aa8af588c694f22",
+  "error": null
+ },
+ {
+  "id": "var-macro-char-literal-arg@nostub",
+  "caseId": "var-macro-char-literal-arg",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": false,
+  "ok": true,
+  "size": 17,
+  "sha256": "5f41d24cfab11e41b520ac86ee3b48fc4e8cd99ce0be1413e766ae575e25255a",
+  "error": null
+ },
+ {
+  "id": "var-macro-runtime-control-twice",
+  "caseId": "var-macro-runtime-control-twice",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": true,
+  "ok": true,
+  "size": 2096,
+  "sha256": "68401ab3b7977724d91ae69f1a7c7fffe8f7fd859063c6daedf0da8f9ca851c3",
+  "error": null
+ },
+ {
+  "id": "var-macro-runtime-control-twice@nostub",
+  "caseId": "var-macro-runtime-control-twice",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": false,
+  "ok": true,
+  "size": 49,
+  "sha256": "dc5662b99873bbf971f4327cc69120636a52950f8c87fdd867b4c84789bebbc7",
   "error": null
  },
  {
@@ -5000,7 +5072,7 @@
   "basicStub": true,
   "ok": true,
   "size": 48131,
-  "sha256": "6dfcf7393ce9aef8a38d3b14f8e3a78c3367b6cdb2c1ca51ca15f49d588313d9",
+  "sha256": "fc01feaac28a5398bd24bf026df32663dde5f9b7dfa597463ee89f9201e8ab7f",
   "error": null
  },
  {
@@ -5012,7 +5084,7 @@
   "basicStub": false,
   "ok": true,
   "size": 46084,
-  "sha256": "fe26a6e74fa5c81544c828b3234c25898935eae3d55af9561307151779290e62",
+  "sha256": "ec4863d1dfeff9938aa86458729a39bbd042401ae271b8b2a991bec60e500890",
   "error": null
  },
  {

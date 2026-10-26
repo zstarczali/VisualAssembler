@@ -25,7 +25,8 @@ urlencoding = "2"
 serialport = { version = "4.7", default-features = false }
 sevenz-rust2 = { version = "0.24", default-features = false, features = ["ppmd"] }
 ultimate-basic = { git = "https://github.com/zstarczali/UltimateBasic.git", branch = "dev" }
-vma = { path = "../crates/vma" }
+# the VMA compiler: its own repository; for local work on it, a [patch] with path = "../../VMA"
+vma = { git = "https://github.com/zstarczali/VMA.git", branch = "main" }
 
 # `tauri dev` speed: the SID emulation (VA SID Core, 6502 CPU) runs slower than
 # real time unoptimised. Dependencies build once at opt-level 2, the app at 1.

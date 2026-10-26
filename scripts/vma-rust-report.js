@@ -11,7 +11,7 @@ const { findRustCli, runRustCli, compareCase } = require("../tests/helpers/vma-r
 async function main() {
   const cli = findRustCli();
   if (!cli) {
-    console.error("no Rust VMA CLI: cargo build in crates/vma, or set VMA_BIN");
+    console.error("no Rust VMA CLI: cargo build in the VMA repository (VMA_DIR, default ../VMA), or set VMA_BIN");
     process.exitCode = 2;
     return;
   }

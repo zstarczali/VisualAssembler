@@ -6883,8 +6883,21 @@ if (block.isSpritePosMacro) return `.sprite_pos ${block.spriteNum || 0}, ${block
   return op.trimEnd();
 }
 
+// The fields of a block as parseExpertText stores them in `_macroPrint` (keep the two the same).
+function _blockFieldPrint(block) {
+  return Object.entries(block)
+    .filter(([k, v]) => typeof v === "string" && !/^(id|description|validationError|category)$/.test(k) && !k.startsWith("_"))
+    .map(([k, v]) => `${k}=${v}`).join("\u0001");
+}
+
+// The source line a library macro block was parsed from, while its fields are unchanged ("" else):
+// its arguments as written (a macro parameter among them), not the normalised fields.
+function _macroLineFor(block) {
+  return block?._macroLine && block._macroPrint === _blockFieldPrint(block) ? block._macroLine : "";
+}
+
 function _blockToExpertSourceLine(block) {
-  const line = _blockToExpertLine(block);
+  const line = (block?._macroLine && _macroLineFor(block)) || _blockToExpertLine(block);
   const inlineComment = String(block?.inlineComment || "").trim();
   return inlineComment ? `${line} ; ${inlineComment}` : line;
 }
@@ -10465,13 +10478,14 @@ function _expertFormatSource() {
 
 // ── VASM file I/O ────────────────────────────────────────────────────────────
 
+// true when the file was written
 async function _expertSaveAsm(forceSaveAs = false) {
-  if (!expertEditor) return;
+  if (!expertEditor) return false;
   _expertSyncSourceTextFromEditor();
   const content = _expertGetSourceText();
   try {
     const tab = _getActiveTab();
-    const asmPath = !forceSaveAs && tab?.filePath && /\.(asm|s|a65)$/i.test(tab.filePath) ? tab.filePath : "";
+    const asmPath = !forceSaveAs && _isSourceFilePath(tab?.filePath) ? tab.filePath : "";
     const res = await window.electronAPI?.saveAsmFile?.(asmPath, content);
     if (!res || res.canceled) return;
     if (!res.ok) {
@@ -10482,9 +10496,11 @@ async function _expertSaveAsm(forceSaveAs = false) {
     const name = res.filePath.replace(/\\/g, "/").split("/").pop();
     _setCurrentFile(name, name, res.filePath);
     _expertSetStatus(t("vasmSavedStatus") + ": " + name, "ok");
+    return true;
   } catch (e) {
     _expertSetStatus(t("vasmSaveError") + ": " + String(e), "error");
   }
+  return false;
 }
 
 async function _expertLoadAsmFromPath(filePath, content, sourceName = "") {
@@ -12616,6 +12632,14 @@ function _splitAsmLineComment(rawLine) {
 }
 
 function parseExpertText(text) {
+  // Library macros whose arguments the parser stores in fields of their own (colorValue, spriteNum,
+  // joyPort …, often normalised): a macro parameter among them is filled in by parsing the line again.
+  const MACRO_RELINE = new Set([
+    "SET_BORDER", "SET_BG", "SPRITE_INIT", "SPRITE_POS", "SPRITE_COL", "SPRITE_ANIM", "JOYSTICK", "MOUSE",
+    "BOX_HIT", "SCORE_BCD", "WAIT_RASTER", "TURBO_SET", "MEMCPY", "MEMSET", "MAP_COPY", "MAP_COPY16X16",
+    "REU_STASH", "REU_FETCH", "REU_SWAP", "IRQ_SETUP", "LOADFILE", "DELAY", "RAND", "EXODECRUNCH",
+    "SID_PLAYER", "CHARDEF", "TEXT"
+  ]);
   const BRANCH_MNEMS = new Set(["BEQ","BNE","BCC","BCS","BMI","BPL","BVC","BVS","BRA"]);
   const blocks = [];
   // Track nested runtime IF blocks so that .else/.endif can resolve to
@@ -12627,6 +12651,7 @@ function parseExpertText(text) {
   const acmeSyntax = typeof assemblerSyntax !== "undefined" && assemblerSyntax === "acme";
   let kickEncoding = "screencode_mixed";
   const sourceLines = String(text).split("\n");
+  const codeLines = acmeSyntax ? sourceLines : _kickScopeRewrite(sourceLines);
   const kickBraceStack = [];
   // every block gets the source line it came from ("label: lda #1" gives two blocks)
   let srcLineNo = -1;
@@ -12635,7 +12660,7 @@ function parseExpertText(text) {
     return Array.prototype.push.apply(blocks, items);
   };
 
-  for (let rawLine of acmeSyntax ? sourceLines : _kickScopeRewrite(sourceLines)) {
+  for (let rawLine of codeLines) {
     srcLineNo++;
     const { code, commentText } = _splitAsmLineComment(rawLine);
     let line = code;
@@ -13498,6 +13523,18 @@ function parseExpertText(text) {
     }
   }
   delete blocks.push;
+  // A library macro whose arguments are parsed into fields of their own keeps its source line:
+  // a macro body's copy of it is parsed again with the parameters filled in (getProgramLayout).
+  for (const block of blocks) {
+    if (MACRO_RELINE.has(block.mnemonic) && block._srcLine >= 0) {
+      // the line without a `label:` in front (that is a block of its own) and the fields it gave
+      // (_blockFieldPrint: an edited block no longer matches its line)
+      block._macroLine = _splitAsmLineComment(codeLines[block._srcLine] ?? "").code.trim().replace(/^[A-Za-z_][\w.]*:\s*/, "");
+      block._macroPrint = Object.entries(block)
+        .filter(([k, v]) => typeof v === "string" && !/^(id|description|validationError|category)$/.test(k) && !k.startsWith("_"))
+        .map(([k, v]) => `${k}=${v}`).join("\u0001");
+    }
+  }
   return blocks;
 }
 
@@ -21587,6 +21624,30 @@ function _updateTabScrollButtons() {
   new ResizeObserver(_updateTabScrollButtons).observe(tabBar);
 }());
 
+function _isSourceFilePath(path) {
+  return /\.(asm|s|inc|a|a65|lib)$/i.test(String(path || ""));
+}
+
+// Saves a source-file tab as text: the Expert editor's text, in block mode the blocks written as
+// Expert lines (_blockToExpertSourceLine, the same text the build uses).
+async function _saveSourceTab(tab, forceSaveAs = false) {
+  if (expertMode) {
+    if (await _expertSaveAsm(forceSaveAs)) markTabClean();
+    return;
+  }
+  const content = program.map(_blockToExpertSourceLine).join("\n") + "\n";
+  const res = await window.electronAPI?.saveAsmFile?.(forceSaveAs ? "" : tab.filePath, content);
+  if (!res || res.canceled) return;
+  if (!res.ok) {
+    if (emulatorStatus) emulatorStatus.textContent = res.error || t("projectSaveFailed");
+    return;
+  }
+  const name = res.filePath.replace(/\\/g, "/").split("/").pop();
+  _setCurrentFile(name, name, res.filePath);
+  if (emulatorStatus) emulatorStatus.textContent = `${t("projectSaved")}: ${res.filePath}`;
+  markTabClean();
+}
+
 async function saveProjectToFile({ forceSaveAs = false } = {}) {
   if (ultimateBasicMode) {
     await _ubSave();
@@ -21601,6 +21662,12 @@ async function saveProjectToFile({ forceSaveAs = false } = {}) {
   }
 
   const tab = tabs?.find(t => t.id === activeTabId);
+  // A source file stays text: the VA JSON payload only goes to .json / .c64va (Ctrl+S on an .asm
+  // tab used to write the payload into the .asm, which only the app could read back).
+  if (_isSourceFilePath(tab?.filePath)) {
+    await _saveSourceTab(tab, forceSaveAs);
+    return;
+  }
   const existingPath = forceSaveAs ? "" : (tab?.filePath || "");
   const previousSnapshotPath = await _getProjectSnapshotStoragePath(tab);
   const defaultName  = (tab?.name || "program").replace(/\.(json|c64va)$/i, "") + ".json";
@@ -27252,7 +27319,7 @@ async function _kickOrVaPrg() {
 }
 
 /* VMA compiler engine (Settings → General, `c64va-vma-engine`): "js" = the app.js compiler,
-   "rust" = crates/vma through the vma_build command (the source text in, the files read by Rust),
+   "rust" = the VMA crate (github.com/zstarczali/VMA) through the vma_build command (the source text in, the files read by Rust),
    "shadow" = the JS result is used, the Rust one is built too and every difference is logged
    (console + _vaErrorLog). Without the desktop app (no vmaBuild) always JS. */
 function _vmaEngine() {
@@ -28963,6 +29030,8 @@ function normalizeMacroInvokeArg(arg) {
   if (trimmed.length >= 2) {
     const first = trimmed[0];
     const last = trimmed[trimmed.length - 1];
+    // 'A' stays a character literal (its code), any other quoted argument loses the quotes
+    if (first === "'" && last === "'" && trimmed.length === 3) return trimmed;
     if ((first === '"' && last === '"') || (first === "'" && last === "'")) {
       return trimmed.slice(1, -1);
     }
@@ -33915,6 +33984,25 @@ function getProgramLayout(originOverride) {
         }
         if (macroBlock.isNextMacro && macroBlock.nextLabel && localLabels.has(macroBlock.nextLabel)) {
           expanded.nextLabel = macroBlock.nextLabel + localSuffix;
+        }
+        // the runtime IF / WHILE / REPEAT labels: unique per call
+        for (const field of ["runtimeIfElseLabel", "runtimeIfEndLabel", "whileStartLabel", "whileEndLabel", "repeatStartLabel"]) {
+          if (macroBlock[field]) expanded[field] = macroBlock[field] + localSuffix;
+        }
+        // a library macro with fields of its own: its line again, parameters and locals filled in
+        const macroLine = macroBlock._macroLine && !opcodeMap[macroBlock.mnemonic] ? _macroLineFor(macroBlock) : "";
+        const relined = macroLine
+          ? macroLine.match(/^((?:[A-Za-z_][\w.]*:\s*)?\.?[A-Za-z_]\w*)(.*)$/)
+          : null;
+        if (relined) {
+          const args = rewriteOperand(relined[2]);
+          if (args !== relined[2]) {
+            const again = parseExpertText(relined[1] + args).find(b => b.mnemonic === macroBlock.mnemonic);
+            if (again) {
+              const { id, _srcLine, _macroLine, _macroPrint, ...fields } = again;
+              Object.assign(expanded, fields);
+            }
+          }
         }
         expandedProgram.push(expanded);
       }

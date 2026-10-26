@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Writes crates/vma/src/opcodes.rs from the app's opcodeMap, so the Rust VMA compiler
+// Writes <VMA_DIR>/src/opcodes.rs (the VMA repository, default ../VMA) from the app's opcodeMap, so the Rust VMA compiler
 // uses the same mnemonic × addressing mode table. Run after a change to opcodeMap.
 const fs = require("node:fs");
 const path = require("node:path");
@@ -27,5 +27,5 @@ pub static OPCODES: &[(&str, Mode, u8)] = &[
 ${rows.join("\n")}
 ];
 `;
-fs.writeFileSync(path.join(__dirname, "..", "crates", "vma", "src", "opcodes.rs"), out);
+fs.writeFileSync(path.join(require("../tests/helpers/vma-rust").vmaDir(), "src", "opcodes.rs"), out);
 console.log(`${rows.length} opcodes`);

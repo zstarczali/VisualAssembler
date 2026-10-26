@@ -1,19 +1,21 @@
-// Every translation key the Rust VMA compiler names in an error (crates/vma: Msg::keyed and the
+// Every translation key the Rust VMA compiler names in an error (the VMA repository: Msg::keyed and the
 // runtime IF / WHILE key choice) exists in all seven languages of www/i18n.js.
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
+const { vmaDir } = require("./helpers/vma-rust");
 
 const repo = path.join(__dirname, "..");
 
-test("the Rust compiler's error keys are translated", () => {
+const dir = path.join(vmaDir(), "src");
+
+test("the Rust compiler's error keys are translated", { skip: !fs.existsSync(dir) && "no VMA source (VMA_DIR, or ../VMA)" }, () => {
   const ctx = { window: {} };
   vm.createContext(ctx);
   vm.runInContext(fs.readFileSync(path.join(repo, "www/i18n.js"), "utf8") + ";this.__t = translations;", ctx);
   const translations = ctx.__t;
-  const dir = path.join(repo, "crates/vma/src");
   const keys = new Set();
   for (const file of fs.readdirSync(dir).filter(f => f.endsWith(".rs"))) {
     const text = fs.readFileSync(path.join(dir, file), "utf8");

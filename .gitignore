@@ -8,7 +8,6 @@ yarn-error.log*
 
 # Tauri / Rust
 src-tauri/target/
-crates/vma/target/
 src-tauri/gen/
 src-tauri/icons/generated/
 
@@ -42,4 +41,3 @@ samples/*.snapshots.json
 !/va-product-site/downloads/VA/.htaccess
 /va-product-site/register/config.php
 /va-product-site/register/geoip-data/
-/crates/vma/target/
