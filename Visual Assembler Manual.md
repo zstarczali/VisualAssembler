@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.6.6**
+**Version 2.6.7**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -8,196 +8,237 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 
 ## Table of Contents
 
-- [C64 Visual Assembler — User Manual](#c64-visual-assembler--user-manual)
-    - [Version 2.6.6 Highlights](#version-266-highlights)
-    - [Version 2.6.5 Highlights](#version-265-highlights)
-    - [Version 2.6.4 Highlights](#version-264-highlights)
-    - [Version 2.6.3 Highlights](#version-263-highlights)
-    - [Version 2.6.2 Highlights](#version-262-highlights)
-    - [Version 2.6.1 Highlights](#version-261-highlights)
-    - [Version 2.6.0 Highlights](#version-260-highlights)
-    - [Version 2.5.9 Highlights](#version-259-highlights)
-    - [Version 2.5.8 Highlights](#version-258-highlights)
-    - [Version 2.5.7 Highlights](#version-257-highlights)
-    - [Version 2.5.6 Highlights](#version-256-highlights)
-    - [Version 2.5.5 Highlights](#version-255-highlights)
-    - [Version 2.5.4 Highlights](#version-254-highlights)
-    - [Version 2.5.3 Highlights](#version-253-highlights)
-    - [Version 2.5.2 Highlights](#version-252-highlights)
-    - [Version 2.5.1 Highlights](#version-251-highlights)
-    - [Version 2.5.0 Highlights](#version-250-highlights)
-    - [Version 2.4.9 Highlights](#version-249-highlights)
-    - [Version 2.4.8 Highlights](#version-248-highlights)
-    - [Version 2.4.7 Highlights](#version-247-highlights)
-    - [Version 2.4.6 Highlights](#version-246-highlights)
-    - [Version 2.4.5 Highlights](#version-245-highlights)
-    - [Version 2.4.3 Highlights](#version-243-highlights)
-    - [Version 2.4.2 Highlights](#version-242-highlights)
-    - [Version 2.4.1 Highlights](#version-241-highlights)
-    - [Version 2.4.0 Highlights](#version-240-highlights)
-    - [Version 2.3.9 Highlights](#version-239-highlights)
-  - [Table of Contents](#table-of-contents)
-  - [1. Interface Overview](#1-interface-overview)
-  - [2. Block Palette](#2-block-palette)
-  - [3. Program Area](#3-program-area)
-    - [Operand input](#operand-input)
-  - [4. ASM View](#4-asm-view)
-    - [Output modes](#output-modes)
-    - [Toolkit tab](#toolkit-tab)
-    - [Options tab](#options-tab)
-    - [Clicking an ASM line](#clicking-an-asm-line)
-    - [ASM line numbers](#asm-line-numbers)
-    - [Compile progress modal](#compile-progress-modal)
-  - [5. Settings \& Toolbar](#5-settings--toolbar)
-    - [Version control](#version-control)
-    - [Free and open source](#free-and-open-source)
-    - [Reporting a bug](#reporting-a-bug)
-    - [Memory window and zero page usage](#memory-window-and-zero-page-usage)
-    - [Project templates](#project-templates)
-    - [Build project](#build-project)
-    - [Example programs](#example-programs)
-    - [Load .asm file (quick reference)](#load-asm-file-quick-reference)
-      - [Import parsing notes and best practices](#import-parsing-notes-and-best-practices)
-  - [UltimateBasic Mode](#ultimatebasic-mode)
-    - [Opening the UB editor](#opening-the-ub-editor)
-    - [Editor tools](#editor-tools)
-    - [Projects, tabs, and startup files](#projects-tabs-and-startup-files)
-    - [Building and diagnostics](#building-and-diagnostics)
-    - [Code size per line and hints](#code-size-per-line-and-hints)
-    - [Running, D64, and Exomizer](#running-d64-and-exomizer)
-    - [Debugger symbols and disassembly](#debugger-symbols-and-disassembly)
-    - [Ultimate Basic manual and source](#ultimate-basic-manual-and-source)
-  - [6. Expert Mode](#6-expert-mode)
-    - [Switching modes](#switching-modes)
-    - [Editor layout](#editor-layout)
-    - [Toolbar buttons](#toolbar-buttons)
-    - [Cycle counts](#cycle-counts)
-    - [Optimisation hints](#optimisation-hints)
-    - [Error highlighting](#error-highlighting)
-    - [Syntax highlight](#syntax-highlight)
-    - [Source formatter](#source-formatter)
-    - [Project panel \& tabs](#project-panel--tabs)
-    - [Tab bar](#tab-bar)
-    - [ACME mode](#acme-mode)
-  - [7. Addressing Modes](#7-addressing-modes)
-    - [Label expressions as operands](#label-expressions-as-operands)
-    - [The `*` program counter in expressions](#the--program-counter-in-expressions)
-    - [Local (dotted) labels](#local-dotted-labels)
-    - [Self-modifying-code operand labels](#self-modifying-code-operand-labels)
-  - [8. Standard 6502 Instructions](#8-standard-6502-instructions)
-    - [Data Movement](#data-movement)
-    - [Arithmetic](#arithmetic)
-    - [Logic](#logic)
-    - [Jumps \& Branches](#jumps--branches)
+- [Version 2.6.7 Highlights](#version-267-highlights)
+- [Version 2.6.6 Highlights](#version-266-highlights)
+- [Version 2.6.5 Highlights](#version-265-highlights)
+- [Version 2.6.4 Highlights](#version-264-highlights)
+- [Version 2.6.3 Highlights](#version-263-highlights)
+- [Version 2.6.2 Highlights](#version-262-highlights)
+- [Version 2.6.1 Highlights](#version-261-highlights)
+- [Version 2.6.0 Highlights](#version-260-highlights)
+- [Version 2.5.9 Highlights](#version-259-highlights)
+- [Version 2.5.8 Highlights](#version-258-highlights)
+- [Version 2.5.7 Highlights](#version-257-highlights)
+- [Version 2.5.6 Highlights](#version-256-highlights)
+- [Version 2.5.5 Highlights](#version-255-highlights)
+- [Version 2.5.4 Highlights](#version-254-highlights)
+- [Version 2.5.3 Highlights](#version-253-highlights)
+- [Version 2.5.2 Highlights](#version-252-highlights)
+- [Version 2.5.1 Highlights](#version-251-highlights)
+- [Version 2.5.0 Highlights](#version-250-highlights)
+- [Version 2.4.9 Highlights](#version-249-highlights)
+- [Version 2.4.8 Highlights](#version-248-highlights)
+- [Version 2.4.7 Highlights](#version-247-highlights)
+- [Version 2.4.6 Highlights](#version-246-highlights)
+- [Version 2.4.5 Highlights](#version-245-highlights)
+- [Version 2.4.3 Highlights](#version-243-highlights)
+- [Version 2.4.2 Highlights](#version-242-highlights)
+- [Version 2.4.1 Highlights](#version-241-highlights)
+- [Version 2.4.0 Highlights](#version-240-highlights)
+- [Version 2.3.9 Highlights](#version-239-highlights)
+- [1. Interface Overview](#1-interface-overview)
+- [2. Block Palette](#2-block-palette)
+  - [Parameters in the operand field](#parameters-in-the-operand-field)
+- [3. Program Area](#3-program-area)
+  - [Block panel minimap](#block-panel-minimap)
+  - [Operand input](#operand-input)
+- [4. ASM View](#4-asm-view)
+  - [Output modes](#output-modes)
+  - [Toolkit tab](#toolkit-tab)
+  - [Compile info and output settings](#compile-info-and-output-settings)
+  - [Clicking an ASM line](#clicking-an-asm-line)
+  - [ASM line numbers](#asm-line-numbers)
+  - [Compile progress modal](#compile-progress-modal)
+- [5. Settings & Toolbar](#5-settings--toolbar)
+  - [Version control](#version-control)
+    - [Project mode](#project-mode)
+    - [Git](#git)
+  - [In-app updates](#in-app-updates)
+  - [Free and open source](#free-and-open-source)
+  - [Reporting a bug](#reporting-a-bug)
+  - [Support](#support)
+  - [Workspaces](#workspaces)
+  - [Memory window and zero page usage](#memory-window-and-zero-page-usage)
+  - [Project templates](#project-templates)
+  - [Tutorials and the Lesson Editor](#tutorials-and-the-lesson-editor)
+    - [Online lessons](#online-lessons)
+  - [Build project](#build-project)
+  - [Example programs](#example-programs)
+  - [Load .asm file (quick reference)](#load-asm-file-quick-reference)
+    - [Import parsing notes and best practices](#import-parsing-notes-and-best-practices)
+  - [Kick import (Kick Assembler)](#kick-import-kick-assembler)
+    - [Kick projects (Import Kick project…)](#kick-projects-import-kick-project)
+- [UltimateBasic Mode](#ultimatebasic-mode)
+  - [Opening the UB editor](#opening-the-ub-editor)
+  - [Editor tools](#editor-tools)
+  - [Projects, tabs, and startup files](#projects-tabs-and-startup-files)
+  - [Building and diagnostics](#building-and-diagnostics)
+  - [Code size per line and hints](#code-size-per-line-and-hints)
+  - [Running, D64, and Exomizer](#running-d64-and-exomizer)
+  - [Debugger symbols and disassembly](#debugger-symbols-and-disassembly)
+  - [Ultimate Basic manual and source](#ultimate-basic-manual-and-source)
+- [6. Expert Mode](#6-expert-mode)
+  - [Switching modes](#switching-modes)
+  - [Editor layout](#editor-layout)
+  - [Toolbar buttons](#toolbar-buttons)
+  - [Expert editor minimap](#expert-editor-minimap)
+  - [Cycle counts](#cycle-counts)
+  - [Optimisation hints](#optimisation-hints)
+  - [Error highlighting](#error-highlighting)
+  - [Syntax highlight](#syntax-highlight)
+  - [Source formatter](#source-formatter)
+  - [Project panel & tabs](#project-panel--tabs)
+  - [Tab bar](#tab-bar)
+  - [ACME mode](#acme-mode)
+- [7. Addressing Modes](#7-addressing-modes)
+  - [Label expressions as operands](#label-expressions-as-operands)
+  - [The `*` program counter in expressions](#the--program-counter-in-expressions)
+  - [Local (dotted) labels](#local-dotted-labels)
+  - [Self-modifying-code operand labels](#self-modifying-code-operand-labels)
+- [8. Standard 6502 Instructions](#8-standard-6502-instructions)
+  - [Data Movement](#data-movement)
+  - [Arithmetic](#arithmetic)
+  - [Logic](#logic)
+  - [Jumps & Branches](#jumps--branches)
     - [LBNE / LBEQ / … (Long branches)](#lbne--lbeq---long-branches)
-    - [Register Operations](#register-operations)
-    - [Shift \& Rotate](#shift--rotate)
-    - [Stack](#stack)
-    - [System / Flags](#system--flags)
-    - [Illegal / Undocumented Instructions](#illegal--undocumented-instructions)
-  - [9. Macro Blocks — Reference](#9-macro-blocks--reference)
-    - [LABEL](#label)
-    - [COMMENT](#comment)
-    - [BYTE](#byte)
-    - [WORD](#word)
-    - [FILL](#fill)
-    - [ALIGN](#align)
-    - [TEXT](#text)
-    - [STRING](#string)
-    - [DATA](#data)
-    - [RAWBYTES](#rawbytes)
-    - [RAWTEXT](#rawtext)
-    - [PETSCII](#petscii)
-    - [CHARSET](#charset)
-    - [CHARDEF](#chardef)
-    - [BOX_HIT](#box_hit)
-    - [INCBIN](#incbin)
-    - [KOALA](#koala)
-    - [LEVEL / LEVEL\_ROW](#level--level_row)
-      - [LEVEL](#level)
-      - [LEVEL\_ROW](#level_row)
-    - [SID](#sid)
-    - [SID_PLAYER](#sid_player)
-    - [INCLUDE](#include)
-    - [TABLE](#table)
-    - [ORG](#org)
-    - [LOOP / NEXT](#loop--next)
-      - [LOOP](#loop)
-      - [NEXT](#next)
-    - [FOR / ENDF](#for--endf)
-      - [FOR](#for)
-      - [ENDF](#endf)
-    - [PUSH / PULL](#push--pull)
-      - [PUSH](#push)
-      - [PULL](#pull)
-    - [END / RTS alias](#end--rts-alias)
-    - [MACRO / ENDM / INVOKE](#macro--endm--invoke)
-      - [MACRO (definition start)](#macro-definition-start)
-      - [ENDM (definition end)](#endm-definition-end)
-      - [INVOKE](#invoke)
-    - [REGION / ENDREGION](#region--endregion)
-    - [DEFINE / IF / ELSE / ENDIF](#define--if--else--endif)
-    - [.ASSERT](#assert)
-      - [DEFINE](#define)
-      - [IF](#if)
-      - [ELSE](#else)
+  - [Register Operations](#register-operations)
+  - [Shift & Rotate](#shift--rotate)
+  - [Stack](#stack)
+  - [System / Flags](#system--flags)
+  - [Illegal / Undocumented Instructions](#illegal--undocumented-instructions)
+- [9. Macro Blocks — Reference](#9-macro-blocks--reference)
+  - [LABEL](#label)
+  - [COMMENT](#comment)
+  - [BYTE](#byte)
+  - [WORD](#word)
+  - [FILL](#fill)
+  - [ALIGN](#align)
+  - [TEXT](#text)
+  - [STRING](#string)
+  - [DATA](#data)
+  - [RAWBYTES](#rawbytes)
+  - [RAWTEXT](#rawtext)
+  - [PETSCII](#petscii)
+  - [CHARSET](#charset)
+  - [CHARDEF](#chardef)
+  - [BOX_HIT](#box_hit)
+  - [INCBIN](#incbin)
+  - [KOALA](#koala)
+  - [LEVEL / LEVEL_ROW](#level--level_row)
+    - [LEVEL](#level)
+    - [LEVEL_ROW](#level_row)
+  - [SID](#sid)
+  - [SID_PLAYER](#sid_player)
+  - [INCLUDE](#include)
+  - [TABLE](#table)
+  - [ORG](#org)
+  - [LOOP / NEXT](#loop--next)
+    - [LOOP](#loop)
+    - [NEXT](#next)
+  - [FOR / ENDF](#for--endf)
+    - [FOR](#for)
+    - [ENDF](#endf)
+  - [PUSH / PULL](#push--pull)
+    - [PUSH](#push)
+    - [PULL](#pull)
+  - [END / RTS alias](#end--rts-alias)
+  - [MACRO / ENDM / INVOKE](#macro--endm--invoke)
+    - [MACRO (definition start)](#macro-definition-start)
+    - [ENDM (definition end)](#endm-definition-end)
+    - [INVOKE](#invoke)
+  - [REGION / ENDREGION](#region--endregion)
+  - [DEFINE / IF / ELSE / ENDIF](#define--if--else--endif)
+    - [DEFINE](#define)
+    - [IF](#if)
+    - [ELSE](#else)
     - [ENDIF](#endif)
-    - [CONST](#const)
-    - [VAR](#var)
-    - [Runtime IF / ELSE / ENDIF](#runtime-if--else--endif)
-    - [WHILE / ENDW](#while--endw)
-    - [REPEAT / UNTIL](#repeat--until)
-    - [MEMCPY / MEMSET](#memcpy--memset)
-    - [PRINT / PRINT_CHAR / PRINT_HEX / CLEAR_SCREEN / WAIT_KEY / DELAY / SET_BORDER / SET_BG](#print--print_char--print_hex--clear_screen--wait_key--delay--set_border--set_bg)
-    - [IRQ_SETUP](#irq_setup)
-    - [RAND](#rand)
-    - [SPRITE\_INIT](#sprite_init)
-    - [SPRITE\_POS](#sprite_pos)
-    - [WAIT\_RASTER](#wait_raster)
-    - [JOYSTICK](#joystick)
-    - [MOUSE](#mouse)
-    - [SPRITE\_COL](#sprite_col)
-    - [LOADFILE](#loadfile)
-    - [EXODECRUNCH](#exodecrunch)
-    - [REU\_CHECK](#reu_check)
-    - [REU\_STASH / REU\_FETCH / REU\_SWAP](#reu_stash--reu_fetch--reu_swap)
-    - [TURBO\_SET](#turbo_set)
-    - [SUPERCPU\_DETECT](#supercpu_detect)
-    - [TURBO\_ENABLE](#turbo_enable)
-    - [MAP\_COPY](#map_copy)
-    - [MAP\_COPY16X16](#map_copy16x16)
-    - [SPRITE\_ANIM](#sprite_anim)
-    - [SCORE\_BCD](#score_bcd)
-  - [10. Debugger Integration](#10-debugger-integration)
-    - [RetroDebugger](#retrodebugger)
-    - [Breakpoint Blocks](#breakpoint-blocks)
-    - [Debugger Flags (Options Tab)](#debugger-flags-options-tab)
-    - [VICE Monitor (hot reload, live watch, profiler)](#vice-monitor-hot-reload-live-watch-profiler)
-  - [11. Knowledge Base Links](#11-knowledge-base-links)
-  - [12. D64 Export \& Run](#12-d64-export--run)
-    - [Split Run button](#split-run-button)
-    - [Export to D64 dialog](#export-to-d64-dialog)
-    - [D64 metadata in projects](#d64-metadata-in-projects)
-  - [12b. CRT Export (Magic Desk 64K cartridge)](#12b-crt-export-magic-desk-64k-cartridge)
-  - [13. Hardware Settings](#13-hardware-settings)
-    - [VICE Emulator](#vice-emulator)
-    - [Exomizer](#exomizer)
-    - [Retro Debugger](#retro-debugger)
-    - [C64 Ultimate / 1541 Ultimate](#c64-ultimate--1541-ultimate)
-    - [Kung Fu Flash 2](#kung-fu-flash-2)
-  - [14. Visual Editors (Toolkit)](#14-visual-editors-toolkit)
-    - [Hi-Res / Multicolor Editor](#hi-res--multicolor-editor)
-    - [Sprite Editor](#sprite-editor)
-    - [C64 Character ROM Browser ("Char map")](#c64-character-rom-browser-char-map)
-    - [Character Editor (Charset)](#character-editor-charset)
-    - [Charset Canvas Editor](#charset-canvas-editor)
-    - [Map Editor (Multilayer Tilemaps)](#map-editor-multilayer-tilemaps)
-    - [Level Editor](#level-editor)
-    - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
-    - [SID Player](#sid-player)
-    - [Curve Editor](#curve-editor)
-    - [Table Generator](#table-generator)
-    - [Number Converter](#number-converter)
+  - [.ASSERT](#assert)
+  - [CONST](#const)
+  - [VAR](#var)
+  - [Runtime IF / ELSE / ENDIF](#runtime-if--else--endif)
+  - [WHILE / ENDW](#while--endw)
+  - [REPEAT / UNTIL](#repeat--until)
+  - [MEMCPY / MEMSET](#memcpy--memset)
+  - [PRINT / PRINT_CHAR / PRINT_HEX / CLEAR_SCREEN / WAIT_KEY / DELAY / SET_BORDER / SET_BG](#print--print_char--print_hex--clear_screen--wait_key--delay--set_border--set_bg)
+    - [PRINT](#print)
+    - [PRINT_CHAR](#print_char)
+    - [PRINT_HEX](#print_hex)
+    - [CLEAR_SCREEN](#clear_screen)
+    - [WAIT_KEY](#wait_key)
+    - [DELAY](#delay)
+    - [SET_BORDER / SET_BG](#set_border--set_bg)
+  - [IRQ_SETUP](#irq_setup)
+  - [RAND](#rand)
+  - [SPRITE_INIT](#sprite_init)
+  - [SPRITE_POS](#sprite_pos)
+  - [WAIT_RASTER](#wait_raster)
+  - [JOYSTICK](#joystick)
+  - [MOUSE](#mouse)
+  - [SPRITE_COL](#sprite_col)
+  - [LOADFILE](#loadfile)
+  - [EXODECRUNCH](#exodecrunch)
+  - [REU_CHECK](#reu_check)
+  - [REU_STASH / REU_FETCH / REU_SWAP](#reu_stash--reu_fetch--reu_swap)
+  - [TURBO_SET](#turbo_set)
+  - [SUPERCPU_DETECT](#supercpu_detect)
+  - [TURBO_ENABLE](#turbo_enable)
+  - [MAP_COPY](#map_copy)
+  - [MAP_COPY16X16](#map_copy16x16)
+  - [SPRITE_ANIM](#sprite_anim)
+  - [SCORE_BCD](#score_bcd)
+- [10. Debugger Integration](#10-debugger-integration)
+  - [RetroDebugger](#retrodebugger)
+  - [Breakpoint Blocks](#breakpoint-blocks)
+  - [Debugger flags](#debugger-flags)
+  - [VICE Monitor (hot reload, live watch, profiler)](#vice-monitor-hot-reload-live-watch-profiler)
+- [11. Knowledge Base Links](#11-knowledge-base-links)
+- [12. D64 Export & Run](#12-d64-export--run)
+  - [Split Run button](#split-run-button)
+  - [Export to D64 dialog](#export-to-d64-dialog)
+  - [D64 metadata in projects](#d64-metadata-in-projects)
+  - [D64 Editor (browse & edit an existing disk image)](#d64-editor-browse--edit-an-existing-disk-image)
+- [12b. CRT Export (Magic Desk 64K cartridge)](#12b-crt-export-magic-desk-64k-cartridge)
+  - [What ships in the cart](#what-ships-in-the-cart)
+  - [Load address and entry point](#load-address-and-entry-point)
+  - [Size limit](#size-limit)
+  - [Compatibility](#compatibility)
+- [13. Settings](#13-settings)
+  - [VMA compiler](#vma-compiler)
+  - [VICE Emulator](#vice-emulator)
+  - [Exomizer](#exomizer)
+  - [Retro Debugger](#retro-debugger)
+  - [C64 Ultimate / 1541 Ultimate](#c64-ultimate--1541-ultimate)
+  - [Kung Fu Flash 2](#kung-fu-flash-2)
+  - [Version control (git)](#version-control-git)
+- [14. Visual Editors (Toolkit)](#14-visual-editors-toolkit)
+  - [Hi-Res / Multicolor Editor](#hi-res--multicolor-editor)
+  - [Sprite Editor](#sprite-editor)
+  - [C64 Character ROM Browser ("Char map")](#c64-character-rom-browser-char-map)
+  - [Character Editor (Charset)](#character-editor-charset)
+  - [Charset Canvas Editor](#charset-canvas-editor)
+  - [Map Editor (Multilayer Tilemaps)](#map-editor-multilayer-tilemaps)
+  - [Level Editor](#level-editor)
+  - [SID Editor (3-Voice Tracker)](#sid-editor-3-voice-tracker)
+  - [SID Player](#sid-player)
+    - [HVSC (High Voltage SID Collection)](#hvsc-high-voltage-sid-collection)
+    - [Spectrum analyzer](#spectrum-analyzer)
+  - [Curve Editor](#curve-editor)
+  - [Table Generator](#table-generator)
+  - [Number Converter](#number-converter)
+
+---
+
+## Version 2.6.7 Highlights
+
+- **Rust VMA compiler** — **Settings → General → Program → VMA compiler** chooses the engine: **JavaScript** (the default), **Rust**, or **Rust + JavaScript check**, which builds with both and logs any difference. The Rust compiler gives the same bytes, memory view, segments and translated error messages; Kick projects build through it too, with errors at `file:line`. See [VMA compiler](#vma-compiler).
+- **VMA is open source** — the Visual Macro Assembler compiler lives in its own GPLv3 repository, [github.com/zstarczali/VMA](https://github.com/zstarczali/VMA) (version 2.0.0), with an English and a Hungarian language manual and a command-line compiler. The About box shows the VMA version and banner next to Ultimate Basic.
+- **Project symbols and constants** — **Project settings** sets VMA symbols (`.define`, for `.if` / `.ifdef`) and constants (`.const`) for the whole project, saved in the `.proj`; error lines stay correct. See [Project panel & tabs](#project-panel--tabs).
+- **Compiling dialog** — a step line under the progress bar names the engine, the file and the PRG size.
+- **Build info** — shows the file it describes; an ACME source gets its own view from the real ACME build (origin, end, size, segments, labels). It no longer closes on an outside click.
+- **Faster typing** — in ACME mode the Disassembly and Monitor panels are rebuilt once per build and dimmed while the source is newer; big Kick projects re-use their last preprocessing and render the disassembly in chunks.
+- **Project tree** — **Move up** / **Move down** in the right-click menu of files and folders. Kick compatibility is switched in **Project settings**.
+- **Fixes** — saving an `.asm` (Ctrl+S, Menu → Save, before a git commit) writes plain text again, not the VA JSON; version control snapshots keep source files as text; library macros inside a user macro (SET_BORDER, SPRITE_*, JOYSTICK, TEXT …) get their parameters, runtime IF / WHILE / REPEAT labels are unique per call and a `'A'` argument stays a character; draggable dialogs open at their saved place.
+- **Look** — the compiling, build info, D64 export, compile error and question dialogs have the About box frame.
 
 ---
 
@@ -217,7 +258,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 
 - **KickAssembler projects** — **Menu → Program → Import Kick project…** takes a whole KickAssembler source tree (the main file with its `#import` modules and `.import binary` assets) and writes a `.proj` next to it; the sources stay where they are. Visual Assembler builds it with its own assembler, byte for byte like KickAssembler 5.25 — Run, Build PRG / D64 / CRT, Exomizer, Debug, the VICE Monitor and Build project all work, errors name the `file:line`, and the whole tree is checked while you type. The Dark Chambers C64 port and all eleven KickAssembler example programs with code build identically. See [Kick projects (Import Kick project…)](#kick-projects-import-kick-project).
 - **Project settings** — the gear button in the Project panel (or **Menu → File → Project settings…**) shows and edits the name, startup file, assembler, KickAssembler compatibility, `#define` symbols and `cmdLineVars` of a project. See [Project panel & tabs](#project-panel--tabs).
-- **Kick-compatible switch** — the `{K}` button in the Project panel header makes any VMA project KickAssembler compatible; the VA macros and directives keep working next to the KickAssembler script.
+- **Kick-compatible switch** — a switch (since 2.6.7 in **Project settings**) makes any VMA project KickAssembler compatible; the VA macros and directives keep working next to the KickAssembler script.
 - **KickAssembler language** — `#import` / `#importonce` / `#importif`, `#define` / `#if`, `.const` / `.label` (zero page or absolute by value), `.for`, `.while`, `.if … else`, `.var` / `.eval`, `.function`, `.macro { }`, `.pseudocommand`, multi-labels, scopes and namespaces, `.pseudopc`, `.import binary`, `LoadBinary` (with templates such as `BF_KOALA`), `LoadSid`, `virtual` memory blocks, `cmdLineVars`, `BasicUpstart2`, `List` / `Hashtable` / `.struct` / strings, `.enum`, the math library, the colour and opcode constants, `*` as the program counter, `;` between statements, `.error` / `.errorif`.
 - **Build Info in columns** — a wider window: origin, end, size and segment count on top, then the segments, errors and `.print` output, and the labels, constants and macros in columns. In a Kick project it shows the built tree, inner labels as `scope.label`.
 - **C64 colour palette** — **Settings → General → Editors → C64 colour palette** sets the RGB values of the 16 C64 colours in every editor (sprite, character, Charset Canvas, Hi-Res, map, level, Toolkit swatches): **Colodore** by default (the closest to a real C64), or Pepto, VICE, Deekay, C64 Wiki / Godot. Only the display changes; the Hi-Res image import uses it too. See [14. Visual Editors (Toolkit)](#14-visual-editors-toolkit).
@@ -235,8 +276,8 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 - **Better Kick Assembler import** — the Program menu entry is now **Kick import**. Plain `.text "…"` lines follow `.encoding`, `.label NAME = * + N` places a label inside an instruction, and the `.abs` / `.zp` mnemonic suffixes force the addressing mode. Restore64 disassemblies build byte for byte like KickAssembler. See [Kick import (Kick Assembler)](#kick-import-kick-assembler).
 - **Run starts programs below the BASIC line** — a program that loads below or across the BASIC SYS line gets a small start loader; a lower ORG later in the source is no longer moved up to the start address. See the **BASIC SYS stub** row in [Settings & Toolbar](#5-settings--toolbar).
 - **Exomizer** — a crunched program no longer gives `?SYNTAX ERROR` on the second RUN: a PRG with a BASIC line is packed with `sfx basic`, any other with `sfx $<load address>`.
-- **SID Editor** — a playback LCD in the tracker toolbar (song position, pattern, row, time; green or red in **Settings → SID preview → LCD colour**), an instrument knob with an LCD on VA-VK, a progress bar for **Import .sid…**. See [SID Editor](#sid-editor-3-voice-tracker).
-- **Settings in three tabs** — **General**, **Files and paths** and **Integrations**. See [Section 13](#13-hardware-settings).
+- **SID Editor** — a playback LCD in the tracker toolbar (song position, pattern, row, time; green or red in **Settings → General → SID preview → LCD colour**), an instrument knob with an LCD on VA-VK, a progress bar for **Import .sid…**. See [SID Editor](#sid-editor-3-voice-tracker).
+- **Settings in three tabs** — **General**, **Files and paths** and **Integrations**. See [Section 13](#13-settings).
 - **Smaller improvements** — **Ctrl+N** opens a new tab; dialog text can no longer be selected by accident (text fields and copyable output, such as compile errors, still can); large Expert sources edit faster; `LSR A` and `JMP ($nnnn)` import correctly; the Knowledge Base links Restore64 (restore64.dev), which turns a C64 PRG into KickAssembler / ACME source for **Kick import** or ACME mode. An ACME source with a segment below `$0801` (a memory dump) is no longer shifted behind the BASIC SYS line: it builds at its own addresses and gets the start loader.
 
 ---
@@ -247,7 +288,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 - **Long tunes play correctly** — when the tune data does not fit next to the player at `$C000`, it moves to its own segment below `$A000` instead of running into I/O; the `.sid` export follows.
 - **VA SID Core preview retriggers notes** — a note restarted under a held gate gets a new attack, as on the real player.
 - **SID Editor** — the header shows the active SID emulation (WebSID or VA SID Core with the chip model); the Speed field has − / + buttons and takes 1–255; the song can use up to 256 patterns.
-- **Update server setting** — **Settings → Updates** sets the server the in-app update reads releases from (default `https://www.c64va.pro/`). See [In-app updates](#in-app-updates).
+- **Update server setting** — **Settings → General → Updates** sets the server the in-app update reads releases from (default `https://www.c64va.pro/`). See [In-app updates](#in-app-updates).
 - **Ultimate Basic 1.6.6** — `PRINT USING "format"; values`, string comparison in PETSCII order, floating-point `rnd` and `mod`, floating point in IRQ / NMI handlers, `option basic print` for C64 BASIC PRINT spacing, smaller programs (only the floating-point routines in use) and 16-bit address expressions (1.6.5). The Ultimate Basic editor highlights `print using` and `option basic print`.
 
 ---
@@ -316,7 +357,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 ## Version 2.5.6 Highlights
 
 - **SID Player** — a new toolbar button opens a floating player for `.sid` (PSID / RSID) tunes: a playlist with drag and drop, previous / next tune, subtunes, seek and ±10 s, volume, and playlist save / open (`.sidpl`); the list and the window state are remembered. See [SID Player](#sid-player).
-- **VA SID Core 1.1** — a built-in SID emulation (MOS 6581 / 8580, with a MOS 6581/8580-based 6581 filter) and a cycle-locked PSID / RSID player (6510 CPU, CIA / VIC timing). Choose it in **Settings → SID preview**; the SID Player shows which engine is playing.
+- **VA SID Core 1.1** — a built-in SID emulation (MOS 6581 / 8580, with a MOS 6581/8580-based 6581 filter) and a cycle-locked PSID / RSID player (6510 CPU, CIA / VIC timing). Choose it in **Settings → General → SID preview**; the SID Player shows which engine is playing.
 - **SID Editor** — knobs for the instrument parameters, a wider ADSR graph, **MIDI input**, **recording** into the tracker (a new pattern is added when the current one is full), a **metronome** with beat lamps, **pattern delete**, the master volume on VA-VK, and **Import GoatTracker .sng**. See [SID Editor](#sid-editor-3-voice-tracker).
 - **Ultimate Basic 1.6.4** bundled.
 
@@ -382,7 +423,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 
 ## Version 2.4.9 Highlights
 
-- **Project templates** — **Menu → File → New project from template…**, or the new toolbar button between **Menu** and **Tutorials**, creates a ready-to-build `.proj` project in its own folder. The dialog has an **Assembler** section (empty program, game skeleton, hires and multicolor bitmap) and an **UltimateBasic** section (empty program, game skeleton, hires bitmap, raster IRQ), with a syntax-highlighted preview. Your own `.asm` / `.ub` templates are picked up from the user templates folder. See [Project templates](#project-templates).
+- **Project templates** — **Menu → New project → New project from template…**, or the new toolbar button between **Menu** and **Tutorials**, creates a ready-to-build `.proj` project in its own folder. The dialog has an **Assembler** section (empty program, game skeleton, hires and multicolor bitmap) and an **UltimateBasic** section (empty program, game skeleton, hires bitmap, raster IRQ), with a syntax-highlighted preview. Your own `.asm` / `.ub` templates are picked up from the user templates folder. See [Project templates](#project-templates).
 - **Build project** — **Menu → Build → Build project** compiles every buildable file of the open project (or of the open tabs) to a `.prg` next to its source, writes debugger symbol files where available, skips include-only modules and shows a per-file report. See [Build project](#build-project).
 - **Ctrl + mouse wheel zoom** in the Expert and Ultimate Basic editors (`Cmd` + wheel on macOS; touchpad pinch works too).
 - **Workspaces remember projects** — the Expert and Ultimate Basic project trees, the startup file and unsaved project changes are saved into the `.vaws` workspace and restored with it. Older workspaces still open.
@@ -576,11 +617,9 @@ The right panel shows the generated output in real time.
 |---|---|
 | **ASM** | 6502 assembly source with addresses and labels |
 | **Monitor** | Hex / byte dump (C64 monitor style) |
-| **Disasm** | Pure 6502 disassembly: address · hex bytes · mnemonics with resolved numeric operands. Macros are expanded to individual instructions (TEXT → LDA/STA pairs, LOOP → LDX, etc.). BYTE/WORD/FILL data shown as chunked hex dump. No macro names, comments, or annotations in output. |
+| **Disassembler** | Pure 6502 disassembly: address · hex bytes · mnemonics with resolved numeric operands. Macros are expanded to individual instructions (TEXT → LDA/STA pairs, LOOP → LDX, etc.). BYTE/WORD/FILL data shown as chunked hex dump. No macro names, comments, or annotations in output. |
 | **Both** | ASM on top, monitor below |
-| **Disassembler** | Same as Disasm — dedicated tab for the disassembly view |
 | **Toolkit** | C64 reference panel: 16-colour palette swatch + PETSCII control-code and printable-character cheat sheet. Read-only — see the "Toolkit tab" subsection below for details. |
-| **Options** | Program settings panel — number format, macro source toggle, debugger params |
 
 Macro blocks appear in the ASM and Both views as plain macro lines without a comment marker (`.print "HELLO"`, `.wait_raster $FF`, `.invoke setColor(blue)`) and are coloured as macros; only real COMMENT blocks, region markers and warnings keep their leading `;`.
 
@@ -595,17 +634,12 @@ The **Toolkit** tab in the ASM view is a read-only quick-reference panel — it 
 
 The Toolkit is the fastest way to look up a colour index or a PETSCII control byte without leaving the editor.
 
-### Options tab
+### Compile info and output settings
 
-The **Options** tab contains the settings that affect code generation and output display:
-
-- **Macro source** — when ON, macro definition blocks (MACRO…ENDM) show their source code inline in the ASM view.
-- **Program start address** — now set via an **ORG block** in the program area rather than a separate input field. The first ORG block defines the program's load address; subsequent ORG blocks start additional sections at different addresses.
-- **Debugger params** — three inline toggles controlling which flags are passed to the external debugger on launch:
-  - **`-jmp` ON/OFF** — jump directly to the program's start address after loading.
-  - **`-unpause` ON/OFF** — unpause the debugger immediately on load.
-  - **`-wait` ms ON/OFF** — adds a `-wait <ms>` delay before unpausing; select 500 ms or 1000 ms from the dropdown.
-- **Compile info** — shows a summary of the compiled program (code start address, size, BASIC SYS stub status).
+- **Compile info** (above the output) shows a summary of the compiled program: code start address, size and the BASIC SYS stub.
+- The program's start address is set by an **ORG** block (`* = $C000`): the first ORG is the load address, further ORGs start more sections at other addresses.
+- The output settings are in **Settings → General → ASM output**: **Macro source** (macro definitions MACRO…ENDM show their source in the ASM view), **Show region comments**, **Show memory overlays** and **Show memory panel**.
+- The RetroDebugger flags (`-jmp`, `-unpause`, `-wait`) are in **Settings → General → RetroDebugger** — see [Debugger flags](#debugger-flags).
 
 ### Clicking an ASM line
 
@@ -616,17 +650,17 @@ Click any line in the ASM view to **highlight the corresponding block** in the p
 The ASM panel displays **line numbers** (`001 |`, `002 |`, …) to make troubleshooting easier when a compile error points to a specific line.
 
 - The visual line numbers are for diagnostics only.
-- **Copy ASM** still copies the clean source text **without** line-number prefixes.
+- **Export ASM** (Program menu) still copies the clean source text **without** line-number prefixes.
 
 ### Compile progress modal
 
 During heavier actions, a centered progress modal appears with a progress bar:
 
-- **Run in VICE** — compiling/building PRG and launching emulator.
-- **Debug** — compiling/building PRG and launching debugger.
-- **Load .asm file** — open an `.asm` file in Expert mode and materialize blocks from the source.
+- **Run** (VICE, D64, C64 Ultimate, Kung Fu Flash 2) — building the PRG and starting it.
+- **Debug** — building the PRG and launching RetroDebugger.
+- **Build project**, **Build D64** and **Exomizer** packing.
 
-The modal closes automatically when the action completes or fails.
+The line under the bar names the step that is running, with the file — for example *Kick: preprocessing main.asm (14 files)…*, *VMA (Rust): compiling main.asm…*, *PRG ready: 2061 bytes from $0801*, *Exomizer: compressing …*, *VICE: starting …*. The modal closes automatically when the action completes or fails.
 
 ---
 
@@ -635,16 +669,16 @@ The modal closes automatically when the action completes or fails.
 | Control | Description |
 |---|---|
 | **Number base (HEX / DEC / BIN)** | Sets the display/input format for operands throughout the UI. BIN mode displays values as binary with `%` prefix (e.g. `%11111000`). The ASM view always shows each block in its own format. |
-| **Language** | Switch the user interface between English, Hungarian, Spanish, German, and Dutch (Nederlands) |
-| **Theme** | Light / Dark / OLED / Commodore 77 / Commodore Starlight / Commodore Beige / Commodore 64 — select from the theme picker in the Settings menu. OLED uses a pure-black background for AMOLED displays. Commodore 77 is a neon-yellow-on-black theme; when it is the active theme the startup splash panel uses the theme's panel colour (matching the message card), shows a smaller dedicated Commodore 77 logo, and a yellow progress bar. Commodore Starlight is a light theme after the translucent C64 breadbin: frosted clear glass panels with the rainbow RGB glow shining through, a magenta accent, rainbow syntax colours and a smoky dark monitor view. Commodore Beige is the classic breadbin: a beige case, mustard function-key buttons, the rainbow badge stripes and a C64 blue screen for the monitor view. The chosen theme is applied before the first paint on the next launch. |
+| **Language** | Switch the user interface between English, Hungarian, Spanish, German, Dutch (Nederlands), Polish and Italian (**Menu → Settings**) |
+| **Theme** | Light / Dark / OLED / Black / Commodore 77 / Commodore Starlight / Commodore Beige / Commodore 64 — select from the theme picker in **Menu → View**. OLED uses a pure-black background for AMOLED displays. Commodore 77 is a neon-yellow-on-black theme; when it is the active theme the startup splash panel uses the theme's panel colour (matching the message card), shows a smaller dedicated Commodore 77 logo, and a yellow progress bar. Commodore Starlight is a light theme after the translucent C64 breadbin: frosted clear glass panels with the rainbow RGB glow shining through, a magenta accent, rainbow syntax colours and a smoky dark monitor view. Commodore Beige is the classic breadbin: a beige case, mustard function-key buttons, the rainbow badge stripes and a C64 blue screen for the monitor view. The chosen theme is applied before the first paint on the next launch. |
 | **CRT retro mode** | Toggles a full-screen CRT filter: scanlines, phosphor vignette, flicker, and barrel distortion. State is saved between sessions. |
-| **Show memory panel** | Global toggle that shows or hides the full C64 memory panel |
-| **BASIC SYS stub** | Prepends a BASIC line that calls SYS to your program's origin (the first ORG). A segment placed lower than the first ORG stays at its own address. When the program loads below or across the BASIC line (`$0801`–`$080C`, for example an imported dump from `$071C`), Run and Build add a small start loader instead: `SYS 2061` copies a mover to the tape buffer (`$033C`), which puts the program in place and jumps to the first ORG. |
+| **Show memory panel** | Global toggle (**Settings → General → ASM output**) that shows or hides the full C64 memory panel |
+| **BASIC SYS stub** | (**Settings → General → Program**) Prepends a BASIC line that calls SYS to your program's origin (the first ORG). A segment placed lower than the first ORG stays at its own address. When the program loads below or across the BASIC line (`$0801`–`$080C`, for example an imported dump from `$071C`), Run and Build add a small start loader instead: `SYS 2061` copies a mover to the tape buffer (`$033C`), which puts the program in place and jumps to the first ORG. |
 | **Examples…** | Open the example browser and load a built-in example program — see [Example programs](#example-programs) |
 | **Zoom in / out** | Scale the block UI (affects all block elements) |
-| **Save Project** | Save the current program as a `.json` project file |
-| **Save Program As** | Save the current program as a `.json` project file using a new file dialog every time |
-| **Load Project** | Load a previously saved project |
+| **Save program** (`Menu → File`) | Save the current tab: a block program as a `.json` file, a source file (`.asm`, `.s`, `.inc` …) as plain text (Ctrl+S does the same) |
+| **Save Program As** (`Menu → File`) | The same, with a new file dialog every time |
+| **Load program** (`Menu → File`) | Load a previously saved program |
 | **Save Workspace** | Save the exact set of currently open, file-backed tabs — including the active tab and each tab's editor mode (Block/Expert/Ultimate Basic) — to a `.vaws` workspace file |
 | **Save Workspace As** | Save the current workspace using a new file dialog every time |
 | **Open Workspace** | Close all open tabs and reopen the set of files stored in a `.vaws` workspace file |
@@ -653,31 +687,35 @@ The modal closes automatically when the action completes or fails.
 | **Open Project** (`Menu → File`) | Open a multi-file `.proj` project and open all source files as tabs |
 | **Save Project** (`Menu → File`) | Save the current `.proj` project (project panel must be open) |
 | **Close Project** (`Menu → File`) | Close the currently open project and all its file tabs. Prompts to save unsaved changes. The project panel resets to its empty state. |
-| **Load .asm file** | Opens a `.asm` file in Expert mode and imports textual 6502 ASM into the current tab |
-| **Save PRG** | Export the compiled binary as a `.prg` file |
+| **Load .asm file** (Expert toolbar) | Opens a `.asm` file in Expert mode in a new tab |
+| **Build PRG** (`Menu → Build`) | Export the compiled binary as a `.prg` file |
+| **Build D64** (`Menu → Build`) | Package the program and extra files into a `.d64` disk image — see [Export to D64 dialog](#export-to-d64-dialog) |
 | **Build CRT** | Export the program as a 64K Magic Desk (`.crt`, cartridge type 19) file. See [Section 12b](#12b-crt-export-magic-desk-64k-cartridge). |
 | **Build project** (`Menu → Build`) | Compile every buildable file of the project (or of the open tabs) to a `.prg` next to its source — see [Build project](#build-project) |
-| **Run (split button)** | The main **▶ Run** button runs the current mode; click the **▾** arrow to switch between: **Run as PRG** (compile and launch VICE directly), **Run via D64** (package into a .d64 disk image and launch VICE), **Run on hardware** (send PRG to a C64 Ultimate / 1541 Ultimate device), or **Kung Fu Flash 2** (upload the PRG over USB to a real C64/C128 with a Kung Fu Flash 2 cartridge). See [Section 12](#12-d64-export--run) and [Section 13](#13-hardware-settings). |
-| **Debug (RetroDebugger)** | Compile and launch in RetroDebugger with breakpoints, symbols, and autostart flags (see [Section 9](#9-debugger-integration)) |
-| **Run with Exomizer** | Checkbox in the Settings menu — when enabled, all Run and Build operations crunch the PRG through `exomizer sfx` before launching or saving (`sfx basic` for a PRG that starts with a BASIC line, so RUN works again after the program returns; `sfx $<load address>` otherwise). Works with Run as PRG, Run via D64, Run on Hardware, Build PRG, and Build D64. Configure the Exomizer executable in **Hardware Settings** first. |
-| **Automatic autosave entries** | Checkbox in **Hardware Settings → Version control**. When enabled, the app adds an autosave entry to the version history about 2.5 seconds after you stop editing a tab (for a tab of a project also to the project history). Turn it off if you only want your own commits. See [Version control](#version-control). |
-| **Settings** (formerly Hardware Settings) | Open the settings dialog with three tabs: **General** (assembler mode, BASIC SYS stub, Exomizer, updates, ASM output, SID preview, debugger parameters, version control), **Files and paths** (VICE, RetroDebugger, ACME, Exomizer, git) and **Integrations** (C64 Ultimate, Kung Fu Flash 2). See [Section 13](#13-hardware-settings). |
-| **New program…** | Opens a confirmation dialog, then clears all blocks from the program area |
+| **Run (split button)** | The main **▶ Run** button runs the current mode; click the **▾** arrow to switch between: **Run as PRG** (compile and launch VICE directly), **Run via D64** (package into a .d64 disk image and launch VICE), **Run on hardware** (send PRG to a C64 Ultimate / 1541 Ultimate device), **D64 on hardware** (send a D64 to the same device), or **Kung Fu Flash 2** (upload the PRG over USB to a real C64/C128 with a Kung Fu Flash 2 cartridge). See [Section 12](#12-d64-export--run) and [Section 13](#13-settings). |
+| **Debug (RetroDebugger)** | Compile and launch in RetroDebugger with breakpoints, symbols, and autostart flags (see [Section 10](#10-debugger-integration)) |
+| **Run with Exomizer** | Checkbox in **Settings → General → Program** — when enabled, all Run and Build operations crunch the PRG through `exomizer sfx` before launching or saving (`sfx basic` for a PRG that starts with a BASIC line, so RUN works again after the program returns; `sfx $<load address>` otherwise). Works with Run as PRG, Run via D64, Run on Hardware, Build PRG, and Build D64. Configure the Exomizer executable in **Settings → Files and paths** first. |
+| **Automatic autosave entries** | Checkbox in **Settings → General → Version control**. When enabled, the app adds an autosave entry to the version history about 2.5 seconds after you stop editing a tab (for a tab of a project also to the project history). Turn it off if you only want your own commits. See [Version control](#version-control). |
+| **Settings** (formerly Hardware Settings) | Open the settings dialog with three tabs: **General** (assembler mode, VMA compiler, BASIC SYS stub, Exomizer, updates, ASM output, SID preview, debugger parameters, version control), **Files and paths** (VICE, RetroDebugger, ACME, Exomizer, git) and **Integrations** (C64 Ultimate, Kung Fu Flash 2). See [Section 13](#13-settings). |
+| **New program…** (`Menu → Program`) | Opens a confirmation dialog, then clears all blocks from the program area |
+| **Export ASM** (`Menu → Program`) | Copies the generated assembly source |
 | **Collapse All** | Collapse all blocks |
 | **About** | Version info |
 | **What's New** | Changelog |
+| **Knowledge Base** | Reference links (6502 opcodes, C64 KERNAL, memory map, colors) |
+| **Check for Update** | Check c64va.pro for a newer release and download / install it — see [In-app updates](#in-app-updates) |
 
 ### Version control
 
-Every tab has its own version history, like a small git repository; a tab that belongs to an open `.proj` project can also be versioned as a whole project (see [Project mode](#project-mode)). **Menu → Build → Version control…** (or **Commit…**) opens the dialog; **Discard changes (back to HEAD)** restores the last commit directly.
+Every tab has its own version history, like a small git repository; a tab that belongs to an open `.proj` project can also be versioned as a whole project (see [Project mode](#project-mode)). **Menu → Versioning → Version control…** (or **Commit…**) opens the dialog; **Discard changes (back to HEAD)** restores the last commit directly.
 
 The usual workflow: write a **commit message** and press **Commit** (or Ctrl+Enter) → keep editing → press **Diff** to see what changed → commit again.
 
 - **Commit** — saves the current state of the tab with your message. Every commit gets a short hash (for example `1bd55ba`); the newest one is **HEAD**. A commit with no changes since HEAD is not created.
 - **Status line** — *Nothing to commit, working tree clean* or *Uncommitted changes since `<hash>`*.
-- **Diff** — the changes since HEAD; the **Diff** button of a log entry compares that version with the editor. Added lines are green, removed lines red, and the header shows **+N / −M**. Block-mode programs are compared as assembly lines (one line per block), Expert sources line by line, Ultimate Basic tabs by their source, so a Block-mode project saved as JSON still shows readable changes.
+- **Diff** — the changes since HEAD; the **Diff** button of a log entry compares that version with the editor. Added lines are green, removed lines red, and the header shows **+N / −M**. Block-mode programs are compared as assembly lines (one line per block), Expert sources line by line, Ultimate Basic tabs by their source, so a Block-mode project saved as JSON still shows readable changes. A source file (`.asm`, `.s`, `.inc` …) is stored as its text, so a version stays a source file.
 - **Checkout** — loads that version into the editor. The file on disk only changes when you save; **Discard changes** goes back to HEAD.
-- **Autosave entries** — with **Settings → Version control → Automatic autosave entries in version control** the app adds an entry about 2.5 seconds after you stop editing. They are marked *autosave*; the last 20 are kept, next to up to 100 commits.
+- **Autosave entries** — with **Settings → General → Version control → Automatic autosave entries in version control** the app adds an entry about 2.5 seconds after you stop editing. They are marked *autosave*; the last 20 are kept, next to up to 100 commits.
 - The dialog can be moved by its header; it reopens at the same place and closes with **Esc** or its close button (a click outside does not close it).
 - The history is stored next to the project file as `<project>.snapshots.json` (in the app config folder until the project is saved), so it survives restarts. Snapshots made by earlier versions appear as commits.
 
@@ -698,15 +736,13 @@ When the tab belongs to an open `.proj` project (Expert or Ultimate Basic projec
 
 If `git` is installed, the same dialog can work with a real git repository.
 
-- **Settings → Version control:** **Choose git.exe…** or **Auto-detect** (searches the PATH and the usual install folders); the line below shows the git version. **Use Git when the project is in a repository** (on by default) switches the dialog to Git mode automatically for files inside a repository. The **Built-in / Git** switch in the dialog header changes the mode by hand.
+- **Settings → Files and paths → git** / **Settings → General → Version control:** **Choose git.exe…** or **Auto-detect** (searches the PATH and the usual install folders); the line below shows the git version. **Use Git when the project is in a repository** (on by default) switches the dialog to Git mode automatically for files inside a repository. The **Built-in / Git** switch in the dialog header changes the mode by hand.
 - The header shows the branch with **↑** (commits to push) and **↓** (commits to pull), followed by the changed files of the repository.
 - **Commit** saves the file first, stages only this file (or every change with **Stage all changes (git add -A)**) and runs `git commit`.
 - The log lists the commits of this file with their branches and tags. **Diff** on an entry compares the commit with its parent; the **Diff** button compares HEAD with the editor, unsaved changes included. Project files are compared the same way as in the built-in mode; **RAW** shows the plain `git diff`.
 - **Checkout** loads the file of that commit into the editor (`git show`) without touching the disk.
 - **Pull** (`--ff-only`), **Push** (the first push sets the upstream with `-u origin <branch>`) and **Create repository (git init)** when the folder is not a repository yet.
 - git runs without a console window and never asks for a password: credentials must come from a credential manager or an SSH key, otherwise the error message is shown in the dialog.
-| **Knowledge Base** | Reference links (6502 opcodes, C64 KERNAL, memory map, colors) |
-| **Check for Update** | Check c64va.pro for a newer release and download / install it — see [In-app updates](#in-app-updates) |
 
 ### In-app updates
 
@@ -725,7 +761,7 @@ After the download the app installs the update and restarts:
 
 If there are unsaved tabs, the app asks before closing. The same check runs quietly a few seconds after every start: nothing is shown unless a newer version exists. The result also appears in the Ultimate Basic status bar — **Up to date (vX)**, or a highlighted **Update available: vY** that opens the update dialog.
 
-**Update server:** **Settings → Updates → Update server** sets where releases are looked up (default `https://www.c64va.pro/`); the installers are read from `<server>downloads/VA/`. The address must use `https://` (plain `http://` only for `localhost`, for testing); **Default** goes back to c64va.pro.
+**Update server:** **Settings → General → Updates → Update server** sets where releases are looked up (default `https://www.c64va.pro/`); the installers are read from `<server>downloads/VA/`. The address must use `https://` (plain `http://` only for `localhost`, for testing); **Default** goes back to c64va.pro.
 
 ### Free and open source
 
@@ -841,7 +877,7 @@ The Expert-mode `.asm` loader accepts common 6502 source patterns and converts t
 
 #### Import parsing notes and best practices
 
-- Local labels like `.wait` are imported as standard labels (dot removed), and references are normalized accordingly.
+- Local labels like `.wait` keep their dot: they belong to the nearest global label above them (see [Local (dotted) labels](#local-dotted-labels)).
 - For `($zp),Y` / `($zp,X)` style addressing, use a concrete zero-page byte (`$FB`, `$FC`, etc.) for best compatibility.
 - Avoid ambiguous short labels that look like hex (`cc1`, `dead`, `beef`) in branch contexts; prefer names like `loop_cc1`.
 - If your program starts with data (`.byte`) before executable code, add an explicit entry jump (for example `JMP Start`) at the top.
@@ -876,7 +912,7 @@ Known limitation:
 
 **Import Kick project…** (Program menu, under **Kick import**) takes a whole KickAssembler source tree — a main file with `#import` modules and `.import binary` assets — and makes a VA project of it. Pick the main file (`main.asm`); VA follows every `#import` / `.import source` / `.import binary` (also inside `.if` branches that are not taken) and writes a `.proj` next to it, named after the folder (`src` / `source` / `asm` folders use the parent folder's name). The project lists every file in its folder tree; the sources stay where they are, so an existing KickAssembler build script keeps working. Files that cannot be found are listed in the error dialog.
 
-**Kick-compatible switch:** any VA (VMA) project can be made Kick-compatible with the `{K}` button in the Project panel header (shown in VMA mode while a project is open; it is on for imported Kick projects). The setting is saved in the `.proj` (`"kick": true`); off, the project is a plain VMA project and builds exactly as before.
+**Kick-compatible switch:** any VA (VMA) project can be made Kick-compatible with the **KickAssembler compatible** switch in **Project settings** (it is on for imported Kick projects). The setting is saved in the `.proj` (`"kick": true`); off, the project is a plain VMA project and builds exactly as before.
 
 In a Kick-compatible project the VA macros and directives keep working next to the KickAssembler script: `.text x, y, "…"`, `.set_border`, LOOP / NEXT, SPRITE_INIT, `.include`, `.incbin`, `.sid`, `.define` / `.if SYMBOL` / `.else` / `.endif`, VA macros (`.macro name(p)` … `.endm` with `{p}`) and the rest go to the VA assembler as they are, with the Kick constants as numbers. Directives that exist in both are told apart by their form:
 
@@ -887,7 +923,7 @@ In a Kick-compatible project the VA macros and directives keep working next to t
 | `.macro name(p)` … `.endm`, called with `.invoke` | `.macro Name(p) { … }`, called as `Name(arg)` |
 | `.var name = value` (a runtime variable) | `.var name = value` (a script variable) — in a Kick-compatible project `.var` is always the KickAssembler one |
 
-The project builds with the VA assembler, not with KickAssembler: every build (Run, Save PRG, D64, CRT, Exomizer, Debug, VICE Monitor, Build project, the Build button) first runs the startup file through a KickAssembler preprocessor, with the editor text of open tabs, saved or not. The result is the same PRG as KickAssembler's. Supported:
+The project builds with the VA assembler, not with KickAssembler: every build (Run, Build PRG, D64, CRT, Exomizer, Debug, VICE Monitor, Build project, the Build button) first runs the startup file through a KickAssembler preprocessor, with the editor text of open tabs, saved or not. The result is the same PRG as KickAssembler's. Supported:
 
 - `#import`, `.import source`, `#importonce`; `.import binary` / `c64` / `text` with optional offset and length
 - `.const` / `.label` in any order, with expressions; zero page or absolute addressing follows the value like in KickAssembler (`.abs` / `.zp` still force it)
@@ -950,7 +986,7 @@ The UB toolbar follows the same visual language and custom tooltips as Expert mo
 - Find (`Ctrl+F` / `Cmd+F`) using the Expert-style search bar;
 - source formatting with structure-aware indentation;
 - autocomplete for commands and built-in functions;
-- a searchable **Commands** panel with syntax, description, and usage guidance — descriptions follow the current UI language (Hungarian, English, Spanish, German, Dutch), falling back to English for anything not yet translated;
+- a searchable **Commands** panel with syntax, description, and usage guidance — descriptions follow the current UI language (Hungarian, English, Spanish, German, Dutch, Polish, Italian), falling back to English for anything not yet translated;
 - independently toggleable **Project** and **Commands** panels, displayed side by side when both are enabled;
 - independently toggleable and resizable **Build Output** and **Disassembly** panels.
 
@@ -1011,9 +1047,9 @@ The main split **Run** button supports Ultimate Basic in every normal destinatio
 | **Run D64 on hardware** | Package a D64 and send it to the configured C64 Ultimate. |
 | **Kung Fu Flash 2** | Compile the UB startup source and upload the PRG over USB to a real C64/C128 with a Kung Fu Flash 2 cartridge. See [Kung Fu Flash 2](#kung-fu-flash-2). |
 
-The global **Settings → Exomizer** option also applies to UB builds and normal run targets; no separate UB toolbar toggle is needed. Debugger launches deliberately use the uncompressed PRG so compiler addresses and symbols continue to match the executed program.
+The global **Run with Exomizer** option (**Settings → General → Program**) also applies to UB builds and normal run targets; no separate UB toolbar toggle is needed. Debugger launches deliberately use the uncompressed PRG so compiler addresses and symbols continue to match the executed program.
 
-Enable **Settings → Program Settings → Generate UltimateBasic ASM source (.asm)** to save the compiler-generated assembly beside a PRG or D64 build using the same base filename. This is a build option, so the UB toolbar does not contain separate ASM export buttons. A `load "NAME", $address` statement also supplies the matching D64 extra file's PRG load address.
+Enable **Settings → General → Program → Generate UltimateBasic ASM source (.asm)** to save the compiler-generated assembly beside a PRG or D64 build using the same base filename. This is a build option, so the UB toolbar does not contain separate ASM export buttons. A `load "NAME", $address` statement also supplies the matching D64 extra file's PRG load address.
 
 ### Debugger symbols and disassembly
 
@@ -1042,7 +1078,7 @@ Expert Mode is a full-featured direct-text 6502 assembly editor that lives along
 ### Switching modes
 
 - **Block → Expert:** the current program is serialised to text (one instruction per line, labels, macros as directives). Edits in Expert mode are synced back to the block array whenever you switch back or trigger an action.
-- **Expert → Block:** the text is parsed with `parseAsmText()` and the result replaces the block program. A compile-error dialog is shown if parsing fails.
+- **Expert → Block:** the text is parsed and the result replaces the block program. A compile-error dialog is shown if parsing fails.
 - **Blank lines** are preserved through round-trips: empty lines in the Expert editor appear as thin dashed spacers in Block mode and are restored as empty lines when switching back to Expert.
 
 ### Editor layout
@@ -1071,7 +1107,6 @@ Expert Mode is a full-featured direct-text 6502 assembly editor that lives along
 | **Load .asm** | `#expert-load-asm-btn` | Open a `.asm` file — the content is loaded into a **new tab** with the filename as the tab label. Each loaded file becomes an independent tab with its own program blocks and editor state. |
 | **Save .asm** | `#expert-save-asm-btn` | Save editor content to a `.asm` file (file dialog on first save) |
 | **Build Info** | `#expert-build-info-btn` | Open the Build Info dialog: origin, end, size and segment count on top, then the segments, errors (`file:line` in a Kick project) and `.print` output, and the labels, constants and macros in columns |
-| **HL** | `#expert-hl-btn` | Toggle syntax highlighting (disable for very large files) |
 | **Autocomplete** | `#expert-autocomplete-btn` | Toggle expert autocomplete suggestions on/off. When disabled, no directive, mnemonic, or label popup appears in the expert editor. |
 | **Region selection** | `#expert-region-selection-btn` | Toggle the automatic region highlight in Expert mode. The fold state stays stored, but when this is off the editor keeps the full source visible and does not auto-select the current region. |
 | **Collapse / expand all regions** | `#expert-region-fold-all-btn` | Fold or unfold every `.region` block in one click. If any region is currently open, the button collapses them all; if every region is already collapsed, the next click expands them all. The button lights up when all regions are collapsed. |
@@ -1082,6 +1117,10 @@ Expert Mode is a full-featured direct-text 6502 assembly editor that lives along
 | **Disasm** | `#expert-disasm-btn` | Show/hide the disassembly panel (pure 6502, macros expanded) |
 | **Monitor** | `#expert-monitor-btn` | Show/hide the monitor hex-dump panel |
 | **Minimap** | `#expert-minimap-btn` | Show/hide the code minimap strip on the right side of the editor |
+| **Project panel** | `#expert-project-btn` | Show/hide the project panel (files, symbols, project settings) |
+| **Cycle counts** | `#expert-cycles-btn` | Show/hide the cycle gutter — see [Cycle counts](#cycle-counts) |
+| **Go to line / Bookmarks** | `#expert-goto-line-btn`, `#expert-bookmark-*` | Ctrl+G jumps to a line; Ctrl+F2 toggles a bookmark, F2 / Shift+F2 go to the next / previous one |
+| **Build ACME** | `#expert-acme-build-btn` | In ACME mode: build the source with ACME — see [ACME mode](#acme-mode) |
 
 Editor shortcuts: `Ctrl+/` (`Cmd+/` on macOS) comments the current line or every selected line; adding `Shift` removes the leading comment marker from those lines.
 Inline comments (for example `LDA $12 ; explanation`) remain on the instruction line when switching between Expert and Block mode. Block mode shows them as a green italic `; comment` marker in the block header; hovering the marker reveals the full text when it is truncated.
@@ -1130,7 +1169,7 @@ Lines that fail to compile are highlighted in **red** (tinted background + left 
 
 ### Syntax highlight
 
-The editor uses a transparent `<div>` overlay (`expert-hl`) that mirrors the textarea content with coloured `<span>` elements. Highlight can be toggled off with the **HL** button for performance on very large programs.
+The editor uses a transparent `<div>` overlay (`expert-hl`) that mirrors the textarea content with coloured `<span>` elements.
 
 | Colour | Token |
 |--------|-------|
@@ -1162,10 +1201,10 @@ Expert mode supports a **project panel** (`#expert-project-panel`) for multi-fil
 - A `.proj` file is a JSON manifest that lists source files and their metadata.
 - Open a project with **Menu → File → Open project** or drag a `.proj` file onto the window.
 - Each file in the project opens as a separate **tab** in the tab bar at the top of the editor.
-- **Close Project** (`Menu → File → Close project` / `#menu-close-project`) closes the current project and all its file tabs at once. Prompts to save any unsaved changes before closing. The project panel resets to its empty state and `_expertProjectData` is cleared.
+- **Close Project** (`Menu → File → Close project` / `#menu-close-project`) closes the current project and all its file tabs at once. Prompts to save any unsaved changes before closing. The project panel resets to its empty state.
 - Each file can be marked as the **startup file** (★ star icon). When a startup file is set, the **Run** button (PRG, D64, Ultimate) always assembles and runs that file's code — regardless of which tab is currently active. This works in both block mode and Expert mode.
 - The toolbar's **Add** button picks one or more files at once (any type, not just `.json`/`.asm`) and references them in the project without opening them — use it for binary assets like `incbin` data. Its dialog defaults to the VA working folder. The adjacent **Add folder** button references a whole folder (e.g. an asset directory) the same way. Reference-only entries show a delete (✕) button but are not opened by clicking them.
-- **Project settings** (the gear button in the panel header, or **Menu → File → Project settings…**) shows and edits the project: name, `.proj` path, startup file, assembler (VMA or ACME), **KickAssembler compatible**, and for a Kick project the preprocessor symbols (`#define`, like KickAssembler's `-define`) and the command-line variables (`cmdLineVars`, one `name=value` per line, like `:name=value`), plus the number of source and other files, and **Expert mode only**: block mode is closed for the files of the project, whatever their size. Everything is saved in the `.proj`.
+- **Project settings** (the gear button in the panel header, or **Menu → File → Project settings…**) shows and edits the project: name, `.proj` path, startup file, assembler (VMA or ACME), **KickAssembler compatible**, and for a Kick project the preprocessor symbols (`#define`, like KickAssembler's `-define`) and the command-line variables (`cmdLineVars`, one `name=value` per line, like `:name=value`), for a VMA project its symbols (`.define`) and constants (`.const`, one `NAME=value` per line) — they come before the source the project builds, so `.if NAME` / `.if NAME == 3` switch a build without editing the source — plus the number of source and other files, and **Expert mode only**: block mode is closed for the files of the project, whatever their size. Everything is saved in the `.proj`.
 - Folders in the tree have a collapse/expand arrow, and **right-click a folder** to add one or more files nested under it (shown indented).
 - The **Save project** button disables itself and shows a "Saved" state once the project has no pending changes, and re-enables automatically the moment you add, remove, or reorganize a file or folder.
 - The **symbols** section at the bottom of the project panel can be resized vertically with the divider between the file tree and the symbols list, so long symbol lists can take more space when needed.
@@ -1180,7 +1219,7 @@ The tab bar appears above the editor when there is more than one tab open.
 | **Dirty dot** | A small accent-coloured dot on the tab name indicates unsaved changes |
 | **Scroll arrows** | Left/right scroll buttons appear when there are more tabs than fit the bar |
 | **Close (×)** | Closes the tab; prompts to save if the tab is dirty |
-| **File extension** | The full filename including extension (`.c64va`, `.json`) is shown |
+| **File extension** | The full filename including extension (`.json`, `.asm`, `.ub` …) is shown |
 | **Ctrl+N** | Opens a new, empty tab (not while a modal dialog is open) |
 | **Right-click menu** | Right-click a tab (or empty tab-bar space) for: **New tab**, **Close tab**, **Close other tabs**, **Close tabs to the right**, **Close all tabs**. Batch-close operations prompt per dirty tab and stop if you cancel. **Close all** always keeps one empty tab. |
 
@@ -1197,7 +1236,7 @@ The mode is saved with a `.proj` project, so every project opens with its own as
 
 What follows the ACME build:
 
-- **Build** (the hammer button in the Expert toolbar, *Build ACME source*), **Run** (PRG, D64, C64 Ultimate, Kung Fu Flash 2), **Save PRG**, **Build D64**, **Build CRT**, **Build project** and **Debug (RetroDebugger)** compile through ACME; ACME errors and warnings open in the normal compile-error dialog, with the source line.
+- **Build** (the hammer button in the Expert toolbar, *Build ACME source*), **Run** (PRG, D64, C64 Ultimate, Kung Fu Flash 2), **Build PRG**, **Build D64**, **Build CRT**, **Build project** and **Debug (RetroDebugger)** compile through ACME; ACME errors and warnings open in the normal compile-error dialog, with the source line.
 - After a typing pause the source is rebuilt, so the **memory map** (memory strip, segment panel, overlap warning), the **Disassembly** and **Monitor** panels and the cycle gutter show the real ACME output; the panels use the ACME labels. An overlap is an address that two source lines write (the later one wins in the PRG).
 - **Debug files** (*Generate debug files* in Settings → General) are made from the ACME label dump: `.sym` (KickAssembler style) and `.vs` (VICE labels) next to the PRG; there is no `.dbg` source map in ACME mode. **Debug (RetroDebugger)** gets the same labels, and the Expert breakpoints are placed by the ACME report (a breakpoint on a line without code stops at the next code line).
 - **Cycle counts** and **optimisation hints** come from the ACME report (`-r`) of the last build.
@@ -1218,7 +1257,7 @@ start   ldx #0
 text    !scr "hello acme", 0
 ```
 
-`samples/acme-crt-demo.asm` is a small ACME test program for Run, Build PRG / D64 and Build CRT: a message in the middle of the screen and raster colour bands in the border, without KERNAL calls, so it also runs from the cartridge.
+`samples/ACME/acme-crt-demo.asm` is a small ACME test program for Run, Build PRG / D64 and Build CRT: a message in the middle of the screen and raster colour bands in the border, without KERNAL calls, so it also runs from the cartridge.
 
 ---
 
@@ -2284,7 +2323,7 @@ Like **DIM at a specific address** — names a lookup table and sets where it li
 
 **Expert syntax:**
 ```
-.table color_table, $C000
+.table color_table $C000
 ```
 
 **Generated ASM:**
@@ -2679,7 +2718,7 @@ A `DEFINE` block can activate multiple symbols at once (comma-separated). Place 
 
 | Field | Description |
 |---|---|
-| Condition | Identifier to test (must match a `DEFINE` symbol to be active) |
+| Condition | A `.define`d symbol (active), a `.const` name (active when not zero) or a constant expression (`LEVEL == 2`); one that cannot be evaluated is an error |
 
 **Expert syntax:**
 ```
@@ -3928,24 +3967,23 @@ The app supports **RetroDebugger** as the external C64 debugger. It receives bre
 
 [RetroDebugger](https://github.com/slajerek/RetroDebugger) is a cross-platform Commodore 64 debugger with breakpoint support, memory inspection, and label-aware disassembly.
 
-**Setup:** Open **Settings → Configure RetroDebugger executable** and point it to the `RetroDebugger` binary.
+**Setup:** in **Settings → Files and paths → Retro Debugger** point to the `RetroDebugger` binary.
 
 **Launch:** Click **Debug (RetroDebugger)** in the toolbar. The app will:
 
 1. Assemble the program to a `.prg` file in a temporary directory.
-2. Write a **breakpoints file** (`breakpoints.txt`) — one `break $ADDR` per flagged block.
-3. Write a **symbols file** (`symbols.txt`) in Vice/RetroDebugger label format (`al C:addr .name`). All LABEL and CONST blocks are included.
-4. Also write C64Debugger-style sidecars next to the compiled PRG: `.dbg`, `.sym`, and `.vs`.
-5. Launch RetroDebugger with:
-   ```
-   RetroDebugger -prg <file.prg> -breakpoints <breakpoints.txt> -symbols <symbols.txt> [flags]
-   ```
+2. Write a **breakpoints file** — the address of every breakpoint block and Expert breakpoint line.
+3. Write the **symbols** in VICE / RetroDebugger label format (`al C:addr .name`): labels, constants and variables.
+4. Write the C64Debugger-style sidecars next to the PRG: `.dbg` (source map), `.sym` and `.vs`.
+5. Start RetroDebugger with the PRG, the breakpoints, the symbols and the flags below.
 
 ### Breakpoint Blocks
 
 Click the breakpoint icon (●) on any instruction block to toggle it as a breakpoint. Breakpointed blocks are highlighted in red. Their addresses are written to the breakpoints file on every debugger launch.
 
-### Debugger Flags (Options Tab)
+### Debugger flags
+
+These are in **Settings → General → RetroDebugger**.
 
 | Toggle | Flag | Effect |
 |--------|------|--------|
@@ -3957,7 +3995,7 @@ Click the breakpoint icon (●) on any instruction block to toggle it as a break
 
 ### VICE Monitor (hot reload, live watch, profiler)
 
-The **VICE Monitor** toolbar button opens a non-modal window that talks to the running VICE through its binary monitor. **Run (VICE)** starts VICE with the monitor on port 6502 (**Settings → VICE remote monitor**, on by default). Close and restart a VICE that was started another way. The header shows the connection state; *Only available in the desktop app* appears in the browser preview.
+The **VICE Monitor** toolbar button opens a non-modal window that talks to the running VICE through its binary monitor. **Run (VICE)** starts VICE with the monitor on port 6502 (**Settings → Files and paths → VICE Emulator → VICE remote monitor**, on by default). Close and restart a VICE that was started another way. The header shows the connection state; *Only available in the desktop app* appears in the browser preview.
 
 | Button | What it does |
 |---|---|
@@ -3995,11 +4033,11 @@ Quick reference links available in the app under **Knowledge Base**:
 
 ## 12. D64 Export & Run
 
-Version 1.5.1 adds the ability to package your program (and additional data files) into a C64 D64 disk image and launch it in VICE — or export the disk image for use elsewhere.
+You can package your program (and additional data files) into a C64 D64 disk image and launch it in VICE — or export the disk image for use elsewhere.
 
 ### Split Run button
 
-The toolbar **Run** button has been replaced by a **split button**:
+The toolbar **Run** button is a **split button**:
 
 | Part | Action |
 |---|---|
@@ -4012,14 +4050,15 @@ The toolbar **Run** button has been replaced by a **split button**:
 |---|---|
 | **Run as PRG** | Assemble to a temporary `.prg` and launch VICE directly. Classic behaviour. |
 | **Run via D64** | Assemble, build a `.d64` disk image (using c1541), add any configured extra files, then launch VICE from the disk. Use this whenever your program loads files at runtime (e.g. with the LOADFILE macro). |
-| **Run on hardware** | Assemble to PRG and send it to a **1541 Ultimate / Ultimate 64** device over the local network. See [Section 13](#13-hardware-settings). |
+| **Run on hardware** | Assemble to PRG and send it to a **1541 Ultimate / Ultimate 64** device over the local network. See [Section 13](#13-settings). |
+| **D64 on hardware** | Build a `.d64` (like Run via D64) and send it to the **1541 Ultimate / Ultimate 64**, which mounts and runs it. |
 | **Kung Fu Flash 2** | Assemble to PRG and upload it over USB serial to a real C64/C128 with a **Kung Fu Flash 2** cartridge. See [Kung Fu Flash 2](#kung-fu-flash-2). |
 
 The selected mode is saved between sessions.
 
 ### Export to D64 dialog
 
-Open via the **Save PRG ▾** dropdown → **Export to D64**. The dialog lets you:
+Open it with **Menu → Build → Build D64** (Run via D64 opens it too). The dialog lets you:
 
 1. Set the **disk name** (max 16 chars) and **program name** — these are the names that appear in the C64 disk directory.
 2. **Add extra files** — click **+** to pick any binary file (`.prg`, `.bin`, `.sid`, etc.). For each extra:
@@ -4037,11 +4076,11 @@ The disk name, program name, and extra file list are saved inside the project JS
 
 The **loadfile-demo** sample comes pre-configured with `DEMO-COLORS.PRG` as an extra file. Select it, open **Run via D64**, and click **Run** to see the full load flow in action.
 
-> **Requirement:** D64 export and Run via D64 both require VICE (`c1541`) to be configured in [Hardware Settings](#13-hardware-settings).
+> **Requirement:** D64 export and Run via D64 both require VICE (`c1541`) to be configured in [Settings → Files and paths](#13-settings).
 
 ### D64 Editor (browse & edit an existing disk image)
 
-The toolbar icon after the Curve Editor opens the **D64 Editor** — a standalone tool for working with an existing `.d64` image directly, independent of the currently open program. Unlike the Export to D64 dialog above (which always builds a *new* disk from the compiled PRG), the D64 Editor edits a disk image in place via `c1541`, so it doubles as a lightweight disk manager.
+The toolbar icon after the Table Generator opens the **D64 Editor** — a standalone tool for working with an existing `.d64` image directly, independent of the currently open program. Unlike the Export to D64 dialog above (which always builds a *new* disk from the compiled PRG), the D64 Editor edits a disk image in place via `c1541`, so it doubles as a lightweight disk manager.
 
 **Files ▾ menu:**
 
@@ -4075,13 +4114,13 @@ The directory listing renders filenames in the same font and uppercase style as 
 
 **Block editor:** the toolbar's grid icon switches to a raw track/sector view below the directory — a clickable block map colored by the BAM's free/used bitmap (with the BAM and directory chain marked separately), a per-byte hex grid for the selected 256-byte block, and Prev/Next sector navigation. Block edits go through the same working-copy/Save workflow as the directory actions above.
 
-> **Requirement:** like Export to D64, the D64 Editor requires VICE (`c1541`) configured in [Hardware Settings](#13-hardware-settings).
+> **Requirement:** like Export to D64, the D64 Editor requires VICE (`c1541`) configured in [Settings → Files and paths](#13-settings).
 
 ---
 
 ## 12b. CRT Export (Magic Desk 64K cartridge)
 
-**Menu → Build → Build CRT** produces a Commodore 64 cartridge image (`.crt`, **cartridge type 19 — Magic Desk / Domark / HES Australia**) that runs on VICE, TheC64, real hardware via EasyFlash / Kung Fu Flash, and 1541 Ultimate II+ cartridge slots. It is available in both **block mode** and **Expert mode**, and — as of the current build — in **UltimateBasic mode** as well.
+**Menu → Build → Build CRT** produces a Commodore 64 cartridge image (`.crt`, **cartridge type 19 — Magic Desk / Domark / HES Australia**) that runs on VICE, TheC64, real hardware via EasyFlash / Kung Fu Flash, and 1541 Ultimate II+ cartridge slots. It is available in **block mode**, **Expert mode** and **UltimateBasic mode**.
 
 ### What ships in the cart
 
@@ -4104,7 +4143,7 @@ The origin address you see in the ASM output is preserved; the loader simply cop
 
 ### Size limit
 
-Because the payload is stored linearly and `assembleProgramToPrg()` returns a flat `minAddr..maxAddr` buffer with zero-filled gaps, a program with widely spaced ORG segments (e.g. `$0801` + `$C000` + `$E000`) counts every byte in between toward the 65 408-byte budget. If you exceed the limit the build aborts with a `saveCrtTooLarge` error — either compress the memory layout or split the data.
+Because the payload is stored linearly — one flat image from the lowest to the highest address, with zero-filled gaps — a program with widely spaced ORG segments (e.g. `$0801` + `$C000` + `$E000`) counts every byte in between toward the 65 408-byte budget. If you exceed the limit the build aborts with an error — either compress the memory layout or split the data.
 
 > **⚠️ Prominent caveat — read before shipping a CRT**
 >
@@ -4130,9 +4169,19 @@ Because the payload is stored linearly and `assembleProgramToPrg()` returns a fl
 
 ---
 
-## 13. Hardware Settings
+## 13. Settings
 
-Open via **Menu → Settings…** (formerly *Hardware Settings*). The dialog has three tabs: **General** (assembler mode, BASIC SYS stub, Run with Exomizer, updates, ASM output, SID preview, C64 Debugger parameters, snapshots / version control), **Files and paths** (VICE, RetroDebugger, ACME, Exomizer, git) and **Integrations** (C64 Ultimate, Kung Fu Flash 2). The sections below describe the external tools and devices.
+Open via **Menu → Settings…** (formerly *Hardware Settings*). The dialog has three tabs: **General** (assembler mode, VMA compiler, BASIC SYS stub, Run with Exomizer, updates, ASM output, SID preview, C64 Debugger parameters, snapshots / version control), **Files and paths** (VICE, RetroDebugger, ACME, Exomizer, git) and **Integrations** (C64 Ultimate, Kung Fu Flash 2). The sections below describe the external tools and devices.
+
+### VMA compiler
+
+**Settings → General → Program → VMA compiler** chooses the engine that builds VMA (and Kick project) sources:
+
+- **JavaScript** — the built-in compiler, the default.
+- **Rust** — the open-source [VMA compiler](https://github.com/zstarczali/VMA) inside the app. It gives the same bytes, memory view, segments and error messages as the JavaScript one.
+- **Rust + JavaScript check** — builds with JavaScript and with Rust, uses the JavaScript result and logs any difference (bytes, memory view, errors) to the error log, which the bug report sends along.
+
+The compiling dialog names the engine in use. The VMA version is shown in the About box.
 
 ### VICE Emulator
 
@@ -4156,8 +4205,8 @@ VICE is required for **Run as PRG**, **Run via D64**, and **Export to D64**.
 1. Install the Exomizer binary:
    - **Windows:** download the pre-built `win32/exomizer.exe` from https://bitbucket.org/magli143/exomizer/wiki/Home or https://csdb.dk/release/?id=244342.
    - **macOS:** `brew install exomizer` (installs Magnus Lind's official 3.1.2 build).
-2. Configure the path in **Hardware Settings → Exomizer section**.
-3. Enable the **Run with Exomizer** checkbox in the **Settings menu**.
+2. Configure the path in **Settings → Files and paths → Exomizer**.
+3. Enable the **Run with Exomizer** checkbox in **Settings → General → Program**.
 4. All **Run** actions (PRG, D64, hardware) and **Build** actions (Build PRG, Build D64) will now crunch the assembled program through `exomizer sfx` before launching or saving: `sfx basic` when the PRG starts with a BASIC line (after decrunching, RUN starts the original `SYS` line, so a second RUN works too), `sfx $<load address>` otherwise.
 
 Exomizer works the same way on Windows and macOS — the CLI is invoked from the Tauri backend; nothing about the integration is platform-specific.
@@ -4171,7 +4220,6 @@ Exomizer works the same way on Windows and macOS — the CLI is invoked from the
 
 > **Tip:** If the Exomizer path is not configured but the checkbox is enabled, a clear error toast is shown instead of launching. Disable the checkbox to run without compression.
 
-> **Integration test:** `cargo test --test exomizer_integration` (in `src-tauri/`) verifies the full mem-mode compression + decompression roundtrip on a 6502 emulator.
 
 ### Retro Debugger
 
@@ -4180,7 +4228,7 @@ Exomizer works the same way on Windows and macOS — the CLI is invoked from the
 | **Select RetroDebugger** | Browse to the `RetroDebugger` binary |
 | **Status** | Shows whether the path is valid |
 
-See [Section 9](#9-debugger-integration) for full debugger documentation.
+See [Section 10](#10-debugger-integration) for full debugger documentation.
 
 ### C64 Ultimate / 1541 Ultimate
 
@@ -4190,11 +4238,10 @@ Run assembled PRGs directly on real hardware over the local network using the Ul
 |---|---|
 | **Host (IP)** | IP address of the device (e.g. `192.168.1.100`) |
 | **Password** | Optional — if the device requires authentication |
-| **Test connection** | Sends a test request to `/v3/runners/info`; shows OK or error |
 
 **Workflow:**
 1. Connect the 1541 Ultimate / Ultimate 64 to your local network.
-2. Enter its IP address (and password if set) in Hardware Settings.
+2. Enter its IP address (and password if set) in **Settings → Integrations → C64 Ultimate**.
 3. Select **Run on hardware** from the split run menu.
 4. Click **▶ Run** — the PRG is compiled and sent to the device via HTTP POST to `/v3/runners/prg`. The device loads and runs it on the C64 immediately.
 
@@ -4215,7 +4262,7 @@ Run assembled programs on a **real Commodore 64 or C128** — no disk drive, dis
 
 **Workflow:**
 1. Fit the Kung Fu Flash 2 into the C64's cartridge port, power the computer on and plug the USB cable into your PC/Mac.
-2. Open **Hardware Settings** and check the **Kung Fu Flash 2** section — the port should already be filled in.
+2. Open **Settings → Integrations** and check the **Kung Fu Flash 2** section — the port should already be filled in.
 3. Select **Kung Fu Flash 2** from the split run menu (the choice is remembered, and is also stored in project files).
 4. Click **▶ Run**. The program is compiled, the cartridge is restarted into its MENU loader (a short 1200-baud "touch" of the serial port), a small handshake follows and the PRG is uploaded. When the transfer completes, the program is running on the real machine.
 
@@ -4225,11 +4272,9 @@ Works from **Block**, **Expert** and **Ultimate Basic** mode alike; Ultimate Bas
 
 > **Tip:** if you prefer a cartridge image instead of a live upload, **Build CRT** (Magic Desk 64K) also runs on the Kung Fu Flash — see [Section 12b](#12b-crt-export-magic-desk-64k-cartridge).
 
----
-
----
-
 ### Version control (git)
+
+**Settings → General → Version control** and **Settings → Files and paths → git**:
 
 | Setting | Description |
 |---|---|
@@ -4241,7 +4286,7 @@ Works from **Block**, **Expert** and **Ultimate Basic** mode alike; Ultimate Bas
 
 ## 14. Visual Editors (Toolkit)
 
-The toolbar **Toolkit** menu groups the visual data editors that all share a common Files menu (`Files ▾`) for Load BIN / Save BIN / Export to blocks / Save to D64. Each editor produces raw `.bin` data that can be placed in a program with `INCBIN`, or directly added to a D64 disk via the **Save to D64** entry.
+The visual editors open with their own toolbar buttons. Each has a **Files ▾** menu to load and save its data (mostly raw `.bin`) and to put it into the program (**Export to blocks**); a `.bin` goes into a program with `INCBIN`. The Hi-Res editor can also save straight to a D64 disk (**Save to D64…**).
 
 **Colour palette:** **Settings → General → Editors → C64 colour palette** chooses the RGB values every editor draws the 16 C64 colours with (sprite, character, Charset Canvas, Hi-Res, map and level editor, Toolkit swatches). The default is **Colodore**, the closest to a real C64 on a composite / S-Video display; **Pepto** (the darker, less saturated palette of older versions), **VICE**, **Deekay** and **C64 Wiki / Godot** are also available. Only the display changes — the colour indexes in your data stay the same. The Hi-Res image import uses the editor palette too, unless you pick another one there.
 
@@ -4251,7 +4296,7 @@ Visual-editor dialogs can be dragged by their headers across the full Visual Ass
 
 ### Hi-Res / Multicolor Editor
 
-Pixel-level bitmap editor with both 320×200 hi-res and 160×200 multicolor modes. Open via Toolkit → Hi-Res Editor.
+Pixel-level bitmap editor with both 320×200 hi-res and 160×200 multicolor modes. Open it with the Hi-Res Editor toolbar button.
 
 | Feature | Description |
 |---|---|
@@ -4274,7 +4319,7 @@ Pixel-level bitmap editor with both 320×200 hi-res and 160×200 multicolor mode
 
 ### Sprite Editor
 
-24×21 pixel sprite editor with multi-frame animation. Open via Toolkit → Sprite Editor.
+24×21 pixel sprite editor with multi-frame animation. Open it with the Sprite Editor toolbar button.
 
 | Feature | Description |
 |---|---|
@@ -4299,7 +4344,7 @@ Pixel-level bitmap editor with both 320×200 hi-res and 160×200 multicolor mode
 
 ### C64 Character ROM Browser ("Char map")
 
-Read-only viewer of the C64 character ROM (the built-in PETSCII font). Open via the **C64 chargen** entry in the Toolkit menu. Useful for finding the screen-code of a glyph before writing it with `RAWBYTES` or `TEXT`.
+Read-only viewer of the C64 character ROM (the built-in PETSCII font). Open it with the **C64 chargen** toolbar button. Useful for finding the screen-code of a glyph before writing it with `RAWBYTES` or `TEXT`.
 
 | Feature | Description |
 |---|---|
@@ -4310,7 +4355,7 @@ Read-only viewer of the C64 character ROM (the built-in PETSCII font). Open via 
 
 ### Character Editor (Charset)
 
-256-character 8×8 charset editor. Open via Toolkit → Character Editor.
+256-character 8×8 charset editor. Open it with the Character Editor toolbar button.
 
 | Feature | Description |
 |---|---|
@@ -4331,7 +4376,7 @@ Read-only viewer of the C64 character ROM (the built-in PETSCII font). Open via 
 
 ### Charset Canvas Editor
 
-Full-canvas charset painter for building screens from a complete 256-character charset. Open via Toolkit → Charset Canvas.
+Full-canvas charset painter for building screens from a complete 256-character charset. Open it with the Charset Canvas toolbar button.
 
 The canvas is 16×16 characters, 128×128 pixels. In multicolor character mode every character is either multicolor (wide pixels, 4 colours) or hi-res (8 narrow pixels, 2 colours), exactly like on the C64.
 
@@ -4356,7 +4401,7 @@ The canvas is 16×16 characters, 128×128 pixels. In multicolor character mode e
 
 ### Map Editor (Multilayer Tilemaps)
 
-Layered tilemap editor for static scenery, sprite spawn maps, collision data, and similar. Open via Toolkit → Map Editor.
+Layered tilemap editor for static scenery, sprite spawn maps, collision data, and similar. Open it with the Map Editor toolbar button.
 
 | Feature | Description |
 |---|---|
@@ -4371,7 +4416,7 @@ Layered tilemap editor for static scenery, sprite spawn maps, collision data, an
 | Custom charset colors | When a charset carries `charColors` metadata, the Map Editor uses the selected tile's default Color RAM value while painting. |
 | Export blocks | Emits RAWBYTES blocks for tileset graphics + map data. |
 | Save Screen RAM (.bin)… | Saves only the screen codes for the current map layer (40×25 = 1000 bytes). |
-| Save Screen RAM + Color RAM (.bin)… | Saves screen codes concatenated with Color RAM values as a single 2000-byte file (`screen[0..999]` followed by `color[0..999]`). Use this with the **MAP_COPY** macro (Combined .bin mode) to restore both screen and color in one operation at runtime. |
+| Save Screen RAM + Color RAM (.bin)… | Saves screen codes concatenated with Color RAM values as a single 2000-byte file (`screen[0..999]` followed by `color[0..999]`). Use this with the **MAP_COPY** macro (`auto` as the colour source) to restore both screen and color in one operation at runtime. |
 
 ### Level Editor
 
@@ -4404,9 +4449,9 @@ Arranges **Map Editor screens** into one level — a vertical shooter, a car gam
 
 ### SID Editor (3-Voice Tracker)
 
-Multi-instrument 3-voice tracker. Open via Toolkit → SID Editor. **Play: All** runs the exported 6502 player in the WebSid emulator; every other preview (instrument Preview, virtual keyboard, note entry, chord / arpeggio, row and single-pattern playback) also plays on the emulated SID: a JS model of the same player (frame for frame) streams its SID registers to WebSid every frame, and up to three preview notes share the three voices. The stream player is loaded when the editor opens and again after Stop, so notes sound at once; without WebSid a small SID synthesizer plays instead.
+Multi-instrument 3-voice tracker. Open it with the SID Editor toolbar button. **Play: All** runs the exported 6502 player in the WebSid emulator; every other preview (instrument Preview, virtual keyboard, note entry, chord / arpeggio, row and single-pattern playback) also plays on the emulated SID: a JS model of the same player (frame for frame) streams its SID registers to WebSid every frame, and up to three preview notes share the three voices. The stream player is loaded when the editor opens and again after Stop, so notes sound at once; without WebSid a small SID synthesizer plays instead.
 
-**Preview engine:** **Settings → SID preview** selects **WebSID** or **VA SID Core (Rust)**, the app's own SID emulation; with VA SID Core you also choose the chip (MOS 6581 / 8580). The editor's header shows the engine in use (e.g. *· VA SID Core v1.2 (MOS 8580)*). The instrument parameters are set with knobs.
+**Preview engine:** **Settings → General → SID preview** selects **WebSID** or **VA SID Core (Rust)**, the app's own SID emulation; with VA SID Core you also choose the chip (MOS 6581 / 8580). The editor's header shows the engine in use (e.g. *· VA SID Core v1.2 (MOS 8580)*). The instrument parameters are set with knobs.
 
 **Per-instrument controls:**
 - Waveform checkboxes (TRI / SAW / PUL / NOI) — multiple waveforms are ANDed like on the SID — plus **RING** (ring modulation of the triangle by the previous voice: 1 ← 3, 2 ← 1, 3 ← 2) and **SYNC** (hard sync to the previous voice).
@@ -4451,7 +4496,7 @@ Effects update once per row (matching the exported player's timing), run identic
 
 **Playback and virtual keyboard:**
 - The Play toolbar button changes to Pause during playback and to Resume while paused; Stop ends playback and resets the state.
-- The **LCD** at the end of the tracker toolbar shows the song position (POS), pattern (PAT), row (ROW) and play time (TIME) during playback, and the edit position when stopped. **Settings → SID preview → LCD colour** makes it green or red.
+- The **LCD** at the end of the tracker toolbar shows the song position (POS), pattern (PAT), row (ROW) and play time (TIME) during playback, and the edit position when stopped. **Settings → General → SID preview → LCD colour** makes it green or red.
 - The keyboard toolbar button opens **VA-VK**, a non-modal piano (2, 3 or 4 octaves; position, open state, octave and *Insert into tracker* are remembered) with its own **Play / Stop** buttons that remains usable while the SID editor is active. Drag its header to place it anywhere over the main application.
 - The **Instrument** knob on VA-VK (drag, mouse wheel or arrow keys) selects the instrument, shown with its number and name on the LCD next to it; it follows the instrument list of the editor. The badge next to the VA-VK title shows the SID emulation in use (WebSID, or VA SID Core with the chip model).
 - Enable **Insert into tracker** to write each played note at the current tracker cursor and advance to the next row. Disable it to audition notes without editing.
@@ -4507,7 +4552,7 @@ The **SID Player** toolbar button opens a floating window that plays `.sid` musi
 - **Seek:** the position bar and **Back / Forward 10 s** work with the VA SID Core engine. WebSID cannot seek, so these controls are disabled with it.
 - **Volume:** the knob is shared with the SID Editor's master volume.
 - **Buffer:** **Settings → General → SID preview → SID Player buffer** (2048, 4096, 8192 or 16384 samples). A larger buffer stops the crackle while the app is busy. WebSID uses the new size after a restart; VA SID Core renders 10 / 15 / 20 / 30 s ahead from the next tune on.
-- **Engine:** the window shows which engine is playing (WebSID, or VA SID Core with its version and SID chip); choose it in **Settings → SID preview**. VA SID Core runs the tune on a native Rust C64 core with a cycle-exact 6510, precise interrupt timing, CIA 6526A, VIC-II timing with bad lines, sprite DMA and raster interrupts, and the 6510 I/O port — so raster-IRQ, CIA-timed and digi tunes play with the timing of a real machine.
+- **Engine:** the window shows which engine is playing (WebSID, or VA SID Core with its version and SID chip); choose it in **Settings → General → SID preview**. VA SID Core runs the tune on a native Rust C64 core with a cycle-exact 6510, precise interrupt timing, CIA 6526A, VIC-II timing with bad lines, sprite DMA and raster interrupts, and the 6510 I/O port — so raster-IRQ, CIA-timed and digi tunes play with the timing of a real machine.
 - **Shuffle:** the shuffle button next to **Next** plays the playlist in random order — no tune repeats until every tune has played, and **Previous** steps back along the random order. The setting is remembered.
 - **Favourites:** the ☆ / ★ in each row marks a tune; it is kept in the saved state and in `.sidpl` playlists.
 
@@ -4595,7 +4640,7 @@ Values above 255 become a **lo / hi table pair** (`label_lo`, `label_hi`) or a `
 
 ### Number Converter
 
-A small **non-modal** DEC / HEX / BIN converter, opened with the toolbar button next to the D64 Editor (click again or press Esc to close). The button stays highlighted while the converter is shown. It stays open while you keep editing the program in any mode.
+A small **non-modal** DEC / HEX / BIN converter, opened with the toolbar button next to the SID Player (click again or press Esc to close). The button stays highlighted while the converter is shown. It stays open while you keep editing the program in any mode.
 
 - Type into any of the **DEC**, **HEX** or **BIN** fields and the other two follow. Prefixes `$`, `0x`, `%`, `0b` and separators (space, `_`) are accepted; a negative decimal becomes two's complement in the current width; invalid input is marked red.
 - **8 / 16 bit** width — a value above 255 switches to 16 bit automatically.

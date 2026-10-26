@@ -34,12 +34,22 @@ fn main() {
     println!("cargo:rerun-if-changed=icons/icon.png");
     let lock = std::fs::read_to_string("Cargo.lock").unwrap_or_default();
     let mut in_ub = false;
+    let mut in_vma = false;
     let mut ub_version = "unknown".to_string();
+    let mut vma_version = "unknown".to_string();
     let mut ub_revision = String::new();
     for line in lock.lines() {
         let trimmed = line.trim();
         if trimmed == "[[package]]" {
             in_ub = false;
+            in_vma = false;
+        }
+        if trimmed == "name = \"vma\"" {
+            in_vma = true;
+            continue;
+        }
+        if in_vma && trimmed.starts_with("version = \"") {
+            vma_version = trimmed.trim_start_matches("version = \"").trim_end_matches('"').to_string();
         }
         if trimmed == "name = \"ultimate-basic\"" {
             in_ub = true;
@@ -61,6 +71,7 @@ fn main() {
         }
     }
     println!("cargo:rustc-env=ULTIMATE_BASIC_VERSION={ub_version}");
+    println!("cargo:rustc-env=VMA_VERSION={vma_version}");
 
     let cargo_home = std::env::var_os("CARGO_HOME")
         .map(PathBuf::from)

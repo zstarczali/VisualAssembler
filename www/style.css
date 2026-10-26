@@ -4834,6 +4834,17 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
   tab-size: 4;
 }
 
+/* ACME: the last build's output while the source has changed (_acmeRenderPanel) */
+.expert-disasm-output.is-stale,
+.expert-monitor-output.is-stale {
+  opacity: 0.55;
+}
+
+/* A long disassembly in chunks (_setDisasmLines): off-screen chunks are not laid out */
+.dsm-chunk {
+  content-visibility: auto;
+}
+
 /* ── Expert Project Panel ────────────────────────────────── */
 .expert-project-panel {
   width: 220px;
@@ -4844,7 +4855,9 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
   overflow: visible;
   background: color-mix(in srgb, var(--panel-strong) 40%, transparent);
   position: relative;
-  z-index: 2;
+  /* above the editor's own layers (line numbers 2 … find bar 20): its header tooltips reach over
+     the editor and were painted under the line numbers */
+  z-index: 21;
 }
 
 .expert-project-panel[hidden] { display: none; }
@@ -4924,7 +4937,11 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
   content: attr(aria-label);
   position: absolute;
   top: calc(100% + 6px);
-  right: 0;
+  /* the project panels sit at the left edge: grown to the right (over the editor), a long text
+     was cut off at the panel's left edge */
+  left: 0;
+  width: max-content;
+  max-width: 260px;
   padding: 4px 8px;
   border-radius: 3px;
   background: var(--panel);
@@ -4932,10 +4949,10 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
   border: 1px solid var(--panel-border);
   font-size: 0.72rem;
   line-height: 1.2;
-  white-space: nowrap;
+  white-space: normal;
   pointer-events: none;
   opacity: 0;
-  transform-origin: top right;
+  transform-origin: top left;
   transition: opacity 0.12s ease 0.35s;
   z-index: 9998;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
@@ -5383,18 +5400,19 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
 
 /* ── Compile Error Dialog ──────────────────────────────────────── */
 .confirm-dialog {
-  border: none;
-  border-radius: 3px;
+  /* the About box frame */
+  border: 1px solid color-mix(in srgb, var(--text) 22%, var(--panel));
+  border-radius: 4px;
   padding: 0;
   background: var(--panel);
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 24px 64px color-mix(in srgb, black 30%, transparent);
   min-width: 320px;
   max-width: 420px;
   width: 90vw;
 }
 
 .confirm-dialog::backdrop {
-  background: rgba(0, 0, 0, 0.5);
+  background: color-mix(in srgb, black 55%, transparent);
   -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
 }
@@ -5420,29 +5438,31 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
 }
 
 .compile-error-dialog {
-  border: 1px solid var(--panel-border);
-  border-radius: 3px;
+  /* the About box frame */
+  border: 1px solid color-mix(in srgb, var(--text) 22%, var(--panel));
+  border-radius: 4px;
   padding: 0;
   background: var(--panel);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.30);
+  box-shadow: 0 24px 64px color-mix(in srgb, black 30%, transparent);
   min-width: 300px;
   max-width: 720px;
   width: 88vw;
 }
 
 .app-confirm-dialog {
-  border: none;
-  border-radius: 3px;
+  /* the About box frame */
+  border: 1px solid color-mix(in srgb, var(--text) 22%, var(--panel));
+  border-radius: 4px;
   padding: 0;
   background: var(--panel);
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 24px 64px color-mix(in srgb, black 30%, transparent);
   min-width: 300px;
   max-width: 420px;
   width: 90vw;
 }
 
 .app-confirm-dialog::backdrop {
-  background: rgba(0, 0, 0, 0.45);
+  background: color-mix(in srgb, black 55%, transparent);
   -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
 }
@@ -5532,7 +5552,7 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
 .update-progress-text { font-size: 0.8rem; color: var(--secondary); }
 
 .compile-error-dialog::backdrop {
-  background: rgba(0, 0, 0, 0.5);
+  background: color-mix(in srgb, black 55%, transparent);
   -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
 }
@@ -5608,11 +5628,12 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
 
 /* ── Build info dialog ────────────────────────────────────────────────────── */
 .build-info-dialog {
-  border: none;
+  /* the About box frame */
+  border: 1px solid color-mix(in srgb, var(--text) 22%, var(--panel));
   border-radius: 4px;
   padding: 0;
   background: var(--panel);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 24px 64px color-mix(in srgb, black 30%, transparent);
   min-width: 360px;
   max-width: 1100px;
   width: 92vw;
@@ -5658,6 +5679,29 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
   letter-spacing: 0;
 }
 /* summary: one row of stat tiles */
+/* The source file the Build info describes (_buildInfoSourcePath) */
+.build-info-path {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 0 0 10px;
+  min-width: 0;
+}
+.build-info-path-key {
+  flex: none;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.build-info-path-val {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 0.78rem;
+  color: var(--text);
+}
+
 .build-info-stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -6053,11 +6097,12 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
 }
 
 .work-progress-dialog {
-  border: none;
-  border-radius: 3px;
+  /* the About box frame */
+  border: 1px solid color-mix(in srgb, var(--text) 22%, var(--panel));
+  border-radius: 4px;
   padding: 0;
   background: var(--panel);
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 24px 64px color-mix(in srgb, black 30%, transparent);
   min-width: 340px;
   max-width: 420px;
   width: 88vw;
@@ -6080,6 +6125,18 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
   margin: 0;
   color: var(--muted);
   font-size: 0.9rem;
+}
+
+/* What the build / run is doing right now (setWorkStep): one line under the bar */
+.work-progress-step {
+  margin: 0;
+  min-height: 1.35em;
+  color: var(--muted);
+  font-family: 'JetBrains Mono', 'Fira Mono', 'Cascadia Code', 'Consolas', monospace;
+  font-size: 0.74rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .work-progress-bar-wrap {
@@ -6113,11 +6170,12 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
 
 /* ── D64 Export Dialog ────────────────────────────────────────────── */
 .d64-export-dialog {
-  border: none;
-  border-radius: 3px;
+  /* the About box frame */
+  border: 1px solid color-mix(in srgb, var(--text) 22%, var(--panel));
+  border-radius: 4px;
   padding: 0;
   background: var(--panel);
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 24px 64px color-mix(in srgb, black 30%, transparent);
   min-width: 480px;
   max-width: 720px;
   width: 90vw;
@@ -6408,7 +6466,7 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
 [data-theme="light"] .splash-panel,
 [data-theme="starlight"] .splash-panel,
 [data-theme="beige"] .splash-panel,
-:is([data-theme="light"], [data-theme="starlight"], [data-theme="beige"]) :is(.whats-new-dialog, .update-dialog, .knowledge-base-dialog, .hardware-settings-dialog, .pal-ed-dialog) {
+:is([data-theme="light"], [data-theme="starlight"], [data-theme="beige"]) :is(.whats-new-dialog, .update-dialog, .knowledge-base-dialog, .hardware-settings-dialog, .pal-ed-dialog, .compile-error-dialog, .app-confirm-dialog, .confirm-dialog, .build-info-dialog, .work-progress-dialog, .d64-export-dialog) {
   border-color: color-mix(in srgb, var(--text) 45%, var(--panel));
 }
 
@@ -6492,8 +6550,30 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
   font-weight: 600;
 }
 
-#about-ub-version {
+/* the two compiler versions: the same font, size and weight */
+#about-ub-version,
+#about-vma-version {
   font-weight: 400;
+}
+
+/* Ultimate Basic and VMA side by side, each with its repository link */
+.about-compilers {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+}
+.about-compiler {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.about-compiler .about-repo a {
+  overflow-wrap: anywhere;
 }
 
 .about-ub-banner {
@@ -12050,7 +12130,7 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 dialog, .customer-message-card { -webkit-user-select: none; user-select: none; }
 dialog img, dialog a, .customer-message-card img, .customer-message-card a { -webkit-user-drag: none; user-drag: none; }
 :is(dialog, .customer-message-card) :is(input, textarea, select, [contenteditable]),
-dialog :is(.compile-error-list, #build-info-content, .vc-output, .vc-diff-body, .template-preview,
+dialog :is(.compile-error-list, .vc-output, .vc-diff-body, .template-preview,
   #bug-sysinfo-preview, .support-msg-text, .tg-preview, .ce-asm-out, .vm-prof-out) { -webkit-user-select: text; user-select: text; }
 
 

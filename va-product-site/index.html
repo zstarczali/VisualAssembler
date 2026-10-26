@@ -2132,6 +2132,20 @@
     @media (max-width: 760px) {
       .studio-news-images { grid-template-columns: 1fr }
     }
+    .dc-release-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: start;
+    }
+    .dc-release-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px }
+    .dc-release-note { margin-top: 16px; font-size: 12px; line-height: 1.6; color: var(--txt) }
+    .dc-shots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px }
+    .dc-shots img, .dc-release-grid .kff2-cart-shot img { image-rendering: pixelated }
+    .dc-shots .kff2-cart-shot { box-shadow: none }
+    @media (max-width: 900px) {
+      .dc-release-grid { grid-template-columns: 1fr }
+    }
   </style>
 </head>
 
@@ -2157,6 +2171,8 @@
       <a class="nav-link" href="#docs">DOCS</a>
       <a class="nav-link" href="#merch">MERCH</a>
       <a class="nav-link nav-dl" href="#download">DOWNLOAD</a>
+      <!-- hidden: direct link index.html#darkchambers to the Dark Chambers release -->
+      <a class="nav-link" href="#darkchambers" style="display:none" aria-hidden="true" tabindex="-1">DARKCHAMBERS</a>
     </div>
   </nav>
 
@@ -2176,7 +2192,7 @@
       </div>
     </div>
     <div class="hero-left">
-      <div class="badge">V2.6.6 — LATEST RELEASE</div>
+      <div class="badge">V2.6.7 — LATEST RELEASE</div>
       <h1 class="hero-title">WRITE C64 PROGRAMS<br><span>BLOCKS, MACRO-ASM OR ULTIMATE BASIC.</span></h1>
       <p class="hero-tagline">&ldquo;The best all-in-one, multiplatform Commodore 64 IDE.&rdquo;</p>
       <p class="hero-sub">A modern Commodore 64 IDE: drag-and-drop 6502 assembly blocks or switch to a full text editor
@@ -2190,6 +2206,60 @@
       <span class="hero-logo"><img class="hero-box-img" src="uploads/visual_assembler_transparent.webp" alt="Visual Assembler logo" width="900" height="900"><img class="hero-logo-shine" src="uploads/visual_assembler_transparent.webp" alt="" aria-hidden="true" width="900" height="900"></span>
     </div>
   </section>
+
+  <!-- STUDIO NEWS: DARK CHAMBERS RELEASED -->
+  <section id="darkchambers" style="background:var(--scr-darker);padding:80px 0" aria-labelledby="dark-chambers-release-title">
+    <div class="sec" style="padding-top:0;padding-bottom:0">
+      <div class="ub-tag">STUDIO NEWS &middot; <time datetime="2026-10-25">25 OCTOBER 2026</time></div>
+      <div class="sec-s">// OUT NOW &mdash; PORTED WITH VISUAL ASSEMBLER (VMA)</div>
+      <h2 class="sec-t" id="dark-chambers-release-title">DARK CHAMBERS<br><span style="color:var(--ylw)">IS OUT ON THE C64</span></h2>
+      <div class="dc-release-grid">
+        <div>
+          <p class="sec-d"><strong>Cool Valley Game Studio</strong>&rsquo;s Commodore 64 port of the Atari 7800 classic <strong>Dark Chambers</strong> is finished, ported with the help of <strong>Visual Assembler (VMA)</strong>. Fight your way down through 26 levels of monster-filled dungeons, alone or with a friend, then grab the disk image and play it on a real C64 or in an emulator.</p>
+          <div class="feature-list">
+            <div class="fi">
+              <div class="fi-dot">&#9658;</div>
+              <div><b>26 levels:</b> <span>the 7800 mazes, monsters, generators and treasures, levels A to Z.</span></div>
+            </div>
+            <div class="fi">
+              <div class="fi-dot">&#9658;</div>
+              <div><b>One or two players:</b> <span>joysticks in port 2 and port 1, with four difficulty settings.</span></div>
+            </div>
+            <div class="fi">
+              <div class="fi-dot">&#9658;</div>
+              <div><b>The full package:</b> <span>title music, SID sound effects, high score, demo mode and a loading picture.</span></div>
+            </div>
+            <div class="fi">
+              <div class="fi-dot">&#9658;</div>
+              <div><b>How to play:</b> <span>fire shoots, <b>SPACE</b> drops a smart bomb (player 2: <b>RETURN</b>).</span></div>
+            </div>
+            <div class="fi">
+              <div class="fi-dot">&#9658;</div>
+              <div><b>New in version 1.1:</b> <span>smoother sprites when lots of monsters crowd the screen (no more random flicker), and the demo now plays the sound effects.</span></div>
+            </div>
+          </div>
+          <div class="dc-release-actions">
+            <a class="btn btn-y" href="downloads/games/darkchambers.d64" download="darkchambers-v1.1.d64">&darr; DOWNLOAD DARK CHAMBERS V1.1 (D64)</a>
+          </div>
+          <p class="dc-release-note">Version 1.1 &middot; PAL Commodore 64 &middot; <b>LOAD"*",8,1</b> then <b>RUN</b> &middot; Original game &copy; 1988 Atari Corp.</p>
+        </div>
+        <div>
+          <div class="kff2-cart-shot">
+            <img src="uploads/dark-chambers-title.png" alt="Dark Chambers title screen on the Commodore 64" width="384" height="272" loading="lazy">
+          </div>
+          <div class="dc-shots">
+            <div class="kff2-cart-shot"><img src="uploads/dark-chambers-level-a.png" alt="Dark Chambers level A: red brick dungeon" width="384" height="272" loading="lazy"></div>
+            <div class="kff2-cart-shot"><img src="uploads/dark-chambers-level-b.png" alt="Dark Chambers level B: grey stone dungeon" width="384" height="272" loading="lazy"></div>
+            <div class="kff2-cart-shot"><img src="uploads/dark-chambers-level-c.png" alt="Dark Chambers level C: yellow brick dungeon" width="384" height="272" loading="lazy"></div>
+            <div class="kff2-cart-shot"><img src="uploads/dark-chambers-level-d.png" alt="Dark Chambers level D: golden stone dungeon" width="384" height="272" loading="lazy"></div>
+            <div class="kff2-cart-shot"><img src="uploads/dark-chambers-level-e.png" alt="Dark Chambers level E: blue stone dungeon" width="384" height="272" loading="lazy"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="div">
 
   <!-- STUDIO NEWS: DARK CHAMBERS -->
   <section id="dark-chambers" style="background:var(--scr-dark);padding:80px 0" aria-labelledby="dark-chambers-title">
@@ -2213,10 +2283,48 @@
 
   <hr class="div">
 
+  <!-- V2.6.7: RUST VMA COMPILER, VMA OPEN SOURCE -->
+  <div id="release-267" style="background:var(--scr-darker);padding:80px 0">
+    <div class="sec" style="padding-top:0;padding-bottom:0">
+      <div class="ub-tag">NEW IN V2.6.7</div>
+      <div class="sec-s">// ONE ASSEMBLER, TWO ENGINES</div>
+      <h2 class="sec-t">THE VMA COMPILER IN RUST<br><span style="color:var(--ylw)">AND OPEN SOURCE</span></h2>
+      <p class="sec-d" style="max-width:680px">Version 2.6.7 can build your programs with the new Rust VMA compiler — byte for byte the same as the built-in one — and the compiler itself is now open source, with its own language manual.</p>
+      <div class="feature-list fl-2col">
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>Rust VMA compiler:</b> <span><em>Settings → General → Program → VMA compiler</em>: JavaScript (default), Rust, or Rust + JavaScript check. Same bytes, memory view and error messages; Kick projects too.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>VMA is open source:</b> <span>the Visual Macro Assembler compiler in its own GPLv3 repository, <a href="https://github.com/zstarczali/VMA" target="_blank" rel="noopener">github.com/zstarczali/VMA</a> — version 2.0.0, a command-line compiler and an English and Hungarian language manual.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>Project symbols and constants:</b> <span><code>.define</code> and <code>.const</code> for the whole project in <em>Project settings</em> — switch builds with <code>.if</code> without touching the source.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>Compiling dialog and Build info:</b> <span>a step line shows what the build is doing; Build info shows the file and a real ACME view for ACME sources.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>Faster typing:</b> <span>lazy Disassembly / Monitor panels in ACME mode, cached preprocessing for big Kick projects; Move up / down in the project tree.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>Fixes:</b> <span>an <code>.asm</code> is saved as plain text again, snapshots keep source files as text, macro parameters inside user macros work.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="div">
+
   <!-- V2.6.6: SID PLAYER MACRO, CUSTOM PALETTE -->
   <div id="release-266" style="background:var(--scr-darker);padding:80px 0">
     <div class="sec" style="padding-top:0;padding-bottom:0">
-      <div class="ub-tag">NEW IN V2.6.6</div>
+      <div class="ub-tag">V2.6.6</div>
       <div class="sec-s">// MUSIC IN ONE LINE, COLOURS YOUR WAY</div>
       <h2 class="sec-t">SID PLAYER MACRO<br><span style="color:var(--ylw)">AND YOUR OWN C64 PALETTE</span></h2>
       <p class="sec-d" style="max-width:680px">Version 2.6.6 plays a SID tune with two lines of code and lets you set the 16 C64 colours yourself — so the editors look like your monitor and your real C64, PAL or NTSC.</p>
@@ -3920,6 +4028,23 @@
         <p class="sec-d">Explore the compiler source, language documentation and latest development on GitHub.</p>
         <a class="btn btn-o" href="https://github.com/zstarczali/UltimateBasic" target="_blank" rel="noopener">►
           ULTIMATE BASIC REPOSITORY</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- VMA REPOSITORY -->
+  <section class="ub-repo">
+    <div class="ub-repo-inner">
+      <a href="https://github.com/zstarczali/VMA" target="_blank" rel="noopener"
+        aria-label="Open the VMA GitHub repository">
+        <img class="ub-repo-image" src="uploads/vma-logo.png" alt="VMA — Visual Macro Assembler for Commodore 64">
+      </a>
+      <div class="ub-repo-copy">
+        <div class="sec-s">// OPEN SOURCE COMPILER</div>
+        <h2 class="sec-t">VISUAL MACRO ASSEMBLER</h2>
+        <p class="sec-d">The VMA assembler of Visual Assembler in Rust: library and command-line compiler, with the language manual in English and Hungarian.</p>
+        <a class="btn btn-o" href="https://github.com/zstarczali/VMA" target="_blank" rel="noopener">►
+          VMA REPOSITORY</a>
       </div>
     </div>
   </section>

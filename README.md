@@ -2,11 +2,23 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.6.6**
+**Current version: v2.6.7**
 
 Visual Assembler is free and open source (GPLv3): every feature — editors, builds, hardware runs, languages and themes — works without a registration or serial. At most once a day the app sends an anonymous startup ping (version, OS, UI language, launch count, a random install ID) for the usage statistics; no email, project or source code is sent.
 
-## What's New in v2.6.6
+## What's New in v2.6.7
+
+- **Rust VMA compiler** — Settings → General → Program → *VMA compiler*: JavaScript (the default), Rust, or *Rust + JavaScript check*, which builds with both and logs any difference. The Rust compiler gives the same bytes, memory view, segments and translated error messages; Kick projects build through it too, with errors at `file:line`.
+- **VMA is open source** — the Visual Macro Assembler compiler lives in its own GPLv3 repository, [github.com/zstarczali/VMA](https://github.com/zstarczali/VMA) (version 2.0.0), with an English and a Hungarian language manual and a command-line compiler. The About box shows the VMA version and banner next to Ultimate Basic.
+- **Project symbols and constants** — *Project settings* sets VMA symbols (`.define`, for `.if` / `.ifdef`) and constants (`.const`) for the whole project, saved in the `.proj`; error lines stay correct.
+- **Compiling dialog** — a step line under the progress bar names the engine, the file and the PRG size.
+- **Build info** — shows the file it describes; an ACME source gets its own view from the real ACME build (origin, end, size, segments, labels). It no longer closes on an outside click.
+- **Faster typing** — in ACME mode the Disassembly and Monitor panels are rebuilt once per build and dimmed while the source is newer; big Kick projects re-use their last preprocessing and render the disassembly in chunks.
+- **Project tree** — *Move up* / *Move down* in the right-click menu of files and folders. Kick compatibility is now switched in *Project settings* (the `{K}` button is gone).
+- **Fixes** — saving an `.asm` (Ctrl+S, Menu → Save, before a git commit) writes plain text again, not the VA JSON; version control snapshots keep source files as text; library macros inside a user macro (SET_BORDER, SPRITE_*, JOYSTICK, TEXT …) get their parameters, runtime IF / WHILE / REPEAT labels are unique per call and a `'A'` argument stays a character; draggable dialogs open at their saved place.
+- **Look** — the compiling, build info, D64 export, compile error and question dialogs have the About box frame; the manuals are revised.
+
+## Earlier: v2.6.6
 
 - **SID player macro** — `.sid_player [subtune][, raster]` (*SID_PLAYER* in the palette) plays the tune of the `.sid` macro: it calls init with the subtune, switches the CIA1 timer IRQ off, hooks a raster IRQ and calls play every frame from its built-in handler, then continues in the KERNAL (`JMP $EA31`); 58 bytes. Music is now `.sid "music.sid"` + `.sid_player`.
 - **SID labels** — the `.sid` macro defines `SID_LOAD`, `SID_INIT` and `SID_PLAY` (moved with a custom load address), so your own IRQ handler can `JSR SID_PLAY`.
