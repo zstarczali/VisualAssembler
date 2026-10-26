@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Gebruikershandleiding
 
-**Versie 2.6.6**
+**Versie 2.6.7**
 
 Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw
 programma's door instructieblokken te slepen en neer te zetten, en bekijk de
@@ -10,207 +10,274 @@ gegenereerde assembly- en machinecode in realtime.
 
 ## Inhoudsopgave
 
-- [C64 Visual Assembler —
-  Gebruikershandleiding](#c64-visual-assembler--user-manual)
-    - [Hoogtepunten van versie 2.6.6](#version-266-highlights)
-    - [Hoogtepunten van versie 2.6.5](#version-265-highlights)
-    - [Hoogtepunten van versie 2.6.4](#version-264-highlights)
-    - [Hoogtepunten van versie 2.6.3](#version-263-highlights)
-    - [Hoogtepunten van versie 2.6.2](#version-262-highlights)
-    - [Hoogtepunten van versie 2.6.1](#version-261-highlights)
-    - [Hoogtepunten van versie 2.6.0](#version-260-highlights)
-    - [Hoogtepunten van versie 2.5.9](#version-259-highlights)
-    - [Hoogtepunten van versie 2.5.8](#version-258-highlights)
-    - [Hoogtepunten van versie 2.5.7](#version-257-highlights)
-    - [Hoogtepunten van versie 2.5.6](#version-256-highlights)
-    - [Hoogtepunten van versie 2.5.5](#version-255-highlights)
-    - [Hoogtepunten van versie 2.5.4](#version-254-highlights)
-    - [Hoogtepunten van versie 2.5.3](#version-253-highlights)
-    - [Hoogtepunten van versie 2.5.2](#version-252-highlights)
-    - [Hoogtepunten van versie 2.5.1](#version-251-highlights)
-    - [Hoogtepunten van versie 2.5.0](#version-250-highlights)
-    - [Hoogtepunten van versie 2.4.9](#version-249-highlights)
-    - [Hoogtepunten van versie 2.4.8](#version-248-highlights)
-    - [Hoogtepunten van versie 2.4.7](#version-247-highlights)
-    - [Hoogtepunten van versie 2.4.6](#version-246-highlights)
-    - [Hoogtepunten van versie 2.4.5](#version-245-highlights)
-    - [Hoogtepunten van versie 2.4.3](#version-243-highlights)
-    - [Hoogtepunten van versie 2.4.2](#version-242-highlights)
-    - [Hoogtepunten van versie 2.4.1](#version-241-highlights)
-    - [Hoogtepunten van versie 2.4.0](#version-240-highlights)
-    - [Hoogtepunten van versie 2.3.9](#version-239-highlights)
-  - [Inhoudsopgave](#table-of-contents)
-  - [1. Interfaceoverzicht](#1-interface-overview)
-  - [2. Blokpalet](#2-block-palette)
-  - [3. Programmagebied](#3-program-area)
-    - [Operandinvoer](#operand-input)
-  - [4. ASM-weergave](#4-asm-view)
-    - [Uitvoermodi](#output-modes)
-    - [Toolkit-tabblad](#toolkit-tab)
-    - [Tabblad Opties](#options-tab)
-    - [Klikken op een ASM-regel](#clicking-an-asm-line)
-    - [ASM-regelnummers](#asm-line-numbers)
-    - [Voortgangsweergave compilatie](#compile-progress-modal)
-  - [5. Instellingen & Werkbalk](#5-settings--toolbar)
-    - [Versiebeheer](#version-control)
-    - [Gratis en open source](#free-and-open-source)
-    - [Een bug melden](#reporting-a-bug)
-    - [Geheugenvenster en nul paginagebruik](#memory-window-and-zero-page-usage)
-    - [Projecttemplates](#project-templates)
-    - [Project bouwen](#build-project)
-    - [Voorbeeldprogramma's](#example-programs)
-    - [Laad .asm-bestand (snelle referentie)](#load-asm-file-quick-reference)
-      - [Import parsing notes and best
-        practices](#import-parsing-notes-and-best-practices)
-  - [Ultieme Basismodus](#ultimatebasic-mode)
-    - [UB-editor openen](#opening-the-ub-editor)
-    - [Editortools](#editor-tools)
-    - [Projecten, tabbladen en
-      opstartbestanden](#projects-tabs-and-startup-files)
-    - [Bouw en diagnostiek](#building-and-diagnostics)
-    - [Codegrootte per regel en hints](#code-size-per-line-and-hints)
-    - [Running, D64, and Exomizer](#running-d64-and-exomizer)
-    - [Debuggersymbolen en demontage](#debugger-symbols-and-disassembly)
-    - [Ultieme basishandleiding en broncode](#ultimate-basic-manual-and-source)
-  - [6. Expertmodus](#6-expert-mode)
-    - [Modi wisselen](#switching-modes)
-    - [Editorindeling](#editor-layout)
-    - [Werkbalkknoppen](#toolbar-buttons)
-    - [Cycle counts](#cycle-counts)
-    - [Optimalisatietips](#optimisation-hints)
-    - [Fout bij het markeren](#error-highlighting)
-    - [Syntaxmarkering](#syntax-highlight)
-    - [Bronformatter](#source-formatter)
-    - [Projectpaneel & tabbladen](#project-panel--tabs)
-    - [Tabbalk](#tab-bar)
-    - [ACME-modus](#acme-mode)
-  - [7. Adresseringsmodi](#7-addressing-modes)
-    - [Label expressies als operanden](#label-expressions-as-operands)
-    - [De `*` programmateller in
-      expressies](#the--program-counter-in-expressions)
-    - [Lokale (gestippelde) labels](#local-dotted-labels)
-    - [Operandlabels voor zelfmodificerende
-      code](#self-modifying-code-operand-labels)
-  - [8. Standaard 6502-instructies](#8-standard-6502-instructions)
-    - [Gegevensverplaatsing](#data-movement)
-    - [Rekenen](#arithmetic)
-    - [Logica](#logic)
-    - [Sprongen & Vertakkingen](#jumps--branches)
+- [Hoogtepunten van versie 2.6.7](#version-267-highlights)
+- [Hoogtepunten van versie 2.6.6](#version-266-highlights)
+- [Hoogtepunten van versie 2.6.5](#version-265-highlights)
+- [Hoogtepunten van versie 2.6.4](#version-264-highlights)
+- [Hoogtepunten van versie 2.6.3](#version-263-highlights)
+- [Hoogtepunten van versie 2.6.2](#version-262-highlights)
+- [Hoogtepunten van versie 2.6.1](#version-261-highlights)
+- [Hoogtepunten van versie 2.6.0](#version-260-highlights)
+- [Hoogtepunten van versie 2.5.9](#version-259-highlights)
+- [Hoogtepunten van versie 2.5.8](#version-258-highlights)
+- [Hoogtepunten van versie 2.5.7](#version-257-highlights)
+- [Hoogtepunten van versie 2.5.6](#version-256-highlights)
+- [Hoogtepunten van versie 2.5.5](#version-255-highlights)
+- [Hoogtepunten van versie 2.5.4](#version-254-highlights)
+- [Hoogtepunten van versie 2.5.3](#version-253-highlights)
+- [Hoogtepunten van versie 2.5.2](#version-252-highlights)
+- [Hoogtepunten van versie 2.5.1](#version-251-highlights)
+- [Hoogtepunten van versie 2.5.0](#version-250-highlights)
+- [Hoogtepunten van versie 2.4.9](#version-249-highlights)
+- [Hoogtepunten van versie 2.4.8](#version-248-highlights)
+- [Hoogtepunten van versie 2.4.7](#version-247-highlights)
+- [Hoogtepunten van versie 2.4.6](#version-246-highlights)
+- [Hoogtepunten van versie 2.4.5](#version-245-highlights)
+- [Hoogtepunten van versie 2.4.3](#version-243-highlights)
+- [Hoogtepunten van versie 2.4.2](#version-242-highlights)
+- [Hoogtepunten van versie 2.4.1](#version-241-highlights)
+- [Hoogtepunten van versie 2.4.0](#version-240-highlights)
+- [Hoogtepunten van versie 2.3.9](#version-239-highlights)
+- [1. Interfaceoverzicht](#1-interface-overview)
+- [2. Blokpalet](#2-block-palette)
+  - [Parameters in het operandveld](#parameters-in-the-operand-field)
+- [3. Programmagebied](#3-program-area)
+  - [Blokpaneel minimap](#block-panel-minimap)
+  - [Operandinvoer](#operand-input)
+- [4. ASM-weergave](#4-asm-view)
+  - [Uitvoermodi](#output-modes)
+  - [Toolkit-tabblad](#toolkit-tab)
+  - [Compileerinfo en uitvoerinstellingen](#compile-info-and-output-settings)
+  - [Klikken op een ASM-regel](#clicking-an-asm-line)
+  - [ASM-regelnummers](#asm-line-numbers)
+  - [Voortgangsweergave compilatie](#compile-progress-modal)
+- [5. Instellingen en werkbalk](#5-settings--toolbar)
+  - [Versiebeheer](#version-control)
+    - [Projectmodus](#project-mode)
+    - [Git](#git)
+  - [In-app updates](#in-app-updates)
+  - [Gratis en open source](#free-and-open-source)
+  - [Een bug melden](#reporting-a-bug)
+  - [Ondersteuning](#support)
+  - [Werkruimtes](#workspaces)
+  - [Geheugenvenster en nul paginagebruik](#memory-window-and-zero-page-usage)
+  - [Projecttemplates](#project-templates)
+  - [Handleidingen en de leseditor](#tutorials-and-the-lesson-editor)
+    - [Online lessen](#online-lessons)
+  - [Project bouwen](#build-project)
+  - [Voorbeeldprogramma's](#example-programs)
+  - [Laad .asm-bestand (snelle referentie)](#load-asm-file-quick-reference)
+    - [Import parsing notes and best
+      practices](#import-parsing-notes-and-best-practices)
+  - [Kick import (Kick Assembler)](#kick-import-kick-assembler)
+    - [Kick-projecten (Importeer
+      Kick-project…)](#kick-projects-import-kick-project)
+- [Ultieme Basismodus](#ultimatebasic-mode)
+  - [UB-editor openen](#opening-the-ub-editor)
+  - [Editortools](#editor-tools)
+  - [Projecten, tabbladen en opstartbestanden](#projects-tabs-and-startup-files)
+  - [Bouw en diagnostiek](#building-and-diagnostics)
+  - [Codegrootte per regel en hints](#code-size-per-line-and-hints)
+  - [Running, D64, and Exomizer](#running-d64-and-exomizer)
+  - [Debuggersymbolen en demontage](#debugger-symbols-and-disassembly)
+  - [Ultieme basishandleiding en broncode](#ultimate-basic-manual-and-source)
+- [6. Expertmodus](#6-expert-mode)
+  - [Modi wisselen](#switching-modes)
+  - [Editorindeling](#editor-layout)
+  - [Werkbalkknoppen](#toolbar-buttons)
+  - [Minimap van de expert-editor](#expert-editor-minimap)
+  - [Cycle counts](#cycle-counts)
+  - [Optimalisatietips](#optimisation-hints)
+  - [Fout bij het markeren](#error-highlighting)
+  - [Syntaxmarkering](#syntax-highlight)
+  - [Bronformatter](#source-formatter)
+  - [Projectpaneel & tabbladen](#project-panel--tabs)
+  - [Tabbalk](#tab-bar)
+  - [ACME-modus](#acme-mode)
+- [7. Adresseringsmodi](#7-addressing-modes)
+  - [Label expressies als operanden](#label-expressions-as-operands)
+  - [De `*` programmateller in expressies](#the--program-counter-in-expressions)
+  - [Lokale (gestippelde) labels](#local-dotted-labels)
+  - [Operandlabels voor zelfmodificerende
+    code](#self-modifying-code-operand-labels)
+- [8. Standaard 6502-instructies](#8-standard-6502-instructions)
+  - [Gegevensverplaatsing](#data-movement)
+  - [Rekenen](#arithmetic)
+  - [Logica](#logic)
+  - [Sprongen & Vertakkingen](#jumps--branches)
     - [LBNE / LBEQ / … (Lange takken)](#lbne--lbeq---long-branches)
-    - [Registerbewerkingen](#register-operations)
-    - [Verschuiven & Roteren](#shift--rotate)
-    - [Stack](#stack)
-    - [Systeem / Vlaggen](#system--flags)
-    - [Onwettige / niet-gedocumenteerde
-      instructies](#illegal--undocumented-instructions)
-  - [9. Macroblokken — Referentie](#9-macro-blocks--reference)
-    - [LABEL](#label)
-    - [COMMENTAAR](#comment)
-    - [BYTE](#byte)
-    - [WOORD](#word)
-    - [INVULLEN](#fill)
-    - [UITLIJNEN](#align)
-    - [TEKST 1}
-    - [STRING](#string)
-    - [DATA](#data)
-    - [RAWBYTES](#rawbytes)
-    - [RAWTEXT](#rawtext)
-    - [PETSCII](#petscii)
-    - [CHARSET](#charset)
-    - [CHARDEF](#chardef)
-    - [BOX_HIT](#box_hit)
-    - [INCBIN](#incbin)
-    - [KOALA](#koala)
-    - [NIVEAU / NIVEAU_RIJ](#level--level_row)
-      - [NIVEAU](#level)
-      - [NIVEAU_RIJ](#level_row)
-    - [SID](#sid)
-    - [SID_PLAYER](#sid_player)
-    - [INCLUDE](#include)
-    - [TABEL](#table)
-    - [ORG](#org)
-    - [LOOP / NEXT](#loop--next)
-      - [LOOP](#loop)
-      - [VOLGENDE](#next)
-    - [VOOR / EINDE](#for--endf)
-      - [VOOR](#for)
-      - [ENDF](#endf)
-    - [DUWEN / TREKKEN](#push--pull)
-      - [DUWEN](#push)
-      - [TREKKEN](#pull)
-    - [END / RTS alias](#end--rts-alias)
-    - [MACRO / ENDM / INVOKE](#macro--endm--invoke)
-      - [MACRO (definitie start)](#macro-definition-start)
-      - [ENDM (einde definitie)](#endm-definition-end)
-      - [AANROEPEN](#invoke)
-    - [REGIO / ENDREGIO](#region--endregion)
-    - [DEFINITIE / ALS / ANDERS / EINDE ALS](#define--if--else--endif)
-    - [.ASSERT](#assert)
-      - [DEFINITIE](#define)
-      - [ALS](#if)
-      - [ANDERS](#else)
+  - [Registerbewerkingen](#register-operations)
+  - [Verschuiven en roteren](#shift--rotate)
+  - [Stack](#stack)
+  - [Systeem / Vlaggen](#system--flags)
+  - [Onwettige / niet-gedocumenteerde
+    instructies](#illegal--undocumented-instructions)
+- [9. Macroblokken — Referentie](#9-macro-blocks--reference)
+  - [LABEL](#label)
+  - [COMMENTAAR](#comment)
+  - [BYTE](#byte)
+  - [WOORD](#word)
+  - [INVULLEN](#fill)
+  - [UITLIJNEN](#align)
+  - [TEKST 1}
+  - [STRING](#string)
+  - [DATA](#data)
+  - [RAWBYTES](#rawbytes)
+  - [RAWTEXT](#rawtext)
+  - [PETSCII](#petscii)
+  - [CHARSET](#charset)
+  - [CHARDEF](#chardef)
+  - [BOX_HIT](#box_hit)
+  - [INCBIN](#incbin)
+  - [KOALA](#koala)
+  - [NIVEAU / NIVEAU_RIJ](#level--level_row)
+    - [NIVEAU](#level)
+    - [LEVEL_ROW](#level_row)
+  - [SID](#sid)
+  - [SID_PLAYER](#sid_player)
+  - [INCLUDE](#include)
+  - [TABEL](#table)
+  - [ORG](#org)
+  - [LOOP / NEXT](#loop--next)
+    - [LOOP](#loop)
+    - [VOLGENDE](#next)
+  - [VOOR / EINDE](#for--endf)
+    - [VOOR](#for)
+    - [ENDF](#endf)
+  - [DUWEN / TREKKEN](#push--pull)
+    - [DUWEN](#push)
+    - [TREKKEN](#pull)
+  - [END / RTS alias](#end--rts-alias)
+  - [MACRO / ENDM / INVOKE](#macro--endm--invoke)
+    - [MACRO (definitie start)](#macro-definition-start)
+    - [ENDM (einde definitie)](#endm-definition-end)
+    - [AANROEPEN](#invoke)
+  - [REGIO / ENDREGIO](#region--endregion)
+  - [DEFINITIE / ALS / ANDERS / EINDE ALS](#define--if--else--endif)
+    - [DEFINITIE](#define)
+    - [ALS](#if)
+    - [ANDERS](#else)
     - [ENDIF](#endif)
-    - [CONST](#const)
-    - [VAR](#var)
-    - [Runtime IF / ELSE / ENDIF](#runtime-if--else--endif)
-    - [WHILE / ENDW](#while--endw)
-    - [HERHALEN / TOTDAT](#repeat--until)
-    - [MEMCPY / MEMSET](#memcpy--memset)
-    - [PRINT / PRINT_CHAR / PRINT_HEX / CLEAR_SCREEN / WAIT_KEY / DELAY /
-      SET_BORDER /
-      SET_BG](#print--print_char--print_hex--clear_screen--wait_key--delay--set_border--set_bg)
-    - [IRQ_SETUP](#irq_setup)
-    - [RAND](#rand)
-    - [SPRITE_INIT](#sprite_init)
-    - [SPRITE\_POS](#sprite_pos)
-    - [WAIT\_RASTER](#wait_raster)
-    - [JOYSTICK](#joystick)
-    - [MUIS](#mouse)
-    - [SPRITE\_COL](#sprite_col)
-    - [LAADBESTAND](#loadfile)
-    - [EXODECRUNCH](#exodecrunch)
-    - [REU\_CHECK](#reu_check)
-    - [REU\_STASH / REU\_FETCH / REU\_SWAP](#reu_stash--reu_fetch--reu_swap)
-    - [TURBO_SET](#turbo_set)
-    - [SUPERCPU_DETECT](#supercpu_detect)
-    - [TURBO_ENABLE](#turbo_enable)
-    - [MAP\_COPY](#map_copy)
-    - [MAP\_COPY16X16](#map_copy16x16)
-    - [SPRITE_ANIM](#sprite_anim)
-    - [SCORE\_BCD](#score_bcd)
-  - [10. Debuggerintegratie](#10-debugger-integration)
-    - [RetroDebugger](#retrodebugger)
-    - [Breakpoint Blocks](#breakpoint-blocks)
-    - [Flags voor de debugger (tabblad Opties)](#debugger-flags-options-tab)
-    - [VICE Monitor (hot reload, live watch,
-      profiler)](#vice-monitor-hot-reload-live-watch-profiler)
-  - [11. Links naar de kennisbank](#11-knowledge-base-links)
-  - [12. D64 Exporteren & Uitvoeren](#12-d64-export--run)
-    - [Knop Split Run](#split-run-button)
-    - [Exporteren naar D64-dialoogvenster](#export-to-d64-dialog)
-    - [D64-metadata in projecten](#d64-metadata-in-projects)
-  - [12b. CRT-export (Magic Desk
-    64K-cartridge)](#12b-crt-export-magic-desk-64k-cartridge)
-  - [13. Hardware-instellingen](#13-hardware-settings)
-    - [VICE Emulator](#vice-emulator)
-    - [Exomizer](#exomizer)
-    - [Retro Debugger](#retro-debugger)
-    - [C64 Ultimate / 1541 Ultimate](#c64-ultimate--1541-ultimate)
-    - [Kung Fu Flash 2](#kung-fu-flash-2)
-  - [14. Visuele editors (toolkit)](#14-visual-editors-toolkit)
-    - [Editor voor hoge resolutie / meerkleurig](#hi-res--multicolor-editor)
-    - [Sprite-editor](#sprite-editor)
-    - [C64 Character ROM Browser ("Char
-      map")](#c64-character-rom-browser-char-map)
-    - [Tekeneditor (Tekenset)](#character-editor-charset)
-    - [Tekenset Canvas Editor](#charset-canvas-editor)
-    - [Kaarteditor (Meerlaagse tegelkaarten)](#map-editor-multilayer-tilemaps)
-    - [Niveau-editor](#level-editor)
-    - [SID-editor (3-stemmen tracker)](#sid-editor-3-voice-tracker)
-    - [SID Speler](#sid-player)
-    - [Curve-editor](#curve-editor)
-    - [Tabelgenerator](#table-generator)
-    - [Nummeromzetter](#number-converter)
+  - [.ASSERT](#assert)
+  - [CONST](#const)
+  - [VAR](#var)
+  - [Runtime IF / ELSE / ENDIF](#runtime-if--else--endif)
+  - [WHILE / ENDW](#while--endw)
+  - [HERHALEN / TOTDAT](#repeat--until)
+  - [MEMCPY / MEMSET](#memcpy--memset)
+  - [PRINT / PRINT_CHAR / PRINT_HEX / CLEAR_SCREEN / WAIT_KEY / DELAY /
+    SET_BORDER /
+    SET_BG](#print--print_char--print_hex--clear_screen--wait_key--delay--set_border--set_bg)
+    - [PRINT](#print)
+    - [PRINT_CHAR](#print_char)
+    - [PRINT_HEX](#print_hex)
+    - [SCHERM WISSEN](#clear_screen)
+    - [WAIT_KEY](#wait_key)
+    - [VERTRAGING](#delay)
+    - [SET_BORDER / SET_BG](#set_border--set_bg)
+  - [IRQ_SETUP](#irq_setup)
+  - [RAND](#rand)
+  - [SPRITE_INIT](#sprite_init)
+  - [SPRITE_POS](#sprite_pos)
+  - [WAIT_RASTER](#wait_raster)
+  - [JOYSTICK](#joystick)
+  - [MUIS](#mouse)
+  - [SPRITE_COL](#sprite_col)
+  - [LAADBESTAND](#loadfile)
+  - [EXODECRUNCH](#exodecrunch)
+  - [REU_CHECK](#reu_check)
+  - [REU_STASH / REU_FETCH / REU_SWAP](#reu_stash--reu_fetch--reu_swap)
+  - [TURBO_SET](#turbo_set)
+  - [SUPERCPU_DETECT](#supercpu_detect)
+  - [TURBO_ENABLE](#turbo_enable)
+  - [MAP_COPY](#map_copy)
+  - [MAP_COPY16X16](#map_copy16x16)
+  - [SPRITE_ANIM](#sprite_anim)
+  - [SCORE_BCD](#score_bcd)
+- [10. Debuggerintegratie](#10-debugger-integration)
+  - [RetroDebugger](#retrodebugger)
+  - [Breakpoint Blocks](#breakpoint-blocks)
+  - [Debugger-vlaggen](#debugger-flags)
+  - [VICE Monitor (hot reload, live watch,
+    profiler)](#vice-monitor-hot-reload-live-watch-profiler)
+- [11. Links naar de kennisbank](#11-knowledge-base-links)
+- [12. D64 Exporteren & Uitvoeren](#12-d64-export--run)
+  - [Knop Split Run](#split-run-button)
+  - [Exporteren naar D64-dialoogvenster](#export-to-d64-dialog)
+  - [D64-metadata in projecten](#d64-metadata-in-projects)
+  - [D64 Editor (een bestaande schijfkopie bekijken en
+    bewerken)](#d64-editor-browse--edit-an-existing-disk-image)
+- [12b. CRT-export (Magic Desk
+  64K-cartridge)](#12b-crt-export-magic-desk-64k-cartridge)
+  - [Wat er in de kar zit](#what-ships-in-the-cart)
+  - [Laadadres en ingangspunt](#load-address-and-entry-point)
+  - [Groottelimiet](#size-limit)
+  - [Compatibiliteit](#compatibility)
+- [13. Instellingen](#13-settings)
+  - [VMA-compiler](#vma-compiler)
+  - [VICE Emulator](#vice-emulator)
+  - [Exomizer](#exomizer)
+  - [Retro Debugger](#retro-debugger)
+  - [C64 Ultimate / 1541 Ultimate](#c64-ultimate--1541-ultimate)
+  - [Kung Fu Flash 2](#kung-fu-flash-2)
+  - [Versiebeheer (git)](#version-control-git)
+- [14. Visuele editors (toolkit)](#14-visual-editors-toolkit)
+  - [Editor voor hoge resolutie / meerkleurig](#hi-res--multicolor-editor)
+  - [Sprite-editor](#sprite-editor)
+  - [C64 Character ROM Browser ("Char
+    map")](#c64-character-rom-browser-char-map)
+  - [Tekeneditor (Tekenset)](#character-editor-charset)
+  - [Tekenset Canvas Editor](#charset-canvas-editor)
+  - [Kaarteditor (Meerlaagse tegelkaarten)](#map-editor-multilayer-tilemaps)
+  - [Niveau-editor](#level-editor)
+  - [SID-editor (3-stemmen tracker)](#sid-editor-3-voice-tracker)
+  - [SID Speler](#sid-player)
+    - [HVSC (High Voltage SID Collection)](#hvsc-high-voltage-sid-collection)
+    - [Spectrumanalysator](#spectrum-analyzer)
+  - [Curve-editor](#curve-editor)
+  - [Tabelgenerator](#table-generator)
+  - [Nummeromzetter](#number-converter)
+
+---
+
+## Hoogtepunten van versie 2.6.7
+
+- **Rust VMA-compiler** — **Instellingen → Algemeen → Programma → VMA-compiler**
+  kiest de engine: **JavaScript** (de standaard), **Rust** of **Rust +
+  JavaScript-controle**, die met beide compileert en eventuele verschillen logt.
+  De Rust-compiler geeft dezelfde bytes, geheugenweergave, segmenten en
+  vertaalde foutmeldingen; Kick-projecten compileren er ook mee, met fouten op
+  `bestand:regel`. Zie [VMA-compiler](#vma-compiler).
+- **VMA is open source** — de Visual Macro Assembler-compiler bevindt zich in
+  zijn eigen GPLv3-repository,
+  [github.com/zstarczali/VMA](https://github.com/zstarczali/VMA) (versie 2.0.0),
+  met een handleiding in het Engels en Hongaars en een compiler voor de
+  commandoregel. In het venster 'Over' wordt de VMA-versie weergegeven en een
+  banner naast Ultimate Basic.
+- **Projectsymbolen en constanten** — **Projectinstellingen** stelt VMA-symbolen
+  (`.define`, voor `.if` / `.ifdef`) en constanten (`.const`) in voor het hele
+  project, opgeslagen in `.proj`; foutregels blijven correct. Zie [Projectpaneel
+  en tabbladen](#project-panel--tabs).
+- **Compilatiedialoog** — een stapregel onder de voortgangsbalk vermeldt de
+  engine, het bestand en de PRG-grootte.
+- **Buildinfo** — toont het bestand dat het beschrijft; een ACME-bron krijgt
+  zijn eigen weergave van de echte ACME-build (oorsprong, einde, grootte,
+  segmenten, labels). Het sluit niet langer bij een klik buiten het venster.
+- **Sneller typen** — in ACME-modus worden de panelen 'Disassembly' en 'Monitor'
+  één keer per build opnieuw opgebouwd en gedimd zolang de broncode nieuwer is;
+  grote Kick-projecten hergebruiken hun laatste preprocessing en renderen de
+  disassembly in chunks.
+- **Projectstructuur** — **Omhoog verplaatsen** / **Omlaag verplaatsen** in het
+  rechtermuisklikmenu van bestanden en mappen. Kick-compatibiliteit wordt
+  ingeschakeld in **Projectinstellingen**.
+- **Oplossingen** — het opslaan van een `.asm` (Ctrl+S, Menu → Opslaan, vóór een
+  git commit) schrijft weer platte tekst, niet de VA JSON; versiebeheersnapshots
+  bewaren bronbestanden als tekst; bibliotheekmacro's binnen een gebruikersmacro
+  (SET_BORDER, SPRITE_*, JOYSTICK, TEXT …) krijgen hun parameters, runtime IF /
+  WHILE / REPEAT-labels zijn uniek per aanroep en een `'A'`-argument blijft een
+  teken; sleepbare dialoogvensters openen op hun opgeslagen plaats.
+- **Kijk** — de dialoogvensters voor compileren, build-info, D64-export,
+  compileerfout en vragen hebben het 'Over'-venster.
 
 ---
 
@@ -269,9 +336,9 @@ gegenereerde assembly- en machinecode in realtime.
   opstartbestand, de assembler, de KickAssembler-compatibiliteit,
   `#define`-symbolen en `cmdLineVars` van een project. Zie [Projectpaneel en
   tabbladen](#project-panel--tabs).
-- **Kick-compatibele schakelaar** — de `{K}`-knop in de koptekst van het
-  projectpaneel maakt elk VMA-project KickAssembler-compatibel; de VA-macro's en
-  -richtlijnen blijven werken naast het KickAssembler-script.
+- **Kick-compatibele schakelaar** — een schakelaar (sinds 2.6.7 in
+  **Projectinstellingen**) maakt elk VMA-project KickAssembler-compatibel; de
+  VA-macro's en -richtlijnen blijven werken naast het KickAssembler-script.
 - **KickAssemblertaal** — `#import` / `#importonce` / `#importif`, `#define` /
   `#if`, `.const` / `.label` (nulpagina of absoluut op waarde), `.for`,
   `.while`, `.if … else`, `.var` / `.eval`, `.function`, `.macro { }`,
@@ -335,11 +402,11 @@ gegenereerde assembly- en machinecode in realtime.
   de tweede RUN: een PRG met een BASIC-regel wordt gecomprimeerd met `sfx
   basic`, elke andere met `sfx $<laadadres>`.
 - **SID-editor** — een afspeel-lcd in de tracker-werkbalk (nummerpositie,
-  patroon, rij, tijd; groen of rood in **Instellingen → SID-voorbeeld →
-  LCD-kleur**), een instrumentknop met een lcd op VA-VK, een voortgangsbalk voor
-  **Import .sid…**. Zie [SID-editor](#sid-editor-3-voice-tracker).
+  patroon, rij, tijd; groen of rood in **Instellingen → Algemeen → SID-voorbeeld
+  → LCD-kleur**), een instrumentknop met een lcd op VA-VK, een voortgangsbalk
+  voor **Import .sid…**. Zie [SID-editor](#sid-editor-3-voice-tracker).
 - **Instellingen in drie tabbladen** — **Algemeen**, **Bestanden en paden** en
-  **Integraties**. Zie [Paragraaf 13](#13-hardware-settings).
+  **Integraties**. Zie [Paragraaf 13](#13-settings).
 - **Kleinere verbeteringen** — **Ctrl+N** opent een nieuw tabblad; dialoogtekst
   kan niet langer per ongeluk worden geselecteerd (tekstvelden en kopieerbare
   uitvoer, zoals compilatie-errors, kunnen dat nog steeds); grote
@@ -370,8 +437,8 @@ gegenereerde assembly- en machinecode in realtime.
 - **SID Editor** — de header toont de actieve SID-emulatie (WebSID of VA SID
   Core met het chipmodel); het veld Snelheid heeft − / + knoppen en accepteert
   waarden van 1–255; het nummer kan maximaal 256 patronen gebruiken.
-- **Serverinstellingen bijwerken** — **Instellingen → Updates** stelt de server
-  in waarvan de in-app-update releases leest (standaard
+- **Serverinstellingen bijwerken** — **Instellingen → Algemeen → Updates** stelt
+  de server in waarvan de in-app-update releases leest (standaard
   `https://www.c64va.pro/`). Zie [In-app-updates](#in-app-updates).
 - **Ultimate Basic 1.6.6** — `PRINT USING "format"; waarden`,
   tekenreeksvergelijking in PETSCII-volgorde, drijvende-komma `rnd` en `mod`,
@@ -540,7 +607,7 @@ gegenereerde assembly- en machinecode in realtime.
   [SID Player](#sid-player).
 - **VA SID Core 1.1** — een ingebouwde SID-emulatie (MOS 6581/8580, met een op
   MOS 6581/8580 gebaseerd 6581-filter) en een cycle-locked PSID/RSID-speler
-  (6510 CPU, CIA/VIC-timing). Selecteer deze in **Instellingen →
+  (6510 CPU, CIA/VIC-timing). Selecteer deze in **Instellingen → Algemeen →
   SID-voorbeeld**; de SID-speler toont welke engine wordt afgespeeld.
 - **SID Editor** — knoppen voor de instrumentparameters, een bredere
   ADSR-grafiek, **MIDI-ingang**, **opnemen** in de tracker (een nieuw patroon
@@ -693,9 +760,15 @@ gegenereerde assembly- en machinecode in realtime.
 
 ## Hoogtepunten van versie 2.4.8
 
-- **Nieuwe KOALA-macro** — `.koala "picture.koa"` (optioneel `, $2000`) laadt
-  een Koala Painter-afbeelding en toont deze met een 86-byte weergaveroutine.
-  Zie [KOALA](#project-templates).
+- **Projectsjablonen** — **Menu → Nieuw project → Nieuw project vanuit
+  sjabloon…**, of de nieuwe knop in de werkbalk tussen **Menu** en
+  **Tutorials**, maakt een kant-en-klaar `.proj`-project aan in een eigen map.
+  Het dialoogvenster heeft een **Assembler**-sectie (leeg programma, spelskelet,
+  hoge resolutie en meerkleurige bitmap) en een **UltimateBasic**-sectie (leeg
+  programma, spelskelet, hoge resolutie bitmap, raster IRQ), met een
+  syntax-gemarkeerde preview. Je eigen `.asm` / `.ub` sjablonen worden opgehaald
+  uit de map met gebruikerssjablonen. Zie
+  [Projectsjablonen](#project-templates).
 - **Koala importeren/exporteren in de Hires-editor** — **Bestanden → Koala
   importeren (.koa)…** / **Koala exporteren (.koa)…** (standaardbestand van
   10003 bytes; afbeeldingen met hoge resolutie worden bij het exporteren
@@ -1120,11 +1193,9 @@ Het rechterpaneel toont de gegenereerde uitvoer in realtime.
 | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **ASM**          | 6502 assemblagebron met adressen en labels                                                                                                                                                                                                                                                                                                   |
 | **Monitor**      | Hex-/bytedump (C64-monitorstijl)                                                                                                                                                                                                                                                                                                             |
-| **Disasm**       | Pure 6502-disassemblage: adres · hexadecimale bytes · mnemonics met opgeloste numerieke operanden. Macro's worden uitgebreid tot individuele instructies (TEXT → LDA/STA-paren, LOOP → LDX, enz.). BYTE/WORD/FILL-gegevens worden weergegeven als een gechunkte hexadecimale dump. Geen macronamen, commentaren of annotaties in de uitvoer. |
+| **Disassembler** | Pure 6502-disassemblage: adres · hexadecimale bytes · mnemonics met opgeloste numerieke operanden. Macro's worden uitgebreid tot individuele instructies (TEXT → LDA/STA-paren, LOOP → LDX, enz.). BYTE/WORD/FILL-gegevens worden weergegeven als een gechunkte hexadecimale dump. Geen macronamen, commentaren of annotaties in de uitvoer. |
 | **Beide**        | ASM bovenaan, monitor onderaan                                                                                                                                                                                                                                                                                                               |
-| **Disassembler** | Hetzelfde als Disasm — een apart tabblad voor de demontageweergave.                                                                                                                                                                                                                                                                          |
 | **Toolkit**      | C64-referentiepaneel: kleurenpalet met 16 kleuren + PETSCII-besturingscode en spiekbriefje met afdrukbare tekens. Alleen-lezen — zie het subgedeelte "Toolkit" hieronder voor meer informatie.                                                                                                                                               |
-| **Opties**       | Instellingenpaneel van het programma — getalnotatie, macrobron in-/uitschakelen, foutopsporingsparameters                                                                                                                                                                                                                                    |
 
 Projectsnapshots worden opgeslagen als JSON-bestanden op de schijf, niet in
 localStorage. Ze zijn gekoppeld aan het huidige projectbestand (indien
@@ -1144,31 +1215,20 @@ versie:
 
 Na het downloaden installeert de app de update en start opnieuw op:
 
-### Werkruimtes
+### Compileer informatie en uitvoerinstellingen
 
-Een **werkruimte** (`.vaws`-bestand) onthoudt welke echte bestanden op de schijf
-geopend waren in elk tabblad — inclusief de editormodus van elk tabblad en welk
-tabblad actief was — zodat u diezelfde set later opnieuw kunt openen. Het is
-iets anders dan een `.proj`-project: een werkruimte kan elke combinatie van
-Block/Expert `.json`-projectbestanden, losstaande `.asm`-bestanden en Ultimate
-Basic `.ub`/`.proj`-bronnen over meerdere tabbladen omvatten.
-
-- Werkruimtes **slaan automatisch** een paar honderd milliseconden op nadat je
-  een wijziging hebt aangebracht, zodra er een is opgeslagen of geopend.
-- De app **herstelt automatisch je laatst geopende werkruimte** bij het
-  opstarten, zodat je geopende tabbladen verdergaan waar je gebleven was.
-- Alleen tabbladen die gekoppeld zijn aan een daadwerkelijk bestand op de schijf
-  worden opgeslagen in de werkruimte; een tabblad met een niet-opgeslagen
-  voorbeeld of een programma dat alleen in het geheugen draait, heeft niets om
-  op te slaan en wordt overgeslagen (met een melding als geen van de geopende
-  tabbladen hiervoor in aanmerking komt).
-  - **`-jmp` AAN/UIT** — spring direct naar het startadres van het programma na
-    het laden.
-  - **`-unpause` AAN/UIT** — de debugger direct hervatten bij het laden.
-  - **`-wacht` ms AAN/UIT** — voegt een `-wacht <ms>` vertraging toe voordat de
-    pauze wordt opgeheven; selecteer 500 ms of 1000 ms in het dropdownmenu.
-- Bij het openen van een werkruimte worden eerst alle geopende tabbladen
-  gesloten. U wordt gevraagd om te bevestigen voordat het proces verdergaat.
+- **Compileerinfo** (boven de uitvoer) toont een samenvatting van het
+  gecompileerde programma: startadres van de code, grootte en de BASIC SYS-stub.
+- Het startadres van het programma wordt bepaald door een **ORG**-blok (`* =
+  $C000`): de eerste ORG is het laadadres, verdere ORG's starten meer secties op
+  andere adressen.
+- De uitvoerinstellingen bevinden zich in **Instellingen → Algemeen →
+  ASM-uitvoer**: **Macrobron** (macrodefinities MACRO…ENDM tonen hun bron in de
+  ASM-weergave), **Regio-opmerkingen weergeven**, **Geheugenoverlays weergeven**
+  en **Geheugenpaneel weergeven**.
+- De RetroDebugger-vlaggen (`-jmp`, `-unpause`, `-wait`) zijn te vinden in
+  **Instellingen → Algemeen → RetroDebugger** — zie
+  [Debugger-vlaggen](#debugger-flags).
 
 ### Projecttemplates
 
@@ -1184,8 +1244,8 @@ project, de geopende bestandstabbladen:
 - elke compileerbare bron (`.asm`, blok `.json`, `.ub`) wordt gecompileerd naar
   een `.prg` **naast de bron** met dezelfde naam; met **Uitvoeren met Exomizer**
   ingeschakeld wordt de uitvoer gekraakt;
-- Debugger-sidecarbestanden (symbolen/bronkaart) worden, indien mogelijk, samen
-  met het PRG-bestand geschreven;
+- **Export ASM** (Programmamenu) kopieert nog steeds de schone brontekst
+  **zonder** regelnummerprefixes.
 
 ### Voorbeeldprogramma's
 
@@ -1194,60 +1254,66 @@ voorbeeldprogramma's gegroepeerd per onderwerp (Basisprincipes, Macro's en
 besturingsstroom, Grafische elementen, Sprites en invoer, Bestanden en laden,
 Muziek, IRQ en hardware) in twee kolommen.
 
-- Typ in het zoekvak om te filteren op naam of categorie; in de voettekst wordt
-  weergegeven hoeveel voorbeelden overeenkomen.
-- Klik op een voorbeeld om het te selecteren, **↑ / ↓** verplaats de selectie;
-  **dubbelklik**, **Enter** of **Load** laadt het.
-- Het dialoogvenster wordt geopend met het voorbeeld dat u als laatste hebt
-  geladen.
+- **Uitvoeren** (VICE, D64, C64 Ultimate, Kung Fu Flash 2) — het PRG bouwen en
+  starten.
+- **Debug** — het bouwen van de PRG en het starten van RetroDebugger.
+- **Project bouwen**, **D64 bouwen** en **Exomizer inpakken**.
 
-Het modale venster sluit automatisch wanneer de actie is voltooid of mislukt.
+De regel onder de balk geeft de naam van de stap aan die wordt uitgevoerd,
+inclusief het bestand — bijvoorbeeld *Kick: preprocessing main.asm (14 files)…*,
+*VMA (Rust): compiling main.asm…*, *PRG ready: 2061 bytes from $0801*,
+*Exomizer: compressing …*, *VICE: starting …*. Het modale venster sluit
+automatisch wanneer de actie is voltooid of mislukt.
 
 ---
 
 ## Ultieme Basismodus
 
-| Controle                                                                                              | Beschrijving                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Getallenbasis (HEX / DEC / BIN)**                                                                   | Hiermee wordt het weergave-/invoerformaat voor operanden in de gebruikersinterface ingesteld. In de BIN-modus worden waarden binair weergegeven met het voorvoegsel `%` (bijv. `%11111000`). De ASM-weergave toont elk blok altijd in zijn eigen formaat.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| **Taal**                                                                                              | Schakel tussen de gebruikersinterface in het Engels, Hongaars, Spaans, Duits en Nederlands.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| **Thema**                                                                                             | Licht / Donker / OLED / Commodore 77 / Commodore Starlight / Commodore Beige / Commodore 64 — selecteer een thema in het instellingenmenu. OLED gebruikt een puur zwarte achtergrond voor AMOLED-schermen. Commodore 77 is een neongeel-op-zwart thema; wanneer dit het actieve thema is, gebruikt het opstartscherm de paneelkleur van het thema (overeenkomend met de berichtkaart), toont het een kleiner, speciaal Commodore 77-logo en een gele voortgangsbalk. Commodore Starlight is een licht thema, geïnspireerd op de doorschijnende C64-broodbak: matglazen panelen met een regenboogkleurige RGB-gloed die erdoorheen schijnt, een magenta accent, regenboogkleuren voor de syntax en een rokerig donker scherm. Commodore Beige is de klassieke broodbak: een beige behuizing, mosterdkleurige functietoetsen, de regenboogstrepen van het logo en een C64-blauw scherm voor de monitorweergave. Het gekozen thema wordt toegepast vóór de eerste keer dat het programma wordt opgestart. |
-| **CRT retro-modus**                                                                                   | Schakelt een CRT-filter voor het volledige scherm in of uit: scanlijnen, fosforvignettering, flikkering en tonvormige vertekening. De instelling wordt tussen sessies bewaard.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| **Geheugenpaneel weergeven**                                                                          | Globale schakelaar waarmee het volledige C64-geheugenpaneel kan worden weergegeven of verborgen.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| **BASIC SYS stub**                                                                                    | Voegt een BASIC-regel toe die SYS aanroept naar de oorsprong van uw programma (de eerste ORG). Een segment dat lager dan de eerste ORG is geplaatst, blijft op zijn eigen adres. Wanneer het programma onder of over de BASIC-regel laadt (`$0801`–`$080C`, bijvoorbeeld een geïmporteerde dump van `$071C`), voegt Run and Build in plaats daarvan een kleine startlader toe: `SYS 2061` kopieert een mover naar de tapebuffer (`$033C`), die het programma op zijn plaats zet en naar de eerste ORG springt.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| **Voorbeelden…**                                                                                      | Open de voorbeeldbrowser en laad een ingebouwd voorbeeldprogramma — zie [Voorbeeldprogramma's](#example-programs)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| **In-/uitzoomen**                                                                                     | Schaal de gebruikersinterface van het blok (dit heeft invloed op alle elementen van het blok)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| **Project opslaan**                                                                                   | Sla het huidige programma op als een `.json` projectbestand                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| **Programma opslaan als**                                                                             | Sla het huidige programma elke keer op als een `.json`-projectbestand met behulp van een nieuw bestandsdialoogvenster.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| **Project laden**                                                                                     | Een eerder opgeslagen project laden                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| **Werkruimte opslaan**                                                                                | Sla de exacte set van momenteel geopende, door bestanden ondersteunde tabbladen op — inclusief het actieve tabblad en de editormodus van elk tabblad (Blok/Expert/Ultieme Basis) — in een `.vaws` werkruimtebestand                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| **Werkruimte opslaan als**                                                                            | Sla de huidige werkruimte elke keer op via een nieuw bestandsdialoogvenster.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| **Werkruimte openen**                                                                                 | Sluit alle geopende tabbladen en heropen de set bestanden die zijn opgeslagen in een `.vaws`-werkruimtebestand.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| **Werkmap instellen**                                                                                 | Kies de standaardmap die wordt gebruikt door bestandsselectoren en dialoogvensters voor opslaan. Het pad wordt opgeslagen in de app-configuratie en in menuvoorbeelden blijft het einde van het pad zichtbaar.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| **Nieuw project vanuit sjabloon…** (`Menu → Nieuw project`, of de knop in de werkbalk naast **Menu**) | Maak een nieuw `.proj`-project aan vanuit een Visual Assembler-, ACME- of UltimateBasic-sjabloon in een eigen map — zie [Projectsjablonen](#project-templates)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| **Project openen** (`Menu → Bestand`)                                                                 | Open een project met meerdere bestanden `.proj` en open alle bronbestanden als tabbladen.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| **Project opslaan** (`Menu → Bestand`)                                                                | Sla het huidige `.proj`-project op (het projectvenster moet geopend zijn).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| **Project sluiten** (`Menu → Bestand`)                                                                | Sluit het momenteel geopende project en alle bijbehorende bestandstabbladen. Er verschijnt een prompt om niet-opgeslagen wijzigingen op te slaan. Het projectpaneel wordt teruggezet naar de lege staat.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| **Laad .asm-bestand**                                                                                 | Opent een `.asm`-bestand in de expertmodus en importeert tekstuele 6502 ASM in het huidige tabblad.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| **PRG opslaan**                                                                                       | Exporteer het gecompileerde binaire bestand als een `.prg`-bestand                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| **CRT bouwen**                                                                                        | Exporteer het programma als een 64K Magic Desk-bestand (`.crt`, cartridgetype 19). Zie [Paragraaf 12b](#12b-crt-export-magic-desk-64k-cartridge).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| **Project bouwen** (`Menu → Bouwen`)                                                                  | Compileer elk compileerbaar bestand van het project (of van de geopende tabbladen) naar een `.prg` naast de broncode — zie [Project bouwen](#build-project)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| **Uitvoeren (splitknop)**                                                                             | De hoofdknop **▶ Run** start de huidige modus; klik op de pijl **▾** om te schakelen tussen: **Uitvoeren als PRG** (VICE direct compileren en starten), **Uitvoeren via D64** (verpakken in een .d64-schijfimage en VICE starten), **Uitvoeren op hardware** (PRG naar een C64 Ultimate / 1541 Ultimate-apparaat sturen), of **Kung Fu Flash 2** (de PRG via USB uploaden naar een echte C64/C128 met een Kung Fu Flash 2-cartridge). Zie [Sectie 12](#12-d64-export--run) en [Sectie 13](#13-hardware-settings).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| **Debug (RetroDebugger)**                                                                             | Compileer en start in RetroDebugger met breakpoints, symbolen en autostart-vlaggen (zie [Sectie 9](#9-debugger-integration))                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| **Uitvoeren met Exomizer**                                                                            | Selectievakje in het menu Instellingen — wanneer ingeschakeld, verwerken alle Run- en Build-bewerkingen de PRG via `exomizer sfx` voordat ze worden gestart of opgeslagen (`sfx basic` voor een PRG die begint met een BASIC-regel, zodat RUN weer werkt nadat het programma is teruggekeerd; `sfx $<laadadres>` anders). Werkt met Run as PRG, Run via D64, Run on Hardware, Build PRG en Build D64. Configureer eerst het Exomizer-uitvoerbare bestand in **Hardware-instellingen**.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| **Automatische opslag van items**                                                                     | Selectievakje in **Hardware-instellingen → Versiebeheer**. Wanneer dit is ingeschakeld, voegt de app ongeveer 2,5 seconden nadat u stopt met het bewerken van een tabblad een automatisch opgeslagen item toe aan de versiegeschiedenis (voor een tabblad van een project ook aan de projectgeschiedenis). Schakel dit uit als u alleen uw eigen commits wilt bewaren. Zie [Versiebeheer](#version-control).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| **Instellingen** (voorheen Hardware-instellingen)                                                     | Open het instellingendialoogvenster met drie tabbladen: **Algemeen** (assemblermodus, BASIC SYS-stub, Exomizer, updates, ASM-uitvoer, SID-voorbeeld, debuggerparameters, versiebeheer), **Bestanden en paden** (VICE, RetroDebugger, ACME, Exomizer, git) en **Integraties** (C64 Ultimate, Kung Fu Flash 2). Zie [Paragraaf 13](#13-hardware-settings).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| **Nieuw programma…**                                                                                  | Opent een bevestigingsdialoogvenster en verwijdert vervolgens alle blokkeringen uit het programmagebied.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| **Alles inklappen**                                                                                   | Vouw alle blokken samen                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| **Over**                                                                                              | Versie-informatie                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| **Wat is er nieuw**                                                                                   | Wijzigingslogboek                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| Controle                                                                                              | Beschrijving                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| ----------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Getallenbasis (HEX / DEC / BIN)**                                                                   | Hiermee wordt het weergave-/invoerformaat voor operanden in de gebruikersinterface ingesteld. In de BIN-modus worden waarden binair weergegeven met het voorvoegsel `%` (bijv. `%11111000`). De ASM-weergave toont elk blok altijd in zijn eigen formaat.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| **Taal**                                                                                              | Schakel de gebruikersinterface tussen Engels, Hongaars, Spaans, Duits, Nederlands, Pools en Italiaans (**Menu → Instellingen**)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| **Thema**                                                                                             | Licht / Donker / OLED / Zwart / Commodore 77 / Commodore Starlight / Commodore Beige / Commodore 64 — selecteer in de themakiezer in **Menu → Weergave**. OLED gebruikt een puur zwarte achtergrond voor AMOLED-schermen. Commodore 77 is een neongeel-op-zwart thema; wanneer dit het actieve thema is, gebruikt het opstartscherm de paneelkleur van het thema (overeenkomend met de berichtkaart), toont het een kleiner, speciaal Commodore 77-logo en een gele voortgangsbalk. Commodore Starlight is een licht thema, geïnspireerd op de doorschijnende C64-broodbak: matglazen panelen met een regenboogkleurige RGB-gloed die erdoorheen schijnt, een magenta accent, regenboogkleuren voor de syntax en een rokerig donker scherm. Commodore Beige is de klassieke broodbak: een beige behuizing, mosterdkleurige functietoetsen, de regenboogstrepen van het logo en een C64-blauw scherm voor de monitorweergave. Het gekozen thema wordt toegepast vóór de eerste weergave bij de volgende opstart. |
+| **CRT retro-modus**                                                                                   | Schakelt een CRT-filter voor het volledige scherm in of uit: scanlijnen, fosforvignettering, flikkering en tonvormige vertekening. De instelling wordt tussen sessies bewaard.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| **Geheugenpaneel weergeven**                                                                          | Globale schakelaar (**Instellingen → Algemeen → ASM-uitvoer**) waarmee het volledige C64-geheugenpaneel kan worden weergegeven of verborgen.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| **BASIC SYS stub**                                                                                    | (**Instellingen → Algemeen → Programma**) Voegt een BASIC-regel toe die SYS aanroept naar de oorsprong van uw programma (de eerste ORG). Een segment dat lager dan de eerste ORG is geplaatst, blijft op zijn eigen adres. Wanneer het programma onder of over de BASIC-regel laadt (`$0801`–`$080C`, bijvoorbeeld een geïmporteerde dump van `$071C`), voegt Run and Build in plaats daarvan een kleine startlader toe: `SYS 2061` kopieert een mover naar de tapebuffer (`$033C`), die het programma op zijn plaats zet en naar de eerste ORG springt.                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| **Voorbeelden…**                                                                                      | Open de voorbeeldbrowser en laad een ingebouwd voorbeeldprogramma — zie [Voorbeeldprogramma's](#example-programs)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| **In-/uitzoomen**                                                                                     | Schaal de gebruikersinterface van het blok (dit heeft invloed op alle elementen van het blok)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| **Programma opslaan** (`Menu → Bestand`)                                                              | Sla het huidige tabblad op: een blokprogramma als een `.json`-bestand, een bronbestand (`.asm`, `.s`, `.inc` …) als platte tekst (Ctrl+S doet hetzelfde).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| **Programma opslaan als** (`Menu → Bestand`)                                                          | Hetzelfde geldt voor het openen van een nieuw bestandsdialoogvenster elke keer.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| **Programma laden** (`Menu → Bestand`)                                                                | Een eerder opgeslagen programma laden                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| **Werkruimte opslaan**                                                                                | Sla de exacte set van momenteel geopende, door bestanden ondersteunde tabbladen op — inclusief het actieve tabblad en de editormodus van elk tabblad (Blok/Expert/Ultieme Basis) — in een `.vaws` werkruimtebestand                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| **Werkruimte opslaan als**                                                                            | Sla de huidige werkruimte elke keer op via een nieuw bestandsdialoogvenster.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| **Werkruimte openen**                                                                                 | Sluit alle geopende tabbladen en heropen de set bestanden die zijn opgeslagen in een `.vaws`-werkruimtebestand.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| **Werkmap instellen**                                                                                 | Kies de standaardmap die wordt gebruikt door bestandsselectoren en dialoogvensters voor opslaan. Het pad wordt opgeslagen in de app-configuratie en in menuvoorbeelden blijft het einde van het pad zichtbaar.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| **Nieuw project vanuit sjabloon…** (`Menu → Nieuw project`, of de knop in de werkbalk naast **Menu**) | Maak een nieuw `.proj`-project aan vanuit een Visual Assembler-, ACME- of UltimateBasic-sjabloon in een eigen map — zie [Projectsjablonen](#project-templates)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| **Project openen** (`Menu → Bestand`)                                                                 | Open een project met meerdere bestanden `.proj` en open alle bronbestanden als tabbladen.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| **Project opslaan** (`Menu → Bestand`)                                                                | Sla het huidige `.proj`-project op (het projectvenster moet geopend zijn).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| **Project sluiten** (`Menu → Bestand`)                                                                | Sluit het momenteel geopende project en alle bijbehorende bestandstabbladen. Er verschijnt een prompt om niet-opgeslagen wijzigingen op te slaan. Het projectpaneel wordt teruggezet naar de lege staat.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| **Laad .asm-bestand** (Expert-werkbalk)                                                               | Opent een `.asm`-bestand in de Expert-modus in een nieuw tabblad.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| **Programma bouwen** (`Menu → Bouwen`)                                                                | Exporteer het gecompileerde binaire bestand als een `.prg`-bestand                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| **Build D64** (`Menu → Build`)                                                                        | Verpak het programma en de extra bestanden in een `.d64` schijfkopie — zie [Exporteren naar D64-dialoogvenster]{1]                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| **CRT bouwen**                                                                                        | Exporteer het programma als een 64K Magic Desk-bestand (`.crt`, cartridgetype 19). Zie [Paragraaf 12b](#12b-crt-export-magic-desk-64k-cartridge).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| **Project bouwen** (`Menu → Bouwen`)                                                                  | Compileer elk compileerbaar bestand van het project (of van de geopende tabbladen) naar een `.prg` naast de broncode — zie [Project bouwen](#build-project)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| **Uitvoeren (splitknop)**                                                                             | De hoofdknop **▶ Run** start de huidige modus; klik op de pijl **▾** om te schakelen tussen: **Uitvoeren als PRG** (VICE direct compileren en starten), **Uitvoeren via D64** (verpakken in een .d64-schijfimage en VICE starten), **Uitvoeren op hardware** (PRG naar een C64 Ultimate / 1541 Ultimate-apparaat sturen), **D64 op hardware** (een D64 naar hetzelfde apparaat sturen), of **Kung Fu Flash 2** (de PRG via USB uploaden naar een echte C64/C128 met een Kung Fu Flash 2-cartridge). Zie [Artikel 12](#12-d64-export--run) en [Artikel 13](#13-settings).                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| **Debug (RetroDebugger)**                                                                             | Compileer en start in RetroDebugger met breakpoints, symbolen en autostart-vlaggen (zie [Sectie 10](#10-debugger-integration))                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| **Uitvoeren met Exomizer**                                                                            | Selectievakje in **Instellingen → Algemeen → Programma** — wanneer ingeschakeld, verwerken alle Run- en Build-bewerkingen de PRG via `exomizer sfx` voordat ze worden gestart of opgeslagen (`sfx basic` voor een PRG die begint met een BASIC-regel, zodat RUN weer werkt nadat het programma is teruggekeerd; `sfx $<laadadres>` anders). Werkt met Run as PRG, Run via D64, Run on Hardware, Build PRG en Build D64. Configureer eerst het Exomizer-uitvoerbare bestand in **Instellingen → Bestanden en paden**.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| **Automatische opslag van items**                                                                     | Selectievakje in **Instellingen → Algemeen → Versiebeheer**. Wanneer dit is ingeschakeld, voegt de app ongeveer 2,5 seconden nadat u stopt met het bewerken van een tabblad een automatisch opgeslagen item toe aan de versiegeschiedenis (voor een tabblad van een project ook aan de projectgeschiedenis). Schakel dit uit als u alleen uw eigen commits wilt bewaren. Zie [Versiebeheer](#version-control).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| **Instellingen** (voorheen Hardware-instellingen)                                                     | Open het instellingendialoogvenster met drie tabbladen: **Algemeen** (assemblermodus, VMA-compiler, BASIC SYS-stub, Exomizer, updates, ASM-uitvoer, SID-voorbeeld, debuggerparameters, versiebeheer), **Bestanden en paden** (VICE, RetroDebugger, ACME, Exomizer, git) en **Integraties** (C64 Ultimate, Kung Fu Flash 2). Zie [Paragraaf 13](#13-settings).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| **Nieuw programma…** (`Menu → Programma`)                                                             | Opent een bevestigingsdialoogvenster en verwijdert vervolgens alle blokkeringen uit het programmagebied.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| **Export ASM** (`Menu → Programma`)                                                                   | Kopieert de gegenereerde assembly-broncode                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| **Alles inklappen**                                                                                   | Vouw alle blokken samen                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| **Over**                                                                                              | Versie-informatie                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| **Wat is er nieuw**                                                                                   | Wijzigingslogboek                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| **Kennisbank**                                                                                        | Referentielinks (6502 opcodes, C64 KERNAL, geheugenkaart, kleuren)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| **Controleren op updates**                                                                            | Kijk op c64va.pro voor een nieuwere versie en download/installeer deze — zie [In-app updates](#in-app-updates)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 
 ### Versiebeheer
 
 Elk tabblad heeft zijn eigen versiegeschiedenis, zoals een kleine
 git-repository; een tabblad dat bij een open `.proj`-project hoort, kan ook als
 geheel project van een versie worden voorzien (zie
-[Projectmodus](#project-mode)). **Menu → Bouwen → Versiebeheer…** (of
+[Projectmodus](#project-mode)). **Menu → Versiebeheer → Versiebeheer…** (of
 **Commit…**) opent het dialoogvenster; **Wijzigingen ongedaan maken (terug naar
 HEAD)** herstelt de laatste commit direct.
 
@@ -1262,18 +1328,19 @@ veranderd → commit opnieuw.
   *Niet-gecommitteerde wijzigingen sinds `<hash>`*.
 - **Diff** — de wijzigingen sinds HEAD; de **Diff**-knop van een
   logboekvermelding vergelijkt die versie met de editor. Toegevoegde regels zijn
-  groen, verwijderde regels rood en de koptekst toont **+N / −M**.
-  Blokmodusprogramma's worden vergeleken als assemblerregels (één regel per
-  blok), Expert-bronnen regel voor regel, Ultimate Basic-tabbladen per broncode,
-  zodat een blokmodusproject dat als JSON is opgeslagen nog steeds leesbare
-  wijzigingen laat zien.
+  groen, verwijderde regels rood en de header toont **+N / −M**.
+  Blokmodusprogramma's worden vergeleken als assembly-regels (één regel per
+  blok), Expert-bronnen regel voor regel, Ultimate Basic-tabbladen op basis van
+  hun broncode, zodat een blokmodusproject dat als JSON is opgeslagen nog steeds
+  leesbare wijzigingen toont. Een bronbestand (`.asm`, `.s`, `.inc` …) wordt
+  opgeslagen als tekst, zodat een versie een bronbestand blijft.
 - **Checkout** — laadt die versie in de editor. Het bestand op de schijf wordt
   alleen gewijzigd wanneer je opslaat; **Discard changes** gaat terug naar HEAD.
-- **Automatisch opslaan van items** — met **Instellingen → Versiebeheer →
-  Automatisch opslaan van items in versiebeheer** voegt de app ongeveer 2,5
-  seconden nadat u stopt met bewerken een item toe. Ze worden gemarkeerd als
-  *automatisch opslaan*; de laatste 20 worden bewaard, naast maximaal 100
-  commits.
+- **Automatisch opslaan van items** — met **Instellingen → Algemeen →
+  Versiebeheer → Automatisch opslaan van items in versiebeheer** voegt de app
+  ongeveer 2,5 seconden nadat u stopt met bewerken een item toe. Ze worden
+  gemarkeerd als *automatisch opslaan*; de laatste 20 worden bewaard, naast
+  maximaal 100 commits.
 - Het dialoogvenster kan worden verplaatst via de koptekst; het wordt op
   dezelfde plaats opnieuw geopend en kan worden gesloten met **Esc** of de
   sluitknop (klikken buiten het dialoogvenster sluit het niet).
@@ -1325,13 +1392,13 @@ een project behouden de hierboven beschreven geschiedenis per bestand.
 Als `git` is geïnstalleerd, kan hetzelfde dialoogvenster ook werken met een
 echte git-repository.
 
-- **Instellingen → Versiebeheer:** **Kies git.exe…** of **Automatisch
-  detecteren** (zoekt in het PATH en de gebruikelijke installatiemappen); de
-  onderstaande regel toont de git-versie. **Git gebruiken wanneer het project
-  zich in een repository bevindt** (standaard ingeschakeld) schakelt het
-  dialoogvenster automatisch over naar de Git-modus voor bestanden in een
-  repository. De **Ingebouwd / Git** schakelaar in de dialoogvensterkop wijzigt
-  de modus handmatig.
+- **Instellingen → Bestanden en paden → git** / **Instellingen → Algemeen →
+  Versiebeheer:** **Kies git.exe…** of **Automatisch detecteren** (zoekt in het
+  PATH en de gebruikelijke installatiemappen); de onderstaande regel toont de
+  git-versie. **Git gebruiken wanneer het project zich in een repository
+  bevindt** (standaard ingeschakeld) schakelt het dialoogvenster automatisch
+  over naar de Git-modus voor bestanden in een repository. De schakelaar
+  **Ingebouwd / Git** in de dialoogvensterkop wijzigt de modus handmatig.
 - De header toont de branch met **↑** (commits om te pushen) en **↓** (commits
   om te pullen), gevolgd door de gewijzigde bestanden van de repository.
 - **Commit** slaat het bestand eerst op, zet alleen dit bestand (of elke
@@ -1348,11 +1415,8 @@ echte git-repository.
   origin <branch>`) en **Create repository (git init)** wanneer de map nog geen
   repository is.
 - Git wordt uitgevoerd zonder consolevenster en vraagt nooit om een wachtwoord:
-  de inloggegevens moeten afkomstig zijn van een credential manager of een
-  SSH-sleutel, anders wordt de foutmelding in het dialoogvenster weergegeven. |
-  **Kennisbank** | Referentielinks (6502 opcodes, C64 KERNAL, geheugenkaart,
-  kleuren) | | **Controleren op updates** | Controleer c64va.pro op een nieuwere
-  versie en download/installeer deze — zie [In-app updates](#in-app-updates) |
+  inloggegevens moeten afkomstig zijn van een credential manager of een
+  SSH-sleutel, anders wordt de foutmelding in het dialoogvenster weergegeven.
 
 ### Editortools
 
@@ -1379,8 +1443,8 @@ De lijst met opdrachten is opzettelijk in hoogte beperkt, zodat de detailkaart
 van de opdracht de resterende paneelhoogte kan vullen. Het detailgebied scrollt
 onafhankelijk voor langere syntaxbeschrijvingen.
 
-**Updateserver:** **Instellingen → Updates → Updateserver** bepaalt waar
-releases worden opgezocht (standaard `https://www.c64va.pro/`); de
+**Updateserver:** **Instellingen → Algemeen → Updates → Updateserver** bepaalt
+waar releases worden opgezocht (standaard `https://www.c64va.pro/`); de
 installatiebestanden worden gelezen van `<server>downloads/VA/`. Het adres moet
 `https://` gebruiken (plain `http://` alleen voor `localhost`, voor
 testdoeleinden); **Standaard** gaat terug naar c64va.pro.
@@ -1651,8 +1715,9 @@ afhankelijkheid.
 
 #### Importeer parseernotities en best practices
 
-- Lokale labels zoals `.wait` worden geïmporteerd als standaardlabels (punt
-  verwijderd) en verwijzingen worden dienovereenkomstig genormaliseerd.
+- Lokale labels zoals `.wait` behouden hun punt: ze behoren tot het
+  dichtstbijzijnde globale label erboven (zie [Lokale (gestippelde)
+  labels](#local-dotted-labels)).
 - Voor adressering in de stijl `($zp),Y` / `($zp,X)` kunt u het beste een
   concrete nulpaginabyte gebruiken (`$FB`, `$FC`, enz.) voor optimale
   compatibiliteit.
@@ -1732,11 +1797,11 @@ zodat een bestaand KickAssembler-buildscript blijft werken. Bestanden die niet
 gevonden kunnen worden, worden weergegeven in het foutdialoogvenster.
 
 **Kick-compatibele schakelaar:** Elk VA (VMA)-project kan Kick-compatibel worden
-gemaakt met de `{K}`-knop in de koptekst van het projectpaneel (weergegeven in
-VMA-modus wanneer een project is geopend; deze is ingeschakeld voor
-geïmporteerde Kick-projecten). De instelling wordt opgeslagen in het `.proj`
-(`"kick": true`); uitgeschakeld is het project een gewoon VMA-project en wordt
-het precies zoals voorheen gebouwd.
+gemaakt met de **KickAssembler-compatibele** schakelaar in
+**Projectinstellingen** (deze is ingeschakeld voor geïmporteerde
+Kick-projecten). De instelling wordt opgeslagen in het `.proj` (`"kick": true`);
+uitgeschakeld is het project een gewoon VMA-project en wordt het precies zoals
+voorheen gebouwd.
 
 In een Kick-compatibel project blijven de VA-macro's en -richtlijnen naast het
 KickAssembler-script werken: `.text x, y, "…"`, `.set_border`, LOOP / NEXT,
@@ -1753,8 +1818,8 @@ die in beide voorkomen, worden onderscheiden door hun vorm:
 | `.var name = value` (een runtime-variabele)       | `.var name = value` (een scriptvariabele) — in een Kick-compatibel project is `.var` altijd de KickAssembler-variabele |
 
 Het project wordt gecompileerd met de VA-assembler, niet met KickAssembler: elke
-compilatie (Uitvoeren, PRG opslaan, D64, CRT, Exomizer, Debuggen, VICE Monitor,
-Project compileren, de knop Compileren) voert eerst het opstartbestand door een
+compilatie (Uitvoeren, PRG bouwen, D64, CRT, Exomizer, Debuggen, VICE Monitor,
+Project bouwen, de knop Bouwen) voert eerst het opstartbestand door een
 KickAssembler-preprocessor, inclusief de editor-tekst van geopende tabbladen, al
 dan niet opgeslagen. Het resultaat is dezelfde PRG als die van KickAssembler.
 Ondersteund:
@@ -1935,8 +2000,8 @@ Expert-modus. Deze biedt het volgende:
 - Automatische aanvulling voor commando's en ingebouwde functies;
 - een doorzoekbaar **Commands**-paneel met syntaxis, beschrijving en
   gebruiksaanwijzing — beschrijvingen volgen de huidige UI-taal (Hongaars,
-  Engels, Spaans, Duits, Nederlands), waarbij voor alles wat nog niet vertaald
-  is, wordt teruggevallen op Engels;
+  Engels, Spaans, Duits, Nederlands, Pools, Italiaans), waarbij voor alles wat
+  nog niet vertaald is, wordt teruggevallen op Engels;
 - De panelen **Project** en **Commands** zijn onafhankelijk van elkaar in- en
   uitschakelbaar en worden naast elkaar weergegeven wanneer beide zijn
   ingeschakeld;
@@ -2061,13 +2126,13 @@ markering verdwijnt automatisch.
 | **D64 uitvoeren op hardware** | Verpak een D64 en stuur deze naar de geconfigureerde C64 Ultimate.                                                                                           |
 | **Kung Fu Flash 2**           | Compileer de UB-opstartbroncode en upload de PRG via USB naar een echte C64/C128 met een Kung Fu Flash 2-cartridge. Zie [Kung Fu Flash 2](#kung-fu-flash-2). |
 
-De globale **Settings → Exomizer**-optie is ook van toepassing op UB-builds en
-normale uitvoeringsdoelen; er is geen aparte schakelaar in de UB-werkbalk nodig.
-Bij het starten van de debugger wordt bewust de niet-gecomprimeerde PRG
-gebruikt, zodat compileradressen en symbolen overeenkomen met het uitgevoerde
-programma.
+De algemene **Uitvoeren met Exomizer**-optie (**Instellingen → Algemeen →
+Programma**) is ook van toepassing op UB-builds en normale uitvoeringsdoelen; er
+is geen aparte UB-toolbarschakelaar nodig. Bij het starten van de debugger wordt
+bewust de niet-gecomprimeerde PRG gebruikt, zodat compileradressen en symbolen
+blijven overeenkomen met het uitgevoerde programma.
 
-Schakel **Instellingen → Programma-instellingen → UltimateBasic ASM-broncode
+Schakel **Instellingen → Algemeen → Programma → UltimateBasic ASM-broncode
 (.asm) genereren** in om de door de compiler gegenereerde assembly naast een
 PRG- of D64-build op te slaan met dezelfde basisbestandsnaam. Dit is een
 build-optie, dus de UB-werkbalk bevat geen aparte knoppen voor ASM-export. Een
@@ -2115,9 +2180,9 @@ staat op elk blok.
   instructie per regel, labels en macro's als richtlijnen). Bewerkingen in de
   Expert-modus worden gesynchroniseerd met de blokarray wanneer u terugschakelt
   of een actie activeert.
-- **Expert → Blok:** De tekst wordt geparseerd met `parseAsmText()` en het
-  resultaat vervangt het blokprogramma. Er wordt een dialoogvenster met een
-  compilatie-fout weergegeven als het parseren mislukt.
+- **Expert → Blok:** De tekst wordt geparseerd en het resultaat vervangt het
+  blokprogramma. Er wordt een dialoogvenster met een compilatie-fout weergegeven
+  als het parseren mislukt.
 - **Lege regels** blijven behouden tijdens retouren: lege regels in de
   Expert-editor verschijnen als dunne stippellijnen in de Blokmodus en worden
   hersteld als lege regels wanneer er teruggeschakeld wordt naar Expert.
@@ -2142,23 +2207,26 @@ staat op elk blok.
 
 ### Lokale (gestippelde) labels
 
-| Knop                                  | ID                                             | Functie                                                                                                                                                                                                                                                       |
-| ------------------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Formaat**                           | `#expert-format-btn`                           | Broncode automatisch formatteren (labels naar kolom 0, 4 spaties inspringen, 1 spatie voor mnemonic/operand)                                                                                                                                                  |
-| **Laad .asm**                         | `#expert-load-asm-btn`                         | Open een `.asm`-bestand — de inhoud wordt geladen in een **nieuw tabblad** met de bestandsnaam als tabbladlabel. Elk geladen bestand wordt een onafhankelijk tabblad met eigen programmablokken en editorstatus.                                              |
-| **Sla .asm op**                       | `#expert-save-asm-btn`                         | Sla de editorinhoud op in een `.asm`-bestand (bestanddialoogvenster bij de eerste keer opslaan)                                                                                                                                                               |
-| **Bouwinfo**                          | `#expert-build-info-btn`                       | Open het dialoogvenster Build Info: bovenaan ziet u de oorsprong, het einde, de grootte en het aantal segmenten, daaronder de segmenten, fouten (`file:line` in een Kick-project) en de uitvoer `.print`, en in de kolommen de labels, constanten en macro's. |
-| **HL**                                | `#expert-hl-btn`                               | Syntaxmarkering in- of uitschakelen (uitschakelen voor zeer grote bestanden)                                                                                                                                                                                  |
-| **Automatisch aanvullen**             | `#expert-autocomplete-btn`                     | Schakel de automatische aanvulsuggesties voor experts in of uit. Wanneer deze functie is uitgeschakeld, verschijnen er geen instructies, ezelsbruggetjes of labels in de experteditor.                                                                        |
-| **Regioselectie**                     | `#expert-regio-selectie-knop`                  | Schakel de automatische regiomarkering in de expertmodus in of uit. De vouwstatus blijft behouden, maar wanneer deze functie is uitgeschakeld, blijft de volledige broncode zichtbaar in de editor en wordt het huidige gebied niet automatisch geselecteerd. |
-| **Alle regio's inklappen/uitklappen** | `#expert-region-fold-all-btn`                  | Vouw elk `.region`-blok in één klik in of uit. Als er momenteel een regio open is, vouwt de knop ze allemaal in; als alle regio's al ingeklapt zijn, vouwt de volgende klik ze allemaal uit. De knop licht op wanneer alle regio's zijn ingeklapt.            |
-| **Regelnummers**                      | `#expert-line-numbers-btn`                     | Schakel de regelnummermarge aan de linkerkant van de editor in of uit. De marge blijft gesynchroniseerd met de scrollpositie en wordt live bijgewerkt terwijl u typt.                                                                                         |
-| **Vind**                              | `#expert-find-btn`                             | Open de zwevende zoekbalk (`Ctrl+F`). Typ om te zoeken; overeenkomsten worden gemarkeerd in de overlay. `Enter` / `Shift+Enter` navigeer tussen overeenkomsten. `Escape` sluit de balk.                                                                       |
-| **Uitzoomen/inzoomen**                | `#expert-zoom-out-btn` / `#expert-zoom-in-btn` | Verklein/vergroot de lettergrootte van de editor (8–28 px). `Ctrl` + muiswiel (`Cmd` + wiel op macOS, of knijpen op het touchpad) boven de editor heeft hetzelfde effect. De instelling wordt opgeslagen.                                                     |
-| **Palet**                             | `#expert-palette-btn`                          | Toon/verberg het linker geheugenpalet                                                                                                                                                                                                                         |
-| **Disasm**                            | `#expert-disasm-btn`                           | Het demontagepaneel weergeven/verbergen (pure 6502, macro's uitgebreid)                                                                                                                                                                                       |
-| **Monitor**                           | `#expert-monitor-btn`                          | Het paneel voor de hex-dump van de monitor weergeven/verbergen                                                                                                                                                                                                |
-| **Minimap**                           | `#expert-minimap-btn`                          | Toon/verberg de code-minimap aan de rechterkant van de editor                                                                                                                                                                                                 |
+| Knop                                  | ID                                                  | Functie                                                                                                                                                                                                                                                       |
+| ------------------------------------- | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Formaat**                           | `#expert-format-btn`                                | Broncode automatisch formatteren (labels naar kolom 0, 4 spaties inspringen, 1 spatie voor mnemonic/operand)                                                                                                                                                  |
+| **Laad .asm**                         | `#expert-load-asm-btn`                              | Open een `.asm`-bestand — de inhoud wordt geladen in een **nieuw tabblad** met de bestandsnaam als tabbladlabel. Elk geladen bestand wordt een onafhankelijk tabblad met eigen programmablokken en editorstatus.                                              |
+| **Sla .asm op**                       | `#expert-save-asm-btn`                              | Sla de editorinhoud op in een `.asm`-bestand (bestanddialoogvenster bij de eerste keer opslaan)                                                                                                                                                               |
+| **Bouwinfo**                          | `#expert-build-info-btn`                            | Open het dialoogvenster Build Info: bovenaan ziet u de oorsprong, het einde, de grootte en het aantal segmenten, daaronder de segmenten, fouten (`file:line` in een Kick-project) en de uitvoer `.print`, en in de kolommen de labels, constanten en macro's. |
+| **Automatisch aanvullen**             | `#expert-autocomplete-btn`                          | Schakel de automatische aanvulsuggesties voor experts in of uit. Wanneer deze functie is uitgeschakeld, verschijnen er geen instructies, ezelsbruggetjes of labels in de experteditor.                                                                        |
+| **Regioselectie**                     | `#expert-regio-selectie-knop`                       | Schakel de automatische regiomarkering in de expertmodus in of uit. De vouwstatus blijft behouden, maar wanneer deze functie is uitgeschakeld, blijft de volledige broncode zichtbaar in de editor en wordt het huidige gebied niet automatisch geselecteerd. |
+| **Alle regio's inklappen/uitklappen** | `#expert-region-fold-all-btn`                       | Vouw elk `.region`-blok in één klik in of uit. Als er momenteel een regio open is, vouwt de knop ze allemaal in; als alle regio's al ingeklapt zijn, vouwt de volgende klik ze allemaal uit. De knop licht op wanneer alle regio's zijn ingeklapt.            |
+| **Regelnummers**                      | `#expert-line-numbers-btn`                          | Schakel de regelnummermarge aan de linkerkant van de editor in of uit. De marge blijft gesynchroniseerd met de scrollpositie en wordt live bijgewerkt terwijl u typt.                                                                                         |
+| **Vind**                              | `#expert-find-btn`                                  | Open de zwevende zoekbalk (`Ctrl+F`). Typ om te zoeken; overeenkomsten worden gemarkeerd in de overlay. `Enter` / `Shift+Enter` navigeer tussen overeenkomsten. `Escape` sluit de balk.                                                                       |
+| **Uitzoomen/inzoomen**                | `#expert-zoom-out-btn` / `#expert-zoom-in-btn`      | Verklein/vergroot de lettergrootte van de editor (8–28 px). `Ctrl` + muiswiel (`Cmd` + wiel op macOS, of knijpen op het touchpad) boven de editor heeft hetzelfde effect. De instelling wordt opgeslagen.                                                     |
+| **Palet**                             | `#expert-palette-btn`                               | Toon/verberg het linker geheugenpalet                                                                                                                                                                                                                         |
+| **Disasm**                            | `#expert-disasm-btn`                                | Het demontagepaneel weergeven/verbergen (pure 6502, macro's uitgebreid)                                                                                                                                                                                       |
+| **Monitor**                           | `#expert-monitor-btn`                               | Het paneel voor de hex-dump van de monitor weergeven/verbergen                                                                                                                                                                                                |
+| **Minimap**                           | `#expert-minimap-btn`                               | Toon/verberg de code-minimap aan de rechterkant van de editor                                                                                                                                                                                                 |
+| **Projectpaneel**                     | `#expert-project-btn`                               | Het projectpaneel (bestanden, symbolen, projectinstellingen) weergeven/verbergen.                                                                                                                                                                             |
+| **Cyclus tellingen**                  | `#expert-cycles-btn`                                | De cyclusmarge weergeven/verbergen — zie [Cycle counts](#cycle-counts)                                                                                                                                                                                        |
+| **Ga naar regel / Bladwijzers**       | `#expert-ga-naar-lijn-knop`, `#expert-bladwijzer-*` | Ctrl+G springt naar een regel; Ctrl+F2 schakelt een bladwijzer in/uit; F2 / Shift+F2 gaan naar de volgende / vorige regel.                                                                                                                                    |
+| ** Bouw ACME **                       | `#expert-acme-build-btn`                            | In ACME-modus: compileer de broncode met ACME — zie [ACME-modus](#acme-mode)                                                                                                                                                                                  |
 
 *(Nieuw in 2.3.9.)* Een label waarvan de naam begint met een punt — `.loop`,
 `.skip`, `.done` — is een **lokaal label**. Het behoort tot het bereik van het
@@ -2232,9 +2300,7 @@ markering verdwijnt automatisch.
 ### Syntaxmarkering
 
 De editor gebruikt een transparante `<div>` overlay (`expert-hl`) die de inhoud
-van het tekstgebied spiegelt met gekleurde `<span>` elementen. De markering kan
-worden uitgeschakeld met de **HL** knop voor betere prestaties bij zeer grote
-programma's.
+van het tekstgebied spiegelt met gekleurde `<span>` elementen.
 
 | Kleur       | Token                                                                                                                                                  |
 | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -2282,7 +2348,7 @@ projecten met meerdere bestanden `.proj`:
   `#menu-close-project`) sluit het huidige project en alle bijbehorende
   bestandstabbladen in één keer. Er wordt gevraagd om eventuele niet-opgeslagen
   wijzigingen op te slaan voordat het project wordt gesloten. Het projectpaneel
-  wordt teruggezet naar de lege staat en `_expertProjectData` wordt gewist.
+  wordt teruggezet naar de lege staat.
 - Elk bestand kan worden gemarkeerd als het **opstartbestand** (★
   sterpictogram). Wanneer een opstartbestand is ingesteld, compileert en voert
   de **Uitvoeren** knop (PRG, D64, Ultimate) altijd de code van dat bestand uit,
@@ -2301,10 +2367,13 @@ projecten met meerdere bestanden `.proj`:
   pad, opstartbestand, assembler (VMA of ACME), **KickAssembler-compatibel**, en
   voor een Kick-project de preprocessor-symbolen (`#define`, zoals
   KickAssembler's `-define`) en de opdrachtregelvariabelen (`cmdLineVars`, één
-  `naam=waarde` per regel, zoals `:naam=waarde`), plus het aantal bron- en
-  andere bestanden, en **Alleen expertmodus**: de blokmodus is gesloten voor de
-  bestanden van het project, ongeacht hun grootte. Alles wordt opgeslagen in het
-  `.proj`.
+  `naam=waarde` per regel, zoals `:naam=waarde`), voor een VMA-project de
+  symbolen (`.define`) en constanten (`.const`, één `NAME=value` per regel) —
+  deze komen vóór de broncode die het project compileert, dus `.if NAME` / `.if
+  NAME == 3` schakelen een compilatie over zonder de broncode te bewerken — plus
+  het aantal bron- en andere bestanden, en **Alleen expertmodus**: de blokmodus
+  is gesloten voor de bestanden van het project, ongeacht hun grootte. Alles
+  wordt opgeslagen in de `.proj`.
 - Mappen in de boomstructuur hebben een inklap-/uitklappijl, en **klik met de
   rechtermuisknop op een map** om een of meer bestanden die eronder genest zijn
   toe te voegen (ingesprongen weergegeven).
@@ -2331,7 +2400,7 @@ geopend is.
 | **Vuile stip**          | Een klein, contrasterend gekleurd stipje bij de tabnaam geeft aan dat er nog wijzigingen zijn die niet zijn opgeslagen.                                                                                                                                                                                                                                                                                                       |
 | **Scrollpijlen**        | De scrollknoppen naar links/rechts verschijnen wanneer er meer tabbladen zijn dan er in de balk passen.                                                                                                                                                                                                                                                                                                                       |
 | **Sluiten (×)**         | Sluit het tabblad; vraagt om op te slaan als het tabblad gewijzigd is.                                                                                                                                                                                                                                                                                                                                                        |
-| **Bestandsextensie**    | De volledige bestandsnaam inclusief extensie (`.c64va`, `.json`) wordt weergegeven.                                                                                                                                                                                                                                                                                                                                           |
+| **Bestandsextensie**    | De volledige bestandsnaam inclusief extensie (`.json`, `.asm`, `.ub` …) wordt weergegeven.                                                                                                                                                                                                                                                                                                                                    |
 | **Ctrl+N**              | Opent een nieuw, leeg tabblad (niet wanneer er een modaal dialoogvenster geopend is).                                                                                                                                                                                                                                                                                                                                         |
 | **Rechtermuisklikmenu** | Klik met de rechtermuisknop op een tabblad (of een lege ruimte in de tabbladbalk) voor: **Nieuw tabblad**, **Tabblad sluiten**, **Andere tabbladen sluiten**, **Tabbladen rechts sluiten**, **Alle tabbladen sluiten**. Bij het sluiten van meerdere tabbladen tegelijk wordt er per gewijzigd tabblad een prompt weergegeven en wordt de actie gestopt als u annuleert. **Alles sluiten** laat altijd één leeg tabblad open. |
 
@@ -2358,7 +2427,7 @@ lessen bouwen VMA-programma's op uit blokken).
 Wat volgt na de ACME-build:
 
 - **Build** (de hamerknop in de Expert-werkbalk, *Build ACME-broncode*), **Run**
-  (PRG, D64, C64 Ultimate, Kung Fu Flash 2), **Save PRG**, **Build D64**,
+  (PRG, D64, C64 Ultimate, Kung Fu Flash 2), **Build PRG**, **Build D64**,
   **Build CRT**, **Build project** en **Debug (RetroDebugger)** compileren via
   ACME; ACME-fouten en -waarschuwingen worden geopend in het normale
   dialoogvenster voor compileerfouten, met de broncoderegel.
@@ -2406,8 +2475,8 @@ bne -
 text !scr "hallo acme", 0
 ```
 
-`samples/acme-crt-demo.asm` is een klein ACME-testprogramma voor Run, Build
-PRG/D64 en Build CRT: een bericht in het midden van het scherm en
+`samples/ACME/acme-crt-demo.asm` is een klein ACME-testprogramma voor Run, Build
+PRG / D64 en Build CRT: een bericht in het midden van het scherm en
 rasterkleurbanden in de rand, zonder KERNAL-aanroepen, zodat het ook vanaf de
 cartridge kan worden uitgevoerd.
 
@@ -3744,7 +3813,7 @@ inhoud van de tabel te definiëren.
 
 **Expert syntax:**
 ```
-.table color_table, $C000
+.table color_table $C000
 ```
 
 **Gegenereerde ASM:**
@@ -4221,9 +4290,9 @@ blok deactiveert alle symbolen direct.
 
 #### ALS
 
-| Veld       | Beschrijving                                                                                  |
-| ---------- | --------------------------------------------------------------------------------------------- |
-| Voorwaarde | Identificatiecode om te testen (moet overeenkomen met een `DEFINE`-symbool om actief te zijn) |
+| Veld       | Beschrijving                                                                                                                                                                 |
+| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Voorwaarde | Een `.define`d symbool (actief), een `.const` naam (actief als deze niet nul is) of een constante expressie (`LEVEL == 2`); een die niet kan worden geëvalueerd is een fout. |
 
 **Expert syntax:**
 ```
@@ -5832,24 +5901,20 @@ Snelkoppelingen zijn beschikbaar in de app onder **Kennisbank**:
 platformonafhankelijke Commodore 64-debugger met ondersteuning voor breakpoints,
 geheugeninspectie en labelbewuste disassemblage.
 
-**Instellingen:** Open **Instellingen → Configureer het
-RetroDebugger-uitvoerbestand** en wijs het naar het `RetroDebugger`-binair
-bestand.
+**Instellingen:** in **Instellingen → Bestanden en paden → Retro Debugger**
+verwijzen naar het `RetroDebugger`-binair bestand.
 
 **Starten:** Klik op **Debuggen (RetroDebugger)** in de werkbalk. De app zal:
 
 1. Compileer het programma tot een `.prg`-bestand in een tijdelijke map.
-2. Schrijf een **breakpoints-bestand** (`breakpoints.txt`) — één `break $ADDR`
-   per gemarkeerd blok.
-3. Schrijf een **symbolenbestand** (`symbols.txt`) in
-   Vice/RetroDebugger-labelformaat (`al C:addr .name`). Alle LABEL- en
-   CONST-blokken zijn inbegrepen.
-4. Schrijf ook sidecars in C64Debugger-stijl naast de gecompileerde PRG: `.dbg`,
+2. Schrijf een **breakpoints-bestand** — het adres van elk breakpointblok en
+   elke Expert breakpoint-regel.
+3. Schrijf de **symbolen** in VICE/RetroDebugger labelformaat (`al C:addr
+   .name`): labels, constanten en variabelen.
+4. Schrijf de sidecars in C64Debugger-stijl naast de PRG: `.dbg` (source map),
    `.sym` en `.vs`.
-5. Start RetroDebugger met:
-   ```
-   RetroDebugger -prg <file.prg> -breakpoints <breakpoints.txt> -symbols <symbols.txt> [flags]
-   ```
+5. Start RetroDebugger met de onderstaande PRG, breakpoints, symbolen en
+   vlaggen.
 
 ### Breekpuntblokken
 
@@ -5858,7 +5923,9 @@ breakpoint in te stellen. Blokken met een breakpoint worden rood gemarkeerd. Hun
 adressen worden bij elke start van de debugger naar het breakpointbestand
 geschreven.
 
-### Foutopsporingsvlaggen (tabblad Opties)
+### Debugger-vlaggen
+
+Deze vind je in **Instellingen → Algemeen → RetroDebugger**.
 
 | Schakelaar            | Vlag              | Effect                                                                    |
 | --------------------- | ----------------- | ------------------------------------------------------------------------- |
@@ -5875,10 +5942,11 @@ geschreven.
 
 De **VICE Monitor**-knop in de werkbalk opent een niet-modaal venster dat
 communiceert met de draaiende VICE via de binaire monitor. **Uitvoeren (VICE)**
-start VICE met de monitor op poort 6502 (**Instellingen → VICE-monitor op
-afstand**, standaard ingeschakeld). Sluit en herstart een VICE die op een andere
-manier is gestart. De header toont de verbindingsstatus; *Alleen beschikbaar in
-de desktop-app* verschijnt in de browserpreview.
+start VICE met de monitor op poort 6502 (**Instellingen → Bestanden en paden →
+VICE-emulator → VICE-monitor op afstand**, standaard ingeschakeld). Sluit en
+herstart een VICE die op een andere manier is gestart. De header toont de
+verbindingsstatus; *Alleen beschikbaar in de desktop-app* verschijnt in de
+browserpreview.
 
 | Knop                                         | Wat het doet                                                                                                                                                                                                |
 | -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -5928,15 +5996,13 @@ starten, of de schijfkopie te exporteren voor gebruik elders.
 
 ## 12b. CRT-export (Magic Desk 64K-cartridge)
 
-**Menu → Bouwen → Bouw CRT** produceert een Commodore 64 cartridge-image
-(`.crt`, **cartridge type 19 — Magic Desk / Domark / HES Australia**) die draait
-op VICE, TheC64, echte hardware via EasyFlash / Kung Fu Flash, en 1541 Ultimate
-II+ cartridge-slots. Het is beschikbaar in zowel **blokmodus** als
-**Expertmodus**, en — vanaf de huidige build — ook in **UltimateBasic-modus**.
+Je kunt je programma (en extra gegevensbestanden) verpakken in een C64
+D64-schijfkopie en deze in VICE starten, of de schijfkopie exporteren voor
+gebruik elders.
 
 ### Welke schepen zitten er in de winkelwagen?
 
-De knop **Uitvoeren** in de werkbalk is vervangen door een **splitknop**:
+De knop **Uitvoeren** in de werkbalk is een **gesplitste knop**:
 
 | Deel             | Actie                                                  |
 | ---------------- | ------------------------------------------------------ |
@@ -5949,17 +6015,16 @@ De knop **Uitvoeren** in de werkbalk is vervangen door een **splitknop**:
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Uitvoeren als PRG**     | Compileer naar een tijdelijk `.prg` en start VICE direct. Klassiek gedrag.                                                                                                                                                                                          |
 | **Uitvoeren via D64**     | Stel een `.d64`-schijfimage samen (met behulp van c1541), voeg eventuele geconfigureerde extra bestanden toe en start VICE vervolgens vanaf de schijf. Gebruik dit wanneer uw programma bestanden laadt tijdens de uitvoering (bijvoorbeeld met de LOADFILE-macro). |
-| **Uitvoeren op hardware** | Stel het programma samen tot een PRG en verstuur het via het lokale netwerk naar een **1541 Ultimate / Ultimate 64**-apparaat. Zie [Sectie 13](#13-hardware-settings).                                                                                              |
+| **Uitvoeren op hardware** | Stel het programma samen tot een PRG en verstuur het via het lokale netwerk naar een **1541 Ultimate / Ultimate 64**-apparaat. Zie [Sectie 13](#13-settings).                                                                                                       |
+| **D64 op hardware**       | Bouw een `.d64` (zoals Run via D64) en stuur het naar de **1541 Ultimate / Ultimate 64**, die het monteert en uitvoert.                                                                                                                                             |
 | **Kung Fu Flash 2**       | Compileer naar PRG en upload het via USB-serieel naar een echte C64/C128 met een **Kung Fu Flash 2** cartridge. Zie [Kung Fu Flash 2](#kung-fu-flash-2).                                                                                                            |
 
 De geselecteerde modus wordt tussen sessies opgeslagen.
 
 ### Laadadres en toegangspunt
 
-Build CRT maakt nooit gebruik van Exomizer (de depacker kan niet vanuit de
-cartridge-ROM draaien). Het compileert het huidige tabblad met de standaard
-autostart-pipeline en haalt het laadadres uit de PRG-header en het entrypoint
-uit de SYS-target:
+Open het met **Menu → Bouwen → Bouwen D64** (Uitvoeren via D64 opent het ook).
+Het dialoogvenster biedt de volgende mogelijkheden:
 
 1. **Blokkeer-/Expertmodus met BASIC SYS-stub ingeschakeld:** laden = `$0801`,
    invoer = het SYS-doel (doorgaans `$080D` of de oorsprong van de gebruiker).
@@ -6001,14 +6066,16 @@ Het **loadfile-demo** voorbeeld is vooraf geconfigureerd met `DEMO-COLORS.PRG`
 als extra bestand. Selecteer dit bestand, open **Uitvoeren via D64** en klik op
 **Uitvoeren** om de volledige laadstroom in actie te zien.
 
-> **⚠️ Belangrijke waarschuwing — lees dit voordat u een CRT-monitor verzendt**
+> **Vereiste:** Voor zowel D64-export als 'Uitvoeren via D64' is het vereist dat
+> VICE (`c1541`) is geconfigureerd in [Instellingen → Bestanden en
+> paden](#13-settings).
 
 ### Verenigbaarheid
 
-Het pictogram in de werkbalk na de Curve Editor opent de **D64 Editor** — een
-zelfstandig hulpmiddel om rechtstreeks met een bestaande `.d64` image te werken,
+Het pictogram in de werkbalk na de tabelgenerator opent de **D64 Editor** — een
+zelfstandig hulpmiddel om rechtstreeks met een bestaande `.d64`-image te werken,
 onafhankelijk van het momenteel geopende programma. In tegenstelling tot het
-bovenstaande dialoogvenster Exporteren naar D64 (dat altijd een *nieuwe* schijf
+dialoogvenster Exporteren naar D64 hierboven (dat altijd een *nieuwe*-schijf
 bouwt vanuit de gecompileerde PRG), bewerkt de D64 Editor een schijfimage ter
 plaatse via `c1541`, waardoor het tevens dienstdoet als een lichtgewicht
 schijfbeheerder.
@@ -6070,14 +6137,18 @@ sector. Blokbewerkingen doorlopen dezelfde workflow voor werkkopie/opslaan als
 de bovenstaande directory-acties.
 
 > **Vereiste:** Net als bij Exporteren naar D64, vereist de D64 Editor dat VICE
-> (`c1541`) is geconfigureerd in [Hardware-instellingen](#13-hardware-settings).
+> (`c1541`) is geconfigureerd in [Instellingen → Bestanden en
+> paden](#13-settings).
 
 ---
 
 ## 13. Hardware-instellingen
 
-Openen via **Instellingen → Hardware-instellingen…** in het menubalk. Alle
-externe hardwarepaden en netwerkconfiguratie bevinden zich hier.
+**Menu → Bouwen → Bouw CRT** produceert een Commodore 64 cartridge-image
+(`.crt`, **cartridge type 19 — Magic Desk / Domark / HES Australia**) die draait
+op VICE, TheC64, echte hardware via EasyFlash / Kung Fu Flash en 1541 Ultimate
+II+ cartridge-slots. Het is beschikbaar in **blokmodus**, **Expertmodus** en
+**UltimateBasic-modus**.
 
 ### VICE-emulator
 
@@ -6110,7 +6181,12 @@ vanuit de Tauri-backend; niets aan de integratie is platformspecifiek.
 
 ### Retro Debugger
 
-Zie [Sectie 9]{1} voor de volledige debuggerdocumentatie.
+Omdat de payload lineair is opgeslagen — één platte afbeelding van het laagste
+tot het hoogste adres, met nullen ertussen — telt een programma met wijd
+gespreide ORG-segmenten (bijv. `$0801` + `$C000` + `$E000`) elke byte daartussen
+mee voor het budget van 65.408 bytes. Als u de limiet overschrijdt, wordt de
+build afgebroken met een foutmelding — comprimeer de geheugenindeling of splits
+de gegevens.
 
 > **⚠️ Belangrijke waarschuwing — lees dit voordat u een CRT-monitor verzendt**
 > 
@@ -6153,14 +6229,31 @@ Zie [Sectie 9]{1} voor de volledige debuggerdocumentatie.
 
 ---
 
-## 14. Visuele editors (toolkit)
+## 13. Instellingen
 
 Openen via **Menu → Instellingen…** (voorheen *Hardware-instellingen*). Het
-dialoogvenster heeft drie tabbladen: **Algemeen** (assemblermodus, BASIC
-SYS-stub, Uitvoeren met Exomizer, updates, ASM-uitvoer, SID-voorbeeld, C64
+dialoogvenster heeft drie tabbladen: **Algemeen** (assemblermodus, VMA-compiler,
+BASIC SYS-stub, Uitvoeren met Exomizer, updates, ASM-uitvoer, SID-voorbeeld, C64
 Debugger-parameters, snapshots / versiebeheer), **Bestanden en paden** (VICE,
 RetroDebugger, ACME, Exomizer, git) en **Integraties** (C64 Ultimate, Kung Fu
 Flash 2). De onderstaande secties beschrijven de externe tools en apparaten.
+
+### VMA-compiler
+
+**Instellingen → Algemeen → Programma → VMA-compiler** kiest de engine die de
+VMA- (en Kick-project) broncode compileert:
+
+- **JavaScript** — de ingebouwde compiler, de standaard.
+- **Rust** — de open-source [VMA-compiler](https://github.com/zstarczali/VMA) in
+  de app. Deze geeft dezelfde bytes, geheugenweergave, segmenten en
+  foutmeldingen als de JavaScript-versie.
+- **Rust + JavaScript-controle** — bouwt met JavaScript en met Rust, gebruikt
+  het JavaScript-resultaat en registreert eventuele verschillen (bytes,
+  geheugenweergave, fouten) in het foutenlogboek, dat wordt meegestuurd met het
+  bugrapport.
+
+In het dialoogvenster voor het compileren wordt de gebruikte engine genoemd. De
+VMA-versie wordt weergegeven in het venster 'Over'.
 
 ### Editor voor hoge resolutie / meerkleurig
 
@@ -6188,9 +6281,9 @@ meerkleurige modus van 160×200. Openen via Toolkit → Hi-Res Editor.
      https://csdb.dk/release/?id=244342.
    - **macOS:** `brew install exomizer` (installeert de officiële 3.1.2-build
      van Magnus Lind).
-2. Configureer het pad in **Hardware-instellingen → Exomizer-sectie**.
-3. Schakel het selectievakje **Uitvoeren met Exomizer** in het menu
-   **Instellingen** in.
+2. Configureer het pad in **Instellingen → Bestanden en paden → Exomizer**.
+3. Schakel het selectievakje **Uitvoeren met Exomizer** in via **Instellingen →
+   Algemeen → Programma**.
 4. Alle **Run**-acties (PRG, D64, hardware) en **Build**-acties (Build PRG,
    Build D64) zullen het geassembleerde programma nu door `exomizer sfx` halen
    voordat het wordt gestart of opgeslagen: `sfx basic` wanneer de PRG begint
@@ -6212,9 +6305,6 @@ vanuit de Tauri-backend; niets aan de integratie is platformspecifiek.
 > dat het programma wordt gestart. Schakel het selectievakje uit om het
 > programma zonder compressie uit te voeren.
 
-> **Integratietest:** `cargo test --test exomizer_integration` (in `src-tauri/`)
-> verifieert de volledige mem-mode compressie + decompressie roundtrip op een
-> 6502 emulator.
 
 ### C64 Character ROM Browser ("Char map")
 
@@ -6223,25 +6313,23 @@ vanuit de Tauri-backend; niets aan de integratie is platformspecifiek.
 | Twee tekensets | Tabblad 1: **Set 1 — Boven/Grafisch** (standaardmodus na inschakelen). Tabblad 2: **Set 2 — Onder/Boven** (na `$0E` schakelaar).                                                                                                                               |
 | **Status**     | Een raster van 16x16 pixels met alle 256 tekens. Klik op een glyph om het detailvenster te bekijken: een ingezoomde weergave van 8x8 pixels, de schermcode (decimaal + hexadecimaal), PETSCII-codes (zowel standaard als verschoven) en de ruwe 8-byte bitmap. |
 
-Alleen-lezen viewer van het C64-teken-ROM (het ingebouwde PETSCII-lettertype).
-Openen via de **C64 chargen**-optie in het Toolkit-menu. Handig om de schermcode
-van een glyph te vinden voordat je deze schrijft met `RAWBYTES` of `TEXT`.
+Zie [Sectie 10](#10-debugger-integration) voor de volledige
+debuggerdocumentatie.
 
 ### Tekeneditor (Charset)
 
 Teksteditor met een tekenset van 256 tekens (8x8). Openen via Toolkit →
 Teksteditor.
 
-| Instelling                  | Beschrijving                                                                                 |
-| --------------------------- | -------------------------------------------------------------------------------------------- |
-| ROM laden                   | Importeert de C64 ROM-tekenset rechtstreeks van VICE's `chargen` (geen bestandsselector).    |
-| Laad `.bin`                 | Importeert een extern binair bestand met een tekenset van 2048 bytes.                        |
-| Voorbeeldweergave per teken | Een raster van 16 vakjes breed met alle 256 glyphs, waarbij het huidige vakje is gemarkeerd. |
+| Instelling  | Beschrijving                                                                              |
+| ----------- | ----------------------------------------------------------------------------------------- |
+| ROM laden   | Importeert de C64 ROM-tekenset rechtstreeks van VICE's `chargen` (geen bestandsselector). |
+| Laad `.bin` | Importeert een extern binair bestand met een tekenset van 2048 bytes.                     |
 
 **Werkstroom:**
 1. Sluit de 1541 Ultimate / Ultimate 64 aan op uw lokale netwerk.
-2. Voer het IP-adres (en het wachtwoord, indien ingesteld) in bij de
-   hardware-instellingen.
+2. Voer het IP-adres (en wachtwoord indien ingesteld) in bij **Instellingen →
+   Integraties → C64 Ultimate**.
 3. Selecteer **Uitvoeren op hardware** in het menu voor gesplitste uitvoering.
 4. Klik op **▶ Uitvoeren** — de PRG wordt gecompileerd en via HTTP POST naar het
    apparaat verzonden naar `/v3/runners/prg`. Het apparaat laadt en voert het
@@ -6276,8 +6364,8 @@ gebruikt.
 **Werkstroom:**
 1. Plaats de Kung Fu Flash 2 in de cartridgepoort van de C64, zet de computer
    aan en sluit de USB-kabel aan op je pc/Mac.
-2. Open **Hardware-instellingen** en controleer het gedeelte **Kung Fu Flash 2**
-   — de poort zou al ingevuld moeten zijn.
+2. Open **Instellingen → Integraties** en controleer het gedeelte **Kung Fu
+   Flash 2** — de poort zou al ingevuld moeten zijn.
 3. Selecteer **Kung Fu Flash 2** in het menu voor gesplitste uitvoering (de
    keuze wordt onthouden en ook opgeslagen in projectbestanden).
 4. Klik op **▶ Uitvoeren**. Het programma wordt gecompileerd, de cartridge wordt
@@ -6300,11 +6388,10 @@ Basic-programma's worden gecompileerd vanuit het opstartbestand van het project.
 > **Build CRT** (Magic Desk 64K) draait ook op de Kung Fu Flash — zie [Sectie
 > 12b](#12b-crt-export-magic-desk-64k-cartridge).
 
----
-
----
-
 ### Versiebeheer (git)
+
+**Instellingen → Algemeen → Versiebeheer** en **Instellingen → Bestanden en
+paden → git**:
 
 | Instelling                                                         | Beschrijving                                                                                                                                                |
 | ------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -6316,12 +6403,11 @@ Basic-programma's worden gecompileerd vanuit het opstartbestand van het project.
 
 ## 14. Visuele editors (toolkit)
 
-Het menu **Toolkit** in de werkbalk groepeert de visuele data-editors die
-allemaal een gemeenschappelijk menu Bestanden (`Bestanden ▾`) delen voor BIN
-laden / BIN opslaan / Exporteren naar blokken / Opslaan naar D64. Elke editor
-produceert ruwe `.bin`-gegevens die in een programma kunnen worden geplaatst met
-`INCBIN`, of direct aan een D64-schijf kunnen worden toegevoegd via de **Opslaan
-naar D64**-optie.
+De visuele editors openen met hun eigen werkbalkknoppen. Elk heeft een
+**Bestanden ▾** menu om de gegevens te laden en op te slaan (meestal ruwe
+`.bin`) en om ze in het programma te plaatsen (**Exporteren naar blokken**); een
+`.bin` wordt in een programma geplaatst met `INCBIN`. De Hi-Res editor kan ook
+rechtstreeks opslaan op een D64-diskette (**Opslaan naar D64…**).
 
 **Kleurenpalet:** **Instellingen → Algemeen → Editors → C64-kleurenpalet** kiest
 de RGB-waarden waarmee elke editor de 16 C64-kleuren tekent (sprite, personage,
@@ -6354,7 +6440,8 @@ het de volgende keer wordt geopend.
 ### Editor voor hoge resolutie / meerkleurig
 
 Bitmap-editor op pixelniveau met zowel een hoge resolutie van 320×200 als een
-meerkleurige modus van 160×200. Openen via Toolkit → Hi-Res Editor.
+meerkleurige modus van 160×200. Open deze met de knop 'Hi-Res Editor' in de
+werkbalk.
 
 | Functie                       | Beschrijving                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -6377,8 +6464,8 @@ meerkleurige modus van 160×200. Openen via Toolkit → Hi-Res Editor.
 
 ### Sprite-editor
 
-Sprite-editor van 24x21 pixels met animatie over meerdere frames. Openen via
-Toolkit → Sprite-editor.
+Sprite-editor van 24x21 pixels met animatie over meerdere frames. Open deze via
+de knop 'Sprite Editor' in de werkbalk.
 
 | Functie                            | Beschrijving                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -6408,8 +6495,8 @@ cursorpositie ingevoegd, anders wordt deze naar het klembord gekopieerd.
 ### C64 Character ROM Browser ("Char map")
 
 Alleen-lezen viewer van het C64-teken-ROM (het ingebouwde PETSCII-lettertype).
-Openen via de **C64 chargen**-optie in het Toolkit-menu. Handig om de schermcode
-van een glyph te vinden voordat je deze schrijft met `RAWBYTES` of `TEXT`.
+Open het met de **C64 chargen**-knop in de werkbalk. Handig om de schermcode van
+een glyph te vinden voordat je deze schrijft met `RAWBYTES` of `TEXT`.
 
 | Functie        | Beschrijving                                                                                                                                                                                                                                                   |
 | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -6420,8 +6507,8 @@ van een glyph te vinden voordat je deze schrijft met `RAWBYTES` of `TEXT`.
 
 ### Tekeneditor (Charset)
 
-Teksteditor met een tekenset van 256 tekens (8x8). Openen via Toolkit →
-Teksteditor.
+Tekeneditor met een tekenset van 256 tekens (8x8). Open deze met de knop
+'Tekeneditor' in de werkbalk.
 
 | Functie                       | Beschrijving                                                                                                                                                                                                                                                                                         |
 | ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -6442,8 +6529,9 @@ Teksteditor.
 
 ### Tekenset Canvas Editor
 
-Volledig canvas tekenset-schilderprogramma voor het bouwen van schermen vanuit
-een complete tekenset van 256 tekens. Openen via Toolkit → Tekensetcanvas.
+Een volledig canvas tekenset-schilderprogramma voor het samenstellen van
+schermen vanuit een complete tekenset van 256 tekens. Open het met de knop
+'Tekensetcanvas' in de werkbalk.
 
 Het tekengebied is 16×16 tekens, 128×128 pixels. In de modus voor meerkleurige
 tekens is elk teken ofwel meerkleurig (brede pixels, 4 kleuren) ofwel in hoge
@@ -6480,23 +6568,24 @@ scherm opnieuw wordt gekleurd). In de hoge-resolutiemodus (mono) heeft een teken
 
 ### Kaarteditor (tegelkaarten met meerdere lagen)
 
-Gelaagde tegelkaarteditor voor statische omgevingen, sprite-spawnmaps,
-botsingsgegevens en dergelijke. Openen via Toolkit → Kaarteditor.
+Een gelaagde tegelkaarteditor voor statische omgevingen, sprite-spawnmaps,
+botsingsgegevens en dergelijke. Open deze via de knop 'Kaarteditor' in de
+werkbalk.
 
-| Functie                                          | Beschrijving                                                                                                                                                                                                                                                                               |
-| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Lagen                                            | Meerdere benoemde lagen, elk met een eigen tegelset en transparantie.                                                                                                                                                                                                                      |
-| Kwasten                                          | Modi voor enkelvoudige tegels, vulling, lijn, rechthoek en cirkel. Vormgereedschappen tonen een live voorbeeld tijdens het slepen; laat los om te bevestigen.                                                                                                                              |
-| Zoom                                             | Schuifregelaar, of Ctrl+muiswiel over de kaart.                                                                                                                                                                                                                                            |
-| Ongedaan maken / opnieuw uitvoeren               | Volledige stapel met ongedaan maken/herstellen per laag. Ctrl/Cmd+Z / Ctrl/Cmd+Y of de knoppen in de werkbalk.                                                                                                                                                                             |
-| Menu wissen                                      | Kaart per laag of hele kaart wissen met bevestiging.                                                                                                                                                                                                                                       |
-| Afbeelding importeren                            | Sleep een PNG-bestand van een tegelkaart naar de editor; deze verdeelt de kaart automatisch in tegels.                                                                                                                                                                                     |
-| Kopiëren/plakken                                 | Kopieer een geselecteerd tegelgebied en plak het vervolgens normaal of gebruik transparant plakken om lege tegels transparant te houden. Dezelfde opties zijn te vinden in het rechtermuisklikmenu van het canvas.                                                                         |
-| Tegelkleuring met aandacht voor meerdere kleuren | Bij gebruik van compatibele tekensetmetadata gebruikt het tekenproces de standaardwaarden van het opgeslagen Color RAM-geheugen van de tegel (inclusief meerkleurige codering) in plaats van een generieke effen kleur.                                                                    |
-| Aangepaste tekensetkleuren                       | Wanneer een tekenset `charColors`-metadata bevat, gebruikt de kaarteditor de standaardkleur-RAM-waarde van de geselecteerde tegel tijdens het tekenen.                                                                                                                                     |
-| Exporteer blokken                                | Genereert RAWBYTES-blokken voor tegelsetafbeeldingen en kaartgegevens.                                                                                                                                                                                                                     |
-| Schermgeheugen opslaan (.bin)…                   | Slaat alleen de schermcodes op voor de huidige kaartlaag (40 × 25 = 1000 bytes).                                                                                                                                                                                                           |
-| Scherm-RAM + Kleur-RAM opslaan (.bin)…           | Slaat schermcodes, gecombineerd met kleur-RAM-waarden, op als één bestand van 2000 bytes (`screen[0..999]` gevolgd door `color[0..999]`). Gebruik dit met de macro **MAP_COPY** (gecombineerde .bin-modus) om zowel scherm als kleur in één bewerking tijdens de uitvoering te herstellen. |
+| Functie                                          | Beschrijving                                                                                                                                                                                                                                                                           |
+| ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Lagen                                            | Meerdere benoemde lagen, elk met een eigen tegelset en transparantie.                                                                                                                                                                                                                  |
+| Kwasten                                          | Modi voor enkelvoudige tegels, vulling, lijn, rechthoek en cirkel. Vormgereedschappen tonen een live voorbeeld tijdens het slepen; laat los om te bevestigen.                                                                                                                          |
+| Zoom                                             | Schuifregelaar, of Ctrl+muiswiel over de kaart.                                                                                                                                                                                                                                        |
+| Ongedaan maken / opnieuw uitvoeren               | Volledige stapel met ongedaan maken/herstellen per laag. Ctrl/Cmd+Z / Ctrl/Cmd+Y of de knoppen in de werkbalk.                                                                                                                                                                         |
+| Menu wissen                                      | Kaart per laag of hele kaart wissen met bevestiging.                                                                                                                                                                                                                                   |
+| Afbeelding importeren                            | Sleep een PNG-bestand van een tegelkaart naar de editor; deze verdeelt de kaart automatisch in tegels.                                                                                                                                                                                 |
+| Kopiëren/plakken                                 | Kopieer een geselecteerd tegelgebied en plak het vervolgens normaal of gebruik transparant plakken om lege tegels transparant te houden. Dezelfde opties zijn te vinden in het rechtermuisklikmenu van het canvas.                                                                     |
+| Tegelkleuring met aandacht voor meerdere kleuren | Bij gebruik van compatibele tekensetmetadata gebruikt het tekenproces de standaardwaarden van het opgeslagen Color RAM-geheugen van de tegel (inclusief meerkleurige codering) in plaats van een generieke effen kleur.                                                                |
+| Aangepaste tekensetkleuren                       | Wanneer een tekenset `charColors`-metadata bevat, gebruikt de kaarteditor de standaardkleur-RAM-waarde van de geselecteerde tegel tijdens het tekenen.                                                                                                                                 |
+| Exporteer blokken                                | Genereert RAWBYTES-blokken voor tegelsetafbeeldingen en kaartgegevens.                                                                                                                                                                                                                 |
+| Schermgeheugen opslaan (.bin)…                   | Slaat alleen de schermcodes op voor de huidige kaartlaag (40 × 25 = 1000 bytes).                                                                                                                                                                                                       |
+| Scherm-RAM + Kleur-RAM opslaan (.bin)…           | Slaat schermcodes, gecombineerd met kleur-RAM-waarden, op als één bestand van 2000 bytes (`screen[0..999]` gevolgd door `color[0..999]`). Gebruik dit met de macro **MAP_COPY** (`auto` als kleurbron) om zowel scherm als kleur in één bewerking tijdens de uitvoering te herstellen. |
 
 ### Niveau-editor
 
@@ -6536,20 +6625,20 @@ $4000` en `map view px, py` (voorbeeld `level_scroll_demo.ub`).
 
 ### SID-editor (3-stemmen tracker)
 
-Multi-instrument 3-stemmige tracker. Openen via Toolkit → SID Editor. **Play:
-All** voert de geëxporteerde 6502-speler uit in de WebSid-emulator; elke andere
-preview (instrumentpreview, virtueel toetsenbord, nootinvoer, akkoord/arpeggio,
-rij- en enkelpatroonweergave) wordt ook afgespeeld op de geëmuleerde SID: een
-JS-model van dezelfde speler (frame voor frame) streamt zijn SID-registers elke
-frame naar WebSid, en maximaal drie previewnoten delen de drie stemmen. De
-streamspeler wordt geladen wanneer de editor wordt geopend en opnieuw na Stop,
-zodat noten direct klinken; zonder WebSid speelt er in plaats daarvan een kleine
-SID-synthesizer.
+Multi-instrument 3-stemmige tracker. Open deze met de knop SID Editor in de
+werkbalk. **Afspelen: Alles** start de geëxporteerde 6502-speler in de
+WebSid-emulator; elke andere preview (instrumentpreview, virtueel toetsenbord,
+nootinvoer, akkoord/arpeggio, rij- en enkelpatroonweergave) wordt ook afgespeeld
+op de geëmuleerde SID: een JS-model van dezelfde speler (frame voor frame)
+streamt zijn SID-registers elke frame naar WebSid, en maximaal drie previewnoten
+delen de drie stemmen. De streamspeler wordt geladen wanneer de editor wordt
+geopend en opnieuw na Stop, zodat noten direct klinken; zonder WebSid speelt er
+in plaats daarvan een kleine SID-synthesizer.
 
-**Voorbeeldweergave-engine:** **Instellingen → SID-voorbeeld** selecteert
-**WebSID** of **VA SID Core (Rust)**, de eigen SID-emulatie van de app; met VA
-SID Core kiest u ook de chip (MOS 6581 / 8580). De header van de editor toont de
-gebruikte engine (bijv. *· VA SID Core v1.2 (MOS 8580)*). De
+**Voorbeeldweergave-engine:** **Instellingen → Algemeen → SID-voorbeeld**
+selecteert **WebSID** of **VA SID Core (Rust)**, de eigen SID-emulatie van de
+app; met VA SID Core kiest u ook de chip (MOS 6581 / 8580). De header van de
+editor toont de gebruikte engine (bijv. *· VA SID Core v1.2 (MOS 8580)*). De
 instrumentparameters worden ingesteld met draaiknoppen.
 
 ** Bedieningselementen per instrument: **
@@ -6657,7 +6746,7 @@ in het versiebeheerde `.bin`-formaat.
 - Het **LCD** aan het einde van de tracker-werkbalk toont de songpositie (POS),
   het patroon (PAT), de rij (ROW) en de afspeeltijd (TIME) tijdens het afspelen,
   en de bewerkingspositie wanneer het afspelen is gestopt. **Instellingen →
-  SID-voorbeeld → LCD-kleur** maakt het groen of rood.
+  Algemeen → SID-voorbeeld → LCD-kleur** maakt het groen of rood.
 - De knop in de toetsenbordwerkbalk opent **VA-VK**, een niet-modaal piano (2, 3
   of 4 octaven; positie, open status, octaaf en *Invoegen in tracker* worden
   onthouden) met eigen **Afspelen/Stoppen**-knoppen die bruikbaar blijft terwijl
@@ -6801,11 +6890,11 @@ HVSC-collectie.
   SID Core rendert 10 / 15 / 20 / 30 seconden vooruit vanaf de volgende melodie.
 - **Engine:** Het venster toont welke engine wordt gebruikt (WebSID of VA SID
   Core met de bijbehorende versie en SID-chip); kies deze in **Instellingen →
-  SID-voorbeeld**. VA SID Core voert de tune uit op een native Rust C64-core met
-  een cycle-exacte 6510, precieze interrupt-timing, CIA 6526A, VIC-II-timing met
-  foutlijnen, sprite DMA en raster-interrupts, en de 6510 I/O-poort — zodat
-  raster-IRQ-, CIA-getimede en digitale tunes worden afgespeeld met de timing
-  van een echte machine.
+  Algemeen → SID-voorbeeld**. VA SID Core voert de tune uit op een native Rust
+  C64-core met een cycle-exacte 6510, precieze interrupt-timing, CIA 6526A,
+  VIC-II-timing met foutlijnen, sprite DMA en raster-interrupts, en de 6510
+  I/O-poort — zodat raster-IRQ-, CIA-getimede en digitale tunes worden
+  afgespeeld met de timing van een echte machine.
 - **Shuffle:** De shuffle-knop naast **Volgende** speelt de afspeellijst in
   willekeurige volgorde af — geen enkel nummer wordt herhaald totdat elk nummer
   is afgespeeld, en **Vorige** gaat terug in de willekeurige volgorde. De
@@ -6954,7 +7043,7 @@ deze naar Ultimate Basic.
 ### Getallenomzetter
 
 Een kleine **niet-modale** DEC/HEX/BIN-converter, die u kunt openen met de knop
-in de werkbalk naast de D64 Editor (klik nogmaals of druk op Esc om te sluiten).
+in de werkbalk naast de SID Player (klik nogmaals of druk op Esc om te sluiten).
 De knop blijft gemarkeerd zolang de converter wordt weergegeven. Hij blijft open
 terwijl u het programma in elke modus bewerkt.
 
