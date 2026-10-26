@@ -3329,6 +3329,7 @@ function _applyUiSettingsToDOM() {
       expertProjectBtn?.classList.add("expert-hl-toggle--on");
       expertProjectBtn?.setAttribute("aria-pressed", "true");
       expertProjectPanel?.removeAttribute("hidden");
+      _expertRenderProjectTree();
       if (typeof _savedProjectSymbolsHeight === "number" && Number.isFinite(_savedProjectSymbolsHeight)) {
         _expertProjectSymbolsHeight = Math.max(48, Math.min(1200, _savedProjectSymbolsHeight));
       }
@@ -7029,7 +7030,7 @@ function setExpertMode(on, { keepText = false, switchingToUb = false } = {}) {
     showViceToast?.(t("asmUbFileBlocked"), true);
     return;
   }
-  if (on && ultimateBasicMode) setUltimateBasicMode(false);
+  if (on && ultimateBasicMode) setUltimateBasicMode(false, { restoreAssemblerMode: false });
   let cursorSourceLine = -1;
   if (!on && expertMode) {
     // Capture the caret's source line BEFORE syncing / rebuilding, so we can
@@ -8267,7 +8268,7 @@ function _isBoundUbTab(tab = _getActiveTab()) {
   return /\.ub$/i.test(tab?.filePath || "");
 }
 
-function setUltimateBasicMode(on) {
+function setUltimateBasicMode(on, { restoreAssemblerMode = true } = {}) {
   if (!on && ultimateBasicMode && _isBoundUbTab()) {
     showViceToast?.(t("asmUbFileBlocked"), true);
     return;
@@ -8278,6 +8279,7 @@ function setUltimateBasicMode(on) {
     return;
   }
   const previousAssemblerEditorMode = expertMode ? "expert" : "block";
+  const leavingUb = !on && ultimateBasicMode;
   if (!on && ultimateBasicMode) {
     const current = _getActiveTab();
     if (current?.id === _ubEditorTabId && current.editorMode === "ub" && ubEditor) {
@@ -8321,6 +8323,12 @@ function setUltimateBasicMode(on) {
     _ubRefreshEditor();
     _ubRenderProjectFiles();
     _ubRenderCommandReference();
+  }
+  // back to the assembler editor the user left: ACME and block-locked projects have text only
+  if (leavingUb && restoreAssemblerMode && !expertMode
+      && (lastAssemblerEditorMode === "expert" || assemblerSyntax === "acme" || _blockModeBlocked())) {
+    setExpertMode(true);
+    return;
   }
   if (!ultimateBasicMode && !expertMode && _programCardsStale) renderProgram();
   renderMemoryMap();
