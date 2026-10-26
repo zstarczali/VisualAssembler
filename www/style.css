@@ -6556,6 +6556,26 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
   font-weight: 400;
 }
 
+/* Ultimate Basic and VMA side by side, each with its repository link */
+.about-compilers {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+}
+.about-compiler {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.about-compiler .about-repo a {
+  overflow-wrap: anywhere;
+}
+
 .about-ub-banner {
   width: 96px;
   height: 96px;

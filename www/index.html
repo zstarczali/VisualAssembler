@@ -14,7 +14,7 @@
     rel="stylesheet">
   <link rel="icon" type="image/png" href="assets/icon.png">
   <link rel="shortcut icon" href="favicon.ico">
-  <link rel="stylesheet" href="style.css?v=2.6.6">
+  <link rel="stylesheet" href="style.css?v=2.6.7">
 </head>
 
 <body>
@@ -1471,7 +1471,7 @@ PRINTABLE CHARACTERS
           <img src="assets/logo-about.png" alt="C64 Visual Assembler" width="200" height="160">
         </div>
         <h2 class="about-title">C64 Visual Assembler</h2>
-        <p class="about-version" id="about-version">v2.6.6</p>
+        <p class="about-version" id="about-version">v2.6.7</p>
         <p class="about-version" id="about-ub-version"><span id="about-ub-version-label">UltimateBasic:</span> <span id="about-ub-version-value">v?</span></p>
         <p class="about-version" id="about-vma-version"><span id="about-vma-version-label">VMA:</span> <span id="about-vma-version-value">v?</span></p>
       </div>
@@ -1485,8 +1485,16 @@ PRINTABLE CHARACTERS
           <p class="about-repo"><span>Visual Assembler website:</span><br><a href="https://www.c64va.pro" target="_blank" rel="noopener noreferrer">www.c64va.pro</a></p>
         </div>
         <div class="about-col about-col-right">
-          <img class="about-ub-banner" src="assets/ultimate-basic-banner.png" alt="Ultimate Basic">
-          <p class="about-repo"><span>Ultimate Basic GitHub repository:</span><br><a href="https://github.com/zstarczali/UltimateBasic" target="_blank" rel="noopener noreferrer">https://github.com/zstarczali/UltimateBasic</a></p>
+          <div class="about-compilers">
+            <div class="about-compiler">
+              <img class="about-ub-banner" src="assets/ultimate-basic-banner.png" alt="Ultimate Basic">
+              <p class="about-repo"><span>Ultimate Basic GitHub repository:</span><br><a href="https://github.com/zstarczali/UltimateBasic" target="_blank" rel="noopener noreferrer">github.com/zstarczali/UltimateBasic</a></p>
+            </div>
+            <div class="about-compiler">
+              <img class="about-ub-banner" src="assets/vma-banner.png" alt="Visual Macro Assembler">
+              <p class="about-repo"><span>VMA GitHub repository:</span><br><a href="https://github.com/zstarczali/VMA" target="_blank" rel="noopener noreferrer">github.com/zstarczali/VMA</a></p>
+            </div>
+          </div>
           <p class="about-sid-credit" id="about-sid-credit"><span id="about-sid-credit-label">Web SID player: WebSid (WebAudio version of Tiny'R'Sid) by Juergen Wothke. GitHub repository:</span> <a href="https://github.com/wothke/websid" target="_blank" rel="noopener noreferrer">https://github.com/wothke/websid</a><br><span id="about-sid-credit-license">(CC BY-NC-SA 4.0)</span></p>
           <p class="about-repo" id="about-repo"><span id="about-repo-label">Visual Assembler GitHub repository:</span><br><a href="https://github.com/zstarczali/VisualAssembler" target="_blank" rel="noopener noreferrer">https://github.com/zstarczali/VisualAssembler</a></p>
         </div>
@@ -1498,28 +1506,34 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.6.6</p>
+      <p class="whats-new-version">v2.6.7</p>
       <ul class="whats-new-list">
         <li>
-          <strong>SID player macro:</strong> <code>.sid_player [subtune][, raster]</code> (<em>SID_PLAYER</em> in the palette) plays the tune of the <code>.sid</code> macro: it calls the init routine with the subtune, switches the CIA1 timer IRQ off, hooks a raster IRQ and calls the play routine every frame from its own built-in handler, then goes on to the KERNAL (<code>JMP $EA31</code>). 58 bytes. A program that plays music is now just <code>.sid "music.sid"</code> + <code>.sid_player</code>.
+          <strong>Rust VMA compiler:</strong> <em>Settings → General → Program → VMA compiler</em> chooses the engine: JavaScript (the default), Rust, or Rust + JavaScript check, which builds with both and logs any difference. The Rust compiler gives the same bytes, the same memory view, segments and translated error messages; Kick projects build through it too, with errors shown at <code>file:line</code>.
         </li>
         <li>
-          <strong>SID labels:</strong> the <code>.sid</code> macro defines <code>SID_LOAD</code>, <code>SID_INIT</code> and <code>SID_PLAY</code>, moved together with a custom load address, so your own IRQ handler can write <code>JSR SID_PLAY</code>.
+          <strong>VMA is open source:</strong> the Visual Macro Assembler compiler lives in its own GPLv3 repository, <code>github.com/zstarczali/VMA</code> (version 2.0.0), with an English and a Hungarian language manual. The About box shows the VMA version and banner next to Ultimate Basic.
         </li>
         <li>
-          <strong>Expert mode only:</strong> <em>Project settings</em> has a switch that closes block mode for the files of the project, whatever their size (saved in the <code>.proj</code>).
+          <strong>Project symbols and constants:</strong> <em>Project settings</em> sets VMA symbols (<code>.define</code>, for <code>.if</code> / <code>.ifdef</code>) and constants (<code>.const</code>) for the whole project, saved in the <code>.proj</code>; error lines stay correct.
         </li>
         <li>
-          <strong>SID Player buffer:</strong> <em>Settings → General → SID preview → SID Player buffer</em> sets 2048–16384 samples. A larger buffer stops the crackle while the app is busy. WebSID uses it after a restart; VA SID Core renders 10 / 15 / 20 / 30 s ahead.
+          <strong>Compiling dialog:</strong> a step line under the progress bar shows what the build is doing: the engine, the file and the size of the PRG.
         </li>
         <li>
-          <strong>Custom C64 palette:</strong> <em>Settings → General → Editors → Edit custom palette…</em> sets your own RGB value for each of the 16 colours (colour picker or hex), starting from any built-in palette. Import a Photoshop <code>.act</code>, VICE <code>.vpl</code>, GIMP <code>.gpl</code> palette or a list of hex colours, and export <code>.act</code> / <code>.vpl</code> to compare in Photoshop or VICE. <em>Custom</em> then appears next to Colodore, Pepto and the others, also in the Hi-Res image import.
+          <strong>Build info:</strong> shows the file it describes; an ACME source gets its own view from the real ACME build (origin, end, size, segments, labels) instead of VMA errors. The dialog no longer closes on an outside click.
         </li>
         <li>
-          <strong>Look:</strong> the C64 memory panel docks back collapsed; the What&#39;s New, update, Settings and Knowledge Base windows have the same frame as the About box; the Project settings checkboxes are VA switches.
+          <strong>Faster typing:</strong> in ACME mode the Disassembly and Monitor panels are rebuilt once per build and dimmed while the source is newer; big Kick projects re-use their last preprocessing and render the disassembly in chunks.
         </li>
         <li>
-          <strong>Fixes:</strong> the bug report accepts PNG and JPG screenshots (the release build blocked the way it read them); the blinking cursor after <code>READY.</code> on the splash screen is a solid C64 cell, without the lines macOS drew on it; macOS inline predictive text is off in the Expert and Ultimate Basic editors.
+          <strong>Project tree:</strong> the right-click menu on files and folders has <em>Move up</em> / <em>Move down</em>. Kick compatibility is switched in <em>Project settings</em> (the separate toolbar button is gone).
+        </li>
+        <li>
+          <strong>Fixes:</strong> saving an <code>.asm</code> (Ctrl+S, Menu → Save, before a git commit) writes plain text again, not the VA JSON; version control snapshots keep source files as text; library macros inside a user macro (SET_BORDER, SPRITE_*, JOYSTICK, TEXT …) get their parameters, runtime IF / WHILE / REPEAT labels are unique per call and a <code>'A'</code> argument stays a character; draggable dialogs open at their saved place.
+        </li>
+        <li>
+          <strong>Look:</strong> the compiling, build info, D64 export, compile error and question dialogs have the About box frame; the manuals are revised.
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
@@ -3874,13 +3888,13 @@ PRINTABLE CHARACTERS
     </div>
   </div>
 
-  <script src="tauri-bridge.js?v=2.6.6"></script>
-  <script src="i18n.js?v=2.6.6"></script>
-  <script src="tutorial-data.js?v=2.6.6"></script>
+  <script src="tauri-bridge.js?v=2.6.7"></script>
+  <script src="i18n.js?v=2.6.7"></script>
+  <script src="tutorial-data.js?v=2.6.7"></script>
   <script>window.WASM_SEARCH_PATH = "lib/websid/";</script>
   <script src="lib/websid/scriptprocessor_player.min.js"></script>
   <script src="lib/websid/backend_websid.js"></script>
-  <script src="app.js?v=2.6.6"></script>
+  <script src="app.js?v=2.6.7"></script>
 
 </body>
 

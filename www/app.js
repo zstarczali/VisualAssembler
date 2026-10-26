@@ -77,54 +77,54 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "sid-player-266",
+  id: "vma-267",
   url: "https://www.c64va.pro/docs.html",
   hu: {
-    eyebrow: "Újdonság a 2.6.6-ban",
+    eyebrow: "Újdonság a 2.6.7-ben",
     title: "Üdvözöl a Visual Assembler",
-    body: `<ul><li><strong>SID lejátszó makró</strong>: <code>.sid "zene.sid"</code> + <code>.sid_player</code> — init, raszter IRQ és képkockánkénti play egyetlen sorban; a <code>.sid</code> a <code>SID_INIT</code> / <code>SID_PLAY</code> címkéket is megadja.</li><li><strong>Csak Expert mód</strong> projektenként (Projekt beállítások).</li><li><strong>SID Player puffer</strong> a Beállítások → SID előnézet alatt — nagyobb pufferrel nem recseg.</li><li><strong>Egyéni C64 paletta</strong>: Beállítások → Szerkesztők → Egyéni paletta szerkesztése… (Photoshop .act / VICE .vpl import és export).</li><li>Javítva: a hibabejelentő elfogadja a PNG / JPG képeket; macOS-en nincs prediktív szöveg a szerkesztőben, és a READY. kurzor is tiszta.</li></ul><p>Kérdés, ötlet vagy hiba: <strong>Menu → Támogatás</strong>.</p>`,
+    body: `<ul><li><strong>Rust VMA fordító</strong>: Beállítások → Általános → Program → VMA fordító — JavaScript (alapértelmezett), Rust, vagy Rust + JavaScript ellenőrzés; ugyanazok a bájtok és a fordított hibaüzenetek.</li><li><strong>A VMA nyílt forráskódú</strong>: <code>github.com/zstarczali/VMA</code> (2.0.0), magyar és angol nyelvi kézikönyvvel; a verzió az About ablakban.</li><li><strong>Projekt szimbólumok és konstansok</strong> (<code>.define</code> / <code>.const</code>) a Projekt beállításokban.</li><li>A fordítás ablak kiírja, épp mit csinál; a Build info a fájl útvonalát és ACME-nél a valódi ACME eredményt mutatja.</li><li>Gyorsabb gépelés ACME módban és nagy Kick projekteknél; Fel / Le mozgatás a projektfában.</li><li>Javítva: az <code>.asm</code> mentése és a verziókezelés pillanatképei ismét sima szöveget írnak; makró-paraméterek a felhasználói makrókban.</li></ul><p>Kérdés, ötlet vagy hiba: <strong>Menu → Támogatás</strong>.</p>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
-    eyebrow: "New in 2.6.6",
+    eyebrow: "New in 2.6.7",
     title: "Welcome to Visual Assembler",
-    body: `<ul><li><strong>SID player macro</strong>: <code>.sid "music.sid"</code> + <code>.sid_player</code> — init, raster IRQ and play every frame in one line; <code>.sid</code> also defines the <code>SID_INIT</code> / <code>SID_PLAY</code> labels.</li><li><strong>Expert mode only</strong> per project (Project settings).</li><li><strong>SID Player buffer</strong> in Settings → SID preview — a larger buffer stops the crackle.</li><li><strong>Custom C64 palette</strong>: Settings → Editors → Edit custom palette… (Photoshop .act / VICE .vpl import and export).</li><li>Fixed: the bug report accepts PNG / JPG screenshots; no predictive text in the editors on macOS, and a clean READY. cursor.</li></ul><p>Questions, ideas or bugs: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Rust VMA compiler</strong>: Settings → General → Program → VMA compiler — JavaScript (default), Rust, or Rust + JavaScript check; the same bytes and translated error messages.</li><li><strong>VMA is open source</strong>: <code>github.com/zstarczali/VMA</code> (2.0.0), with English and Hungarian language manuals; its version is in the About box.</li><li><strong>Project symbols and constants</strong> (<code>.define</code> / <code>.const</code>) in Project settings.</li><li>The compiling dialog shows what it is doing; Build info shows the file path and, for ACME, the real ACME result.</li><li>Faster typing in ACME mode and in big Kick projects; Move up / down in the project tree.</li><li>Fixed: saving an <code>.asm</code> and version control snapshots write plain text again; macro parameters inside user macros.</li></ul><p>Questions, ideas or bugs: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
-    eyebrow: "Novedad en la 2.6.6",
+    eyebrow: "Novedad en la 2.6.7",
     title: "Bienvenido a Visual Assembler",
-    body: `<ul><li><strong>Macro reproductor SID</strong>: <code>.sid "music.sid"</code> + <code>.sid_player</code> — init, IRQ raster y play en cada fotograma en una sola línea; <code>.sid</code> también define las etiquetas <code>SID_INIT</code> / <code>SID_PLAY</code>.</li><li><strong>Solo modo Experto</strong> por proyecto (Project settings).</li><li><strong>Búfer del SID Player</strong> en Settings → SID preview: un búfer mayor evita los chasquidos.</li><li><strong>Paleta C64 personalizada</strong>: Settings → Editors → Edit custom palette… (importar y exportar .act de Photoshop / .vpl de VICE).</li><li>Corregido: el informe de errores acepta capturas PNG / JPG; sin texto predictivo en los editores en macOS y un cursor READY. limpio.</li></ul><p>Preguntas, ideas o errores: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Compilador VMA en Rust</strong>: Settings → General → Program → VMA compiler — JavaScript (predeterminado), Rust o Rust + comprobación JavaScript; los mismos bytes y mensajes de error traducidos.</li><li><strong>VMA es código abierto</strong>: <code>github.com/zstarczali/VMA</code> (2.0.0), con manuales del lenguaje en inglés y húngaro; su versión aparece en About.</li><li><strong>Símbolos y constantes del proyecto</strong> (<code>.define</code> / <code>.const</code>) en Project settings.</li><li>El diálogo de compilación muestra qué está haciendo; Build info muestra la ruta del archivo y, con ACME, el resultado real de ACME.</li><li>Escritura más rápida en modo ACME y en proyectos Kick grandes; Move up / down en el árbol del proyecto.</li><li>Corregido: guardar un <code>.asm</code> y las instantáneas del control de versiones vuelven a escribir texto plano; parámetros de macros dentro de macros de usuario.</li></ul><p>Preguntas, ideas o errores: <strong>Menu → Support</strong>.</p>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
-    eyebrow: "Neu in 2.6.6",
+    eyebrow: "Neu in 2.6.7",
     title: "Willkommen bei Visual Assembler",
-    body: `<ul><li><strong>SID-Player-Makro</strong>: <code>.sid "music.sid"</code> + <code>.sid_player</code> — Init, Raster-IRQ und Play in jedem Frame in einer Zeile; <code>.sid</code> definiert auch die Labels <code>SID_INIT</code> / <code>SID_PLAY</code>.</li><li><strong>Nur Expertenmodus</strong> pro Projekt (Project settings).</li><li><strong>SID-Player-Puffer</strong> unter Settings → SID preview — ein größerer Puffer verhindert Knacken.</li><li><strong>Eigene C64-Palette</strong>: Settings → Editors → Edit custom palette… (Import und Export von Photoshop-.act / VICE-.vpl).</li><li>Behoben: der Fehlerbericht nimmt PNG- / JPG-Screenshots an; keine Wortvorschläge in den Editoren unter macOS und ein sauberer READY.-Cursor.</li></ul><p>Fragen, Ideen oder Fehler: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Rust-VMA-Compiler</strong>: Settings → General → Program → VMA compiler — JavaScript (Standard), Rust oder Rust + JavaScript-Prüfung; dieselben Bytes und übersetzte Fehlermeldungen.</li><li><strong>VMA ist Open Source</strong>: <code>github.com/zstarczali/VMA</code> (2.0.0), mit Sprachhandbüchern auf Englisch und Ungarisch; die Version steht im About-Fenster.</li><li><strong>Projektsymbole und -konstanten</strong> (<code>.define</code> / <code>.const</code>) in Project settings.</li><li>Der Kompilierdialog zeigt, was er gerade tut; Build info zeigt den Dateipfad und bei ACME das echte ACME-Ergebnis.</li><li>Schnelleres Tippen im ACME-Modus und in großen Kick-Projekten; Move up / down im Projektbaum.</li><li>Behoben: das Speichern einer <code>.asm</code> und die Snapshots der Versionsverwaltung schreiben wieder reinen Text; Makroparameter in Benutzermakros.</li></ul><p>Fragen, Ideen oder Fehler: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
-    eyebrow: "Nieuw in 2.6.6",
+    eyebrow: "Nieuw in 2.6.7",
     title: "Welkom bij Visual Assembler",
-    body: `<ul><li><strong>SID-spelermacro</strong>: <code>.sid "music.sid"</code> + <code>.sid_player</code> — init, raster-IRQ en play elk frame in één regel; <code>.sid</code> definieert ook de labels <code>SID_INIT</code> / <code>SID_PLAY</code>.</li><li><strong>Alleen Expert-modus</strong> per project (Project settings).</li><li><strong>SID Player-buffer</strong> in Settings → SID preview — een grotere buffer voorkomt gekraak.</li><li><strong>Eigen C64-palet</strong>: Settings → Editors → Edit custom palette… (import en export van Photoshop-.act / VICE-.vpl).</li><li>Opgelost: het foutrapport accepteert PNG- / JPG-schermafbeeldingen; geen woordvoorspelling in de editors op macOS en een schone READY.-cursor.</li></ul><p>Vragen, ideeën of bugs: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Rust VMA-compiler</strong>: Settings → General → Program → VMA compiler — JavaScript (standaard), Rust of Rust + JavaScript-controle; dezelfde bytes en vertaalde foutmeldingen.</li><li><strong>VMA is open source</strong>: <code>github.com/zstarczali/VMA</code> (2.0.0), met taalhandleidingen in het Engels en Hongaars; de versie staat in het About-venster.</li><li><strong>Projectsymbolen en -constanten</strong> (<code>.define</code> / <code>.const</code>) in Project settings.</li><li>Het compileervenster toont wat het doet; Build info toont het bestandspad en bij ACME het echte ACME-resultaat.</li><li>Sneller typen in ACME-modus en in grote Kick-projecten; Move up / down in de projectboom.</li><li>Opgelost: een <code>.asm</code> opslaan en de snapshots van versiebeheer schrijven weer platte tekst; macroparameters binnen gebruikersmacro's.</li></ul><p>Vragen, ideeën of bugs: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
-    eyebrow: "Nowość w 2.6.6",
+    eyebrow: "Nowość w 2.6.7",
     title: "Witamy w Visual Assembler",
-    body: `<ul><li><strong>Makro odtwarzacza SID</strong>: <code>.sid "music.sid"</code> + <code>.sid_player</code> — init, IRQ rastrowe i play w każdej klatce w jednej linii; <code>.sid</code> definiuje też etykiety <code>SID_INIT</code> / <code>SID_PLAY</code>.</li><li><strong>Tylko tryb Ekspert</strong> dla projektu (Project settings).</li><li><strong>Bufor SID Playera</strong> w Settings → SID preview — większy bufor usuwa trzaski.</li><li><strong>Własna paleta C64</strong>: Settings → Editors → Edit custom palette… (import i eksport .act z Photoshopa / .vpl z VICE).</li><li>Poprawiono: zgłoszenie błędu przyjmuje zrzuty PNG / JPG; brak podpowiedzi tekstu w edytorach na macOS i czysty kursor READY.</li></ul><p>Pytania, pomysły lub błędy: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Kompilator VMA w Rust</strong>: Settings → General → Program → VMA compiler — JavaScript (domyślny), Rust lub Rust + kontrola JavaScript; te same bajty i przetłumaczone komunikaty błędów.</li><li><strong>VMA jest otwartoźródłowy</strong>: <code>github.com/zstarczali/VMA</code> (2.0.0), z podręcznikami języka po angielsku i węgiersku; wersja w oknie About.</li><li><strong>Symbole i stałe projektu</strong> (<code>.define</code> / <code>.const</code>) w Project settings.</li><li>Okno kompilacji pokazuje, co właśnie robi; Build info pokazuje ścieżkę pliku, a dla ACME prawdziwy wynik ACME.</li><li>Szybsze pisanie w trybie ACME i w dużych projektach Kick; Move up / down w drzewie projektu.</li><li>Poprawiono: zapis <code>.asm</code> i migawki kontroli wersji znów zapisują zwykły tekst; parametry makr w makrach użytkownika.</li></ul><p>Pytania, pomysły lub błędy: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
-    eyebrow: "Novità nella 2.6.6",
+    eyebrow: "Novità nella 2.6.7",
     title: "Benvenuto in Visual Assembler",
-    body: `<ul><li><strong>Macro player SID</strong>: <code>.sid "music.sid"</code> + <code>.sid_player</code> — init, IRQ raster e play a ogni fotogramma in una riga; <code>.sid</code> definisce anche le etichette <code>SID_INIT</code> / <code>SID_PLAY</code>.</li><li><strong>Solo modalità Esperto</strong> per progetto (Project settings).</li><li><strong>Buffer del SID Player</strong> in Settings → SID preview: un buffer più grande evita i crepitii.</li><li><strong>Tavolozza C64 personalizzata</strong>: Settings → Editors → Edit custom palette… (import ed export .act di Photoshop / .vpl di VICE).</li><li>Corretto: la segnalazione di bug accetta screenshot PNG / JPG; niente testo predittivo negli editor su macOS e un cursore READY. pulito.</li></ul><p>Domande, idee o bug: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Compilatore VMA in Rust</strong>: Settings → General → Program → VMA compiler — JavaScript (predefinito), Rust o Rust + controllo JavaScript; gli stessi byte e messaggi di errore tradotti.</li><li><strong>VMA è open source</strong>: <code>github.com/zstarczali/VMA</code> (2.0.0), con manuali del linguaggio in inglese e ungherese; la versione è nella finestra About.</li><li><strong>Simboli e costanti del progetto</strong> (<code>.define</code> / <code>.const</code>) in Project settings.</li><li>La finestra di compilazione mostra cosa sta facendo; Build info mostra il percorso del file e, con ACME, il vero risultato di ACME.</li><li>Digitazione più veloce in modalità ACME e nei grandi progetti Kick; Move up / down nell'albero del progetto.</li><li>Corretto: il salvataggio di un <code>.asm</code> e le istantanee del controllo versione scrivono di nuovo testo semplice; parametri delle macro dentro le macro utente.</li></ul><p>Domande, idee o bug: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }

@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.6.6**
+**Version 2.6.7**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -8,6 +8,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 
 ## Table of Contents
 
+- [Version 2.6.7 Highlights](#version-267-highlights)
 - [Version 2.6.6 Highlights](#version-266-highlights)
 - [Version 2.6.5 Highlights](#version-265-highlights)
 - [Version 2.6.4 Highlights](#version-264-highlights)
@@ -202,6 +203,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
   - [Size limit](#size-limit)
   - [Compatibility](#compatibility)
 - [13. Settings](#13-settings)
+  - [VMA compiler](#vma-compiler)
   - [VICE Emulator](#vice-emulator)
   - [Exomizer](#exomizer)
   - [Retro Debugger](#retro-debugger)
@@ -226,6 +228,20 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 
 ---
 
+## Version 2.6.7 Highlights
+
+- **Rust VMA compiler** — **Settings → General → Program → VMA compiler** chooses the engine: **JavaScript** (the default), **Rust**, or **Rust + JavaScript check**, which builds with both and logs any difference. The Rust compiler gives the same bytes, memory view, segments and translated error messages; Kick projects build through it too, with errors at `file:line`. See [VMA compiler](#vma-compiler).
+- **VMA is open source** — the Visual Macro Assembler compiler lives in its own GPLv3 repository, [github.com/zstarczali/VMA](https://github.com/zstarczali/VMA) (version 2.0.0), with an English and a Hungarian language manual and a command-line compiler. The About box shows the VMA version and banner next to Ultimate Basic.
+- **Project symbols and constants** — **Project settings** sets VMA symbols (`.define`, for `.if` / `.ifdef`) and constants (`.const`) for the whole project, saved in the `.proj`; error lines stay correct. See [Project panel & tabs](#project-panel--tabs).
+- **Compiling dialog** — a step line under the progress bar names the engine, the file and the PRG size.
+- **Build info** — shows the file it describes; an ACME source gets its own view from the real ACME build (origin, end, size, segments, labels). It no longer closes on an outside click.
+- **Faster typing** — in ACME mode the Disassembly and Monitor panels are rebuilt once per build and dimmed while the source is newer; big Kick projects re-use their last preprocessing and render the disassembly in chunks.
+- **Project tree** — **Move up** / **Move down** in the right-click menu of files and folders. Kick compatibility is switched in **Project settings**.
+- **Fixes** — saving an `.asm` (Ctrl+S, Menu → Save, before a git commit) writes plain text again, not the VA JSON; version control snapshots keep source files as text; library macros inside a user macro (SET_BORDER, SPRITE_*, JOYSTICK, TEXT …) get their parameters, runtime IF / WHILE / REPEAT labels are unique per call and a `'A'` argument stays a character; draggable dialogs open at their saved place.
+- **Look** — the compiling, build info, D64 export, compile error and question dialogs have the About box frame.
+
+---
+
 ## Version 2.6.6 Highlights
 
 - **SID player macro** — `.sid_player [subtune][, raster]` (**SID_PLAYER** in the palette) plays the tune of the `.sid` macro: it calls the init routine with the subtune, switches the CIA1 timer IRQ off, hooks a raster IRQ and calls the play routine every frame from its built-in handler. A program with music is now `.sid "music.sid"` + `.sid_player`. See [SID_PLAYER](#sid_player).
@@ -242,7 +258,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 
 - **KickAssembler projects** — **Menu → Program → Import Kick project…** takes a whole KickAssembler source tree (the main file with its `#import` modules and `.import binary` assets) and writes a `.proj` next to it; the sources stay where they are. Visual Assembler builds it with its own assembler, byte for byte like KickAssembler 5.25 — Run, Build PRG / D64 / CRT, Exomizer, Debug, the VICE Monitor and Build project all work, errors name the `file:line`, and the whole tree is checked while you type. The Dark Chambers C64 port and all eleven KickAssembler example programs with code build identically. See [Kick projects (Import Kick project…)](#kick-projects-import-kick-project).
 - **Project settings** — the gear button in the Project panel (or **Menu → File → Project settings…**) shows and edits the name, startup file, assembler, KickAssembler compatibility, `#define` symbols and `cmdLineVars` of a project. See [Project panel & tabs](#project-panel--tabs).
-- **Kick-compatible switch** — the `{K}` button in the Project panel header makes any VMA project KickAssembler compatible; the VA macros and directives keep working next to the KickAssembler script.
+- **Kick-compatible switch** — a switch (since 2.6.7 in **Project settings**) makes any VMA project KickAssembler compatible; the VA macros and directives keep working next to the KickAssembler script.
 - **KickAssembler language** — `#import` / `#importonce` / `#importif`, `#define` / `#if`, `.const` / `.label` (zero page or absolute by value), `.for`, `.while`, `.if … else`, `.var` / `.eval`, `.function`, `.macro { }`, `.pseudocommand`, multi-labels, scopes and namespaces, `.pseudopc`, `.import binary`, `LoadBinary` (with templates such as `BF_KOALA`), `LoadSid`, `virtual` memory blocks, `cmdLineVars`, `BasicUpstart2`, `List` / `Hashtable` / `.struct` / strings, `.enum`, the math library, the colour and opcode constants, `*` as the program counter, `;` between statements, `.error` / `.errorif`.
 - **Build Info in columns** — a wider window: origin, end, size and segment count on top, then the segments, errors and `.print` output, and the labels, constants and macros in columns. In a Kick project it shows the built tree, inner labels as `scope.label`.
 - **C64 colour palette** — **Settings → General → Editors → C64 colour palette** sets the RGB values of the 16 C64 colours in every editor (sprite, character, Charset Canvas, Hi-Res, map, level, Toolkit swatches): **Colodore** by default (the closest to a real C64), or Pepto, VICE, Deekay, C64 Wiki / Godot. Only the display changes; the Hi-Res image import uses it too. See [14. Visual Editors (Toolkit)](#14-visual-editors-toolkit).
@@ -680,7 +696,7 @@ The line under the bar names the step that is running, with the file — for exa
 | **Debug (RetroDebugger)** | Compile and launch in RetroDebugger with breakpoints, symbols, and autostart flags (see [Section 10](#10-debugger-integration)) |
 | **Run with Exomizer** | Checkbox in **Settings → General → Program** — when enabled, all Run and Build operations crunch the PRG through `exomizer sfx` before launching or saving (`sfx basic` for a PRG that starts with a BASIC line, so RUN works again after the program returns; `sfx $<load address>` otherwise). Works with Run as PRG, Run via D64, Run on Hardware, Build PRG, and Build D64. Configure the Exomizer executable in **Settings → Files and paths** first. |
 | **Automatic autosave entries** | Checkbox in **Settings → General → Version control**. When enabled, the app adds an autosave entry to the version history about 2.5 seconds after you stop editing a tab (for a tab of a project also to the project history). Turn it off if you only want your own commits. See [Version control](#version-control). |
-| **Settings** (formerly Hardware Settings) | Open the settings dialog with three tabs: **General** (assembler mode, BASIC SYS stub, Exomizer, updates, ASM output, SID preview, debugger parameters, version control), **Files and paths** (VICE, RetroDebugger, ACME, Exomizer, git) and **Integrations** (C64 Ultimate, Kung Fu Flash 2). See [Section 13](#13-settings). |
+| **Settings** (formerly Hardware Settings) | Open the settings dialog with three tabs: **General** (assembler mode, VMA compiler, BASIC SYS stub, Exomizer, updates, ASM output, SID preview, debugger parameters, version control), **Files and paths** (VICE, RetroDebugger, ACME, Exomizer, git) and **Integrations** (C64 Ultimate, Kung Fu Flash 2). See [Section 13](#13-settings). |
 | **New program…** (`Menu → Program`) | Opens a confirmation dialog, then clears all blocks from the program area |
 | **Export ASM** (`Menu → Program`) | Copies the generated assembly source |
 | **Collapse All** | Collapse all blocks |
@@ -896,7 +912,7 @@ Known limitation:
 
 **Import Kick project…** (Program menu, under **Kick import**) takes a whole KickAssembler source tree — a main file with `#import` modules and `.import binary` assets — and makes a VA project of it. Pick the main file (`main.asm`); VA follows every `#import` / `.import source` / `.import binary` (also inside `.if` branches that are not taken) and writes a `.proj` next to it, named after the folder (`src` / `source` / `asm` folders use the parent folder's name). The project lists every file in its folder tree; the sources stay where they are, so an existing KickAssembler build script keeps working. Files that cannot be found are listed in the error dialog.
 
-**Kick-compatible switch:** any VA (VMA) project can be made Kick-compatible with the `{K}` button in the Project panel header (shown in VMA mode while a project is open; it is on for imported Kick projects). The setting is saved in the `.proj` (`"kick": true`); off, the project is a plain VMA project and builds exactly as before.
+**Kick-compatible switch:** any VA (VMA) project can be made Kick-compatible with the **KickAssembler compatible** switch in **Project settings** (it is on for imported Kick projects). The setting is saved in the `.proj` (`"kick": true`); off, the project is a plain VMA project and builds exactly as before.
 
 In a Kick-compatible project the VA macros and directives keep working next to the KickAssembler script: `.text x, y, "…"`, `.set_border`, LOOP / NEXT, SPRITE_INIT, `.include`, `.incbin`, `.sid`, `.define` / `.if SYMBOL` / `.else` / `.endif`, VA macros (`.macro name(p)` … `.endm` with `{p}`) and the rest go to the VA assembler as they are, with the Kick constants as numbers. Directives that exist in both are told apart by their form:
 
@@ -4155,7 +4171,17 @@ Because the payload is stored linearly — one flat image from the lowest to the
 
 ## 13. Settings
 
-Open via **Menu → Settings…** (formerly *Hardware Settings*). The dialog has three tabs: **General** (assembler mode, BASIC SYS stub, Run with Exomizer, updates, ASM output, SID preview, C64 Debugger parameters, snapshots / version control), **Files and paths** (VICE, RetroDebugger, ACME, Exomizer, git) and **Integrations** (C64 Ultimate, Kung Fu Flash 2). The sections below describe the external tools and devices.
+Open via **Menu → Settings…** (formerly *Hardware Settings*). The dialog has three tabs: **General** (assembler mode, VMA compiler, BASIC SYS stub, Run with Exomizer, updates, ASM output, SID preview, C64 Debugger parameters, snapshots / version control), **Files and paths** (VICE, RetroDebugger, ACME, Exomizer, git) and **Integrations** (C64 Ultimate, Kung Fu Flash 2). The sections below describe the external tools and devices.
+
+### VMA compiler
+
+**Settings → General → Program → VMA compiler** chooses the engine that builds VMA (and Kick project) sources:
+
+- **JavaScript** — the built-in compiler, the default.
+- **Rust** — the open-source [VMA compiler](https://github.com/zstarczali/VMA) inside the app. It gives the same bytes, memory view, segments and error messages as the JavaScript one.
+- **Rust + JavaScript check** — builds with JavaScript and with Rust, uses the JavaScript result and logs any difference (bytes, memory view, errors) to the error log, which the bug report sends along.
+
+The compiling dialog names the engine in use. The VMA version is shown in the About box.
 
 ### VICE Emulator
 

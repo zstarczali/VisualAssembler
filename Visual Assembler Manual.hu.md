@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**Verzió: 2.6.6**
+**Verzió: 2.6.7**
 
 Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasításblokkok fogd-és-vidd módszerrel történő elrendezésével építed fel, a generált assembly és gépi kód pedig valós időben frissül.
 
@@ -10,6 +10,7 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 
 ## Tartalomjegyzék
 
+- [A 2.6.7 verzió újdonságai](#a-267-verzió-újdonságai)
 - [A 2.6.6 verzió újdonságai](#a-266-verzió-újdonságai)
 - [A 2.6.5 verzió újdonságai](#a-265-verzió-újdonságai)
 - [A 2.6.4 verzió újdonságai](#a-264-verzió-újdonságai)
@@ -204,6 +205,7 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
   - [Méretkorlát](#méretkorlát)
   - [Kompatibilitás](#kompatibilitás)
 - [13. Beállítások](#13-beállítások)
+  - [VMA fordító](#vma-fordító)
   - [VICE emulátor](#vice-emulátor)
   - [Exomizer](#exomizer)
   - [Retro Debugger](#retro-debugger)
@@ -228,6 +230,20 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 
 ---
 
+## A 2.6.7 verzió újdonságai
+
+- **Rust VMA fordító** — a **Beállítások → Általános → Program → VMA fordító** választja a motort: **JavaScript** (alapértelmezett), **Rust**, vagy **Rust + JavaScript ellenőrzés**, amely mindkettővel fordít, és naplózza az eltérést. A Rust fordító ugyanazokat a bájtokat, memórianézetet, szegmenseket és lefordított hibaüzeneteket adja; a Kick projektek is rajta át fordulnak, a hibák `fájl:sor` alakban. Lásd: [VMA fordító](#vma-fordító).
+- **A VMA nyílt forráskódú** — a Visual Macro Assembler fordító saját GPLv3 tárolóban van: [github.com/zstarczali/VMA](https://github.com/zstarczali/VMA) (2.0.0), angol és magyar nyelvi kézikönyvvel és parancssori fordítóval. Az About ablak az Ultimate Basic mellett a VMA verzióját és logóját is mutatja.
+- **Projekt szimbólumok és konstansok** — a **Projekt beállítások** a teljes projektre ad VMA szimbólumokat (`.define`, az `.if` / `.ifdef`-hez) és konstansokat (`.const`), a `.proj`-ba mentve; a hibák sorszáma helyes marad. Lásd: [Projekt panel és fülek](#projekt-panel-és-fülek).
+- **Fordítás ablak** — a folyamatjelző alatti sor kiírja a motort, a fájlt és a PRG méretét.
+- **Build info** — kiírja, melyik fájlról szól; ACME forrásnál a valódi ACME fordításból készül (kezdőcím, vég, méret, szegmensek, címkék). Mellékattintásra már nem zárul be.
+- **Gyorsabb gépelés** — ACME módban a Disassembly és a Monitor panel fordításonként egyszer épül újra, és halványan látszik, amíg a forrás újabb; a nagy Kick projektek újrahasználják az utolsó előfeldolgozást, és részletekben rajzolják a disassemblyt.
+- **Projektfa** — a fájlok és mappák jobb klikkes menüjében **Fel** / **Le** mozgatás. A Kick-kompatibilitás a **Projekt beállítások**-ban kapcsolható.
+- **Javítások** — az `.asm` mentése (Ctrl+S, Menu → Mentés, git commit előtt) ismét sima szöveget ír, nem VA JSON-t; a verziókezelés pillanatképei a forrásfájlokat szövegként tárolják; a felhasználói makróban hívott könyvtári makrók (SET_BORDER, SPRITE_*, JOYSTICK, TEXT …) megkapják a paramétereiket, a futásidejű IF / WHILE / REPEAT címkék hívásonként egyediek, és az `'A'` argumentum karakter marad; a mozgatható ablakok a mentett helyükön nyílnak.
+- **Megjelenés** — a fordítás, a Build info, a D64 export, a fordítási hiba és a kérdés ablaknak az About keretét kapta.
+
+---
+
 ## A 2.6.6 verzió újdonságai
 
 - **SID lejátszó makró** — a `.sid_player [subtune][, raster]` (a palettán **SID_PLAYER**) lejátssza a `.sid` makró zenéjét: meghívja az init rutint a subtune-nal, kikapcsolja a CIA1 időzítő IRQ-t, beköt egy raszter IRQ-t, és a beépített handleréből képkockánként meghívja a play rutint. Egy zenélő program most ennyi: `.sid "zene.sid"` + `.sid_player`. Lásd: [SID_PLAYER](#sid_player).
@@ -242,7 +258,7 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 
 - **KickAssembler projektek** — a **Menu → Program → Kick projekt importálása…** egy teljes KickAssembler forrásfát (a fő fájlt az `#import` moduljaival és `.import binary` assetjeivel) projektté tesz: mellé ír egy `.proj`-ot, a források a helyükön maradnak. A Visual Assembler a saját assemblerével fordítja, bájtra úgy, mint a KickAssembler 5.25 — a Futtatás, a Build PRG / D64 / CRT, az Exomizer, a Debug, a VICE Monitor és a Build project is működik, a hibák `fájl:sor` alakúak, és gépelés közben a teljes fa ellenőrződik. A Dark Chambers C64 port és a KickAssembler mind a tizenegy kódot tartalmazó példaprogramja azonosan fordul. Lásd: [Kick projektek (Kick projekt importálása…)](#kick-projektek-kick-projekt-importálása).
 - **Projekt beállítások** — a projektpanel fogaskereke (vagy **Menu → File → Projekt beállítások…**) megmutatja és szerkeszti a projekt nevét, indítófájlját, assemblerét, KickAssembler-kompatibilitását, `#define` szimbólumait és `cmdLineVars` változóit. Lásd: [Projekt panel és fülek](#projekt-panel-és-fülek).
-- **Kick-kompatibilis kapcsoló** — a projektpanel fejlécének `{K}` gombja bármely VMA projektet KickAssembler-kompatibilissé tesz; a VA makrók és direktívák a KickAssembler szkript mellett is működnek.
+- **Kick-kompatibilis kapcsoló** — egy kapcsoló (2.6.7 óta a **Projekt beállítások**-ban) bármely VMA projektet KickAssembler-kompatibilissé tesz; a VA makrók és direktívák a KickAssembler szkript mellett is működnek.
 - **KickAssembler nyelv** — `#import` / `#importonce` / `#importif`, `#define` / `#if`, `.const` / `.label` (zero page vagy abszolút az értéktől függően), `.for`, `.while`, `.if … else`, `.var` / `.eval`, `.function`, `.macro { }`, `.pseudocommand`, többszörös címkék, scope-ok és névterek, `.pseudopc`, `.import binary`, `LoadBinary` (template-ekkel, pl. `BF_KOALA`), `LoadSid`, `virtual` memóriablokk, `cmdLineVars`, `BasicUpstart2`, `List` / `Hashtable` / `.struct` / stringek, `.enum`, a matematikai könyvtár, a szín- és opkód-konstansok, a `*` mint programszámláló, `;` az utasítások között, `.error` / `.errorif`.
 - **Build Info több oszlopban** — szélesebb ablak: fent a kezdő- és végcím, a méret és a szegmensek száma, alatta a szegmensek, a hibák és a `.print` kimenet, a címkék, konstansok és makrók oszlopokban. Kick projektnél a lefordított fát mutatja, a belső címkéket `scope.címke` alakban.
 - **C64 színpaletta** — a **Beállítások → Általános → Szerkesztők → C64 színpaletta** adja meg a 16 C64 szín RGB értékét minden szerkesztőben (sprite, karakter, Charset Canvas, Hi-Res, térkép, pálya, Toolkit színminták): alapból **Colodore** (a valódi C64-hez legközelebbi), vagy Pepto, VICE, Deekay, C64 Wiki / Godot. Csak a megjelenítés változik; a Hi-Res képimport is ezt használja. Lásd: [14. Vizuális szerkesztők (Toolkit)](#14-vizuális-szerkesztők-toolkit).
@@ -674,7 +690,7 @@ A sáv alatti sor az éppen futó lépést mutatja a fájllal — például *Kic
 | **Debug (RetroDebugger)** | Fordítás és indítás RetroDebuggerben breakpointokkal, szimbólumokkal és autostart flag-ekkel (lásd a [10. szakaszt](#10-debugger-integráció)) |
 | **Run with Exomizer** | Jelölőnégyzet a **Beállítások → Általános → Program** alatt — bekapcsolva minden Run és Build művelet `exomizer sfx`-szel tömöríti a PRG-t indítás vagy mentés előtt (BASIC sorral kezdődő PRG-nél `sfx basic`, így a program visszatérése után a RUN újra működik; egyébként `sfx $<betöltési cím>`). Működik a Run as PRG, Run via D64, Run on Hardware, Build PRG és Build D64 műveletekkel. Először állítsd be az Exomizer futtathatót a **Beállítások → Fájlok és útvonalak** alatt. |
 | **Automatikus mentések a verziókezelésbe** | Jelölőnégyzet a **Beállítások → Általános → Verziókezelés** alatt. Bekapcsolva az app kb. 2,5 másodperccel azután, hogy abbahagytad egy fül szerkesztését, automatikus mentést tesz a verziótörténetbe (projekthez tartozó fülnél a projekt történetébe is). Kapcsold ki, ha csak a saját commitjaidat szeretnéd. Lásd: [Verziókezelés](#verziókezelés). |
-| **Beállítások** (korábban Hardware Settings) | Megnyitja a beállítások dialógust három füllel: **Általános** (assembler mód, BASIC SYS stub, Exomizer, frissítés, ASM kimenet, SID előnézet, debugger paraméterek, verziókezelés), **Fájlok és útvonalak** (VICE, RetroDebugger, ACME, Exomizer, git) és **Integrációk** (C64 Ultimate, Kung Fu Flash 2). Lásd a [13. szakaszt](#13-beállítások). |
+| **Beállítások** (korábban Hardware Settings) | Megnyitja a beállítások dialógust három füllel: **Általános** (assembler mód, VMA fordító, BASIC SYS stub, Exomizer, frissítés, ASM kimenet, SID előnézet, debugger paraméterek, verziókezelés), **Fájlok és útvonalak** (VICE, RetroDebugger, ACME, Exomizer, git) és **Integrációk** (C64 Ultimate, Kung Fu Flash 2). Lásd a [13. szakaszt](#13-beállítások). |
 | **Új program…** (`Menu → Program`) | Megerősítő dialógust nyit, majd törli az összes blokkot a programterületről |
 | **ASM export** (`Menu → Program`) | A generált assembly forrás másolása |
 | **Collapse All** | Minden blokk becsukása |
@@ -890,7 +906,7 @@ Ismert korlát:
 
 A **Kick projekt importálása…** (Program menü, a **Kick import** alatt) egy teljes KickAssembler forrásfát — egy fő fájlt `#import` modulokkal és `.import binary` assetekkel — VA projektté tesz. Válaszd ki a fő fájlt (`main.asm`); a VA követ minden `#import` / `.import source` / `.import binary` sort (a nem teljesülő `.if` ágakban is), és mellé ír egy `.proj`-ot a mappa nevével (`src` / `source` / `asm` mappánál a szülőmappa nevével). A projekt a mappaszerkezetükben listázza a fájlokat; a források a helyükön maradnak, így egy meglévő KickAssembler build-szkript továbbra is működik. A nem található fájlokat a hiba-ablak sorolja fel.
 
-**Kick-kompatibilis kapcsoló:** bármely VA (VMA) projekt Kick-kompatibilissé tehető a projektpanel fejlécének `{K}` gombjával (VMA módban, nyitott projektnél látszik; az importált Kick projekteknél be van kapcsolva). A beállítás a `.proj`-ban mentődik (`"kick": true`); kikapcsolva a projekt sima VMA projekt, és pontosan úgy fordul, mint eddig.
+**Kick-kompatibilis kapcsoló:** bármely VA (VMA) projekt Kick-kompatibilissé tehető a **Projekt beállítások** **KickAssembler-kompatibilis** kapcsolójával (az importált Kick projekteknél be van kapcsolva). A beállítás a `.proj`-ban mentődik (`"kick": true`); kikapcsolva a projekt sima VMA projekt, és pontosan úgy fordul, mint eddig.
 
 Kick-kompatibilis projektben a VA makrói és direktívái a KickAssembler szkript mellett is működnek: a `.text x, y, "…"`, `.set_border`, LOOP / NEXT, SPRITE_INIT, `.include`, `.incbin`, `.sid`, `.define` / `.if SZIMBÓLUM` / `.else` / `.endif`, a VA makrók (`.macro név(p)` … `.endm` `{p}`-vel) és a többi változatlanul a VA assemblerhez kerül, a Kick konstansok számként. A mindkettőben meglévő direktívákat az alakjuk különbözteti meg:
 
@@ -4143,7 +4159,17 @@ Mivel a payload lineárisan tárolódik — egyetlen lapos kép a legalacsonyabb
 
 ## 13. Beállítások
 
-A **Menu → Beállítások…** nyitja meg (korábban *Hardware Settings*). A dialógusnak három füle van: **Általános** (assembler mód, BASIC SYS stub, Run with Exomizer, frissítés, ASM kimenet, SID előnézet, C64 Debugger paraméterek, snapshot / verziókezelés), **Fájlok és útvonalak** (VICE, RetroDebugger, ACME, Exomizer, git) és **Integrációk** (C64 Ultimate, Kung Fu Flash 2). Az alábbi szakaszok a külső eszközöket és hardvereket írják le.
+A **Menu → Beállítások…** nyitja meg (korábban *Hardware Settings*). A dialógusnak három füle van: **Általános** (assembler mód, VMA fordító, BASIC SYS stub, Run with Exomizer, frissítés, ASM kimenet, SID előnézet, C64 Debugger paraméterek, snapshot / verziókezelés), **Fájlok és útvonalak** (VICE, RetroDebugger, ACME, Exomizer, git) és **Integrációk** (C64 Ultimate, Kung Fu Flash 2). Az alábbi szakaszok a külső eszközöket és hardvereket írják le.
+
+### VMA fordító
+
+A **Beállítások → Általános → Program → VMA fordító** választja a motort, amely a VMA (és Kick projekt) forrásokat fordítja:
+
+- **JavaScript** — a beépített fordító, ez az alapértelmezett.
+- **Rust** — a nyílt forráskódú [VMA fordító](https://github.com/zstarczali/VMA) az alkalmazásban. Ugyanazokat a bájtokat, memórianézetet, szegmenseket és hibaüzeneteket adja, mint a JavaScript fordító.
+- **Rust + JavaScript ellenőrzés** — JavaScripttel és Rusttal is fordít, a JavaScript eredményét használja, az eltérést (bájtok, memórianézet, hibák) pedig a hibanaplóba írja, amelyet a hibabejelentés is elküld.
+
+A fordítás ablak kiírja a használt motort. A VMA verziója az About ablakban látszik.
 
 ### VICE emulátor
 

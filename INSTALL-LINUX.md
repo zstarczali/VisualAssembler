@@ -1,5 +1,7 @@
 # Linux Installation Guide (Ubuntu / Debian)
-Version 2.6.6
+Version 2.6.7
+
+2.6.7: Rust VMA compiler selectable in Settings -> General -> Program -> VMA compiler (JavaScript default, Rust, Rust + JavaScript check; same bytes, memory view, segments and translated errors; Kick projects too), VMA is open source (github.com/zstarczali/VMA, 2.0.0, English and Hungarian language manuals; version and banner in the About box), project VMA symbols (.define) and constants (.const) in Project settings, a step line in the compiling dialog, Build info with the file path and a real ACME view, faster typing in ACME mode and big Kick projects, Move up / down in the project tree (the Kick toggle button moved into Project settings), the About box frame on more dialogs; fixed: saving an .asm writes text, not JSON; version control snapshots keep source files as text; library macro parameters inside user macros, unique runtime IF / WHILE / REPEAT labels per call, 'A' arguments; draggable dialogs open at their saved place.
 
 2.6.6: SID player macro (.sid_player [subtune][, raster] inits the .sid tune and plays it from a raster IRQ; .sid defines SID_LOAD / SID_INIT / SID_PLAY), per-project Expert mode only (Project settings), SID Player buffer setting (WebSID 2048-16384 samples, VA SID Core renders 10-30 s ahead), custom C64 palette editor (16 RGB colours; Photoshop .act / VICE .vpl / GIMP .gpl import, .act / .vpl export), the memory panel docks back collapsed, framed What's New / update / Settings / Knowledge Base windows, VA switches in Project settings; fixed: bug report screenshots (PNG / JPG) in the release build, the splash READY. cursor on macOS, macOS inline predictive text in the code editors.
 
@@ -66,7 +68,7 @@ Tested on Ubuntu 22.04 and 24.04.
 Download the `.deb` package from the releases page and install:
 
 ```bash
-  sudo dpkg -i "c64-visual-assembler_2.6.6_amd64.deb"
+  sudo dpkg -i "c64-visual-assembler_2.6.7_amd64.deb"
 sudo apt-get install -f   # fix any missing dependencies
 ```
 
@@ -180,4 +182,4 @@ The app propagates `DISPLAY`, `WAYLAND_DISPLAY`, `XDG_RUNTIME_DIR`, `DBUS_SESSIO
 
 ---
 
-**Version:** 2.6.6 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 2.6.7 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
