@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Podręcznik użytkownika
 
-**Wersja 2.6.6**
+**Wersja 2.6.7**
 
 Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągając
 i upuszczając bloki instrukcji, i oglądaj generowany kod assemblera i maszynowy
@@ -10,210 +10,280 @@ w czasie rzeczywistym.
 
 ## Spis treści
 
-- [C64 Visual Assembler — Podręcznik
-  użytkownika](#c64-visual-assembler--user-manual)
-    - [Najważniejsze cechy wersji 2.6.6](#version-266-highlights)
-    - [Najważniejsze cechy wersji 2.6.5](#version-265-highlights)
-    - [Najważniejsze cechy wersji 2.6.4](#version-264-highlights)
-    - [Najważniejsze cechy wersji 2.6.3](#version-263-highlights)
-    - [Najważniejsze cechy wersji 2.6.2](#version-262-highlights)
-    - [Najważniejsze cechy wersji 2.6.1](#version-261-highlights)
-    - [Najważniejsze cechy wersji 2.6.0](#version-260-highlights)
-    - [Najważniejsze cechy wersji 2.5.9](#version-259-highlights)
-    - [Najważniejsze cechy wersji 2.5.8](#version-258-highlights)
-    - [Najważniejsze cechy wersji 2.5.7](#version-257-highlights)
-    - [Najważniejsze cechy wersji 2.5.6](#version-256-highlights)
-    - [Najważniejsze cechy wersji 2.5.5](#version-255-highlights)
-    - [Najważniejsze cechy wersji 2.5.4](#version-254-highlights)
-    - [Najważniejsze cechy wersji 2.5.3](#version-253-highlights)
-    - [Najważniejsze cechy wersji 2.5.2](#version-252-highlights)
-    - [Najważniejsze cechy wersji 2.5.1](#version-251-highlights)
-    - [Najważniejsze cechy wersji 2.5.0](#version-250-highlights)
-    - [Najważniejsze cechy wersji 2.4.9](#version-249-highlights)
-    - [Najważniejsze cechy wersji 2.4.8](#version-248-highlights)
-    - [Najważniejsze cechy wersji 2.4.7](#version-247-highlights)
-    - [Najważniejsze cechy wersji 2.4.6](#version-246-highlights)
-    - [Najważniejsze cechy wersji 2.4.5](#version-245-highlights)
-    - [Najważniejsze cechy wersji 2.4.3](#version-243-highlights)
-    - [Najważniejsze cechy wersji 2.4.2](#version-242-highlights)
-    - [Najważniejsze cechy wersji 2.4.1](#version-241-highlights)
-    - [Najważniejsze cechy wersji 2.4.0](#version-240-highlights)
-    - [Najważniejsze cechy wersji 2.3.9](#version-239-highlights)
-  - [Spis treści](#table-of-contents)
-  - [1. Przegląd interfejsu](#1-interface-overview)
-  - [2. Paleta bloków](#2-block-palette)
-  - [3. Obszar programu](#3-program-area)
-    - [Wejście operandu](#operand-input)
-  - [4. Widok ASM](#4-asm-view)
-    - [Tryby wyjściowe](#output-modes)
-    - [Karta Zestaw narzędzi](#toolkit-tab)
-    - [Karta Opcje](#options-tab)
-    - [Kliknięcie wiersza ASM](#clicking-an-asm-line)
-    - [Numery wierszy ASM](#asm-line-numbers)
-    - [Modalne okno postępu kompilacji](#compile-progress-modal)
-  - [5. Ustawienia i pasek narzędzi](#5-settings--toolbar)
-    - [Kontrola wersji](#version-control)
-    - [Darmowe i otwarte oprogramowanie](#free-and-open-source)
-    - [Zgłaszanie błędu](#reporting-a-bug)
-    - [Okno pamięci i wykorzystanie strony
-      zerowej](#memory-window-and-zero-page-usage)
-    - [Szablony projektów](#project-templates)
-    - [Budowanie projektu](#build-project)
-    - [Przykładowe programy](#example-programs)
-    - [Załaduj plik .asm (szybkie odniesienie)](#load-asm-file-quick-reference)
-      - [Importuj notatki dotyczące analizy i najlepsze
-        praktyki](#import-parsing-notes-and-best-practices)
-  - [Tryb Ultimate Basic](#ultimatebasic-mode)
-    - [Otwieranie edytora UB](#opening-the-ub-editor)
-    - [Narzędzia edytora](#editor-tools)
-    - [Projekty, zakładki i pliki startowe](#projects-tabs-and-startup-files)
-    - [Budowa i diagnostyka](#building-and-diagnostics)
-    - [Rozmiar kodu na wiersz i wskazówki](#code-size-per-line-and-hints)
-    - [Uruchomienie, D64 i Exomizer](#running-d64-and-exomizer)
-    - [Symbole debugera i deasemblacja](#debugger-symbols-and-disassembly)
-    - [Podręcznik i źródło Ultimate Basic](#ultimate-basic-manual-and-source)
-  - [6. Tryb ekspercki](#6-expert-mode)
-    - [Przełączanie trybów](#switching-modes)
-    - [Układ edytora](#editor-layout)
-    - [Przyciski paska narzędzi](#toolbar-buttons)
-    - [Liczenie cykli](#cycle-counts)
-    - [Wskazówki dotyczące optymalizacji](#optimisation-hints)
-    - [Podświetlanie błędu](#error-highlighting)
-    - [Podświetlenie składni](#syntax-highlight)
-    - [Formater źródła](#source-formatter)
-    - [Panel projektu \& zakładki](#project-panel--tabs)
-    - [Pasek kart](#tab-bar)
-    - [Tryb ACME](#acme-mode)
-  - [7. Tryby adresowania](#7-addressing-modes)
-    - [Oznacz wyrażenia jako operandy](#label-expressions-as-operands)
-    - [Licznik programu `*` w wyrażeniach](#the--program-counter-in-expressions)
-    - [Lokalne etykiety (kropkowane)](#local-dotted-labels)
-    - [Etykiety operandów kodu
-      samomodyfikującego](#self-modifying-code-operand-labels)
-  - [8. Standardowe instrukcje 6502](#8-standard-6502-instructions)
-    - [Przenoszenie danych](#data-movement)
-    - [Arytmetyka](#arithmetic)
-    - [Logika](#logic)
-    - [Skoki i gałęzie](#jumps--branches)
+- [Najważniejsze cechy wersji 2.6.7](#version-267-highlights)
+- [Najważniejsze cechy wersji 2.6.6](#version-266-highlights)
+- [Najważniejsze cechy wersji 2.6.5](#version-265-highlights)
+- [Najważniejsze cechy wersji 2.6.4](#version-264-highlights)
+- [Najważniejsze cechy wersji 2.6.3](#version-263-highlights)
+- [Najważniejsze cechy wersji 2.6.2](#version-262-highlights)
+- [Najważniejsze cechy wersji 2.6.1](#version-261-highlights)
+- [Najważniejsze cechy wersji 2.6.0](#version-260-highlights)
+- [Najważniejsze cechy wersji 2.5.9](#version-259-highlights)
+- [Najważniejsze cechy wersji 2.5.8](#version-258-highlights)
+- [Najważniejsze cechy wersji 2.5.7](#version-257-highlights)
+- [Najważniejsze cechy wersji 2.5.6](#version-256-highlights)
+- [Najważniejsze cechy wersji 2.5.5](#version-255-highlights)
+- [Najważniejsze cechy wersji 2.5.4](#version-254-highlights)
+- [Najważniejsze cechy wersji 2.5.3](#version-253-highlights)
+- [Najważniejsze cechy wersji 2.5.2](#version-252-highlights)
+- [Najważniejsze cechy wersji 2.5.1](#version-251-highlights)
+- [Najważniejsze cechy wersji 2.5.0](#version-250-highlights)
+- [Najważniejsze cechy wersji 2.4.9](#version-249-highlights)
+- [Najważniejsze cechy wersji 2.4.8](#version-248-highlights)
+- [Najważniejsze cechy wersji 2.4.7](#version-247-highlights)
+- [Najważniejsze cechy wersji 2.4.6](#version-246-highlights)
+- [Najważniejsze cechy wersji 2.4.5](#version-245-highlights)
+- [Najważniejsze cechy wersji 2.4.3](#version-243-highlights)
+- [Najważniejsze cechy wersji 2.4.2](#version-242-highlights)
+- [Najważniejsze cechy wersji 2.4.1](#version-241-highlights)
+- [Najważniejsze cechy wersji 2.4.0](#version-240-highlights)
+- [Najważniejsze cechy wersji 2.3.9](#version-239-highlights)
+- [1. Przegląd interfejsu](#1-interface-overview)
+- [2. Paleta bloków](#2-block-palette)
+  - [Parametry w polu operandu](#parameters-in-the-operand-field)
+- [3. Obszar programu](#3-program-area)
+  - [Minimapa panelu bloku](#block-panel-minimap)
+  - [Wejście operandu](#operand-input)
+- [4. Widok ASM](#4-asm-view)
+  - [Tryby wyjściowe](#output-modes)
+  - [Karta Zestaw narzędzi](#toolkit-tab)
+  - [Kompiluj informacje i ustawienia
+    wyjściowe](#compile-info-and-output-settings)
+  - [Kliknięcie wiersza ASM](#clicking-an-asm-line)
+  - [Numery wierszy ASM](#asm-line-numbers)
+  - [Modalne okno postępu kompilacji](#compile-progress-modal)
+- [5. Ustawienia i pasek narzędzi](#5-settings--toolbar)
+  - [Kontrola wersji](#version-control)
+    - [Tryb projektu](#project-mode)
+    - [Git](#git)
+  - [Aktualizacje w aplikacji](#in-app-updates)
+  - [Darmowe i otwarte oprogramowanie](#free-and-open-source)
+  - [Zgłaszanie błędu](#reporting-a-bug)
+  - [Wsparcie](#support)
+  - [Obszary robocze](#workspaces)
+  - [Okno pamięci i wykorzystanie strony
+    zerowej](#memory-window-and-zero-page-usage)
+  - [Szablony projektów](#project-templates)
+  - [Samouczki i edytor lekcji](#tutorials-and-the-lesson-editor)
+    - [Lekcje online](#online-lessons)
+  - [Budowanie projektu](#build-project)
+  - [Przykładowe programy](#example-programs)
+  - [Załaduj plik .asm (szybkie odniesienie)](#load-asm-file-quick-reference)
+    - [Importuj notatki dotyczące analizy i najlepsze
+      praktyki](#import-parsing-notes-and-best-practices)
+  - [Import Kick (Asembler Kick)](#kick-import-kick-assembler)
+    - [Projekty Kick (Importuj projekt
+      Kick…)](#kick-projects-import-kick-project)
+- [Tryb Ultimate Basic](#ultimatebasic-mode)
+  - [Otwieranie edytora UB](#opening-the-ub-editor)
+  - [Narzędzia edytora](#editor-tools)
+  - [Projekty, zakładki i pliki startowe](#projects-tabs-and-startup-files)
+  - [Budowa i diagnostyka](#building-and-diagnostics)
+  - [Rozmiar kodu na wiersz i wskazówki](#code-size-per-line-and-hints)
+  - [Uruchomienie, D64 i Exomizer](#running-d64-and-exomizer)
+  - [Symbole debugera i deasemblacja](#debugger-symbols-and-disassembly)
+  - [Podręcznik i źródło Ultimate Basic](#ultimate-basic-manual-and-source)
+- [6. Tryb ekspercki](#6-expert-mode)
+  - [Przełączanie trybów](#switching-modes)
+  - [Układ edytora](#editor-layout)
+  - [Przyciski paska narzędzi](#toolbar-buttons)
+  - [Minimapa edytora eksperta](#expert-editor-minimap)
+  - [Liczenie cykli](#cycle-counts)
+  - [Wskazówki dotyczące optymalizacji](#optimisation-hints)
+  - [Podświetlanie błędu](#error-highlighting)
+  - [Podświetlenie składni](#syntax-highlight)
+  - [Formater źródła](#source-formatter)
+  - [Panel projektu i zakładki](#project-panel--tabs)
+  - [Pasek kart](#tab-bar)
+  - [Tryb ACME](#acme-mode)
+- [7. Tryby adresowania](#7-addressing-modes)
+  - [Oznacz wyrażenia jako operandy](#label-expressions-as-operands)
+  - [Licznik programu `*` w wyrażeniach](#the--program-counter-in-expressions)
+  - [Lokalne etykiety (kropkowane)](#local-dotted-labels)
+  - [Etykiety operandów kodu
+    samomodyfikującego](#self-modifying-code-operand-labels)
+- [8. Standardowe instrukcje 6502](#8-standard-6502-instructions)
+  - [Przenoszenie danych](#data-movement)
+  - [Arytmetyka](#arithmetic)
+  - [Logika](#logic)
+  - [Skoki i gałęzie](#jumps--branches)
     - [LBNE / LBEQ / … (Długie gałęzie)](#lbne--lbeq---long-branches)
-    - [Operacje rejestru](#register-operations)
-    - [Przesunięcie i obrót](#shift--rotate)
-    - [Stos](#stack)
-    - [System / Flagi](#system--flags)
-    - [Nielegalne/nieudokumentowane
-      instrukcje](#illegal--undocumented-instructions)
-  - [9. Bloki makro — odniesienie](#9-macro-blocks--reference)
-    - [ETYKIETA](#label)
-    - [KOMENTARZ](#comment)
-    - [BAJT](#byte)
-    - [SŁOWO](#word)
-    - [WYPEŁNIJ](#fill)
-    - [WYRÓWNAJ](#align)
-    - [TEKST 1}
-    - [CIĄG](#string)
-    - [DANE](#data)
-    - [RAWBYTES](#rawbytes)
-    - [SUROWY TEKST](#rawtext)
-    - [PETSCII](#petscii)
-    - [ZESTAW ZNAKÓW](#charset)
-    - [CHARDEF](#chardef)
-    - [TRAFIENIE W PUDEŁKO](#box_hit)
-    - [INCBIN](#incbin)
-    - [KOALA](#koala)
-    - [POZIOM / POZIOM\_RZĄD](#level--level_row)
-      - [POZIOM](#level)
-      - [POZIOM\_RZĄD](#level_row)
-    - [SID](#sid)
-    - [ODTWARZACZ_SID](#sid_player)
-    - [WŁĄCZ](#include)
-    - [TABELA](#table)
-    - [ORG](#org)
-    - [PĘTLA / NASTĘPNY](#loop--next)
-      - [PĘTLA](#loop)
-      - [DALEJ](#next)
-    - [DLA / ZAKOŃCZENIE](#for--endf)
-      - [DLA](#for)
-      - [KONIEC](#endf)
-    - [PCHNIJ / POCIĄGNIJ](#push--pull)
-      - [PCHNIJ](#push)
-      - [POCIĄGNIJ](#pull)
-    - [END / alias RTS](#end--rts-alias)
-    - [MAKRO / ENDM / WYWOŁAJ](#macro--endm--invoke)
-      - [MAKRO (początek definicji)](#macro-definition-start)
-      - [ENDM (koniec definicji)](#endm-definition-end)
-      - [WYWOŁAJ](#invoke)
-    - [REGION / KONIEC REGIONU](#region--endregion)
-    - [DEFINIUJ / JEŻELI / W PRZECIWNYM RAZIE / ENDIF](#define--if--else--endif)
-    - [.ASSERT](#assert)
-      - [DEFINIUJ](#define)
-      - [JEŻELI](#if)
-      - [INACZEJ](#else)
+  - [Operacje rejestru](#register-operations)
+  - [Przesunięcie i obrót](#shift--rotate)
+  - [Stos](#stack)
+  - [System / Flagi](#system--flags)
+  - [Nielegalne/nieudokumentowane
+    instrukcje](#illegal--undocumented-instructions)
+- [9. Bloki makro — odniesienie](#9-macro-blocks--reference)
+  - [ETYKIETA](#label)
+  - [KOMENTARZ](#comment)
+  - [BAJT](#byte)
+  - [SŁOWO](#word)
+  - [WYPEŁNIJ](#fill)
+  - [WYRÓWNAJ](#align)
+  - [TEKST 1}
+  - [CIĄG](#string)
+  - [DANE](#data)
+  - [RAWBYTES](#rawbytes)
+  - [SUROWY TEKST](#rawtext)
+  - [PETSCII](#petscii)
+  - [ZESTAW ZNAKÓW](#charset)
+  - [CHARDEF](#chardef)
+  - [TRAFIENIE W PUDEŁKO](#box_hit)
+  - [INCBIN](#incbin)
+  - [KOALA](#koala)
+  - [POZIOM / RZĄD_POZIOMU](#level--level_row)
+    - [POZIOM](#level)
+    - [RZĄD_POZIOMU](#level_row)
+  - [SID](#sid)
+  - [ODTWARZACZ_SID](#sid_player)
+  - [WŁĄCZ](#include)
+  - [TABELA](#table)
+  - [ORG](#org)
+  - [PĘTLA / NASTĘPNY](#loop--next)
+    - [PĘTLA](#loop)
+    - [DALEJ](#next)
+  - [DLA / ZAKOŃCZENIE](#for--endf)
+    - [DLA](#for)
+    - [KONIEC](#endf)
+  - [PCHNIJ / POCIĄGNIJ](#push--pull)
+    - [PCHNIJ](#push)
+    - [POCIĄGNIJ](#pull)
+  - [END / alias RTS](#end--rts-alias)
+  - [MAKRO / ENDM / WYWOŁAJ](#macro--endm--invoke)
+    - [MAKRO (początek definicji)](#macro-definition-start)
+    - [ENDM (koniec definicji)](#endm-definition-end)
+    - [WYWOŁAJ](#invoke)
+  - [REGION / KONIEC REGIONU](#region--endregion)
+  - [DEFINIUJ / JEŻELI / W PRZECIWNYM RAZIE / ENDIF](#define--if--else--endif)
+    - [DEFINIUJ](#define)
+    - [JEŻELI](#if)
+    - [INACZEJ](#else)
     - [KONIECJĘ JEŻELI](#endif)
-    - [STAŁA](#const)
-    - [VAR](#var)
-    - [Czas wykonania JEŻELI / W PRZECIWNYM RAZIE /
-      ENDIF](#runtime-if--else--endif)
-    - [WHILE / ENDW](#while--endw)
-    - [POWTARZAJ / DO](#repeat--until)
-    - [MEMCPY / MEMSET](#memcpy--memset)
-    - [DRUKUJ / DRUKUJ ZNAK / DRUKUJ SZESNASTKOWY / WYCZYŚĆ EKRAN / KLUCZ
-      OCZEKIWANIA / OPÓŹNIENIE / USTAW_OBRAMOWANIE /
-      USTAW_BOKIEM](#print--print_char--print_hex--clear_screen--wait_key--delay--set_border--set_bg)
-    - [USTAWIENIA_IRQ](#irq_setup)
-    - [RAND](#rand)
-    - [SPRITE\_INIT](#sprite_init)
-    - [SPRITE\_POS](#sprite_pos)
-    - [CZEKAJ\_RASTER](#wait_raster)
-    - [JOYSTICK](#joystick)
-    - [MYSZ](#mouse)
-    - [SPRITE\_COL](#sprite_col)
-    - [WCZYTAJ PLIK](#loadfile)
-    - [EXODECRUNCH](#exodecrunch)
-    - [REU\_CHECK](#reu_check)
-    - [REU\_SCHOWAJ / REU\_POBIERZ /
-      REU\_ZAMIEŃ](#reu_stash--reu_fetch--reu_swap)
-    - [TURBO\_SET](#turbo_set)
-    - [SUPERPROCPU\_WYKRYWANIE](#supercpu_detect)
-    - [TURBO\_WŁĄCZ](#turbo_enable)
-    - [MAPA\_KOPIA](#map_copy)
-    - [MAPA\_KOPIA16X16](#map_copy16x16)
-    - [SPRITE\_ANIM](#sprite_anim)
-    - [WYNIK\_BCD](#score_bcd)
-  - [10. Integracja debugera](#10-debugger-integration)
-    - [RetroDebugger](#retrodebugger)
-    - [Bloki punktów przerwania](#breakpoint-blocks)
-    - [Flagi debugera (zakładka Opcje)](#debugger-flags-options-tab)
-    - [Monitor VICE (gorące przeładowanie, oglądanie na żywo,
-      profilowanie)](#vice-monitor-hot-reload-live-watch-profiler)
-  - [11. Linki do bazy wiedzy](#11-knowledge-base-links)
-  - [12. Eksport D64 i uruchomienie](#12-d64-export--run)
-    - [Przycisk Podziel bieg](#split-run-button)
-    - [Eksportuj do okna dialogowego D64](#export-to-d64-dialog)
-    - [Metadane D64 w projektach](#d64-metadata-in-projects)
-  - [12b. Eksport CRT (wkład Magic Desk
-    64K)](#12b-crt-export-magic-desk-64k-cartridge)
-  - [13. Ustawienia sprzętowe](#13-hardware-settings)
-    - [Emulator VICE](#vice-emulator)
-    - [Exomizer](#exomizer)
-    - [Retro Debugger](#retro-debugger)
-    - [C64 Ultimate / 1541 Ultimate](#c64-ultimate--1541-ultimate)
-    - [Kung Fu Flash 2](#kung-fu-flash-2)
-  - [14. Edytory wizualne (zestaw narzędzi)](#14-visual-editors-toolkit)
-    - [Edytor wysokiej rozdzielczości /
-      wielokolorowy](#hi-res--multicolor-editor)
-    - [Edytor sprite'ów](#sprite-editor)
-    - [Przeglądarka ROM-u znaków C64 („Mapa
-      znaków”)](#c64-character-rom-browser-char-map)
-    - [Edytor znaków (zestaw znaków)](#character-editor-charset)
-    - [Edytor kanwy znaków](#charset-canvas-editor)
-    - [Edytor map (mapy kafelkowe
-      wielowarstwowe)](#map-editor-multilayer-tilemaps)
-    - [Edytor poziomów](#level-editor)
-    - [Edytor SID (śledzenie 3-głosowe)](#sid-editor-3-voice-tracker)
-    - [Odtwarzacz SID](#sid-player)
-    - [Edytor krzywych](#curve-editor)
-    - [Generator tabel](#table-generator)
-    - [Konwerter liczb](#number-converter)
+  - [.ASSERT](#assert)
+  - [STAŁA](#const)
+  - [VAR](#var)
+  - [Czas wykonania JEŻELI / W PRZECIWNYM RAZIE /
+    ENDIF](#runtime-if--else--endif)
+  - [WHILE / ENDW](#while--endw)
+  - [POWTARZAJ / DO](#repeat--until)
+  - [MEMCPY / MEMSET](#memcpy--memset)
+  - [DRUKUJ / DRUKUJ ZNAK / DRUKUJ SZESNASTKOWY / WYCZYŚĆ EKRAN / KLUCZ
+    OCZEKIWANIA / OPÓŹNIENIE / USTAW_OBRAMOWANIE /
+    USTAW_BOKIEM](#print--print_char--print_hex--clear_screen--wait_key--delay--set_border--set_bg)
+    - [DRUKUJ](#print)
+    - [DRUKUJ_ZNAK](#print_char)
+    - [DRUKUJ_SZESNASTKOWO](#print_hex)
+    - [WYCZYŚĆ_EKRAN](#clear_screen)
+    - [KLUCZ_CZEKAJ](#wait_key)
+    - [OPÓŹNIENIE](#delay)
+    - [USTAW_GRANICĘ / USTAW_BRAMĘ](#set_border--set_bg)
+  - [USTAWIENIA_IRQ](#irq_setup)
+  - [RAND](#rand)
+  - [INITACJA_SPRITE](#sprite_init)
+  - [Punkt_SPRITE](#sprite_pos)
+  - [WAIT_RASTER](#wait_raster)
+  - [JOYSTICK](#joystick)
+  - [MYSZ](#mouse)
+  - [KOLOR_SPRITE](#sprite_col)
+  - [WCZYTAJ PLIK](#loadfile)
+  - [EXODECRUNCH](#exodecrunch)
+  - [REU_CHECK](#reu_check)
+  - [REU_STASH / REU_FETCH / REU_SWAP](#reu_stash--reu_fetch--reu_swap)
+  - [TURBO_SET](#turbo_set)
+  - [WYKRYWANIE_SUPERPROCPU](#supercpu_detect)
+  - [TURBO_ENABLE](#turbo_enable)
+  - [KOPIA_MAPY](#map_copy)
+  - [MAP_COPY16X16](#map_copy16x16)
+  - [SPRITE_ANIM](#sprite_anim)
+  - [WYNIK_BCD](#score_bcd)
+- [10. Integracja debugera](#10-debugger-integration)
+  - [RetroDebugger](#retrodebugger)
+  - [Bloki punktów przerwania](#breakpoint-blocks)
+  - [Flagi debugera](#debugger-flags)
+  - [Monitor VICE (gorące przeładowanie, oglądanie na żywo,
+    profilowanie)](#vice-monitor-hot-reload-live-watch-profiler)
+- [11. Linki do bazy wiedzy](#11-knowledge-base-links)
+- [12. Eksport i uruchomienie D64](#12-d64-export--run)
+  - [Przycisk Podziel bieg](#split-run-button)
+  - [Eksportuj do okna dialogowego D64](#export-to-d64-dialog)
+  - [Metadane D64 w projektach](#d64-metadata-in-projects)
+  - [Edytor D64 (przeglądanie i edycja istniejącego obrazu
+    dysku)](#d64-editor-browse--edit-an-existing-disk-image)
+- [12b. Eksport CRT (wkład Magic Desk
+  64K)](#12b-crt-export-magic-desk-64k-cartridge)
+  - [Co znajduje się w koszyku](#what-ships-in-the-cart)
+  - [Adres ładowania i punkt wejścia](#load-address-and-entry-point)
+  - [Limit rozmiaru](#size-limit)
+  - [Zgodność](#compatibility)
+- [13. Ustawienia](#13-settings)
+  - [Kompilator VMA](#vma-compiler)
+  - [Emulator VICE](#vice-emulator)
+  - [Exomizer](#exomizer)
+  - [Retro Debugger](#retro-debugger)
+  - [C64 Ultimate / 1541 Ultimate](#c64-ultimate--1541-ultimate)
+  - [Kung Fu Flash 2](#kung-fu-flash-2)
+  - [Kontrola wersji (git)](#version-control-git)
+- [14. Edytory wizualne (zestaw narzędzi)](#14-visual-editors-toolkit)
+  - [Edytor wysokiej rozdzielczości / wielokolorowy](#hi-res--multicolor-editor)
+  - [Edytor sprite'ów](#sprite-editor)
+  - [Przeglądarka ROM-u znaków C64 („Mapa
+    znaków”)](#c64-character-rom-browser-char-map)
+  - [Edytor znaków (zestaw znaków)](#character-editor-charset)
+  - [Edytor kanwy znaków](#charset-canvas-editor)
+  - [Edytor map (mapy kafelkowe
+    wielowarstwowe)](#map-editor-multilayer-tilemaps)
+  - [Edytor poziomów](#level-editor)
+  - [Edytor SID (śledzenie 3-głosowe)](#sid-editor-3-voice-tracker)
+  - [Odtwarzacz SID](#sid-player)
+    - [HVSC (kolekcja SID wysokiego
+      napięcia)](#hvsc-high-voltage-sid-collection)
+    - [Analizator widma](#spectrum-analyzer)
+  - [Edytor krzywych](#curve-editor)
+  - [Generator tabel](#table-generator)
+  - [Konwerter liczb](#number-converter)
+
+---
+
+## Najważniejsze cechy wersji 2.6.7
+
+- **Kompilator Rust VMA** — **Ustawienia → Ogólne → Program → Kompilator VMA**
+  wybiera silnik: **JavaScript** (domyślny), **Rust** lub **Sprawdzanie Rust +
+  JavaScript**, który kompiluje z obydwoma i loguje wszelkie różnice. Kompilator
+  Rust podaje te same bajty, widok pamięci, segmenty i przetłumaczone komunikaty
+  o błędach; projekty Kick również kompilują się przez niego, z błędami w
+  `plik:linia`. Zobacz [Kompilator VMA](#vma-compiler).
+- **VMA jest oprogramowaniem typu open source** — kompilator Visual Macro
+  Assembler znajduje się we własnym repozytorium GPLv3,
+  [github.com/zstarczali/VMA](https://github.com/zstarczali/VMA) (wersja 2.0.0),
+  z instrukcją w języku angielskim i węgierskim oraz kompilatorem wiersza
+  poleceń. W polu „Informacje” wyświetlana jest wersja VMA i baner obok Ultimate
+  Basic.
+- **Symbole i stałe projektu** — **Ustawienia projektu** ustawiają symbole VMA
+  (`.define`, dla `.if` / `.ifdef`) i stałe (`.const`) dla całego projektu,
+  zapisane w pliku `.proj`; wiersze błędów pozostają poprawne. Zobacz [Panel
+  projektu i karty](#project-panel--tabs).
+- **Okno dialogowe kompilacji** — linia kroków pod paskiem postępu zawiera nazwę
+  silnika, pliku i rozmiar PRG.
+- **Informacje o kompilacji** — pokazuje opisywany plik; źródło ACME otrzymuje
+  własny widok z rzeczywistej kompilacji ACME (początek, koniec, rozmiar,
+  segmenty, etykiety). Nie zamyka się już po kliknięciu z zewnątrz.
+- **Szybsze pisanie** — w trybie ACME panele Disassembly i Monitor są
+  przebudowywane raz na kompilację i przyciemniane, gdy źródło jest nowsze; duże
+  projekty Kick ponownie wykorzystują ostatnie przetwarzanie wstępne i renderują
+  deasemblację w częściach.
+- **Drzewo projektu** — **Przesuń w górę** / **Przesuń w dół** w menu prawego
+  przycisku myszy plików i folderów. Zgodność z funkcją Kick jest przełączana w
+  **Ustawieniach projektu**.
+- **Naprawiono** — zapisanie pliku `.asm` (Ctrl+S, Menu → Zapisz, przed
+  zatwierdzeniem w git) ponownie zapisuje zwykły tekst, a nie VA JSON; migawki
+  kontroli wersji przechowują pliki źródłowe jako tekst; makra biblioteczne
+  wewnątrz makr użytkownika (SET_BORDER, SPRITE_*, JOYSTICK, TEXT …) pobierają
+  swoje parametry, etykiety IF / WHILE / REPEAT w czasie wykonywania są unikalne
+  dla każdego wywołania, a argument `'A'` pozostaje znakiem; przeciągane okna
+  dialogowe otwierają się w miejscu zapisu.
+- **Wygląd** — kompilacja, informacje o kompilacji, eksport D64, błędy
+  kompilacji i okna dialogowe pytań mają ramkę Informacje.
 
 ---
 
@@ -269,9 +339,10 @@ w czasie rzeczywistym.
   → Plik → Ustawienia projektu…**) wyświetla i edytuje nazwę, plik startowy,
   asembler, zgodność z KickAssembler, symbole `#define` i `cmdLineVars`
   projektu. Zobacz [Panel Projekt i zakładki](#project-panel--tabs).
-- **Przełącznik zgodności z Kick** — przycisk `{K}` w nagłówku panelu Projekt
-  sprawia, że każdy projekt VMA staje się zgodny z KickAssemblerem; makra i
-  dyrektywy VA nadal działają obok skryptu KickAssembler.
+- **Przełącznik zgodności z Kick** — przełącznik (od wersji 2.6.7 w
+  **Ustawieniach projektu**) sprawia, że każdy projekt VMA jest zgodny z
+  KickAssemblerem; makra i dyrektywy VA nadal działają obok skryptu
+  KickAssembler.
 - **Język KickAssembler** — `#import` / `#importonce` / `#importif`, `#define` /
   `#if`, `.const` / `.label` (strona zerowa lub wartość absolutna), `.for`,
   `.while`, `.if … else`, `.var` / `.eval`, `.function`, `.macro { }`,
@@ -337,11 +408,11 @@ w czasie rzeczywistym.
   basic`, a każdy inny za pomocą `sfx $<adres ładowania>`.
 - **Edytor SID** — wyświetlacz LCD odtwarzania na pasku narzędzi trackera
   (pozycja utworu, wzór, wiersz, czas; zielony lub czerwony w **Ustawienia →
-  Podgląd SID → Kolor wyświetlacza LCD**), pokrętło instrumentu z wyświetlaczem
-  LCD na VA-VK, pasek postępu dla **Importu .sid…**. Zobacz [Edytor
-  SID](#sid-editor-3-voice-tracker).
+  Ogólne → Podgląd SID → Kolor wyświetlacza LCD**), pokrętło instrumentu z
+  wyświetlaczem LCD na VA-VK, pasek postępu dla **Importu .sid…**. Zobacz
+  [Edytor SID](#sid-editor-3-voice-tracker).
 - **Ustawienia w trzech zakładkach** — **Ogólne**, **Pliki i ścieżki** i
-  **Integracje**. Zobacz [Sekcję 13](#13-hardware-settings).
+  **Integracje**. Zobacz [Sekcję 13](#13-settings).
 - **Mniejsze ulepszenia** — **Ctrl+N** otwiera nową kartę; tekstu w oknie
   dialogowym nie można już zaznaczyć przypadkowo (wciąż można to zrobić w polach
   tekstowych i kopiowalnych danych wyjściowych, takich jak błędy kompilacji);
@@ -370,9 +441,10 @@ w czasie rzeczywistym.
 - **Edytor SID** — nagłówek pokazuje aktywną emulację SID (WebSID lub VA SID
   Core z modelem układu scalonego); pole Prędkość ma przyciski − / + i przyjmuje
   wartości od 1 do 255; utwór może wykorzystywać maksymalnie 256 wzorców.
-- **Ustawienia serwera aktualizacji** — **Ustawienia → Aktualizacje** ustawia
-  serwer, z którego aktualizacje w aplikacji odczytują wydania (domyślnie
-  `https://www.c64va.pro/`). Zobacz [Aktualizacje w aplikacji](#in-app-updates).
+- **Ustawienia serwera aktualizacji** — **Ustawienia → Ogólne → Aktualizacje**
+  ustawia serwer, z którego aktualizacje w aplikacji odczytują wydania
+  (domyślnie `https://www.c64va.pro/`). Zobacz [Aktualizacje w
+  aplikacji](#in-app-updates).
 - **Ultimate Basic 1.6.6** — `DRUKUJ PRZY UŻYCIU "format"; wartości`,
   porównywanie ciągów znaków w kolejności PETSCII, zmiennoprzecinkowe `rnd` i
   `mod`, zmiennoprzecinkowe w obsłudze IRQ/NMI, `opcja podstawowego drukowania`
@@ -543,8 +615,8 @@ w czasie rzeczywistym.
   SID](#sid-player).
 - **VA SID Core 1.1** — wbudowana emulacja SID (MOS 6581/8580, z filtrem 6581
   opartym na MOS 6581/8580) i odtwarzacz PSID/RSID z cyklicznym blokowaniem
-  (procesor 6510, taktowanie CIA/VIC). Wybierz w **Ustawienia → Podgląd SID**;
-  odtwarzacz SID pokazuje, który silnik odtwarza.
+  (procesor 6510, taktowanie CIA/VIC). Wybierz w **Ustawienia → Ogólne → Podgląd
+  SID**; odtwarzacz SID pokazuje, który silnik odtwarza.
 - **Edytor SID** — pokrętła parametrów instrumentu, szerszy wykres ADSR,
   **wejście MIDI**, **nagrywanie** do trackera (nowy wzór jest dodawany, gdy
   obecny jest pełny), **metronom** z lampami uderzeniowymi, **usuwanie wzoru**,
@@ -697,9 +769,14 @@ w czasie rzeczywistym.
 
 ## Najważniejsze cechy wersji 2.4.8
 
-- **Nowe makro KOALA** — `.koala "picture.koa"` (opcjonalnie `, $2000`) ładuje
-  obrazek Koala Painter i wyświetla go za pomocą 86-bajtowej procedury
-  wyświetlania. Zobacz [KOALA](#project-templates).
+- **Szablony projektów** — **Menu → Nowy projekt → Nowy projekt z szablonu…**
+  lub nowy przycisk na pasku narzędzi pomiędzy **Menu** a **Samouczki**, tworzy
+  gotowy do kompilacji projekt `.proj` w osobnym folderze. Okno dialogowe
+  zawiera sekcję **Assembler** (pusty program, szkielet gry, hires i
+  wielokolorowa mapa bitowa) oraz sekcję **UltimateBasic** (pusty program,
+  szkielet gry, mapa bitowa hires, rastrowe przerwanie IRQ) z podglądem z
+  wyróżnioną składnią. Twoje własne szablony `.asm` / `.ub` są pobierane z
+  folderu szablonów użytkownika. Zobacz [Szablony projektu](#project-templates).
 - **Import/eksport plików Koala w edytorze Hires** — **Pliki → Importuj pliki
   Koala (.koa)…** / **Eksportuj pliki Koala (.koa)…** (standardowy plik
   10003-bajtowy; zdjęcia w wysokiej rozdzielczości są podczas eksportu
@@ -1117,11 +1194,9 @@ Prawy panel pokazuje wygenerowany wynik w czasie rzeczywistym.
 | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **ASM**             | Źródło montażu 6502 z adresami i etykietami                                                                                                                                                                                                                                                                           |
 | **Monitor**         | Zrzut szesnastkowy/bajtowy (w stylu monitora C64)                                                                                                                                                                                                                                                                     |
-| **Dyzasm**          | Czysty deasembler 6502: adres · bajty szesnastkowe · mnemoniki z rozwiązanymi operandami numerycznymi. Makra są rozwijane do pojedynczych instrukcji (TEKST → pary LDA/STA, PĘTLA → LDX itd.). Dane BAJT/SŁOWO/WYPEŁNIENIE prezentowane jako zrzut szesnastkowy. Brak nazw makr, komentarzy ani adnotacji w wynikach. |
+| **Dezasembler**     | Czysty deasembler 6502: adres · bajty szesnastkowe · mnemoniki z rozwiązanymi operandami numerycznymi. Makra są rozwijane do pojedynczych instrukcji (TEKST → pary LDA/STA, PĘTLA → LDX itd.). Dane BAJT/SŁOWO/WYPEŁNIENIE prezentowane jako zrzut szesnastkowy. Brak nazw makr, komentarzy ani adnotacji w wynikach. |
 | **Oba**             | ASM na górze, monitor poniżej                                                                                                                                                                                                                                                                                         |
-| **Dezasembler**     | Tak samo jak w Disasm — dedykowana zakładka do widoku demontażu                                                                                                                                                                                                                                                       |
 | **Zestaw narzędzi** | Panel referencyjny C64: próbnik palety 16 kolorów + kod sterujący PETSCII i ściągawka ze znakami do druku. Tylko do odczytu — szczegóły w podsekcji „Zestaw narzędzi” poniżej.                                                                                                                                        |
-| **Opcje**           | Panel ustawień programu — format liczb, przełączanie źródła makra, parametry debugera                                                                                                                                                                                                                                 |
 
 Migawki projektu są przechowywane jako pliki JSON sidecar na dysku, a nie w
 pamięci lokalnej. Są one powiązane z bieżącym plikiem projektu, jeśli taki
@@ -1141,31 +1216,20 @@ bieżącą wersją:
 
 Po pobraniu aplikacja zainstaluje aktualizację i uruchomi się ponownie:
 
-### Przestrzenie robocze
+### Kompiluj informacje i ustawienia wyjściowe
 
-Obszar roboczy **** (plik `.vaws`) zapamiętuje, które rzeczywiste pliki na dysku
-były otwarte na każdej karcie — w tym tryb edytora każdej karty i która karta
-była aktywna — dzięki czemu można później ponownie otworzyć ten sam zestaw. Jest
-on niezależny od projektu `.proj`: obszar roboczy może obejmować dowolną
-kombinację plików projektu Block/Expert `.json`, samodzielnych plików `.asm`
-oraz plików źródłowych Ultimate Basic `.ub`/`.proj` na wielu kartach.
-
-- Przestrzenie robocze **zapisują się automatycznie** kilkaset milisekund po
-  wprowadzeniu zmiany, jeśli została ona zapisana lub otwarta.
-- Aplikacja **automatycznie przywraca ostatnią przestrzeń roboczą** po
-  uruchomieniu, dzięki czemu możesz kontynuować pracę na otwartych kartach od
-  miejsca, w którym przerwałeś.
-- W obszarze roboczym zapisywane są tylko karty oparte na rzeczywistym pliku na
-  dysku; karta zawierająca niezapisaną próbkę lub program znajdujący się
-  wyłącznie w pamięci nie ma niczego do zapisania i jest pomijana (jeśli żadna z
-  otwartych kart nie kwalifikuje się, wyświetlane jest powiadomienie).
-  - **`-jmp` ON/OFF** — przejdź bezpośrednio do adresu startowego programu po
-    załadowaniu.
-  - **`-unpause` WŁ./WYŁ.** — natychmiastowe wznawianie debugera po załadowaniu.
-  - **`-wait` ms ON/OFF** — dodaje opóźnienie `-wait <ms>` przed wznowieniem;
-    wybierz 500 ms lub 1000 ms z listy rozwijanej.
-- Otwarcie obszaru roboczego powoduje najpierw zamknięcie wszystkich otwartych
-  kart — przed kontynuacją zostaniesz poproszony o potwierdzenie.
+- **Informacje o kompilacji** (powyżej wyników) pokazują podsumowanie
+  skompilowanego programu: adres początkowy kodu, rozmiar i szczątkowy kod BASIC
+  SYS.
+- Adres początkowy programu jest ustawiany przez blok **ORG** (`* = $C000`):
+  pierwszy blok ORG jest adresem ładowania, kolejne bloki ORG uruchamiają więcej
+  sekcji pod innymi adresami.
+- Ustawienia wyjściowe znajdują się w **Ustawienia → Ogólne → Wyjście ASM**:
+  **Źródło makra** (definicje makr MACRO…ENDM pokazują swoje źródło w widoku
+  ASM), **Pokaż komentarze regionu**, **Pokaż nakładki pamięci** i **Pokaż panel
+  pamięci**.
+- Flagi RetroDebugger (`-jmp`, `-unpause`, `-wait`) znajdują się w **Ustawienia
+  → Ogólne → RetroDebugger** — zobacz [Flagi debugera](#debugger-flags).
 
 ### Szablony projektów
 
@@ -1181,8 +1245,8 @@ otwarte zakładki plików:
 - każde możliwe do skompilowania źródło (`.asm`, blok `.json`, `.ub`) jest
   kompilowane do pliku `.prg` **obok jego źródła** o tej samej nazwie; po
   włączeniu opcji **Uruchom z Exomizerem** dane wyjściowe są kompilowane;
-- pliki pomocnicze debugera (symbole/mapa źródłowa) są zapisywane obok PRG,
-  jeśli są dostępne;
+- **Eksportuj ASM** (menu Program) nadal kopiuje czysty tekst źródłowy **bez**
+  prefiksów numerów wierszy.
 
 ### Przykładowe programy
 
@@ -1191,61 +1255,67 @@ programy pogrupowane tematycznie (Podstawy, Makra i przepływ sterowania,
 Grafika, Sprite'y i dane wejściowe, Pliki i ładowanie, Muzyka, IRQ i sprzęt) w
 dwóch kolumnach.
 
-- Wpisz w polu wyszukiwania, aby filtrować według nazwy lub kategorii. Stopka
-  pokazuje, ile przykładów pasuje.
-- Kliknij przykład, aby go wybrać, **↑ / ↓** przesuń wybór; **kliknij
-  dwukrotnie**, **Enter** lub **Załaduj** ładuje go.
-- Okno dialogowe otworzy się na ostatnio załadowanym przykładzie.
+- **Uruchom** (VICE, D64, C64 Ultimate, Kung Fu Flash 2) — budowanie PRG i
+  uruchamianie go.
+- **Debug** — budowanie PRG i uruchamianie RetroDebuggera.
+- **Kompilacja projektu**, **Kompilacja D64** i pakowanie **Exomizera**.
 
-Okno modalne zamyka się automatycznie po zakończeniu akcji lub jej
-niepowodzeniu.
+Wiersz pod paskiem zawiera nazwę wykonywanego kroku wraz z plikiem — na przykład
+*Kick: wstępne przetwarzanie pliku main.asm (14 plików)…*, *VMA (Rust):
+kompilowanie pliku main.asm…*, *PRG gotowy: 2061 bajtów z $0801*, *Exomizer:
+kompresowanie…*, *VICE: uruchamianie…*. Okno modalne zamyka się automatycznie po
+zakończeniu lub niepowodzeniu akcji.
 
 ---
 
 ## Tryb Ultimate Basic
 
-| Kontrola                                                                                       | Opis                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| ---------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Podstawa liczbowa (HEX / DEC / BIN)**                                                        | Ustawia format wyświetlania/wprowadzania operandów w całym interfejsie użytkownika. Tryb BIN wyświetla wartości jako binarne z prefiksem `%` (np. `%11111000`). Widok ASM zawsze wyświetla każdy blok w jego własnym formacie.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| **Język**                                                                                      | Przełączanie interfejsu użytkownika między językiem angielskim, węgierskim, hiszpańskim, niemieckim i holenderskim (Nederlands)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| **Motyw**                                                                                      | Jasny / Ciemny / OLED / Commodore 77 / Commodore Starlight / Commodore Beige / Commodore 64 — wybierz z selektora motywów w menu Ustawienia. OLED używa czystego czarnego tła dla wyświetlaczy AMOLED. Commodore 77 to neonowo-żółty motyw na czarnym tle; gdy jest aktywnym motywem, panel powitalny startowy używa koloru panelu motywu (pasującego do karty wiadomości), pokazuje mniejsze dedykowane logo Commodore 77 i żółty pasek postępu. Commodore Starlight to jasny motyw po półprzezroczystym chlebaku C64: matowe przezroczyste szklane panele z tęczową poświatą RGB, magenta akcent, tęczowe kolory składni i przydymiony ciemny widok monitora. Commodore Beige to klasyczny chlebak: beżowa obudowa, musztardowe przyciski funkcyjne, tęczowe paski na plakietce i niebieski ekran C64 dla widoku monitora. Wybrany motyw jest stosowany przed pierwszym malowaniem przy następnym uruchomieniu. |
-| **Tryb retro CRT**                                                                             | Przełącza pełnoekranowy filtr CRT: linie skanowania, winietę fosforową, migotanie i zniekształcenie beczkowate. Stan jest zapisywany między sesjami.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| **Pokaż panel pamięci**                                                                        | Globalny przełącznik pokazujący lub ukrywający cały panel pamięci C64                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| **Podstawowy schemat systemu **                                                                | Dodaje wiersz BASIC, który wywołuje SYS do źródła programu (pierwszej ORG). Segment umieszczony niżej niż pierwsza ORG pozostaje pod własnym adresem. Gdy program ładuje się poniżej lub w poprzek linii BASIC (`$0801`–`$080C`, na przykład zaimportowany zrzut z `$071C`), polecenia Run i Build dodają zamiast tego mały program ładujący: `SYS 2061` kopiuje element mover do bufora taśmy (`$033C`), który uruchamia program i przechodzi do pierwszej ORG.                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| **Przykłady…**                                                                                 | Otwórz przykładową przeglądarkę i załaduj wbudowany przykładowy program — zobacz [Przykładowe programy](#example-programs)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| **Powiększ / pomniejsz **                                                                      | Skalowanie interfejsu użytkownika bloku (dotyczy wszystkich elementów bloku)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| **Zapisz projekt**                                                                             | Zapisz bieżący program jako plik projektu `.json`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| **Zapisz program jako**                                                                        | Zapisz bieżący program jako plik projektu `.json` za każdym razem, korzystając z nowego okna dialogowego pliku                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| **Załaduj projekt**                                                                            | Załaduj wcześniej zapisany projekt                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| **Zapisz obszar roboczy**                                                                      | Zapisz dokładny zestaw aktualnie otwartych kart z kopią zapasową pliku — w tym aktywną kartę i tryb edytora każdej karty (Blok/Ekspert/Ultimate Basic) — w pliku obszaru roboczego `.vaws`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| **Zapisz obszar roboczy jako**                                                                 | Zapisz bieżący obszar roboczy za każdym razem, korzystając z nowego okna dialogowego pliku                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| **Otwórz przestrzeń roboczą**                                                                  | Zamknij wszystkie otwarte karty i ponownie otwórz zestaw plików przechowywanych w pliku obszaru roboczego `.vaws`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| **Ustaw folder roboczy**                                                                       | Wybierz domyślny folder używany przez selektory plików i okna dialogowe zapisu. Ścieżka jest zapisywana w konfiguracji aplikacji, a podglądy menu utrzymują koniec ścieżki widoczny.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| **Nowy projekt z szablonu…** (`Menu → Nowy projekt` lub przycisk paska narzędzi obok **Menu**) | Utwórz nowy projekt `.proj` z szablonu Visual Assembler, ACME lub UltimateBasic w jego własnym folderze — zobacz [Szablony projektów](#project-templates)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| **Otwórz projekt** (`Menu → Plik`)                                                             | Otwórz wieloplikowy projekt `.proj` i otwórz wszystkie pliki źródłowe jako zakładki                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| **Zapisz projekt** (`Menu → Plik`)                                                             | Zapisz bieżący projekt `.proj` (panel projektu musi być otwarty)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| **Zamknij projekt** (`Menu → Plik`)                                                            | Zamknij aktualnie otwarty projekt i wszystkie jego zakładki plików. Wyświetla monit o zapisanie niezapisanych zmian. Panel projektu resetuje się do stanu pustego.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| **Załaduj plik .asm**                                                                          | Otwiera plik `.asm` w trybie eksperta i importuje tekstowy plik ASM 6502 do bieżącej karty                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| **Zapisz program **                                                                            | Eksportuj skompilowany plik binarny jako plik `.prg`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| **Budowa CRT**                                                                                 | Wyeksportuj program jako plik Magic Desk o rozmiarze 64 KB (`.crt`, typ kartridża 19). Zobacz [Sekcję 12b](#12b-crt-export-magic-desk-64k-cartridge).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| **Buduj projekt** (`Menu → Buduj`)                                                             | Kompiluj każdy możliwy do skompilowania plik projektu (lub otwartych kart) do pliku `.prg` obok jego źródła — zobacz [Kompilowanie projektu](#build-project)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| **Uruchom (przycisk podziału)**                                                                | Główny przycisk **▶ Uruchom** uruchamia bieżący tryb; kliknij strzałkę **▾**, aby przełączać się między: **Uruchom jako PRG** (kompilacja i uruchomienie programu VICE bezpośrednio), **Uruchom przez D64** (pakowanie do obrazu dysku .d64 i uruchomienie programu VICE), **Uruchom na sprzęcie** (wysyłanie PRG do urządzenia C64 Ultimate / 1541 Ultimate) lub **Kung Fu Flash 2** (przesyłanie PRG przez USB do prawdziwego komputera C64/C128 za pomocą kartridża Kung Fu Flash 2). Zobacz [Sekcję 12](#12-d64-export--run) i [Sekcję 13](#13-hardware-settings).                                                                                                                                                                                                                                                                                                                                            |
-| **Debugowanie (RetroDebugger)**                                                                | Kompiluj i uruchamiaj w RetroDebuggerze z punktami przerwania, symbolami i flagami autostartu (patrz [Sekcja 9](#9-debugger-integration))                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| **Uruchom z Exomizerem**                                                                       | Pole wyboru w menu Ustawienia — po zaznaczeniu wszystkie operacje Uruchom i Kompilacja przeszukują PRG przez `exomizer sfx` przed uruchomieniem lub zapisaniem (`sfx basic` dla PRG rozpoczynającego się od wiersza BASIC, więc RUN działa ponownie po zakończeniu programu; `sfx $<adres ładowania>` w przeciwnym razie). Działa z opcjami Uruchom jako PRG, Uruchom przez D64, Uruchom na sprzęcie, Kompilacja PRG i Kompilacja D64. Najpierw skonfiguruj plik wykonywalny Exomizera w **Ustawieniach sprzętu**.                                                                                                                                                                                                                                                                                                                                                                                                |
-| **Automatyczne wpisy autozapisu**                                                              | Pole wyboru w **Ustawienia sprzętowe → Kontrola wersji **. Po włączeniu aplikacja dodaje wpis automatycznego zapisu do historii wersji około 2,5 sekundy po zakończeniu edycji karty (w przypadku karty projektu również do historii projektu). Wyłącz tę opcję, jeśli chcesz mieć dostęp tylko do własnych zatwierdzeń. Zobacz [Kontrola wersji](#version-control).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| **Ustawienia** (dawniej Ustawienia sprzętowe)                                                  | Otwórz okno dialogowe ustawień z trzema zakładkami: **Ogólne** (tryb asemblera, stub BASIC SYS, Exomizer, aktualizacje, wyjście ASM, podgląd SID, parametry debugera, kontrola wersji), **Pliki i ścieżki** (VICE, RetroDebugger, ACME, Exomizer, git) i **Integracje** (C64 Ultimate, Kung Fu Flash 2). Zobacz [Sekcję 13](#13-hardware-settings).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| **Nowy program…**                                                                              | Otwiera okno dialogowe potwierdzenia, a następnie czyści wszystkie bloki z obszaru programu                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| **Zwiń wszystko**                                                                              | Zwiń wszystkie bloki                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| **O **                                                                                         | Informacje o wersji                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| **Co nowego**                                                                                  | Dziennik zmian                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| Kontrola                                                                                       | Opis                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| ---------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Podstawa liczbowa (HEX / DEC / BIN)**                                                        | Ustawia format wyświetlania/wprowadzania operandów w całym interfejsie użytkownika. Tryb BIN wyświetla wartości jako binarne z prefiksem `%` (np. `%11111000`). Widok ASM zawsze wyświetla każdy blok w jego własnym formacie.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| **Język**                                                                                      | Przełączanie interfejsu użytkownika pomiędzy językiem angielskim, węgierskim, hiszpańskim, niemieckim, holenderskim (Nederlands), polskim i włoskim (**Menu → Ustawienia**)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| **Motyw**                                                                                      | Jasny / Ciemny / OLED / Czarny / Commodore 77 / Commodore Starlight / Commodore Beige / Commodore 64 — wybierz z selektora motywów w **Menu → Widok**. OLED używa czystego czarnego tła dla wyświetlaczy AMOLED. Commodore 77 to neonowo-żółty motyw na czarnym tle; gdy jest aktywnym motywem, panel powitalny startowy używa koloru panelu motywu (pasującego do karty wiadomości), pokazuje mniejsze dedykowane logo Commodore 77 i żółty pasek postępu. Commodore Starlight to jasny motyw po półprzezroczystym chlebaku C64: matowe przezroczyste szklane panele z tęczową poświatą RGB, magenta akcent, tęczowe kolory składni i przydymiony ciemny widok monitora. Commodore Beige to klasyczny chlebak: beżowa obudowa, musztardowe przyciski funkcyjne, tęczowe paski na plakietce i niebieski ekran C64 dla widoku monitora. Wybrany motyw zostanie zastosowany przed pierwszym malowaniem przy kolejnym uruchomieniu. |
+| **Tryb retro CRT**                                                                             | Przełącza pełnoekranowy filtr CRT: linie skanowania, winietę fosforową, migotanie i zniekształcenie beczkowate. Stan jest zapisywany między sesjami.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| **Pokaż panel pamięci**                                                                        | Globalny przełącznik (**Ustawienia → Ogólne → Wyjście ASM**) pokazujący lub ukrywający cały panel pamięci C64                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| **Podstawowy schemat systemu **                                                                | (**Ustawienia → Ogólne → Program**) Dodaje na początku wiersz BASIC, który wywołuje SYS do źródła programu (pierwszej ORG). Segment umieszczony niżej niż pierwsza ORG pozostaje pod własnym adresem. Gdy program ładuje się poniżej lub w poprzek wiersza BASIC (`$0801`–`$080C`, na przykład zaimportowany zrzut z `$071C`), polecenia Uruchom i Kompilacja dodają zamiast tego mały program ładujący: `SYS 2061` kopiuje element mover do bufora taśmy (`$033C`), który umieszcza program na miejscu i przechodzi do pierwszej ORG.                                                                                                                                                                                                                                                                                                                                                                                           |
+| **Przykłady…**                                                                                 | Otwórz przykładową przeglądarkę i załaduj wbudowany przykładowy program — zobacz [Przykładowe programy](#example-programs)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| **Powiększ / pomniejsz **                                                                      | Skalowanie interfejsu użytkownika bloku (dotyczy wszystkich elementów bloku)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| **Zapisz program** (`Menu → Plik`)                                                             | Zapisz bieżącą kartę: program blokowy jako plik `.json`, plik źródłowy (`.asm`, `.s`, `.inc` …) jako zwykły tekst (Ctrl+S robi to samo)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| **Zapisz program jako** (`Menu → Plik`)                                                        | To samo, za każdym razem pojawia się nowe okno dialogowe pliku                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| **Załaduj program** (`Menu → Plik`)                                                            | Załaduj wcześniej zapisany program                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| **Zapisz obszar roboczy**                                                                      | Zapisz dokładny zestaw aktualnie otwartych kart z kopią zapasową pliku — w tym aktywną kartę i tryb edytora każdej karty (Blok/Ekspert/Ultimate Basic) — w pliku obszaru roboczego `.vaws`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| **Zapisz obszar roboczy jako**                                                                 | Zapisz bieżący obszar roboczy za każdym razem, korzystając z nowego okna dialogowego pliku                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| **Otwórz przestrzeń roboczą**                                                                  | Zamknij wszystkie otwarte karty i ponownie otwórz zestaw plików przechowywanych w pliku obszaru roboczego `.vaws`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| **Ustaw folder roboczy**                                                                       | Wybierz domyślny folder używany przez selektory plików i okna dialogowe zapisu. Ścieżka jest zapisywana w konfiguracji aplikacji, a podglądy menu utrzymują koniec ścieżki widoczny.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| **Nowy projekt z szablonu…** (`Menu → Nowy projekt` lub przycisk paska narzędzi obok **Menu**) | Utwórz nowy projekt `.proj` z szablonu Visual Assembler, ACME lub UltimateBasic w jego własnym folderze — zobacz [Szablony projektów](#project-templates)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| **Otwórz projekt** (`Menu → Plik`)                                                             | Otwórz wieloplikowy projekt `.proj` i otwórz wszystkie pliki źródłowe jako zakładki                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| **Zapisz projekt** (`Menu → Plik`)                                                             | Zapisz bieżący projekt `.proj` (panel projektu musi być otwarty)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| **Zamknij projekt** (`Menu → Plik`)                                                            | Zamknij aktualnie otwarty projekt i wszystkie jego zakładki plików. Wyświetla monit o zapisanie niezapisanych zmian. Panel projektu resetuje się do stanu pustego.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| **Załaduj plik .asm** (Pasek narzędzi eksperta)                                                | Otwiera plik `.asm` w trybie eksperta w nowej karcie                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| **Buduj program ** (`Menu → Buduj `)                                                           | Eksportuj skompilowany plik binarny jako plik `.prg`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| **Kompilacja D64** (`Menu → Kompilacja`)                                                       | Spakuj program i dodatkowe pliki do obrazu dysku `.d64` — zobacz [Okno dialogowe Eksportuj do D64](#export-to-d64-dialog)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| **Budowa CRT**                                                                                 | Wyeksportuj program jako plik Magic Desk o rozmiarze 64 KB (`.crt`, typ kartridża 19). Zobacz [Sekcję 12b](#12b-crt-export-magic-desk-64k-cartridge).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| **Buduj projekt** (`Menu → Buduj`)                                                             | Kompiluj każdy możliwy do skompilowania plik projektu (lub otwartych kart) do pliku `.prg` obok jego źródła — zobacz [Kompilowanie projektu](#build-project)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| **Uruchom (przycisk podziału)**                                                                | Główny przycisk **▶ Uruchom** uruchamia bieżący tryb; kliknij strzałkę **▾**, aby przełączać się pomiędzy: **Uruchom jako PRG** (skompiluj i uruchom program VICE bezpośrednio), **Uruchom przez D64** (spakuj do obrazu dysku .d64 i uruchom program VICE), **Uruchom na sprzęcie** (wyślij PRG do urządzenia C64 Ultimate / 1541 Ultimate), **D64 na sprzęcie** (wyślij D64 na to samo urządzenie) lub **Kung Fu Flash 2** (prześlij PRG przez USB do prawdziwego komputera C64/C128 za pomocą kartridża Kung Fu Flash 2). Zobacz [Sekcję 12](#12-d64-export--run) i [Sekcję 13](#13-settings).                                                                                                                                                                                                                                                                                                                                |
+| **Debugowanie (RetroDebugger)**                                                                | Kompiluj i uruchamiaj w RetroDebuggerze z punktami przerwania, symbolami i flagami autostartu (patrz [Sekcja 10](#10-debugger-integration))                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| **Uruchom z Exomizerem**                                                                       | Pole wyboru w **Ustawienia → Ogólne → Program** — po zaznaczeniu wszystkie operacje uruchamiania i kompilacji przeszukują PRG przez `exomizer sfx` przed uruchomieniem lub zapisaniem (`sfx basic` dla PRG rozpoczynającego się od wiersza BASIC, więc RUN działa ponownie po zakończeniu programu; `sfx $<adres ładowania>` w przeciwnym razie). Działa z opcjami Uruchom jako PRG, Uruchom przez D64, Uruchom na sprzęcie, Kompiluj PRG i Kompiluj D64. Najpierw skonfiguruj plik wykonywalny Exomizera w **Ustawienia → Pliki i ścieżki**.                                                                                                                                                                                                                                                                                                                                                                                    |
+| **Automatyczne wpisy autozapisu**                                                              | Pole wyboru w **Ustawienia → Ogólne → Kontrola wersji **. Po włączeniu aplikacja dodaje wpis automatycznego zapisu do historii wersji około 2,5 sekundy po zakończeniu edycji karty (w przypadku karty projektu również do historii projektu). Wyłącz tę opcję, jeśli chcesz mieć dostęp tylko do własnych zatwierdzeń. Zobacz [Kontrola wersji](#version-control).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| **Ustawienia** (dawniej Ustawienia sprzętowe)                                                  | Otwórz okno dialogowe ustawień z trzema zakładkami: **Ogólne** (tryb asemblera, kompilator VMA, stub BASIC SYS, Exomizer, aktualizacje, wyjście ASM, podgląd SID, parametry debugera, kontrola wersji), **Pliki i ścieżki** (VICE, RetroDebugger, ACME, Exomizer, git) i **Integracje** (C64 Ultimate, Kung Fu Flash 2). Zobacz [Sekcję 13](#13-settings).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| **Nowy program…** (`Menu → Program`)                                                           | Otwiera okno dialogowe potwierdzenia, a następnie czyści wszystkie bloki z obszaru programu                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| **Eksportuj ASM** (`Menu → Program`)                                                           | Kopiuje wygenerowany kod źródłowy zestawu                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| **Zwiń wszystko**                                                                              | Zwiń wszystkie bloki                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| **O **                                                                                         | Informacje o wersji                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| **Co nowego**                                                                                  | Dziennik zmian                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| **Baza wiedzy**                                                                                | Linki referencyjne (kody operacji 6502, jądro C64, mapa pamięci, kolory)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| **Sprawdź dostępność aktualizacji**                                                            | Sprawdź, czy jest dostępna nowsza wersja pliku c64va.pro i pobierz ją/zainstaluj — zobacz [Aktualizacje w aplikacji](#in-app-updates)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 
 ### Kontrola wersji
 
 Każda karta ma własną historię wersji, podobnie jak małe repozytorium Git; karta
 należąca do otwartego projektu `.proj` może być również wersjonowana jako cały
-projekt (patrz [Tryb projektu](#project-mode)). **Menu → Kompilacja → Kontrola
-wersji…** (lub **Zatwierdź…**) otwiera okno dialogowe; **Odrzuć zmiany (powrót
-do HEAD)** przywraca bezpośrednio ostatnie zatwierdzenie.
+projekt (patrz [Tryb projektu](#project-mode)). **Menu → Wersjonowanie →
+Kontrola wersji…** (lub **Zatwierdź…**) otwiera okno dialogowe; **Odrzuć zmiany
+(powrót do HEAD)** przywraca bezpośrednio ostatnie zatwierdzenie.
 
 Typowy obieg pracy: napisz **komunikat zatwierdzenia** i naciśnij **Zatwierdź**
 (lub Ctrl+Enter) → kontynuuj edycję → naciśnij **Różnica**, aby zobaczyć, co się
@@ -1256,16 +1326,17 @@ zmieniło → ponownie zatwierdź.
   to **HEAD**. Zatwierdzenie bez zmian od czasu HEAD nie jest tworzone.
 - **Wiersz stanu** — *Nic do zatwierdzenia, drzewo robocze czyste* lub
   *Niezatwierdzone zmiany od `<skrót>`*.
-- **Diff** — zmiany od wersji HEAD; przycisk **Diff** we wpisie dziennika
-  porównuje tę wersję z edytorem. Dodane wiersze są oznaczone kolorem zielonym,
-  usunięte – czerwonym, a nagłówek wyświetla **+N / −M**. Programy w trybie
-  blokowym są porównywane jako linie montażowe (jedna linia na blok), źródła w
-  trybie eksperckim – wiersz po wierszu, karty w trybie Ultimate Basic – według
-  źródła, więc projekt w trybie blokowym zapisany w formacie JSON nadal pokazuje
-  czytelne zmiany.
+- **Diff** — zmiany od wersji HEAD; przycisk **Diff** wpisu dziennika porównuje
+  tę wersję z edytorem. Dodane wiersze są oznaczone kolorem zielonym, usunięte
+  czerwonym, a nagłówek wyświetla **+N / −M**. Programy w trybie blokowym są
+  porównywane jako linie montażowe (jedna linia na blok), źródła w trybie
+  eksperckim wiersz po wierszu, karty w trybie Ultimate Basic według źródła,
+  więc projekt w trybie blokowym zapisany w formacie JSON nadal pokazuje
+  czytelne zmiany. Plik źródłowy (`.asm`, `.s`, `.inc` …) jest przechowywany
+  jako tekst, więc wersja pozostaje plikiem źródłowym.
 - **Wymeldowanie** — wczytuje tę wersję do edytora. Plik na dysku zmienia się
   tylko po zapisaniu; **Odrzuć zmiany** wraca do HEAD.
-- **Automatyczne zapisywanie wpisów** — dzięki opcji **Ustawienia → Kontrola
+- **Automatyczne zapisywanie wpisów** — w **Ustawieniach → Ogólne → Kontrola
   wersji → Automatyczne automatyczne zapisywanie wpisów w kontroli wersji**
   aplikacja dodaje wpis około 2,5 sekundy po zakończeniu edycji. Są one
   oznaczone jako *automatyczne zapisywanie*; ostatnie 20 wpisów jest
@@ -1318,12 +1389,13 @@ zachowują historię poszczególnych plików opisaną powyżej.
 Jeśli zainstalowany jest `git`, to samo okno dialogowe może działać z prawdziwym
 repozytorium git.
 
-- **Ustawienia → Kontrola wersji:** **Wybierz git.exe…** lub **Automatyczne
-  wykrywanie** (przeszukuje ścieżkę PATH i standardowe foldery instalacyjne);
-  poniższy wiersz pokazuje wersję gita. **Użyj gita, gdy projekt znajduje się w
-  repozytorium** (domyślnie włączone) automatycznie przełącza okno dialogowe w
-  tryb gita dla plików w repozytorium. Przełącznik **Wbudowany / Git** w
-  nagłówku okna dialogowego zmienia tryb ręcznie.
+- **Ustawienia → Pliki i ścieżki → git** / **Ustawienia → Ogólne → Kontrola
+  wersji:** **Wybierz git.exe…** lub **Automatyczne wykrywanie** (przeszukuje
+  ścieżkę PATH i standardowe foldery instalacyjne); poniższy wiersz pokazuje
+  wersję gita. **Użyj Gita, gdy projekt znajduje się w repozytorium** (domyślnie
+  włączone) automatycznie przełącza okno dialogowe w tryb Gita dla plików w
+  repozytorium. Przełącznik **Wbudowany / Git** w nagłówku okna dialogowego
+  zmienia tryb ręcznie.
 - Nagłówek pokazuje gałąź z **↑** (zatwierdzenia do wypchnięcia) i **↓**
   (zatwierdzenia do ściągnięcia), a następnie zmienione pliki repozytorium.
 - **Commit** najpierw zapisuje plik, przygotowuje tylko ten plik (lub każdą
@@ -1340,11 +1412,7 @@ repozytorium git.
   jest jeszcze repozytorium.
 - Git działa bez okna konsoli i nigdy nie pyta o hasło: dane uwierzytelniające
   muszą pochodzić z menedżera danych uwierzytelniających lub klucza SSH, w
-  przeciwnym razie w oknie dialogowym zostanie wyświetlony komunikat o błędzie.
-  | **Baza wiedzy** | Linki referencyjne (kody operacji 6502, JĄDR C64, mapa
-  pamięci, kolory) | | **Sprawdź dostępność aktualizacji** | Sprawdź, czy w
-  pliku c64va.pro jest nowsza wersja i pobierz ją/zainstaluj — zobacz
-  [Aktualizacje w aplikacji](#in-app-updates) |
+  przeciwnym razie w oknie dialogowym wyświetlany jest komunikat o błędzie.
 
 ### Narzędzia edytora
 
@@ -1370,11 +1438,11 @@ Lista poleceń ma celowo ograniczoną wysokość, aby karta szczegółów polece
 mogła wypełnić pozostałą wysokość panelu. Obszar szczegółów przewija się
 niezależnie, umożliwiając dostęp do dłuższych opisów składni.
 
-**Serwer aktualizacji:** **Ustawienia → Aktualizacje → Serwer aktualizacji**
-ustawia, gdzie wyszukiwane są wydania (domyślnie `https://www.c64va.pro/`);
-instalatory są odczytywane z `<serwer>downloads/VA/`. Adres musi używać
-`https://` (zwykłego `http://` tylko dla `localhost`, do testów); **Domyślnie**
-wraca do c64va.pro.
+**Serwer aktualizacji:** **Ustawienia → Ogólne → Aktualizacje → Serwer
+aktualizacji** ustawia, gdzie wyszukiwane są wydania (domyślnie
+`https://www.c64va.pro/`); instalatory są odczytywane z `<server>downloads/VA/`.
+Adres musi używać `https://` (zwykły `http://` tylko dla `localhost`, do
+testów); **Domyślnie** wraca do c64va.pro.
 
 ### Wolne i otwarte oprogramowanie
 
@@ -1628,8 +1696,9 @@ powitalny wyświetlają aktualną wersję zależności.
 
 #### Importuj notatki dotyczące analizy i najlepsze praktyki
 
-- Lokalne etykiety, takie jak `.wait`, są importowane jako standardowe etykiety
-  (bez kropki), a odniesienia są odpowiednio normalizowane.
+- Lokalne etykiety, takie jak `.wait`, zachowują kropkę: należą do najbliższej
+  globalnej etykiety nad nimi (patrz [Lokalne (kropkowane)
+  etykiety](#local-dotted-labels)).
 - W przypadku adresowania w stylu `($zp),Y` / `($zp,X)` należy użyć konkretnego
   bajtu strony zerowej (`$FB`, `$FC` itd.) w celu zapewnienia najlepszej
   zgodności.
@@ -1709,11 +1778,10 @@ skrypt kompilacji KickAssembler nadal działa. Pliki, których nie można znale�
 są wyświetlane w oknie dialogowym błędu.
 
 **Przełącznik zgodności z Kick: ** każdy projekt VA (VMA) można uczynić zgodnym
-z Kick za pomocą przycisku `{K}` w nagłówku panelu Projekt (wyświetlanego w
-trybie VMA, gdy projekt jest otwarty; jest on włączony dla zaimportowanych
-projektów Kick). Ustawienie jest zapisywane w `.proj` (`"kick": true`); po
-wyłączeniu projekt jest zwykłym projektem VMA i kompiluje się dokładnie tak samo
-jak poprzednio.
+z Kick za pomocą przełącznika **Zgodności z KickAssembler** w **Ustawieniach
+projektu** (jest włączony dla importowanych projektów Kick). Ustawienie jest
+zapisywane w pliku `.proj` (`"kick": true`); po jego wyłączeniu projekt jest
+zwykłym projektem VMA i kompiluje się dokładnie tak samo jak poprzednio.
 
 W projekcie zgodnym z Kick makra i dyrektywy VA działają obok skryptu
 KickAssembler: `.text x, y, "…"`, `.set_border`, LOOP / NEXT, SPRITE_INIT,
@@ -1730,11 +1798,11 @@ można odróżnić po formie:
 | `.var nazwa = wartość` (zmienna czasu wykonania)          | `.var name = value` (zmienna skryptu) — w projekcie zgodnym z Kick `.var` jest zawsze zmienną KickAssembler |
 
 Projekt kompiluje się za pomocą asemblera VA, a nie KickAssemblera: każda
-kompilacja (Uruchom, Zapisz PRG, D64, CRT, Exomizer, Debug, Monitor VICE,
-Kompiluj projekt, przycisk Kompiluj) najpierw uruchamia plik startowy przez
-preprocesor KickAssemblera, z tekstem edytora otwartych kart, niezależnie od
-tego, czy zostały zapisane, czy nie. Rezultatem jest ten sam PRG co w
-KickAssemblerze. Obsługiwane:
+kompilacja (Uruchomienie, Kompilacja PRG, D64, CRT, Exomizer, Debugowanie,
+Monitor VICE, Kompilacja projektu, przycisk Kompilacja) najpierw uruchamia plik
+startowy przez preprocesor KickAssemblera, z tekstem edytora otwartych kart,
+niezależnie od tego, czy został zapisany, czy nie. Rezultatem jest ten sam plik
+PRG, co w KickAssemblerze. Obsługiwane:
 
 - `#import`, `.import source`, `#importonce`; `.import binary` / `c64` / `text`
   z opcjonalnym przesunięciem i długością
@@ -1912,9 +1980,9 @@ podpowiedzi, co tryb Eksperta. Zapewnia on:
 - automatyczne uzupełnianie poleceń i wbudowanych funkcji;
 - przeszukiwalny panel **Poleceń** ze składnią, opisem i wskazówkami dotyczącymi
   użytkowania — opisy są zgodne z bieżącym językiem interfejsu użytkownika
-  (węgierskim, angielskim, hiszpańskim, niemieckim, holenderskim), a w przypadku
-  elementów, które nie zostały jeszcze przetłumaczone, stosuje się język
-  angielski;
+  (węgierskim, angielskim, hiszpańskim, niemieckim, holenderskim, polskim,
+  włoskim), a w przypadku elementów, które nie zostały jeszcze przetłumaczone,
+  stosuje się język angielski;
 - niezależnie przełączane panele **Projekt** i **Polecenia**, wyświetlane obok
   siebie, gdy oba są włączone;
 - niezależnie przełączane i zmieniane rozmiarowo panele **Wyjście kompilacji** i
@@ -2043,14 +2111,15 @@ automatycznie.
 | **Uruchom D64 na sprzęcie** | Spakuj D64 i wyślij do skonfigurowanego C64 Ultimate.                                                                                                            |
 | **Kung Fu Flash 2**         | Skompiluj kod źródłowy UB i prześlij plik PRG przez USB na prawdziwy komputer C64/C128 z kartridżem Kung Fu Flash 2. Zobacz [Kung Fu Flash 2](#kung-fu-flash-2). |
 
-Globalna opcja **Ustawienia → Exomizer** dotyczy również kompilacji UB i
-normalnych celów uruchomieniowych; nie jest potrzebne osobne przełączanie paska
-narzędzi UB. Debuger celowo używa nieskompresowanego pliku PRG, aby adresy i
-symbole kompilatora nadal odpowiadały wykonywanemu programowi.
+Globalna opcja **Uruchom z Exomizerem** (**Ustawienia → Ogólne → Program**)
+dotyczy również kompilacji UB i normalnych celów uruchomieniowych; nie jest
+potrzebne osobne przełączanie paska narzędzi UB. Debuger celowo używa
+nieskompresowanego pliku PRG, aby adresy i symbole kompilatora nadal odpowiadały
+wykonywanemu programowi.
 
-Włącz **Ustawienia → Ustawienia programu → Generuj kod źródłowy UltimateBasic
-ASM (.asm)**, aby zapisać wygenerowany przez kompilator zestaw obok pliku PRG
-lub kompilacji D64, używając tej samej nazwy pliku bazowego. Jest to opcja
+Włącz **Ustawienia → Ogólne → Program → Generuj kod źródłowy UltimateBasic ASM
+(.asm)**, aby zapisać wygenerowany przez kompilator zestaw obok pliku PRG lub
+kompilacji D64, używając tej samej nazwy pliku bazowego. Jest to opcja
 kompilacji, więc pasek narzędzi UB nie zawiera oddzielnych przycisków eksportu
 ASM. Polecenie `load "NAME", $address` dostarcza również adres ładowania PRG dla
 odpowiedniego pliku dodatkowego D64.
@@ -2096,9 +2165,9 @@ trybu znajduje się na każdym bloku.
   instrukcja w wierszu, etykiety, makra jako dyrektywy). Edycje w trybie
   Eksperta są synchronizowane z tablicą bloków za każdym razem, gdy przełączasz
   się z powrotem lub uruchamiasz akcję.
-- **Ekspert → Blok:** tekst jest parsowany za pomocą `parseAsmText()`, a wynik
-  zastępuje program blokowy. W przypadku niepowodzenia parsowania wyświetlane
-  jest okno dialogowe błędu kompilacji.
+- **Ekspert → Blok:** tekst jest parsowany, a wynik zastępuje program blokowy. W
+  przypadku niepowodzenia parsowania wyświetlane jest okno dialogowe błędu
+  kompilacji.
 - **Puste linie** są zachowywane podczas przesyłania danych w obie strony: puste
   linie w edytorze eksperta pojawiają się jako cienkie przerywane odstępy w
   trybie blokowym i są przywracane jako puste linie po przełączeniu z powrotem
@@ -2130,7 +2199,6 @@ trybu znajduje się na każdym bloku.
 | **Załaduj .asm**                    | `#expert-load-asm-btn`                                             | Otwórz plik `.asm` — zawartość zostanie załadowana do **nowej karty**, a nazwa pliku będzie etykietą karty. Każdy załadowany plik stanie się niezależną kartą z własnymi blokami programu i stanem edytora.                                                                   |
 | **Zapisz .asm**                     | `#ekspert-zapisz-asm-przycisk`                                     | Zapisz zawartość edytora do pliku `.asm` (okno dialogowe pliku przy pierwszym zapisywaniu)                                                                                                                                                                                    |
 | **Informacje o kompilacji**         | `#ekspert-build-info-przycisk`                                     | Otwórz okno dialogowe Informacje o kompilacji: początek, koniec, rozmiar i liczba segmentów na górze, następnie segmenty, błędy (`plik:linia` w projekcie Kick) i dane wyjściowe `.print`, a także etykiety, stałe i makra w kolumnach                                        |
-| **HL**                              | `#ekspert-hl-przycisk`                                             | Przełącz podświetlanie składni (wyłącz w przypadku bardzo dużych plików)                                                                                                                                                                                                      |
 | **Autouzupełnianie**                | `#ekspert-autocomplete-przycisk`                                   | Włącz/wyłącz podpowiedzi autouzupełniania dla ekspertów. Po wyłączeniu tej opcji w edytorze ekspertów nie pojawi się żadne polecenie, mnemonik ani wyskakujące okienko z etykietą.                                                                                            |
 | **Wybór regionu**                   | `#ekspert-region-selection-btn`                                    | Włącz automatyczne podświetlanie regionu w trybie Eksperta. Stan zagięcia pozostaje zapisany, ale po wyłączeniu tej opcji edytor utrzymuje widoczny cały kod źródłowy i nie zaznacza automatycznie bieżącego regionu.                                                         |
 | **Zwiń / rozwiń wszystkie regiony** | `#ekspert-region-złóż-wszystkie-przyciski`                         | Złóż lub rozłóż każdy blok `.region` jednym kliknięciem. Jeśli którykolwiek region jest aktualnie otwarty, przycisk zwinie je wszystkie; jeśli wszystkie regiony są już zwinięte, kolejne kliknięcie je rozwinie. Przycisk zaświeci się, gdy wszystkie regiony będą zwinięte. |
@@ -2141,6 +2209,10 @@ trybu znajduje się na każdym bloku.
 | **Dyzasm**                          | `#ekspert-disasm-btn`                                              | Pokaż/ukryj panel demontażu (czysty 6502, rozwinięte makra)                                                                                                                                                                                                                   |
 | **Monitor**                         | `#przycisk-eksperta-monitora`                                      | Pokaż/ukryj panel zrzutu szesnastkowego monitora                                                                                                                                                                                                                              |
 | **Minimapa**                        | `#ekspert-minimapa-przycisk`                                       | Pokaż/ukryj pasek minimapy kodu po prawej stronie edytora                                                                                                                                                                                                                     |
+| **Panel projektu**                  | `#ekspert-projekt-przycisk`                                        | Pokaż/ukryj panel projektu (pliki, symbole, ustawienia projektu)                                                                                                                                                                                                              |
+| **Liczniki cykli**                  | `#ekspert-cykle-przycisk`                                          | Pokaż/ukryj rynnę cykli — zobacz [Liczniki cykli](#cycle-counts)                                                                                                                                                                                                              |
+| **Przejdź do wiersza / Zakładki**   | `#ekspert-przejdź-do-linii-przycisk`, `#ekspert-zakładka-*`        | Ctrl+G przeskakuje do wiersza; Ctrl+F2 przełącza zakładkę, F2 / Shift+F2 przechodzi do następnego / poprzedniego                                                                                                                                                              |
+| **Zbuduj ACME**                     | `#ekspert-acme-build-btn`                                          | W trybie ACME: skompiluj źródło za pomocą ACME — zobacz [tryb ACME](#acme-mode)                                                                                                                                                                                               |
 
 *(Nowość w wersji 2.3.9.)* Etykieta, której nazwa zaczyna się od kropki —
 `.loop`, `.skip`, `.done` — jest **lokalną etykietą**. Należy ona do zakresu
@@ -2213,10 +2285,8 @@ automatycznie.
 
 ### Podświetlanie składni
 
-Edytor wykorzystuje przezroczystą nakładkę `<div>` (`expert-hl`), która
-odzwierciedla zawartość pola tekstowego za pomocą kolorowych elementów `<span>`.
-Podświetlanie można wyłączyć przyciskiem **HL**, aby zwiększyć wydajność w
-bardzo dużych programach.
+Edytor używa przezroczystej nakładki `<div>` (`expert-hl`), która odzwierciedla
+zawartość obszaru tekstowego za pomocą kolorowych elementów `<span>`.
 
 | Kolor         | Znak                                                                                                                                                         |
 | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -2263,7 +2333,7 @@ projektów wieloplikowych `.proj`:
 - **Zamknij projekt** (`Menu → Plik → Zamknij projekt` / `#menu-close-project`)
   zamyka bieżący projekt i wszystkie jego karty plików jednocześnie. Wyświetla
   monit o zapisanie niezapisanych zmian przed zamknięciem. Panel projektu
-  resetuje się do stanu pustego, a `_expertProjectData` zostaje wyczyszczony.
+  resetuje się do stanu pustego.
 - Każdy plik można oznaczyć jako **plik startowy** (ikona gwiazdki ★). Po
   ustawieniu pliku startowego przycisk **Uruchom** (PRG, D64, Ultimate) zawsze
   asembluje i uruchamia kod tego pliku — niezależnie od tego, która karta jest
@@ -2278,12 +2348,16 @@ projektów wieloplikowych `.proj`:
 - **Ustawienia projektu** (przycisk koła zębatego w nagłówku panelu lub **Menu →
   Plik → Ustawienia projektu…**) wyświetla i edytuje projekt: nazwę, ścieżkę
   `.proj`, plik startowy, asembler (VMA lub ACME), **kompatybilny z
-  KickAssembler**, a w przypadku projektu Kick symbole preprocesora (`#define`,
-  takie jak `-define` KickAssemblera) i zmienne wiersza poleceń (`cmdLineVars`,
-  jedna `nazwa=wartość` na wiersz, takie jak `:nazwa=wartość`), plus liczba
-  plików źródłowych i innych oraz **Tylko tryb ekspercki**: tryb blokowy jest
-  zamknięty dla plików projektu, niezależnie od ich rozmiaru. Wszystko jest
-  zapisywane w pliku `.proj`.
+  KickAssemblerem**, a w przypadku projektu Kick symbole preprocesora
+  (`#define`, takie jak `-define` KickAssemblera) i zmienne wiersza poleceń
+  (`cmdLineVars`, jedna `nazwa=wartość` na wiersz, takie jak `:nazwa=wartość`),
+  w przypadku projektu VMA jego symbole (`.define`) i stałe (`.const`, jedna
+  `NAZWA=wartość` na wiersz) — znajdują się one przed kodem źródłowym
+  kompilowanym przez projekt, więc `.if NAME` / `.if NAME == 3` przełącza
+  kompilację bez edycji kodu źródłowego — plus liczba plików źródłowych i
+  innych, a **tylko tryb ekspercki**: tryb blokowy jest zamknięty dla plików
+  projektu, niezależnie od ich rozmiaru. Wszystko jest zapisywane w pliku
+  `.proj`.
 - Foldery w drzewie mają strzałkę zwijania/rozwijania, a kliknięcie prawym
   przyciskiem myszy folderu **** umożliwia dodanie jednego lub więcej plików
   zagnieżdżonych pod nim (pokazanych jako wcięte).
@@ -2309,7 +2383,7 @@ Pasek kart pojawia się nad edytorem, jeśli otwarta jest więcej niż jedna kar
 | **Brudna kropka**                | Mała kropka w kolorze akcentującym na nazwie zakładki wskazuje niezapisane zmiany                                                                                                                                                                                                                                                                                                                                           |
 | **Strzałki przewijania**         | Przyciski przewijania w lewo/w prawo pojawiają się, gdy liczba kart przekracza liczbę mieszczącą się na pasku                                                                                                                                                                                                                                                                                                               |
 | **Zamknij (×)**                  | Zamyka kartę; wyświetla monit o zapisanie, jeśli karta jest brudna                                                                                                                                                                                                                                                                                                                                                          |
-| **Rozszerzenie pliku**           | Wyświetlana jest pełna nazwa pliku, łącznie z rozszerzeniem (`.c64va`, `.json`)                                                                                                                                                                                                                                                                                                                                             |
+| **Rozszerzenie pliku**           | Wyświetlana jest pełna nazwa pliku, łącznie z rozszerzeniem (`.json`, `.asm`, `.ub` …)                                                                                                                                                                                                                                                                                                                                      |
 | **Ctrl+N**                       | Otwiera nową, pustą kartę (nie dotyczy sytuacji, gdy otwarte jest okno dialogowe)                                                                                                                                                                                                                                                                                                                                           |
 | **Menu prawego przycisku myszy** | Kliknij prawym przyciskiem myszy kartę (lub puste miejsce na pasku kart), aby wykonać następujące czynności: **Nowa karta**, **Zamknij kartę**, **Zamknij inne karty**, **Zamknij karty po prawej stronie**, **Zamknij wszystkie karty**. Operacje zamykania zbiorczego wyświetlają monit o zamknięcie każdej niezapisanej karty i zatrzymują się po anulowaniu. **Zamknij wszystkie** zawsze pozostawia jedną pustą kartę. |
 
@@ -2334,12 +2408,12 @@ budują programy VMA z bloków).
 
 Co następuje po kompilacji ACME:
 
-- **Kompiluj** (przycisk młotka na pasku narzędzi eksperta, *Kompiluj kod
-  źródłowy ACME*), **Uruchom** (PRG, D64, C64 Ultimate, Kung Fu Flash 2),
-  **Zapisz PRG**, **Kompiluj D64**, **Kompiluj CRT**, **Kompiluj projekt** i
-  **Debuguj (RetroDebugger)** kompilują się przez ACME; błędy i ostrzeżenia ACME
-  otwierają się w normalnym oknie dialogowym kompilacji i błędów, z wierszem
-  kodu źródłowego.
+- **Kompilacja** (przycisk młotka na pasku narzędzi eksperta, *Kompilacja kodu
+  źródłowego ACME*), **Uruchomienie** (PRG, D64, C64 Ultimate, Kung Fu Flash 2),
+  **Kompilacja PRG**, **Kompilacja D64**, **Kompilacja CRT**, **Kompilacja
+  projektu** i **Debugowanie (RetroDebugger)** za pomocą ACME; błędy i
+  ostrzeżenia ACME otwierają się w normalnym oknie dialogowym kompilacji i
+  błędów, z wierszem kodu źródłowego.
 - Po przerwie w pisaniu źródło jest odbudowywane, więc mapa pamięci **** (pasek
   pamięci, panel segmentowy, ostrzeżenie o nakładaniu się), panele **Demontaż **
   i **Monitor ** oraz pasek cykli pokazują rzeczywisty wynik ACME; panele
@@ -2377,10 +2451,10 @@ bne -
 tekst !scr "cześć acme", 0
 ```
 
-`samples/acme-crt-demo.asm` to niewielki program testowy ACME do uruchamiania,
-budowania PRG / D64 i budowania CRT: komunikat na środku ekranu i rastrowe paski
-kolorów na obramowaniu, bez wywołań KERNAL, dzięki czemu jest on uruchamiany
-także z kartridża.
+`samples/ACME/acme-crt-demo.asm` to niewielki program testowy ACME do
+uruchamiania, budowania PRG / D64 i budowania CRT: komunikat na środku ekranu i
+rastrowe paski kolorów na obramowaniu, bez wywołań KERNAL, dzięki czemu jest on
+uruchamiany także z kartridża.
 
 ---
 
@@ -3631,7 +3705,7 @@ zdefiniować zawartość tabeli.
 
 **Składnia ekspercka:**
 ```
-.table color_table, $C000
+.table color_table $C000
 ```
 
 **Wygenerowano ASM:**
@@ -4074,9 +4148,9 @@ dezaktywuje wszystkie jego symbole.
 
 #### JEŚLI
 
-| Pole | Opis                                                                                |
-| ---- | ----------------------------------------------------------------------------------- |
-| Stan | Identyfikator do przetestowania (musi pasować do symbolu `DEFINE`, aby był aktywny) |
+| Pole | Opis                                                                                                                                                     |
+| ---- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Stan | Symbol `.define`d (aktywny), nazwa `.const` (aktywna, gdy nie jest równa zero) lub wyrażenie stałe (`LEVEL == 2`); którego nie można ocenić, jest błędem |
 
 **Składnia ekspercka:**
 ```
@@ -5498,23 +5572,21 @@ Szybkie łącza referencyjne dostępne w aplikacji w zakładce **Baza wiedzy**:
 debugger Commodore 64 z obsługą punktów przerwania, inspekcją pamięci i
 deasemblacją uwzględniającą etykiety.
 
-**Konfiguracja: ** Otwórz **Ustawienia → Skonfiguruj plik wykonywalny
-RetroDebugger ** i skieruj go do pliku binarnego `RetroDebugger`.
+**Konfiguracja: ** w **Ustawienia → Pliki i ścieżki → Retro Debugger** wskazują
+na plik binarny `RetroDebugger`.
 
 **Uruchomienie:** Kliknij **Debugowanie (RetroDebugger)** na pasku narzędzi.
 Aplikacja:
 
 1. Zmontuj program do pliku `.prg` w katalogu tymczasowym.
-2. Napisz plik **punktów przerwania** (`breakpoints.txt`) — jeden `punkt
-   przerwania $ADDR` na każdy oflagowany blok.
-3. Zapisz plik **symbols** (`symbols.txt`) w formacie etykiet Vice/RetroDebugger
-   (`al C:addr .name`). Zawiera wszystkie bloki LABEL i CONST.
-4. Napisz także sidecary w stylu C64Debugger obok skompilowanego PRG: `.dbg`,
+2. Napisz plik **punktów przerwania** — adres każdego bloku punktów przerwania i
+   wiersza punktu przerwania eksperta.
+3. Zapisz **symbole** w formacie etykiet VICE / RetroDebugger (`al C:addr
+   .name`): etykiety, stałe i zmienne.
+4. Zapisz pliki boczne w stylu C64Debugger obok PRG: `.dbg` (mapa źródłowa),
    `.sym` i `.vs`.
-5. Uruchom RetroDebugger za pomocą:
-   ```
-   RetroDebugger -prg <plik.prg> -breakpoints <punktyprzerwania.txt> -symbols <symbole.txt> [flagi]
-   ```
+5. Uruchom RetroDebugger z PRG, punktami przerwania, symbolami i flagami
+   poniżej.
 
 ### Bloki punktów przerwania
 
@@ -5523,7 +5595,9 @@ go na punkt przerwania. Bloki z punktami przerwania są podświetlone na czerwon
 Ich adresy są zapisywane w pliku punktów przerwania przy każdym uruchomieniu
 debugera.
 
-### Flagi debugera (zakładka Opcje)
+### Flagi debugera
+
+Znajdziesz je w **Ustawienia → Ogólne → RetroDebugger**.
 
 | Dźwignia kolankowa | Flaga          | Efekt                                                             |
 | ------------------ | -------------- | ----------------------------------------------------------------- |
@@ -5541,10 +5615,10 @@ debugera.
 Przycisk paska narzędzi **Monitor VICE** otwiera okno niemodalne, które
 komunikuje się z działającym programem VICE za pośrednictwem jego monitora
 binarnego. **Uruchom (VICE)** uruchamia program VICE z monitorem na porcie 6502
-(**Ustawienia → Zdalny monitor VICE**, domyślnie włączone). Zamknij i uruchom
-ponownie program VICE uruchomiony w inny sposób. Nagłówek pokazuje stan
-połączenia; *Dostępne tylko w aplikacji komputerowej* pojawia się w podglądzie
-przeglądarki.
+(**Ustawienia → Pliki i ścieżki → Emulator VICE → Zdalny monitor VICE**,
+domyślnie włączony). Zamknij i uruchom ponownie program VICE uruchomiony w inny
+sposób. Nagłówek pokazuje stan połączenia; *Dostępne tylko w aplikacji
+komputerowej* pojawia się w podglądzie przeglądarki.
 
 | Przycisk                                     | Co to robi                                                                                                                                                                             |
 | -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -5593,17 +5667,13 @@ wyeksportowania obrazu dysku do wykorzystania w innym miejscu.
 
 ## 12b. Eksport CRT (wkład Magic Desk 64K)
 
-**Menu → Kompilacja → Kompilacja CRT** generuje obraz kartridża Commodore 64
-(`.crt`, **typ kartridża 19 — Magic Desk / Domark / HES Australia**), który
-działa na komputerach VICE, TheC64, prawdziwym sprzęcie za pośrednictwem
-EasyFlash / Kung Fu Flash oraz 1541 slotach kartridży Ultimate II+. Jest
-dostępny zarówno w **trybie blokowym**, jak i **trybie eksperckim**, a w obecnej
-kompilacji również w **trybie Ultimate Basic**.
+Możesz spakować swój program (oraz dodatkowe pliki danych) do obrazu dysku C64
+D64 i uruchomić go w programie VICE — lub wyeksportować obraz dysku do
+wykorzystania w innym miejscu.
 
 ### Co znajduje się w koszyku
 
-Przycisk **Uruchom** na pasku narzędzi został zastąpiony podzielonym przyciskiem
-**:
+Przycisk **Uruchom** na pasku narzędzi jest **przyciskiem podzielonym**:
 
 | Część                  | Działanie                                 |
 | ---------------------- | ----------------------------------------- |
@@ -5616,17 +5686,16 @@ Przycisk **Uruchom** na pasku narzędzi został zastąpiony podzielonym przycisk
 | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Uruchom jako PRG**    | Zmontuj do tymczasowego pliku `.prg` i uruchom VICE bezpośrednio. Klasyczne zachowanie.                                                                                                                                                               |
 | **Uruchom przez D64**   | Zmontuj, zbuduj obraz dysku `.d64` (używając c1541), dodaj wszelkie skonfigurowane pliki dodatkowe, a następnie uruchom VICE z dysku. Używaj tej opcji za każdym razem, gdy program ładuje pliki w czasie wykonywania (np. za pomocą makra LOADFILE). |
-| **Uruchom na sprzęcie** | Zmontuj do formatu PRG i wyślij do urządzenia **1541 Ultimate / Ultimate 64 ** przez sieć lokalną. Zobacz [Sekcję 13](#13-hardware-settings).                                                                                                         |
+| **Uruchom na sprzęcie** | Zmontuj do formatu PRG i wyślij do urządzenia **1541 Ultimate / Ultimate 64 ** przez sieć lokalną. Zobacz [Sekcję 13](#13-settings).                                                                                                                  |
+| **D64 na sprzęcie**     | Zbuduj `.d64` (tak jak Run via D64) i wyślij go do **1541 Ultimate / Ultimate 64**, który go zamontuje i uruchomi.                                                                                                                                    |
 | **Kung Fu Flash 2**     | Zmontuj do formatu PRG i prześlij przez szeregowy port USB na prawdziwy komputer C64/C128 z kartridżem **Kung Fu Flash 2**. Zobacz [Kung Fu Flash 2](#kung-fu-flash-2).                                                                               |
 
 Wybrany tryb jest zapisywany pomiędzy sesjami.
 
 ### Adres załadunku i punkt wejścia
 
-Kompilacja CRT nigdy nie korzysta z Exomizera (depacker nie może działać z
-pamięci ROM carta). Kompiluje bieżącą kartę za pomocą standardowego potoku
-autostartu i pobiera adres ładowania z nagłówka PRG oraz punkt wejścia z
-docelowego SYS:
+Otwórz go za pomocą **Menu → Kompilacja → Kompilacja D64 ** (polecenie Uruchom
+przez D64 również go otwiera). Okno dialogowe pozwala na:
 
 1. **Tryb blokowy/ekspercki z włączonym szczątkowym plikiem BASIC SYS:**
    obciążenie = `$0801`, wpis = cel SYS (zwykle `$080D` lub źródło użytkownika).
@@ -5665,16 +5734,18 @@ Przykład **loadfile-demo** jest wstępnie skonfigurowany z plikiem
 `DEMO-COLORS.PRG` jako dodatkowym plikiem. Wybierz go, otwórz **Uruchom przez
 D64** i kliknij **Uruchom**, aby zobaczyć pełny przepływ ładowania w akcji.
 
-> **⚠️ Ważne ostrzeżenie — przeczytaj przed wysyłką monitora CRT**
+> **Wymagania: ** Eksportowanie w formacie D64 i uruchamianie przez format D64
+> wymagają skonfigurowania programu VICE (`c1541`) w [Ustawienia → Pliki i
+> ścieżki](#13-settings).
 
 ### Zgodność
 
-Ikona na pasku narzędzi po Edytorze Krzywych otwiera **Edytor D64** —
-samodzielne narzędzie do pracy bezpośrednio z istniejącym obrazem `.d64`,
-niezależnie od aktualnie otwartego programu. W przeciwieństwie do okna
-dialogowego Eksportuj do D64 (które zawsze tworzy *nowy* dysk ze skompilowanego
-pliku PRG), Edytor D64 edytuje obraz dysku na miejscu za pomocą `c1541`, pełniąc
-więc również funkcję lekkiego menedżera dysków.
+Ikona paska narzędzi po Generatorze tabel otwiera **Edytor D64** — samodzielne
+narzędzie do pracy bezpośrednio z istniejącym obrazem `.d64`, niezależnie od
+aktualnie otwartego programu. W przeciwieństwie do okna dialogowego Eksport do
+D64 (które zawsze tworzy *nowy* dysk ze skompilowanego pliku PRG), Edytor D64
+edytuje obraz dysku na miejscu za pomocą `c1541`, pełniąc więc również funkcję
+lekkiego menedżera dysków.
 
 **Pliki ▾ menu:**
 
@@ -5731,15 +5802,19 @@ nawigacją w sektorach Poprzedni/Następny. Edycja bloków przechodzi przez ten 
 proces tworzenia kopii roboczej/zapisu, co opisane powyżej czynności katalogowe.
 
 > **Wymagania: ** Podobnie jak w przypadku eksportu do formatu D64, edytor D64
-> wymaga skonfigurowania opcji VICE (`c1541`) w [Ustawieniach
-> sprzętu](#13-hardware-settings).
+> wymaga programu VICE (`c1541`) skonfigurowanego w [Ustawienia → Pliki i
+> ścieżki](#13-settings).
 
 ---
 
 ## 13. Ustawienia sprzętowe
 
-Otwórz **Ustawienia → Ustawienia sprzętowe…** w menu paska narzędzi. Wszystkie
-ścieżki do sprzętu zewnętrznego i konfiguracja sieci znajdują się tutaj.
+**Menu → Kompilacja → Kompilacja CRT** generuje obraz kartridża Commodore 64
+(`.crt`, **typ kartridża 19 — Magic Desk / Domark / HES Australia**), który
+działa na komputerach VICE, TheC64, prawdziwym sprzęcie za pośrednictwem
+EasyFlash / Kung Fu Flash oraz 1541 slotach kartridży Ultimate II+. Jest
+dostępny w **trybie blokowym**, **trybie eksperckim** i **trybie Ultimate
+Basic**.
 
 ### Emulator VICE
 
@@ -5771,7 +5846,12 @@ konkretnej platformy.
 
 ### Retro Debugger
 
-Pełną dokumentację debugera można znaleźć w [Sekcji 9]{1}.
+Ponieważ ładunek jest przechowywany liniowo — jeden płaski obraz od najniższego
+do najwyższego adresu, z lukami wypełnionymi zerami — program z szeroko
+rozstawionymi segmentami ORG (np. `$0801` + `$C000` + `$E000`) zlicza każdy bajt
+pomiędzy nimi do budżetu 65 408 bajtów. W przypadku przekroczenia limitu
+kompilacja zostaje przerwana z błędem — należy skompresować układ pamięci lub
+podzielić dane.
 
 > **⚠️ Ważne ostrzeżenie — przeczytaj przed wysyłką monitora CRT**
 > 
@@ -5813,14 +5893,32 @@ Pełną dokumentację debugera można znaleźć w [Sekcji 9]{1}.
 
 ---
 
-## 14. Edytory wizualne (zestaw narzędzi)
+## 13. Ustawienia
 
 Otwórz przez **Menu → Ustawienia…** (dawniej *Ustawienia sprzętowe*). Okno
-dialogowe ma trzy zakładki: **Ogólne** (tryb asemblera, szczątkowy pakiet BASIC
-SYS, Uruchom z Exomizerem, aktualizacje, wyjście ASM, podgląd SID, parametry
-debugera C64, migawki / kontrola wersji), **Pliki i ścieżki** (VICE,
-RetroDebugger, ACME, Exomizer, git) i **Integracje** (C64 Ultimate, Kung Fu
-Flash 2). Poniższe sekcje opisują narzędzia i urządzenia zewnętrzne.
+dialogowe ma trzy zakładki: **Ogólne** (tryb asemblera, kompilator VMA,
+szczątkowy pakiet BASIC SYS, Uruchom z Exomizerem, aktualizacje, wyjście ASM,
+podgląd SID, parametry debugera C64, migawki / kontrola wersji), **Pliki i
+ścieżki** (VICE, RetroDebugger, ACME, Exomizer, git) i **Integracje** (C64
+Ultimate, Kung Fu Flash 2). Poniższe sekcje opisują narzędzia i urządzenia
+zewnętrzne.
+
+### Kompilator VMA
+
+**Ustawienia → Ogólne → Program → Kompilator VMA** wybiera silnik, który
+kompiluje źródła VMA (i projektu Kick):
+
+- **JavaScript** — wbudowany kompilator, domyślny.
+- **Rust** — kompilator VMA z otwartym kodem
+  źródłowym(https://github.com/zstarczali/VMA) w aplikacji. Udostępnia te same
+  bajty, widok pamięci, segmenty i komunikaty o błędach co kompilator
+  JavaScript.
+- **Sprawdzenie Rust + JavaScript** — kompiluje przy użyciu JavaScript i Rust,
+  używa wyniku JavaScript i rejestruje wszelkie różnice (bajty, widok pamięci,
+  błędy) w dzienniku błędów, który jest wysyłany wraz z raportem o błędzie.
+
+W oknie dialogowym kompilacji wyświetlana jest nazwa używanego silnika. Wersja
+VMA jest wyświetlana w polu Informacje.
 
 ### Edytor wysokiej rozdzielczości / wielokolorowy
 
@@ -5848,8 +5946,9 @@ wielokolorowymi 160×200. Otwórz przez Toolkit → Hi-Res Editor.
      https://csdb.dk/release/?id=244342.
    - **macOS:** `brew install exomizer` (instaluje oficjalną kompilację 3.1.2
      Magnusa Linda).
-2. Skonfiguruj ścieżkę w **Ustawienia sprzętowe → sekcja Exomizer**.
-3. Zaznacz pole wyboru **Uruchom z Exomizerem** w menu **Ustawienia**.
+2. Skonfiguruj ścieżkę w **Ustawienia → Pliki i ścieżki → Exomizer**.
+3. Zaznacz pole wyboru **Uruchom z Exomizerem** w **Ustawienia → Ogólne →
+   Program**.
 4. Wszystkie akcje **Run** (PRG, D64, sprzęt) i akcje **Build** (Build PRG,
    Build D64) będą teraz przetwarzać zmontowany program za pomocą `exomizer sfx`
    przed uruchomieniem lub zapisaniem: `sfx basic`, gdy PRG zaczyna się od
@@ -5871,9 +5970,6 @@ konkretnej platformy.
 > wyboru jest zaznaczone, zamiast uruchomienia wyświetla się czysty komunikat o
 > błędzie. Odznacz pole wyboru, aby uruchomić Exomizer bez kompresji.
 
-> **Test integracji:** `test cargo --test exomizer_integration` (w `src-tauri/`)
-> weryfikuje pełną kompresję i dekompresję w trybie pamięci w obie strony na
-> emulatorze 6502.
 
 ### Przeglądarka ROM-u znaków C64 („mapa znaków”)
 
@@ -5882,24 +5978,22 @@ konkretnej platformy.
 | Dwa zestawy znaków | Karta 1: **Zestaw 1 — Górny/Grafika** (domyślny tryb po włączeniu zasilania). Karta 2: **Zestaw 2 — Dolny/Górny** (po przełączeniu `$0E`).                                                                                                       |
 | **Status**         | Siatka 16×16 zawierająca wszystkie 256 znaków. Kliknij glif, aby zobaczyć jego panel szczegółów: powiększony widok 8×8 pikseli, kod ekranu (dziesiętny + szesnastkowy), kody PETSCII (domyślne i przesunięte) oraz surową 8-bajtową mapę bitową. |
 
-Przeglądarka tylko do odczytu pamięci ROM znaków C64 (wbudowanej czcionki
-PETSCII). Otwierana poprzez wpis **C64 chargen** w menu Toolkit. Przydatna do
-znalezienia kodu ekranowego glifu przed zapisaniem go za pomocą `RAWBYTES` lub
-`TEXT`.
+Pełną dokumentację debugera można znaleźć w [Sekcji
+10](#10-debugger-integration).
 
 ### Edytor znaków (zestaw znaków)
 
 Edytor znaków 8×8 o pojemności 256 znaków. Otwórz przez Toolkit → Edytor znaków.
 
-| Ustawienie      | Opis                                                                                           |
-| --------------- | ---------------------------------------------------------------------------------------------- |
-| Załaduj ROM     | Importuje zestaw znaków ROM C64 bezpośrednio z `chargen` programu VICE (bez selektora plików). |
-| Załaduj `.bin`  | Importuje zewnętrzny plik binarny z zestawem znaków o rozmiarze 2048 bajtów.                   |
-| Podgląd na znak | 16-szeroka siatka wszystkich 256 glifów z podświetloną bieżącą komórką.                        |
+| Ustawienie     | Opis                                                                                           |
+| -------------- | ---------------------------------------------------------------------------------------------- |
+| Załaduj ROM    | Importuje zestaw znaków ROM C64 bezpośrednio z `chargen` programu VICE (bez selektora plików). |
+| Załaduj `.bin` | Importuje zewnętrzny plik binarny z zestawem znaków o rozmiarze 2048 bajtów.                   |
 
 **Przepływ pracy: **
 1. Podłącz urządzenie 1541 Ultimate / Ultimate 64 do sieci lokalnej.
-2. Wprowadź adres IP (i hasło, jeśli zostało ustawione) w Ustawieniach sprzętu.
+2. Wprowadź adres IP (i hasło, jeśli zostało ustawione) w **Ustawienia →
+   Integracje → C64 Ultimate**.
 3. Wybierz **Uruchom na sprzęcie** z menu podzielonego uruchamiania.
 4. Kliknij **▶ Uruchom** — PRG zostanie skompilowany i wysłany do urządzenia za
    pomocą protokołu HTTP POST do `/v3/runners/prg`. Urządzenie natychmiast go
@@ -5934,8 +6028,8 @@ wielokolorowości znaków w C64.
 **Przepływ pracy: **
 1. Umieść kartę Kung Fu Flash 2 w porcie kartridża w C64, włącz komputer i
    podłącz kabel USB do komputera PC/Mac.
-2. Otwórz **Ustawienia sprzętu** i sprawdź sekcję **Kung Fu Flash 2** — port
-   powinien być już wypełniony.
+2. Otwórz **Ustawienia → Integracje** i sprawdź sekcję **Kung Fu Flash 2** —
+   port powinien być już wypełniony.
 3. Wybierz **Kung Fu Flash 2** z menu podzielonego przebiegu (wybór zostanie
    zapamiętany i zapisany także w plikach projektu).
 4. Kliknij **▶ Uruchom **. Program zostaje skompilowany, kaseta zostaje ponownie
@@ -5958,11 +6052,10 @@ Basic kompilują się z pliku startowego projektu.
 > **Build CRT** (Magic Desk 64K) również działa na Kung Fu Flash — zobacz
 > [Sekcję 12b](#12b-crt-export-magic-desk-64k-cartridge).
 
----
-
----
-
 ### Kontrola wersji (git)
+
+**Ustawienia → Ogólne → Kontrola wersji** i **Ustawienia → Pliki i ścieżki →
+git**:
 
 | Ustawienie                                               | Opis                                                                                                                                          |
 | -------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -5974,11 +6067,11 @@ Basic kompilują się z pliku startowego projektu.
 
 ## 14. Edytory wizualne (zestaw narzędzi)
 
-Menu paska narzędzi **Zestaw narzędzi** grupuje edytory danych wizualnych, które
-wszystkie mają wspólne menu Pliki (`Pliki ▾`) dla opcji Ładuj BIN / Zapisz BIN /
-Eksportuj do bloków / Zapisz do D64. Każdy edytor generuje surowe dane `.bin`,
-które można umieścić w programie za pomocą `INCBIN` lub bezpośrednio dodać do
-dysku D64 za pomocą opcji **Zapisz do D64**.
+Edytory wizualne otwierają się za pomocą własnych przycisków na pasku narzędzi.
+Każdy z nich posiada menu **Pliki ▾**, umożliwiające wczytanie i zapisanie
+danych (głównie surowych `.bin`) oraz wgranie ich do programu (**Eksport do
+bloków**); plik `.bin` trafia do programu z opcją `INCBIN`. Edytor Hi-Res
+umożliwia również zapis bezpośrednio na dysk D64 (**Zapisz do D64…**).
 
 **Paleta kolorów: ** **Ustawienia → Ogólne → Edytory → Paleta kolorów C64**
 wybiera wartości RGB, którymi każdy edytor rysuje 16 kolorów C64 (sprity, znaki,
@@ -6009,7 +6102,8 @@ ustawieniach interfejsu użytkownika i przywracana przy następnym otwarciu.
 ### Edytor wysokiej rozdzielczości / wielokolorowy
 
 Edytor bitmap na poziomie pikseli z trybami wysokiej rozdzielczości 320×200 i
-wielokolorowymi 160×200. Otwórz przez Toolkit → Hi-Res Editor.
+wielokolorowymi 160×200. Otwórz go przyciskiem na pasku narzędzi edytora
+wysokiej rozdzielczości.
 
 | Funkcja                                 | Opis                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -6032,8 +6126,8 @@ wielokolorowymi 160×200. Otwórz przez Toolkit → Hi-Res Editor.
 
 ### Edytor Sprite'ów
 
-Edytor sprite'ów 24×21 pikseli z animacją wieloklatkową. Otwórz przez Toolkit →
-Edytor sprite'ów.
+Edytor sprite'ów 24×21 pikseli z animacją wieloklatkową. Otwórz go przyciskiem
+na pasku narzędzi edytora sprite'ów.
 
 | Funkcja                            | Opis                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -6063,8 +6157,8 @@ wstawiana w miejscu kursora, w przeciwnym razie kopiowana do schowka.
 ### Przeglądarka ROM-u znaków C64 („mapa znaków”)
 
 Przeglądarka tylko do odczytu pamięci ROM znaków C64 (wbudowanej czcionki
-PETSCII). Otwierana poprzez wpis **C64 chargen** w menu Toolkit. Przydatna do
-znalezienia kodu ekranowego glifu przed zapisaniem go za pomocą `RAWBYTES` lub
+PETSCII). Otwórz ją przyciskiem **C64 chargen** na pasku narzędzi. Przydatna do
+znalezienia kodu ekranowego glifu przed jego zapisaniem za pomocą `RAWBYTES` lub
 `TEXT`.
 
 | Funkcja            | Opis                                                                                                                                                                                                                                             |
@@ -6076,7 +6170,8 @@ znalezienia kodu ekranowego glifu przed zapisaniem go za pomocą `RAWBYTES` lub
 
 ### Edytor znaków (zestaw znaków)
 
-Edytor znaków 8×8 o pojemności 256 znaków. Otwórz przez Toolkit → Edytor znaków.
+Edytor znaków 8×8 o pojemności 256 znaków. Otwórz go przyciskiem na pasku
+narzędzi edytora znaków.
 
 | Funkcja                         | Opis                                                                                                                                                                                                                                                                                       |
 | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -6098,7 +6193,7 @@ Edytor znaków 8×8 o pojemności 256 znaków. Otwórz przez Toolkit → Edytor 
 ### Edytor płótna zestawu znaków
 
 Malarz pełnego zestawu znaków do tworzenia ekranów z kompletnego, 256-znakowego
-zestawu znaków. Otwórz przez Toolkit → Charset Canvas.
+zestawu znaków. Otwórz go przyciskiem „Charset Canvas” na pasku narzędzi.
 
 Płótno ma wymiary 16×16 znaków i 128×128 pikseli. W trybie wielokolorowym każdy
 znak jest albo wielokolorowy (szerokie piksele, 4 kolory), albo w wysokiej
@@ -6136,22 +6231,23 @@ kolor tła i swój własny kolor (0–15).
 ### Edytor map (mapy kafelkowe wielowarstwowe)
 
 Warstwowy edytor map kafelkowych do statycznych scenerii, map pojawiania się
-sprite'ów, danych o kolizjach i podobnych. Otwórz przez Toolkit → Edytor map.
+sprite'ów, danych o kolizjach i podobnych. Otwórz go przyciskiem na pasku
+narzędzi edytora map.
 
-| Funkcja                                               | Opis                                                                                                                                                                                                                                                                                                       |
-| ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Warstwy                                               | Wiele nazwanych warstw, każda z własnym zestawem kafelków i kryciem.                                                                                                                                                                                                                                       |
-| Pędzle                                                | Tryby pojedynczego kafelka, wypełnienia, linii, prostokąta i okręgu. Narzędzia kształtów wyświetlają podgląd na żywo podczas przeciągania; zwolnij, aby zatwierdzić.                                                                                                                                       |
-| Brzęczenie                                            | Suwak lub Ctrl+kółko na mapie.                                                                                                                                                                                                                                                                             |
-| Cofnij / ponów                                        | Pełny stos cofania/ponawiania dla każdej warstwy. Ctrl/Cmd+Z / Ctrl/Cmd+Y lub przyciski paska narzędzi.                                                                                                                                                                                                    |
-| Wyczyść menu                                          | Wyczyść pojedynczą warstwę lub całą mapę z potwierdzeniem.                                                                                                                                                                                                                                                 |
-| Importowanie obrazu                                   | Upuść plik PNG mapy kafelkowej, a edytor automatycznie podzieli ją na kafelki.                                                                                                                                                                                                                             |
-| Kopiuj/wklej                                          | Skopiuj wybrany obszar kafelka, a następnie wklej go normalnie lub użyj przezroczystego wklejania, aby puste kafelki pozostały przezroczyste. Te same wpisy znajdują się w menu kontekstowym płótna.                                                                                                       |
-| Kolorowanie kafelków z uwzględnieniem wielu kolorów   | Jeśli metadane zestawu znaków są zgodne, malowanie wykorzystuje domyślne ustawienia kolorów zapisane w pamięci RAM kafelka (w tym kodowanie wielokolorowe) zamiast ogólnego, jednolitego koloru.                                                                                                           |
-| Niestandardowe kolory zestawu znaków                  | Jeśli zestaw znaków zawiera metadane `charColors`, Edytor map używa domyślnej wartości pamięci RAM kolorów wybranego kafelka podczas malowania.                                                                                                                                                            |
-| Eksportuj bloki                                       | Emitują bloki RAWBYTES dla grafiki kafelkowej + danych mapy.                                                                                                                                                                                                                                               |
-| Zapisz pamięć RAM ekranu (.bin)…                      | Zapisuje tylko kody ekranowe dla bieżącej warstwy mapy (40×25 = 1000 bajtów).                                                                                                                                                                                                                              |
-| Zapisz pamięć RAM ekranu + pamięć RAM kolorów (.bin)… | Zapisuje kody ekranowe połączone z wartościami pamięci RAM kolorów jako pojedynczy plik o rozmiarze 2000 bajtów (`screen[0..999]`, a następnie `color[0..999]`). Użyj tego z makrem **MAP_COPY** (połączony tryb .bin), aby przywrócić zarówno ekran, jak i kolory w jednej operacji w czasie wykonywania. |
+| Funkcja                                               | Opis                                                                                                                                                                                                                                                                                                            |
+| ----------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Warstwy                                               | Wiele nazwanych warstw, każda z własnym zestawem kafelków i kryciem.                                                                                                                                                                                                                                            |
+| Pędzle                                                | Tryby pojedynczego kafelka, wypełnienia, linii, prostokąta i okręgu. Narzędzia kształtów wyświetlają podgląd na żywo podczas przeciągania; zwolnij, aby zatwierdzić.                                                                                                                                            |
+| Brzęczenie                                            | Suwak lub Ctrl+kółko na mapie.                                                                                                                                                                                                                                                                                  |
+| Cofnij / ponów                                        | Pełny stos cofania/ponawiania dla każdej warstwy. Ctrl/Cmd+Z / Ctrl/Cmd+Y lub przyciski paska narzędzi.                                                                                                                                                                                                         |
+| Wyczyść menu                                          | Wyczyść pojedynczą warstwę lub całą mapę z potwierdzeniem.                                                                                                                                                                                                                                                      |
+| Importowanie obrazu                                   | Upuść plik PNG mapy kafelkowej, a edytor automatycznie podzieli ją na kafelki.                                                                                                                                                                                                                                  |
+| Kopiuj/wklej                                          | Skopiuj wybrany obszar kafelka, a następnie wklej go normalnie lub użyj przezroczystego wklejania, aby puste kafelki pozostały przezroczyste. Te same wpisy znajdują się w menu kontekstowym płótna.                                                                                                            |
+| Kolorowanie kafelków z uwzględnieniem wielu kolorów   | Jeśli metadane zestawu znaków są zgodne, malowanie wykorzystuje domyślne ustawienia kolorów zapisane w pamięci RAM kafelka (w tym kodowanie wielokolorowe) zamiast ogólnego, jednolitego koloru.                                                                                                                |
+| Niestandardowe kolory zestawu znaków                  | Jeśli zestaw znaków zawiera metadane `charColors`, Edytor map używa domyślnej wartości pamięci RAM kolorów wybranego kafelka podczas malowania.                                                                                                                                                                 |
+| Eksportuj bloki                                       | Emitują bloki RAWBYTES dla grafiki kafelkowej + danych mapy.                                                                                                                                                                                                                                                    |
+| Zapisz pamięć RAM ekranu (.bin)…                      | Zapisuje tylko kody ekranowe dla bieżącej warstwy mapy (40×25 = 1000 bajtów).                                                                                                                                                                                                                                   |
+| Zapisz pamięć RAM ekranu + pamięć RAM kolorów (.bin)… | Zapisuje kody ekranowe połączone z wartościami pamięci RAM kolorów jako pojedynczy plik o rozmiarze 2000 bajtów (`screen[0..999]`, a następnie `color[0..999]`). Użyj tego z makrem **MAP_COPY** (`auto` jako źródło koloru), aby przywrócić zarówno ekran, jak i kolor w jednej operacji w czasie wykonywania. |
 
 ### Edytor poziomów
 
@@ -6190,21 +6286,22 @@ Basic 1.6.1+, `ładowanie mapy "level.bin", $4000` i `widok mapy px, py`
 
 ### Edytor SID (śledzenie 3-głosowe)
 
-Wieloinstrumentalny, 3-głosowy tracker. Otwórz przez Toolkit → Edytor SID.
-**Odtwarzanie: Wszystkie** uruchamia wyeksportowany odtwarzacz 6502 w emulatorze
-WebSid; każdy inny podgląd (podgląd instrumentu, klawiatura wirtualna,
-wprowadzanie nut, akord/arpeggio, wiersz i odtwarzanie pojedynczego wzorca)
-również odtwarzany jest na emulowanym SID: model JS tego samego odtwarzacza
-(klatka po klatce) przesyła strumieniowo swoje rejestry SID do WebSid w każdej
-klatce, a maksymalnie trzy nuty podglądu współdzielą trzy głosy. Odtwarzacz
-strumieniowy jest ładowany po otwarciu edytora i ponownie po zatrzymaniu, więc
-nuty brzmią jednocześnie; bez WebSid odtwarzany jest mały syntezator SID.
+Wieloinstrumentalny, 3-głosowy tracker. Otwórz go przyciskiem na pasku narzędzi
+edytora SID. **Odtwórz: Wszystko** uruchamia wyeksportowany odtwarzacz 6502 w
+emulatorze WebSid; każdy inny podgląd (podgląd instrumentu, klawiatura
+wirtualna, wprowadzanie nut, akord/arpeggio, wiersz i odtwarzanie pojedynczego
+wzorca) również odtwarzany jest na emulowanym SID: model JS tego samego
+odtwarzacza (klatka po klatce) przesyła strumieniowo swoje rejestry SID do
+WebSid w każdej klatce, a maksymalnie trzy nuty podglądu współdzielą trzy głosy.
+Odtwarzacz strumieniowy jest ładowany po otwarciu edytora i ponownie po
+zatrzymaniu, więc nuty brzmią jednocześnie; bez WebSid odtwarzany jest mały
+syntezator SID.
 
-**Silnik podglądu: ** **Ustawienia → Podgląd SID** wybiera **WebSID** lub **VA
-SID Core (Rust)**, własną emulację SID aplikacji; w przypadku VA SID Core
-wybiera się również układ (MOS 6581/8580). Nagłówek edytora pokazuje używany
-silnik (np. *· VA SID Core v1.2 (MOS 8580)*). Parametry instrumentu ustawia się
-za pomocą pokręteł.
+**Silnik podglądu: ** **Ustawienia → Ogólne → Podgląd SID** wybiera **WebSID**
+lub **VA SID Core (Rust)**, własną emulację SID aplikacji; w przypadku VA SID
+Core wybiera się również układ (MOS 6581/8580). Nagłówek edytora pokazuje
+używany silnik (np. *· VA SID Core v1.2 (MOS 8580)*). Parametry instrumentu
+ustawia się za pomocą pokręteł.
 
 **Sterowanie na instrument:**
 - Pola wyboru przebiegów (TRI / SAW / PUL / NOI) — wiele przebiegów jest
@@ -6305,10 +6402,10 @@ eksporcie 6502 oraz są zapisywane/ładowane bezstratnie w wersjonowanym formaci
 - Przycisk Odtwórz na pasku narzędzi zmienia się na Wstrzymaj podczas
   odtwarzania i na Wznów po wstrzymaniu. Przycisk Zatrzymaj kończy odtwarzanie i
   resetuje stan.
-- Wyświetlacz **LCD** na końcu paska narzędzi śledzenia pokazuje pozycję utworu
+- Wyświetlacz LCD **** na końcu paska narzędzi trackera pokazuje pozycję utworu
   (POS), wzór (PAT), wiersz (ROW) i czas odtwarzania (TIME) podczas odtwarzania,
-  a po zatrzymaniu pozycję edycji. **Ustawienia → Podgląd SID → Kolor
-  wyświetlacza LCD** zmienia kolor na zielony lub czerwony.
+  a także pozycję edycji po zatrzymaniu. **Ustawienia → Ogólne → Podgląd SID →
+  Kolor wyświetlacza LCD** zmienia kolor na zielony lub czerwony.
 - Przycisk na pasku narzędzi klawiatury otwiera **VA-VK**, pianino niemodalne
   (2, 3 lub 4 oktawy; pozycja, stan otwarcia, oktawa i *Wstaw do trackera* są
   zapamiętywane) z własnymi przyciskami **Odtwarzaj/Stop**, które pozostają
@@ -6450,12 +6547,12 @@ HVSC.
   aplikacja jest zajęta. WebSID używa nowego rozmiaru po ponownym uruchomieniu;
   rdzeń VA SID renderuje 10 / 15 / 20 / 30 s przed następnym utworem.
 - **Silnik:** okno pokazuje, który silnik odtwarza (WebSID czy VA SID Core wraz
-  z jego wersją i chipem SID); wybierz go w **Ustawienia → Podgląd SID**. VA SID
-  Core uruchamia utwór na natywnym rdzeniu Rust C64 z procesorem 6510 o
-  dokładnym taktowaniu cyklicznym, precyzyjnym taktowaniem przerwań, CIA 6526A,
-  taktowaniem VIC-II z błędnymi liniami, przerwaniami DMA i rastrowymi dla
-  sprite'ów oraz portem wejścia/wyjścia 6510 — dzięki czemu utwory rastrowe z
-  przerwaniami IRQ, taktowane przez CIA i cyfrowe odtwarzają się z taktowaniem
+  z jego wersją i chipem SID); wybierz go w **Ustawienia → Ogólne → Podgląd
+  SID**. VA SID Core uruchamia utwór na natywnym rdzeniu Rust C64 z dokładnym
+  pod względem cyklu procesorem 6510, precyzyjnym taktowaniem przerwań, CIA
+  6526A, taktowaniem VIC-II z błędnymi liniami, przerwaniami DMA i rastrowymi
+  dla sprite'ów oraz portem wejścia/wyjścia 6510 — dzięki czemu utwory rastrowe
+  z przerwaniami IRQ, taktowane przez CIA i cyfrowe odtwarzają się z taktowaniem
   prawdziwej maszyny.
 - **Losowo: ** przycisk losowania obok **Następny** odtwarza playlistę w
   kolejności losowej — żaden utwór nie powtarza się, dopóki nie zostaną
@@ -6602,10 +6699,10 @@ bajty, potem bajty górne) i eksportuje ją do Ultimate Basic.
 
 ### Konwerter liczb
 
-Mały konwerter DEC/HEX/BIN **niemodalny **, otwierany przyciskiem na pasku
-narzędzi obok edytora D64 (kliknij ponownie lub naciśnij Esc, aby zamknąć).
-Przycisk pozostaje podświetlony, gdy konwerter jest widoczny. Pozostaje otwarty
-podczas edycji programu w dowolnym trybie.
+Mały konwerter **niemodalny ** DEC/HEX/BIN, otwierany przyciskiem na pasku
+narzędzi obok odtwarzacza SID (kliknij ponownie lub naciśnij Esc, aby zamknąć).
+Przycisk pozostaje podświetlony, gdy konwerter jest wyświetlany. Pozostaje
+otwarty podczas edycji programu w dowolnym trybie.
 
 - Wpisz w dowolne z pól **DEC**, **HEX** lub **BIN**, a pozostałe dwa zostaną
   wypełnione. Akceptowane są prefiksy `$`, `0x`, `%`, `0b` oraz separatory
