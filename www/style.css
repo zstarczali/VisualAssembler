@@ -6550,7 +6550,9 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
   font-weight: 600;
 }
 
-#about-ub-version {
+/* the two compiler versions: the same font, size and weight */
+#about-ub-version,
+#about-vma-version {
   font-weight: 400;
 }
 
