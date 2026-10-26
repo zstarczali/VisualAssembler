@@ -6,7 +6,7 @@ azonos marad a mai JS fordítóéval — ezt a golden korpusz (`tests/vma-golden
 
 ---
 
-## 0. Hol tartunk (2026-10-25)
+## 0. Hol tartunk (2026-10-26)
 
 | Fázis | Állapot | Commit |
 |-------|---------|--------|
@@ -16,11 +16,11 @@ azonos marad a mai JS fordítóéval — ezt a golden korpusz (`tests/vma-golden
 | F3 makrók, LOOP/FOR, `.var`, PUSH/PULL | ✔ kész | `536986e` |
 | F4 kódgeneráló makrók | ✔ kész (a SID_PLAYER kódja az F5-tel jön) | `516d372` … |
 | F5 fájl-makrók | ✔ kész | `8fce8d3`, `7844c6e`, … |
-| **F6 bekötés a VA-ba (Tauri `vma_build`, shadow mód)** | **folyamatban** — A fázis (PRG) kész: `vma_build`, motorválasztó, shadow-napló; B fázis első része kész: a debugger nézet (sidecarok, címkék, töréspontok) Rustból; hátra a memóriasáv / ASM nézet / VICE Monitor és a hibakulcsok | — |
+| **F6 bekötés a VA-ba (Tauri `vma_build`, shadow mód)** | **folyamatban** — A fázis (PRG) kész: `vma_build`, motorválasztó, shadow-napló; B fázisból kész: a debugger nézet (sidecarok, címkék, töréspontok), a memórianézet (shadow-ellenőrzés), a VICE Monitor hot reload és a lokalizált hibák Rustból; hátra a shadow-próba a felhasználói projekteken és az alapérték `rust`-ra állítása (az ASM nézet gépelés közben szinkron, az F7-re vár) | — |
 | F7 WASM, a szinkron UI-elemzések | hátra | — |
 | F8 Kick előfeldolgozó (opcionális), JS mag törlése, dokumentáció | hátra | — |
 
-Golden állás (`node scripts/vma-rust-report.js`): **mind a 518 eset rendben: 460 bájtra egyezik, 58 elvárt hiba
+Golden állás (`node scripts/vma-rust-report.js`): **mind a 520 eset rendben: 462 bájtra egyezik, 58 elvárt hiba
 (a Rust is hibát ad), 0 nem portolt, 0 eltérés.** A Rust fordító a teljes VMA nyelvet és minden makrót fordítja.
 
 Ellenőrzés bármikor: `npm test` (a golden Rust-ága a `crates/vma/target/{debug,release}/vma.exe`-t használja,
@@ -98,6 +98,29 @@ ha le van fordítva), `cargo test --offline` a `crates/vma`-ban, és az esetenk�
    elavult SID_PLAYER manifest-bejegyzése; JS: az Expert töréspont nem illeszkedik include-olt sorra
    (`_breakpointAddressForSourceLines`), az include-olt makró kibontása a `.dbg`-ben az include fájlé (`_macroInclude`
    a `parseUserMacros`-ban — nem `_fromInclude`, hogy a memóriasáv / ASM nézet csoportosítása ne változzon).
+   ✔ B fázis, memória és VICE Monitor: `Assembler::memory_info` (a `getMemoryUsage` `getProgramLayout()`-ja, első ORG,
+   override nélkül: `code` tartomány, `regions` = a `detectMemoryOverlaps` kód-régiói, `deferred` = `deferred_sections`, a
+   `getDeferredMemorySections` portja — a DELAY helper címe is ebből), `Image::written` / `segments()` = a kód-szakaszok és a
+   deferred darabok egyesített tartományai a bájtjaikkal, `Built::segments` + `Built::entry` (a program saját belépője, a
+   relocating loader mögött is). JSON: `segments`, `entry`, `memory` {code, regions, deferred: [{type, address, end,
+   sourceAddress, label}]}. JS: `getMemoryUsage` → `_memoryUsageOf(layout, code, deferred, regions)` (a `detectMemoryOverlaps`
+   helyett `_memoryCodeRegions` + `_memoryOverlaps`), `_vmaMemoryUsage(memory)` ugyanezt a Rust adatból; shadow módban
+   `_vmaShadowMemoryDiff` (foglalt tartományok, deferred szakaszok, átfedések száma); a `_vmBuildSegments` Rust buildnél a
+   `segments`-et írja és az `entry`-n indít újra (`_vmWithProgram(fn, blocks)`). Közben javítva: a Rust `origin_of` kihagyja a
+   makrótörzs ORG-ját, mint a `parseOriginValue` (golden `org-in-macro-body`). Tesztek: `tests/vma-memory.test.js` (a korpusz
+   minden szöveges esetén JS `getMemoryUsage` = Rust `memory`, és a szegmensek a PRG bájtjai), `tests/vma-engine.test.js`
+   (hot reload + shadow memória), Rust `segments_entry_and_memory_view`. A memóriapanel gépelés közben továbbra is a JS
+   layoutból rajzol (szinkron) — az F7 (WASM) váltja ki.
+   ✔ B fázis, hibakulcsok: `msg.rs` `Msg { key, params, text }` (`Msg::keyed(…).p(név, érték)`; a JS összetételéhez
+   `_prefix` / `_suffix` / `_replace`), a `compile_line` és a segédei `Msg`-et adnak, a JS minden `t()` / `tf()` hibáját
+   ugyanazzal a kulccsal (a JS-ben is nyers szöveges hibák szövegként maradnak); a parse-hibák (`unknownDirective`,
+   `vmaAcmeDirective`, `kickTextBadChar`, `ifConditionNotResolvable`), a fájl nélküli makrók (`*MacroNeedsFile`) és az
+   `autostartImageOverlapsStub` is. A `CompileError` `key` / `params` / `address` / `more`: az `assemble` a JS-hez hasonlóan
+   minden hibás sort gyűjt (`CompileError::collect`). `vma::error_json` = a `vma_build` / CLI `--json` hibaválasza (`errors`:
+   line, message, key, params, address); a CLI minden hibát külön sorba ír. JS: `_vmaErrorMessage` (tf a kulccsal, különben
+   az angol szöveg), `_vmaErrorEntry` (`[Lnnn]` a blokk ASM-sorával / `[Rnnn]`, cím, `MNEM operandus` vagy a forrássor,
+   `sourceLine`). Tesztek: `tests/vma-error-keys.test.js` (minden Rust-kulcs mind a 7 nyelven), `tests/vma-engine.test.js`
+   (két hiba magyarul, valódi CLI-vel).
    Megjegyzés: a `crates/vma/target` a gitben van, és Windows-on egy másik folyamat időnként zárolja (os error 1224);
    ilyenkor `CARGO_TARGET_DIR` + `VMA_BIN` a tesztekhez.
 4. **F7–F8** — az 5. szakasz táblázata szerint.

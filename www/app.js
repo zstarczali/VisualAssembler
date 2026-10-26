@@ -14057,7 +14057,7 @@ function _expertValidate() {
       : _acmePreviewMessage(), preview ? "ok" : _acmePreviewErrorCurrent() ? "error" : "");
     if (_expertDisasmVisible) _expertRenderDisasm();
     if (_expertMonitorVisible) _expertRenderMonitor();
-    renderMemoryMap();
+    _acmeRenderMemoryMap();
     _acmeScheduleAutoBuild();
     return;
   }
@@ -15134,6 +15134,42 @@ function _acmeMonitorText(preview) {
   return _formatMonitorMemory(bytes, view.segments[0]?.origin || 0);
 }
 
+// An ACME Disassembly / Monitor panel is drawn once per build (a large program's output is costly):
+// the same build is not drawn again, and while the source differs from the last build of this tab
+// (typing, before the automatic rebuild) the last output stays, dimmed. `el._acmeShown` = the build
+// or the message shown.
+function _acmeRenderPanel(el, drawBuild, drawMessage) {
+  const preview = _acmePreviewCurrent();
+  const stale = !preview && !_acmePreviewErrorCurrent() && _acmePreview?.tabId === activeTabId && el._acmeShown === _acmePreview;
+  el.classList.toggle("is-stale", stale);
+  if (stale || (preview && el._acmeShown === preview)) return;
+  if (preview) {
+    drawBuild(el, preview);
+    el._acmeShown = preview;
+    return;
+  }
+  const message = _acmePreviewMessage();
+  if (el._acmeShown === message) return;
+  drawMessage(el, message);
+  el._acmeShown = message;
+}
+
+// A panel drawn by the VA / Kick path: the next ACME render draws it again.
+function _acmeForgetPanel(el) {
+  el._acmeShown = null;
+  el.classList.remove("is-stale");
+}
+
+// The memory panel in ACME mode: typing does not redraw it, only a new build / another tab.
+// `memoryMap._acmeShown` = the build (or the tab id without one) it was drawn from; any other
+// renderMemoryMap call clears it.
+function _acmeRenderMemoryMap() {
+  const key = _acmePreview?.tabId === activeTabId ? _acmePreview : activeTabId;
+  if (memoryMap && key === memoryMap._acmeShown) return;
+  renderMemoryMap();
+  if (memoryMap) memoryMap._acmeShown = key;
+}
+
 // What the Expert disassembly shows (a Kick project: the _kickLast it was built from): the same
 // build is not rendered again on every tab switch / check.
 let _expertDisasmShown = null;
@@ -15145,12 +15181,11 @@ function _expertRenderDisasm() {
   if (kickShown && _expertDisasmShown?.kick === kickShown && _expertDisasmShown.stubOn === stubOn) return;
   _expertDisasmShown = null;
   if (assemblerSyntax === "acme") {
-    const preview = _acmePreviewCurrent();
-    expertDisasmOutput.innerHTML = preview
-      ? _acmeDisasmHTML(preview)
-      : `<span class="asm-tok-comment">; ${_escHtml(_acmePreviewMessage())}</span>`;
+    _acmeRenderPanel(expertDisasmOutput, (el, preview) => _setDisasmLines(el, _acmeDisasmHTML(preview).split("\n")),
+      (el, message) => { el.innerHTML = `<span class="asm-tok-comment">; ${_escHtml(message)}</span>`; });
     return;
   }
+  _acmeForgetPanel(expertDisasmOutput);
   const kickProject = !ultimateBasicMode && _kickProjectActive();
   if (kickProject && !_kickLast?.ok) {
     expertDisasmOutput.innerHTML = `<span class="asm-tok-comment">; ${_escHtml(t("kickBuildFirst"))}</span>`;
@@ -15177,10 +15212,11 @@ function _expertRenderDisasm() {
 function _expertRenderMonitor() {
   if (!expertMonitorOutput) return;
   if (assemblerSyntax === "acme") {
-    const preview = _acmePreviewCurrent();
-    expertMonitorOutput.textContent = preview ? _acmeMonitorText(preview) : `; ${_acmePreviewMessage()}`;
+    _acmeRenderPanel(expertMonitorOutput, (el, preview) => { el.textContent = _acmeMonitorText(preview); },
+      (el, message) => { el.textContent = `; ${message}`; });
     return;
   }
+  _acmeForgetPanel(expertMonitorOutput);
   const kickProject = !ultimateBasicMode && _kickProjectActive();
   if (kickProject && !_kickLast?.ok) {
     expertMonitorOutput.textContent = `; ${t("kickBuildFirst")}`;
@@ -24081,7 +24117,7 @@ async function _acmeBuildPreview(options) {
     _acmeUpdateAnalysis();
     if (_expertDisasmVisible) _expertRenderDisasm();
     if (_expertMonitorVisible) _expertRenderMonitor();
-    renderMemoryMap();
+    _acmeRenderMemoryMap();
   } catch (error) {
     if (tabId === activeTabId) {
       _acmePreview = null;
@@ -27206,19 +27242,58 @@ function _vmaBuildInput() {
   };
 }
 
-// The Rust build; `vma` = its debugger view (the sidecars, symbols and lines of vma_build).
+// The Rust build; `vma` = its debugger view (the sidecars, symbols and lines of vma_build), the
+// ranges it writes (`segments` [[address, bytes]]) and the memory panel's view (`memory`).
 async function _vmaRustBuild() {
   const input = _vmaBuildInput();
   const r = await window.electronAPI.vmaBuild(input.text, input.baseDir, basicSysToggle ? basicSysToggle.checked : true,
     input.sourcePath, input.lineMap || null);
   if (!r?.ok) {
-    const text = `[R${String(r?.line || 0).padStart(3, "0")}] ${r?.error || "VMA (Rust) error"}`;
-    return { ok: false, error: text, errors: [{ text, asmLine: null, sourceLine: input.editorLines && r?.line ? r.line - 1 : null }] };
+    const lines = String(input.text || "").split("\n");
+    const list = r?.errors?.length ? r.errors : [{ line: r?.line || 0, message: r?.error || "VMA (Rust) error", key: "", params: {}, address: null }];
+    const errors = list.map(e => _vmaErrorEntry(e, input, lines));
+    return { ok: false, error: errors[0].text, errors };
   }
   const result = { ok: true, bytes: Uint8Array.from(r.prg || []) };
   if (typeof r.sysAddress === "number") result.sysAddress = r.sysAddress;
-  if (r.sidecars) result.vma = { origin: r.debugOrigin, sidecars: r.sidecars, symbols: r.symbols || [], lines: r.lines || [], input };
+  if (r.sidecars) {
+    result.vma = { origin: r.debugOrigin, sidecars: r.sidecars, symbols: r.symbols || [], lines: r.lines || [],
+      segments: r.segments || [], entry: r.entry, memory: r.memory || null, input };
+  }
   return result;
+}
+
+// The text of a Rust compile error in the app's language: tf(key, params) as the JS compiler
+// composes it (`_prefix` "LOOP: …", `_suffix` "… 12).", `_replace` for IRQ_SETUP), the English
+// message without a key.
+function _vmaErrorMessage(e) {
+  const params = e.params || {};
+  if (!e.key || !(e.key in translations.en)) return String(e.message || "");
+  const values = Object.fromEntries(Object.entries(params).filter(([name]) => !name.startsWith("_")));
+  let text = tf(e.key, values);
+  if (params._replace) text = text.replace("IRQ_SETUP", params._replace);
+  if (params._prefix) text = `${params._prefix}: ${text}`;
+  if (params._suffix) text = `${text} ${params._suffix}`;
+  return text;
+}
+
+// A Rust compile error (vma_build `errors[]`) as the JS compiler's list entry:
+// "[Lnnn] $addr  LDA #$01 — message". A source made of blocks names the block (its ASM view line,
+// mnemonic and operand, _srcLine), the editor's own text its line ([Rnnn], the line's text).
+function _vmaErrorEntry(e, input, lines) {
+  const line = Number(e.line) || 0;
+  const block = input.blocks && line > 0 ? input.blocks[input.blockOfLine?.[line - 1]] : null;
+  const asmLine = block && asmBlockRanges[block.id] ? asmBlockRanges[block.id].firstLine + 1 : null;
+  const tag = asmLine ? `L${String(asmLine).padStart(3, "0")}` : `R${String(line).padStart(3, "0")}`;
+  const head = block
+    ? `${block.mnemonic || "?"}${block.operand ? ` ${block.operand}` : ""}`
+    : String(lines[line - 1] ?? "").trim();
+  const addr = typeof e.address === "number" ? `${formatAddress(e.address & 0xFFFF)}  ` : "";
+  const message = _vmaErrorMessage(e);
+  const sourceLine = block
+    ? (typeof block._srcLine === "number" ? block._srcLine : null)
+    : (input.editorLines && line > 0 ? line - 1 : null);
+  return { text: `[${tag}] ${addr}${head ? `${head} — ` : ""}${message}`, asmLine, sourceLine };
 }
 
 // RetroDebugger targets of a Rust build (runInDebugger's JS-layout branch on vma_build's lines):
@@ -27254,7 +27329,7 @@ async function _vaBuildPrg() {
   if (engine === "shadow") {
     try {
       const rust = await _vmaRustBuild();
-      const diff = _vmaShadowDiff(js, rust);
+      const diff = _vmaShadowDiff(js, rust) || _vmaShadowMemoryDiff(rust);
       if (diff) {
         console.warn("[vma-shadow]", diff);
         _vaLogError("vma-shadow", diff);
@@ -27277,6 +27352,24 @@ function _vmaShadowDiff(js, rust) {
     if (a[i] !== b[i]) return `${a.length} vs ${b.length} bytes, first difference at offset ${i} ($${i.toString(16)})`;
   }
   return a.length === b.length ? "" : `${a.length} vs ${b.length} bytes`;
+}
+
+// The memory panel's usage (getMemoryUsage) of a Rust build's `memory`.
+function _vmaMemoryUsage(memory) {
+  return _memoryUsageOf(null, memory.code, memory.deferred, memory.regions.map(([address, end]) => ({ address, end, type: "code" })));
+}
+
+// The first difference between the memory view of the JS layout and of the Rust build ("" when
+// they agree): the occupied ranges, the deferred sections, the overlaps.
+function _vmaShadowMemoryDiff(rust) {
+  if (!rust.ok || !rust.vma?.memory) return "";
+  const js = _vmWithProgram((layout) => getMemoryUsage(layout), rust.vma.input.blocks);
+  const vma = _vmaMemoryUsage(rust.vma.memory);
+  const ranges = (u) => u.mergedOccupied.map(r => `${formatAddress(r.start)}-${formatAddress(r.end)}`).join(",");
+  if (ranges(js) !== ranges(vma)) return `memory: JS ${ranges(js)} vs Rust ${ranges(vma)}`;
+  const sections = (u) => u.deferredSections.map(d => `${d.type}@${d.address}-${d.end}`).join(",");
+  if (sections(js) !== sections(vma)) return `deferred sections: JS ${sections(js)} vs Rust ${sections(vma)}`;
+  return js.overlaps.length === vma.overlaps.length ? "" : `overlaps: JS ${js.overlaps.length} vs Rust ${vma.overlaps.length}`;
 }
 
 async function _kickGotoError(file, line) {
@@ -34185,20 +34278,27 @@ function getMemoryUsage(layout) {
   if (ultimateBasicMode) return _ubMemoryUsage();
   if (assemblerSyntax === "acme" && expertMode) return _acmeMemoryUsage();
   layout = layout || getProgramLayout();
+  const code = program.length && layout.start <= layout.end ? [layout.start, layout.end] : null;
+  return _memoryUsageOf(layout, code, getDeferredMemorySections(layout), _memoryCodeRegions(layout));
+}
+
+// The memory panel's usage of a VMA build: `code` = [start, end] of the layout or null, the
+// deferred sections ({type, address, end, label}) and the contiguous code regions ({address, end}).
+// The JS layout or the `memory` of a Rust build (vma_build) gives them.
+function _memoryUsageOf(layout, code, deferredSections, codeRegions) {
   const occupiedRanges = [];
 
-  if (program.length && layout.start <= layout.end) {
+  if (code) {
     occupiedRanges.push({
-      start: layout.start,
-      end: layout.end,
+      start: code[0],
+      end: code[1],
       type: "code",
-      label: `Kodresz ${formatAddress(layout.start)} - ${formatAddress(layout.end)}`
+      label: `Kodresz ${formatAddress(code[0])} - ${formatAddress(code[1])}`
     });
   }
 
-  const deferredSections = getDeferredMemorySections(layout);
   deferredSections.forEach((section) => {
-    if (!section.bytes.length) {
+    if (section.end < section.address) {
       return;
     }
 
@@ -34226,12 +34326,12 @@ function getMemoryUsage(layout) {
     totalRamBytes,
     occupiedRamBytes,
     freeRamBytes: Math.max(0, totalRamBytes - occupiedRamBytes),
-    overlaps: detectMemoryOverlaps(layout, deferredSections)
+    overlaps: _memoryOverlaps(codeRegions, deferredSections)
   };
 }
 
-function detectMemoryOverlaps(layout, deferredSections) {
-  // Build contiguous inline code regions (split at gaps/ORG jumps)
+// Contiguous inline code regions of a layout (split at gaps / ORG jumps).
+function _memoryCodeRegions(layout) {
   const codeRegions = [];
   let runStart = null;
   let runEnd = null;
@@ -34262,14 +34362,18 @@ function detectMemoryOverlaps(layout, deferredSections) {
   if (runStart !== null) {
     codeRegions.push({ address: runStart, end: runEnd, type: "code" });
   }
+  return codeRegions;
+}
 
+// The overlapping pairs of the code regions and the non-empty deferred sections.
+function _memoryOverlaps(codeRegions, deferredSections) {
   const labeledCode = codeRegions.map(r => ({
     ...r,
     label: `${t("memoryOverlapCode")} ${formatAddress(r.address)}\u2013${formatAddress(r.end)}`
   }));
 
   const deferredRegions = deferredSections
-    .filter(s => s.bytes.length > 0)
+    .filter(s => s.end >= s.address)
     .map(s => ({ address: s.address, end: s.end, type: s.type, label: s.label }));
 
   const allRegions = [...labeledCode, ...deferredRegions];
@@ -34479,6 +34583,7 @@ function _zpRenderPanel(layout) {
 }
 
 function renderMemoryMap(precomputedUsage) {
+  if (memoryMap) memoryMap._acmeShown = null;
   const usage = precomputedUsage || getMemoryUsage();
   const layout = usage.layout;
   memoryMap.innerHTML = "";
@@ -58157,11 +58262,13 @@ function _vmApi() {
 }
 
 // fn(layout) a build által futtatott programmal (Expert módban a szerkesztő szövegéből).
-function _vmWithProgram(fn) {
+// `blocks`: the program to lay out (default: the editor's, in Expert mode the startup file's).
+function _vmWithProgram(fn, blocks = null) {
   const saved = program;
   const savedMacros = userMacros;
   try {
-    if (expertMode) program = _expertGetStartupProgram() || _expertBuildProgram();
+    if (blocks) program = blocks;
+    else if (expertMode) program = _expertGetStartupProgram() || _expertBuildProgram();
     parseUserMacros();
     return fn(getProgramLayout());
   } finally {
@@ -58408,6 +58515,10 @@ async function _vmBuildSegments() {
   }
   const prg = await _kickOrVaPrg();
   if (!prg?.ok || !prg.bytes || prg.bytes.length < 3) return null;
+  // a Rust build names what it writes (at its own addresses, also behind a relocating loader)
+  if (prg.vma?.segments?.length) {
+    return { segments: prg.vma.segments.map(([address, bytes]) => ({ address, bytes })), sys: prg.vma.entry };
+  }
   const load = prg.bytes[0] | (prg.bytes[1] << 8);
   const data = prg.bytes.slice(2);
   const ranges = _vmWithProgram((layout) => getMemoryUsage(layout).mergedOccupied);

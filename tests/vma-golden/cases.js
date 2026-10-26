@@ -222,6 +222,14 @@ sub:
     lda (zp),y
     lda $00FB
     rts
+`,
+  "org-in-macro-body": `.macro relocated
+* = $3000
+    nop
+.endm
+* = $1000
+    lda #$01
+    rts
 `
 };
 

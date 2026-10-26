@@ -3,6 +3,7 @@
 //! `Kind::Unsupported`, which fails the build instead of assembling something else.
 
 use crate::expr::char_literal_to_hex;
+use crate::msg::Msg;
 use crate::num::{import_parse_scalar, is_bin, is_ident, is_dec, is_hex, js_hex_upper, js_parse_int, parse_number_by_base};
 use regex::Regex;
 use std::sync::OnceLock;
@@ -47,7 +48,7 @@ pub enum Base {
 pub enum Kind {
     Blank,
     /// A comment; `error` = an unknown directive or an ACME pseudo opcode.
-    Comment { text: String, error: Option<String> },
+    Comment { text: String, error: Option<Msg> },
     Org { address: String },
     Label { name: String, offset: i64, kick_scope: bool },
     AnonLabel,
@@ -55,7 +56,7 @@ pub enum Kind {
     /// `display` = the block's `operand` (a macro expansion re-parses the instruction from it)
     Instr { mnem: String, mode: Mode, raw: String, base: Base, display: String, smc: Option<String> },
     LongBranch { mnem: String, cond: String, raw: String },
-    Byte { raw: String, base: Base, error: Option<String> },
+    Byte { raw: String, base: Base, error: Option<Msg> },
     Word { raw: String, base: Base },
     Fill { raw: String, base: Base },
     Align { raw: String, base: Base },
@@ -960,7 +961,7 @@ pub fn parse_expert_text(text: &str) -> Vec<Block> {
             let list: Vec<String> = bytes.iter().map(|b| format!("${:02X}", b.unwrap_or(0))).collect();
             let mut kind = make_byte(&list.join(","));
             if bytes.iter().any(|b| b.is_none()) {
-                kind = Kind::Byte { raw: String::new(), base: Base::Hex, error: Some(format!("character not in encoding {encoding}")) };
+                kind = Kind::Byte { raw: String::new(), base: Base::Hex, error: Some(Msg::keyed("kickTextBadChar", format!("character not in encoding {encoding}")).p("encoding", &encoding)) };
             }
             push(&mut blocks, kind);
             continue;
@@ -1133,14 +1134,14 @@ pub fn parse_expert_text(text: &str) -> Vec<Block> {
             continue;
         }
         if let Some(c) = regex!(r"^!([A-Za-z_][A-Za-z0-9_]*)").captures(line) {
-            push(&mut blocks, Kind::Comment { text: line.to_string(), error: Some(format!("!{} is an ACME directive", &c[1])) });
+            push(&mut blocks, Kind::Comment { text: line.to_string(), error: Some(Msg::keyed("vmaAcmeDirective", format!("!{} is an ACME directive", &c[1])).p("directive", format!("!{}", &c[1]))) });
             continue;
         }
         let delegated = parse_asm_line(line, comment, n);
         let unknown_dir = regex!(r"^\.([A-Za-z_][A-Za-z0-9_]*)").captures(line);
         if let Some(d) = unknown_dir {
             if delegated.len() == 1 && matches!(delegated[0].kind, Kind::Comment { .. }) {
-                push(&mut blocks, Kind::Comment { text: line.to_string(), error: Some(format!("Unknown directive: .{}", &d[1])) });
+                push(&mut blocks, Kind::Comment { text: line.to_string(), error: Some(Msg::keyed("unknownDirective", format!("Unknown directive: .{}", &d[1])).p("directive", format!(".{}", &d[1]))) });
                 continue;
             }
         }

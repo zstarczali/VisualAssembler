@@ -4368,6 +4368,30 @@
   "error": null
  },
  {
+  "id": "snip-org-in-macro-body",
+  "caseId": "snip-org-in-macro-body",
+  "kind": "text",
+  "file": null,
+  "baseDir": "",
+  "basicStub": true,
+  "ok": true,
+  "size": 10242,
+  "sha256": "0fbb4b38993e332c59bb235d03fb082501699ba8e894544d8e79c6531500a57f",
+  "error": null
+ },
+ {
+  "id": "snip-org-in-macro-body@nostub",
+  "caseId": "snip-org-in-macro-body",
+  "kind": "text",
+  "file": null,
+  "baseDir": "",
+  "basicStub": false,
+  "ok": true,
+  "size": 8195,
+  "sha256": "52f94f37a754c9abe3ec215f965b2b89426c888bbde9b4cd510f7400202cfcb2",
+  "error": null
+ },
+ {
   "id": "var-joystick-var",
   "caseId": "var-joystick-var",
   "kind": "text",

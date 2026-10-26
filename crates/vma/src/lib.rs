@@ -9,12 +9,14 @@ pub mod debug;
 pub mod expr;
 pub mod files;
 pub mod level;
+pub mod msg;
 pub mod num;
 pub mod opcodes;
 pub mod parse;
 pub mod prg;
 
 pub use asm::CompileError;
+pub use msg::Msg;
 pub use files::{DirFiles, FileProvider, NoFiles};
 pub use prg::Built;
 
@@ -57,14 +59,26 @@ pub struct BuildResult {
     /// the symbols in the files' order
     pub symbols: Vec<(String, i64)>,
     pub debug: debug::DebugFiles,
+    /// the memory panel's view (`getMemoryUsage`); None when that layout fails
+    pub memory: Option<asm::MemoryInfo>,
 }
 
 impl BuildResult {
     /// The app's answer (`vma_build` with a source path): `prg`, `sysAddress`, `debugOrigin`,
     /// `sidecars` {sym, vs, dbg}, `symbols` [[name, address]] and `lines` [[address, size,
-    /// skipped 0/1, line of the source or -1 for an included block]].
+    /// skipped 0/1, line of the source or -1 for an included block]], `segments` [[address, bytes]]
+    /// (what the program writes), `entry` (where it starts, behind a relocating loader too) and `memory` {code: [start, end] | null, regions: [[start, end]],
+    /// deferred: [{type, address, end, sourceAddress, label}]}.
     pub fn to_json(&self) -> serde_json::Value {
         let lines: Vec<[i64; 4]> = self.info.lines.iter().map(|l| [l.address, l.size, l.skipped as i64, l.src_line.map_or(-1, |s| s as i64)]).collect();
+        let memory = self.memory.as_ref().map(|m| {
+            let deferred: Vec<serde_json::Value> = m
+                .deferred
+                .iter()
+                .map(|s| serde_json::json!({ "type": s.kind, "address": s.address, "end": s.end, "sourceAddress": s.source, "label": s.label }))
+                .collect();
+            serde_json::json!({ "code": m.code.map(|(s, e)| [s, e]), "regions": m.regions.iter().map(|&(s, e)| [s, e]).collect::<Vec<_>>(), "deferred": deferred })
+        });
         serde_json::json!({
             "ok": true,
             "prg": self.built.prg,
@@ -73,8 +87,23 @@ impl BuildResult {
             "sidecars": { "sym": self.debug.sym, "vs": self.debug.vs, "dbg": self.debug.dbg },
             "symbols": self.symbols,
             "lines": lines,
+            "segments": self.built.segments,
+            "entry": self.built.entry,
+            "memory": memory,
         })
     }
+}
+
+/// The app's error answer: `error` / `line` (1-based) of the first error and `errors`: every
+/// error as {line, message, key, params {name: value}, address | null} — the app shows
+/// `tf(key, params)` in its language, the English `message` without a key.
+pub fn error_json(e: &CompileError) -> serde_json::Value {
+    let one = |e: &CompileError| {
+        let params: serde_json::Map<String, serde_json::Value> = e.params.iter().map(|(k, v)| (k.to_string(), serde_json::Value::from(v.as_str()))).collect();
+        serde_json::json!({ "line": e.line + 1, "message": e.message, "key": e.key, "params": params, "address": e.address })
+    };
+    let errors: Vec<serde_json::Value> = std::iter::once(e).chain(e.more.iter()).map(one).collect();
+    serde_json::json!({ "ok": false, "error": e.message, "line": e.line + 1, "errors": errors })
 }
 
 /// `build_with_debug` with the layout. `line_map`: line of `source` → the line the `.dbg` names
@@ -115,7 +144,8 @@ pub fn build_result(source: &str, options: &BuildOptions, files: &dyn FileProvid
         }
     };
     let symbols = debug::sorted_symbols(&info);
-    Ok(BuildResult { built, origin, info, symbols, debug })
+    let memory = asm::Assembler::new(&program).memory_info(&program, prg::origin_of(&program)).ok();
+    Ok(BuildResult { built, origin, info, symbols, debug, memory })
 }
 
 /// VMA source → PRG and its start address (what the app's Run / Build use).
@@ -138,6 +168,23 @@ mod tests {
         assert_eq!(r.symbols, vec![("start".to_string(), 0x1000)]);
         let code: Vec<(i64, i64, Option<usize>)> = r.info.lines.iter().filter(|l| l.size > 0).map(|l| (l.address, l.size, l.src_line)).collect();
         assert_eq!(code, vec![(0x1000, 2, Some(2)), (0x1002, 1, Some(3))]);
+    }
+
+    #[test]
+    fn segments_entry_and_memory_view() {
+        let src = "* = $1000\n    lda #$01\n    .rawbytes $2000, $AA, $BB\n    .text 1, 2, \"HI\"\n* = $1100\n    rts\n";
+        let r = build_result(src, &BuildOptions { basic_stub: false }, &NoFiles, "a.asm", None).unwrap();
+        assert_eq!(r.built.segments, vec![(0x1000, vec![0xA9, 0x01, 0xA9, 0x08, 0x8D, 0x51, 0x04, 0xA9, 0x09, 0x8D, 0x52, 0x04]), (0x1100, vec![0x60]), (0x2000, vec![0xAA, 0xBB])]);
+        assert_eq!(r.built.entry, 0x1000);
+        let m = r.memory.unwrap();
+        assert_eq!(m.code, Some((0x1000, 0x1100)));
+        assert_eq!(m.regions, vec![(0x1000, 0x100B), (0x1100, 0x1100)]);
+        let d: Vec<(&str, i64, i64, &str)> = m.deferred.iter().map(|s| (s.kind, s.address, s.end, s.label.as_str())).collect();
+        assert_eq!(d, vec![("text", 0x451, 0x452, "TEXT \"HI\" -> screen (1, 2)"), ("rawbytes", 0x2000, 0x2001, "RAWBYTES $AA, $BB -> $2000")]);
+        // behind a relocating loader the SYS line starts the loader, the entry is the program's own
+        let low = build_result("; Entry point: $0400\n* = $0400\n    rts\n",&BuildOptions { basic_stub: true }, &NoFiles, "a.asm", None).unwrap();
+        assert_eq!(low.built.sys_address, Some(0x080D));
+        assert_eq!((low.built.entry, low.built.segments.clone()), (0x0400, vec![(0x0400, vec![0x60])]));
     }
 
     #[test]

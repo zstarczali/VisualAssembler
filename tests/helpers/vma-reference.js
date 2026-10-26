@@ -83,11 +83,22 @@ function createReference() {
       const r = _buildAutostartPrgCore();
       // opts.debugSource: the debugger files too, the main source named so in the .dbg
       const debug = r.ok && __opts.debugSource ? _buildDebuggerSidecarPayload(r, { force: true, sourcePath: __opts.debugSource }) : null;
+      // opts.memory: what the memory panel reads (getMemoryUsage), as vma_build's \`memory\`
+      let memory = null;
+      if (r.ok && __opts.memory) {
+        const layout = getProgramLayout();
+        memory = {
+          code: program.length && layout.start <= layout.end ? [layout.start, layout.end] : null,
+          regions: _memoryCodeRegions(layout).map(g => [g.address, g.end]),
+          deferred: getDeferredMemorySections(layout).map(s => ({ type: s.type, address: s.address, end: s.end, sourceAddress: s.sourceAddress, label: s.label }))
+        };
+      }
       return {
         ok: !!r.ok,
         error: r.ok ? "" : String(r.error || (r.errors || []).map(e => e.message || e).join("; ") || "error"),
         bytes: r.ok && r.bytes ? Array.from(r.bytes) : null,
-        debug
+        debug,
+        memory
       };
     })()`);
   }

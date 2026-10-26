@@ -4,6 +4,7 @@
 use crate::expr::{char_literal_to_hex, eval_asm, has_star_pc_ref, js_and, substitute_star_pc, IdentRule};
 use crate::num::{is_hex, is_ident, js_parse_int, parse_address_value, parse_number_by_base, to_uint8};
 use crate::opcodes::OPCODES;
+pub use crate::msg::Msg;
 use crate::parse::{Base, Block, Kind, MemOp, Mode};
 use regex::Regex;
 use std::collections::HashMap;
@@ -79,7 +80,7 @@ struct Meta {
     /// `_isMacroInvokeHeader`
     header: bool,
     /// `_ifError` / the validation error of a `.var`
-    error: Option<String>,
+    error: Option<Msg>,
     /// `_varAddress`
     var_address: Option<i64>,
     /// `_autoBufferLabel`: a macro's deferred-address parameter given no address of its own
@@ -129,15 +130,73 @@ pub struct Assembler {
     anon: Vec<i64>,
 }
 
+/// A deferred memory section of `getDeferredMemorySections` (`type`, `address`, `end`,
+/// `sourceAddress`, `label`).
+#[derive(Clone, Debug)]
+pub struct Section {
+    pub kind: &'static str,
+    pub address: i64,
+    pub end: i64,
+    pub source: i64,
+    pub label: String,
+}
+
+/// The memory panel's view of the program (see `Assembler::memory_info`).
+#[derive(Clone, Debug)]
+pub struct MemoryInfo {
+    /// the layout's range, when the program is not empty and lays out at least one byte
+    pub code: Option<(i64, i64)>,
+    /// the contiguous code regions (start, end)
+    pub regions: Vec<(i64, i64)>,
+    pub deferred: Vec<Section>,
+}
+
+/// `formatAddress`
+pub(crate) fn format_address(v: i64) -> String {
+    let hex = if v < 0 { format!("-{:X}", -v) } else { format!("{v:X}") };
+    format!("${hex:0>4}")
+}
+
 #[derive(Debug)]
 pub struct CompileError {
+    /// 0-based line of the source
     pub line: usize,
     pub message: String,
+    pub key: &'static str,
+    pub params: Vec<(&'static str, String)>,
+    /// the address of the laid-out line that does not compile
+    pub address: Option<i64>,
+    /// the further lines that do not compile (the JS reports every one)
+    pub more: Vec<CompileError>,
+}
+
+impl CompileError {
+    pub fn new(line: usize, msg: impl Into<Msg>) -> CompileError {
+        let Msg { key, params, text } = msg.into();
+        CompileError { line, message: text, key, params, address: None, more: Vec::new() }
+    }
+
+    /// The first error, the others in its `more`.
+    pub fn collect(mut errors: Vec<CompileError>) -> CompileError {
+        let mut first = errors.remove(0);
+        first.more = errors;
+        first
+    }
 }
 
 pub struct Image {
     pub load: i64,
     pub bytes: Vec<u8>,
+    /// the merged ranges (start, end) the code sections and the deferred chunks write; the gaps
+    /// between them are the zero filler of `bytes`
+    pub written: Vec<(i64, i64)>,
+}
+
+impl Image {
+    /// The written ranges with their bytes (what a hot reload writes into a running machine).
+    pub fn segments(&self) -> Vec<(i64, Vec<u8>)> {
+        self.written.iter().map(|&(s, e)| (s, self.bytes[(s - self.load) as usize..=(e - self.load) as usize].to_vec())).collect()
+    }
 }
 
 impl Assembler {
@@ -284,16 +343,16 @@ impl Assembler {
     }
 
     /// The MOUSE macro: 1351 delta decoding, its branches resolved inside the routine.
-    fn mouse_bytes(&self, port: &str, num: &str, zpx: &str, zpy: &str, address: i64) -> Result<Vec<u8>, String> {
+    fn mouse_bytes(&self, port: &str, num: &str, zpx: &str, zpy: &str, address: i64) -> Result<Vec<u8>, Msg> {
         let p = self.numeric_value(if port.is_empty() { "2" } else { port }, Some(&self.labels), Base::Dec);
         let select = match p {
             Some(v) if v == 1.0 => 0x40,
             Some(v) if v == 2.0 => 0x80,
-            _ => return Err("MOUSE: the port must be 1 or 2".into()),
+            _ => return Err(Msg::keyed("compileMousePortRange", "MOUSE: the port must be 1 or 2")),
         };
         let n = self.numeric_value(if num.is_empty() { "0" } else { num }, Some(&self.labels), Base::Dec).unwrap_or(0.0);
         if n.is_nan() || !(0.0..=7.0).contains(&n) {
-            return Err("MOUSE: the sprite number must be 0-7".into());
+            return Err(Msg::keyed("compileMouseSpriteRange", "MOUSE: the sprite number must be 0-7"));
         }
         let zp = |v: &str, d: &str| {
             let v = if v.is_empty() { d } else { v };
@@ -301,10 +360,10 @@ impl Assembler {
         };
         let (zx, zy) = (zp(zpx, "FD"), zp(zpy, "FE"));
         if zx.is_nan() || !(0.0..=255.0).contains(&zx) {
-            return Err("MOUSE: the X zero page address must be a byte".into());
+            return Err(Msg::keyed("compileMouseZpXByte", "MOUSE: the X zero page address must be a byte"));
         }
         if zy.is_nan() || !(0.0..=255.0).contains(&zy) {
-            return Err("MOUSE: the Y zero page address must be a byte".into());
+            return Err(Msg::keyed("compileMouseZpYByte", "MOUSE: the Y zero page address must be a byte"));
         }
         let (zx, zy, n) = (zx as u8, zy as u8, n as i64);
         let (xa, ya, msb) = (0xD000 + n * 2, 0xD001 + n * 2, 1u8 << n);
@@ -361,27 +420,66 @@ impl Assembler {
     /// `appendDelayHelperLabel`: after the layout end and every `getDeferredMemorySections` section.
     fn delay_helper_address(&self, lines: &[Line], origin: i64) -> i64 {
         let end = lines.last().map(|l| l.address + l.size - 1).unwrap_or(origin - 1);
-        let mut high = end;
+        self.deferred_sections(lines).iter().fold(end, |high, s| high.max(s.end)) + 1
+    }
+
+    /// `getDeferredMemorySections`: what the TEXT / STRING / DATA stores and the RAWBYTES / RAWTEXT /
+    /// PETSCII / INCBIN chunks occupy, sorted by address (`self.labels` = the layout's labels).
+    fn deferred_sections(&self, lines: &[Line]) -> Vec<Section> {
+        let quoted = |kind: &str, raw: &str, to: String| format!("{kind} \"{raw}\" -> {to}");
+        let mut sections: Vec<Section> = Vec::new();
         for line in lines {
-            let (start, len) = match &line.block.kind {
+            let (kind, start, len, label) = match &line.block.kind {
                 Kind::Text { x, y, raw, .. } => {
                     let v = |s: &str| self.value_with_const(s, Base::Dec).filter(|v| !v.is_nan() && *v != 0.0).unwrap_or(0.0);
-                    (0x0400 as f64 + v(y) * 40.0 + v(x), encode_text(raw, false).len())
+                    let start = (0x0400 as f64 + v(y) * 40.0 + v(x)) as i64;
+                    ("text", start, encode_text(raw, false).len(), quoted("TEXT", raw, format!("screen ({x}, {y})")))
                 }
                 Kind::Mem { op, addr, raw, .. } => {
-                    let len = match op {
-                        MemOp::String | MemOp::RawText => encode_text(raw, false).len(),
-                        MemOp::Petscii => encode_petscii(raw, false).len(),
-                        MemOp::Data | MemOp::RawBytes => self.byte_values(raw, Base::Hex, None).len(),
+                    let start = Self::address_value(addr, Some(&self.labels)).unwrap_or(0xC000 as f64) as i64;
+                    let (kind, len, label) = match op {
+                        MemOp::String => ("string", encode_text(raw, false).len(), quoted("STRING", raw, format_address(start))),
+                        MemOp::RawText => ("rawtext", encode_text(raw, false).len(), quoted("RAWTEXT", raw, format_address(start))),
+                        MemOp::Petscii => ("petscii", encode_petscii(raw, false).len(), quoted("PETSCII", raw, format_address(start))),
+                        MemOp::Data => ("data", self.byte_values(raw, Base::Hex, None).len(), format!("DATA {raw} -> {}", format_address(start))),
+                        MemOp::RawBytes => ("rawbytes", self.byte_values(raw, Base::Hex, None).len(), format!("RAWBYTES {raw} -> {}", format_address(start))),
                     };
-                    (Self::address_value(addr, Some(&self.labels)).unwrap_or(0xC000 as f64), len)
+                    (kind, start, len, label)
                 }
-                Kind::IncBin { addr, .. } => (parse_address_value(addr).unwrap_or(0xC000 as f64), incbin_payload(&line.block.kind).len()),
+                Kind::IncBin { file, addr, .. } => {
+                    let start = parse_address_value(addr).unwrap_or(0xC000 as f64) as i64;
+                    ("incbin", start, incbin_payload(&line.block.kind).len(), quoted("INCBIN", file, format_address(start)))
+                }
                 _ => continue,
             };
-            high = high.max(start as i64 + len as i64 - 1);
+            sections.push(Section { kind, address: start, end: start + len as i64 - 1, source: line.address, label });
         }
-        high + 1
+        sections.sort_by_key(|s| s.address);
+        sections
+    }
+
+    /// What `getMemoryUsage` reads of `getProgramLayout()` (the first ORG, no origin override): the
+    /// layout's range, the contiguous code regions of `detectMemoryOverlaps` and the deferred sections.
+    pub fn memory_info(&mut self, program: &[Block], origin: i64) -> Result<MemoryInfo, CompileError> {
+        let lines = self.layout(program, origin, false)?;
+        for line in &lines {
+            self.add_labels(line);
+        }
+        let end = lines.last().map(|l| l.address + l.size - 1).unwrap_or(origin - 1);
+        let mut regions: Vec<(i64, i64)> = Vec::new();
+        for line in &lines {
+            let raw_chunk = matches!(line.block.kind, Kind::Mem { op: MemOp::RawBytes | MemOp::RawText, .. });
+            if line.skipped || line.meta.header || raw_chunk || line.size == 0 || matches!(line.block.kind, Kind::SaveAddress | Kind::RestoreAddress) {
+                continue;
+            }
+            let block_end = line.address + line.size - 1;
+            match regions.last_mut() {
+                Some(r) if line.address <= r.1 + 1 => r.1 = r.1.max(block_end),
+                _ => regions.push((line.address, block_end)),
+            }
+        }
+        let code = (!program.is_empty() && origin <= end).then_some((origin, end));
+        Ok(MemoryInfo { code, regions, deferred: self.deferred_sections(&lines) })
     }
 
     /// `parseAddressValue(raw, labels)`: a label only by its exact name
@@ -899,7 +997,7 @@ impl Assembler {
                 Kind::If { condition } => {
                     let active = self.if_active(condition);
                     if active.is_none() {
-                        meta.error = Some(format!("IF condition cannot be evaluated: {}", condition.trim()));
+                        meta.error = Some(Msg::keyed("ifConditionNotResolvable", format!("IF condition cannot be evaluated: {}", condition.trim())).p("condition", condition.trim()));
                     }
                     cond.push((active == Some(true), false));
                 }
@@ -925,7 +1023,7 @@ impl Assembler {
         for (i, (block, meta)) in expanded.into_iter().enumerate() {
             let mut size = if meta.header { 0 } else { self.size(&block) };
             if size == i64::MIN {
-                return Err(CompileError { line: block.line, message: "FILL: the count cannot be resolved while laying out".into() });
+                return Err(CompileError::new(block.line, "FILL: the count cannot be resolved while laying out"));
             }
             if skipped[i] {
                 lines.push(Line { block, address: cursor, size: 0, skipped: true, meta });
@@ -1189,41 +1287,49 @@ impl Assembler {
     }
 
     /// `_branchOffsetFromTarget`
-    fn branch_offset(target: f64, address: i64, mnem: &str) -> Result<u8, String> {
+    fn branch_offset(target: f64, address: i64, mnem: &str, label: &str) -> Result<u8, Msg> {
         let offset = target - (address + 2) as f64;
         if !(-128.0..=127.0).contains(&offset) {
-            return Err(format!("{mnem}: branch target out of range ({offset})"));
+            let (over, dir) = if offset < -128.0 { (-128.0 - offset, "-") } else { (offset - 127.0, "+") };
+            let is_branch = mnem.len() == 3 && mnem.starts_with('B') && mnem.chars().all(|c| c.is_ascii_uppercase());
+            let sugg = if is_branch { format!("L{mnem}") } else { "a long branch".to_string() };
+            let label = if label.is_empty() { format_address(target as i64) } else { label.to_string() };
+            return Err(Msg::keyed("branchOutOfRangeSuggest", format!("{mnem}: branch target out of range ({offset})"))
+                .p("mnemonic", mnem)
+                .p("label", label)
+                .p("over", format!("{dir}{over}"))
+                .p("sugg", sugg));
         }
         Ok(js_and(offset, 0xFF) as u8)
     }
 
     /// `resolveRelativeOperand`
-    fn relative(&self, raw: &str, base: Base, address: i64, mnem: &str) -> Result<u8, String> {
+    fn relative(&self, raw: &str, base: Base, address: i64, mnem: &str) -> Result<u8, Msg> {
         let raw = raw.trim();
         if raw == "*" {
             return Ok(0xFE);
         }
-        let invalid = || format!("{mnem}: the branch operand cannot be resolved");
+        let invalid = || Msg::keyed("branchOperandInvalid", format!("{mnem}: the branch operand cannot be resolved")).p("mnemonic", mnem);
         if has_star_pc_ref(raw) {
             let t = self.eval_asm_expr(&substitute_star_pc(raw, address), Some(&self.labels)).ok_or_else(invalid)?;
-            return Self::branch_offset(js_and(t, 0xFFFF) as f64, address, mnem);
+            return Self::branch_offset(js_and(t, 0xFFFF) as f64, address, mnem, raw);
         }
         if let Some(v) = self.labels.get(raw) {
-            return Self::branch_offset(v, address, mnem);
+            return Self::branch_offset(v, address, mnem, raw);
         }
         match parse_number_by_base(raw.strip_prefix('$').unwrap_or(raw), base) {
             None => {
                 let t = self.eval_asm_expr(raw, Some(&self.labels)).ok_or_else(invalid)?;
-                Self::branch_offset(js_and(t, 0xFFFF) as f64, address, mnem)
+                Self::branch_offset(js_and(t, 0xFFFF) as f64, address, mnem, raw)
             }
             Some(p) if (-128.0..=127.0).contains(&p) => Ok(js_and(p, 0xFF) as u8),
-            Some(p) => Self::branch_offset(p, address, mnem),
+            Some(p) => Self::branch_offset(p, address, mnem, raw),
         }
     }
 
     /// `resolveNumericOperand`
-    fn numeric_operand(&self, raw: &str, base: Base, mnem: &str) -> Result<f64, String> {
-        let err = || format!("{mnem}: the operand cannot be resolved to an address or value");
+    fn numeric_operand(&self, raw: &str, base: Base, mnem: &str) -> Result<f64, Msg> {
+        let err = || Msg::keyed("operandNotResolvable", format!("{mnem}: the operand cannot be resolved to an address or value")).p("mnemonic", mnem);
         let labels = &self.labels;
         if let Some(v) = labels.get(raw) {
             return Ok(v);
@@ -1270,7 +1376,7 @@ impl Assembler {
     }
 
     /// `compileLineBytes` (the ported blocks)
-    fn compile_line(&self, line: &Line) -> Result<Vec<u8>, String> {
+    fn compile_line(&self, line: &Line) -> Result<Vec<u8>, Msg> {
         if line.skipped {
             return Ok(Vec::new());
         }
@@ -1280,8 +1386,10 @@ impl Assembler {
         }
         if let Kind::Invoke { name, .. } = &line.block.kind {
             return Err(match &line.meta.from_macro {
-                Some(outer) if self.macros.contains_key(name) => format!("calling macro {name} inside macro {outer} is not supported: macros expand one level deep"),
-                _ => format!("unknown macro: {name}"),
+                Some(outer) if self.macros.contains_key(name) => {
+                    Msg::keyed("compileNestedMacro", format!("calling macro {name} inside macro {outer} is not supported: macros expand one level deep")).p("name", name).p("outer", outer)
+                }
+                _ => Msg::keyed("compileUnknownMacro", format!("unknown macro: {name}")).p("name", name),
             });
         }
         if line.meta.from_macro_def && regex!(r"\{[A-Za-z_][A-Za-z0-9_]*\}").is_match(raw_operand(&line.block.kind)) {
@@ -1292,11 +1400,11 @@ impl Assembler {
         match &line.block.kind {
             Kind::Blank | Kind::Comment { error: None, .. } | Kind::Label { .. } | Kind::AnonLabel | Kind::KickScopeEnd => Ok(Vec::new()),
             Kind::Comment { error: Some(e), .. } => Err(e.clone()),
-            Kind::Unsupported { what } => Err(format!("{what} is not supported by the Rust VMA compiler yet")),
+            Kind::Unsupported { what } => Err(Msg::from(format!("{what} is not supported by the Rust VMA compiler yet"))),
             Kind::If { .. } | Kind::Var { .. } if line.meta.error.is_some() => Err(line.meta.error.clone().unwrap()),
             Kind::Loop { reg, count, .. } => match parse_number_by_base(count.trim(), Base::Hex) {
                 Some(n) if (0.0..=255.0).contains(&n) => Ok(vec![reg_x(*reg, 0xA2, 0xA0), n as u8]),
-                _ => Err("LOOP: invalid count".into()),
+                _ => Err(Msg::keyed("invalidOperand", "LOOP: invalid count").p("_prefix", "LOOP")),
             },
             Kind::For { reg, count, .. } => {
                 let n = js_parse_int(count.trim(), 16);
@@ -1307,27 +1415,27 @@ impl Assembler {
             }
             Kind::Next { label, reg } => {
                 if label.is_empty() {
-                    return Err("NEXT: no matching LOOP".into());
+                    return Err(Msg::keyed("compileNextMissingLoop", "NEXT: no matching LOOP"));
                 }
-                let target = self.labels.get(label).ok_or_else(|| format!("NEXT: unknown label {label}"))?;
+                let target = self.labels.get(label).ok_or_else(|| Msg::from(format!("NEXT: unknown label {label}")))?;
                 let offset = target - (address + 3) as f64;
                 if !(-128.0..=127.0).contains(&offset) {
-                    return Err(format!("NEXT: the loop is too long for BNE (offset {offset})"));
+                    return Err(Msg::from(format!("NEXT: the loop is too long for BNE (offset {offset})")));
                 }
                 Ok(vec![reg_x(*reg, 0xCA, 0x88), 0xD0, js_and(offset, 0xFF) as u8])
             }
             Kind::Endf { label, reg, count } => {
                 if label.is_empty() {
-                    return Err("ENDF: no matching FOR".into());
+                    return Err(Msg::keyed("compileEndfMissingFor", "ENDF: no matching FOR"));
                 }
                 let n = js_parse_int(count.trim(), 16);
                 if n.is_nan() || !(0.0..=255.0).contains(&n) {
                     return Err("ENDF: invalid limit".into());
                 }
-                let target = self.labels.get(label).ok_or_else(|| format!("ENDF: unknown label {label}"))?;
+                let target = self.labels.get(label).ok_or_else(|| Msg::from(format!("ENDF: unknown label {label}")))?;
                 let offset = target - (address + 5) as f64;
                 if !(-128.0..=127.0).contains(&offset) {
-                    return Err(format!("ENDF: the loop is too long for BNE (offset {offset})"));
+                    return Err(Msg::from(format!("ENDF: the loop is too long for BNE (offset {offset})")));
                 }
                 Ok(vec![reg_x(*reg, 0xE8, 0xC8), reg_x(*reg, 0xE0, 0xC0), n as u8, 0xD0, js_and(offset, 0xFF) as u8])
             }
@@ -1338,7 +1446,7 @@ impl Assembler {
                         'A' => out.push(0x48),
                         'X' => out.extend([0x8A, 0x48]),
                         'Y' => out.extend([0x98, 0x48]),
-                        _ => return Err(format!("PUSH: invalid register {r}")),
+                        _ => return Err(Msg::from(format!("PUSH: invalid register {r}"))),
                     }
                 }
                 Ok(out)
@@ -1350,7 +1458,7 @@ impl Assembler {
                         'A' => out.push(0x68),
                         'X' => out.extend([0x68, 0xAA]),
                         'Y' => out.extend([0x68, 0xA8]),
-                        _ => return Err(format!("PULL: invalid register {r}")),
+                        _ => return Err(Msg::from(format!("PULL: invalid register {r}"))),
                     }
                 }
                 Ok(out)
@@ -1377,7 +1485,7 @@ impl Assembler {
             Kind::Print { raw, lower } => {
                 let data = encode_petscii(raw, *lower);
                 if data.len() > 255 {
-                    return Err(format!("PRINT: text too long ({}, max 255)", data.len()));
+                    return Err(Msg::from(format!("PRINT: text too long ({}, max 255)", data.len())));
                 }
                 let data_addr = address + 3;
                 let code = data_addr + data.len() as i64 + 1;
@@ -1390,15 +1498,15 @@ impl Assembler {
                 // null passes as 0 (sprite number, colour), NaN fails
                 let n = self.macro_number(if num.is_empty() { "0" } else { num }, &self.labels, Base::Dec).unwrap_or(0.0);
                 if n.is_nan() || !(0.0..=7.0).contains(&n) {
-                    return Err("SPRITE_INIT: the sprite number must be 0-7".into());
+                    return Err(Msg::keyed("compileSpriteInitSpriteRange", "SPRITE_INIT: the sprite number must be 0-7"));
                 }
                 let col = self.macro_number(if color.is_empty() { "7" } else { color }, &self.labels, Base::Dec).unwrap_or(0.0);
                 if col.is_nan() || !(0.0..=15.0).contains(&col) {
-                    return Err("SPRITE_INIT: the colour must be 0-15".into());
+                    return Err(Msg::keyed("compileSpriteInitColorRange", "SPRITE_INIT: the colour must be 0-15"));
                 }
                 let pg = self.macro_number(if page.is_empty() { "21" } else { page }, &self.labels, Base::Hex).unwrap_or(f64::NAN);
                 if pg.is_nan() || !(0.0..=255.0).contains(&pg) {
-                    return Err("SPRITE_INIT: the data page must be a byte".into());
+                    return Err(Msg::keyed("compileSpriteInitPageByte", "SPRITE_INIT: the data page must be a byte"));
                 }
                 let n = n as i64;
                 let (ptr, col_addr, bit) = (0x07F8 + n, 0xD027 + n, 1u8 << n);
@@ -1411,9 +1519,9 @@ impl Assembler {
             }
             Kind::SpritePos { num, x, y } => {
                 let get = |v: &str, d: &str| self.macro_number(if v.is_empty() { d } else { v }, &self.labels, Base::Dec);
-                let n = get(num, "0").filter(|n| !(*n < 0.0 || *n > 7.0)).ok_or("SPRITE_POS: the sprite number must be 0-7")?;
-                let xv = get(x, "152").filter(|v| !(*v < 0.0 || *v > 319.0)).ok_or("SPRITE_POS: X must be 0-319")?;
-                let yv = get(y, "100").filter(|v| !(*v < 0.0 || *v > 255.0)).ok_or("SPRITE_POS: Y must be 0-255")?;
+                let n = get(num, "0").filter(|n| !(*n < 0.0 || *n > 7.0)).ok_or_else(|| Msg::keyed("compileSpritePosSpriteRange", "SPRITE_POS: the sprite number must be 0-7"))?;
+                let xv = get(x, "152").filter(|v| !(*v < 0.0 || *v > 319.0)).ok_or_else(|| Msg::keyed("compileSpritePosXRange", "SPRITE_POS: X must be 0-319"))?;
+                let yv = get(y, "100").filter(|v| !(*v < 0.0 || *v > 255.0)).ok_or_else(|| Msg::keyed("compileSpritePosYRange", "SPRITE_POS: Y must be 0-255"))?;
                 let n = crate::expr::to_int32(n) as i64;
                 let (xa, ya) = (0xD000 + n * 2, 0xD001 + n * 2);
                 let bit = (1i64 << (n & 31)) as i64;
@@ -1427,27 +1535,27 @@ impl Assembler {
             Kind::SpriteCol { num, bg } => {
                 let n = self.numeric_value(if num.is_empty() { "0" } else { num }, Some(&self.labels), Base::Dec).unwrap_or(0.0);
                 if n.is_nan() || !(0.0..=7.0).contains(&n) {
-                    return Err("SPRITE_COL: the sprite number must be 0-7".into());
+                    return Err(Msg::keyed("spriteColSpriteNumberMustBe07", "SPRITE_COL: the sprite number must be 0-7"));
                 }
                 Ok(vec![0xAD, if *bg { 0x1F } else { 0x1E }, 0xD0, 0x29, 1u8 << (n as u32)])
             }
             Kind::SpriteAnim { num, list, count, zp } => {
                 let n = self.numeric_value(if num.is_empty() { "0" } else { num }, Some(&self.labels), Base::Dec).unwrap_or(0.0);
                 if n.is_nan() || !(0.0..=7.0).contains(&n) {
-                    return Err("SPRITE_ANIM: the sprite number must be 0-7".into());
+                    return Err(Msg::keyed("spriteAnimSpriteNumberMustBe07", "SPRITE_ANIM: the sprite number must be 0-7"));
                 }
                 // null < 1: an unresolved count fails
                 let cnt = self.numeric_value(if count.is_empty() { "4" } else { count }, Some(&self.labels), Base::Dec).unwrap_or(0.0);
                 if cnt.is_nan() || !(1.0..=255.0).contains(&cnt) {
-                    return Err("SPRITE_ANIM: the frame count must be 1-255".into());
+                    return Err(Msg::keyed("spriteAnimFrameCountMustBe1255", "SPRITE_ANIM: the frame count must be 1-255"));
                 }
                 let z = self.numeric_value(if zp.is_empty() { "FB" } else { zp }, Some(&self.labels), Base::Hex).unwrap_or(0.0);
                 if z.is_nan() || !(0.0..=255.0).contains(&z) {
-                    return Err("SPRITE_ANIM: the zero page counter must be $00-$FF".into());
+                    return Err(Msg::keyed("spriteAnimZpCounterMustBe00Ff", "SPRITE_ANIM: the zero page counter must be $00-$FF"));
                 }
                 let l = js_parse_int(if list.is_empty() { "C100" } else { list }, 16);
                 if l.is_nan() || !(0.0..=65535.0).contains(&l) {
-                    return Err("SPRITE_ANIM: invalid frame list address".into());
+                    return Err(Msg::keyed("spriteAnimInvalidFrameListAddress", "SPRITE_ANIM: invalid frame list address"));
                 }
                 let (z, l, ptr) = (to_uint8(z), l as i64, 0x07F8 + n as i64);
                 Ok(vec![0xE6, z, 0xA5, z, 0xC9, to_uint8(cnt), 0x90, 0x04, 0xA9, 0x00, 0x85, z, 0xAA, 0xBD, l as u8, (l >> 8) as u8, 0x8D, ptr as u8, (ptr >> 8) as u8])
@@ -1471,11 +1579,11 @@ impl Assembler {
             Kind::ScoreBcd { addr, digits, points, screen } => {
                 let a = js_parse_int(if addr.is_empty() { "C200" } else { addr }, 16);
                 if a.is_nan() || !(0.0..=65535.0).contains(&a) {
-                    return Err("SCORE_BCD: invalid BCD storage address".into());
+                    return Err(Msg::keyed("scoreBcdInvalidBcdStorageAddress", "SCORE_BCD: invalid BCD storage address"));
                 }
                 let scr = js_parse_int(if screen.is_empty() { "0400" } else { screen }, 16);
                 if scr.is_nan() || !(0.0..=65535.0).contains(&scr) {
-                    return Err("SCORE_BCD: invalid screen address".into());
+                    return Err(Msg::keyed("scoreBcdInvalidScreenAddress", "SCORE_BCD: invalid screen address"));
                 }
                 let pts = js_parse_int(if points.is_empty() { "100" } else { points }, 10);
                 let pts = if pts.is_nan() { 0.0 } else { pts };
@@ -1501,7 +1609,7 @@ impl Assembler {
                 let p = self.numeric_value(if port.is_empty() { "2" } else { port }, Some(&self.labels), Base::Dec);
                 let p = match p {
                     Some(v) if v == 1.0 || v == 2.0 || v == 3.0 => v as u8,
-                    _ => return Err("JOYSTICK: the port must be 1, 2 or 3".into()),
+                    _ => return Err(Msg::keyed("joyPortRange", "JOYSTICK: the port must be 1, 2 or 3")),
                 };
                 let read: Vec<u8> = match p {
                     3 => vec![0xAD, 0x00, 0xDC, 0x2D, 0x01, 0xDC],
@@ -1516,7 +1624,7 @@ impl Assembler {
                 if vx.trim().is_empty() && vy.trim().is_empty() {
                     let n = self.numeric_value(if sprite.is_empty() { "0" } else { sprite }, Some(&self.labels), Base::Dec).unwrap_or(0.0);
                     if n.is_nan() || !(0.0..=7.0).contains(&n) {
-                        return Err("JOYSTICK: the sprite number must be 0-7".into());
+                        return Err(Msg::keyed("compileJoystickSpriteRange", "JOYSTICK: the sprite number must be 0-7"));
                     }
                     let n = n as i64;
                     let mut out = read;
@@ -1529,7 +1637,7 @@ impl Assembler {
                 let (x, y) = (resolve(vx), resolve(vy));
                 let f = if fire.trim().is_empty() { Some(None) } else { resolve(fire).map(Some) };
                 let (Some(x), Some(y), Some(f)) = (x, y, f) else {
-                    return Err("JOYSTICK: the variables cannot be resolved".into());
+                    return Err(Msg::keyed("joyVarsUnresolved", "JOYSTICK: the variables cannot be resolved"));
                 };
                 let mut out = vec![0xA9, 0x00, 0x8D, x as u8, (x >> 8) as u8, 0x8D, y as u8, (y >> 8) as u8];
                 out.extend(read);
@@ -1540,9 +1648,13 @@ impl Assembler {
                 Ok(out)
             }
             Kind::Mouse { port, num, zpx, zpy } => self.mouse_bytes(port, num, zpx, zpy, address),
-            Kind::RtCmp { reg, op, raw, base, target, .. } => {
+            Kind::RtCmp { reg, op, raw, base, target, start } => {
                 let raw = raw.trim();
                 let imm = raw.starts_with('#');
+                // the IF keys or the WHILE / UNTIL ones (`_compileCmpBranch`)
+                let is_if = target.starts_with("_if_");
+                let missing = if is_if { "compileIfMissingEndif" } else if start.is_some() { "compileWhileMissingEndw" } else { "compileUntilMissingRepeat" };
+                let too_far = if is_if { "compileIfBranchTooLarge" } else { "compileLoopBranchTooLarge" };
                 let opcode = match (reg, imm) {
                     ('X', true) => 0xE0,
                     ('X', false) => 0xEC,
@@ -1552,16 +1664,16 @@ impl Assembler {
                     (_, false) => 0xCD,
                 };
                 let v = if imm { parse_number_by_base(raw, *base) } else { Self::address_value(raw, Some(&self.labels)) };
-                let v = v.filter(|v| !v.is_nan()).ok_or_else(|| format!("runtime condition: cannot resolve {raw}"))?;
+                let v = v.filter(|v| !v.is_nan()).ok_or_else(|| Msg::keyed(if is_if { "compileIfCannotResolveOperand" } else { "compileLoopCannotResolveOperand" }, format!("runtime condition: cannot resolve {raw}")).p("operand", raw))?;
                 let mut out = vec![opcode, js_and(v, 0xFF) as u8];
                 if !imm {
                     out.push(((js_and(v, -1) >> 8) & 0xFF) as u8);
                 }
-                let t = self.labels.get(target).ok_or("runtime condition: no matching end")?;
+                let t = self.labels.get(target).ok_or_else(|| Msg::keyed(missing, "runtime condition: no matching end"))?;
                 let from = address + out.len() as i64;
-                let rel = |o: f64| -> Result<u8, String> {
+                let rel = |o: f64| -> Result<u8, Msg> {
                     if !(-128.0..=127.0).contains(&o) {
-                        return Err(format!("runtime condition: branch too far ({o})"));
+                        return Err(Msg::keyed(too_far, format!("runtime condition: branch too far ({o})")).p("offset", o));
                     }
                     Ok(js_and(o, 0xFF) as u8)
                 };
@@ -1580,7 +1692,8 @@ impl Assembler {
                         // `>`: both offsets checked before either is used
                         let (beq, bcc) = (t - (from + 2) as f64, t - (from + 4) as f64);
                         if !(-128.0..=127.0).contains(&beq) || !(-128.0..=127.0).contains(&bcc) {
-                            return Err("runtime condition: branch too far".into());
+                            let o = beq.abs().max(bcc.abs());
+                            return Err(Msg::keyed(too_far, format!("runtime condition: branch too far ({o})")).p("offset", o));
                         }
                         out.extend([0xF0, js_and(beq, 0xFF) as u8, 0x90, js_and(bcc, 0xFF) as u8]);
                     }
@@ -1588,12 +1701,12 @@ impl Assembler {
                 Ok(out)
             }
             Kind::RtElse { end_label, .. } => {
-                let t = self.labels.get(end_label).ok_or("ELSE: no matching ENDIF")?;
+                let t = self.labels.get(end_label).ok_or_else(|| Msg::keyed("compileElseMissingEndif", "ELSE: no matching ENDIF"))?;
                 let t = js_and(t, -1);
                 Ok(vec![0x4C, t as u8, (t >> 8) as u8])
             }
             Kind::RtEndw { start, .. } => {
-                let t = self.labels.get(start).ok_or("ENDW: no matching WHILE")?;
+                let t = self.labels.get(start).ok_or_else(|| Msg::keyed("compileEndwMissingWhile", "ENDW: no matching WHILE"))?;
                 let t = js_and(t, -1);
                 Ok(vec![0x4C, t as u8, (t >> 8) as u8])
             }
@@ -1650,14 +1763,14 @@ impl Assembler {
                 let hex = |v: &str, d: &str| js_parse_int(if v.is_empty() { d } else { v }.trim_start_matches('$'), 16);
                 let (s, d) = (hex(src, "C000"), hex(dst, "0400"));
                 if s.is_nan() || !(0.0..=65535.0).contains(&s) {
-                    return Err("MAP_COPY: invalid source address".into());
+                    return Err(Msg::keyed("mapCopyInvalidSourceAddress", "MAP_COPY: invalid source address"));
                 }
                 if d.is_nan() || !(0.0..=65535.0).contains(&d) {
-                    return Err("MAP_COPY: invalid destination address".into());
+                    return Err(Msg::keyed("mapCopyInvalidDestinationAddress", "MAP_COPY: invalid destination address"));
                 }
                 let n = map_copy_size(size);
                 if !(1..=0x10000).contains(&n) {
-                    return Err("MAP_COPY: the size must be 1-65536".into());
+                    return Err(Msg::keyed("mapCopySizeMustBe165536", "MAP_COPY: the size must be 1-65536"));
                 }
                 let section = |src: i64, dst: i64| {
                     let mut out = vec![0xA2, 0x00];
@@ -1697,13 +1810,13 @@ impl Assembler {
                 let (c, r) = (js_parse_int(col, 10), js_parse_int(row, 10));
                 let bad = |v: f64| v.is_nan() || !(0.0..=65535.0).contains(&v);
                 if bad(s) || bad(cs) {
-                    return Err("MAP_COPY16X16: invalid source address".into());
+                    return Err(Msg::keyed("mapCopyInvalidSourceAddress", "MAP_COPY16X16: invalid source address"));
                 }
                 if bad(scr) || bad(cd) {
-                    return Err("MAP_COPY16X16: invalid destination address".into());
+                    return Err(Msg::keyed("mapCopyInvalidDestinationAddress", "MAP_COPY16X16: invalid destination address"));
                 }
                 if c.is_nan() || !(0.0..=24.0).contains(&c) || r.is_nan() || !(0.0..=9.0).contains(&r) {
-                    return Err("MAP_COPY16X16: the position is out of range".into());
+                    return Err(Msg::keyed("mapCopy16PositionRange", "MAP_COPY16X16: the position is out of range"));
                 }
                 let (s, scr, cs, cd, c, r) = (s as i64, scr as i64, cs as i64, cd as i64, c as i64, r as i64);
                 let mut out = Vec::new();
@@ -1721,16 +1834,16 @@ impl Assembler {
                 let (c, e, l) = (hex(c64, "C000"), hex(reu, "0000"), hex(len, "0100"));
                 let b = self.numeric_value(if bank.is_empty() { "0" } else { bank }, Some(&self.labels), Base::Dec).unwrap_or(0.0);
                 if c.is_nan() || !(0.0..=65535.0).contains(&c) {
-                    return Err("REU: invalid C64 address".into());
+                    return Err(Msg::keyed("compileReuInvalidC64Addr", "REU: invalid C64 address"));
                 }
                 if e.is_nan() || !(0.0..=65535.0).contains(&e) {
-                    return Err("REU: invalid REU address".into());
+                    return Err(Msg::keyed("compileReuInvalidReuAddr", "REU: invalid REU address"));
                 }
                 if b.is_nan() || !(0.0..=7.0).contains(&b) {
-                    return Err("REU: the bank must be 0-7".into());
+                    return Err(Msg::keyed("compileReuBankRange", "REU: the bank must be 0-7"));
                 }
                 if l.is_nan() || !(1.0..=65535.0).contains(&l) {
-                    return Err("REU: the length must be 1-65535".into());
+                    return Err(Msg::keyed("compileReuLengthRange", "REU: the length must be 1-65535"));
                 }
                 let (c, e, l) = (c as i64, e as i64, l as i64);
                 let mut out = Vec::new();
@@ -1740,9 +1853,9 @@ impl Assembler {
                 Ok(out)
             }
             Kind::IrqSetup { handler, raster } => {
-                let h = self.labels.get(handler).ok_or_else(|| format!("IRQ_SETUP: handler not found: {handler}"))?;
+                let h = self.labels.get(handler).ok_or_else(|| Msg::keyed("compileIrqHandlerNotFound", format!("IRQ_SETUP: handler not found: {handler}")).p("label", handler))?;
                 let r = self.macro_number(if raster.is_empty() { "FA" } else { raster }, &self.labels, Base::Hex);
-                let r = r.filter(|r| !(*r < 0.0 || *r > 255.0)).ok_or("IRQ_SETUP: the raster line must be a byte")?;
+                let r = r.filter(|r| !(*r < 0.0 || *r > 255.0)).ok_or_else(|| Msg::keyed("compileIrqRasterRange", "IRQ_SETUP: the raster line must be a byte"))?;
                 let h = js_and(h, -1);
                 Ok(vec![
                     0x78, 0xA9, h as u8, 0x8D, 0x14, 0x03, 0xA9, (h >> 8) as u8, 0x8D, 0x15, 0x03,
@@ -1756,12 +1869,12 @@ impl Assembler {
             Kind::LoadFile { name, device, addr, error_label } => {
                 let file = loadfile_name(name);
                 if file.is_empty() {
-                    return Err("LOADFILE: empty file name".into());
+                    return Err(Msg::keyed("loadfileErrEmptyName", "LOADFILE: empty file name"));
                 }
                 // null < 8: an unresolved device fails
                 let dev = self.numeric_value(if device.is_empty() { "8" } else { device }, Some(&self.labels), Base::Dec).unwrap_or(0.0);
                 if dev.is_nan() || !(8.0..=30.0).contains(&dev) {
-                    return Err("LOADFILE: the device must be 8-30".into());
+                    return Err(Msg::keyed("loadfileErrBadDevice", "LOADFILE: the device must be 8-30"));
                 }
                 let a = addr.trim().trim_start_matches('$');
                 let over = if a.is_empty() {
@@ -1769,7 +1882,7 @@ impl Assembler {
                 } else {
                     let v = js_parse_int(a, 16);
                     if v.is_nan() || !(0.0..=65535.0).contains(&v) {
-                        return Err("LOADFILE: invalid load address".into());
+                        return Err(Msg::keyed("loadfileErrBadAddr", "LOADFILE: invalid load address"));
                     }
                     Some(v as i64)
                 };
@@ -1787,41 +1900,41 @@ impl Assembler {
                 if label.is_empty() {
                     out.extend([0xB0, 0xFE]);
                 } else {
-                    let t = self.labels.get(label).ok_or_else(|| format!("LOADFILE: unknown label {label}"))?;
+                    let t = self.labels.get(label).ok_or_else(|| Msg::keyed("loadfileErrUnknownLabel", format!("LOADFILE: unknown label {label}")).p("_suffix", label))?;
                     let off = t - (address + out.len() as i64 + 2) as f64;
                     if !(-128.0..=127.0).contains(&off) {
-                        return Err(format!("LOADFILE: the error label is too far ({off})"));
+                        return Err(Msg::keyed("loadfileErrLabelTooFar", format!("LOADFILE: the error label is too far ({off})")).p("_suffix", format!("{off}).")));
                     }
                     out.extend([0xB0, js_and(off, 0xFF) as u8]);
                 }
                 Ok(out)
             }
-            Kind::IncBin { error: Some(e), .. } | Kind::Sid { error: Some(e), .. } => Err(e.clone()),
+            Kind::IncBin { error: Some(e), .. } | Kind::Sid { error: Some(e), .. } => Err(e.clone().into()),
             Kind::Sid { .. } => Ok(Vec::new()),
             Kind::SidPlayer { song, raster } => {
-                let init = self.labels.get("SID_INIT").ok_or("SID_PLAYER: no .sid block (SID_INIT)")?;
-                let play = self.labels.get("SID_PLAY").ok_or("SID_PLAYER: the tune has no play address (SID_PLAY)")?;
+                let init = self.labels.get("SID_INIT").ok_or_else(|| Msg::keyed("compileSidPlayerNoSid", "SID_PLAYER: no .sid block (SID_INIT)"))?;
+                let play = self.labels.get("SID_PLAY").ok_or_else(|| Msg::keyed("compileSidPlayerNoPlay", "SID_PLAYER: the tune has no play address (SID_PLAY)"))?;
                 let s = self.macro_number(if song.is_empty() { "0" } else { song }, &self.labels, Base::Dec);
                 let r = self.macro_number(if raster.is_empty() { "FA" } else { raster }, &self.labels, Base::Hex);
-                let s = s.filter(|v| !(*v < 0.0 || *v > 255.0)).ok_or("SID_PLAYER: the song must be 0-255")?;
-                let r = r.filter(|v| !(*v < 0.0 || *v > 255.0)).ok_or("SID_PLAYER: the raster line must be a byte")?;
+                let s = s.filter(|v| !(*v < 0.0 || *v > 255.0)).ok_or_else(|| Msg::keyed("compileSidPlayerSong", "SID_PLAYER: the song must be 0-255"))?;
+                let r = r.filter(|v| !(*v < 0.0 || *v > 255.0)).ok_or_else(|| Msg::keyed("compileIrqRasterRange", "SID_PLAYER: the raster line must be a byte").p("_replace", "SID_PLAYER"))?;
                 Ok(sid_player_bytes(address, js_and(init, -1), js_and(play, -1), js_and(s, 0xFF), js_and(r, 0xFF)))
             }
-            Kind::LevelRow { syntax_ok: false, .. } => Err("LEVEL_ROW: syntax is .level_row dst, col[, color]".into()),
+            Kind::LevelRow { syntax_ok: false, .. } => Err(Msg::keyed("levelRowSyntax", "LEVEL_ROW: syntax is .level_row dst, col[, color]")),
             Kind::LevelRow { raw, .. } => {
-                let (dst, col, color) = crate::level::level_row_parse(raw).ok_or("LEVEL_ROW: syntax is .level_row dst, col[, color]")?;
+                let (dst, col, color) = crate::level::level_row_parse(raw).ok_or_else(|| Msg::keyed("levelRowSyntax", "LEVEL_ROW: syntax is .level_row dst, col[, color]"))?;
                 let mut tab = [0i64; 9];
                 for (i, name) in crate::level::ROW_TABLES.iter().enumerate() {
-                    tab[i] = self.labels.get(name).ok_or("LEVEL_ROW: needs a .level block")? as i64;
+                    tab[i] = self.labels.get(name).ok_or_else(|| Msg::keyed("levelRowNeedsLevel", "LEVEL_ROW: needs a .level block"))? as i64;
                 }
                 let eval = |e: &str| {
-                    self.eval_asm_expr(&substitute_star_pc(e, address), Some(&self.labels)).filter(|v| !v.is_nan()).map(|v| js_and(v, 0xFFFF)).ok_or_else(|| format!("{e}: cannot be evaluated"))
+                    self.eval_asm_expr(&substitute_star_pc(e, address), Some(&self.labels)).filter(|v| !v.is_nan()).map(|v| js_and(v, 0xFFFF)).ok_or_else(|| Msg::keyed("assertUnresolved", format!("{e}: cannot be evaluated")).p("expr", e))
                 };
                 let (d, c) = (eval(&dst)?, eval(&col)?);
                 Ok(crate::level::level_row_bytes(address, d, c, color, &tab))
             }
             Kind::IncBin { level: true, addr, bytes, .. } => match crate::level::level_build(bytes, parse_address_value(addr).unwrap_or(0x2000 as f64) as i64) {
-                Err(e) => Err(e),
+                Err(e) => Err(e.into()),
                 Ok(_) => Ok(Vec::new()),
             },
             Kind::IncBin { koala: false, .. } => Ok(Vec::new()),
@@ -1831,13 +1944,13 @@ impl Assembler {
                     return Err("KOALA: the address must be $2000 or $6000".into());
                 }
                 if !bytes.is_empty() && bytes.len() != 10001 && bytes.len() != 10003 {
-                    return Err(format!("KOALA: a Koala file is 10001 or 10003 bytes, not {}", bytes.len()));
+                    return Err(Msg::from(format!("KOALA: a Koala file is 10001 or 10003 bytes, not {}", bytes.len())));
                 }
                 Ok(koala_show_bytes(a))
             }
             Kind::Delay { frames } => {
                 let n = self.delay_frames(if frames.is_empty() { "1" } else { frames }).ok_or("DELAY: value must be 1-255 or a defined const")?;
-                let h = self.labels.get(DELAY_HELPER_LABEL).ok_or("DELAY: the helper routine has no address")? as i64;
+                let h = self.labels.get(DELAY_HELPER_LABEL).ok_or_else(|| Msg::keyed("compileDelayHelperUnavailable", "DELAY: the helper routine has no address"))? as i64;
                 Ok(vec![0xA2, js_and(n, 0xFF) as u8, 0x20, h as u8, (h >> 8) as u8])
             }
             Kind::CharDef { base, index, raw } => {
@@ -1848,18 +1961,18 @@ impl Assembler {
                 }
                 let target = b + idx * 8.0;
                 if !(0.0..=(0xFFFF - 7) as f64).contains(&target) {
-                    return Err(format!("CHARDEF target address out of range: ${:x}", target as i64));
+                    return Err(Msg::from(format!("CHARDEF target address out of range: ${:x}", target as i64)));
                 }
                 let parts: Vec<&str> = raw.split(',').map(|p| p.trim()).filter(|p| !p.is_empty()).collect();
                 if parts.len() != 8 {
-                    return Err(format!("CHARDEF needs exactly 8 bytes, got {}", parts.len()));
+                    return Err(Msg::from(format!("CHARDEF needs exactly 8 bytes, got {}", parts.len())));
                 }
                 let mut out = Vec::new();
                 for (i, part) in parts.iter().enumerate() {
                     // null (unresolved) passes as 0, NaN fails
                     let v = self.macro_number(part, &self.labels, Base::Hex).unwrap_or(0.0);
                     if v.is_nan() || !(0.0..=255.0).contains(&v) {
-                        return Err(format!("CHARDEF byte {} invalid: {}", i + 1, part));
+                        return Err(Msg::from(format!("CHARDEF byte {} invalid: {}", i + 1, part)));
                     }
                     let a = target as i64 + i as i64;
                     out.extend([0xA9, js_and(v, 0xFF) as u8, 0x8D, a as u8, (a >> 8) as u8]);
@@ -1871,20 +1984,20 @@ impl Assembler {
                 let v = self.macro_number(if value.is_empty() { "0" } else { value }, &self.labels, Base::Hex);
                 match v {
                     Some(v) if !(v < 0.0 || v > 15.0) => Ok(vec![0xA9, js_and(v, 0xFF) as u8, 0x8D, if *border { 0x20 } else { 0x21 }, 0xD0]),
-                    _ => Err(format!("{mnem}: color must be 0-15")),
+                    _ => Err(Msg::from(format!("{mnem}: color must be 0-15"))),
                 }
             }
             Kind::WaitRaster { line: rl } => {
                 let v = self.macro_number(if rl.is_empty() { "FF" } else { rl }, &self.labels, Base::Hex).unwrap_or(f64::NAN);
                 if v.is_nan() || !(0.0..=255.0).contains(&v) {
-                    return Err("WAIT_RASTER: the raster line must be a byte".into());
+                    return Err(Msg::keyed("compileWaitRasterByte", "WAIT_RASTER: the raster line must be a byte"));
                 }
                 Ok(vec![0xAD, 0x12, 0xD0, 0xC9, to_uint8(v), 0xD0, 0xF9])
             }
             Kind::TurboSet { speed, badline } => {
                 let spd = self.macro_number(if speed.is_empty() { "7" } else { speed }, &self.labels, Base::Dec).unwrap_or(0.0);
                 if spd.is_nan() || !(0.0..=15.0).contains(&spd) {
-                    return Err("TURBO_SET: the speed must be 0-15".into());
+                    return Err(Msg::keyed("turboSetSpeedMustBe015", "TURBO_SET: the speed must be 0-15"));
                 }
                 let bad = if self.macro_number(if badline.is_empty() { "0" } else { badline }, &self.labels, Base::Dec) == Some(1.0) { 0x80 } else { 0 };
                 Ok(vec![0xA9, (js_and(spd, 0x0F) as u8) | bad, 0x8D, 0x31, 0xD0])
@@ -1892,14 +2005,14 @@ impl Assembler {
             Kind::ExoDecrunch { depacker } => {
                 let a = js_parse_int(depacker.strip_prefix('$').unwrap_or(depacker), 16);
                 if a.is_nan() || !(0.0..=65535.0).contains(&a) {
-                    return Err("EXODECRUNCH: invalid depacker address".into());
+                    return Err(Msg::keyed("exoDecrunchErrBadDepacker", "EXODECRUNCH: invalid depacker address"));
                 }
                 let a = a as u16;
                 Ok(vec![0xA5, 0xAE, 0x85, 0x04, 0xA5, 0xAF, 0x85, 0x05, 0xA9, 0x36, 0x85, 0x01, 0x20, a as u8, (a >> 8) as u8, 0xA9, 0x37, 0x85, 0x01])
             }
             Kind::PrintChar { raw } => match self.petscii_char_value(raw) {
                 Some(v) if (0.0..=255.0).contains(&v) => Ok(vec![0xA9, js_and(v, 0xFF) as u8, 0x20, 0xD2, 0xFF]),
-                _ => Err(format!("PRINT_CHAR: cannot resolve value \"{raw}\"")),
+                _ => Err(Msg::from(format!("PRINT_CHAR: cannot resolve value \"{raw}\""))),
             },
             Kind::PrintHex { reg } => {
                 let mut out = match reg {
@@ -1935,11 +2048,11 @@ impl Assembler {
             }
             Kind::Fill { raw, base } => {
                 let vars = [("i", address as f64), ("I", address as f64)];
-                let (count, value, count_expr, value_expr) = self.fill_parse(raw, *base, Some(&self.labels), &vars).ok_or("FILL: invalid parameters")?;
+                let (count, value, count_expr, value_expr) = self.fill_parse(raw, *base, Some(&self.labels), &vars).ok_or_else(|| Msg::keyed("invalidOperand", "FILL: invalid parameters").p("_prefix", "FILL"))?;
                 let count = if count.is_finite() { Some(count) } else { self.eval_folded(&count_expr, Some(&self.labels), &vars) };
                 let count = match count {
                     Some(c) if (0.0..=65536.0).contains(&c) => crate::expr::to_int32(c).max(0),
-                    _ => return Err("FILL: invalid parameters".into()),
+                    _ => return Err(Msg::keyed("invalidOperand", "FILL: invalid parameters").p("_prefix", "FILL")),
                 };
                 let uses_i = regex!(r"\bi\b|\bI\b").is_match(&value_expr);
                 let mut out = Vec::with_capacity(count as usize);
@@ -1951,7 +2064,7 @@ impl Assembler {
                     };
                     match v {
                         Some(v) if !v.is_nan() => out.push(js_and(v, 0xFF) as u8),
-                        _ => return Err("FILL: invalid parameters".into()),
+                        _ => return Err(Msg::keyed("invalidOperand", "FILL: invalid parameters").p("_prefix", "FILL")),
                     }
                 }
                 Ok(out)
@@ -1960,7 +2073,7 @@ impl Assembler {
                 let boundary = parse_number_by_base(raw.strip_prefix('$').unwrap_or(raw), *base);
                 match boundary {
                     Some(b) if b >= 1.0 => Ok(vec![0; line.size.max(0) as usize]),
-                    _ => Err("ALIGN: invalid boundary".into()),
+                    _ => Err(Msg::keyed("invalidOperand", "ALIGN: invalid boundary").p("_prefix", "ALIGN")),
                 }
             }
             Kind::LongBranch { mnem, cond, raw } => {
@@ -1982,25 +2095,29 @@ impl Assembler {
                 } else {
                     parse_number_by_base(raw.strip_prefix('$').unwrap_or(raw), Base::Hex).or_else(|| self.eval_asm_expr(raw, Some(&self.labels)))
                 };
-                let t = target.filter(|t| !t.is_nan()).ok_or_else(|| format!("{mnem}: the branch operand cannot be resolved"))?;
+                let t = target.filter(|t| !t.is_nan()).ok_or_else(|| Msg::keyed("branchOperandInvalid", format!("{mnem}: the branch operand cannot be resolved")).p("mnemonic", mnem))?;
                 let t = js_and(t, 0xFFFF);
                 Ok(vec![inv, 0x03, 0x4C, (t & 0xFF) as u8, (t >> 8) as u8])
             }
             Kind::Assert { expr, message } => {
                 let v = self.eval_asm_expr(&substitute_star_pc(expr.trim(), address), Some(&self.labels));
                 match v {
-                    None => Err(format!(".assert {expr}: cannot be evaluated")),
-                    Some(v) if v == 0.0 || v.is_nan() => Err(format!(".assert {expr} failed (value {v}) {message}")),
+                    None => Err(Msg::keyed("assertUnresolved", format!(".assert {expr}: cannot be evaluated")).p("expr", expr)),
+                    Some(v) if v == 0.0 || v.is_nan() => {
+                        let shown = if message.is_empty() { String::new() } else { format!(" {message}") };
+                        let value = if v.is_nan() { "NaN".to_string() } else { v.to_string() };
+                        Err(Msg::keyed("assertFailed", format!(".assert {expr} failed (value {value}){shown}")).p("expr", expr).p("value", value).p("message", shown))
+                    }
                     Some(_) => Ok(Vec::new()),
                 }
             }
             Kind::Instr { mnem, mode, raw, base, .. } => {
                 let known = OPCODES.iter().any(|(m, _, _)| m == mnem);
                 if known && Self::operand_error(*mode, raw, *base) {
-                    return Err(format!("{mnem}: invalid operand"));
+                    return Err(Msg::keyed("compileInvalidOperand", format!("{mnem}: invalid operand")).p("mnemonic", mnem));
                 }
                 let opcode = OPCODES.iter().find(|(m, md, _)| m == mnem && md == mode).map(|(_, _, c)| *c);
-                let opcode = opcode.ok_or_else(|| format!("{mnem} {mode:?} has no opcode"))?;
+                let opcode = opcode.ok_or_else(|| Msg::keyed("compileUnsupportedAddressing", format!("{mnem} {mode:?} has no opcode")).p("mnemonic", mnem))?;
                 let mut bytes = vec![opcode];
                 if *mode == Mode::Implied {
                     return Ok(bytes);
@@ -2015,7 +2132,7 @@ impl Assembler {
                 let trimmed = raw.trim();
                 if *mode == Mode::Relative {
                     let (r, b) = if trimmed == "-" || trimmed == "+" {
-                        let a = anon(trimmed).ok_or("anonymous label not found")?;
+                        let a = anon(trimmed).ok_or_else(|| Msg::keyed("anonymousLabelNotFound", "anonymous label not found").p("label", trimmed))?;
                         (format!("{:04X}", a), Base::Hex)
                     } else {
                         (raw.clone(), *base)
@@ -2026,7 +2143,7 @@ impl Assembler {
                 let (r, b) = if trimmed == "*" {
                     (format!("{:04X}", address & 0xFFFF), Base::Hex)
                 } else if trimmed == "-" || trimmed == "+" {
-                    let a = anon(trimmed).ok_or("anonymous label not found")?;
+                    let a = anon(trimmed).ok_or_else(|| Msg::keyed("anonymousLabelNotFound", "anonymous label not found").p("label", trimmed))?;
                     (format!("{:04X}", a), Base::Hex)
                 } else if has_star_pc_ref(raw) {
                     (substitute_star_pc(raw, address), *base)
@@ -2049,24 +2166,33 @@ impl Assembler {
         // a directive that is not ported yet can define what the rest refers to: report it first
         if let Some(b) = program.iter().find(|b| matches!(b.kind, Kind::Unsupported { .. })) {
             if let Kind::Unsupported { what } = &b.kind {
-                return Err(CompileError { line: b.line, message: format!("{what} is not supported by the Rust VMA compiler yet") });
+                return Err(CompileError::new(b.line, format!("{what} is not supported by the Rust VMA compiler yet")));
             }
         }
+        // as the JS: every unknown directive and file macro without a file, then every line that
+        // does not compile
+        let mut errors: Vec<CompileError> = Vec::new();
         for b in program {
-            match &b.kind {
-                Kind::Comment { error: Some(e), .. } => return Err(CompileError { line: b.line, message: e.clone() }),
-                Kind::Include { file, .. } if file.trim().is_empty() => {
-                    return Err(CompileError { line: b.line, message: "INCLUDE: no file given".into() });
-                }
-                Kind::Sid { file, .. } if file.trim().is_empty() => {
-                    return Err(CompileError { line: b.line, message: "SID: no file given".into() });
-                }
+            let msg = match &b.kind {
+                Kind::Comment { error: Some(e), .. } => e.clone(),
+                Kind::Include { file, .. } if file.trim().is_empty() => Msg::keyed("includeMacroNeedsFile", "INCLUDE: no file given"),
+                Kind::Sid { file, .. } if file.trim().is_empty() => Msg::keyed("sidMacroNeedsFile", "SID: no file given"),
                 Kind::IncBin { file, koala, level, .. } if file.trim().is_empty() => {
-                    let what = if *koala { "KOALA" } else if *level { "LEVEL" } else { "INCBIN" };
-                    return Err(CompileError { line: b.line, message: format!("{what}: no file given") });
+                    let (what, key) = if *koala {
+                        ("KOALA", "koalaMacroNeedsFile")
+                    } else if *level {
+                        ("LEVEL", "levelMacroNeedsFile")
+                    } else {
+                        ("INCBIN", "incbinMacroNeedsFile")
+                    };
+                    Msg::keyed(key, format!("{what}: no file given"))
                 }
-                _ => {}
-            }
+                _ => continue,
+            };
+            errors.push(CompileError::new(b.line, msg));
+        }
+        if !errors.is_empty() {
+            return Err(CompileError::collect(errors));
         }
         let lines = self.layout(program, origin, override_origin)?;
         for line in &lines {
@@ -2094,8 +2220,17 @@ impl Assembler {
                 Kind::Include { .. } | Kind::SaveAddress => continue,
                 _ => {}
             }
-            let bytes = self.compile_line(line).map_err(|message| CompileError { line: line.block.line, message })?;
-            sections.last_mut().unwrap().1.extend(bytes);
+            match self.compile_line(line) {
+                Ok(bytes) => sections.last_mut().unwrap().1.extend(bytes),
+                Err(msg) => {
+                    let mut e = CompileError::new(line.block.line, msg);
+                    e.address = Some(line.address);
+                    errors.push(e);
+                }
+            }
+        }
+        if !errors.is_empty() {
+            return Err(CompileError::collect(errors));
         }
         let mut deferred: Vec<(i64, Vec<u8>)> = Vec::new();
         for line in &lines {
@@ -2140,18 +2275,27 @@ impl Assembler {
         }
         let chunks: Vec<&(i64, Vec<u8>)> = sections.iter().filter(|s| !s.1.is_empty()).chain(deferred.iter()).collect();
         if chunks.is_empty() {
-            return Ok(Image { load: origin, bytes: Vec::new() });
+            return Ok(Image { load: origin, bytes: Vec::new(), written: Vec::new() });
         }
         let min = chunks.iter().map(|c| c.0).min().unwrap();
         let max = chunks.iter().map(|c| c.0 + c.1.len() as i64 - 1).max().unwrap();
         let mut buf = vec![0u8; (max - min + 1) as usize];
-        for (addr, bytes) in chunks {
+        for (addr, bytes) in &chunks {
             let off = (addr - min) as usize;
             if off + bytes.len() <= buf.len() {
                 buf[off..off + bytes.len()].copy_from_slice(bytes);
             }
         }
-        Ok(Image { load: min, bytes: buf })
+        let mut ranges: Vec<(i64, i64)> = chunks.iter().map(|c| (c.0, c.0 + c.1.len() as i64 - 1)).collect();
+        ranges.sort();
+        let mut written: Vec<(i64, i64)> = Vec::new();
+        for (start, end) in ranges {
+            match written.last_mut() {
+                Some(w) if start <= w.1 + 1 => w.1 = w.1.max(end),
+                _ => written.push((start, end)),
+            }
+        }
+        Ok(Image { load: min, bytes: buf, written })
     }
 }
 

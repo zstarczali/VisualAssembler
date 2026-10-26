@@ -4834,6 +4834,12 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
   tab-size: 4;
 }
 
+/* ACME: the last build's output while the source has changed (_acmeRenderPanel) */
+.expert-disasm-output.is-stale,
+.expert-monitor-output.is-stale {
+  opacity: 0.55;
+}
+
 /* A long disassembly in chunks (_setDisasmLines): off-screen chunks are not laid out */
 .dsm-chunk {
   content-visibility: auto;

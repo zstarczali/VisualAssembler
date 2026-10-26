@@ -4589,7 +4589,7 @@ impl vma::FileProvider for AppFiles<'_> {
 fn vma_build(app: AppHandle, source: String, base_dir: Option<String>, basic_stub: Option<bool>, source_path: Option<String>, line_map: Option<Vec<i64>>) -> serde_json::Value {
     let options = vma::BuildOptions { basic_stub: basic_stub.unwrap_or(true) };
     let files = AppFiles { app: &app, base_dir };
-    let error = |e: vma::CompileError| serde_json::json!({ "ok": false, "error": e.message, "line": e.line + 1 });
+    let error = |e: vma::CompileError| vma::error_json(&e);
     let Some(source_path) = source_path else {
         return match vma::build_full(&source, &options, &files) {
             Ok(built) => serde_json::json!({ "ok": true, "prg": built.prg, "sysAddress": built.sys_address }),

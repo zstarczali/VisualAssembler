@@ -48,7 +48,7 @@ test("rust engine: the command's PRG and SYS address, its error as a compile err
   app.electronAPI.vmaBuild = async () => ({ ok: false, error: "LDA: invalid operand", line: 3 });
   const bad = await app.run("_vaBuildPrg()");
   assert.equal(bad.ok, false);
-  assert.match(bad.errors[0].text, /^\[R003\] LDA: invalid operand/);
+  assert.match(bad.errors[0].text, /^\[R003\] .* — LDA: invalid operand$/);
 });
 
 test("shadow engine: the JS result is used, a difference is logged", async () => {
@@ -109,4 +109,80 @@ test("rust engine: source path, line map and the debugger files of the answer", 
   assert.deepEqual(targets.symbols, [{ name: "start", address: 0x1000 }]);
   assert.deepEqual(targets.breakpoints, [0x1002]);              // the block marked isBreakpoint
   assert.deepEqual(targets.expertBreakpoints, [0x1000, 0x1002, 0x1005]);
+});
+
+// What a Rust build writes and the memory panel's view of it (the real CLI's --json answer):
+// the VICE Monitor hot reload writes the segments and restarts at the entry, shadow mode compares
+// the memory view with the JS layout's.
+test("rust build: hot reload segments and the shadow memory check", { skip: !findRustCli() && "no Rust VMA CLI" }, async () => {
+  const cli = findRustCli();
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "vma-engine-"));
+  const src = "* = $1000\n    lda #$01\n    .rawbytes $2000, $AA, $BB\n    .text 1, 2, \"HI\"\n* = $1100\n    rts\n";
+  let tamper = null;
+  try {
+    const app = appWith(async (source, baseDir, basicStub, sourcePath) => {
+      const input = path.join(tmp, "in.asm");
+      fs.writeFileSync(input, source);
+      const json = path.join(tmp, "out.json");
+      const run = require("node:child_process").spawnSync(cli, ["build", input, "-o", path.join(tmp, "out.prg"), "--json", json,
+        "--source-path", sourcePath || input, ...(basicStub ? [] : ["--no-basic-stub"])], { encoding: "utf8" });
+      if (run.status !== 0) return { ok: false, error: run.stderr };
+      const r = JSON.parse(fs.readFileSync(json, "utf8"));
+      if (tamper) tamper(r);
+      return r;
+    }, "rust");
+    app.__src = src;
+    app.run("program = parseExpertText(__src)");
+    app.document.getElementById("basic-sys-toggle").checked = true;
+    const plain = (v) => JSON.parse(JSON.stringify(v));
+    const built = plain(await app.run("_vmBuildSegments()"));
+    assert.deepEqual(built.segments.map(s => s.address), [0x1000, 0x1100, 0x2000]);
+    assert.deepEqual(built.segments[2].bytes, [0xAA, 0xBB]);
+    assert.equal(built.sys, 0x1000);
+
+    app.__r = await app.run("_vaBuildPrg()");
+    const ranges = (expr) => plain(app.run(`${expr}.mergedOccupied.map(r => [r.start, r.end])`));
+    assert.deepEqual(ranges("_vmaMemoryUsage(__r.vma.memory)"), ranges("getMemoryUsage()"));
+
+    app.localStorage.setItem("c64va-vma-engine", "shadow");
+    await app.run("_vaBuildPrg()");
+    assert.equal(app.run("_vaErrorLog.filter(l => l.includes('vma-shadow')).length"), 0);
+    tamper = (r) => { r.memory.deferred[0].end += 4; };
+    await app.run("_vaBuildPrg()");
+    const log = app.run("_vaErrorLog.filter(l => l.includes('vma-shadow'))");
+    assert.equal(log.length, 1);
+    assert.match(log[0], /memory: JS/);
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+});
+
+// Rust errors in the app's language: every line that does not compile, tf(key, params) of the key
+// vma_build names, the address and the source line ([Rnnn] in the editor's own text).
+test("rust engine: every compile error, translated", { skip: !findRustCli() && "no Rust VMA CLI" }, async () => {
+  const cli = findRustCli();
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "vma-engine-"));
+  try {
+    const app = appWith(async (source, baseDir, basicStub) => {
+      const input = path.join(tmp, "in.asm");
+      fs.writeFileSync(input, source);
+      const json = path.join(tmp, "out.json");
+      require("node:child_process").spawnSync(cli, ["build", input, "-o", path.join(tmp, "out.prg"), "--json", json,
+        ...(basicStub ? [] : ["--no-basic-stub"])], { encoding: "utf8" });
+      return JSON.parse(fs.readFileSync(json, "utf8"));
+    }, "rust");
+    app.__src = "* = $1000\n    .sprite_pos 9, 10, 10\n    nop\n    .sprite_col 9, sprite\n";
+    app.run("expertMode = true; currentLanguage = 'hu'");
+    app.run("_expertGetSourceText = () => __src; _expertGetStartupSource = () => null; _expertGetStartupProgram = () => null");
+    const r = await app.run("_vaBuildPrg()");
+    assert.equal(r.ok, false);
+    const texts = r.errors.map(e => e.text);
+    assert.equal(texts.length, 2);
+    const hu = app.run("translations.hu");
+    assert.equal(texts[0], `[R002] $1000  .sprite_pos 9, 10, 10 — ${hu.compileSpritePosSpriteRange}`);
+    assert.equal(texts[1], `[R004] $1013  .sprite_col 9, sprite — ${hu.spriteColSpriteNumberMustBe07}`);
+    assert.deepEqual(r.errors.map(e => e.sourceLine), [1, 3]);
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
 });

@@ -124,8 +124,14 @@ fn main() -> ExitCode {
     // files: the base dir (default: the input's folder), then the search folders in order
     let base = base_dir.or_else(|| input.parent().map(PathBuf::from));
     let files = vma::DirFiles { bases: base.into_iter().chain(search).collect() };
+    // every error on its own line; with --json the app's error answer too
     let fail = |e: vma::CompileError| {
-        eprintln!("{}:{}: {}", input.display(), e.line + 1, e.message);
+        for err in std::iter::once(&e).chain(e.more.iter()) {
+            eprintln!("{}:{}: {}", input.display(), err.line + 1, err.message);
+        }
+        if let Some(p) = &json {
+            let _ = write(p, vma::error_json(&e).to_string().as_bytes());
+        }
         ExitCode::from(1)
     };
     let line_map: Option<Vec<i64>> = match &line_map {

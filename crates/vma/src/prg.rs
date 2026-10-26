@@ -9,8 +9,17 @@ use std::sync::OnceLock;
 const DEFAULT_ORIGIN: i64 = 0x0801;
 
 /// `parseOriginValue`: the first ORG (outside macro definitions), else $0801.
-fn origin_of(program: &[Block]) -> i64 {
+pub(crate) fn origin_of(program: &[Block]) -> i64 {
+    let mut in_macro = false;
     for b in program {
+        match &b.kind {
+            Kind::MacroDefStart { .. } => in_macro = true,
+            Kind::MacroDefEnd => in_macro = false,
+            _ => {}
+        }
+        if in_macro {
+            continue;
+        }
         if let Kind::Org { address } = &b.kind {
             if let Some(a) = parse_address_value(address) {
                 if (0.0..=65535.0).contains(&a) {
@@ -189,6 +198,11 @@ fn relocating_loader(image: &[u8], load: i64, entry: i64) -> Option<Vec<u8>> {
 pub struct Built {
     pub prg: Vec<u8>,
     pub sys_address: Option<i64>,
+    /// the ranges the program writes (its own addresses, without the BASIC SYS line) and their bytes
+    pub segments: Vec<(i64, Vec<u8>)>,
+    /// where the program itself starts (the SYS address, behind a relocating loader too; without a
+    /// SYS line the first written address)
+    pub entry: i64,
 }
 
 /// `_buildAutostartPrgCore` (`basic_stub` = the BASIC SYS toggle of the app).
@@ -217,11 +231,11 @@ pub fn build_prg_full(program: &[Block], basic_stub: bool) -> Result<Built, Comp
     let origin = origin_of(program);
     let prg = |origin: i64, overridden: bool| -> Result<Image, CompileError> { Assembler::new(program).assemble(program, origin, overridden) };
     if let Some(sys) = embedded_sys_address(program) {
-        return prg(origin, true).map(|i| Built { prg: prg_of(&i), sys_address: Some(sys) });
+        return prg(origin, true).map(|i| Built { prg: prg_of(&i), sys_address: Some(sys), segments: i.segments(), entry: sys });
     }
     if !basic_stub {
         let target = if origin == 0x0801 { 0xC000 } else { origin };
-        return prg(target, true).map(|i| Built { prg: prg_of(&i), sys_address: None });
+        return prg(target, true).map(|i| Built { prg: prg_of(&i), sys_address: None, segments: i.segments(), entry: i.load });
     }
     let has_lower_org = program.iter().any(|b| matches!(&b.kind, Kind::Org { address } if parse_address_value(address).unwrap_or(65535.0) < 2049.0));
     let raw_origin = if origin == 0x0801 && !has_lower_org { 0x080D } else { origin };
@@ -233,9 +247,9 @@ pub fn build_prg_full(program: &[Block], basic_stub: bool) -> Result<Built, Comp
     let stub = basic_sys_stub(sys);
     let stub_data = &stub[2..];
     if load < 0x0801 + stub_data.len() as i64 {
-        return relocating_loader(&image.bytes, load, sys).map(|prg| Built { prg, sys_address: Some(0x080D) }).ok_or(CompileError {
-            line: 0,
-            message: format!("the image at ${:04X} overlaps the BASIC SYS line", load),
+        return relocating_loader(&image.bytes, load, sys).map(|prg| Built { prg, sys_address: Some(0x080D), segments: image.segments(), entry: sys }).ok_or_else(|| {
+            let msg = crate::Msg::keyed("autostartImageOverlapsStub", format!("the image at ${:04X} overlaps the BASIC SYS line", load));
+            CompileError::new(0, msg.p("address", crate::asm::format_address(load)))
         });
     }
     let gap = (load - 0x0801 - stub_data.len() as i64) as usize;
@@ -243,5 +257,5 @@ pub fn build_prg_full(program: &[Block], basic_stub: bool) -> Result<Built, Comp
     out.extend(stub_data);
     out.extend(std::iter::repeat(0).take(gap));
     out.extend(&image.bytes);
-    Ok(Built { prg: out, sys_address: Some(sys) })
+    Ok(Built { prg: out, sys_address: Some(sys), segments: image.segments(), entry: sys })
 }
