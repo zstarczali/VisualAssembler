@@ -550,6 +550,12 @@ fn get_ultimate_basic_version() -> &'static str {
     env!("ULTIMATE_BASIC_VERSION")
 }
 
+/// The version of the VMA compiler crate (from Cargo.lock, build.rs).
+#[tauri::command]
+fn get_vma_version() -> &'static str {
+    env!("VMA_VERSION")
+}
+
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct SidPreviewPayload {
@@ -5710,6 +5716,7 @@ pub fn run() {
             vice_mon_sample,
             vice_mon_cancel,
             get_ultimate_basic_version,
+            get_vma_version,
             render_sid_preview,
             release_sid_preview,
             render_sid_file,

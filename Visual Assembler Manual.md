@@ -2284,7 +2284,7 @@ Like **DIM at a specific address** — names a lookup table and sets where it li
 
 **Expert syntax:**
 ```
-.table color_table, $C000
+.table color_table $C000
 ```
 
 **Generated ASM:**
@@ -2679,7 +2679,7 @@ A `DEFINE` block can activate multiple symbols at once (comma-separated). Place 
 
 | Field | Description |
 |---|---|
-| Condition | Identifier to test (must match a `DEFINE` symbol to be active) |
+| Condition | A `.define`d symbol (active), a `.const` name (active when not zero) or a constant expression (`LEVEL == 2`); one that cannot be evaluated is an error |
 
 **Expert syntax:**
 ```

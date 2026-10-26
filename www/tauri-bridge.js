@@ -12,6 +12,7 @@
   window.electronAPI = {
     getAppVersion: () => invoke("get_app_version"),
     getUltimateBasicVersion: () => invoke("get_ultimate_basic_version"),
+    getVmaVersion: () => invoke("get_vma_version"),
     renderSidPreview: (payload) => invoke("render_sid_preview", { payload }),
     releaseSidPreview: (sessionId) => invoke("release_sid_preview", { sessionId }),
     renderSidFile: (payload) => invoke("render_sid_file", { payload }),

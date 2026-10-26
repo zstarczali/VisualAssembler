@@ -1343,6 +1343,9 @@ function initPalette() {
     const ubVersion = await window.electronAPI?.getUltimateBasicVersion?.();
     const ubVersionValue = document.getElementById("about-ub-version-value");
     if (ubVersionValue) ubVersionValue.textContent = ubVersion ? `v${ubVersion}` : "v?";
+    const vmaVersion = await window.electronAPI?.getVmaVersion?.();
+    const vmaVersionValue = document.getElementById("about-vma-version-value");
+    if (vmaVersionValue) vmaVersionValue.textContent = vmaVersion ? `v${vmaVersion}` : "v?";
     const dlg = document.getElementById("about-dialog");
     dlg?.querySelectorAll("a[href^='mailto:'], a[href^='http://'], a[href^='https://']").forEach(a => {
       if (a.dataset.externalBound) return;
@@ -1820,10 +1823,6 @@ function initPalette() {
   // Build info dialog close
   document.getElementById("build-info-close")?.addEventListener("click", () => {
     document.getElementById("build-info-dialog")?.close();
-  });
-  document.getElementById("build-info-dialog")?.addEventListener("click", (e) => {
-    if (e.target === document.getElementById("build-info-dialog"))
-      document.getElementById("build-info-dialog").close();
   });
 
   expertProjectBtn?.addEventListener("click", () => {
@@ -3409,6 +3408,7 @@ function applyTranslations() {
     setText("#about-sid-credit-license", t("aboutSidCreditLicense"));
     setText("#about-repo-label", t("aboutRepoLabel"));
     setText("#about-ub-version-label", t("aboutUbVersionLabel"));
+    setText("#about-vma-version-label", t("aboutVmaVersionLabel"));
   document.getElementById("undo-action")?.setAttribute("aria-label", t("undoAction"));
   document.getElementById("redo-action")?.setAttribute("aria-label", t("redoAction"));
   if (helpManualButton) helpManualButton.textContent = t("helpManual");
@@ -10644,6 +10644,9 @@ async function showBuildInfoDialog() {
     `<tr class="build-info-row"><th class="build-info-row-key">${key}</th><td class="build-info-row-val">${val}</td><td class="build-info-row-note">${extra}</td></tr>`;
   const makeMessageRow = (message, isError = false) =>
     `<tr class="build-info-row${isError ? " build-info-err" : ""}"><td class="build-info-row-val build-info-row-message" colspan="3">${message}</td></tr>`;
+  // the source the build compiles, on top of every view
+  const sourcePath = await _buildInfoSourcePath();
+  const pathHtml = `<div class="build-info-path"><span class="build-info-path-key">${t("buildInfoFile")}</span><code class="build-info-path-val">${_escHtml(sourcePath || t("buildInfoUnsaved"))}</code></div>`;
   const makeSection = (label, rows) => {
     if (!rows.length) return "";
     return `
@@ -10661,7 +10664,7 @@ async function showBuildInfoDialog() {
     const result = _ubLastResult;
     const map = result?.map;
     if (!map) {
-      buildInfoContent.innerHTML = makeMessageRow(t("ubBuildInfoBuildFirst"));
+      buildInfoContent.innerHTML = pathHtml + makeMessageRow(t("ubBuildInfoBuildFirst"));
       buildInfoDialog.showModal();
       return;
     }
@@ -10672,7 +10675,7 @@ async function showBuildInfoDialog() {
       makeRow(t("buildInfoSize"), `${map.codeSize || 0} bytes`),
       makeRow(t("ubBuildInfoPrgSize"), `${(result.outputPrg || result.prg || []).length} bytes`, result.outputPrg ? "Exomizer" : "")
     ];
-    let html = makeSection(t("ubBuildInfoSummary"), rows);
+    let html = pathHtml + makeSection(t("ubBuildInfoSummary"), rows);
     const errors = result.errors || (result.error ? [result.error] : []);
     if (!result.ok && errors.length) html += makeSection(t("buildInfoErrors"), errors.map(error => makeMessageRow(_ubEsc(error), true)));
     if (map.variables?.length) html += makeSection(t("ubBuildInfoVariables"), map.variables.map(item => makeRow(_ubEsc(item.name), fmtAddr(item.address), _ubEsc(item.type || ""))));
@@ -10702,7 +10705,42 @@ async function showBuildInfoDialog() {
         <ul class="build-info-list${isError ? " build-info-list--err" : ""}">${lines.map(l => `<li>${_escHtml(l)}</li>`).join("")}</ul>
       </section>`;
   if (kick && !kick.ok) {
-    buildInfoContent.innerHTML = makeList(t("buildInfoErrors"), kick.errors.map(e => e.text), true);
+    buildInfoContent.innerHTML = pathHtml + makeList(t("buildInfoErrors"), kick.errors.map(e => e.text), true);
+    buildInfoDialog.showModal();
+    return;
+  }
+
+  // ACME: the real ACME build (not the VMA compiler): its bytes, report and label dump.
+  if (assemblerSyntax === "acme" && expertMode) {
+    const fmtAddr = a => "$" + (a & 0xFFFF).toString(16).toUpperCase().padStart(4, "0");
+    let prg;
+    try { prg = await _buildAcmePrg(true, { preview: true }); } catch (e) { prg = { ok: false, error: String(e?.message || e) }; }
+    let html = pathHtml;
+    const memory = prg?.ok ? _acmePrgMemory(prg.bytes) : null;
+    if (!prg?.ok || !memory) {
+      const lines = prg?.errors?.length ? prg.errors.map(e => e.text) : [prg?.error || t("acmeBuildFirst")];
+      html += makeList(t("buildInfoErrors"), lines, true);
+    } else {
+      const rows = _acmeReportRows(prg.report, prg.sourceLineOffset ?? null);
+      const ranges = rows.length
+        ? _acmeOccupiedRanges(rows, memory)
+        : (_acmePreviewSegments(prg, true)?.segments || []).map(seg => ({ start: seg.origin, end: seg.origin + seg.payload.length - 1 }));
+      const used = ranges.filter(r => r.end >= r.start);
+      const size = used.reduce((n, r) => n + r.end - r.start + 1, 0);
+      html += makeStats([
+        [t("buildInfoOrigin"), fmtAddr(used[0]?.start ?? memory.origin)],
+        [t("buildInfoEnd"), fmtAddr(used.length ? used[used.length - 1].end : memory.origin)],
+        [t("buildInfoSize"), size + " bytes"],
+        [t("buildInfoSegments"), used.length]
+      ]);
+      if (used.length > 1) html += makeGrid(t("buildInfoSegments"), used.map(r => [`${fmtAddr(r.start)}–${fmtAddr(r.end)}`, `${r.end - r.start + 1} bytes`]));
+      const labels = [..._acmeParseLabels(prg.labels).entries()]
+        .sort((a, b) => a[0] - b[0])
+        .flatMap(([address, names]) => names.map(name => [name, fmtAddr(address)]));
+      html += makeGrid(t("buildInfoLabels"), labels);
+      if (!labels.length) html += makeMessageRow(t("buildInfoNoErrors"));
+    }
+    buildInfoContent.innerHTML = html;
     buildInfoDialog.showModal();
     return;
   }
@@ -10829,8 +10867,26 @@ async function showBuildInfoDialog() {
     userMacros = savedUserMacros;
   }
 
-  buildInfoContent.innerHTML = infoHtml;
+  buildInfoContent.innerHTML = pathHtml + infoHtml;
   buildInfoDialog.showModal();
+}
+
+// The file the Build info describes: the UB source, the Kick project's startup file, the project's
+// startup file, or the active tab's file ("" for an unsaved tab).
+async function _buildInfoSourcePath() {
+  const tab = tabs.find(tb => tb.id === activeTabId);
+  if (ultimateBasicMode) {
+    const startup = _ubStartupTabId !== null ? tabs.find(tb => tb.id === _ubStartupTabId) : null;
+    return startup?.ubFilePath || startup?.filePath || _ubFilePath || tab?.filePath || "";
+  }
+  if (_kickProjectActive()) return _kickNormPath(_projResolveAbsPath(_expertProjectData.startupFile));
+  if (expertMode) {
+    const startup = _expertGetStartupSource();
+    if (startup?.path) return startup.path;
+  }
+  const startupFile = _expertProjectData?.startupFile;
+  if (startupFile && _expertGetStartupProgram()) return _projResolveAbsPath(startupFile);
+  return tab?.filePath || (expertMode && typeof _expertAsmFilePath === "string" ? _expertAsmFilePath : "") || "";
 }
 
 // ACME syntax: !directives, +macro calls, labels without a colon in column 0,
@@ -19706,10 +19762,24 @@ function _getCurrentProjectSnapshotPayload(tab = _getActiveTab()) {
     const ubText = tab.id === activeTabId && ubEditor ? ubEditor.value : (tab.ubText || "");
     return { version: 1, app: "c64-visual-assembler", kind: "ub", ubText };
   }
+  // a source file (.asm / .s / .inc …): its text, as the file holds it — not the VA JSON payload
+  if (_isSourceFilePath(tab.filePath)) {
+    return { version: 1, app: "c64-visual-assembler", kind: "source", sourceText: _vcSourceTabText(tab) };
+  }
   if (tab.id === activeTabId) {
     return getProjectPayload();
   }
   return _buildSnapshotPayloadFromTab(tab);
+}
+
+// The text a source-file tab saves (_saveSourceTab): the Expert editor's, else the blocks as Expert lines.
+function _vcSourceTabText(tab) {
+  if (tab.id === activeTabId) {
+    if (expertMode) return _expertGetSourceText();
+    return program.map(_blockToExpertSourceLine).join("\n") + "\n";
+  }
+  if (tab.editorMode === "expert" || (tab.expertText && !tab.program?.length)) return tab.expertText || "";
+  return (tab.program || []).map(_blockToExpertSourceLine).join("\n") + "\n";
 }
 
 function _clearProjectSnapshotTimer(tabId) {
@@ -19782,6 +19852,7 @@ function _vcProgramText(payload) {
 function _vcPayloadText(payload) {
   if (!payload) return "";
   if (typeof payload.ubText === "string") return payload.ubText;
+  if (typeof payload.sourceText === "string") return payload.sourceText;
   if (typeof payload.expertText === "string" && payload.expertText.trim()) return payload.expertText;
   return _vcProgramText(payload);
 }
@@ -19790,6 +19861,10 @@ function _vcPayloadText(payload) {
 function _vcComparable(oldPayload, newPayload) {
   if (typeof oldPayload?.ubText === "string" || typeof newPayload?.ubText === "string") {
     return [oldPayload?.ubText || "", newPayload?.ubText || ""];
+  }
+  // a source-file snapshot against an older (JSON) one of the same file: both as source text
+  if (typeof oldPayload?.sourceText === "string" || typeof newPayload?.sourceText === "string") {
+    return [_vcPayloadText(oldPayload), _vcPayloadText(newPayload)];
   }
   const hasSrc = (pl) => typeof pl?.expertText === "string" && pl.expertText.trim() !== "";
   if (hasSrc(oldPayload) && hasSrc(newPayload)) return [oldPayload.expertText, newPayload.expertText];
@@ -20586,8 +20661,9 @@ async function _restoreProjectSnapshotByIndex(index) {
     return ok;
   }
   if (!await _showConfirm(t("snapshotConfirmRestore"))) return false;
-  const ok = typeof entry.payload.ubText === "string"
-    ? await _vcApplyText(tab, entry.payload.ubText)
+  const text = typeof entry.payload.ubText === "string" ? entry.payload.ubText : entry.payload.sourceText;
+  const ok = typeof text === "string"
+    ? await _vcApplyText(tab, text)
     : await _applyProjectPayload(entry.payload, { keepFilePath: true, sourceLabel: entry.note || entry.createdAt || "" });
   if (ok) {
     if (projectSnapshotDialog?.open) await _renderProjectSnapshotHistory();

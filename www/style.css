@@ -5679,6 +5679,29 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
   letter-spacing: 0;
 }
 /* summary: one row of stat tiles */
+/* The source file the Build info describes (_buildInfoSourcePath) */
+.build-info-path {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 0 0 10px;
+  min-width: 0;
+}
+.build-info-path-key {
+  flex: none;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.build-info-path-val {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 0.78rem;
+  color: var(--text);
+}
+
 .build-info-stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -12085,7 +12108,7 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 dialog, .customer-message-card { -webkit-user-select: none; user-select: none; }
 dialog img, dialog a, .customer-message-card img, .customer-message-card a { -webkit-user-drag: none; user-drag: none; }
 :is(dialog, .customer-message-card) :is(input, textarea, select, [contenteditable]),
-dialog :is(.compile-error-list, #build-info-content, .vc-output, .vc-diff-body, .template-preview,
+dialog :is(.compile-error-list, .vc-output, .vc-diff-body, .template-preview,
   #bug-sysinfo-preview, .support-msg-text, .tg-preview, .ce-asm-out, .vm-prof-out) { -webkit-user-select: text; user-select: text; }
 
 

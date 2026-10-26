@@ -2104,7 +2104,7 @@ Mint a **DIM egy konkrét címen** — nevet ad egy lookup táblának, és beál
 
 **Expert szintaxis:**
 ```
-.table color_table, $C000
+.table color_table $C000
 ```
 
 **Generált ASM:**
@@ -2498,7 +2498,7 @@ Egy `DEFINE` blokk egyszerre több szimbólumot is aktiválhat (vesszővel elvá
 
 | Mező | Leírás |
 |---|---|
-| Condition | Tesztelendő azonosító (egy `DEFINE` szimbólumhoz kell illeszkednie ahhoz, hogy aktív legyen) |
+| Condition | `.define`-olt szimbólum (aktív), `.const` név (aktív, ha nem nulla) vagy konstans-kifejezés (`LEVEL == 2`); ami nem értékelhető ki, hiba |
 
 **Expert szintaxis:**
 ```
