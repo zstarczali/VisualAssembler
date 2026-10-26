@@ -13,18 +13,19 @@ const { allCases } = require("../tests/vma-golden/cases");
 const manifestPath = path.join(repo, "tests", "vma-golden", "manifest.json");
 const sha256 = (bytes) => crypto.createHash("sha256").update(Buffer.from(bytes)).digest("hex");
 
-// Every case in both PRG forms the app makes: with the BASIC SYS stub (Run) and without.
+// Every case in both PRG forms the app makes: with the BASIC SYS stub (Run) and without; a `raw`
+// case (a Kick project's extra output) once, as the image alone ("@raw").
 async function buildCorpus() {
   const ref = createReference();
   const out = [];
   for (const c of allCases(ref.app)) {
     const input = c.kind === "blocks" ? ref.blocksToText(c.blocks) : c.text;
-    for (const basicStub of [true, false]) {
+    for (const basicStub of c.raw ? [false] : [true, false]) {
       const src = c.kind === "blocks" ? { blocks: c.blocks } : { text: c.text };
-      const r = await ref.compile({ ...src, baseDir: c.baseDir, basicStub });
+      const r = await ref.compile({ ...src, baseDir: c.baseDir, basicStub, raw: !!c.raw });
       out.push({
-        id: c.id + (basicStub ? "" : "@nostub"), caseId: c.id, kind: c.kind, file: c.file || null,
-        baseDir: path.relative(repo, c.baseDir).split(path.sep).join("/"), basicStub, input,
+        id: c.id + (c.raw ? "@raw" : basicStub ? "" : "@nostub"), caseId: c.id, kind: c.kind, file: c.file || null,
+        baseDir: path.relative(repo, c.baseDir).split(path.sep).join("/"), basicStub, ...(c.raw ? { raw: true } : {}), input,
         ok: r.ok, size: r.ok ? r.bytes.length : 0, sha256: r.ok ? sha256(r.bytes) : null,
         error: r.ok ? null : r.error.replace(/\s+/g, " ").trim(), bytes: r.bytes
       });
@@ -42,8 +43,9 @@ async function main() {
   if (inputsAt >= 0) {
     const dir = path.resolve(args[inputsAt + 1] || "vma-golden-inputs");
     fs.mkdirSync(dir, { recursive: true });
-    for (const c of corpus.filter(e => e.basicStub)) fs.writeFileSync(path.join(dir, c.caseId + ".asm"), c.input);
-    console.log(`${corpus.length / 2} inputs → ${dir}`);
+    const inputs = corpus.filter(e => e.basicStub || e.raw);
+    for (const c of inputs) fs.writeFileSync(path.join(dir, c.caseId + ".asm"), c.input);
+    console.log(`${inputs.length} inputs → ${dir}`);
   }
   if (args.includes("--update")) {
     fs.writeFileSync(manifestPath, JSON.stringify(toManifest(corpus), null, 1) + "\n");

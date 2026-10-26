@@ -63,7 +63,8 @@ function createReference() {
     }
   };
 
-  // opts: { text } (Expert source) or { blocks } (block program), baseDir, basicStub (default true).
+  // opts: { text } (Expert source) or { blocks } (block program), baseDir, basicStub (default true),
+  // raw (assembleProgramToPrg: no stub, the first ORG as is).
   async function compile(opts) {
     app.__opts = opts;
     app.document.getElementById("basic-sys-toggle").checked = opts.basicStub !== false;
@@ -80,7 +81,8 @@ function createReference() {
     })()`);
     return app.run(`(() => {
       parseUserMacros();
-      const r = _buildAutostartPrgCore();
+      // opts.raw: the image alone (a Kick project's extra output, _kickBuildOutput)
+      const r = __opts.raw ? assembleProgramToPrg() : _buildAutostartPrgCore();
       // opts.debugSource: the debugger files too, the main source named so in the .dbg
       const debug = r.ok && __opts.debugSource ? _buildDebuggerSidecarPayload(r, { force: true, sourcePath: __opts.debugSource }) : null;
       // opts.memory: what the memory panel reads (getMemoryUsage), as vma_build's \`memory\`

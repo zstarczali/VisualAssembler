@@ -186,3 +186,53 @@ test("rust engine: every compile error, translated", { skip: !findRustCli() && "
     fs.rmSync(tmp, { recursive: true, force: true });
   }
 });
+
+// A Kick project through the Rust engine: vma_build gets the preprocessed text from the startup
+// file's folder, its error line goes back to the Kick file:line.
+test("rust engine: a Kick project builds its preprocessed text", async () => {
+  let seen = null;
+  const app = appWith(async (source, baseDir) => {
+    seen = { source, baseDir };
+    return { ok: false, error: "LDA: invalid operand", line: 2,
+      errors: [{ line: 2, message: "LDA: invalid operand", key: "compileInvalidOperand", params: { mnemonic: "LDA" }, address: 0x1000 }] };
+  }, "rust");
+  app.run(`_kickPrepare = async () => ({ ok: true, entry: "C:/game/src/main.asm", text: "* = $1000\\nLDA $\\n",
+    origins: [{ file: "C:/game/src/main.asm", line: 1 }, { file: "C:/game/src/hero.asm", line: 7 }], errors: [] })`);
+  const r = await app.run("_kickOrVaPrg()");
+  assert.equal(seen.source, "* = $1000\nLDA $\n");
+  assert.equal(seen.baseDir, "C:/game/src");
+  assert.equal(r.ok, false);
+  assert.equal(r.errors[0].fileLine, 7);
+  assert.match(r.errors[0].text, /hero\.asm/);
+  assert.match(r.errors[0].text, /LDA/);
+});
+
+// The compiling dialog's step line (setWorkStep): the engine and file while it builds, the PRG after.
+test("the work progress step line names the engine, the file and the PRG", async () => {
+  const steps = [];
+  const app = appWith(async () => {
+    steps.push(app.document.getElementById("work-progress-step").textContent);
+    return { ok: true, prg: [0x00, 0x10, 0xEA, 0x60] };
+  }, "rust");
+  app.document.getElementById("work-progress-dialog").open = true;
+  app.run("currentLanguage = 'en'; tabs = [{ id: 't1', name: 'game.asm', filePath: 'C:/src/game.asm' }]; activeTabId = 't1'");
+  await app.run("_vaBuildPrg()");
+  assert.equal(steps[0], "VMA (Rust): compiling game.asm…");
+  assert.equal(app.document.getElementById("work-progress-step").textContent, "PRG ready: 2 bytes from $1000");
+  // closed dialog: nothing written
+  app.document.getElementById("work-progress-dialog").open = false;
+  app.run("setWorkStep('stepDebugFiles')");
+  assert.equal(app.document.getElementById("work-progress-step").textContent, "PRG ready: 2 bytes from $1000");
+});
+
+test("every setWorkStep key is translated", () => {
+  const app = loadApp();
+  const src = fs.readFileSync(path.join(__dirname, "..", "www", "app.js"), "utf8");
+  const keys = [...new Set([...src.matchAll(/setWorkStep\("([A-Za-z0-9]+)"/g)].map(m => m[1]))];
+  assert.ok(keys.length >= 15, keys.join());
+  const missing = [];
+  for (const lang of ["hu", "en", "es", "de", "nl", "pl", "it"]) {
+    for (const key of keys) if (typeof app.run(`translations.${lang}.${key}`) !== "string") missing.push(`${lang}.${key}`);
+  }
+  assert.deepEqual(missing, []);
+});

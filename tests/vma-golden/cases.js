@@ -334,17 +334,22 @@ const VARIANTS = {
   "macro-nested-error":".macro border(c)\n    lda #{c}\n    sta $D020\n.endm\n.macro both(c)\n    :border({c})\n.endm\n* = $1000\n    :both(3)\n    rts\n"
 };
 
-// Kick sources reach the VMA through _kickPreprocess: its output is a VMA case of its own.
+// Kick sources reach the VMA through _kickPreprocess: its output is a VMA case of its own, and so is
+// every extra output (.file / .segmentout / .disk files: `raw`, the image alone as _kickBuildOutput).
 function kickCases(app) {
   const dir = path.join(repo, "tests", "fixtures");
   const files = ["kick-project/main.asm", ...fs.readdirSync(path.join(dir, "kick-features")).filter(f => f.endsWith(".asm")).sort().map(f => "kick-features/" + f)];
   app.__readText = (p) => { try { return fs.readFileSync(p, "utf8"); } catch { return null; } };
   app.__readBin = (p) => { try { return new Uint8Array(fs.readFileSync(p)); } catch { return null; } };
-  return files.map(f => {
+  return files.flatMap(f => {
     const full = path.join(dir, f).split(path.sep).join("/");
     const pre = app.run(`_kickPreprocess(${JSON.stringify(full)}, __readText, __readBin)`);
     if (pre.errors.length) throw new Error(`${f}: ${JSON.stringify(pre.errors)}`);
-    return { id: "kick-" + f.replace(/\.asm$/, "").replace(/[^A-Za-z0-9_.-]+/g, "_"), kind: "text", file: "tests/fixtures/" + f, text: pre.text, baseDir: path.dirname(full) };
+    const id = "kick-" + f.replace(/\.asm$/, "").replace(/[^A-Za-z0-9_.-]+/g, "_");
+    const base = { kind: "text", file: "tests/fixtures/" + f, baseDir: path.dirname(full) };
+    const outputs = (pre.outputs || []).flatMap(o => (o.type === "d64" ? o.files || [] : [o])).filter(o => typeof o.text === "string")
+      .map(o => ({ ...base, id: `${id}-out-${String(o.name).replace(/[^A-Za-z0-9_.-]+/g, "_")}`, text: o.text, raw: true }));
+    return [{ ...base, id, text: pre.text }, ...outputs];
   });
 }
 

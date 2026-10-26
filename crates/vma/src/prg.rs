@@ -226,6 +226,13 @@ pub fn build_prg_debug(program: &[Block], basic_stub: bool) -> Result<(Built, cr
     Ok((built, info, origin))
 }
 
+/// `assembleProgramToPrg()`: the image alone at the first ORG, no BASIC stub and no origin override
+/// (a Kick project's extra output, `_kickBuildOutput`).
+pub fn build_prg_raw(program: &[Block]) -> Result<Built, CompileError> {
+    let image = Assembler::new(program).assemble(program, origin_of(program), false)?;
+    Ok(Built { prg: prg_of(&image), sys_address: None, segments: image.segments(), entry: image.load })
+}
+
 /// `_buildAutostartPrgCore` with its `sysAddress`.
 pub fn build_prg_full(program: &[Block], basic_stub: bool) -> Result<Built, CompileError> {
     let origin = origin_of(program);

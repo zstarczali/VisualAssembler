@@ -148,6 +148,13 @@ pub fn build_result(source: &str, options: &BuildOptions, files: &dyn FileProvid
     Ok(BuildResult { built, origin, info, symbols, debug, memory })
 }
 
+/// VMA source → the image alone at its first ORG (no BASIC stub): a Kick project's extra output.
+pub fn build_raw(source: &str, files: &dyn FileProvider) -> Result<Built, CompileError> {
+    let mut program = parse::parse_expert_text(source);
+    files::load_assets(&mut program, files);
+    prg::build_prg_raw(&program)
+}
+
 /// VMA source → PRG and its start address (what the app's Run / Build use).
 pub fn build_full(source: &str, options: &BuildOptions, files: &dyn FileProvider) -> Result<Built, CompileError> {
     let mut program = parse::parse_expert_text(source);

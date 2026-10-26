@@ -16,7 +16,7 @@ azonos marad a mai JS fordítóéval — ezt a golden korpusz (`tests/vma-golden
 | F3 makrók, LOOP/FOR, `.var`, PUSH/PULL | ✔ kész | `536986e` |
 | F4 kódgeneráló makrók | ✔ kész (a SID_PLAYER kódja az F5-tel jön) | `516d372` … |
 | F5 fájl-makrók | ✔ kész | `8fce8d3`, `7844c6e`, … |
-| **F6 bekötés a VA-ba (Tauri `vma_build`, shadow mód)** | **folyamatban** — A fázis (PRG) kész: `vma_build`, motorválasztó, shadow-napló; B fázisból kész: a debugger nézet (sidecarok, címkék, töréspontok), a memórianézet (shadow-ellenőrzés), a VICE Monitor hot reload és a lokalizált hibák Rustból; hátra a shadow-próba a felhasználói projekteken és az alapérték `rust`-ra állítása (az ASM nézet gépelés közben szinkron, az F7-re vár) | — |
+| **F6 bekötés a VA-ba (Tauri `vma_build`, shadow mód)** | **folyamatban** — A fázis (PRG) kész: `vma_build`, motorválasztó, shadow-napló; B fázisból kész: a debugger nézet (sidecarok, címkék, töréspontok), a memórianézet (shadow-ellenőrzés), a VICE Monitor hot reload és a lokalizált hibák Rustból; shadow-próba a projekteken kész (`scripts/vma-shadow-scan.js`), a Kick projekt is a VMA motoron; az alapérték egyelőre `js` marad (a felhasználó választ) (az ASM nézet gépelés közben szinkron, az F7-re vár) | — |
 | F7 WASM, a szinkron UI-elemzések | hátra | — |
 | F8 Kick előfeldolgozó (opcionális), JS mag törlése, dokumentáció | hátra | — |
 
@@ -121,6 +121,22 @@ ha le van fordítva), `cargo test --offline` a `crates/vma`-ban, és az esetenk�
    az angol szöveg), `_vmaErrorEntry` (`[Lnnn]` a blokk ASM-sorával / `[Rnnn]`, cím, `MNEM operandus` vagy a forrássor,
    `sourceLine`). Tesztek: `tests/vma-error-keys.test.js` (minden Rust-kulcs mind a 7 nyelven), `tests/vma-engine.test.js`
    (két hiba magyarul, valódi CLI-vel).
+   ✔ Shadow-próba és Kick: `scripts/vma-shadow-scan.js <.proj | .asm | .json | mappa>…` (JS referencia = Rust CLI stubbal és
+   anélkül; Kick projektnél a `_kickPreprocess` szövege és a `.file` / `.disk` kimenetek nyersen; a VA-mentésként JSON-ba
+   csomagolt forrást kicsomagolja): a Dark Chambers C64 (51 177 bájt) és a `samples/*.proj` egyezik. A Kick projekt is a VMA
+   motoron fordul (`_kickBuildPrg` → `_vaBuildPrg(kick)` → `_vmaBuildInput(kick)` = a `kick.text` az indítófájl mappájából;
+   a hibák a `_kickMapResult`-tal fájl:sor; a debugger / hot reload / memória Kick projektben a JS layoutból marad).
+   Projekt beállítások → VMA: `vmaDefines` / `vmaConsts` a `.proj`-ban (`_projKickFields`), `_projVmaPrelude` (`.define` /
+   `.const` sorok, csak VMA projektnél, a projekt fájljain), JS: `_projVmaWithPrelude` a `getProgramLayout`-ban és a
+   `resolveProgramConstValue`-ban, Rust: `_vmaWithPrelude` (a szöveg elé, sortérképpel); teszt `tests/project-vma-defines.test.js`.
+   ✔ Teljesség-ellenőrzés: a Kick extra kimenetek (`.file` / `.segmentout` / `.disk` fájljai) a Rustban is (`build_raw` /
+   `build_prg_raw` = `assembleProgramToPrg()`, CLI `--raw`, `vma_build(…, raw)`; JS `_kickOutputImage` → az async
+   `_kickBuildOutput`), golden `kick-*-out-*@raw` esetek (527 eset, 469 PRG, mind egyezik); a `kick-project.test.js` minden
+   lefordított Kick-szövegét (29) a záró teszt a Rust CLI-vel is fordítja (a teszt BASIC SYS állásával). Makrók: a golden a
+   paletta minden `is*Macro` elemét és az `opcodeMap` minden párját (aliasokkal) tartalmazza. Alapérték marad `js`: a
+   felhasználó választ (Beállítások → Általános → Program). Compiling ablak: `#work-progress-step` lépéssor (`setWorkStep`,
+   `step*` kulcsok mind a 7 nyelven: Kick beolvasás / előfeldolgozás, VMA JS / Rust / shadow, PRG méret, ACME, UB, Exomizer,
+   VICE, Ultimate, KFF2, c1541, Build project fájlonként, Kick kimenetek, debugger).
    Megjegyzés: a `crates/vma/target` a gitben van, és Windows-on egy másik folyamat időnként zárolja (os error 1224);
    ilyenkor `CARGO_TARGET_DIR` + `VMA_BIN` a tesztekhez.
 4. **F7–F8** — az 5. szakasz táblázata szerint.

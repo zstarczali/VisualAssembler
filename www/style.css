@@ -6104,6 +6104,18 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
   font-size: 0.9rem;
 }
 
+/* What the build / run is doing right now (setWorkStep): one line under the bar */
+.work-progress-step {
+  margin: 0;
+  min-height: 1.35em;
+  color: var(--muted);
+  font-family: 'JetBrains Mono', 'Fira Mono', 'Cascadia Code', 'Consolas', monospace;
+  font-size: 0.74rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .work-progress-bar-wrap {
   height: 10px;
   width: 100%;

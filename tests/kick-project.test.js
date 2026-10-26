@@ -15,7 +15,16 @@ function preprocess(files, entry = "main.asm") {
   return app.run(`_kickPreprocess("/mem/${entry}", p => __files[p] ?? null, () => null)`);
 }
 
+// Every VMA text the Kick tests build, with the JS result: the last test builds them with the Rust CLI.
+const builtTexts = [];
+
 function build(text) {
+  const result = buildJs(text);
+  builtTexts.push({ text, result, basicStub: app.run("basicSysToggle ? !!basicSysToggle.checked : true") });
+  return result;
+}
+
+function buildJs(text) {
   app.__src = text;
   return app.run(`(() => {
     const saved = program;
@@ -443,36 +452,36 @@ test("Kick LoadPicture: GIF with the default and a given colour table builds lik
   assert.match(bad.errors[0]?.text || "", /not in the colour table/);
 });
 
-test("Kick segments: .file / outPrg / outBin / .segmentout / .disk outputs build like KickAssembler", () => {
+test("Kick segments: .file / outPrg / outBin / .segmentout / .disk outputs build like KickAssembler", async () => {
   const dir = path.join(__dirname, "fixtures", "kick-features").split(path.sep).join("/");
   app.__readText = readText;
   app.__readBin = readBin;
   // KickAssembler 5.25: java -jar KickAss.jar seg-x.asm -o seg-x.kickass.prg writes the outputs beside
-  const outputs = (file) => {
+  const outputs = async (file) => {
     const pre = app.run(`_kickPreprocess(${JSON.stringify(dir + "/" + file)}, __readText, __readBin)`);
     assert.deepEqual(Array.from(pre.errors), [], file);
     app.__pre = pre;
-    const built = app.run(`__pre.outputs.map(o => o.type === "d64"
-      ? { name: o.name, files: o.files.map(f => ({ name: f.name, bytes: Array.from(_kickBuildOutput({ ...f, type: "prg" }).bytes || []) })) }
-      : { name: o.name, bytes: Array.from(_kickBuildOutput(o).bytes || []) })`);
+    const built = await app.run(`Promise.all(__pre.outputs.map(async o => o.type === "d64"
+      ? { name: o.name, files: await Promise.all(o.files.map(async f => ({ name: f.name, bytes: Array.from((await _kickBuildOutput({ ...f, type: "prg" })).bytes || []) }))) }
+      : { name: o.name, bytes: Array.from((await _kickBuildOutput(o)).bytes || []) }))`);
     return { pre, built: JSON.parse(JSON.stringify(built)) };
   };
   const same = (bytes, ref) => assert.ok(Buffer.from(bytes).equals(fs.readFileSync(path.join(dir, ref))), ref);
 
   // startAfter + align, a virtual segment, the BasicUpstart modifier; the Default segment is empty
-  const a = outputs("seg-a.asm");
+  const a = await outputs("seg-a.asm");
   assert.equal(a.pre.mainOutput, "seg-a.file.prg");
   same(a.built.find(o => o.name === "seg-a.file.prg").bytes, "seg-a.file.prg");
   same(a.built.find(o => o.name === "seg-a.other.prg").bytes, "seg-a.other.prg");
 
   // banks through .segmentout with min / max / fill; zero page code through .segmentout
-  const b = outputs("seg-b.asm");
+  const b = await outputs("seg-b.asm");
   same(b.built.find(o => o.name === "seg-b.cart.bin").bytes, "seg-b.cart.bin");
   const main = build(b.pre.text);
   assert.ok(Buffer.from(main.bytes).equals(fs.readFileSync(path.join(dir, "seg-b.kickass.prg"))));
 
   // prgFiles + allowOverlap (a patch), sidFiles, a .disk with the same files
-  const c = outputs("seg-c.asm");
+  const c = await outputs("seg-c.asm");
   same(c.built.find(o => o.name === "seg-c.patched.prg").bytes, "seg-c.patched.prg");
   same(c.built.find(o => o.name === "seg-c.music.prg").bytes, "seg-c.music.prg");
   const disk = c.built.find(o => o.name === "seg-c.d64");
@@ -554,4 +563,27 @@ test("Kick project highlighting: preprocessor, directives, functions, ; in .for,
   assert.deepEqual(tags(out[4]), ["hl-directive:.pseudocommand", "hl-macro:mov", "hl-macro-param:src", "hl-macro-param:dst"]);
   assert.ok(tags(out[5]).includes("hl-macro:round") && tags(out[5]).includes("hl-number:127.5"));
   assert.ok(tags(out[6]).includes("hl-comment:; comment"));
+});
+
+// The Rust VMA compiler builds every preprocessed Kick text of the tests above as the JS does
+// (with the BASIC SYS toggle as it was for that build).
+test("the Rust VMA CLI builds every Kick test source like the JS", (t) => {
+  const { findRustCli, runRustCli } = require("./helpers/vma-rust");
+  const cli = findRustCli();
+  if (!cli) { t.skip("no Rust VMA CLI"); return; }
+  const os = require("node:os");
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "kick-rust-"));
+  const failures = [];
+  try {
+    builtTexts.forEach(({ text, result, basicStub }, i) => {
+      const run = runRustCli(cli, { caseId: "kick", id: `kick${i}`, input: text, baseDir: "tests/fixtures/kick-features", basicStub }, tmp);
+      if (!!run.ok !== !!result.ok) failures.push(`#${i}: JS ${result.ok ? "ok" : result.error}, Rust ${run.ok ? "ok" : run.error}`);
+      else if (run.ok && !Buffer.from(result.bytes).equals(run.bytes)) failures.push(`#${i}: bytes differ
+${text.slice(0, 200)}`);
+    });
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+  assert.ok(builtTexts.length > 20, `only ${builtTexts.length} Kick sources`);
+  assert.deepEqual(failures, []);
 });

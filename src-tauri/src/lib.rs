@@ -4586,10 +4586,17 @@ impl vma::FileProvider for AppFiles<'_> {
 /// With `source_path` the debugger view too (`vma::BuildResult::to_json`; the .dbg names the main
 /// source `source_path`, its lines through `line_map`).
 #[tauri::command]
-fn vma_build(app: AppHandle, source: String, base_dir: Option<String>, basic_stub: Option<bool>, source_path: Option<String>, line_map: Option<Vec<i64>>) -> serde_json::Value {
+fn vma_build(app: AppHandle, source: String, base_dir: Option<String>, basic_stub: Option<bool>, source_path: Option<String>, line_map: Option<Vec<i64>>, raw: Option<bool>) -> serde_json::Value {
     let options = vma::BuildOptions { basic_stub: basic_stub.unwrap_or(true) };
     let files = AppFiles { app: &app, base_dir };
     let error = |e: vma::CompileError| vma::error_json(&e);
+    // a Kick project's extra output: the image alone (assembleProgramToPrg)
+    if raw == Some(true) {
+        return match vma::build_raw(&source, &files) {
+            Ok(built) => serde_json::json!({ "ok": true, "prg": built.prg, "segments": built.segments, "entry": built.entry }),
+            Err(e) => error(e),
+        };
+    }
     let Some(source_path) = source_path else {
         return match vma::build_full(&source, &options, &files) {
             Ok(built) => serde_json::json!({ "ok": true, "prg": built.prg, "sysAddress": built.sys_address }),

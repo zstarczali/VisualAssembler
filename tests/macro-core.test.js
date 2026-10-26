@@ -10,7 +10,8 @@ const extractFunction = require("./helpers/extract-function");
 const extractFunctionSource = name => extractFunction(appJs, name);
 
 function loadFunctions(names, extraContext = {}) {
-  const context = { ...extraContext };
+  // no project: the program without the Project settings prelude (_projVmaWithPrelude)
+  const context = { _projVmaWithPrelude: (blocks) => blocks, ...extraContext };
   vm.createContext(context);
   for (const name of names) {
     vm.runInContext(`${extractFunctionSource(name)}; this["${name}"] = ${name};`, context);

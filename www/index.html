@@ -1069,6 +1069,13 @@ PRINTABLE CHARACTERS
             <label class="ps-field ps-wide"><span id="ps-vars-label">Command-line variables (cmdLineVars)</span><textarea id="ps-vars" writingsuggestions="false" class="ps-input ps-textarea" rows="4" spellcheck="false" placeholder="level=3&#10;autojoy=0"></textarea><small id="ps-vars-hint" class="ps-hint">One name=value per line, as KickAssembler's -name=value command-line arguments.</small></label>
           </div>
         </section>
+        <section class="ps-section ps-vma-only">
+          <h3 class="ps-section-label" id="ps-section-vma">VMA</h3>
+          <div class="ps-grid">
+            <label class="ps-field ps-wide"><span id="ps-vma-defines-label">Symbols (.define)</span><input id="ps-vma-defines" writingsuggestions="false" class="ps-input" type="text" spellcheck="false" autocomplete="off" placeholder="DEBUG, PAL"></label>
+            <label class="ps-field ps-wide"><span id="ps-vma-consts-label">Constants (.const)</span><textarea id="ps-vma-consts" writingsuggestions="false" class="ps-input ps-textarea" rows="4" spellcheck="false" placeholder="LEVEL=3&#10;LIVES=$05"></textarea><small id="ps-vma-consts-hint" class="ps-hint">One NAME=value per line. They come before the source, so .if NAME and .if NAME == 3 see them.</small></label>
+          </div>
+        </section>
       </div>
       <div class="ps-footer">
         <button id="ps-cancel" class="secondary" type="button">Cancel</button>
@@ -1237,6 +1244,7 @@ PRINTABLE CHARACTERS
       <div class="work-progress-bar-wrap" aria-hidden="true">
         <div id="work-progress-bar" class="work-progress-bar"></div>
       </div>
+      <p class="work-progress-step" id="work-progress-step" aria-live="polite"></p>
     </div>
   </dialog>
 

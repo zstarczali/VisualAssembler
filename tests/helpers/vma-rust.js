@@ -19,7 +19,7 @@ function runRustCli(cli, c, tmp) {
   fs.writeFileSync(input, c.input);
   fs.rmSync(output, { force: true });
   const args = ["build", input, "-o", output, "--base-dir", path.join(repo, c.baseDir),
-    "--search", path.join(repo, "samples"), "--search", repo, ...(c.basicStub ? [] : ["--no-basic-stub"])];
+    "--search", path.join(repo, "samples"), "--search", repo, ...(c.raw ? ["--raw"] : c.basicStub ? [] : ["--no-basic-stub"])];
   const run = cli.endsWith(".js")
     ? spawnSync(process.execPath, [cli, ...args], { encoding: "utf8" })
     : spawnSync(cli, args, { encoding: "utf8" });

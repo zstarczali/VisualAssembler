@@ -4,7 +4,7 @@
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
-const USAGE: &str = "usage: vma build <input.asm> [-o out.prg] [--base-dir DIR] [--search DIR]... [--no-basic-stub]
+const USAGE: &str = "usage: vma build <input.asm> [-o out.prg] [--base-dir DIR] [--search DIR]... [--no-basic-stub] [--raw]
                  [--sym FILE] [--vs FILE] [--dbg FILE] [--debug] [--json FILE]
                  [--source-path NAME] [--line-map FILE]
        vma --help | --version";
@@ -23,6 +23,8 @@ build options:
   --search DIR      a further folder to look in, after the base dir (repeatable, in order);
                     a path stored on another machine falls back to its bare file name in each
   --no-basic-stub   no `10 SYS…` BASIC line in front of the code (the app's BASIC SYS toggle)
+  --raw             the image alone at its first ORG, no stub and no $C000 move (a Kick
+                    project's extra output, as assembleProgramToPrg)
   --sym FILE        KickAssembler label file (.label NAME=$xxxx)
   --vs FILE         VICE monitor label file (al C:xxxx .NAME; x64sc -moncommands FILE)
   --dbg FILE        RetroDebugger / C64 Debugger source map (C64debugger XML)
@@ -74,6 +76,7 @@ fn main() -> ExitCode {
     let mut base_dir: Option<PathBuf> = None;
     let mut search: Vec<PathBuf> = Vec::new();
     let (mut sym, mut vs, mut dbg, mut debug) = (None::<PathBuf>, None::<PathBuf>, None::<PathBuf>, false);
+    let mut raw = false;
     let (mut json, mut source_path, mut line_map) = (None::<PathBuf>, None::<PathBuf>, None::<PathBuf>);
     let mut i = 2;
     while i < args.len() {
@@ -96,6 +99,7 @@ fn main() -> ExitCode {
             "--vs" => vs = value,
             "--dbg" => dbg = value,
             "--debug" => debug = true,
+            "--raw" => raw = true,
             "--json" => json = value,
             "--source-path" => source_path = value,
             "--line-map" => line_map = value,
@@ -144,6 +148,23 @@ fn main() -> ExitCode {
             }
         },
     };
+    if raw {
+        return match vma::build_raw(&source, &files) {
+            Ok(built) => {
+                let answer = serde_json::json!({ "ok": true, "prg": built.prg, "segments": built.segments, "entry": built.entry }).to_string();
+                let jobs: [(Option<&PathBuf>, &[u8]); 2] = [(Some(&out), &built.prg), (json.as_ref(), answer.as_bytes())];
+                for (path, bytes) in jobs {
+                    if let Some(p) = path {
+                        if let Err(code) = write(p, bytes) {
+                            return code;
+                        }
+                    }
+                }
+                ExitCode::SUCCESS
+            }
+            Err(e) => fail(e),
+        };
+    }
     if sym.is_none() && vs.is_none() && dbg.is_none() && json.is_none() {
         return match vma::build_full(&source, &options, &files) {
             Ok(built) => write(&out, &built.prg).map(|_| ExitCode::SUCCESS).unwrap_or_else(|c| c),
