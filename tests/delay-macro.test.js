@@ -100,6 +100,7 @@ test("assembleProgramToPrg handles DELAY helper injection without ReferenceError
         ]
       }),
       addLayoutLabels: () => {},
+      addAllLayoutLabels: () => {},
       _collectAnonLabels: () => [],
       appendDelayHelperLabel: (labels) => labels.set("__delay_wait_frames", 0x0900),
       buildDelayHelperBytes: () => [0x48, 0x60],

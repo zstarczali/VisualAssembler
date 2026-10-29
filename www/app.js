@@ -6902,7 +6902,11 @@ if (block.isSpritePosMacro) return `.sprite_pos ${block.spriteNum || 0}, ${block
   }
 
   // Plain instruction (".zp" keeps a forced zero page symbol operand)
-  const mnem = (block.mnemonic || "NOP") + (block.forceZeroPage && /^zeroPage/.test(block.addressingMode || "") ? ".zp" : "");
+  // the width a symbol was forced to (a number carries its own: $00FB stays absolute)
+  const forced = block.forceZeroPage && /^zeroPage/.test(block.addressingMode || "") ? ".zp"
+    : block.forceAbsolute && /^absolute/.test(block.addressingMode || "") && !/^[0-9A-F]{4}$/i.test(block.rawOperand || "") ? ".abs"
+    : "";
+  const mnem = (block.mnemonic || "NOP") + forced;
   const opText = getAsmDisplayOperand(block);
   const smc = block.smcLabel ? `${block.smcLabel}:` : "";
   const op = opText ? `    ${mnem} ${smc}${opText}` : `    ${mnem}`;
@@ -10840,7 +10844,7 @@ async function showBuildInfoDialog() {
   try {
     const layout = getProgramLayout();
     const labels = new Map();
-    layout.lines.forEach(line => addLayoutLabels(labels, line));
+    addAllLayoutLabels(labels, layout.lines);
     labels._anonAddrs = _collectAnonLabels(layout);
     appendDelayHelperLabel(labels, layout);
 
@@ -14258,7 +14262,7 @@ function _expertValidate() {
         const layout = getProgramLayout();
         // Build label map (same as assembleProgramToPrg)
         const labels = new Map();
-        layout.lines.forEach((line) => addLayoutLabels(labels, line));
+        addAllLayoutLabels(labels, layout.lines);
         labels._anonAddrs = _collectAnonLabels(layout);
         appendDelayHelperLabel(labels, layout);
         // Run compileLineBytes to detect unknown mnemonics / bad operands
@@ -14720,7 +14724,7 @@ function _buildDisasmLines(originOverride, basicStubSection = null) {
 
     // Build label map (name -> address)
     const labelMap = new Map();
-    layout.lines.forEach((line) => addLayoutLabels(labelMap, line));
+    addAllLayoutLabels(labelMap, layout.lines);
     labelMap._anonAddrs = _collectAnonLabels(layout);
     const addrToLabel = new Map();
     for (const [name, addr] of labelMap) addrToLabel.set(addr, name);
@@ -14789,7 +14793,7 @@ function _buildDisasmLines(originOverride, basicStubSection = null) {
         let deferredBytes = [];
         let deferredAddr = 0;
         if (block.isRawBytesMacro) {
-          deferredBytes = parseByteMacro(block.rawOperand, block.base);
+          deferredBytes = parseByteMacro(block.rawOperand, block.base, labelMap);
           deferredAddr = parseAddressValue(block.rawBytesAddress, labelMap) ?? 0xC000;
         } else if (block.isRawTextMacro) {
           const rawOffset = resolveProgramValueWithConst(block.charOffset || "0", "hex");
@@ -16754,16 +16758,19 @@ function parseUserMacros() {
   // Build a flat list: top-level program + any includedBlocks from INCLUDE macros
   const allBlocks = [];
   const includeOf = new Map();
+  // Include macro definitions from ALL included files (both inline and fixed-address libraries,
+  // and the files they include) so INVOKE can find macros regardless of where they were defined
+  const addIncluded = (block, depth) => {
+    if (!block.isIncludeMacro || !block.includedBlocks?.length || depth > INCLUDE_MAX_DEPTH) return;
+    for (const sub of block.includedBlocks) {
+      allBlocks.push(sub);
+      includeOf.set(sub, block.id);
+      addIncluded(sub, depth + 1);
+    }
+  };
   for (const block of program) {
     allBlocks.push(block);
-    // Include macro definitions from ALL included files (both inline and fixed-address libraries)
-    // so INVOKE can find macros regardless of where they were defined
-    if (block.isIncludeMacro && block.includedBlocks?.length) {
-      for (const sub of block.includedBlocks) {
-        allBlocks.push(sub);
-        includeOf.set(sub, block.id);
-      }
-    }
+    addIncluded(block, 0);
   }
 
   for (let i = 0; i < allBlocks.length; i++) {
@@ -17953,6 +17960,7 @@ function buildOperandPreview(modeKey, rawValue, base) {
         : (modeKey === "absoluteY" || modeKey === "zeroPageY") ? `${value},Y`
         : (modeKey === "indirectX") ? `(${value},X)`
         : (modeKey === "indirectY") ? `(${value}),Y`
+        : (modeKey === "indirect") ? `(${value})`
         : value;
       return { operand, text: operand, error: "" };
     }
@@ -17964,6 +17972,7 @@ function buildOperandPreview(modeKey, rawValue, base) {
         : (modeKey === "absoluteY" || modeKey === "zeroPageY") ? `${value},Y`
         : (modeKey === "indirectX") ? `(${value},X)`
         : (modeKey === "indirectY") ? `(${value}),Y`
+        : (modeKey === "indirect") ? `(${value})`
         : value;
       return { operand, text: operand, error: "" };
     }
@@ -17978,6 +17987,17 @@ function buildOperandPreview(modeKey, rawValue, base) {
     // Allow local (dotted) label references (e.g. .loop) — scoped at layout time.
     if (/^\.[A-Za-z_][A-Za-z0-9_]*$/.test(value)) {
       return { operand: value, text: value, error: "" };
+    }
+    // Any other expression of numbers, labels and constants (lda $1234+1, sta table+2*8,
+    // jmp (vectors+2)) — resolved at compile time like a label.
+    if (/[-+*/&|^<>~()]/.test(value) && /^[A-Za-z0-9_.$%<>()+\-*/&|^~\s]+$/.test(value)) {
+      const operand = (modeKey === "absoluteX" || modeKey === "zeroPageX") ? `${value},X`
+        : (modeKey === "absoluteY" || modeKey === "zeroPageY") ? `${value},Y`
+        : (modeKey === "indirectX") ? `(${value},X)`
+        : (modeKey === "indirectY") ? `(${value}),Y`
+        : (modeKey === "indirect") ? `(${value})`
+        : value;
+      return { operand, text: operand, error: "" };
     }
     return { operand: value, text: value, error: getNumberFormatError(base) };
   }
@@ -19186,9 +19206,16 @@ function _collectDebuggerSymbols(layout) {
 
 function _buildDebuggerSidecarTexts(layout, originOverride, sourcePathOverride = "", kick = null) {
   const primarySourcePath = sourcePathOverride || _getDebuggerPrimarySourcePath();
-  const includeBlocksById = new Map(
-    program.filter((block) => block && block.isIncludeMacro && block.id).map((block) => [block.id, block])
-  );
+  // every include, also the ones an included file has (a nested include's lines are its own file's)
+  const includeBlocksById = new Map();
+  const addIncludes = (blocks, depth) => {
+    for (const block of blocks || []) {
+      if (!block?.isIncludeMacro || !block.id || depth > INCLUDE_MAX_DEPTH) continue;
+      includeBlocksById.set(block.id, block);
+      addIncludes(block.includedBlocks, depth + 1);
+    }
+  };
+  addIncludes(program, 0);
   const sourcePaths = [];
   const sourceIndexByPath = new Map();
   const getSourceIndex = (path) => {
@@ -19206,7 +19233,7 @@ function _buildDebuggerSidecarTexts(layout, originOverride, sourcePathOverride =
     const origin = kickOrigin(line);
     if (origin) return origin.file;
     if (block._fromInclude || block._macroInclude) {
-      const includeBlock = includeBlocksById.get(block._fromInclude || block._macroInclude);
+      const includeBlock = includeBlocksById.get(block._includeOwner || block._fromInclude || block._macroInclude);
       const includePath = _normalizeIncludeBlockSource(includeBlock) || includeBlock?.includeFileName || "";
       if (includePath) return includePath;
     }
@@ -22283,11 +22310,12 @@ function _showBuildProjectReport(results, summary) {
 }
 
 // ── Magic Desk CRT (type 19) — 8 x 8K banks at $8000 ─────────────────────────
-// Bank 0 layout (fixed 128 bytes header + loader + exit stub):
+// Bank 0 layout (fixed 128 bytes header + loader):
 //   $8000: cold_start vector = $8009
 //   $8002: warm_start vector = $8009
 //   $8004: "CBM80" signature bytes
-//   $8009: boot / copy loop / exit stub (assembled below; ends at $807F)
+//   $8009: boot, then the copy routine ($8044–$807F) to $0100 and JMP $0100 — the copy loop
+//          switches banks under $8000, so it cannot run from the cartridge ROM
 // Payload starts at $8080 in bank 0 and continues into banks 1..7.
 // Max payload = 8*8192 - 128 = 65408 bytes.
 const MAGIC_DESK_BANK_SIZE = 0x2000;
@@ -22328,36 +22356,36 @@ function buildMagicDeskLoaderBank0(loadAddr, payloadLen, entryAddr, payload) {
     0xA9, NL,   0x85, 0x02,       // remaining = length
     0xA9, NH,   0x85, 0x03,
     0xA9, 0x00, 0x85, 0x04,       // bank counter = 0
-    // copy_loop @ $8036
+    // @ $8036: the copy routine ($8044–$807F, 60 bytes) to $0100, run it from RAM
+    0xA2, 0x3B,                   // LDX #$3B
+    0xBD, 0x44, 0x80,             // LDA $8044,X
+    0x9D, 0x00, 0x01,             // STA $0100,X
+    0xCA,                         // DEX
+    0x10, 0xF7,                   // BPL -9
+    0x4C, 0x00, 0x01,             // JMP $0100
+    // copy routine @ $8044, runs at $0100 (addresses below are the RAM ones)
+    // copy_loop @ $0100
     0xA5, 0x02, 0x05, 0x03,       // LDA rem_lo | ORA rem_hi
-    0xF0, 0x2E,                   // BEQ done ($806A)
+    0xF0, 0x2E,                   // BEQ done ($0134)
     0xA0, 0x00,                   // LDY #$00
     0xB1, 0xFB,                   // LDA (src),Y
     0x91, 0xFD,                   // STA (dst),Y
     0xE6, 0xFB, 0xD0, 0x02,       // INC src_lo / BNE +2
     0xE6, 0xFC,                   // INC src_hi
     0xA5, 0xFC, 0xC9, 0xA0,       // LDA src_hi / CMP #$A0
-    0xD0, 0x0B,                   // BNE no_bank_sw ($8059)
+    0xD0, 0x0B,                   // BNE no_bank_sw ($0123)
     0xE6, 0x04,                   // INC bank
     0xA5, 0x04,                   // LDA bank
     0x8D, 0x00, 0xDE,             // STA $DE00  (Magic Desk bank select)
     0xA9, 0x80, 0x85, 0xFC,       // reset src_hi = $80
-    // no_bank_sw @ $8059
+    // no_bank_sw @ $0123
     0xE6, 0xFD, 0xD0, 0x02,       // INC dst_lo / BNE +2
     0xE6, 0xFE,                   // INC dst_hi
     0xA5, 0x02, 0xD0, 0x02,       // LDA rem_lo / BNE +2
     0xC6, 0x03,                   // DEC rem_hi
     0xC6, 0x02,                   // DEC rem_lo
-    0x4C, 0x36, 0x80,             // JMP copy_loop
-    // done @ $806A — copy exit stub to $0100 and run from RAM
-    0xA2, 0x07,                   // LDX #$07
-    0xBD, 0x78, 0x80,             // LDA $8078,X
-    0x9D, 0x00, 0x01,             // STA $0100,X
-    0xCA,                         // DEX
-    0x10, 0xF7,                   // BPL -9
-    0x4C, 0x00, 0x01,             // JMP $0100
-    // exit_stub @ $8078 (copied to $0100..$0107 then executed from RAM,
-    // so the $DE00 write that unmaps the cart doesn't kill the next fetch)
+    0x4C, 0x00, 0x01,             // JMP copy_loop
+    // done @ $0134
     0xA9, 0x80,                   // LDA #$80    (bit 7 = cart off)
     0x8D, 0x00, 0xDE,             // STA $DE00
     0x4C, EL, EH,                 // JMP entry
@@ -24773,24 +24801,51 @@ async function runUltimateD64() {
   dialog?.showModal();
 }
 
-async function reloadIncludeBlocks(projectFilePath = "") {
+// How deep an included file may include further files (and a macro may call further macros).
+const INCLUDE_MAX_DEPTH = 16;
+
+// An include that was not found or includes itself, also further down in the included files:
+// a build error, not an empty library.
+function _includeLoadError(block, depth = 0) {
+  if (!block?.isIncludeMacro || depth > INCLUDE_MAX_DEPTH) return "";
+  if (block._includeMissing) return tf("includeNotFound", { file: block.includeFileName || block.includeFile || "?" });
+  if (block.validationError && !(block.includedBlocks || []).length) return block.validationError;
+  for (const sub of block.includedBlocks || []) {
+    const msg = _includeLoadError(sub, depth + 1);
+    if (msg) return msg;
+  }
+  return "";
+}
+
+async function reloadIncludeBlocks(projectFilePath = "", blocks = program, depth = 0, seen = new Set()) {
   if (!window.electronAPI?.reloadIncludeFile) return;
   const lastSlash = typeof projectFilePath === "string"
     ? Math.max(projectFilePath.lastIndexOf("/"), projectFilePath.lastIndexOf("\\"))
     : -1;
   const baseDir = lastSlash >= 0 ? projectFilePath.slice(0, lastSlash) : "";
-  for (const block of program) {
+  for (const block of blocks) {
     if (block.isIncludeMacro) {
       const sourcePath = _normalizeIncludeBlockSource(block);
       if (!sourcePath) continue;
       const result = await window.electronAPI.reloadIncludeFile(sourcePath, baseDir);
       if (!result.error) {
+        const filePath = result.filePath || sourcePath;
+        if (seen.has(filePath) || depth >= INCLUDE_MAX_DEPTH) {
+          block.includedBlocks = [];
+          block.validationError = tf("includeRecursive", { file: result.fileName || sourcePath });
+          continue;
+        }
         block.includedBlocks = (typeof result.text === "string" && result.text.trim().length > 0)
           ? parseExpertText(result.text)
           : (result.blocks || []);
         block.includeFileName = result.fileName;
-        block.includeFile = result.filePath || sourcePath;
+        block.includeFile = filePath;
         block.validationError = "";
+        block._includeMissing = false;
+        // the included file's own .include / .incbin / .sid lines, relative to its own folder
+        await reloadIncludeBlocks(filePath, block.includedBlocks, depth + 1, new Set([...seen, filePath]));
+        await reloadIncBinBlocks(filePath, block.includedBlocks);
+        await reloadSidBlocks(filePath, block.includedBlocks);
       } else {
         // Keep last successfully loaded content visible if a transient reload fails.
         // This prevents include source from flashing in/out during async refreshes.
@@ -24798,19 +24853,20 @@ async function reloadIncludeBlocks(projectFilePath = "") {
           block.includedBlocks = [];
         }
         block.validationError = result.error;
+        block._includeMissing = true;
       }
     }
   }
 }
 
-async function reloadIncBinBlocks(projectFilePath = "") {
+async function reloadIncBinBlocks(projectFilePath = "", blocks = program) {
   if (!window.electronAPI?.reloadIncBinFile) return;
   const lastSlash = typeof projectFilePath === "string"
     ? Math.max(projectFilePath.lastIndexOf("/"), projectFilePath.lastIndexOf("\\"))
     : -1;
   const baseDir = lastSlash >= 0 ? projectFilePath.slice(0, lastSlash) : "";
 
-  for (const block of program) {
+  for (const block of blocks) {
     if (!block.isIncBinMacro) continue;
 
     const hasIncBinFile = typeof block.incBinFile === "string" && block.incBinFile.trim() !== "";
@@ -24831,14 +24887,14 @@ async function reloadIncBinBlocks(projectFilePath = "") {
   }
 }
 
-async function reloadSidBlocks(projectFilePath = "") {
+async function reloadSidBlocks(projectFilePath = "", blocks = program) {
   if (!window.electronAPI?.reloadSidFile) return;
   const lastSlash = typeof projectFilePath === "string"
     ? Math.max(projectFilePath.lastIndexOf("/"), projectFilePath.lastIndexOf("\\"))
     : -1;
   const baseDir = lastSlash >= 0 ? projectFilePath.slice(0, lastSlash) : "";
 
-  for (const block of program) {
+  for (const block of blocks) {
     if (!block.isSidMacro) continue;
 
     const hasSidFile = typeof block.sidFile === "string" && block.sidFile.trim() !== "";
@@ -27803,7 +27859,7 @@ function _kickBreakpointAddresses(layout, kick) {
     }
   }
   const labels = new Map();
-  (layout?.lines || []).forEach(line => addLayoutLabels(labels, line));
+  addAllLayoutLabels(labels, layout?.lines);
   for (const b of kick.breaks || []) if (labels.has(b.label)) addresses.push(Number(labels.get(b.label)) & 0xFFFF);
   return [...new Set(addresses)];
 }
@@ -27815,7 +27871,7 @@ function _kickLintHints(kick, filePath) {
   if (!norm) return [];
   const layout = getProgramLayout();
   const labels = new Map();
-  layout.lines.forEach((line) => addLayoutLabels(labels, line));
+  addAllLayoutLabels(labels, layout.lines);
   labels._anonAddrs = _collectAnonLabels(layout);
   appendDelayHelperLabel(labels, layout);
   const seq = [];
@@ -27857,7 +27913,7 @@ function _kickCycleMap(kick, filePath) {
   if (!norm) return map;
   const layout = getProgramLayout();
   const labels = new Map();
-  layout.lines.forEach((line) => addLayoutLabels(labels, line));
+  addAllLayoutLabels(labels, layout.lines);
   labels._anonAddrs = _collectAnonLabels(layout);
   const perLine = new Map();   // editor line → [{ key, c }] (key: the instruction text)
   for (const line of layout.lines) {
@@ -28679,6 +28735,18 @@ function _importNormalizeOperand(op) {
   return s;
 }
 
+// "(…)" whose first parenthesis closes at the end: `(vec+2)`, not `(a)+(b)` or `(zp),Y`.
+function _parenWrapsAll(text) {
+  const s = String(text || "");
+  if (!s.startsWith("(") || !s.endsWith(")")) return false;
+  let depth = 0;
+  for (let i = 0; i < s.length; i++) {
+    if (s[i] === "(") depth++;
+    else if (s[i] === ")" && --depth === 0) return i === s.length - 1;
+  }
+  return false;
+}
+
 function _importMakeInstruction(mnemonic, operandRaw, branchMnems) {
   const category = _importMnemonicCategory(mnemonic);
   const description = _importMnemonicDescription(mnemonic);
@@ -28765,6 +28833,10 @@ function _importMakeInstruction(mnemonic, operandRaw, branchMnems) {
       const m = op.match(/^\((\$[0-9A-Fa-f]+)\)$/i);
       addressingMode = "indirect"; base = "hex";
       rawOperand = m[1].slice(1).toUpperCase(); displayOperand = "($" + rawOperand + ")";
+    } else if (mnemonic === "JMP" && _parenWrapsAll(op)) {
+      // JMP (label) / JMP (vectors+2): indirect through a label or an expression
+      rawOperand = op.slice(1, -1).trim(); base = "hex"; addressingMode = "indirect";
+      displayOperand = "(" + rawOperand + ")";
     } else if (/^\$[0-9A-Fa-f]+,X$/i.test(op)) {
       const m = op.match(/^(\$[0-9A-Fa-f]+),X$/i);
       rawOperand = m[1].slice(1).toUpperCase(); base = "hex";
@@ -28829,6 +28901,12 @@ function _importMakeInstruction(mnemonic, operandRaw, branchMnems) {
       rawOperand = op; base = "dec";
       addressingMode = isBranchMnemonic ? "relative" : (parseInt(op, 10) > 255 ? "absolute" : "zeroPage");
       displayOperand = op;
+    } else if (!isBranchMnemonic && /^[^()]+,[XY]$/i.test(op)) {
+      // any other expression indexed by X / Y ($1234+1,X, table+2*8,Y): absolute, resolved at compile time
+      const index = op.slice(-1).toUpperCase();
+      rawOperand = op.slice(0, op.lastIndexOf(",")).trim(); base = "hex";
+      addressingMode = index === "X" ? "absoluteX" : "absoluteY";
+      displayOperand = rawOperand + "," + index;
     } else {
       rawOperand = op; base = "hex";
       addressingMode = isBranchMnemonic ? "relative" : "absolute";
@@ -28837,6 +28915,8 @@ function _importMakeInstruction(mnemonic, operandRaw, branchMnems) {
   }
 
   let forceZeroPage = false;
+  // lda.abs zp: absolute even when the constant fits in a byte (_narrowConstZeroPage)
+  const forceAbsolute = forcedMode === "abs";
   const indexSuffix = /X$/.test(addressingMode) ? ",X" : /Y$/.test(addressingMode) ? ",Y" : "";
   if (forcedMode === "abs") {
     const wide = { zeroPage: "absolute", zeroPageX: "absoluteX", zeroPageY: "absoluteY" }[addressingMode];
@@ -28867,7 +28947,8 @@ function _importMakeInstruction(mnemonic, operandRaw, branchMnems) {
     operand: displayOperand, rawOperand, addressingMode, base,
     validationError: "", collapsed: true,
     ...(smcLabel ? { smcLabel } : {}),
-    ...(forceZeroPage ? { forceZeroPage } : {})
+    ...(forceZeroPage ? { forceZeroPage } : {}),
+    ...(forceAbsolute && /^absolute/.test(addressingMode) ? { forceAbsolute } : {})
   };
 }
 
@@ -29365,14 +29446,43 @@ function addLayoutLabels(labelMap, line) {
     const ml = block.macroLabel.trim();
     if (ml) {
       let addr = null;
-      if (block.isTextMacro)      addr = 0x0400 + ((resolveProgramValueWithConst(block.textY ?? "0", "dec") || 0) * 40) + (resolveProgramValueWithConst(block.textX ?? "0", "dec") || 0);
-      else if (block.isStringMacro)  addr = parseAddressValue(block.stringAddress) ?? 0xC000;
-      else if (block.isDataMacro)    addr = parseAddressValue(block.dataAddress) ?? 0xC000;
-      else if (block.isRawBytesMacro) addr = parseAddressValue(block.rawBytesAddress) ?? 0xC000;
-      else if (block.isRawTextMacro)  addr = parseAddressValue(block.rawTextAddress) ?? 0xC000;
-      else if (block.isPetsciiMacro)  addr = parseAddressValue(block.petsciiAddress) ?? 0xC000;
+      const target = block.isStringMacro ? block.stringAddress
+        : block.isDataMacro ? block.dataAddress
+        : block.isRawBytesMacro ? block.rawBytesAddress
+        : block.isRawTextMacro ? block.rawTextAddress
+        : block.isPetsciiMacro ? block.petsciiAddress
+        : undefined;
+      if (block.isTextMacro) {
+        addr = 0x0400 + ((resolveProgramValueWithConst(block.textY ?? "0", "dec") || 0) * 40) + (resolveProgramValueWithConst(block.textX ?? "0", "dec") || 0);
+      } else if (target !== undefined) {
+        addr = parseAddressValue(target, labelMap);
+        // a label as the target address: resolved once every label is known (addAllLayoutLabels)
+        if (addr === null && /^[A-Za-z_]/.test(String(target || "").trim())) {
+          (labelMap._pendingMacroLabels ||= []).push({ name: ml, target: String(target).trim() });
+          return;
+        }
+        addr ??= 0xC000;
+      }
       if (addr !== null) labelMap.set(ml, addr);
     }
+  }
+}
+
+// Every layout line's labels, then the data-macro labels whose target is a label defined later.
+function addAllLayoutLabels(labelMap, lines) {
+  (lines || []).forEach((line) => addLayoutLabels(labelMap, line));
+  let pending = labelMap._pendingMacroLabels || [];
+  delete labelMap._pendingMacroLabels;
+  // a target may be another data-macro label: repeat while it helps; an unresolved one stays undefined
+  while (pending.length) {
+    const left = pending.filter(({ name, target }) => {
+      const addr = parseAddressValue(target, labelMap);
+      if (addr === null) return true;
+      labelMap.set(name, addr);
+      return false;
+    });
+    if (left.length === pending.length) break;
+    pending = left;
   }
 }
 
@@ -29626,7 +29736,7 @@ function _buildUniversalAsmExportText(originOverride) {
   }
 
   const labelMap = new Map();
-  layout.lines.forEach((line) => addLayoutLabels(labelMap, line));
+  addAllLayoutLabels(labelMap, layout.lines);
   labelMap._anonAddrs = _collectAnonLabels(layout);
 
   const addrToLabels = new Map();
@@ -29774,7 +29884,7 @@ function _buildUniversalAsmExportText(originOverride) {
                 return new Array(padding).fill(0x00);
               })()
             : block.isRawBytesMacro
-              ? parseByteMacro(block.rawOperand, block.base)
+              ? parseByteMacro(block.rawOperand, block.base, labelMap)
               : block.isRawTextMacro
                 ? encodeTextMacro(block.rawOperand, block.textCharset || "standard")
                     .map((byte) => {
@@ -29917,7 +30027,7 @@ function _getPlainAsmSourceText() {
   return asmPlainText || "";
 
   const labels = new Map();
-  layout.lines.forEach((line) => addLayoutLabels(labels, line));
+  addAllLayoutLabels(labels, layout.lines);
   labels._anonAddrs = _collectAnonLabels(layout);
 
   const addrToLabel = new Map();
@@ -30103,7 +30213,7 @@ function _getPlainAsmSourceText() {
 
     if (block.isRawBytesMacro) {
       const address = parseAddressValue(block.rawBytesAddress, labels) ?? 0xC000;
-      const bytes = parseByteMacro(block.rawOperand, block.base);
+      const bytes = parseByteMacro(block.rawOperand, block.base, labels);
       const byteLines = _formatPlainByteLines(bytes);
       if (byteLines.length) {
         pushLine(_commentifyAsmLines(byteLines).join("\n"));
@@ -30641,6 +30751,7 @@ function assembleProgramToPrg(originOverride) {
     if (!msg && block?.isComment && typeof block.validationError === "string" && block.validationError) {
       msg = block.validationError;
     }
+    if (!msg && block?.isIncludeMacro) msg = _includeLoadError(block);
     if (msg) {
       const asmLine = asmBlockRanges[block.id]?.firstLine;
       const lineTag = typeof asmLine === "number"
@@ -30661,7 +30772,7 @@ function assembleProgramToPrg(originOverride) {
   const labels = new Map();
   const hasDelayMacro = layout.lines.some((line) => line.block?.isDelayMacro);
 
-  layout.lines.forEach((line) => addLayoutLabels(labels, line));
+  addAllLayoutLabels(labels, layout.lines);
   labels._anonAddrs = _collectAnonLabels(layout);
   appendDelayHelperLabel(labels, layout);
   const delayHelperAddress = labels.get(DELAY_HELPER_LABEL);
@@ -30721,7 +30832,7 @@ function assembleProgramToPrg(originOverride) {
   for (const line of layout.lines) {
     const block = line.block;
     if (block.isRawBytesMacro) {
-      const chunkBytes = parseByteMacro(block.rawOperand, block.base);
+      const chunkBytes = parseByteMacro(block.rawOperand, block.base, labels);
       const addr = parseAddressValue(block.rawBytesAddress, labels) ?? 0xC000;
       if (chunkBytes.length > 0) deferredChunks.push({ addr, bytes: chunkBytes });
     } else if (block.isRawTextMacro) {
@@ -30849,7 +30960,10 @@ function compileLineBytes(line, labels) {
   // macro is not defined. Emit a clear error instead of falling through to the
   // generic "invalid operand" message.
   if (block.isMacroInvoke) {
-    // A macro body is expanded one level deep: an INVOKE inside it stays unexpanded.
+    // A macro called inside a macro is expanded too, INCLUDE_MAX_DEPTH levels deep (a macro calling itself stops there).
+    if (block._macroTooDeep) {
+      return { ok: false, error: tf("compileMacroTooDeep", { name: block.invokeMacroName, depth: INCLUDE_MAX_DEPTH }) };
+    }
     if (block._fromMacro && userMacros[block.invokeMacroName]) {
       return { ok: false, error: tf("compileNestedMacro", { name: block.invokeMacroName, outer: block._fromMacro }) };
     }
@@ -30921,7 +31035,7 @@ function compileLineBytes(line, labels) {
   }
 
   if (block.isDataMacro) {
-    const dataBytes = parseByteMacro(block.rawOperand, block.base);
+    const dataBytes = parseByteMacro(block.rawOperand, block.base, labels);
     const startAddress = parseAddressValue(block.dataAddress, labels) ?? 0xC000;
     const bytes = [];
     dataBytes.forEach((byte, byteIndex) => {
@@ -31171,6 +31285,7 @@ function compileLineBytes(line, labels) {
   if (block.isJoystickMacro && _joyIsVarMode(block)) {
     const port = resolveProgramNumericValue(block.joyPort || "2", labels, "dec");
     if (port !== 1 && port !== 2 && port !== 3) return { ok: false, error: t("joyPortRange") };
+    if (port !== _joyPortValue(block)) return { ok: false, error: tf("macroSizeNotConstant", { macro: "JOYSTICK", value: block.joyPort }) };
     const resolve = (expr) => {
       const v = _evalAsmExpr(_substituteStarPc(String(expr || "").trim(), line.address), labels);
       return v === null || v === undefined || Number.isNaN(v) ? null : v & 0xFFFF;
@@ -31185,6 +31300,10 @@ function compileLineBytes(line, labels) {
     const port = resolveProgramNumericValue(block.joyPort || "2", labels, "dec");
     if (port !== 1 && port !== 2 && port !== 3) {
       return { ok: false, error: t("joyPortRange") };
+    }
+    // the size counts with the port the layout saw (_joyPortValue, no labels): it must be the same
+    if (port !== _joyPortValue(block)) {
+      return { ok: false, error: tf("macroSizeNotConstant", { macro: "JOYSTICK", value: block.joyPort }) };
     }
     const num = resolveProgramNumericValue(block.joySpriteNum || "0", labels, "dec");
     if (isNaN(num) || num < 0 || num > 7) {
@@ -31315,11 +31434,16 @@ function compileLineBytes(line, labels) {
   }
 
   if (block.isTurboSetMacro) {
+    // an unresolved value (null) is an error, not speed 0
     const spd = parseMacroNumber(block.turboSpeed || "7", labels, "dec");
-    if (isNaN(spd) || spd < 0 || spd > 15) {
+    if (!Number.isFinite(spd) || spd < 0 || spd > 15) {
       return { ok: false, error: t("turboSetSpeedMustBe015") };
     }
-    const badline = parseMacroNumber(block.turboBadline || "0", labels, "dec") === 1 ? 0x80 : 0x00;
+    const badlineValue = parseMacroNumber(block.turboBadline || "0", labels, "dec");
+    if (!Number.isFinite(badlineValue)) {
+      return { ok: false, error: tf("operandNotResolvable", { mnemonic: block.mnemonic }) };
+    }
+    const badline = badlineValue === 1 ? 0x80 : 0x00;
     const val = (spd & 0x0F) | badline;
     // LDA #val (A9 val) + STA $D031 (8D 31 D0)
     return { ok: true, bytes: [0xA9, val, 0x8D, 0x31, 0xD0], comment: `TURBO_SET speed=${spd} badline=${block.turboBadline === "1" ? "off" : "on"}` };
@@ -31494,15 +31618,16 @@ function compileLineBytes(line, labels) {
   }
 
   if (block.isSpriteAnimMacro) {
+    // an unresolved value (null) is an error, not 0
     const num = resolveProgramNumericValue(block.animSpriteNum || "0", labels, "dec");
-    if (isNaN(num) || num < 0 || num > 7)
+    if (!Number.isFinite(num) || num < 0 || num > 7)
       return { ok: false, error: t("spriteAnimSpriteNumberMustBe07") };
     const count = resolveProgramNumericValue(block.animFrameCount || "4", labels, "dec");
-    if (isNaN(count) || count < 1 || count > 255)
+    if (!Number.isFinite(count) || count < 1 || count > 255)
       return { ok: false, error: t("spriteAnimFrameCountMustBe1255") };
     const zpStr = (block.animFrameZP || "FB").replace(/^\$/, "");
     const zp = resolveProgramNumericValue(zpStr, labels, "hex");
-    if (isNaN(zp) || zp < 0 || zp > 0xFF)
+    if (!Number.isFinite(zp) || zp < 0 || zp > 0xFF)
       return { ok: false, error: t("spriteAnimZpCounterMustBe00Ff") };
     const listStr = (block.animFrameListAddr || "C100").replace(/^\$/, "");
     const listAddr = parseInt(listStr, 16);
@@ -32129,6 +32254,10 @@ function compileLineBytes(line, labels) {
     if (!size || src === null || dst === null) {
       return { ok: false, error: `MEMCPY: invalid src/dst/size` };
     }
+    // getInstructionSize counts without labels: a size known only later would shift the layout
+    if (size !== parseMacroCountOrSize(block.memcpySize || "0", null, macroBase)) {
+      return { ok: false, error: tf("macroSizeNotConstant", { macro: "MEMCPY", value: block.memcpySize }) };
+    }
     const bytes = [];
     const fullPages = Math.floor(size / 256);
     const partial = size % 256;
@@ -32163,6 +32292,9 @@ function compileLineBytes(line, labels) {
     const dst = parseMacroAddress(block.memsetDst || "0400", labels, macroBase);
     if (!size || dst === null) {
       return { ok: false, error: `MEMSET: invalid dst/size` };
+    }
+    if (size !== parseMacroCountOrSize(block.memsetSize || "0", null, macroBase)) {
+      return { ok: false, error: tf("macroSizeNotConstant", { macro: "MEMSET", value: block.memsetSize }) };
     }
     if (value === null || value < 0 || value > 255) {
       return { ok: false, error: `MEMSET: invalid byte value` };
@@ -32687,7 +32819,8 @@ function _evalJsExprSafe(src) {
 // Shared arithmetic-expression evaluator (label + const aware). Mirrors the
 // inline evalAsmExpression copies used elsewhere; kept module-level so the
 // long-branch / .assert / relative-branch paths can reuse it.
-function _evalAsmExpr(expr, labels = null) {
+// strict: only `labels` names a value (no program constant from an earlier layout)
+function _evalAsmExpr(expr, labels = null, strict = false) {
   let text = _charLiteralToHex(String(expr ?? "").trim());
   if (!text) return null;
   text = text.replace(/^#/, "");
@@ -32710,7 +32843,7 @@ function _evalAsmExpr(expr, labels = null) {
       const value = labels.get(name) ?? labels.get(name.toLowerCase()) ?? labels.get(name.toUpperCase());
       if (value !== undefined && value !== null) return String(value);
     }
-    const constValue = lookupProgramConstValue(name);
+    const constValue = strict ? null : lookupProgramConstValue(name);
     if (constValue !== null) return String(constValue);
     return `__UNKNOWN_${name}__`;
   });
@@ -33512,7 +33645,8 @@ function formatAddress(value) {
   return `$${value.toString(16).toUpperCase().padStart(4, "0")}`;
 }
 
-function getInstructionSize(block) {
+// depth: a macro call counts its body, which may call macros (a macro calling itself stops at INCLUDE_MAX_DEPTH)
+function getInstructionSize(block, depth = 0) {
   if (block.isBlankLine) {
     return 0;
   }
@@ -33835,10 +33969,11 @@ function getInstructionSize(block) {
   // Check if this is a user macro invocation (INVOKE block or legacy format)
   const macroName = block.isMacroInvoke ? block.invokeMacroName : (userMacros[block.mnemonic] ? block.mnemonic : null);
   if (macroName && userMacros[macroName]) {
+    if (block._macroTooDeep || depth >= INCLUDE_MAX_DEPTH) return 0;
     // Calculate size by expanding the macro body
     let totalSize = 0;
     for (const macroBlock of userMacros[macroName].body) {
-      totalSize += getInstructionSize(macroBlock);
+      totalSize += getInstructionSize(macroBlock, depth + 1);
     }
     return totalSize;
   }
@@ -33895,6 +34030,48 @@ function _scopeLocalLabels(expandedProgram) {
   }
 }
 
+// `lda zp` after `.const zp = $FB` (or a `.var`): an operand made of constants only that fits in a
+// byte takes the instruction's zero-page mode, as the number $FB would — KickAssembler does the same.
+// A label (its address is known only after the layout) and `lda.abs zp` (forceAbsolute) stay absolute.
+const _ZP_NARROW = { absolute: "zeroPage", absoluteX: "zeroPageX", absoluteY: "zeroPageY" };
+
+function _narrowConstZeroPage(blocks) {
+  const consts = new Map();
+  for (const b of blocks) {
+    if (b?.isVarMacro && b.varName && typeof b._varAddress === "number") consts.set(b.varName, b._varAddress);
+  }
+  // a constant may name constants defined later: a few passes
+  const constBlocks = blocks.filter(b => b?.isConstMacro && b.constName);
+  for (let pass = 0; pass < 4; pass++) {
+    let added = false;
+    for (const b of constBlocks) {
+      if (consts.has(b.constName)) continue;
+      const raw = String(b.rawOperand || "").trim();
+      if (!raw || raw.includes("*")) continue;
+      let v = parseNumberByBase(raw.replace(/^\$/, ""), b.base);
+      if (v === null) v = _evalAsmExpr(raw, consts, true);
+      if (v === null || !Number.isFinite(v)) continue;
+      consts.set(b.constName, v & 0xFFFF);
+      added = true;
+    }
+    if (!added) break;
+  }
+  if (!consts.size) return;
+  for (let i = 0; i < blocks.length; i++) {
+    const b = blocks[i];
+    const narrow = _ZP_NARROW[b?.addressingMode];
+    if (!narrow || b.forceAbsolute || !opcodeMap[b.mnemonic]?.[narrow]) continue;
+    const raw = String(b.rawOperand || "").trim();
+    // a symbol is needed: a number keeps the width the parser gave it ($00FB stays absolute;
+    // a hex operand is stored without its $: "05E0" is a number, not a name)
+    if (parseNumberByBase(raw.replace(/^[$%]/, ""), b.base || "hex") !== null) continue;
+    if (!/(?<![\w$])[A-Za-z_]/.test(raw.replace(/\$[0-9A-Fa-f]+/g, "").replace(/0x[0-9A-Fa-f]+/gi, "")) || raw.includes("*")) continue;
+    const v = _evalAsmExpr(raw, consts, true);
+    if (v === null || !Number.isFinite(v) || v < 0 || v > 0xFF) continue;
+    blocks[i] = { ...b, addressingMode: narrow };
+  }
+}
+
 function getProgramLayout(originOverride) {
   const parsedOrigin = parseOriginValue();
   const origin = originOverride === undefined
@@ -33913,49 +34090,13 @@ function getProgramLayout(originOverride) {
   let currentMacroHasParams = false;
   const sourceProgram = _projVmaWithPrelude(program);
 
-  for (const block of sourceProgram) {
-    if (block.isMacroDefStart) {
-      insideMacroDef = true;
-      currentMacroName = block.macroName || null;
-      // Macros with parameters cannot be used as subroutines (placeholders can't be resolved at definition site)
-      currentMacroHasParams = !!(block.macroParams && block.macroParams.trim());
-      // Emit synthetic label so JSR macroName can resolve to the definition site (param-less macros only)
-      if (currentMacroName && !currentMacroHasParams) {
-        expandedProgram.push({
-          id: crypto.randomUUID(),
-          isLabel: true,
-          labelName: currentMacroName,
-          mnemonic: "LABEL",
-          addressingMode: "implied",
-          base: "hex",
-          operand: currentMacroName,
-          rawOperand: currentMacroName,
-          _syntheticMacroLabel: true,
-        });
-      }
-      if (showMacroSource) expandedProgram.push(block);
-      continue;
-    }
-    if (block.isMacroDefEnd) {
-      insideMacroDef = false;
-      currentMacroName = null;
-      currentMacroHasParams = false;
-      if (showMacroSource) expandedProgram.push(block);
-      continue;
-    }
-    if (insideMacroDef) {
-      // Emit macro body as real subroutine code at definition site (enables JSR macroName) —
-      // only for parameter-less macros; parameterised macros are INVOKE-only
-      if (!currentMacroHasParams) {
-        expandedProgram.push({ ...block, _fromMacroDef: currentMacroName });
-      } else if (showMacroSource) {
-        expandedProgram.push({ ...block, _macroSourceBlock: true, _fromMacroDef: currentMacroName });
-      }
-      continue;
-    }
-
+  // One block of the program (or of an included file / a macro body at `depth`) into expandedProgram:
+  // an INCLUDE expands to its blocks, a macro call to the macro body — both recursively.
+  const expandBlock = (block, depth, fromInclude) => {
     // Expand INCLUDE blocks inline
     if (block.isIncludeMacro) {
+      // the blocks of a nested include carry the outermost include (its line in the error list)
+      const includeTag = fromInclude || block.id;
       expandedProgram.push(block); // header marker, 0 bytes
       if (block.includedBlocks?.length) {
         // If an override address is set, save current address then inject synthetic ORG
@@ -33973,7 +34114,7 @@ function getProgramLayout(originOverride) {
             validationError: "",
             isOrgMacro: true,
             orgAddress: addrHex,
-            _fromInclude: block.id,
+            _fromInclude: includeTag, _includeOwner: block.id,
             _includeFileName: block.includeFileName,
             _syntheticOrg: true
           });
@@ -33992,7 +34133,7 @@ function getProgramLayout(originOverride) {
             if (block.includeAddress && !includedMacroHasParams) {
               // Library at fixed address: zero-param macros become subroutines
               // Show source comment first (if toggled on), then synthetic label for JSR target
-              if (showMacroSource) expandedProgram.push({ ...subBlock, _fromInclude: block.id });
+              if (showMacroSource) expandedProgram.push({ ...subBlock, _fromInclude: includeTag, _includeOwner: block.id });
               if (includedMacroName) {
                 expandedProgram.push({
                   id: crypto.randomUUID(),
@@ -34003,12 +34144,12 @@ function getProgramLayout(originOverride) {
                   base: "hex",
                   operand: includedMacroName,
                   rawOperand: includedMacroName,
-                  _fromInclude: block.id,
+                  _fromInclude: includeTag, _includeOwner: block.id,
                   _syntheticMacroLabel: true
                 });
               }
             } else {
-              if (showMacroSource) expandedProgram.push({ ...subBlock, _fromInclude: block.id });
+              if (showMacroSource) expandedProgram.push({ ...subBlock, _fromInclude: includeTag, _includeOwner: block.id });
             }
             continue;
           }
@@ -34016,26 +34157,27 @@ function getProgramLayout(originOverride) {
             insideIncludedMacroDef = false;
             includedMacroName = null;
             includedMacroHasParams = false;
-            if (showMacroSource) expandedProgram.push({ ...subBlock, _fromInclude: block.id });
+            if (showMacroSource) expandedProgram.push({ ...subBlock, _fromInclude: includeTag, _includeOwner: block.id });
             continue;
           }
           if (insideIncludedMacroDef) {
             if (block.includeAddress && !includedMacroHasParams) {
               // Emit as actual subroutine code so JSR macroName resolves correctly
-              expandedProgram.push({ ...subBlock, _fromInclude: block.id, _includeFileName: block.includeFileName, _fromLibraryMacro: includedMacroName });
+              expandedProgram.push({ ...subBlock, _fromInclude: includeTag, _includeOwner: block.id, _includeFileName: block.includeFileName, _fromLibraryMacro: includedMacroName });
             } else if (showMacroSource) {
-              expandedProgram.push({ ...subBlock, _macroSourceBlock: true, _fromInclude: block.id });
+              expandedProgram.push({ ...subBlock, _macroSourceBlock: true, _fromInclude: includeTag, _includeOwner: block.id });
             }
             continue;
           }
-          expandedProgram.push({ ...subBlock, _fromInclude: block.id, _includeFileName: block.includeFileName });
+          // a further .include, a macro call: expanded like the main program's own
+          expandBlock({ ...subBlock, _fromInclude: includeTag, _includeOwner: block.id, _includeFileName: block.includeFileName }, depth + 1, includeTag);
         }
         // After library: restore main program address
         if (block.includeAddress) {
           expandedProgram.push({ _isRestoreAddress: true, id: crypto.randomUUID() });
         }
       }
-      continue;
+      return;
     }
 
     // Check if this block invokes a user macro (INVOKE block or legacy format)
@@ -34043,6 +34185,8 @@ function getProgramLayout(originOverride) {
 
     if (macroName && userMacros[macroName]) {
       const invokeId = block.id;
+      // a call inside a macro body keeps the outermost call for the error line
+      const rootInvokeId = block._invokeBlockId || block.id;
       const localSuffix = "__m" + invokeId.replace(/-/g, "").slice(0, 8);
       const macroBody = userMacros[macroName].body;
       const macroParams = userMacros[macroName].params || [];
@@ -34101,7 +34245,7 @@ function getProgramLayout(originOverride) {
           ...macroBlock,
           id: crypto.randomUUID(),
           _fromMacro: macroName,
-          _invokeBlockId: invokeId
+          _invokeBlockId: rootInvokeId
         };
         const addrFieldName = getDeferredMacroAddressField(macroBlock);
         if (macroBlock.isLabel && macroBlock.labelName && localLabels.has(macroBlock.labelName)) {
@@ -34162,11 +34306,67 @@ function getProgramLayout(originOverride) {
             }
           }
         }
+        // a macro called inside the body: expanded too, its arguments with this call's parameters
+        const innerName = expanded.isMacroInvoke ? expanded.invokeMacroName : (userMacros[expanded.mnemonic] ? expanded.mnemonic : null);
+        if (innerName && userMacros[innerName]) {
+          if (macroBlock.invokeArgs) expanded.invokeArgs = rewriteOperand(macroBlock.invokeArgs);
+          if (depth >= INCLUDE_MAX_DEPTH) {
+            expanded._macroTooDeep = true;
+            expandedProgram.push(expanded);
+          } else {
+            expandBlock(expanded, depth + 1, fromInclude);
+          }
+          continue;
+        }
         expandedProgram.push(expanded);
       }
     } else {
       expandedProgram.push(block);
     }
+  };
+
+  for (const block of sourceProgram) {
+    if (block.isMacroDefStart) {
+      insideMacroDef = true;
+      currentMacroName = block.macroName || null;
+      // Macros with parameters cannot be used as subroutines (placeholders can't be resolved at definition site)
+      currentMacroHasParams = !!(block.macroParams && block.macroParams.trim());
+      // Emit synthetic label so JSR macroName can resolve to the definition site (param-less macros only)
+      if (currentMacroName && !currentMacroHasParams) {
+        expandedProgram.push({
+          id: crypto.randomUUID(),
+          isLabel: true,
+          labelName: currentMacroName,
+          mnemonic: "LABEL",
+          addressingMode: "implied",
+          base: "hex",
+          operand: currentMacroName,
+          rawOperand: currentMacroName,
+          _syntheticMacroLabel: true,
+        });
+      }
+      if (showMacroSource) expandedProgram.push(block);
+      continue;
+    }
+    if (block.isMacroDefEnd) {
+      insideMacroDef = false;
+      currentMacroName = null;
+      currentMacroHasParams = false;
+      if (showMacroSource) expandedProgram.push(block);
+      continue;
+    }
+    if (insideMacroDef) {
+      // Emit macro body as real subroutine code at definition site (enables JSR macroName) —
+      // only for parameter-less macros; parameterised macros are INVOKE-only
+      if (!currentMacroHasParams) {
+        expandedProgram.push({ ...block, _fromMacroDef: currentMacroName });
+      } else if (showMacroSource) {
+        expandedProgram.push({ ...block, _macroSourceBlock: true, _fromMacroDef: currentMacroName });
+      }
+      continue;
+    }
+
+    expandBlock(block, 0, null);
   }
 
   _scopeLocalLabels(expandedProgram);
@@ -34197,6 +34397,8 @@ function getProgramLayout(originOverride) {
       zpCursor += safeSize;
     }
   }
+
+  _narrowConstZeroPage(expandedProgram);
 
   // Collect active defines from DEFINE blocks in the program
   const activeDefines = new Set(
@@ -34305,7 +34507,8 @@ function getProgramLayout(originOverride) {
               const offset = resolveProgramValueWithConst(block.charOffset || "0", "hex");
               return isNaN(offset) || offset === 0 ? rawChars : rawChars.map(b => (b + offset) & 0xFF);
             })()
-          : [];
+          // DATA / RAWBYTES: one byte per item (the count needs no labels)
+          : parseByteMacro(block.rawOperand || "", block.base);
     const resolvedAddr = autoBufferCursor;
     block._autoBufferAddress = resolvedAddr;
     block[addrFieldName] = `$${resolvedAddr.toString(16).toUpperCase().padStart(4, "0")}`;
@@ -34323,7 +34526,7 @@ function getProgramLayout(originOverride) {
 function getDeferredMemorySections(layout) {
   // Build label map for address resolution
   const labelMap = new Map();
-  layout.lines.forEach((line) => addLayoutLabels(labelMap, line));
+  addAllLayoutLabels(labelMap, layout.lines);
 
   return layout.lines
     .map((line, index) => {
@@ -34360,7 +34563,7 @@ function getDeferredMemorySections(layout) {
       }
 
       if (line.block.isDataMacro) {
-        const bytes = parseByteMacro(line.block.rawOperand, line.block.base);
+        const bytes = parseByteMacro(line.block.rawOperand, line.block.base, labelMap);
         const startAddress = parseAddressValue(line.block.dataAddress, labelMap) ?? 0xC000;
         return {
           type: "data",
@@ -34374,7 +34577,7 @@ function getDeferredMemorySections(layout) {
       }
 
       if (line.block.isRawBytesMacro) {
-        const bytes = parseByteMacro(line.block.rawOperand, line.block.base);
+        const bytes = parseByteMacro(line.block.rawOperand, line.block.base, labelMap);
         const startAddress = parseAddressValue(line.block.rawBytesAddress, labelMap) ?? 0xC000;
         return {
           type: "rawbytes",
@@ -34845,7 +35048,7 @@ let _zpSelected = -1;
 
 function _zpCollect(layout) {
   const labels = new Map();
-  layout.lines.forEach((line) => addLayoutLabels(labels, line));
+  addAllLayoutLabels(labels, layout.lines);
   labels._anonAddrs = _collectAnonLabels(layout);
   const entries = [];
   let owner = "";
@@ -38908,7 +39111,7 @@ function renderAsmOutput() {
   }
 
   const labels = new Map();
-  layout.lines.forEach((line) => addLayoutLabels(labels, line));
+  addAllLayoutLabels(labels, layout.lines);
   labels._anonAddrs = _collectAnonLabels(layout);
   appendDelayHelperLabel(labels, layout);
 
@@ -39031,7 +39234,7 @@ function renderAsmOutput() {
     }
 
     if (line.block.isDataMacro) {
-      const dataBytes = parseByteMacro(line.block.rawOperand, line.block.base);
+      const dataBytes = parseByteMacro(line.block.rawOperand, line.block.base, labels);
       const startAddress = parseAddressValue(line.block.dataAddress) ?? 0xC000;
       const expanded = chunkBytes(dataBytes, 16).map((chunk, chunkIndex) => {
         const chunkAddress = startAddress + (chunkIndex * 16);
@@ -39047,7 +39250,7 @@ function renderAsmOutput() {
     }
 
     if (line.block.isRawBytesMacro) {
-      const rawBytes = parseByteMacro(line.block.rawOperand, line.block.base);
+      const rawBytes = parseByteMacro(line.block.rawOperand, line.block.base, labels);
       const startAddress = parseAddressValue(line.block.rawBytesAddress) ?? 0xC000;
       const expanded = chunkBytes(rawBytes, 16).map((chunk, chunkIndex) => {
         const chunkAddress = startAddress + (chunkIndex * 16);
@@ -39514,7 +39717,7 @@ function _buildMonitorText(layout, basicStubSection = null) {
   const labels = new Map();
   const deferredSections = getDeferredMemorySections(layout);
 
-  layout.lines.forEach((line) => addLayoutLabels(labels, line));
+  addAllLayoutLabels(labels, layout.lines);
   labels._anonAddrs = _collectAnonLabels(layout);
   appendDelayHelperLabel(labels, layout);
 
@@ -58663,7 +58866,7 @@ function _vmWithProgram(fn, blocks = null) {
 
 function _vmLabelMap(layout) {
   const labels = new Map();
-  layout.lines.forEach((line) => addLayoutLabels(labels, line));
+  addAllLayoutLabels(labels, layout.lines);
   return labels;
 }
 

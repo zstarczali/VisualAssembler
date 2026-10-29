@@ -282,6 +282,30 @@ const VARIANTS = {
   "print-multi": "* = $1000\n    .print \"HELLO\"\n    .print_hex A\n    .print_char 'A'\n    rts\n",
   "runtime-control": "* = $1000\n    .if A == #$00\n    inc $D020\n    .else\n    inc $D021\n    .endif\n    .while X != #$05\n    inx\n    .endw\n    .repeat\n    dey\n    .until Y == #$00\n    rts\n",
   "irq-wait-raster": "* = $1000\n    .irq_setup handler=irq, raster=$30\n    rts\nirq:\n    .wait_raster $80\n    jmp $EA31\n",
+  // VMA 2.1: a size known only after the layout is an error, not a shifted layout
+  "memcpy-size-later-label-error": "* = $1000\n    jmp next\n    .memcpy src=$C000, dst=$0400, size=later\nnext:\n    rts\nlater:\n",
+  "memset-size-const": ".const sz = $0180\n* = $1000\n    .memset addr=$0400, value=$20, size=sz\n    rts\n",
+  "turbo-set-unresolved-error": "* = $1000\n    .turbo_set nope, 0\n    rts\n",
+  "sprite-anim-unresolved-error": "* = $1000\n    .sprite_anim nope, $C100, 4, $FB\n    rts\n",
+  // the auto buffer of a DATA / RAWBYTES macro argument takes its bytes
+  "macro-buffer-rawbytes-size": ".macro two(buf)\n    .rawbytes buf, $11, $22, $33\n.endm\n.macro one(buf)\n    .rawbytes buf, $44\n.endm\n* = $1000\n    two(b1)\n    one(b2)\n    lda b1\n    lda b2\n    rts\n",
+  // a data-macro label whose target is a label defined later
+  "data-label-forward-target": "* = $1000\n    .rawbytes buf, $11, $22:tbl\n    lda tbl\n    rts\nbuf:\n    .byte 0, 0\n",
+  "data-rawbytes-lo-hi-labels": "* = $1000\n    .rawbytes $2000, <target, >target\n    .data $2010, <target, >target\n    rts\ntarget:\n    nop\n",
+  // includes: not found, nested with their own .incbin, self-including, a macro from an included file
+  "include-missing-error": '* = $1000\n    .include "no-such-file.asm"\n    rts\n',
+  "include-nested-incbin": '* = $1000\n    jsr nested_lib\n    jsr nested_inner\n    rts\n    .include "nested-outer.asm"\n',
+  "include-self-error": '* = $1000\n    .include "include-self.asm"\n    rts\n',
+  "include-macro-call": '* = $1000\n    .include "macro-lib.asm"\n    lib_border(5)\n    rts\n',
+  // a macro calling a macro; a macro calling itself
+  "macro-nested-call": ".macro setc(c)\n    lda #c\n    sta $d020\n.endm\n.macro both(a, b)\n    setc(a)\n    lda #b\n    sta $d021\n.endm\n* = $1000\n    both(2, 6)\n    rts\n",
+  "macro-recursive-error": ".macro r(x)\n    r(x)\n.endm\n* = $1000\n    r(1)\n    rts\n",
+  // a constant (or .var) that fits in a byte: zero page; .abs keeps absolute
+  "const-zero-page": ".const zp = $FB\n.const zp2 = zp + 2\n.const big = $1234\n* = $1000\n    lda zp\n    sta zp+1\n    lda zp,x\n    ldx zp,y\n    lda zp,y\n    lda.abs zp\n    inc zp2\n    lda big\n    jmp big\n    rts\n",
+  "var-zero-page": ".var counter\n* = $1000\n    inc counter\n    lda counter\n    rts\n",
+  // JMP (label) / JMP (expression), expressions starting with $
+  "jmp-indirect-label": "* = $1000\n    jmp (vec)\n    jmp (vec+2)\nvec:\n    .word $1234, $5678\n",
+  "dollar-expression-operand": "* = $1000\n    lda $1234+1\n    sta $0400+40*2,x\n    rts\n",
   // Kick import forms (.pc, .encoding + .text)
   "kick-pc": '.pc = $1000 "Main"\n    lda #$01\n.pc = 8192\n    rts\n',
   "kick-encoding-text": '* = $1000\n    .text "HELLO, world! @[]", $0D, 0\n.encoding "screencode_upper"\n    .text "ABC xyz 123"\n.encoding "petscii_mixed"\n    .text @"Mixed \\"q\\"", 255\n.encoding "petscii_upper"\n    .text "abc"\n.encoding "ascii"\n    .text "a~"\n    rts\n',

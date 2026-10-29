@@ -12,7 +12,7 @@ test('ASM output uses the complete layout of a large source and refreshes both b
   let monitor = 0;
   let disasm = 0;
   const context = {
-    program, getProgramLayout: () => layout, addLayoutLabels() {}, _collectAnonLabels: () => [], appendDelayHelperLabel() {},
+    program, getProgramLayout: () => layout, addLayoutLabels() {}, addAllLayoutLabels() {}, _collectAnonLabels: () => [], appendDelayHelperLabel() {},
     asmOutput: {}, asmPlainText: '', asmDisplayText: '', asmBlockRanges: {}, selectedBlockIds: new Set(),
     withAsmLineNumbers: text => text, highlightAsmHtml: text => text,
     renderMonitorOutput() { monitor++; }, renderDisasmOutput() { disasm++; },

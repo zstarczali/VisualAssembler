@@ -68,7 +68,7 @@ function createMacroContext(extraContext = {}) {
       "compileAbsoluteStore",
       "compilePrintHexA",
       "getDeferredMacroAddressField",
-      "_scopeLocalLabels", "getProgramLayout",
+      "_scopeLocalLabels", "_narrowConstZeroPage", "getProgramLayout", "addAllLayoutLabels",
       "_substituteStarPc",
       "_hasStarPcRef",
       "_evalJsExprSafe",
@@ -87,6 +87,8 @@ function createMacroContext(extraContext = {}) {
       "getInstructionSize", "_charLiteralToHex", "_ifConditionActive"
     ],
     {
+      INCLUDE_MAX_DEPTH: 16,
+      _ZP_NARROW: { absolute: "zeroPage", absoluteX: "zeroPageX", absoluteY: "zeroPageY" },
       crypto: { randomUUID: () => "00000000-0000-4000-8000-000000000000" },
       _escHtml: (value) => String(value).replace(/[&<>]/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[ch])),
       getLiveValidationError: () => "",

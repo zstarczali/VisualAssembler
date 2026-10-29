@@ -394,6 +394,7 @@ test("universal ASM export round-trips explicit absolute operands through expert
         ]
       }),
       addLayoutLabels: () => {},
+      addAllLayoutLabels: () => {},
       _collectAnonLabels: () => [],
       getDeferredMemorySections: () => [],
       _compareLayoutLineRefs: (left, right) => left.index - right.index,
@@ -506,6 +507,11 @@ test("_buildUniversalAsmExportText rewrites internal absolute targets back to la
         if (line.block?.isLabel && line.block.labelName) {
           labelMap.set(line.block.labelName, line.address);
         }
+      },
+      addAllLayoutLabels(labelMap, lines) {
+        lines.forEach((line) => {
+          if (line.block?.isLabel && line.block.labelName) labelMap.set(line.block.labelName, line.address);
+        });
       },
       _disasmBytes: () => [{ mnemonic: "JSR", operand: "$0805" }],
       compileLineBytes: () => ({ ok: true, bytes: [0x20, 0x05, 0x08] }),

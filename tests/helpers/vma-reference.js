@@ -99,6 +99,7 @@ function createReference() {
         ok: !!r.ok,
         error: r.ok ? "" : String(r.error || (r.errors || []).map(e => e.message || e).join("; ") || "error"),
         bytes: r.ok && r.bytes ? Array.from(r.bytes) : null,
+        sysAddress: r.ok && typeof r.sysAddress === "number" ? r.sysAddress : null,
         debug,
         memory
       };
