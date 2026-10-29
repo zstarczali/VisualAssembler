@@ -84,7 +84,7 @@ function createFillCtx(extraContext = {}) {
       "compileAbsoluteStore",
       "compilePrintHexA",
       "getDeferredMacroAddressField",
-      "_scopeLocalLabels", "getProgramLayout",
+      "_scopeLocalLabels", "_narrowConstZeroPage", "getProgramLayout", "addAllLayoutLabels",
       "compileLineBytes",
       "resolveNumericOperand",
       "resolveRelativeOperand",
@@ -92,6 +92,8 @@ function createFillCtx(extraContext = {}) {
       "getInstructionSize", "_charLiteralToHex", "_ifConditionActive"
     ],
     {
+      INCLUDE_MAX_DEPTH: 16,
+      _ZP_NARROW: { absolute: "zeroPage", absoluteX: "zeroPageX", absoluteY: "zeroPageY" },
       crypto: { randomUUID: () => "00000000-0000-4000-8000-000000000000" },
       _escHtml: (v) => String(v).replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c])),
       getLiveValidationError: () => "",

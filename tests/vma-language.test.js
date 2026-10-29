@@ -52,8 +52,14 @@ test(".push / .pull take A X Y with or without separators", async () => {
   assert.equal(hex(await build("    .push A, X, Y\n    .pull A X Y")), joined);
 });
 
-test("a macro called inside a macro body says so instead of 'unknown macro'", async () => {
-  const r = await build(".macro border(c)\n    lda #{c}\n.endm\n.macro both(c)\n    :border({c})\n.endm\n    :both(3)");
+test("a macro called inside a macro body is expanded with the outer call's arguments", async () => {
+  const r = await build(".macro border(c)\n    lda #{c}\n.endm\n.macro both(c)\n    :border({c})\n    sta $d020\n.endm\n    :both(3)");
+  assert.equal(r.ok, true, r.error);
+  assert.match(hex(r), /a9038d20d0/);
+});
+
+test("a macro calling itself stops with an error instead of hanging", async () => {
+  const r = await build(".macro loop(c)\n    :loop({c})\n.endm\n    :loop(1)");
   assert.equal(r.ok, false);
-  assert.match(r.error, /Calling macro border inside macro both is not supported/);
+  assert.match(r.error, /nest too deep/);
 });

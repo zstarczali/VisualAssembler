@@ -152,7 +152,7 @@
   "basicStub": true,
   "ok": true,
   "size": 4011,
-  "sha256": "af896410be0d71c2868ac001d79157d39210c06534b4d5cd56a25674abe0fea7",
+  "sha256": "c5b56cffe5f03f7880de646a8952d8c8f9ffdbf3b742d65abcc4afe773188e2b",
   "error": null
  },
  {
@@ -164,7 +164,7 @@
   "basicStub": false,
   "ok": true,
   "size": 4011,
-  "sha256": "e7a7afe8a2b646dd0a817608727164536d4412e0b062b40018bdb9aeb6686d3d",
+  "sha256": "59c62c13af0df1a0e7a68e9291c8670aea27cfcc640b1b72aaf25646b8f465fe",
   "error": null
  },
  {
@@ -583,8 +583,8 @@
   "baseDir": "samples",
   "basicStub": true,
   "ok": true,
-  "size": 3789,
-  "sha256": "64243b53ef342d1cc18300633b5355422b8934a1ff2b67a9590458ece80d0740",
+  "size": 3784,
+  "sha256": "9c30c8778fa9c73d3612848780e85881cf328be1548ae62ea2be2d4c2ab2698b",
   "error": null
  },
  {
@@ -595,8 +595,8 @@
   "baseDir": "samples",
   "basicStub": false,
   "ok": true,
-  "size": 3789,
-  "sha256": "ebbff341cfee3d970948e7d0018042c070539098c3ed60449dbd868cbc3250e7",
+  "size": 3784,
+  "sha256": "15aab838498eb67772d31f57d1f6b83ab570f6ded001764af815e6b3f4f5ba47",
   "error": null
  },
  {
@@ -607,8 +607,8 @@
   "baseDir": "samples",
   "basicStub": true,
   "ok": true,
-  "size": 4104,
-  "sha256": "87020151049782076de0e45aa2fecc6e9e98971a49f23b6f3689037dbb09eb50",
+  "size": 4086,
+  "sha256": "a6a37fa4de742a4244d251cddc258308580cf554a8d28197b76ddf6da3f72a5f",
   "error": null
  },
  {
@@ -619,8 +619,8 @@
   "baseDir": "samples",
   "basicStub": false,
   "ok": true,
-  "size": 4104,
-  "sha256": "f9a3ea034dd98ebbd4bc7c02886a69eb82d4264958c44425d457ad45dfe6a5d3",
+  "size": 4086,
+  "sha256": "9b2c1df9389d54553991cb29f4d4250b0538feec972d21888a2cbed299c5eba3",
   "error": null
  },
  {
@@ -919,8 +919,8 @@
   "baseDir": "samples",
   "basicStub": true,
   "ok": true,
-  "size": 2083,
-  "sha256": "61d5d9353f14e325f56c0b78425f325eeee9064f31e1ca5d4547f1e27d6de440",
+  "size": 2081,
+  "sha256": "c1ddab966debbab59a8b0ed695e685165d3d46cb51d61fef1f0f2324db83b8ae",
   "error": null
  },
  {
@@ -931,8 +931,8 @@
   "baseDir": "samples",
   "basicStub": false,
   "ok": true,
-  "size": 2071,
-  "sha256": "9fddb0d538a74065ea4d13eebc6ee2e380fdc723af428cf50a5ced5d3f96b7d8",
+  "size": 2069,
+  "sha256": "0483f7a08f2cbf9e1bffe89b81fa14a8cc178a6fe91c897d9c8bf8cba3494c2d",
   "error": null
  },
  {
@@ -1015,8 +1015,8 @@
   "baseDir": "samples",
   "basicStub": true,
   "ok": true,
-  "size": 474,
-  "sha256": "21b889ae422cb92d8d976c4da8422c36e60e682dbb22a3940ccd0480ce2569f7",
+  "size": 469,
+  "sha256": "27cd550ad5a646cf996741599c7186c213c3f6c889b38124ef6fb019e3eeb92f",
   "error": null
  },
  {
@@ -1027,8 +1027,8 @@
   "baseDir": "samples",
   "basicStub": false,
   "ok": true,
-  "size": 462,
-  "sha256": "ee9887d0efd708cfee573d1bbcf854c291d7fbc88f30a48523c8b0594c3c79dc",
+  "size": 457,
+  "sha256": "7d4c6426920886dd30de1e534fbe7be929fac0a9a7268c497870b944fda3a2c6",
   "error": null
  },
  {
@@ -1039,8 +1039,8 @@
   "baseDir": "samples",
   "basicStub": true,
   "ok": true,
-  "size": 4104,
-  "sha256": "f3f602716764261ebaa25c047ce246f4f66f5412d223958e347d71f059ff5fc9",
+  "size": 4086,
+  "sha256": "27e01d59b94629e2c4244c37af3507826e1bb2ad7825de1447def4fa8ed55c30",
   "error": null
  },
  {
@@ -1051,8 +1051,8 @@
   "baseDir": "samples",
   "basicStub": false,
   "ok": true,
-  "size": 777,
-  "sha256": "368900cca3ef93fe970eb3bda3de965c3c0ef3c2726eaf2c5e9fcc7c7ada3b43",
+  "size": 759,
+  "sha256": "a5adaa20b64ea5f4eca02a00ae02167269e9fb12ff93dcc30e4b819174766131",
   "error": null
  },
  {
@@ -1735,8 +1735,8 @@
   "baseDir": "templates",
   "basicStub": true,
   "ok": true,
-  "size": 244,
-  "sha256": "3c91dda99197b18a8f174fc1dfb15513aef6af1e3365b581ade4b57ca590b68a",
+  "size": 223,
+  "sha256": "12fcbe5ede7af8dc75b8e947b5aad6d0c2f25ec73f12f3dc5a19a9fe933033ea",
   "error": null
  },
  {
@@ -1747,8 +1747,8 @@
   "baseDir": "templates",
   "basicStub": false,
   "ok": true,
-  "size": 232,
-  "sha256": "e1d28ee494adc51e5ed2fdcb66248afd7a233db773f4de18a261fea73a0512fd",
+  "size": 211,
+  "sha256": "32a51f8d0e8c1defe78420751dac77723cd07087bbdd62cf89e43e71b5be5ebb",
   "error": null
  },
  {
@@ -1759,8 +1759,8 @@
   "baseDir": "templates",
   "basicStub": true,
   "ok": true,
-  "size": 332,
-  "sha256": "ec1c329022a0b0def6e36d7b33c4dac7a822888a2402a8b908a97b41825ea78c",
+  "size": 301,
+  "sha256": "3a0101ddad2f48f3716847bfb2c17f87b7ad84bc37afe7ddfbb75bd8f5ba8fc2",
   "error": null
  },
  {
@@ -1771,8 +1771,8 @@
   "baseDir": "templates",
   "basicStub": false,
   "ok": true,
-  "size": 320,
-  "sha256": "792280c66725352a9f7222904b4a322f5ada3e0cf687f1097d39f01b4ec26674",
+  "size": 289,
+  "sha256": "ece7a679733c04dbbef90aa9de5f73541e632aee5fb5e61fd49be1d5f52c45c8",
   "error": null
  },
  {
@@ -4279,8 +4279,8 @@
   "baseDir": "",
   "basicStub": true,
   "ok": true,
-  "size": 2061,
-  "sha256": "3aaa0fbdcc375881f8a23d11867e7dd4fffc54cd0851bc23e99c06d0a08b9fe8",
+  "size": 2060,
+  "sha256": "b1b42d547a96895edc324d7968d86762aaf8672b76832dc1ca4c2f0b46fbc3ef",
   "error": null
  },
  {
@@ -4291,8 +4291,8 @@
   "baseDir": "",
   "basicStub": false,
   "ok": true,
-  "size": 14,
-  "sha256": "cddf9463c74bf69add32be0f71762c4f451b5c7e75a2686c40c011fabdb01c9e",
+  "size": 13,
+  "sha256": "c2a7ad71a625dbe7bb66ab5b4a1295cf088d8fecf1d4aec5d9c39dbe6a169481",
   "error": null
  },
  {
@@ -4351,8 +4351,8 @@
   "baseDir": "",
   "basicStub": true,
   "ok": true,
-  "size": 2067,
-  "sha256": "c85de70458b127addcd3f9ea1186e0cf6334945b0065eed39d8e51a92e2714e0",
+  "size": 2064,
+  "sha256": "bdadbfff318125d6ab0f032d901f71e0bb65f039d80ec857b0c22a5fa2154bbe",
   "error": null
  },
  {
@@ -4363,8 +4363,8 @@
   "baseDir": "",
   "basicStub": false,
   "ok": true,
-  "size": 20,
-  "sha256": "b1284420b1ebabf31695200163fba49185ca869eaf48deff01c1735f90a1c107",
+  "size": 17,
+  "sha256": "3efce14d773e9c249d5cf29e239fe9d9d5209dfb79484531d679e157c211af07",
   "error": null
  },
  {
@@ -4776,6 +4776,486 @@
   "error": null
  },
  {
+  "id": "var-memcpy-size-later-label-error",
+  "caseId": "var-memcpy-size-later-label-error",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": true,
+  "ok": false,
+  "size": 0,
+  "sha256": null,
+  "error": "[P003] $1003 MEMCPY — MEMCPY: “$LATER” must be known when the code is laid out — use a number or a constant, not a label defined later."
+ },
+ {
+  "id": "var-memcpy-size-later-label-error@nostub",
+  "caseId": "var-memcpy-size-later-label-error",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": false,
+  "ok": false,
+  "size": 0,
+  "sha256": null,
+  "error": "[P003] $1003 MEMCPY — MEMCPY: “$LATER” must be known when the code is laid out — use a number or a constant, not a label defined later."
+ },
+ {
+  "id": "var-memset-size-const",
+  "caseId": "var-memset-size-const",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": true,
+  "ok": true,
+  "size": 2070,
+  "sha256": "6df0e2bdcfcdaceda54c33430a6dbec433c8879607491f389a145ae49b1c8415",
+  "error": null
+ },
+ {
+  "id": "var-memset-size-const@nostub",
+  "caseId": "var-memset-size-const",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": false,
+  "ok": true,
+  "size": 23,
+  "sha256": "6b2a98437ec6b0f5ed33bac24a8cb2f82892d627fa77c2d812bb86fa5696bdd0",
+  "error": null
+ },
+ {
+  "id": "var-turbo-set-unresolved-error",
+  "caseId": "var-turbo-set-unresolved-error",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": true,
+  "ok": false,
+  "size": 0,
+  "sha256": null,
+  "error": "[P002] $1000 TURBO_SET — TURBO_SET: speed must be 0–15."
+ },
+ {
+  "id": "var-turbo-set-unresolved-error@nostub",
+  "caseId": "var-turbo-set-unresolved-error",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": false,
+  "ok": false,
+  "size": 0,
+  "sha256": null,
+  "error": "[P002] $1000 TURBO_SET — TURBO_SET: speed must be 0–15."
+ },
+ {
+  "id": "var-sprite-anim-unresolved-error",
+  "caseId": "var-sprite-anim-unresolved-error",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": true,
+  "ok": false,
+  "size": 0,
+  "sha256": null,
+  "error": "[P002] $1000 SPRITE_ANIM — SPRITE_ANIM: sprite number must be 0–7."
+ },
+ {
+  "id": "var-sprite-anim-unresolved-error@nostub",
+  "caseId": "var-sprite-anim-unresolved-error",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": false,
+  "ok": false,
+  "size": 0,
+  "sha256": null,
+  "error": "[P002] $1000 SPRITE_ANIM — SPRITE_ANIM: sprite number must be 0–7."
+ },
+ {
+  "id": "var-macro-buffer-rawbytes-size",
+  "caseId": "var-macro-buffer-rawbytes-size",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": true,
+  "ok": true,
+  "size": 2060,
+  "sha256": "5d66d676cd8a91541f0b64ce7ac5eecbf907045b3e4bef302d89142cf4f8e2ed",
+  "error": null
+ },
+ {
+  "id": "var-macro-buffer-rawbytes-size@nostub",
+  "caseId": "var-macro-buffer-rawbytes-size",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": false,
+  "ok": true,
+  "size": 13,
+  "sha256": "8bc6a959b2f61fa9b20a1b88e5e3d481890ecd233daee1ad408969093a4db852",
+  "error": null
+ },
+ {
+  "id": "var-data-label-forward-target",
+  "caseId": "var-data-label-forward-target",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": true,
+  "ok": true,
+  "size": 2055,
+  "sha256": "77c93c89b4cf0293734ea6ca2e71ac075924323d30766a4f758aa782c59a8ae0",
+  "error": null
+ },
+ {
+  "id": "var-data-label-forward-target@nostub",
+  "caseId": "var-data-label-forward-target",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": false,
+  "ok": true,
+  "size": 8,
+  "sha256": "5a380f6c1f2144ff885e34aa844748f5a1f46422dc54b7a3fb20c2800ba656ee",
+  "error": null
+ },
+ {
+  "id": "var-data-rawbytes-lo-hi-labels",
+  "caseId": "var-data-rawbytes-lo-hi-labels",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": true,
+  "ok": true,
+  "size": 6147,
+  "sha256": "383c615dc459ade92bdac2ae6fc8a0603998dcb9aa924173cbc4ab0ded71940a",
+  "error": null
+ },
+ {
+  "id": "var-data-rawbytes-lo-hi-labels@nostub",
+  "caseId": "var-data-rawbytes-lo-hi-labels",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": false,
+  "ok": true,
+  "size": 4100,
+  "sha256": "a816294672793a9aaa671bb69fa3339a4ea9bea7c68a340acd9526133346c396",
+  "error": null
+ },
+ {
+  "id": "var-include-missing-error",
+  "caseId": "var-include-missing-error",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": true,
+  "ok": false,
+  "size": 0,
+  "sha256": null,
+  "error": "[P002] INCLUDE — Include file not found: no-such-file.asm"
+ },
+ {
+  "id": "var-include-missing-error@nostub",
+  "caseId": "var-include-missing-error",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": false,
+  "ok": false,
+  "size": 0,
+  "sha256": null,
+  "error": "[P002] INCLUDE — Include file not found: no-such-file.asm"
+ },
+ {
+  "id": "var-include-nested-incbin",
+  "caseId": "var-include-nested-incbin",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": true,
+  "ok": true,
+  "size": 47109,
+  "sha256": "c1e2287296c3ffb2c0e8d2833ae82bdf7d43f398b5cf049b107589d41641a520",
+  "error": null
+ },
+ {
+  "id": "var-include-nested-incbin@nostub",
+  "caseId": "var-include-nested-incbin",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": false,
+  "ok": true,
+  "size": 45062,
+  "sha256": "b0d91bd4680a87c63404535446be64891a39a4c1935e49d71dbdb64ab91291e4",
+  "error": null
+ },
+ {
+  "id": "var-include-self-error",
+  "caseId": "var-include-self-error",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": true,
+  "ok": false,
+  "size": 0,
+  "sha256": null,
+  "error": "[P002] INCLUDE — The include file includes itself or a file that includes it: include-self.asm"
+ },
+ {
+  "id": "var-include-self-error@nostub",
+  "caseId": "var-include-self-error",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": false,
+  "ok": false,
+  "size": 0,
+  "sha256": null,
+  "error": "[P002] INCLUDE — The include file includes itself or a file that includes it: include-self.asm"
+ },
+ {
+  "id": "var-include-macro-call",
+  "caseId": "var-include-macro-call",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": true,
+  "ok": true,
+  "size": 2055,
+  "sha256": "4b2a2eeca3ce77b829c1e024ccc1cc5cc8d6ada175f8cb169300c05e9c6922ed",
+  "error": null
+ },
+ {
+  "id": "var-include-macro-call@nostub",
+  "caseId": "var-include-macro-call",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": false,
+  "ok": true,
+  "size": 8,
+  "sha256": "4b32a41aa8f3f0f1acd779f8f3c6722e09fa80061a8965ff337c9db0c86ce12d",
+  "error": null
+ },
+ {
+  "id": "var-macro-nested-call",
+  "caseId": "var-macro-nested-call",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": true,
+  "ok": true,
+  "size": 2060,
+  "sha256": "450001427d5a436f4591c968dcfdf0a60876801a1473cd9ecf5046e55c80f74b",
+  "error": null
+ },
+ {
+  "id": "var-macro-nested-call@nostub",
+  "caseId": "var-macro-nested-call",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": false,
+  "ok": true,
+  "size": 13,
+  "sha256": "2f6ba27cecd99f11106dc4b0d2e3b4cd3c41db90794c58a926453e867ea7693f",
+  "error": null
+ },
+ {
+  "id": "var-macro-recursive-error",
+  "caseId": "var-macro-recursive-error",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": true,
+  "ok": false,
+  "size": 0,
+  "sha256": null,
+  "error": "[P019] $1000 INVOKE r — The calls of macro r nest too deep (at most 16 levels) — does it call itself?"
+ },
+ {
+  "id": "var-macro-recursive-error@nostub",
+  "caseId": "var-macro-recursive-error",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": false,
+  "ok": false,
+  "size": 0,
+  "sha256": null,
+  "error": "[P019] $1000 INVOKE r — The calls of macro r nest too deep (at most 16 levels) — does it call itself?"
+ },
+ {
+  "id": "var-const-zero-page",
+  "caseId": "var-const-zero-page",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": true,
+  "ok": true,
+  "size": 2072,
+  "sha256": "310206382f28b27296851b7f715cbf4ad45f9b047c86cea6cae7228814a330f7",
+  "error": null
+ },
+ {
+  "id": "var-const-zero-page@nostub",
+  "caseId": "var-const-zero-page",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": false,
+  "ok": true,
+  "size": 25,
+  "sha256": "fd81a7635f759b99a29af180764d97e9715a8c11095ae541e625819ce79fa27d",
+  "error": null
+ },
+ {
+  "id": "var-var-zero-page",
+  "caseId": "var-var-zero-page",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": true,
+  "ok": true,
+  "size": 2054,
+  "sha256": "b3786a75272d7407d4d848cff17254a92e88dcbc04a61e7e303e796627296df7",
+  "error": null
+ },
+ {
+  "id": "var-var-zero-page@nostub",
+  "caseId": "var-var-zero-page",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": false,
+  "ok": true,
+  "size": 7,
+  "sha256": "3ce2051d639ffbfd9b12c4753148f12554b8d7c5a25161d0e65bda43e3ce8f54",
+  "error": null
+ },
+ {
+  "id": "var-jmp-indirect-label",
+  "caseId": "var-jmp-indirect-label",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": true,
+  "ok": true,
+  "size": 2059,
+  "sha256": "512d191ecbafbc871c08c3859000267a6973a5b81b070337e47fcda9c6bfa18e",
+  "error": null
+ },
+ {
+  "id": "var-jmp-indirect-label@nostub",
+  "caseId": "var-jmp-indirect-label",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": false,
+  "ok": true,
+  "size": 12,
+  "sha256": "53bdcfe5e1853d81fabe052e27a4b03da8a1c0377f745bab5384779a6b1eead3",
+  "error": null
+ },
+ {
+  "id": "var-dollar-expression-operand",
+  "caseId": "var-dollar-expression-operand",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": true,
+  "ok": true,
+  "size": 2056,
+  "sha256": "347fb3fc2848181011bd459e37cf05cb2f94776936dbe0d27131cf24f6131d4b",
+  "error": null
+ },
+ {
+  "id": "var-dollar-expression-operand@nostub",
+  "caseId": "var-dollar-expression-operand",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": false,
+  "ok": true,
+  "size": 9,
+  "sha256": "9dcc1bd06d3d314ca244878bb9176c04e8728927dd2ebe7f5635baf708315eac",
+  "error": null
+ },
+ {
+  "id": "var-kick-pc",
+  "caseId": "var-kick-pc",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": true,
+  "ok": true,
+  "size": 6146,
+  "sha256": "938eb95032442ae956eeac418b66c910f5c2651d443ec680a441c4f9c8cbeb15",
+  "error": null
+ },
+ {
+  "id": "var-kick-pc@nostub",
+  "caseId": "var-kick-pc",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": false,
+  "ok": true,
+  "size": 4099,
+  "sha256": "466a36467aad3570f827d56d1e930d590b3d90240aa74fa33d2d2275ce739dbb",
+  "error": null
+ },
+ {
+  "id": "var-kick-encoding-text",
+  "caseId": "var-kick-encoding-text",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": true,
+  "ok": true,
+  "size": 2095,
+  "sha256": "9378a93f1c9f84dd73b7b83b5f60ea030f7f8003242b2dbc71dace4b774e9c0c",
+  "error": null
+ },
+ {
+  "id": "var-kick-encoding-text@nostub",
+  "caseId": "var-kick-encoding-text",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": false,
+  "ok": true,
+  "size": 48,
+  "sha256": "0c4de222ef7cabc43604c7c944969e863a6c3fdac4a5fed17506ae9be26c3524",
+  "error": null
+ },
+ {
+  "id": "var-kick-encoding-bad-char-error",
+  "caseId": "var-kick-encoding-bad-char-error",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": true,
+  "ok": false,
+  "size": 0,
+  "sha256": null,
+  "error": "[P003] $1000 BYTE — Cannot compile: invalid operand on the BYTE line."
+ },
+ {
+  "id": "var-kick-encoding-bad-char-error@nostub",
+  "caseId": "var-kick-encoding-bad-char-error",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": false,
+  "ok": false,
+  "size": 0,
+  "sha256": null,
+  "error": "[P003] $1000 BYTE — Cannot compile: invalid operand on the BYTE line."
+ },
+ {
   "id": "var-incbin-addr",
   "caseId": "var-incbin-addr",
   "kind": "text",
@@ -5024,7 +5504,7 @@
   "basicStub": true,
   "ok": true,
   "size": 47923,
-  "sha256": "09a4987ddb1c9440238c9c0e6118aa03a23fb4850ddf10cea79dc6516d831095",
+  "sha256": "f11cc629e903ea7d659aecda04ac69395b476e2d8aa768518ed2f954f3983f7d",
   "error": null
  },
  {
@@ -5036,7 +5516,7 @@
   "basicStub": false,
   "ok": true,
   "size": 45876,
-  "sha256": "287c7d1a2f9b85d62236e2e1902d9fa03005e11dc1961fdcc0097397f5093210",
+  "sha256": "d4a32917149165c6508558042242e3acea500f9975deaa62cc53db7cdd2c5b84",
   "error": null
  },
  {
@@ -5911,8 +6391,8 @@
   "baseDir": "tests/vma-golden/files",
   "basicStub": true,
   "ok": true,
-  "size": 19208,
-  "sha256": "66d5df59dc972d2a4350c90bdd25af11f2c449ef1796679a09762a6a2eae9efc",
+  "size": 19190,
+  "sha256": "b47fb39da1c90d32707ffbf6bac9076fb7863be312fa778b4f8dc35719babcf3",
   "error": null
  },
  {
@@ -5923,8 +6403,8 @@
   "baseDir": "tests/vma-golden/files",
   "basicStub": false,
   "ok": true,
-  "size": 17161,
-  "sha256": "d15c9195e645b625410f5d51c060d83f133280c40db9106b1f151b012c053328",
+  "size": 17143,
+  "sha256": "f77dbb058aa31908c905129ef3a31770046740aa2e96dff51de18cd0c6bb9e9f",
   "error": null
  },
  {
@@ -5935,8 +6415,8 @@
   "baseDir": "tests/vma-golden/files",
   "basicStub": true,
   "ok": true,
-  "size": 2566,
-  "sha256": "60e4cea4d834f3e904d9751a44d05e3b90b999e878ad7bf7ef2d69bcaaa02257",
+  "size": 2548,
+  "sha256": "e7bb930393298194c4d51a91de3ef3a826cfb79aff44bc7414487c5571d3ae43",
   "error": null
  },
  {
@@ -5947,8 +6427,8 @@
   "baseDir": "tests/vma-golden/files",
   "basicStub": false,
   "ok": true,
-  "size": 519,
-  "sha256": "56af6028d21938ba4177ce7912a9ee63cca80bbc6be1193c70715ece3ebd974c",
+  "size": 501,
+  "sha256": "b410c1172b9cece2e4ff21b1212fce5d54d7abd55ed5af10659d750fabd4d028",
   "error": null
  },
  {
@@ -5982,10 +6462,10 @@
   "file": null,
   "baseDir": "tests/vma-golden/files",
   "basicStub": true,
-  "ok": true,
-  "size": 2050,
-  "sha256": "d51d6f0b53332a2772e951f1d6070caa52872f5fc6b83aa3fcd5220770f19f19",
-  "error": null
+  "ok": false,
+  "size": 0,
+  "sha256": null,
+  "error": "[P002] INCLUDE — Include file not found: no-such-library.asm"
  },
  {
   "id": "var-include-missing-ignored@nostub",
@@ -5994,10 +6474,10 @@
   "file": null,
   "baseDir": "tests/vma-golden/files",
   "basicStub": false,
-  "ok": true,
-  "size": 3,
-  "sha256": "8fb8f9f15f6df6f72e56075cece338ac388eb6e6aef092329045c5eba6015f57",
-  "error": null
+  "ok": false,
+  "size": 0,
+  "sha256": null,
+  "error": "[P002] INCLUDE — Include file not found: no-such-library.asm"
  },
  {
   "id": "var-include-empty-name-error",
@@ -6030,10 +6510,10 @@
   "file": null,
   "baseDir": "tests/vma-golden/files",
   "basicStub": true,
-  "ok": false,
-  "size": 0,
-  "sha256": null,
-  "error": "[P003] $1000 INVOKE border — Calling macro border inside macro both is not supported: macros expand one level deep."
+  "ok": true,
+  "size": 2055,
+  "sha256": "9bca0b762df6952f78f2630525af6dc874a5581ce88248de6291eb7720e430a1",
+  "error": null
  },
  {
   "id": "var-macro-nested-error@nostub",
@@ -6042,10 +6522,10 @@
   "file": null,
   "baseDir": "tests/vma-golden/files",
   "basicStub": false,
-  "ok": false,
-  "size": 0,
-  "sha256": null,
-  "error": "[P003] $1000 INVOKE border — Calling macro border inside macro both is not supported: macros expand one level deep."
+  "ok": true,
+  "size": 8,
+  "sha256": "996d82a2289f8e890cf9cbd36b915ea055aa11c1692e8512cab9fe9c571781c4",
+  "error": null
  },
  {
   "id": "kick-kick-project_main",

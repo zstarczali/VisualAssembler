@@ -3404,6 +3404,28 @@ html[data-theme="commodore77"] .monitor-output {
   min-height: 0;
   overflow: auto;
 }
+/* Expert / UB Toolkit panel: _toolkitPlace moves #toolkit-output here */
+.expert-toolkit-panel[hidden] { display: none; }
+.expert-toolkit-panel {
+  width: 320px;
+  min-width: 0;
+  flex-shrink: 0;
+  border-left: 1px solid var(--panel-border);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 14px;
+  box-sizing: border-box;
+  overflow: auto;
+  background: var(--output-bg);
+}
+.toolkit-host #toolkit-output {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-height: 0;
+}
+.toolkit-host .toolkit-block { min-height: 0; padding: 0; background: transparent; font-size: 0.78rem; }
 .toolkit-block { margin: 0; flex: none; }
 .toolkit-palette-section { display: flex; flex-direction: column; gap: 10px; }
 .toolkit-subhdr {
@@ -4811,7 +4833,7 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
 
 .expert-monitor-panel {
   width: 365px;
-  min-width: 365px;
+  min-width: 0;
   flex-shrink: 0;
   border-left: 1px solid var(--panel-border);
   display: flex;

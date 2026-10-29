@@ -4217,6 +4217,16 @@ async fn save_project(app: AppHandle, payload: serde_json::Value) -> serde_json:
         }
     };
 
+    // A source file never gets the JSON payload: the caller writes it as text (sourcePath)
+    let is_source = Path::new(&save_path)
+        .extension()
+        .and_then(|e| e.to_str())
+        .map(|e| matches!(e.to_ascii_lowercase().as_str(), "asm" | "s" | "inc" | "a" | "a65" | "lib"))
+        .unwrap_or(false);
+    if is_source {
+        return serde_json::json!({ "ok": false, "sourcePath": save_path });
+    }
+
     // Strip internal helper fields before serialising
     let mut clean = payload.clone();
     if let Some(obj) = clean.as_object_mut() {

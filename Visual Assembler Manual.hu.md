@@ -628,6 +628,8 @@ Az ASM nézet **Toolkit** füle egy csak olvasható gyorsreferencia panel — so
 
 A Toolkit a leggyorsabb módja egy színindex vagy egy PETSCII vezérlő byte megkeresésének anélkül, hogy elhagynád a szerkesztőt.
 
+**Expert módban** és **UltimateBasic módban** ugyanez a Toolkit az eszköztár **Toolkit** gombjával nyílik: Expert módban oldalpanelként a Disassembly / Monitor mellett (a bal oldali elválasztó húzásával méretezhető), UB módban a jobb oldali panelben, ahol a Disassemblyvel és a Monitorral váltja egymást. A nyitott állapotát és a szélességét megjegyzi.
+
 ### Compile info és kimeneti beállítások
 
 - A **Compile info** (a kimenet fölött) összefoglalót mutat a lefordított programról: a kód kezdőcíme, mérete és a BASIC SYS stub.
@@ -982,7 +984,7 @@ A UB eszköztár ugyanazt a vizuális nyelvet és egyéni tooltipeket követi, m
 - autocomplete-ot parancsokhoz és beépített függvényekhez;
 - egy kereshető **Commands** panelt szintaxissal, leírással és használati útmutatóval — a leírások követik az aktuális felületi nyelvet (magyar, angol, spanyol, német, holland, lengyel, olasz), angolra visszaesve mindenhez, ami még nincs lefordítva;
 - egymástól függetlenül kapcsolható **Project** és **Commands** panelt, egymás mellett megjelenítve, ha mindkettő engedélyezett;
-- egymástól függetlenül kapcsolható és átméretezhető **Build Output** és **Disassembly** panelt.
+- egymástól függetlenül kapcsolható és átméretezhető **Build Output** és **Disassembly** panelt; a **Disassembly**, a **Monitor** és a **Toolkit** a jobb oldali panelen osztozik (egyszerre egy). Hogy melyik van nyitva, és a panelek szélességét megjegyzi.
 
 A Disassembly panelen van egy **Copy** gomb, amely a teljes megjelenített forrást vágólapra másolja. A parancssúgó a beépített fordítót követi: például a `sprite_frame id, data_address [, frame]` egymást követő 64 byte-os sprite frame-ekből választ animációs képet.
 
@@ -1099,7 +1101,7 @@ Az Expert mód egy teljes értékű, közvetlen szöveges 6502 assembly szerkesz
 |--------|----|----------|
 | **Format** | `#expert-format-btn` | Forrás automatikus formázása (címkék a 0. oszlopba, 4 szóköz behúzás, 1 szóköz mnemonik/operandus közt) |
 | **Load .asm** | `#expert-load-asm-btn` | `.asm` fájl megnyitása — a tartalom egy **új fülbe** töltődik, a fájlnév a fül címkéje. Minden betöltött fájl önálló füllé válik saját program-blokkokkal és szerkesztő-állapottal. |
-| **Save .asm** | `#expert-save-asm-btn` | A szerkesztő tartalmának mentése `.asm` fájlba (első mentéskor fájl-dialógus) |
+| **Save .asm** | `#expert-save-asm-btn` | A szerkesztő tartalmának mentése `.asm` fájlba (első mentéskor fájl-dialógus). Forrásfájlba mindig a szövege kerül: a Ctrl+S, a **Menü → Mentés** és az `.asm`, `.s`, `.inc`, `.a`, `.a65` vagy `.lib` nevet kapó mentés-dialógus sosem írja bele a VA JSON-t |
 | **Build Info** | `#expert-build-info-btn` | A Build Info dialógus megnyitása: fent kezdő- és végcím, méret, szegmensszám, alatta a szegmensek, a hibák (Kick projektben `fájl:sor`) és a `.print` kimenet, a címkék, konstansok és makrók oszlopokban |
 | **Autocomplete** | `#expert-autocomplete-btn` | Az expert autocomplete javaslatok be/ki. Kikapcsolva nem jelenik meg direktíva-, mnemonik- vagy címke-popup az expert szerkesztőben. |
 | **Region selection** | `#expert-region-selection-btn` | Az automatikus régió-kiemelés kapcsolása Expert módban. A fold-állapot tárolva marad, de kikapcsolva a szerkesztő a teljes forrást láthatóan tartja, és nem választja ki automatikusan az aktuális régiót. |
@@ -1109,8 +1111,11 @@ Az Expert mód egy teljes értékű, közvetlen szöveges 6502 assembly szerkesz
 | **Zoom out / in** | `#expert-zoom-out-btn` / `#expert-zoom-in-btn` | A szerkesztő betűmérete csökken / nő (8–28 px). A szerkesztő fölött a `Ctrl` + egérgörgő (macOS-en `Cmd` + görgő, vagy touchpad csippentés) ugyanezt teszi. A beállítás megőrződik. |
 | **Palette** | `#expert-palette-btn` | A bal oldali mnemonik-paletta megjelenítése/elrejtése |
 | **Disasm** | `#expert-disasm-btn` | A disassembly panel megjelenítése/elrejtése (tiszta 6502, makrók kifejtve) |
-| **Monitor** | `#expert-monitor-btn` | A monitor hex-dump panel megjelenítése/elrejtése |
+| **Monitor** | `#expert-monitor-btn` | A monitor hex-dump panel megjelenítése/elrejtése; a bal oldali elválasztó húzásával méretezhető |
+| **Toolkit** | `#expert-toolkit-btn` | A [Toolkit](#toolkit-fül) oldalpanel (C64 paletta, PETSCII kódok) megjelenítése/elrejtése; a Monitorhoz hasonlóan méretezhető |
 | **Minimap** | `#expert-minimap-btn` | A kód-minimap sáv megjelenítése/elrejtése a szerkesztő jobb oldalán |
+
+A nyitva hagyott panelek (Paletta, Disasm, Monitor, Toolkit, Projekt) és a szélességük a következő indításkor visszaállnak, bármelyik módban indul az app.
 
 Szerkesztő gyorsbillentyűk: a `Ctrl+/` (`Cmd+/` macOS-en) megjegyzésbe teszi az aktuális sort vagy minden kijelölt sort; `Shift`-tel az elöl álló megjegyzés-jelölő eltávolítható azokból a sorokból.
 Az inline megjegyzések (például `LDA $12 ; magyarázat`) az utasítás során maradnak Expert és Blokk mód közti váltáskor. Blokk módban zöld dőlt `; comment` jelölőként jelennek meg a blokk fejlécében; a jelölő fölé víve az egeret a teljes szöveg feltárul, ha csonkolt.
@@ -1270,6 +1275,14 @@ Minden 6502 utasítás egy vagy több címzési módot támogat. A mód-választ
 | **indirectY** | Indirect,Y | `LDA ($FB),Y` | Zero page indirekt indexelt (operandus = zero page cím, 1 byte) |
 | **indirect** | Indirect | `JMP ($0100)` | Indirekt; csak JMP-vel használható |
 
+### Konstansok a zero page-en
+
+A csak konstansokból (`.const`, `név = érték`, `.var`) álló, egy bájtba férő operandus az utasítás **zero page**
+módját kapja, pontosan úgy, mint maga a szám: `.const zp = $FB` után az `lda zp` `A5 FB` lesz (2 bájt, 3 ciklus),
+az `lda zp,x` pedig `B5 FB`. Ha az utasításnak nincs zero page változata az adott módban, abszolút marad
+(`lda zp,y` → `B9 FB 00`). Címkére nem szűkít — a címe csak az elrendezés után ismert —, az `lda.abs zp` pedig
+kikényszeríti az abszolút módot. A szám megtartja a leírt szélességét: a `$FB` zero page, a `$00FB` abszolút. *(Új a 2.1-ben.)*
+
 ### Címke-kifejezések operandusként
 
 Bármely operandus-mező, amely címet vagy immediate értéket elfogad, közvetlenül elfogad egy **konstans nevet** is (`CONST` blokkból vagy `LABEL`-ből). Ezen felül **címke+offset** vagy **címke−offset** kifejezésekkel hivatkozhatsz egy nevesített konstanshoz képesti címre:
@@ -1280,6 +1293,8 @@ Bármely operandus-mező, amely címet vagy immediate értéket elfogad, közvet
 | `label+$hex` | `STA screen_ram+$0100,X` | Címke-cím plusz hex offset |
 | `label+decimal` | `STA screen_ram+256,X` | Címke-cím plusz decimális offset |
 | `label-$hex` | `LDA table-$10` | Címke-cím mínusz hex offset |
+| `$hexa+kifejezés` | `LDA $1234+1`, `STA $0400+40*2,X` | Számokból, címkékből és konstansokból álló bármely kifejezés *(2.1)* |
+| `(címke)` | `JMP (vector)`, `JMP (table+2)` | Indirekt ugrás címkén vagy kifejezésen át *(2.1)* |
 | `#<label` | `LDA #<screen_ram` | A címke-cím alsó byte-ja |
 | `#>label` | `LDA #>screen_ram` | A címke-cím felső byte-ja |
 | `*` | `BNE *` | Aktuális program counter (az utasítás saját címe); `*`-gal az elágazások végtelen önhurkot generálnak (offset `$FE`) |
@@ -1769,6 +1784,8 @@ Mint egy **POKE hurok** — nyers byte-ok listáját írja egy memóriacímre fu
 
 **Méret:** `byte_count × 5` byte (egy LDA + egy STA byte-onként).
 
+> **2.1:** a bájtok címkét is nevezhetnek: a `.data $2010, <target, >target` a `target` címét írja, később definiált címkéét is. A makró `:név` címkéje olyan célcímre is mutathat, amely maga is címke.
+
 ---
 
 ### RAWBYTES
@@ -1791,6 +1808,8 @@ Mint a **DATA, amely közvetlenül a memóriába töltődik** — egyáltalán n
 **Méret a kódban:** 0 byte. Az adat a megadott címre kerül a kimenetben.
 
 > **DATA vs RAWBYTES:** a DATA LDA/STA kódot generál, amely futásidőben másolja a byte-okat (lassabb, de működik, ha az adatnak dinamikusnak kell lennie). A RAWBYTES egyszerűen elhelyezi a byte-okat — nincs kód, azonnali, nulla költség.
+
+> **2.1:** a bájtok címkét is nevezhetnek (`.rawbytes $2000, <target, >target` — pointertábla); a `:név` címke célcíme lehet címke, később definiált is. Makró puffer-argumentumaként a bájtok saját helyet kapnak a program utáni pufferekben.
 
 ---
 
@@ -2300,6 +2319,8 @@ Kétféle fájl támogatott:
 
 > **Tipp:** használd az INCLUDE-ot újrahasználható szubrutin-könyvtárak építésére, amelyeket megoszthatsz projektek közt. Az `.inc`/`.asm`/`.s` fájlok akkor a legjobbak, ha sima szövegszerkesztőben akarod szerkeszteni a könyvtárat, vagy más 6502 assemblerekkel megosztani; a `.json` akkor, ha a könyvtár magában a Visual Assemblerben készült. Állíts be betöltési címet, ha a könyvtárnak nincs saját ORG-ja, vagy ha felül akarod írni az alapértelmezett elhelyezését.
 
+> **2.1:** a nem található include hiba, és az is, ha egy fájl önmagát emeli be (közvetlenül vagy mélyebben). A beemelt fájl saját `.include`, `.incbin` és `.sid` sorai is betöltődnek a saját mappájához képest, és a makróhívásai is kibomlanak — legfeljebb 16 szint mélyen.
+
 ---
 
 ### TABLE
@@ -2634,6 +2655,8 @@ A makró teste inline kifejtődik, a `{paramName}` a tényleges argumentumokra c
 - **Vegyes**: `#$07, "hello", $20` — bármely kombináció
 
 > **Tipp:** definiáld a makrókat a programod tetején (vagy alján), majd INVOKE-old őket, ahol szükséges. A makrók többször is meghívhatók különböző argumentumokkal.
+
+> **2.1:** egy makró másik makrót is hívhat (a `both(a, b)` a `setc(a)`-t); a belső hívás a külső hívás argumentumait kapja, saját egyedi lokális címkékkel. Az önmagát hívó makró 16 szint után hibával áll meg, nem akad el.
 
 ---
 
@@ -3003,6 +3026,8 @@ Mint **kis memória-rutinok, amelyekhez folyton nyúlsz** — a `MEMCPY` egy ös
 
 A 256 byte-ig terjedő méretek rövid 8 bites hurkot használnak. A nagyobb méretek automatikusan 16 bites számlálóra váltanak.
 
+> **2.1:** a méretet már a kód elrendezésekor ismerni kell — szám vagy konstans. A később definiált címke (amelynek értékét az elrendezés még nem ismeri) hiba, nem a helyére nem férő kód.
+
 ---
 
 ### PRINT / PRINT_CHAR / PRINT_HEX / CLEAR_SCREEN / WAIT_KEY / DELAY / SET_BORDER / SET_BG
@@ -3292,6 +3317,8 @@ skip_right:
 ---
 
 <a id="mouse"></a>
+
+> **2.1:** a portot már a kód elrendezésekor ismerni kell (szám vagy konstans), mert a 3-as port 3 bájttal hosszabb kódot ad; a később definiált címke hiba.
 ### MOUSE
 
 Beolvas egy Commodore 1351 arányos egeret, és mozgat egy sprite-ot. Teljesen **inline** — nem kell JSR vagy címke. A makró kiválasztja a CIA portot, megvárja, míg a SID paddle bemenetek beállnak, majd dekódolja a delta mozgást a szabványos 1351 driver mintával, és alkalmazza a sprite regiszterekre.
@@ -4116,7 +4143,7 @@ A **Menu → Build → Build CRT** egy Commodore 64 cartridge képet (`.crt`, **
 - A **0. bank** egy 128 byte-os fejlécet + boot loadert tartalmaz:
   - `$8000/$8002` cold + warm start vektorok a `$8009`-re mutatnak.
   - `$8004–$8008` = a `CBM80` szignatúra, amit a KERNAL reset kód megkövetel.
-  - `$8009–$807F` = a loader: SEI / stack init / `JSR $FDA3` (IOINIT) / `JSR $FD50` (RAMTAS) / `JSR $FD15` (RESTOR) / `JSR $FF5B` (CINT), majd egy byte-másoló hurok, amely a payloadot a cart ROM-ból RAM-ba streameli, és bankot vált, amikor a `$FC` eléri az `$A0`-t. A végén egy pici **kilépő stubot** másol a `$0100`-ra, letiltja a cartot `LDA #$80 : STA $DE00`-val, és a belépési pontra `JMP`-el.
+  - `$8009–$807F` = a loader: SEI / stack init / `JSR $FDA3` (IOINIT) / `JSR $FD50` (RAMTAS) / `JSR $FD15` (RESTOR) / `JSR $FF5B` (CINT), majd a 60 byte-os **másoló rutint** (`$8044–$807F`) a `$0100`-ra másolja, és oda ugrik. A RAM-ból futó rutin a payloadot a cart ROM-ból a betöltési címére másolja, bankot vált a `$DE00`-on keresztül, amikor a `$FC` eléri az `$A0`-t, letiltja a cartot `LDA #$80 : STA $DE00`-val, és a belépési pontra `JMP`-el. (RAM-ból kell futnia: a bankváltás kicseréli a `$8000` alatti ROM-ot, a loader saját kódját is.)
 - A **payload** a 0. bankban a `$8080`-on kezdődik, és szükség szerint az 1–7. bankba folyik át. Maximum payload = `8 * 8192 − 128 = 65 408 byte`.
 
 ### Betöltési cím és belépési pont
@@ -4140,7 +4167,7 @@ Mivel a payload lineárisan tárolódik — egyetlen lapos kép a legalacsonyabb
 > - **Minden IRQ / NMI / BRK hook, amit a CRT bootolása előtt állítottak be, törlődik.** A programodnak magának kell beállítania őket a belépés után — pontosan úgy, mint egy friss `LOAD "",8,1 : RUN` szalagról/lemezről.
 > - Az **UltimateBasic programok**, amelyek nem alapértelmezett KERNAL vektorok élő voltára támaszkodnak a belépéskor, explicit `SYS`-t vagy init hívást igényelhetnek az autostart stubban. A szabványos UB autostart out of the box működik; a vektorokat *RUN előtt* hookoló bővítő könyvtárak nem.
 > - A **CIA1 / CIA2** újrainicializálódik az `IOINIT` által. Az egyéni timer-beállításokat (raszter IRQ-k, zenelejátszó CIA-A) újra kell programozni a belépés után.
-> - A cart egy 8 byte-os stubból van letiltva a **RAM-ban a `$0100`-on**, hogy a `STA $DE00`-t ne szakíthassa meg egy hibás ROM fetch. Ne támaszkodj arra, hogy a `$0100–$0107` a stack-tető képét tartalmazza belépéskor — az első RAM push felülírja a stubot.
+> - A másoló rutin a **RAM-ban, a `$0100–$013B` területen** fut, így a bankváltás és a záró `STA $DE00` nem húzza ki a kódot a CPU alól. Belépéskor ne támaszkodj a `$0100–$013B` tartalmára, és a payload ne essen erre a területre, se a loader által használt `$02–$04` / `$FB–$FE` zero page byte-okra.
 >
 > Ha egy CRT fut VICE-ban, de valódi hardveren elbukik, először azt ellenőrizd, hogy a program feltételez-e egy konkrét KERNAL vektort vagy CIA timer állapotot a belépéskor. Állítsd be az állapotot explicit módon az init rutinodban, és mindkettőn ugyanúgy fog viselkedni.
 
@@ -4170,6 +4197,8 @@ A **Beállítások → Általános → Program → VMA fordító** választja a 
 - **Rust + JavaScript ellenőrzés** — JavaScripttel és Rusttal is fordít, a JavaScript eredményét használja, az eltérést (bájtok, memórianézet, hibák) pedig a hibanaplóba írja, amelyet a hibabejelentés is elküld.
 
 A fordítás ablak kiírja a használt motort. A VMA verziója az About ablakban látszik.
+
+Ugyanez a fordító parancssorból is fut (VMA 2.1.0): a `vma build game.asm` a `game.prg`-t írja, a `--crt game.crt` Magic Desk cartridge-et (ugyanazokkal a bájtokkal, mint a **Build CRT**), a `--d64` pedig 1541-es lemezképet a programmal (a `--add` további fájlokat tesz rá) — c1541 nélkül. Részletek a [VMA tároló](https://github.com/zstarczali/VMA) kézikönyvében.
 
 ### VICE emulátor
 

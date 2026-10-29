@@ -560,6 +560,7 @@ PRINTABLE CHARACTERS
           <button id="expert-monitor-btn" class="expert-hl-toggle" aria-label="Monitor" aria-pressed="false">
             <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><rect x="1" y="1" width="14" height="9" rx="1.5" stroke="currentColor" stroke-width="1.2"/><rect x="3" y="3" width="2" height="2" rx="0.4" fill="currentColor" opacity="0.7"/><rect x="6" y="3" width="2" height="2" rx="0.4" fill="currentColor" opacity="0.7"/><rect x="9" y="3" width="2" height="2" rx="0.4" fill="currentColor" opacity="0.7"/><rect x="3" y="6.5" width="2" height="2" rx="0.4" fill="currentColor" opacity="0.4"/><rect x="6" y="6.5" width="2" height="2" rx="0.4" fill="currentColor" opacity="0.4"/><rect x="9" y="6.5" width="2" height="2" rx="0.4" fill="currentColor" opacity="0.4"/><rect x="6" y="12" width="4" height="1.5" rx="0.5" fill="currentColor" opacity="0.5"/><rect x="4" y="13.5" width="8" height="1" rx="0.5" fill="currentColor" opacity="0.3"/></svg>
           </button>
+          <button id="expert-toolkit-btn" class="expert-hl-toggle" type="button" aria-label="Toolkit" aria-pressed="false"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1" fill="currentColor" opacity="0.9"/><rect x="9" y="1.5" width="5.5" height="5.5" rx="1" fill="currentColor" opacity="0.55"/><rect x="1.5" y="9" width="5.5" height="5.5" rx="1" fill="currentColor" opacity="0.35"/><path d="M9.5 10.5h5M9.5 13h3.5" stroke="var(--hl-number, currentColor)" stroke-width="1.2" stroke-linecap="round"/></svg></button>
           <button id="expert-region-selection-btn" class="expert-hl-toggle expert-hl-toggle--on" aria-label="Region selection" aria-pressed="true">
             <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><path d="M3 3h8M3 8h5M3 13h8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M11.5 4l1.8 2-1.8 2" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/><path d="M11.5 9l1.8 2-1.8 2" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/></svg>
           </button>
@@ -686,8 +687,15 @@ PRINTABLE CHARACTERS
             </div>
             <pre id="expert-disasm-output" class="expert-disasm-output"></pre>
           </div>
+          <div class="expert-disasm-resizer" id="expert-monitor-resizer" hidden></div>
           <div class="expert-monitor-panel" id="expert-monitor-panel" hidden>
             <pre id="expert-monitor-output" class="expert-monitor-output"></pre>
+          </div>
+          <div class="expert-disasm-resizer" id="expert-toolkit-resizer" hidden></div>
+          <div class="expert-toolkit-panel toolkit-host" id="expert-toolkit-panel" hidden>
+            <div class="expert-disasm-header">
+              <span class="panel-label" id="expert-toolkit-label">Toolkit</span>
+            </div>
           </div>
         </div>
         <div id="expert-lint-pop" class="expert-lint-pop" hidden></div>
@@ -717,6 +725,7 @@ PRINTABLE CHARACTERS
           <button id="ub-verbose-btn" class="expert-hl-toggle" type="button" aria-label="Verbose build output" aria-pressed="false" title="Verbose build output"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><rect x="1.5" y="2" width="13" height="12" rx="1.3" stroke="currentColor" stroke-width="1.1"/><path d="M4 5h5M4 8h8M4 11h6" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><circle cx="12" cy="5" r="1" fill="var(--hl-number, currentColor)"/></svg></button>
           <button id="ub-disasm-btn" class="expert-hl-toggle" type="button" aria-label="Disassembler" aria-pressed="false" title="Disassembler"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M2 3h4M8 3h6M2 7h7M11 7h3M2 11h3M7 11h7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="m5 13 2-2-2-2" stroke="var(--hl-number, currentColor)" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
           <button id="ub-monitor-btn" class="expert-hl-toggle" type="button" aria-label="Monitor output" aria-pressed="false"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><rect x="1" y="1" width="14" height="9" rx="1.5" stroke="currentColor" stroke-width="1.2"/><rect x="3" y="3" width="2" height="2" rx="0.4" fill="currentColor" opacity="0.7"/><rect x="6" y="3" width="2" height="2" rx="0.4" fill="currentColor" opacity="0.7"/><rect x="9" y="3" width="2" height="2" rx="0.4" fill="currentColor" opacity="0.7"/><rect x="3" y="6.5" width="2" height="2" rx="0.4" fill="currentColor" opacity="0.4"/><rect x="6" y="6.5" width="2" height="2" rx="0.4" fill="currentColor" opacity="0.4"/><rect x="9" y="6.5" width="2" height="2" rx="0.4" fill="currentColor" opacity="0.4"/><rect x="6" y="12" width="4" height="1.5" rx="0.5" fill="currentColor" opacity="0.5"/><rect x="4" y="13.5" width="8" height="1" rx="0.5" fill="currentColor" opacity="0.3"/></svg></button>
+          <button id="ub-toolkit-btn" class="expert-hl-toggle" type="button" aria-label="Toolkit" aria-pressed="false"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1" fill="currentColor" opacity="0.9"/><rect x="9" y="1.5" width="5.5" height="5.5" rx="1" fill="currentColor" opacity="0.55"/><rect x="1.5" y="9" width="5.5" height="5.5" rx="1" fill="currentColor" opacity="0.35"/><path d="M9.5 10.5h5M9.5 13h3.5" stroke="var(--hl-number, currentColor)" stroke-width="1.2" stroke-linecap="round"/></svg></button>
           <button id="ub-output-btn" class="expert-hl-toggle expert-hl-toggle--on" type="button" aria-label="Build and debug output" aria-pressed="true"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><rect x="2" y="2.5" width="12" height="11" rx="1.5" stroke="currentColor" stroke-width="1.1"/><path d="m4.5 6 2 2-2 2M8 10h3.5" stroke="var(--hl-number, currentColor)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
           <div class="expert-toolbar-sep"></div>
           <button id="ub-hl-btn" class="expert-hl-toggle expert-hl-toggle--on" type="button" aria-label="Syntax highlighting" aria-pressed="true" title="Syntax highlighting"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M2.5 4h4M8 4h5.5M2.5 8h2M6 8h4M11.5 8h2M2.5 12h5M9 12h4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M8 4h2M6 8h2M9 12h2" stroke="var(--hl-number, #b5cea8)" stroke-width="1.5" stroke-linecap="round"/></svg></button>
@@ -802,6 +811,11 @@ PRINTABLE CHARACTERS
                 <strong id="ub-monitor-title">Monitor output</strong>
               </div>
               <pre id="ub-monitor-output">Build the source to generate monitor output.</pre>
+            </aside>
+            <aside id="ub-toolkit-panel" class="ub-build-panel ub-disasm-panel ub-toolkit-panel toolkit-host" hidden>
+              <div class="expert-disasm-header">
+                <strong id="ub-toolkit-title">Toolkit</strong>
+              </div>
             </aside>
           </div>
         </div>

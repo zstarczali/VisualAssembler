@@ -185,3 +185,44 @@ test("buildMagicDeskCrt rejects empty payload", () => {
   const { buildMagicDeskCrt } = loadCrtSandbox();
   assert.throws(() => buildMagicDeskCrt(new Uint8Array(0), 0x0801, 0x080D), /empty/);
 });
+
+// Runs bank 0's loader on the mini 6502: the cartridge at $8000–$9FFF while it is on, $DE00 =
+// bank select / bit 7 off, the KERNAL init calls as RTS. The copy loop switches banks under
+// $8000, so it must run from RAM — from the cartridge it fetched bank 1's data after the switch.
+function bootCrt(crt, entry) {
+  const { cpu } = require("./mini6502");
+  const banks = [];
+  for (let b = 0; b < 8; b++) banks.push(crt.subarray(0x40 + b * 0x2010 + 0x10, 0x40 + (b + 1) * 0x2010));
+  const ram = new Uint8Array(0x10000);
+  for (const a of [0xFDA3, 0xFD50, 0xFD15, 0xFF5B]) ram[a] = 0x60;
+  const state = { bank: 0, on: true };
+  const mem = new Proxy(ram, {
+    get(t, k) {
+      const a = Number(k);
+      if (Number.isNaN(a)) return t[k];
+      return state.on && a >= 0x8000 && a < 0xA000 ? banks[state.bank][a - 0x8000] : t[a];
+    },
+    set(t, k, v) {
+      const a = Number(k);
+      if (a === 0xDE00) { state.bank = v & 7; state.on = !(v & 0x80); } else t[a] = v;
+      return true;
+    }
+  });
+  const c = cpu(mem);
+  c.pc = 0x8009;
+  for (let n = 0; n < 5e6 && c.pc !== entry; n++) c.step();
+  return { ram, pc: c.pc, cartOn: state.on };
+}
+
+test("the loader copies a payload over all banks and starts the entry with the cart off", () => {
+  const { buildMagicDeskCrt } = loadCrtSandbox();
+  // up to $CFFF: a payload over $D000 writes the I/O area (and $DE00) on the real machine too
+  for (const len of [18, 0x1F80, 0x1F81, 30000, 0xD000 - 0x0801]) {
+    const payload = new Uint8Array(len);
+    for (let i = 0; i < len; i++) payload[i] = (i * 7 + (i >> 8)) & 0xFF;
+    const r = bootCrt(buildMagicDeskCrt(payload, 0x0801, 0x080D), 0x080D);
+    assert.strictEqual(r.pc, 0x080D, `${len} bytes: entry reached`);
+    assert.strictEqual(r.cartOn, false, `${len} bytes: cartridge off`);
+    assert.deepStrictEqual(r.ram.subarray(0x0801, 0x0801 + len), payload, `${len} bytes copied`);
+  }
+});
