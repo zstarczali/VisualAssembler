@@ -282,6 +282,10 @@ const VARIANTS = {
   "print-multi": "* = $1000\n    .print \"HELLO\"\n    .print_hex A\n    .print_char 'A'\n    rts\n",
   "runtime-control": "* = $1000\n    .if A == #$00\n    inc $D020\n    .else\n    inc $D021\n    .endif\n    .while X != #$05\n    inx\n    .endw\n    .repeat\n    dey\n    .until Y == #$00\n    rts\n",
   "irq-wait-raster": "* = $1000\n    .irq_setup handler=irq, raster=$30\n    rts\nirq:\n    .wait_raster $80\n    jmp $EA31\n",
+  // Kick import forms (.pc, .encoding + .text)
+  "kick-pc": '.pc = $1000 "Main"\n    lda #$01\n.pc = 8192\n    rts\n',
+  "kick-encoding-text": '* = $1000\n    .text "HELLO, world! @[]", $0D, 0\n.encoding "screencode_upper"\n    .text "ABC xyz 123"\n.encoding "petscii_mixed"\n    .text @"Mixed \\"q\\"", 255\n.encoding "petscii_upper"\n    .text "abc"\n.encoding "ascii"\n    .text "a~"\n    rts\n',
+  "kick-encoding-bad-char-error": '* = $1000\n.encoding "screencode_upper"\n    .text "{"\n    rts\n',
   "incbin-addr": '* = $1000\n    .incbin "demo-colors.bin", $3000\n    rts\n',
   "fixed-code-macros": ".const BORDER = 6\n.const SEED = $02\nseed2 = $0340\n* = $1000\n    .set_border BORDER\n    .set_bg $0E\n    .set_border a\n    .charset upper\n    .charset lower\n    .turbo_set 15, 1\n    .turbo_set 3, 0\n    .turbo_enable off\n    .supercpu_detect\n    .reu_check\n    .exodecrunch\n    .exodecrunch depacker=$C800\n    .rand\n    .rand SEED\n    .rand seed2\n    .rand C000\n    .wait_raster 7F\n    .wait_raster #$FA\n    .clear_screen\n    .wait_key\n    .print_hex X\n    .print_hex Y\n    .print_char 65\n    .print_char $0D\n    .print_char %1000001\n    .print_char BORDER\n    rts\n",
   "fixed-code-in-macro": ".macro pr(ch)\n    .print_char ch\n    .print_char {ch}\n.endm\n* = $1000\n    :pr(5)\n    rts\n",

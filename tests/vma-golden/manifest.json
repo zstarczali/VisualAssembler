@@ -4776,6 +4776,78 @@
   "error": null
  },
  {
+  "id": "var-kick-pc",
+  "caseId": "var-kick-pc",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": true,
+  "ok": true,
+  "size": 6146,
+  "sha256": "938eb95032442ae956eeac418b66c910f5c2651d443ec680a441c4f9c8cbeb15",
+  "error": null
+ },
+ {
+  "id": "var-kick-pc@nostub",
+  "caseId": "var-kick-pc",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": false,
+  "ok": true,
+  "size": 4099,
+  "sha256": "466a36467aad3570f827d56d1e930d590b3d90240aa74fa33d2d2275ce739dbb",
+  "error": null
+ },
+ {
+  "id": "var-kick-encoding-text",
+  "caseId": "var-kick-encoding-text",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": true,
+  "ok": true,
+  "size": 2095,
+  "sha256": "9378a93f1c9f84dd73b7b83b5f60ea030f7f8003242b2dbc71dace4b774e9c0c",
+  "error": null
+ },
+ {
+  "id": "var-kick-encoding-text@nostub",
+  "caseId": "var-kick-encoding-text",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": false,
+  "ok": true,
+  "size": 48,
+  "sha256": "0c4de222ef7cabc43604c7c944969e863a6c3fdac4a5fed17506ae9be26c3524",
+  "error": null
+ },
+ {
+  "id": "var-kick-encoding-bad-char-error",
+  "caseId": "var-kick-encoding-bad-char-error",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": true,
+  "ok": false,
+  "size": 0,
+  "sha256": null,
+  "error": "[P003] $1000 BYTE — Cannot compile: invalid operand on the BYTE line."
+ },
+ {
+  "id": "var-kick-encoding-bad-char-error@nostub",
+  "caseId": "var-kick-encoding-bad-char-error",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": false,
+  "ok": false,
+  "size": 0,
+  "sha256": null,
+  "error": "[P003] $1000 BYTE — Cannot compile: invalid operand on the BYTE line."
+ },
+ {
   "id": "var-incbin-addr",
   "caseId": "var-incbin-addr",
   "kind": "text",

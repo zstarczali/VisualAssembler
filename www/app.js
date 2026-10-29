@@ -591,6 +591,10 @@ let _expertPaletteVisible = false;
 let _expertDisasmVisible = false;
 let _expertDisasmWidth   = 340;
 let _expertMonitorVisible = false;
+let _expertToolkitVisible = false;
+let _expertMonitorWidth = 365;
+let _expertToolkitWidth = 320;
+let _ubToolkitVisible = false;
 let _acmePreview = null;
 let _acmePreviewError = null;   // { tabId, sourceText, text } of the last failed automatic build
 let _acmeBuildRunning = false;
@@ -678,8 +682,13 @@ function saveUiSettings() {
     expertPaletteVisible: _expertPaletteVisible,
     expertDisasmVisible: _expertDisasmVisible,
     expertDisasmWidth: _expertDisasmWidth,
+    expertMonitorWidth: _expertMonitorWidth,
+    expertToolkitWidth: _expertToolkitWidth,
     ubDisasmWidth: _ubDisasmWidth,
     ubDisasmPaneWidth: _ubDisasmPaneWidth,
+    ubDisasmVisible: _ubDisasmVisible,
+    ubMonitorVisible: _ubMonitorVisible,
+    ubToolkitVisible: _ubToolkitVisible,
     ubCommandListHeight: _ubCommandListHeight,
     ubProjectSymbolsHeight: _ubProjectSymbolsHeight,
     ubProjectVisible: _ubProjectVisible,
@@ -689,6 +698,7 @@ function saveUiSettings() {
     ubExplicit: _ubExplicit,
     ubFontSize: _ubFontSize,
     expertMonitorVisible: _expertMonitorVisible,
+    expertToolkitVisible: _expertToolkitVisible,
     expertProjectVisible: _expertProjectVisible,
     expertProjectSymbolsHeight: _expertProjectSymbolsHeight,
     showMacroSource,
@@ -1478,6 +1488,7 @@ function initPalette() {
   document.getElementById("ub-verbose-btn")?.addEventListener("click", _ubToggleVerbose);
   document.getElementById("ub-disasm-btn")?.addEventListener("click", _ubToggleDisasm);
   document.getElementById("ub-monitor-btn")?.addEventListener("click", _ubToggleMonitor);
+  document.getElementById("ub-toolkit-btn")?.addEventListener("click", _ubToggleToolkit);
   const ubDisasmResizer = document.getElementById("ub-disasm-resizer");
   ubDisasmResizer?.addEventListener("mousedown", event => {
     event.preventDefault();
@@ -1770,6 +1781,39 @@ function initPalette() {
     } else {
       expertMonitorPanel?.setAttribute("hidden", "");
     }
+    _expertSidePanelSync();
+    saveUiSettings();
+  });
+
+  // Monitor / Toolkit side panels: the same drag as the Disassembly resizer
+  [["expert-monitor-resizer", "expert-monitor-panel", "monitor"],
+   ["expert-toolkit-resizer", "expert-toolkit-panel", "toolkit"]].forEach(([resizerId, panelId, which]) => {
+    const resizer = document.getElementById(resizerId);
+    const panel = document.getElementById(panelId);
+    resizer?.addEventListener("mousedown", (e) => {
+      e.preventDefault();
+      const startX = e.clientX;
+      const startWidth = panel?.getBoundingClientRect().width || 320;
+      resizer.classList.add("dragging");
+      const onMove = (ev) => {
+        const w = Math.round(Math.max(180, Math.min(window.innerWidth * 0.6, startWidth + startX - ev.clientX)));
+        if (which === "monitor") _expertMonitorWidth = w; else _expertToolkitWidth = w;
+        if (panel) panel.style.width = `${w}px`;
+      };
+      const onUp = () => {
+        resizer.classList.remove("dragging");
+        document.removeEventListener("mousemove", onMove);
+        document.removeEventListener("mouseup", onUp);
+        saveUiSettings();
+      };
+      document.addEventListener("mousemove", onMove);
+      document.addEventListener("mouseup", onUp);
+    });
+  });
+
+  document.getElementById("expert-toolkit-btn")?.addEventListener("click", () => {
+    _expertToolkitVisible = !_expertToolkitVisible;
+    _toolkitPlace();
     saveUiSettings();
   });
 
@@ -3083,8 +3127,10 @@ function showCustomerMessageIfNeeded() {
 }
 
 function _applyUiSettingsToDOM() {
-  assemblerSyntax = savedUiSettings.assemblerSyntax === "acme" ? "acme" : "kick";
-  acmePath = savedUiSettings.acmePath || "";
+  // the loaded settings: a saveUiSettings() on the way (setOutputMode, the mode switch …) replaces savedUiSettings
+  const s = savedUiSettings;
+  assemblerSyntax = s.assemblerSyntax === "acme" ? "acme" : "kick";
+  acmePath = s.acmePath || "";
   const assemblerSyntaxSelect = document.getElementById("assembler-syntax");
   if (assemblerSyntaxSelect) assemblerSyntaxSelect.value = assemblerSyntax;
   const vmaEngineSelect = document.getElementById("vma-engine");
@@ -3093,27 +3139,27 @@ function _applyUiSettingsToDOM() {
   const acmePathInput = document.getElementById("acme-path");
   if (acmePathInput) acmePathInput.value = acmePath;
   _acmeAvailabilitySync();
-  _editorDialogPositions =(savedUiSettings.editorDialogPositions && typeof savedUiSettings.editorDialogPositions === "object")
-    ? savedUiSettings.editorDialogPositions
+  _editorDialogPositions =(s.editorDialogPositions && typeof s.editorDialogPositions === "object")
+    ? s.editorDialogPositions
     : {};
 
-  if (sampleSelect && savedUiSettings.sample) {
-    sampleSelect.value = savedUiSettings.sample;
+  if (sampleSelect && s.sample) {
+    sampleSelect.value = s.sample;
   }
 
-  if (typeof savedUiSettings.zoom === "number" && Number.isFinite(savedUiSettings.zoom)) {
-    blockScale = Math.max(0.72, Math.min(1.25, Number(savedUiSettings.zoom)));
+  if (typeof s.zoom === "number" && Number.isFinite(s.zoom)) {
+    blockScale = Math.max(0.72, Math.min(1.25, Number(s.zoom)));
   }
 
   if (baseInputs.length) {
-    const selectedBase = savedUiSettings.numberBase === "dec" ? "dec" : "hex";
+    const selectedBase = s.numberBase === "dec" ? "dec" : "hex";
     baseInputs.forEach((input) => {
       input.checked = input.value === selectedBase;
     });
   }
 
-  if (outputModeTabs.length && savedUiSettings.outputMode) {
-    const mode = ["asm","monitor","both","disasm","toolkit"].includes(savedUiSettings.outputMode) ? savedUiSettings.outputMode : "asm";
+  if (outputModeTabs.length && s.outputMode) {
+    const mode = ["asm","monitor","both","disasm","toolkit"].includes(s.outputMode) ? s.outputMode : "asm";
     outputModeTabs.forEach((tab) => {
       const isActive = tab.dataset.mode === mode;
       tab.classList.toggle("active", isActive);
@@ -3122,222 +3168,200 @@ function _applyUiSettingsToDOM() {
   }
 
   if (globalMemoryPanel) {
-    globalMemoryPanel.open = !!savedUiSettings.memoryPanelOpen;
+    globalMemoryPanel.open = !!s.memoryPanelOpen;
   }
 
   if (basicSysToggle) {
-    basicSysToggle.checked = savedUiSettings.basicSys !== false;
+    basicSysToggle.checked = s.basicSys !== false;
   }
   if (showBasicStubToggle) {
-    showBasicStubToggle.checked = !!savedUiSettings.showBasicStub;
+    showBasicStubToggle.checked = !!s.showBasicStub;
   }
 
   if (writeDebugSidecarsToggle) {
-    writeDebugSidecarsToggle.checked = !!savedUiSettings.writeDebugSidecars;
+    writeDebugSidecarsToggle.checked = !!s.writeDebugSidecars;
   }
   if (ubAsmSidecarToggle) {
-    ubAsmSidecarToggle.checked = !!savedUiSettings.ubAsmSidecar;
+    ubAsmSidecarToggle.checked = !!s.ubAsmSidecar;
   }
 
   const viceMonToggle = document.getElementById("vice-remote-monitor");
-  if (viceMonToggle) viceMonToggle.checked = savedUiSettings.viceRemoteMonitor !== false;
+  if (viceMonToggle) viceMonToggle.checked = s.viceRemoteMonitor !== false;
   if (exomizerBorderFlashToggle) {
-    exomizerBorderFlashToggle.checked = savedUiSettings.exomizerBorderFlash !== false;
+    exomizerBorderFlashToggle.checked = s.exomizerBorderFlash !== false;
   }
 
-  if (savedUiSettings.showMacroSource !== undefined) {
-    showMacroSource = !!savedUiSettings.showMacroSource;
+  if (s.showMacroSource !== undefined) {
+    showMacroSource = !!s.showMacroSource;
     if (macroSourceToggle) macroSourceToggle.checked = showMacroSource;
   }
 
-  if (savedUiSettings.showRegionComments !== undefined) {
-    showRegionComments = !!savedUiSettings.showRegionComments;
+  if (s.showRegionComments !== undefined) {
+    showRegionComments = !!s.showRegionComments;
     if (regionCommentsToggle) regionCommentsToggle.checked = showRegionComments;
   }
 
-  if (savedUiSettings.showMemoryOverlays !== undefined) {
-    showMemoryOverlays = !!savedUiSettings.showMemoryOverlays;
+  if (s.showMemoryOverlays !== undefined) {
+    showMemoryOverlays = !!s.showMemoryOverlays;
     if (memoryOverlaysToggle) memoryOverlaysToggle.checked = showMemoryOverlays;
     _applyMemoryOverlaysVisibility();
   }
 
-  if (savedUiSettings.showGlobalMemoryPanel !== undefined) {
-    showGlobalMemoryPanel = !!savedUiSettings.showGlobalMemoryPanel;
+  if (s.showGlobalMemoryPanel !== undefined) {
+    showGlobalMemoryPanel = !!s.showGlobalMemoryPanel;
     if (globalMemoryPanelToggle) globalMemoryPanelToggle.checked = showGlobalMemoryPanel;
     _applyGlobalMemoryPanelVisibility();
   }
 
-  if (savedUiSettings.blockPaletteSync !== undefined) {
-    blockPaletteSync = !!savedUiSettings.blockPaletteSync;
+  if (s.blockPaletteSync !== undefined) {
+    blockPaletteSync = !!s.blockPaletteSync;
     if (blockPaletteSyncToggle) blockPaletteSyncToggle.checked = blockPaletteSync;
   }
 
-  exomizerEnabled = !!savedUiSettings.exomizerEnabled;
+  exomizerEnabled = !!s.exomizerEnabled;
   if (runExomizerToggle) runExomizerToggle.checked = exomizerEnabled;
 
   if (autoSnapshotToggle) {
-    autoSnapshotToggle.checked = savedUiSettings.autoSnapshotEnabled !== false;
+    autoSnapshotToggle.checked = s.autoSnapshotEnabled !== false;
   }
   const gitPreferredToggle = document.getElementById("git-preferred");
-  if (gitPreferredToggle) gitPreferredToggle.checked = savedUiSettings.gitPreferred !== false;
+  if (gitPreferredToggle) gitPreferredToggle.checked = s.gitPreferred !== false;
 
-  if (savedUiSettings.asmOutputBase) {
-    asmOutputBase = savedUiSettings.asmOutputBase;
+  if (s.asmOutputBase) {
+    asmOutputBase = s.asmOutputBase;
   }
   asmBaseInputs.forEach(input => { input.checked = input.value === asmOutputBase; });
 
-  if (Number.isFinite(savedUiSettings.wsProgramShare)) _wsProgramShare = savedUiSettings.wsProgramShare;
+  if (Number.isFinite(s.wsProgramShare)) _wsProgramShare = s.wsProgramShare;
   _applyWorkspaceColumns();
 
-  if (savedUiSettings.debuggerJmp !== undefined) debuggerJmp = !!savedUiSettings.debuggerJmp;
+  if (s.debuggerJmp !== undefined) debuggerJmp = !!s.debuggerJmp;
   if (dbgJmp) dbgJmp.checked = debuggerJmp;
 
-  if (savedUiSettings.debuggerWait !== undefined) debuggerWait = !!savedUiSettings.debuggerWait;
+  if (s.debuggerWait !== undefined) debuggerWait = !!s.debuggerWait;
   if (dbgWait) dbgWait.checked = debuggerWait;
 
-  if (savedUiSettings.debuggerUnpause !== undefined) debuggerUnpause = !!savedUiSettings.debuggerUnpause;
+  if (s.debuggerUnpause !== undefined) debuggerUnpause = !!s.debuggerUnpause;
   if (dbgUnpause) dbgUnpause.checked = debuggerUnpause;
 
-  if (typeof savedUiSettings.expertFontSize === "number" && Number.isFinite(savedUiSettings.expertFontSize)) {
-    _expertFontSize = Math.max(8, Math.min(28, savedUiSettings.expertFontSize));
+  if (typeof s.expertFontSize === "number" && Number.isFinite(s.expertFontSize)) {
+    _expertFontSize = Math.max(8, Math.min(28, s.expertFontSize));
     _applyExpertFontSize();
   }
 
-  if (savedUiSettings.expertLineNumbers) {
+  if (s.expertLineNumbers) {
     _expertLineNumbersEnabled = true;
     _expertApplyLineNumbers();
   }
-  if (savedUiSettings.expertCycles) {
+  if (s.expertCycles) {
     _expertCyclesEnabled = true;
     _expertApplyCycles();
   }
 
-  if (savedUiSettings.expertMinimap) {
+  if (s.expertMinimap) {
     _expertMinimapEnabled = true;
     _expertApplyMinimap();
   }
 
-  if (savedUiSettings.blockMinimap) {
+  if (s.blockMinimap) {
     _blockMinimapEnabled = true;
     _blockApplyMinimap();
   }
 
-  if (typeof savedUiSettings.expertProjectSymbolsHeight === "number" && Number.isFinite(savedUiSettings.expertProjectSymbolsHeight)) {
-    _expertProjectSymbolsHeight = Math.max(48, Math.min(1200, savedUiSettings.expertProjectSymbolsHeight));
+  if (typeof s.expertProjectSymbolsHeight === "number" && Number.isFinite(s.expertProjectSymbolsHeight)) {
+    _expertProjectSymbolsHeight = Math.max(48, Math.min(1200, s.expertProjectSymbolsHeight));
     _applyExpertProjectSymbolsHeight();
   }
 
-  if (savedUiSettings.expertAutocompleteEnabled !== undefined) {
-    _expertAcEnabled = !!savedUiSettings.expertAutocompleteEnabled;
+  if (s.expertAutocompleteEnabled !== undefined) {
+    _expertAcEnabled = !!s.expertAutocompleteEnabled;
   }
 
-  if (savedUiSettings.expertRegionSelectionEnabled !== undefined) {
-    _expertRegionSelectionEnabled = !!savedUiSettings.expertRegionSelectionEnabled;
+  if (s.expertRegionSelectionEnabled !== undefined) {
+    _expertRegionSelectionEnabled = !!s.expertRegionSelectionEnabled;
   }
-  if (Number.isFinite(savedUiSettings.ubDisasmWidth)) {
-    _ubDisasmWidth = Math.max(180, Number(savedUiSettings.ubDisasmWidth));
+  if (Number.isFinite(s.ubDisasmWidth)) {
+    _ubDisasmWidth = Math.max(180, Number(s.ubDisasmWidth));
     ubPanel?.style.setProperty("--ub-disasm-width", `${_ubDisasmWidth}px`);
   }
-  if (Number.isFinite(savedUiSettings.ubDisasmPaneWidth)) {
-    _ubDisasmPaneWidth = Math.max(120, Number(savedUiSettings.ubDisasmPaneWidth));
+  if (Number.isFinite(s.ubDisasmPaneWidth)) {
+    _ubDisasmPaneWidth = Math.max(120, Number(s.ubDisasmPaneWidth));
     ubPanel?.style.setProperty("--ub-disasm-pane-width", `${_ubDisasmPaneWidth}px`);
   }
-  if (Number.isFinite(savedUiSettings.ubCommandListHeight)) {
-    _ubCommandListHeight = Math.max(80, Number(savedUiSettings.ubCommandListHeight));
+  if (Number.isFinite(s.ubCommandListHeight)) {
+    _ubCommandListHeight = Math.max(80, Number(s.ubCommandListHeight));
   }
   _ubApplyCommandListHeight();
-  if (Number.isFinite(savedUiSettings.ubProjectSymbolsHeight)) {
-    _ubProjectSymbolsHeight = Math.max(48, Number(savedUiSettings.ubProjectSymbolsHeight));
+  if (Number.isFinite(s.ubProjectSymbolsHeight)) {
+    _ubProjectSymbolsHeight = Math.max(48, Number(s.ubProjectSymbolsHeight));
   }
   _ubApplyProjectSymbolsHeight();
-  if (savedUiSettings.ubProjectVisible !== undefined) _ubProjectVisible = !!savedUiSettings.ubProjectVisible;
-  if (savedUiSettings.ubCommandsVisible !== undefined) _ubCommandsVisible = !!savedUiSettings.ubCommandsVisible;
-  if (savedUiSettings.ubOutputVisible !== undefined) _ubOutputVisible = !!savedUiSettings.ubOutputVisible;
-  if (savedUiSettings.ubAutocompleteEnabled !== undefined) _ubAutocompleteEnabled = !!savedUiSettings.ubAutocompleteEnabled;
-  if (savedUiSettings.ubExplicit !== undefined) _ubExplicit = !!savedUiSettings.ubExplicit;
-  if (typeof savedUiSettings.ubFontSize === "number" && Number.isFinite(savedUiSettings.ubFontSize)) {
-    _ubFontSize = Math.max(8, Math.min(28, savedUiSettings.ubFontSize));
+  if (s.ubProjectVisible !== undefined) _ubProjectVisible = !!s.ubProjectVisible;
+  if (s.ubCommandsVisible !== undefined) _ubCommandsVisible = !!s.ubCommandsVisible;
+  if (s.ubOutputVisible !== undefined) _ubOutputVisible = !!s.ubOutputVisible;
+  if (s.ubAutocompleteEnabled !== undefined) _ubAutocompleteEnabled = !!s.ubAutocompleteEnabled;
+  if (s.ubExplicit !== undefined) _ubExplicit = !!s.ubExplicit;
+  if (typeof s.ubFontSize === "number" && Number.isFinite(s.ubFontSize)) {
+    _ubFontSize = Math.max(8, Math.min(28, s.ubFontSize));
     _ubApplyFontSize();
   }
 
-  if (savedUiSettings.ultimateBasicMode) {
+  // The panel states of both editors, whatever mode the app starts in. Read BEFORE the mode switch:
+  // setExpertMode / setUltimateBasicMode call saveUiSettings(), which overwrites savedUiSettings
+  // with the current (default) variable values.
+  if (s.expertHlEnabled === false) _expertHlEnabled = false;
+  if (s.expertPaletteSyncEnabled === false) _expertPaletteSyncEnabled = false;
+  _expertPaletteVisible = !!s.expertPaletteVisible;
+  if (Number(s.expertDisasmWidth) >= 180) _expertDisasmWidth = Number(s.expertDisasmWidth);
+  if (Number(s.expertMonitorWidth) >= 180) _expertMonitorWidth = Number(s.expertMonitorWidth);
+  if (Number(s.expertToolkitWidth) >= 180) _expertToolkitWidth = Number(s.expertToolkitWidth);
+  _expertDisasmVisible = !!s.expertDisasmVisible;
+  _expertMonitorVisible = !!s.expertMonitorVisible;
+  _expertToolkitVisible = !!s.expertToolkitVisible;
+  _expertProjectVisible = !!s.expertProjectVisible;
+  // one machine view at a time in UB
+  _ubDisasmVisible = !!s.ubDisasmVisible;
+  _ubMonitorVisible = !_ubDisasmVisible && !!s.ubMonitorVisible;
+  _ubToolkitVisible = !_ubDisasmVisible && !_ubMonitorVisible && !!s.ubToolkitVisible;
+
+  if (s.ultimateBasicMode) {
     setUltimateBasicMode(true);
-  } else if (savedUiSettings.expertMode || assemblerSyntax === "acme") {
-    // ACME has no block mode. Capture toolbar states BEFORE setExpertMode(true) — it calls saveUiSettings()
-    // which overwrites savedUiSettings with current (default) variable values.
-    const _savedHlEnabled          = savedUiSettings.expertHlEnabled;
-    const _savedPaletteSyncEnabled = savedUiSettings.expertPaletteSyncEnabled;
-    const _savedRegionSelectionEnabled = savedUiSettings.expertRegionSelectionEnabled;
-    const _savedAutocompleteEnabled = savedUiSettings.expertAutocompleteEnabled;
-    const _savedPaletteVisible     = savedUiSettings.expertPaletteVisible;
-    const _savedDisasmWidth        = savedUiSettings.expertDisasmWidth;
-    const _savedDisasmVisible      = savedUiSettings.expertDisasmVisible;
-    const _savedMonitorVisible     = savedUiSettings.expertMonitorVisible;
-    const _savedProjectVisible     = savedUiSettings.expertProjectVisible;
-    const _savedProjectSymbolsHeight = savedUiSettings.expertProjectSymbolsHeight;
-
-    setExpertMode(true);
-
-    // Restore expert toolbar toggles using captured values
-    if (_savedHlEnabled === false) {
-      _expertHlEnabled = false;
-      expertHlToggleBtn?.classList.remove("expert-hl-toggle--on");
-      expertHlToggleBtn?.setAttribute("aria-pressed", "false");
-    }
-    if (_savedPaletteSyncEnabled === false) {
-      _expertPaletteSyncEnabled = false;
-      expertPaletteSyncBtn?.classList.remove("expert-hl-toggle--on");
-      expertPaletteSyncBtn?.setAttribute("aria-pressed", "false");
-    }
-    if (_savedRegionSelectionEnabled === false) {
-      _expertRegionSelectionEnabled = false;
-      expertRegionSelectionBtn?.classList.remove("expert-hl-toggle--on");
-      expertRegionSelectionBtn?.setAttribute("aria-pressed", "false");
-    }
-    if (_savedAutocompleteEnabled === false) {
-      _expertAcEnabled = false;
-      expertAutocompleteBtn?.classList.remove("expert-hl-toggle--on");
-      expertAutocompleteBtn?.setAttribute("aria-pressed", "false");
-    }
-    if (_savedPaletteVisible) {
-      _expertPaletteVisible = true;
-      expertPaletteBtn?.classList.add("expert-hl-toggle--on");
-      expertPaletteBtn?.setAttribute("aria-pressed", "true");
-      document.body.classList.add("expert-show-palette");
-    }
-    if (_savedDisasmWidth) {
-      _expertDisasmWidth = _savedDisasmWidth;
-    }
-    if (_savedDisasmVisible) {
-      _expertDisasmVisible = true;
-      expertDisasmBtn?.classList.add("expert-hl-toggle--on");
-      expertDisasmBtn?.setAttribute("aria-pressed", "true");
-      expertDisasmPanel?.removeAttribute("hidden");
-      expertDisasmResizer?.removeAttribute("hidden");
-      if (expertDisasmPanel) expertDisasmPanel.style.width = `${_expertDisasmWidth}px`;
-      _expertRenderDisasm();
-    }
-    if (_savedMonitorVisible) {
-      _expertMonitorVisible = true;
-      expertMonitorBtn?.classList.add("expert-hl-toggle--on");
-      expertMonitorBtn?.setAttribute("aria-pressed", "true");
-      expertMonitorPanel?.removeAttribute("hidden");
-      _expertRenderMonitor();
-    }
-    if (_savedProjectVisible) {
-      _expertProjectVisible = true;
-      expertProjectBtn?.classList.add("expert-hl-toggle--on");
-      expertProjectBtn?.setAttribute("aria-pressed", "true");
-      expertProjectPanel?.removeAttribute("hidden");
-      _expertRenderProjectTree();
-      if (typeof _savedProjectSymbolsHeight === "number" && Number.isFinite(_savedProjectSymbolsHeight)) {
-        _expertProjectSymbolsHeight = Math.max(48, Math.min(1200, _savedProjectSymbolsHeight));
-      }
-      _applyExpertProjectSymbolsHeight();
-    }
+  } else if (s.expertMode || assemblerSyntax === "acme") {
+    setExpertMode(true);   // ACME has no block mode
   }
+  _expertApplyPanels();
+  _ubApplyMachineView();
 
   saveUiSettings();
+}
+
+// The Expert toolbar toggles and side panels from their variables (_applyUiSettingsToDOM).
+function _expertApplyPanels() {
+  const setBtn = (btn, on) => {
+    btn?.classList.toggle("expert-hl-toggle--on", on);
+    btn?.setAttribute("aria-pressed", String(on));
+  };
+  setBtn(expertHlToggleBtn, _expertHlEnabled);
+  setBtn(expertPaletteSyncBtn, _expertPaletteSyncEnabled);
+  setBtn(expertRegionSelectionBtn, _expertRegionSelectionEnabled);
+  setBtn(expertAutocompleteBtn, _expertAcEnabled);
+  setBtn(expertPaletteBtn, _expertPaletteVisible);
+  document.body.classList.toggle("expert-show-palette", _expertPaletteVisible);
+  setBtn(expertDisasmBtn, _expertDisasmVisible);
+  if (expertDisasmPanel) {
+    expertDisasmPanel.hidden = !_expertDisasmVisible;
+    expertDisasmPanel.style.width = `${_expertDisasmWidth}px`;
+  }
+  if (expertDisasmResizer) expertDisasmResizer.hidden = !_expertDisasmVisible;
+  setBtn(expertMonitorBtn, _expertMonitorVisible);
+  if (expertMonitorPanel) expertMonitorPanel.hidden = !_expertMonitorVisible;
+  _toolkitPlace();   // + _expertSidePanelSync: the Monitor / Toolkit widths and resizers
+  setBtn(expertProjectBtn, _expertProjectVisible);
+  if (expertProjectPanel) expertProjectPanel.hidden = !_expertProjectVisible;
+  if (_expertProjectVisible) {
+    _expertRenderProjectTree();
+    _applyExpertProjectSymbolsHeight();
+  }
 }
 
 function applySavedUiSettings() {
@@ -3491,6 +3515,7 @@ function applyTranslations() {
   expertDisasmBtn?.setAttribute("aria-label", t("expertDisasm"));
   expertMonitorBtn?.setAttribute("title", t("expertMonitor"));
   expertMonitorBtn?.setAttribute("aria-label", t("expertMonitor"));
+  document.getElementById("expert-toolkit-btn")?.setAttribute("aria-label", t("expertToolkit"));
   document.getElementById("expert-cycles-btn")?.setAttribute("aria-label", t("expertCycles"));
   expertFormatBtn?.setAttribute("title", t("expertFormat"));
   expertFormatBtn?.setAttribute("aria-label", t("expertFormat"));
@@ -3507,7 +3532,7 @@ function applyTranslations() {
 
   const ubLabels = {
     "ub-new-btn": "ubNewSource", "ub-open-btn": "ubOpenSource", "ub-save-btn": "ubSaveSource", "ub-save-as-btn": "ubSaveSourceAs", "ub-format-btn": "ubFormatSource",
-    "ub-build-btn": "ubBuild", "ub-output-btn": "ubBuildOutput", "ub-explicit-btn": "ubExplicit", "ub-verbose-btn": "ubVerbose", "ub-disasm-btn": "expertDisasm", "ub-monitor-btn": "monitorOutputLabel", "ub-autocomplete-btn": "expertAutocomplete",
+    "ub-build-btn": "ubBuild", "ub-output-btn": "ubBuildOutput", "ub-explicit-btn": "ubExplicit", "ub-verbose-btn": "ubVerbose", "ub-disasm-btn": "expertDisasm", "ub-monitor-btn": "monitorOutputLabel", "ub-toolkit-btn": "expertToolkit", "ub-autocomplete-btn": "expertAutocomplete",
     "ub-project-btn": "expertProjectPanel", "ub-help-btn": "ubCommandHelpToggle", "ub-manual-btn": "ubManual", "ub-project-open-btn": "projOpenProjectBtn",
     "ub-project-new-btn": "projNewProjectBtn", "ub-project-save-btn": "projSaveProjectBtn",
     "ub-project-add-btn": "projAddFileBtn", "ub-hl-btn": "ubSyntaxHighlight",
@@ -7098,6 +7123,11 @@ function setExpertMode(on, { keepText = false, switchingToUb = false } = {}) {
     if (cursorSourceLine >= 0) _selectBlockBySourceLine(cursorSourceLine);
   }
   renderMnemonicDescription();
+  _toolkitPlace();
+  if (on) {
+    if (_expertDisasmVisible) _expertRenderDisasm();
+    if (_expertMonitorVisible) _expertRenderMonitor();
+  }
   _historySyncCurrent();
   saveUiSettings();
 }
@@ -8324,6 +8354,7 @@ function setUltimateBasicMode(on, { restoreAssemblerMode = true } = {}) {
     _ubRenderProjectFiles();
     _ubRenderCommandReference();
   }
+  _toolkitPlace();
   // back to the assembler editor the user left: ACME and block-locked projects have text only
   if (leavingUb && restoreAssemblerMode && !expertMode
       && (lastAssemblerEditorMode === "expert" || assemblerSyntax === "acme" || _blockModeBlocked())) {
@@ -8972,7 +9003,7 @@ function _ubToggleVerbose() { _ubVerbose = !_ubVerbose; _ubSetToggle("ub-verbose
 function _ubToggleOutput() { _ubOutputVisible = !_ubOutputVisible; ubPanel?.classList.toggle("ub-hide-output", !_ubOutputVisible); _ubSetToggle("ub-output-btn", _ubOutputVisible); saveUiSettings(); }
 function _ubToggleAutocomplete() { _ubAutocompleteEnabled = !_ubAutocompleteEnabled; _ubSetToggle("ub-autocomplete-btn", _ubAutocompleteEnabled); if (!_ubAutocompleteEnabled) _ubAcHide(); else _ubAcUpdate(); saveUiSettings(); }
 function _ubApplyMachineView() {
-  const visible = _ubDisasmVisible || _ubMonitorVisible;
+  const visible = _ubDisasmVisible || _ubMonitorVisible || _ubToolkitVisible;
   ubPanel.classList.toggle("ub-show-disasm", visible);
   _ubSetToggle("ub-disasm-btn", _ubDisasmVisible);
   _ubSetToggle("ub-monitor-btn", _ubMonitorVisible);
@@ -8981,6 +9012,7 @@ function _ubApplyMachineView() {
   const verticalResizer = document.getElementById("ub-panels-resizer");
   if (disasmPanel) disasmPanel.hidden = !_ubDisasmVisible;
   if (monitorPanel) monitorPanel.hidden = !_ubMonitorVisible;
+  _toolkitPlace();
   if (verticalResizer) verticalResizer.hidden = !visible;
   ubPanel?.style.setProperty("--ub-disasm-width", `${_ubDisasmWidth}px`);
   ubPanel?.style.setProperty("--ub-disasm-pane-width", `${_ubDisasmPaneWidth}px`);
@@ -8991,14 +9023,50 @@ function _ubApplyMachineView() {
 function _ubToggleDisasm() {
   const visible = !_ubDisasmVisible;
   _ubDisasmVisible = visible;
-  if (visible) _ubMonitorVisible = false;
+  if (visible) _ubMonitorVisible = _ubToolkitVisible = false;
   _ubApplyMachineView();
 }
 function _ubToggleMonitor() {
   const visible = !_ubMonitorVisible;
   _ubMonitorVisible = visible;
-  if (visible) _ubDisasmVisible = false;
+  if (visible) _ubDisasmVisible = _ubToolkitVisible = false;
   _ubApplyMachineView();
+}
+function _ubToggleToolkit() {
+  const visible = !_ubToolkitVisible;
+  _ubToolkitVisible = visible;
+  if (visible) _ubDisasmVisible = _ubMonitorVisible = false;
+  _ubApplyMachineView();
+}
+
+// One #toolkit-output: the block view's Toolkit tab, or the Expert / UB Toolkit panel when that is on.
+function _toolkitPlace() {
+  const content = document.getElementById("toolkit-output");
+  if (!content) return;
+  const expertPanelEl = document.getElementById("expert-toolkit-panel");
+  const ubPanelEl = document.getElementById("ub-toolkit-panel");
+  if (expertPanelEl) expertPanelEl.hidden = !_expertToolkitVisible;
+  if (ubPanelEl) ubPanelEl.hidden = !_ubToolkitVisible;
+  _ubSetToggle("expert-toolkit-btn", _expertToolkitVisible);
+  _ubSetToggle("ub-toolkit-btn", _ubToolkitVisible);
+  const host = ultimateBasicMode && _ubToolkitVisible ? ubPanelEl
+    : expertMode && !ultimateBasicMode && _expertToolkitVisible ? expertPanelEl
+    : document.querySelector(".output-section-label.toolkit-label");
+  if (host && content.parentElement !== host) host.appendChild(content);
+  _expertSidePanelSync();
+  try { _buildToolkitPalette(); } catch (_) {}
+}
+
+// Expert Monitor / Toolkit: the resizer shows with its panel, the panel gets its saved width.
+function _expertSidePanelSync() {
+  [["expert-monitor-resizer", "expert-monitor-panel", _expertMonitorWidth],
+   ["expert-toolkit-resizer", "expert-toolkit-panel", _expertToolkitWidth]].forEach(([resizerId, panelId, width]) => {
+    const panel = document.getElementById(panelId);
+    const resizer = document.getElementById(resizerId);
+    if (!panel) return;
+    panel.style.width = `${width}px`;
+    if (resizer) resizer.hidden = panel.hidden;
+  });
 }
 function _ubApplyFontSize() { document.querySelectorAll(".ub-editor,.ub-highlight,.ub-line-numbers").forEach(el => el.style.fontSize = `${_ubFontSize}px`); _ubRefreshEditor(); }
 function _ubZoom(delta) { _ubFontSize = Math.max(8, Math.min(28, _ubFontSize + delta)); _ubApplyFontSize(); saveUiSettings(); }
@@ -10487,13 +10555,13 @@ function _expertFormatSource() {
 // ── VASM file I/O ────────────────────────────────────────────────────────────
 
 // true when the file was written
-async function _expertSaveAsm(forceSaveAs = false) {
+async function _expertSaveAsm(forceSaveAs = false, targetPath = "") {
   if (!expertEditor) return false;
   _expertSyncSourceTextFromEditor();
   const content = _expertGetSourceText();
   try {
     const tab = _getActiveTab();
-    const asmPath = !forceSaveAs && _isSourceFilePath(tab?.filePath) ? tab.filePath : "";
+    const asmPath = targetPath || (!forceSaveAs && _isSourceFilePath(tab?.filePath) ? tab.filePath : "");
     const res = await window.electronAPI?.saveAsmFile?.(asmPath, content);
     if (!res || res.canceled) return;
     if (!res.ok) {
@@ -21714,13 +21782,14 @@ function _isSourceFilePath(path) {
 
 // Saves a source-file tab as text: the Expert editor's text, in block mode the blocks written as
 // Expert lines (_blockToExpertSourceLine, the same text the build uses).
-async function _saveSourceTab(tab, forceSaveAs = false) {
+// targetPath: a source path already chosen in the project Save dialog.
+async function _saveSourceTab(tab, forceSaveAs = false, targetPath = "") {
   if (expertMode) {
-    if (await _expertSaveAsm(forceSaveAs)) markTabClean();
+    if (await _expertSaveAsm(forceSaveAs, targetPath)) markTabClean();
     return;
   }
   const content = program.map(_blockToExpertSourceLine).join("\n") + "\n";
-  const res = await window.electronAPI?.saveAsmFile?.(forceSaveAs ? "" : tab.filePath, content);
+  const res = await window.electronAPI?.saveAsmFile?.(targetPath || (forceSaveAs ? "" : tab.filePath), content);
   if (!res || res.canceled) return;
   if (!res.ok) {
     if (emulatorStatus) emulatorStatus.textContent = res.error || t("projectSaveFailed");
@@ -21763,6 +21832,11 @@ async function saveProjectToFile({ forceSaveAs = false } = {}) {
   };
   const result = await window.electronAPI.saveProject(payload);
   if (result?.canceled) {
+    return;
+  }
+  // .asm / .s … typed in the Save dialog: the source text goes there, not the JSON payload
+  if (result?.sourcePath) {
+    await _saveSourceTab(tab, true, result.sourcePath);
     return;
   }
 
