@@ -60657,7 +60657,8 @@ function _w64SourceAt(pc) {
   if (!entries?.length || pc < 0) return null;
   let best = null;
   for (const e of entries) {
-    if (pc >= e.start && pc <= Math.max(e.end, e.start) && (!best || e.start >= best.start)) best = e;
+    // ranges nest (a sub or loop and the statements in it): the innermost one is the line
+    if (pc >= e.start && pc <= Math.max(e.end, e.start) && (!best || e.end - e.start <= best.end - best.start)) best = e;
   }
   return best;
 }

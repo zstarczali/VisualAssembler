@@ -15,7 +15,8 @@ function slice(startMarker, endMarker) {
   return appJs.slice(start, end);
 }
 const context = vm.createContext({});
-vm.runInContext(slice("function _w64LedStep(", "function _w64RenderDrive(")
+vm.runInContext(slice("function _w64SourceAt(", "// Breakpoint lines of the open tabs")
+  + slice("function _w64LedStep(", "function _w64RenderDrive(")
   + slice("function _w64SysAddress(", "function _w64ScreenHasReady(")
   + slice("function _w64ParseDbg(", "// The build and its source map"), context);
 const plain = (v) => JSON.parse(JSON.stringify(v));
@@ -40,6 +41,24 @@ test("the .dbg source map: files and address ranges with 1-based lines", () => {
     { start: 0xC002, end: 0xC004, file: "F:/p/lib & more.asm", line: 10 },
   ]);
   assert.deepEqual(plain(context._w64ParseDbg("")), []);
+});
+
+test("nested source ranges: the innermost one names the line, in any order", () => {
+  const entries = [
+    { start: 0x0834, end: 0x0838, line: 4 },
+    { start: 0x0834, end: 0x083E, line: 3 },
+    { start: 0x0839, end: 0x083D, line: 5 },
+  ];
+  context._w64S = () => ({ session: { entries } });
+  const lineAt = (pc) => context._w64SourceAt(pc)?.line;
+  assert.equal(lineAt(0x0834), 4);
+  assert.equal(lineAt(0x0836), 4);
+  assert.equal(lineAt(0x083A), 5);
+  assert.equal(lineAt(0x083E), 3, "the sub's own RTS");
+  assert.equal(lineAt(0x0840), undefined);
+  entries.reverse();
+  assert.equal(lineAt(0x0834), 4);
+  assert.equal(lineAt(0x083A), 5);
 });
 
 test("drive LED: regular blinking is an error, a steady or slow LED is not", () => {
