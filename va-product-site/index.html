@@ -2192,7 +2192,7 @@
       </div>
     </div>
     <div class="hero-left">
-      <div class="badge">V2.6.8 — LATEST RELEASE</div>
+      <div class="badge">V2.6.9 — LATEST RELEASE</div>
       <h1 class="hero-title">WRITE C64 PROGRAMS<br><span>BLOCKS, MACRO-ASM OR ULTIMATE BASIC.</span></h1>
       <p class="hero-tagline">&ldquo;The best all-in-one, multiplatform Commodore 64 IDE.&rdquo;</p>
       <p class="hero-sub">A modern Commodore 64 IDE: drag-and-drop 6502 assembly blocks or switch to a full text editor
@@ -2287,10 +2287,48 @@
 
   <hr class="div">
 
+  <!-- V2.6.9: GIT BRANCHES, BETTER DIFF -->
+  <div id="release-269" style="background:var(--scr-darker);padding:80px 0">
+    <div class="sec" style="padding-top:0;padding-bottom:0">
+      <div class="ub-tag">NEW IN V2.6.9</div>
+      <div class="sec-s">// BRANCH, MERGE, STASH — WITHOUT LEAVING THE IDE</div>
+      <h2 class="sec-t">GIT BRANCHES<br><span style="color:var(--ylw)">AND A DIFF YOU CAN READ</span></h2>
+      <p class="sec-d" style="max-width:680px">Version 2.6.9 turns the Version control window into a small git client: switch and merge branches, stage files one by one, stash work aside — and read every change in a new diff view with line numbers and syntax colours.</p>
+      <div class="feature-list fl-2col">
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>Git branches:</b> <span>switch, create, rename, delete and merge branches; a merge conflict lists the files and offers <code>Abort merge</code>. Open tabs reload from disk after a switch or merge.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>File by file and stash:</b> <span>stage, unstage or discard each file and open its diff with a click; <code>Stash</code> puts changes aside and brings them back. A commit can take only the staged files.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>A better diff:</b> <span>a card per file, old and new line numbers, assembly / UB syntax colours, the changed part of a line highlighted, and a side-by-side view.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>Discard changes really discards:</b> <span>after a confirmation the files on disk go back to HEAD too (<code>git restore</code>), so the next branch switch just works.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>Kick projects:</b> <span>cycle counts, errors and hints in every file of the project, not only in the startup file's tree; <code>.pseudopc</code> forward branches and <code>charAt(i) == '1'</code> fixed.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>Fixes:</b> <span><i>Save project</i> saves an opened project in place; the Version control window stays on screen with icon tool buttons; tidier Table Generator fields.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="div">
+
   <!-- V2.6.8: TOOLKIT EVERYWHERE, VMA 2.1 LANGUAGE -->
   <div id="release-268" style="background:var(--scr-darker);padding:80px 0">
     <div class="sec" style="padding-top:0;padding-bottom:0">
-      <div class="ub-tag">NEW IN V2.6.8</div>
+      <div class="ub-tag">V2.6.8</div>
       <div class="sec-s">// SHORTER CODE, FEWER SURPRISES</div>
       <h2 class="sec-t">VMA 2.1 LANGUAGE<br><span style="color:var(--ylw)">AND THE TOOLKIT EVERYWHERE</span></h2>
       <p class="sec-d" style="max-width:680px">Version 2.6.8 makes zero-page constants really zero page, lets macros call macros and includes include files, and turns the cases that used to give silently wrong code into clear errors — in the JavaScript and the Rust compiler alike.</p>
@@ -3595,7 +3633,9 @@
           <div class="fc-ico">∿ CURVE</div>
           <div class="fc-t">CURVE & TABLE GENERATOR</div>
           <div class="fc-d">Generate sine, easing, triangle, bounce and sawtooth lookup tables with a live graph and
-            bouncing-ball preview. Export as 8-bit or 16-bit lo/hi split.</div>
+            bouncing-ball preview. The Table Generator adds screen / bitmap row addresses, pixel masks, multiply and
+            divide tables, quarter squares, log / exp, custom formulas and unrolled speedcode — as .byte lo/hi, .word,
+            Ultimate Basic or .bin.</div>
         </div>
       </div>
     </div>
@@ -3642,6 +3682,7 @@
         <div class="tab" data-tab="level" onclick="showTab('level')">LEVEL EDITOR</div>
         <div class="tab" data-tab="hires" onclick="showTab('hires')">GRAPHICS</div>
         <div class="tab" data-tab="curve" onclick="showTab('curve')">CURVES</div>
+        <div class="tab" data-tab="tablegen" onclick="showTab('tablegen')">TABLE GENERATOR</div>
         <div class="tab" data-tab="char" onclick="showTab('char')">CHARACTERS</div>
         <div class="tab" data-tab="charrom" onclick="showTab('charrom')">CHAR ROM</div>
         <div class="tab" data-tab="canvas" onclick="showTab('canvas')">CHARSET CANVAS</div>
@@ -3710,6 +3751,11 @@
         <img src="uploads/curveed.png" alt="Curve editor">
         <div class="tab-cap"><span class="tab-cap-t">CURVE EDITOR — MATH TABLE GENERATOR</span><span
             class="tab-cap-d">SINE, EASING, TRIANGLE, BOUNCE — 8-BIT OR 16-BIT LO/HI OUTPUT</span></div>
+      </div>
+      <div class="tab-panel" id="tab-tablegen">
+        <img src="uploads/table-generator.webp" alt="Table Generator in C64 Visual Assembler: screen row address table as lo / hi bytes" width="2000" height="1340" loading="lazy">
+        <div class="tab-cap"><span class="tab-cap-t">TABLE GENERATOR — LOOKUP TABLES AND SPEEDCODE</span><span
+            class="tab-cap-d">ROW ADDRESSES, PIXEL MASKS, ×K / ÷K, QUARTER SQUARES, LOG / EXP, CUSTOM FORMULAS — ASM, UB OR .BIN</span></div>
       </div>
       <div class="tab-panel" id="tab-char">
         <img src="uploads/chared.png" alt="Character editor">

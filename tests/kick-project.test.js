@@ -105,6 +105,49 @@ test("Kick .pseudopc labels take the logical address, the bytes stay in place", 
   assert.deepEqual(text.split("\n"), ["* = $4000", ".byte $01, $02", "LDX #$02", "DEX", "BNE *-1", "JMP $0402", "LDA $0400"]);
 });
 
+test("Kick .pseudopc forward branches stay relative to the logical PC", () => {
+  const { text, errors } = preprocess({
+    "main.asm": "* = $0900\n.pseudopc $0334 {\n ldx $ba\n bne !+\n ldx #8\n!: jsr $ffd5\n bcs !err+\n rts\n!err: inc $d020\n jmp !err-\n}\n"
+  });
+  assert.deepEqual(Array.from(errors), []);
+  assert.deepEqual(text.split("\n"), ["* = $0900", "LDX $BA", "BNE *+4", "LDX #$08", "JSR $FFD5", "BCS *+3", "RTS", "INC $D020", "JMP $0340"]);
+  assert.equal(build(text).ok, true);
+});
+
+test("Kick live check builds the tree of the open file when the startup file does not import it", async (t) => {
+  const disk = {
+    "/p/boot/boot.asm": "* = $0801\n lda #1\n rts\n",
+    "/p/src/main.asm": '* = $0810\n#import "hero.asm"\n jmp *\n',
+    "/p/src/hero.asm": "hero: ldx #0\n inx\n rts\n",
+    "/p/src/consts.asm": ".const A = 1\n",
+  };
+  app.__disk = disk;
+  app.__saved = app.run("({ p: _expertProjectData, t: tabs, a: activeTabId, e: expertMode, w: window.electronAPI })");
+  t.after(() => app.run("_expertProjectData = __saved.p; tabs = __saved.t; activeTabId = __saved.a; expertMode = __saved.e; window.electronAPI = __saved.w; _kickCheckEntryCache.clear()"));
+  const run = (file) => app.run(`(async () => {
+    window.electronAPI = { readTextFile: async (p) => (p in __disk ? { ok: true, content: __disk[p] } : { ok: false }) };
+    _expertProjectData = { kick: true, startupFile: "/p/boot/boot.asm", _projPath: "/p/src/x.proj",
+      files: [{ type: "file", path: "/p/boot/boot.asm" }, { type: "file", path: "main.asm" }, { type: "file", path: "hero.asm" }, { type: "file", path: "consts.asm" }] };
+    expertMode = false;
+    tabs = [{ id: "k1", filePath: ${JSON.stringify(file)} }];
+    activeTabId = "k1";
+    _kickCheckEntryCache.clear();
+    return _kickCheckEntry();
+  })()`);
+  assert.equal(await run("/p/boot/boot.asm"), "/p/boot/boot.asm");
+  assert.equal(await run("/p/src/hero.asm"), "/p/src/main.asm");
+  assert.equal(await run("/p/src/main.asm"), "/p/src/main.asm");
+  assert.equal(await run("/p/src/consts.asm"), "/p/src/consts.asm");
+});
+
+test("Kick char literal equals a one-character string (charAt)", () => {
+  const { text, errors } = preprocess({
+    "main.asm": '* = $1000\n.var s = "1."\n.byte s.charAt(0) == \'1\' ? 1 : 0, s.charAt(1) != \'.\' ? 1 : 0, \'A\' == "AB" ? 1 : 0\n'
+  });
+  assert.deepEqual(Array.from(errors), []);
+  assert.equal(text.split("\n")[1], ".byte $01, $00, $00");
+});
+
 test("Kick errors name the file and line of the imported source", () => {
   const { errors } = preprocess({
     "main.asm": '* = $1000\n#import "lib/mod.asm"\n',

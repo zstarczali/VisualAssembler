@@ -2,11 +2,20 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.6.8**
+**Current version: v2.6.9**
 
 Visual Assembler is free and open source (GPLv3): every feature — editors, builds, hardware runs, languages and themes — works without a registration or serial. At most once a day the app sends an anonymous startup ping (version, OS, UI language, launch count, a random install ID) for the usage statistics; no email, project or source code is sent.
 
-## What's New in v2.6.8
+## What's New in v2.6.9
+
+- **Git branches** — the Version control window switches, creates, renames and deletes branches and merges one into the current branch; a merge conflict lists the files, marks them red and offers **Abort merge**. The open tabs reload from disk after a switch, merge or stash.
+- **File by file and stash** — every changed file can be staged, unstaged, discarded (an untracked one deleted) and its diff opened with a click; **Stash** puts the changes aside and the stash list applies, pops or drops them. Without *Stage all changes* a project commit takes only the staged files.
+- **A better diff** — a card per file with its status and +/− counts, old and new line numbers, assembly / UB syntax colours and the changed part of a line highlighted; **Split** shows old and new side by side, ⤢ gives it more room.
+- **Discard changes really discards** — in Git mode it asks first, then resets the files on disk to HEAD (`git restore`) and reloads the tabs, so you can switch branches afterwards; from the menu the result shows as a message.
+- **Kick projects** — cycle counts, errors and hints also work in files the startup file does not import (from the file's own tree, e.g. `main.asm` next to a `boot.asm` startup file); a forward branch inside `.pseudopc` (`bne !+`) is relative to the logical address; `s.charAt(i) == '1'` compares as in KickAssembler.
+- **Fixes and looks** — *Save project* saves an opened Expert project in place (with its unsaved file tabs) instead of asking for a name; the Version control window stays within the screen and uses icon tool buttons; shorter number fields in the Table Generator.
+
+## Earlier: v2.6.8
 
 - **Toolkit in Expert and UB mode** — the *Toolkit* toolbar button shows the C64 palette and the PETSCII codes next to the editor: in Expert mode as a side panel beside Disassembly / Monitor, in UB mode in the right-hand pane (it takes turns with Disassembly and Monitor).
 - **Panels remembered** — the Monitor and Toolkit panels of Expert mode can be resized like the Disassembly; the panels you leave open (Palette, Disassembly, Monitor, Toolkit, Project) and their widths come back on the next start, whichever mode the app starts in — in UB mode too.

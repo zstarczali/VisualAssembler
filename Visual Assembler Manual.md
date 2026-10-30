@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.6.8**
+**Version 2.6.9**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -8,6 +8,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 
 ## Table of Contents
 
+- [Version 2.6.9 Highlights](#version-269-highlights)
 - [Version 2.6.8 Highlights](#version-268-highlights)
 - [Version 2.6.7 Highlights](#version-267-highlights)
 - [Version 2.6.6 Highlights](#version-266-highlights)
@@ -228,6 +229,15 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
   - [Number Converter](#number-converter)
 
 ---
+
+## Version 2.6.9 Highlights
+
+- **Git branches** — the Version control window switches branches (the branch list), creates, renames and deletes them and merges one into the current branch. A merge conflict lists the files, marks them red, and **Abort merge** goes back to the state before the merge; the open tabs reload from disk after a switch, merge or stash. See [Git](#git).
+- **File by file and stash** — every changed file has its own **Stage / Unstage / Discard** buttons (an untracked file can be deleted), and a click on its name opens its diff. **Stash** puts the changes aside; the stash list applies, pops or drops them. Without **Stage all changes** a project commit takes only the staged files.
+- **A better diff** — a card per file with its status and +/− counts, old and new line numbers, assembly / Ultimate Basic syntax colours and the changed part of a line highlighted; **Split** shows the old and new text side by side and ⤢ gives the diff more room.
+- **Discard changes really discards** — in Git mode it asks first, then resets the files on disk to HEAD (`git restore`) and reloads the tabs, so a branch switch works afterwards. Started from the menu, its result appears as a message.
+- **Kick projects** — cycle counts, errors and hints also work in a file the startup file does not import: they come from the tree the file belongs to (for example `main.asm` next to a `boot.asm` startup file). A forward branch inside `.pseudopc` (`bne !+`) is relative to the logical address, and a char literal equals a one-character string (`s.charAt(i) == '1'`), as in KickAssembler.
+- **Fixes and looks** — **Save project** saves an opened Expert project in place, with its unsaved file tabs, instead of asking for a file name; the Version control window stays within the screen and has icon tool buttons like the editors; shorter number fields in the Table Generator.
 
 ## Version 2.6.8 Highlights
 
@@ -719,13 +729,13 @@ The line under the bar names the step that is running, with the file — for exa
 
 ### Version control
 
-Every tab has its own version history, like a small git repository; a tab that belongs to an open `.proj` project can also be versioned as a whole project (see [Project mode](#project-mode)). **Menu → Versioning → Version control…** (or **Commit…**) opens the dialog; **Discard changes (back to HEAD)** restores the last commit directly.
+Every tab has its own version history, like a small git repository; a tab that belongs to an open `.proj` project can also be versioned as a whole project (see [Project mode](#project-mode)). **Menu → Versioning → Version control…** (or **Commit…**) opens the dialog; **Discard changes (back to HEAD)** restores the last commit after a confirmation (in Git mode the files on disk too).
 
 The usual workflow: write a **commit message** and press **Commit** (or Ctrl+Enter) → keep editing → press **Diff** to see what changed → commit again.
 
 - **Commit** — saves the current state of the tab with your message. Every commit gets a short hash (for example `1bd55ba`); the newest one is **HEAD**. A commit with no changes since HEAD is not created.
 - **Status line** — *Nothing to commit, working tree clean* or *Uncommitted changes since `<hash>`*.
-- **Diff** — the changes since HEAD; the **Diff** button of a log entry compares that version with the editor. Added lines are green, removed lines red, and the header shows **+N / −M**. Block-mode programs are compared as assembly lines (one line per block), Expert sources line by line, Ultimate Basic tabs by their source, so a Block-mode project saved as JSON still shows readable changes. A source file (`.asm`, `.s`, `.inc` …) is stored as its text, so a version stays a source file.
+- **Diff** — the changes since HEAD; the **Diff** button of a log entry compares that version with the editor. Added lines are green, removed lines red, and the header shows **+N / −M**. Block-mode programs are compared as assembly lines (one line per block), Expert sources line by line, Ultimate Basic tabs by their source, so a Block-mode project saved as JSON still shows readable changes. Every file is a collapsible card with its status (**M** / **A** / **D** / **R**) and counts, the lines carry their old and new numbers and the syntax colours of the editor, and in a changed line the part that differs is highlighted. **Split** shows the old and new version side by side (remembered), ⤢ gives the diff more room. A source file (`.asm`, `.s`, `.inc` …) is stored as its text, so a version stays a source file.
 - **Checkout** — loads that version into the editor. The file on disk only changes when you save; **Discard changes** goes back to HEAD.
 - **Autosave entries** — with **Settings → General → Version control → Automatic autosave entries in version control** the app adds an entry about 2.5 seconds after you stop editing. They are marked *autosave*; the last 20 are kept, next to up to 100 commits.
 - The dialog can be moved by its header; it reopens at the same place and closes with **Esc** or its close button (a click outside does not close it).
@@ -749,8 +759,13 @@ When the tab belongs to an open `.proj` project (Expert or Ultimate Basic projec
 If `git` is installed, the same dialog can work with a real git repository.
 
 - **Settings → Files and paths → git** / **Settings → General → Version control:** **Choose git.exe…** or **Auto-detect** (searches the PATH and the usual install folders); the line below shows the git version. **Use Git when the project is in a repository** (on by default) switches the dialog to Git mode automatically for files inside a repository. The **Built-in / Git** switch in the dialog header changes the mode by hand.
-- The header shows the branch with **↑** (commits to push) and **↓** (commits to pull), followed by the changed files of the repository.
-- **Commit** saves the file first, stages only this file (or every change with **Stage all changes (git add -A)**) and runs `git commit`.
+- The header shows the branch with **↑** (commits to push) and **↓** (commits to pull). Below the status line a toolbar (icon buttons, the names show on hover) holds the **branch list**, the branch tools, **Stash**, and **Pull / Push / Refresh**.
+- **Branches** — pick another branch in the list to switch to it (`git switch`); **New branch** creates one from HEAD and switches to it, **Rename** renames the current branch, **Delete branch** deletes another one (a branch that is not merged yet is deleted only after a second confirmation). Switching needs saved tabs: save or discard the editor changes first. After a switch the open tabs of the repository reload from disk.
+- **Merge…** merges a chosen branch into the current one (`git merge --no-edit`). On a conflict the conflicting files are listed and shown red, and the status line says *Merge in progress*: resolve them in the editor, save, mark each one **Resolved** and commit — or press **Abort merge** (`git merge --abort`) to go back.
+- **The change list** shows every changed file of the repository with its `git status` code. Click a name for its diff (HEAD against the file on disk); the buttons next to it **Stage** (`git add`), **Unstage** (`git restore --staged`) and **Discard** it (back to HEAD on disk, after a confirmation) — an untracked file can be **deleted** instead.
+- **Stash** puts the uncommitted changes aside with an optional message (`git stash push`); the **stash list** below the changes **applies**, **pops** or **drops** an entry.
+- **Discard changes** asks first, then resets the changed files on disk to HEAD (`git restore --staged --worktree`) and reloads their tabs — for a project the whole project folder, otherwise the file of the tab; untracked files are kept.
+- **Commit** saves the file first, stages only this file (or every change with **Stage all changes (git add -A)**) and runs `git commit`. In a project **Stage all changes** is on by default; switched off, the commit takes only the files you staged in the change list.
 - The log lists the commits of this file with their branches and tags. **Diff** on an entry compares the commit with its parent; the **Diff** button compares HEAD with the editor, unsaved changes included. Project files are compared the same way as in the built-in mode; **RAW** shows the plain `git diff`.
 - **Checkout** loads the file of that commit into the editor (`git show`) without touching the disk.
 - **Pull** (`--ff-only`), **Push** (the first push sets the upstream with `-u origin <branch>`) and **Create repository (git init)** when the folder is not a repository yet.
@@ -934,6 +949,8 @@ In a Kick-compatible project the VA macros and directives keep working next to t
 | `.if DEBUG` … `.else` … `.endif` | `.if (expression) { … } else { … }` |
 | `.macro name(p)` … `.endm`, called with `.invoke` | `.macro Name(p) { … }`, called as `Name(arg)` |
 | `.var name = value` (a runtime variable) | `.var name = value` (a script variable) — in a Kick-compatible project `.var` is always the KickAssembler one |
+
+**Live check:** while you type, errors, the cycle gutter and the peephole hints come from the tree the open file belongs to — the startup file's tree, or, for a file it does not import (say `main.asm` next to a `boot.asm` startup file), the tree of the project source that imports it. Run and Build always build the startup file.
 
 The project builds with the VA assembler, not with KickAssembler: every build (Run, Build PRG, D64, CRT, Exomizer, Debug, VICE Monitor, Build project, the Build button) first runs the startup file through a KickAssembler preprocessor, with the editor text of open tabs, saved or not. The result is the same PRG as KickAssembler's. Supported:
 
