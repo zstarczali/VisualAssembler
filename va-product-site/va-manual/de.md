@@ -1,6 +1,6 @@
 # C64 Visual Assembler – Benutzerhandbuch
 
-**Version 2.6.7**
+**Version 2.6.8**
 
 Ein visueller, blockbasierter 6502-Assembler für den Commodore 64. Erstellen Sie
 Programme durch Ziehen und Ablegen von Befehlsblöcken und sehen Sie den
@@ -10,6 +10,7 @@ generierten Assembler- und Maschinencode in Echtzeit.
 
 ## Inhaltsverzeichnis
 
+- [Version 2.6.8 Highlights](#version-268-highlights)
 - [Version 2.6.7 Highlights](#version-267-highlights)
 - [Version 2.6.6 Highlights](#version-266-highlights)
 - [Version 2.6.5 Highlights](#version-265-highlights)
@@ -242,6 +243,36 @@ generierten Assembler- und Maschinencode in Echtzeit.
   - [Zahlenkonverter](#number-converter)
 
 ---
+
+## Highlights der Version 2.6.8
+
+- **Toolkit im Experten- und UB-Modus** — die Schaltfläche *Toolkit* in der
+  Symbolleiste zeigt die C64-Palette und die PETSCII-Codes neben dem Editor an:
+  im Expertenmodus als Seitenleiste neben Disassembly / Monitor, im UB-Modus im
+  rechten Bereich (sie wechselt sich mit Disassembly und Monitor ab).
+- **Panels gespeichert** — Die Monitor- und Toolkit-Panels des Expertenmodus
+  können wie das Disassemblierungs-Panel in der Größe verändert werden; die
+  Panels, die Sie geöffnet lassen (Palette, Disassemblierung, Monitor, Toolkit,
+  Projekt), und ihre Breiten werden beim nächsten Start wiederhergestellt,
+  unabhängig davon, in welchem Modus die App gestartet wird – auch im UB-Modus.
+- **VMA language** — a `.const` or `.var` in the zero page makes `lda zp` a
+  zero-page instruction (`A5 FB`, as KickAssembler; `lda.abs zp` keeps
+  absolute); `JMP (label)` / `JMP (table+2)`; expressions such as `lda $1234+1`
+  and `sta $0400+40*2,x`; a macro can call another macro; Labels in den Bytes
+  von `.data` / `.rawbytes` (Zeigertabellen); ein `:name`-Label kann auf ein
+  anderes Label zeigen.
+- **Includes** — Die eigenen Zeilen `.include`, `.incbin` und `.sid` einer
+  eingebundenen Datei werden (relativ zu ihrem Ordner) geladen und ihre
+  Makroaufrufe expandiert; eine fehlende Include-Anweisung oder eine, die sich
+  selbst einbindet, führt zu einem Fehler anstelle einer leeren Bibliothek.
+- **Sicherere Builds** – Fehler statt stillschweigend fehlerhaftem Code: ein
+  nicht aufgelöster TURBO_SET-/SPRITE_ANIM-Wert, eine
+  MEMCPY-/MEMSET-/JOYSTICK-Größe, die aus einer später definierten Marke stammt;
+  der automatische Puffer eines `.data`-/`.rawbytes`-Makroarguments verwendet
+  seine Bytes. Programme, die Nullseitenkonstanten verwenden, werden kürzer.
+- **Fixes** — Ein CRT mit mehr als 8 KB (mehr als eine Bank) startete nicht: Der
+  Loader läuft jetzt aus dem RAM; ein im Speicherdialog eines Projekts
+  angegebener `.asm` Name speichert den Quelltext, nicht das VA-JSON.
 
 ## Highlights der Version 2.6.7
 
@@ -1262,6 +1293,13 @@ laufenden Version:
 
 Nach dem Herunterladen installiert die App das Update und startet neu:
 
+Im Expertenmodus ** und im Ultimate Basic-Modus ** öffnet sich dasselbe Toolkit
+über die Toolkit-Schaltfläche ** in der Symbolleiste: im Expertenmodus als
+Seitenleiste neben „Demontage/Überwachung“ (die Größe lässt sich durch Ziehen
+des Trennstrichs links daneben anpassen), im Ultimate Basic-Modus im rechten
+Bereich, wo es abwechselnd mit „Demontage“ und „Überwachung“ angezeigt wird.
+Status und Breite des Toolkits werden gespeichert.
+
 ### Kompilierungsinformationen und Ausgabeeinstellungen
 
 - **Kompilierungsinfo** (über der Ausgabe) zeigt eine Zusammenfassung des
@@ -2075,8 +2113,11 @@ benutzerdefinierten Tooltips wie der Expertenmodus. Sie bietet Folgendes:
   zurückgegriffen wird;
 - Unabhängig voneinander umschaltbare **Projekt** und **Befehle** Bedienfelder,
   die nebeneinander angezeigt werden, wenn beide aktiviert sind;
-- Unabhängig voneinander umschaltbare und in ihrer Größe veränderbare
-  Bedienfelder **Build Output** und **Disassembly**.
+- Die Bedienfelder „Build Output“ ** und „Disassembly“ ** lassen sich unabhängig
+  voneinander ein- und ausblenden und in der Größe anpassen. Die Bedienfelder
+  „Disassembly“ **, „Monitor“ ** und „Toolkit“ ** teilen sich den rechten
+  Bereich (jeweils eines). Welches Bedienfeld geöffnet ist und welche Breiten
+  die Bedienfelder haben, wird gespeichert.
 
 Das Disassemblierungsfenster enthält eine Schaltfläche **Kopieren**, die den
 gesamten angezeigten Quellcode in die Zwischenablage kopiert. Die Befehlshilfe
@@ -2291,7 +2332,7 @@ Moduswähler befindet sich auf jedem Block.
 | --------------------------------- | ---------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Format**                        | `#expert-format-btn`                           | Automatische Formatierung des Quelltextes (Beschriftungen in Spalte 0, 4-facher Einzug, 1-facher Mnemonik/Operand)                                                                                                                                                                                                      |
 | **Load .asm**                     | `#expert-load-asm-btn`                         | Öffnen Sie eine `.asm`-Datei – der Inhalt wird in einem **neuen Tab** mit dem Dateinamen als Tab-Bezeichnung geladen. Jede geladene Datei wird zu einem unabhängigen Tab mit eigenen Programmblöcken und eigenem Editorstatus.                                                                                          |
-| **Speichern .asm**                | `#expert-save-asm-btn`                         | Editorinhalte in einer `.asm`-Datei speichern (Dateidialog beim ersten Speichern)                                                                                                                                                                                                                                       |
+| **Speichern .asm**                | `#expert-save-asm-btn`                         | Speichern Sie den Editorinhalt in einer `.asm`-Datei (Dateidialog beim ersten Speichern). Eine Quelldatei wird immer mit ihrem Text gespeichert: Strg+S, **Menü → Speichern**. Ein Speichern-Dialog mit einem Namen wie `.asm`, `.s`, `.inc`, `.a`, `.a65` oder `.lib` schreibt niemals VA-JSON hinein.                 |
 | **Build Info**                    | `#expert-build-info-btn`                       | Öffnen Sie den Dialog „Build-Informationen“: Oben werden Ursprung, Ende, Größe und Segmentanzahl angezeigt, dann die Segmente, Fehler (Datei:Zeile in einem Kick-Projekt) und die Ausgabe (Print) sowie die Labels, Konstanten und Makros in Spalten.                                                                   |
 | **Autocomplete**                  | `#expert-autocomplete-btn`                     | Die Autovervollständigungsvorschläge des Experten können aktiviert/deaktiviert werden. Wenn diese Option deaktiviert ist, werden im Experten-Editor keine Anweisungen, Merksätze oder Beschriftungen angezeigt.                                                                                                         |
 | **Regionsauswahl**                | `#expert-region-selection-btn`                 | Aktivieren Sie die automatische Bereichsmarkierung im Expertenmodus. Der Faltstatus bleibt gespeichert, aber wenn diese Funktion deaktiviert ist, bleibt der vollständige Quelltext sichtbar und der aktuelle Bereich wird nicht automatisch ausgewählt.                                                                |
@@ -2301,12 +2342,17 @@ Moduswähler befindet sich auf jedem Block.
 | **Verkleinern / Vergrößern**      | `#expert-zoom-out-btn` / `#expert-zoom-in-btn` | Verringern/Vergrößern Sie die Schriftgröße im Editor (8–28 px). Die gleiche Funktion lässt sich durch Drücken von `Strg` + Mausrad (`Cmd` + Mausrad unter macOS oder durch Zusammenziehen des Mausrads auf dem Touchpad) über dem Editor einstellen. Die Einstellung wird gespeichert.                                  |
 | **Palette**                       | `#expert-palette-btn`                          | Linke Mnemonikpalette ein-/ausblenden                                                                                                                                                                                                                                                                                   |
 | **Disasm**                        | `#expert-disasm-btn`                           | Demontagefenster ein-/ausblenden (reines 6502, Makros erweitert)                                                                                                                                                                                                                                                        |
-| **Monitor**                       | `#expert-monitor-btn`                          | Monitor-Hex-Dump-Panel ein-/ausblenden                                                                                                                                                                                                                                                                                  |
+| **Monitor**                       | `#expert-monitor-btn`                          | Monitor-Hex-Dump-Panel ein-/ausblenden; zum Ändern der Größe den Trennstrich links daneben ziehen.                                                                                                                                                                                                                      |
+| **Toolkit**                       | `#expert-toolkit-btn`                          | Seitenleiste [Toolkit](#toolkit-tab) ein-/ausblenden (C64-Palette, PETSCII-Codes); Größe wie beim Monitor anpassbar                                                                                                                                                                                                     |
 | **Minimap**                       | `#expert-minimap-btn`                          | Den Code-Minimap-Streifen auf der rechten Seite des Editors ein-/ausblenden.                                                                                                                                                                                                                                            |
 | **Projektpanel**                  | `#expert-project-btn`                          | Projektfenster ein-/ausblenden (Dateien, Symbole, Projekteinstellungen)                                                                                                                                                                                                                                                 |
 | **Zyklusanzahl**                  | `#expert-cycles-btn`                           | Zyklusleiste ein-/ausblenden — siehe [Zyklusanzahl](#cycle-counts)                                                                                                                                                                                                                                                      |
 | **Gehe zu Zeile / Lesezeichen**   | `#expert-goto-line-btn`, `#expert-bookmark-*`  | Strg+G springt zu einer Zeile; Strg+F2 blendet ein Lesezeichen ein/aus; F2 / Umschalt+F2 springt zum nächsten / vorherigen Lesezeichen.                                                                                                                                                                                 |
 | **Build ACME**                    | `#expert-acme-build-btn`                       | Im ACME-Modus: Erstellen Sie den Quellcode mit ACME — siehe [ACME-Modus](#acme-mode)                                                                                                                                                                                                                                    |
+
+Die geöffneten Bedienfelder (Palette, Disasm, Monitor, Toolkit, Project) und
+ihre Breiten werden beim nächsten Start wiederhergestellt, unabhängig davon, in
+welchem Modus die Anwendung gestartet wird.
 
 *(Neu in Version 2.3.9.)* Eine Marke, deren Name mit einem Punkt beginnt –
 `.loop`, `.skip`, `.done` – ist eine **lokale Marke**. Sie gehört zum
@@ -2583,6 +2629,18 @@ Moduswähler befindet sich auf jedem Block.
 | **indirectY**  | Indirekt,Y          | `LDA ($FB),Y`  | Indirekte Indexierung auf Seite Null (Operand = Adresse der Seite Null, 1 Byte) |
 | **indirect**   | Indirekt            | `JMP ($0100)`  | Indirekt; nur mit JMP nutzbar.                                                  |
 
+### Konstanten auf der Nullseite
+
+Ein Operand, der nur aus Konstanten besteht (`.const`, `name = value`, a
+`.var`), der in ein Byte passt, nimmt den **Zero-Page**-Modus der Anweisung an,
+genau wie die Zahl: nach `.const zp = $FB` wird `lda zp` zu `A5 FB` (2 Bytes, 3
+Zyklen) und `lda zp,x` zu `B5 FB` assembliert. Ein Modus, für den der Befehl
+keine Nullseitenform besitzt, bleibt absolut (`lda zp,y` → `B9 FB 00`). Ein
+Label wird nicht verengt – seine Adresse ist erst nach dem Layout bekannt – und
+`lda.abs zp` erzwingt den absoluten Modus. Eine Zahl behält die Breite, mit der
+sie geschrieben wurde: `$FB` ist Nullseitenform, `$00FB` absolut. *(Neu in
+2.1.)*
+
 ### Datenbewegung
 
 Jedes Operandenfeld, das eine Adresse oder einen unmittelbaren Wert akzeptiert,
@@ -2591,15 +2649,17 @@ einem `LABEL`). Zusätzlich können Sie die Ausdrücke **label+offset** oder
 **label−offset** verwenden, um eine Adresse relativ zu einer benannten Konstante
 zu referenzieren:
 
-| Syntax | Beispiel            | Beschreibung                                                                                                                   |
-| ------ | ------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| `LDA`  | Lastspeicher        | unmittelbar, Nullseite, absolut, absolutX, absolutY, indirektX, indirektY                                                      |
-| `LDX`  | X-Register laden    | sofort, Nullseite, NullseiteY, absolut, absolutY                                                                               |
-| `LDY`  | Y-Register laden    | sofort, Nullseite, absolut, absolutX                                                                                           |
-| `STA`  | Speicherakkumulator | zeroPage, absolute, absoluteX, absoluteY, indirectX, indirectY                                                                 |
-| `STX`  | Kasse Filiale X     | zeroPage, zeroPageY, absolute                                                                                                  |
-| `STY`  | Kasse im Geschäft Y | zeroPage, absolute                                                                                                             |
-| `*`    | `BNE *`             | Aktueller Programmzähler (die Adresse der Anweisung selbst); Verzweigungen mit `*` erzeugen eine Endlosschleife (Offset `$FE`) |
+| Syntax      | Beispiel                          | Beschreibung                                                                                                                   |
+| ----------- | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `LDA`       | Lastspeicher                      | unmittelbar, Nullseite, absolut, absolutX, absolutY, indirektX, indirektY                                                      |
+| `LDX`       | X-Register laden                  | sofort, Nullseite, NullseiteY, absolut, absolutY                                                                               |
+| `LDY`       | Y-Register laden                  | sofort, Nullseite, absolut, absolutX                                                                                           |
+| `STA`       | Speicherakkumulator               | zeroPage, absolute, absoluteX, absoluteY, indirectX, indirectY                                                                 |
+| `$hex+expr` | `LDA $1234+1`, `STA $0400+40*2,X` | Beliebiger Ausdruck von Zahlen, Bezeichnungen und Konstanten *(2.1)*                                                           |
+| `(label)`   | `JMP (Vektor)`, `JMP (Tabelle+2)` | Indirekter Sprung über eine Marke oder einen Ausdruck *(2.1)*                                                                  |
+| `STX`       | Kasse Filiale X                   | zeroPage, zeroPageY, absolute                                                                                                  |
+| `STY`       | Kasse im Geschäft Y               | zeroPage, absolute                                                                                                             |
+| `*`         | `BNE *`                           | Aktueller Programmzähler (die Adresse der Anweisung selbst); Verzweigungen mit `*` erzeugen eine Endlosschleife (Offset `$FE`) |
 
 **Beispiel — Zwei Bildschirmseiten mit einer CONST löschen:**
 ```
@@ -3154,6 +3214,11 @@ LDA #$01
 
 **Größe:** `byte_count × 5` Bytes (ein LDA + ein STA pro Byte).
 
+> **2.1:** Die Bytes können Labels benennen: `.data $2010, <target, >target`
+> schreibt die Adresse von `target`, die ebenfalls ein später definiertes Label
+> ist. Das Label `:name` des Makros kann auf eine Zieladresse verweisen, die
+> selbst ein Label ist.
+
 ---
 
 ### RAWBYTES
@@ -3184,6 +3249,12 @@ Ausgabe platziert.
 > **DATA vs. RAWBYTES:** DATA generiert LDA/STA-Code, der Bytes zur Laufzeit
 > kopiert (langsamer, aber geeignet, wenn die Daten dynamisch sein müssen).
 > RAWBYTES platziert die Bytes direkt – ohne Code, sofort, ohne Kosten.
+
+> **2.1:** Die Bytes können Labels benennen (`.rawbytes $2000, <target, >target`
+> – eine Zeigertabelle); das Label `:name` kann auf ein Label als Zieladresse
+> verweisen, das ebenfalls später definiert wird. Als Pufferargument eines
+> Makros belegen die Bytes nach dem Programm einen eigenen Speicherplatz in den
+> Puffern.
 
 ---
 
@@ -3873,6 +3944,12 @@ Es werden zwei Dateitypen unterstützt:
 > eigene ORG-Variable besitzt oder wenn Sie deren Standardplatzierung
 > überschreiben möchten.
 
+> **2.1:** Eine nicht gefundene Include-Datei führt zu einem Fehler, ebenso wie
+> eine Datei, die sich selbst einbindet (direkt oder in einer Unterdatei). Die
+> eigenen Zeilen `.include`, `.incbin` und `.sid` einer eingebundenen Datei
+> werden ebenfalls relativ zu ihrem Ordner geladen, und ihre Makroaufrufe werden
+> bis zu 16 Ebenen tief expandiert.
+
 ---
 
 ### TISCH
@@ -4254,6 +4331,11 @@ tatsächlichen Argumente ersetzt wird. Die durch Leerzeichen getrennte Form
 > **Tipp:** Definieren Sie Makros am Anfang (oder Ende) Ihres Programms und
 > rufen Sie sie dann bei Bedarf auf. Makros können mehrfach mit
 > unterschiedlichen Argumenten aufgerufen werden.
+
+> **2.1:** Ein Makro kann ein anderes Makro aufrufen (`both(a, b)` Aufruf von
+> `setc(a)`); der innere Aufruf erhält die Argumente des äußeren Aufrufs und
+> seine eigenen eindeutigen lokalen Labels. Ein Makro, das sich selbst aufruft,
+> beendet sich nach 16 Ebenen mit einem Fehler, anstatt sich aufzuhängen.
 
 ---
 
@@ -4708,6 +4790,11 @@ angeforderten Größe zu entsprechen.
 Bei Größen bis zu 256 Byte wird eine kurze 8-Bit-Schleife verwendet. Größere
 Größen schalten automatisch auf einen 16-Bit-Zähler um.
 
+> **2.1:** Die Größe muss beim Layout des Codes bekannt sein – eine Zahl oder
+> eine Konstante. Ein später definiertes Label (dessen Wert dem Layout noch
+> nicht bekannt ist) ist ein Fehler und kein Code, der nicht an seinen Platz
+> passt.
+
 ---
 
 ### DRUCKEN / ZEICHEN DRUCKEN / HEX-DRUCKEN / BILDSCHIRM LÖSCHEN / TASTE WARTEN / VERZÖGERUNG / RAHMEN FESTLEGEN / HINTERGRUND FESTLEGEN
@@ -5071,6 +5158,10 @@ gleichzeitig (`LDA $DC00` / `AND $DC01`), daher funktioniert jeder Port.
 ---
 
 <a id="mouse"></a>
+
+> **2.1:** Der Port muss bei der Codeerstellung bekannt sein (eine Zahl oder
+> eine Konstante), da Port 3 den Code um 3 Bytes verlängert; eine später
+> definierte Bezeichnung ist ein Fehler.
 ### MAUS
 
 Liest die proportionale Maus eines Commodore 1351 und bewegt einen Sprite.
@@ -6145,12 +6236,15 @@ II+-Cartridge-Slots läuft. Es ist im **Blockmodus**, **Expertenmodus** und
   - `$8000/$8002` Kalt- und Warmstartvektoren zeigen auf `$8009`.
   - `$8004–$8008` = die `CBM80`-Signatur, die vom KERNAL-Reset-Code benötigt
     wird.
-  - `$8009–$807F` = der Loader: SEI / Stack-Initialisierung / `JSR $FDA3`
+  - `$8009–$807F` = der Lader: SEI / Stack-Initialisierung / `JSR $FDA3`
     (IOINIT) / `JSR $FD50` (RAMTAS) / `JSR $FD15` (RESTOR) / `JSR $FF5B` (CINT),
-    dann eine Byte-Kopierschleife, die die Nutzdaten vom Cartridge-ROM in den
-    RAM streamt und die Bänke wechselt, wenn `$FC` `$A0` erreicht. Am Ende
-    kopiert es einen winzigen **Exit-Stub** nach `$0100`, deaktiviert den Cart
-    mit `LDA #$80 : STA $DE00` und springt mit `JMP`s zum Einstiegspunkt.
+    dann kopiert er die 60-Byte-Kopierroutine ** (`$8044–$807F`) nach `$0100`
+    und springt dorthin. Die Routine, die aus dem RAM ausgeführt wird, liest die
+    Nutzdaten aus dem ROM der Cartridge an ihre Ladeadresse, wechselt die
+    Speicherbänke über `$DE00`, sobald `$FC` den Speicherort `$A0` erreicht,
+    deaktiviert die Cartridge mit `LDA #$80 : STA $DE00` und springt mit `JMP`s
+    zum Einstiegspunkt. (Sie muss aus dem RAM ausgeführt werden: Ein Bankwechsel
+    ersetzt das ROM unter `$8000`, einschließlich des Codes des Loaders.)
 - Die Nutzdaten ** beginnen bei `$8080` in Bank 0 und werden bei Bedarf in die
   Bänke 1–7 verteilt. Die maximale Nutzlast beträgt `8 * 8192 − 128 = 65 408
   Bytes`.
@@ -6196,11 +6290,12 @@ entweder das Speicherlayout oder teilen Sie die Daten auf.
 > - **CIA1 / CIA2** werden durch `IOINIT` neu initialisiert. Benutzerdefinierte
 >   Timer-Einstellungen (Raster-IRQs, Musikplayer CIA-A) müssen nach dem Aufruf
 >   neu programmiert werden.
-> - Der Cart ist über einen 8-Byte-Stub im **RAM an Adresse `$0100`**
->   deaktiviert, sodass der `STA $DE00` nicht durch einen fehlerhaften ROM-Fetch
->   unterbrochen werden kann. Verlassen Sie sich nicht darauf, dass
->   `$0100–$0107` beim Eintritt das Stack-Top-Image enthält – der erste RAM-Push
->   überschreibt den Stub.
+> - Die Kopierroutine wird aus dem RAM im Bereich **$0100–$013B`** ausgeführt,
+>   sodass die Bankumschaltungen und die abschließende STA $DE00` den Code nie
+>   aus dem CPU-Bereich herausziehen. Verlassen Sie sich beim Eintritt nicht auf
+>   den Bereich `$0100–$013B` und halten Sie die Nutzdaten außerhalb dieses
+>   Bereichs sowie außerhalb der Nullseitenbytes `$02–$04` / `$FB–$FE`, die der
+>   Lader verwendet.
 > 
 > Wenn ein CRT-Programm in VICE läuft, aber auf realer Hardware fehlschlägt,
 > sollte man zunächst prüfen, ob das Programm beim Start einen bestimmten
@@ -6247,6 +6342,12 @@ die VMA- (und Kick-Projekt-)Quellen erstellt:
 
 Im Kompilierungsdialog wird die verwendete Engine genannt. Die VMA-Version wird
 im Info-Fenster angezeigt.
+
+Derselbe Compiler läuft über die Kommandozeile (VMA 2.1.0): `vma build game.asm`
+schreibt `game.prg`, `--crt game.crt` ein Magic Desk-Modul (dieselbe Byteanzahl
+wie **Build CRT**), und `--d64` ein 1541-Disk-Image mit dem Programm (`--add`
+fügt weitere Dateien hinzu) – kein c1541 erforderlich. Siehe das Handbuch im
+[VMA-Repository](https://github.com/zstarczali/VMA).
 
 ### Hi-Res / Multicolor Editor
 

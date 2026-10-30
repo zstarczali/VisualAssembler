@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Käyttöopas
 
-**Versio 2.6.7**
+**Versio 2.6.8**
 
 Visuaalinen, lohkopohjainen 6502-assembler Commodore 64:lle. Voit luoda ohjelmia
 vetämällä ja pudottamalla käskylohkoja ja nähdä luodun assemblerin ja konekoodin
@@ -10,6 +10,7 @@ reaaliajassa.
 
 ## Sisällysluettelo
 
+- [Version 2.6.8 kohokohdat](#version-268-highlights)
 - [Version 2.6.7 kohokohdat](#version-267-highlights)
 - [Version 2.6.6 kohokohdat](#version-266-highlights)
 - [Version 2.6.5 kohokohdat](#version-265-highlights)
@@ -242,6 +243,37 @@ reaaliajassa.
   - [Numeronmuunnin](#number-converter)
 
 ---
+
+## Version 2.6.8 kohokohdat
+
+- **Toolkit Expert- ja UB-tilassa** — *Toolkit* -työkalurivin painike näyttää
+  C64-paletin ja PETSCII-koodit editorin vieressä: Expert-tilassa sivupaneelina
+  Disassembly / Monitor -kohdan vieressä, UB-tilassa oikeanpuoleisessa ruudussa
+  (se vuorottelee Disassembly- ja Monitor-asetusten kanssa).
+- **Paneelit tallentuvat** — Expert-tilan Näyttö- ja Työkalupakki-paneelien
+  kokoa voidaan muuttaa kuten Purkamis-paneelin; auki jätetyt paneelit (Paletti,
+  Purkaminen, Näyttö, Työkalupakki, Projekti) ja niiden leveydet palautuvat
+  seuraavan käynnistyksen yhteydessä riippumatta siitä, missä tilassa sovellus
+  käynnistyy – myös UB-tilassa.
+- **VMA-kieli** — nollasivulla oleva `.const` tai `.var` tekee `lda zp`:stä
+  nollasivukäskyn (`A5 FB`, kuten KickAssembler tekee; `lda.abs zp` pitää arvon
+  absoluuttisena); `JMP (label)` / `JMP (table+2)`; lausekkeet, kuten `lda
+  $1234+1` ja `sta $0400+40*2,x`; makro voi kutsua toista makroa; `.data` /
+  `.rawbytes` -taulukoiden tavujen nimikkeet (osoitintaulukot); `:name` -nimike
+  voi osoittaa nimikkeeseen.
+- **Include** — sisällytetyn tiedoston omat `.include`-, `.incbin`- ja
+  `.sid`-rivit ladataan (suhteessa sen kansioon) ja sen makrokutsuja
+  laajennetaan; puuttuva include-rivi tai itsensä sisällyttävä rivi on virhe
+  eikä tyhjä kirjasto.
+- **Turvallisempia koontiversioita** — virheitä hiljaisen väärän koodin sijaan:
+  ratkaisematon TURBO_SET / SPRITE_ANIM-arvo, myöhemmin määritellystä
+  tunnisteesta otettu MEMCPY / MEMSET / JOYSTICK-koko; `.data` / `.rawbytes`
+  -makroargumentin automaattinen puskuri ottaa omat tavut. Nollasivuvakioita
+  käyttävät ohjelmat lyhenevät.
+- **Korjauksia** — yli 8 kt:n kokoinen CRT (useampi kuin yksi pankki) ei
+  käynnistynyt: latausohjelma toimii nyt RAM-muistista; projektin
+  tallennusvalintaikkunassa annettu `.asm`-nimi tallentaa lähdetekstin, ei VA
+  JSON -tiedostoa.
 
 ## Version 2.6.7 kohokohdat
 
@@ -1195,6 +1227,12 @@ seuraa projektia.
 
 Latauksen jälkeen sovellus asentaa päivityksen ja käynnistyy uudelleen:
 
+**Expert-tilassa** ja **UltimateBasic-tilassa** sama Toolkit avautuu **Toolkit**
+-työkalurivin painikkeesta: Expert-tilassa sivupaneelina Purkaminen /
+Monitor-kohdan vieressä (vedä sen vasemmalla puolella olevaa jakajaa
+muuttaaksesi sen kokoa), UB-tilassa oikeanpuoleisessa ruudussa, jossa se
+vuorottelee Purkamisen ja Monitorin kanssa. Avoinnaolo ja sen leveys muistetaan.
+
 ### Käännä tiedot ja tulostusasetukset
 
 - **Käännöstiedot** (tulosteen yläpuolella) näyttää yhteenvedon käännetystä
@@ -1968,8 +2006,10 @@ työkaluvihjeitä kuin asiantuntijatila. Se tarjoaa:
   osalta, mitä ei ole vielä käännetty;
 - itsenäisesti kytkettävät **Projekti**- ja **Komennot**-paneelit, jotka näkyvät
   vierekkäin, kun molemmat ovat käytössä;
-- itsenäisesti kytkettävät ja koon muutettavat **Build Output**- ja
-  **Disassembly**-paneelit.
+- Itsenäisesti kytkettävät ja koon muutettavat **Build Output**- ja
+  **Disassembly**-paneelit; **Disassembly**-, **Monitor**- ja
+  **Toolkit**-paneelit jakavat oikeanpuoleisen paneelin (yksi kerrallaan).
+  Avoinna olevan paneelin leveydet muistetaan.
 
 Purkamispaneeli sisältää **Kopioi**-painikkeen, joka kopioi koko näytetyn
 lähdekoodin leikepöydälle. Komento-ohjeet seuraavat mukana tulevaa kääntäjää:
@@ -2166,26 +2206,31 @@ jokaisessa lohkossa.
 
 ### Paikalliset (pisteviivalla) tunnisteet
 
-| Painike                               | Henkilöllisyystodistus                                                   | Toiminto                                                                                                                                                                                                                                                     |
-| ------------------------------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Muoto**                             | `#asiantuntijan-muotoilu-painike`                                        | Lähteen automaattinen muotoilu (otsikot sarakkeeseen 0, 4-välilyöntinen sisennys, 1-välilyöntinen muistikoodi/operandi)                                                                                                                                      |
-| **Lataa .asm-tiedosto**               | `#expert-load-asm-btn`                                                   | Avaa `.asm`-tiedosto — sisältö ladataan **uuteen välilehteen**, jonka välilehden otsikkona on tiedostonimi. Jokaisesta ladatusta tiedostosta tulee itsenäinen välilehti, jolla on omat ohjelmalohkonsa ja editoritilansa.                                    |
-| **Tallenna .asm-tiedosto**            | `#asiantuntijan-tallennus-asm-painike`                                   | Tallenna editorin sisältö tiedostoon `.asm` (tiedostovalintaikkuna ensimmäisen tallennuksen yhteydessä)                                                                                                                                                      |
-| **Rakennuksen tiedot**                | `#expert-build-info-btn`                                                 | Avaa Rakennetiedot-valintaikkuna: alkupiste, loppupiste, koko ja segmenttien määrä ylhäällä, sitten segmentit, virheet (`file:line` Kick-projektissa) ja `.print` -tuloste sekä otsikot, vakiot ja makrot sarakkeissa                                        |
-| **Automaattinen täydennys**           | `#asiantuntijan-automaattisen-täydennyksen-painike`                      | Ota asiantuntijan automaattisen täydennyksen ehdotukset käyttöön/pois käytöstä. Kun tämä on poistettu käytöstä, asiantuntijaeditorissa ei näy ohjeita, muistisääntöjä tai otsikoita.                                                                         |
-| **Alueen valinta**                    | `#asiantuntija-alueen-valintapainike`                                    | Ota automaattinen alueen korostus käyttöön asiantuntijatilassa. Taittotila pysyy tallennettuna, mutta kun tämä on pois päältä, editori pitää koko lähdekoodin näkyvissä eikä valitse nykyistä aluetta automaattisesti.                                       |
-| **Suuntaa / laajentaa kaikki alueet** | `#expert-region-fold-all-btn`                                            | Taita tai avaa jokainen `.region`-lohko yhdellä napsautuksella. Jos jokin alue on parhaillaan auki, painike kutistaa ne kaikki; jos kaikki alueet on jo kutistettu, seuraava napsautus laajentaa ne kaikki. Painike syttyy, kun kaikki alueet on kutistettu. |
-| **Rivinumerot**                       | `#asiantuntijan-rivinumerot-painike`                                     | Rivinumerovälin pitäminen päällä/pois editorin vasemmalla puolella. Väliviiva pysyy synkronoituna vierityskohdan kanssa ja päivittyy reaaliajassa kirjoittaessasi.                                                                                           |
-| **Etsi**                              | `#asiantuntijan-etsintäpainike`                                          | Avaa kelluva hakupalkki (`Ctrl+F`). Kirjoita hakeaksesi; osumat näkyvät korostettuna hakukentässä. `Enter` / `Shift+Enter` selaa osumien välillä. `Esc` sulkee palkin.                                                                                       |
-| **Loitonna / lähennä**                | `#asiantuntijan-loitonnuspainike` / `#asiantuntijan-loitonnuspainike`    | Pienennä/suurenna editorin fonttikokoa (8–28 px). `Ctrl` + hiiren rulla (`Cmd` + rulla macOS:ssä tai nipistys kosketuslevyllä) editorin päällä tekee saman. Asetus pysyy voimassa.                                                                           |
-| **Paletti**                           | `#asiantuntijapaletin-painike`                                           | Näytä/piilota vasen muistitoimintojen paletti                                                                                                                                                                                                                |
-| **Disasm**                            | `#asiantuntijan-disasm-painike`                                          | Näytä/piilota purkupaneeli (puhdas 6502, makrot laajennettu)                                                                                                                                                                                                 |
-| **Näyttö**                            | `#asiantuntijan-monitorin-painike`                                       | Näytä/piilota näytön heksadesimaalipaneeli                                                                                                                                                                                                                   |
-| **Minikartta**                        | `#asiantuntijan-minikarttapainike`                                       | Näytä/piilota koodin minimap-nauha editorin oikealla puolella                                                                                                                                                                                                |
-| **Projektipaneeli**                   | `#asiantuntijaprojektin-painike`                                         | Näytä/piilota projektipaneeli (tiedostot, symbolit, projektiasetukset)                                                                                                                                                                                       |
-| **Syklien määrä**                     | `#asiantuntijasyklien-painike`                                           | Näytä/piilota syklin katuviiva — katso [Syklien määrät](#cycle-counts)                                                                                                                                                                                       |
-| **Siirry riville / Kirjanmerkit**     | `#asiantuntija-siirry-rivipainikkeeseen`, `#asiantuntija-kirjanmerkki-*` | Ctrl+G hyppää riville; Ctrl+F2 vaihtaa kirjanmerkin, F2 / Shift+F2 siirtyy seuraavaan / edelliseen                                                                                                                                                           |
-| **Rakenna ACME**                      | `#expert-acme-build-btn`                                                 | ACME-tilassa: rakenna lähdekoodi ACME:llä — katso [ACME-tila](#acme-mode)                                                                                                                                                                                    |
+| Painike                               | Henkilöllisyystodistus                                                   | Toiminto                                                                                                                                                                                                                                                                                                             |
+| ------------------------------------- | ------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Muoto**                             | `#asiantuntijan-muotoilu-painike`                                        | Lähteen automaattinen muotoilu (otsikot sarakkeeseen 0, 4-välilyöntinen sisennys, 1-välilyöntinen muistikoodi/operandi)                                                                                                                                                                                              |
+| **Lataa .asm-tiedosto**               | `#expert-load-asm-btn`                                                   | Avaa `.asm`-tiedosto — sisältö ladataan **uuteen välilehteen**, jonka välilehden otsikkona on tiedostonimi. Jokaisesta ladatusta tiedostosta tulee itsenäinen välilehti, jolla on omat ohjelmalohkonsa ja editoritilansa.                                                                                            |
+| **Tallenna .asm-tiedosto**            | `#asiantuntijan-tallennus-asm-painike`                                   | Tallenna editorin sisältö tiedostoon `.asm` (tiedostovalintaikkuna ensimmäisen tallennuksen yhteydessä). Lähdetiedosto saa aina tekstinsä: Ctrl+S, **Valikko → Tallenna**, ja tallennusvalintaikkunalle annetaan nimi `.asm`, `.s`, `.inc`, `.a`, `.a65` tai `.lib`. Älä koskaan kirjoita VA JSON -tiedostoa siihen. |
+| **Rakennuksen tiedot**                | `#expert-build-info-btn`                                                 | Avaa Rakennetiedot-valintaikkuna: alkupiste, loppupiste, koko ja segmenttien määrä ylhäällä, sitten segmentit, virheet (`file:line` Kick-projektissa) ja `.print` -tuloste sekä otsikot, vakiot ja makrot sarakkeissa                                                                                                |
+| **Automaattinen täydennys**           | `#asiantuntijan-automaattisen-täydennyksen-painike`                      | Ota asiantuntijan automaattisen täydennyksen ehdotukset käyttöön/pois käytöstä. Kun tämä on poistettu käytöstä, asiantuntijaeditorissa ei näy ohjeita, muistisääntöjä tai otsikoita.                                                                                                                                 |
+| **Alueen valinta**                    | `#asiantuntija-alueen-valintapainike`                                    | Ota automaattinen alueen korostus käyttöön asiantuntijatilassa. Taittotila pysyy tallennettuna, mutta kun tämä on pois päältä, editori pitää koko lähdekoodin näkyvissä eikä valitse nykyistä aluetta automaattisesti.                                                                                               |
+| **Suuntaa / laajentaa kaikki alueet** | `#expert-region-fold-all-btn`                                            | Taita tai avaa jokainen `.region`-lohko yhdellä napsautuksella. Jos jokin alue on parhaillaan auki, painike kutistaa ne kaikki; jos kaikki alueet on jo kutistettu, seuraava napsautus laajentaa ne kaikki. Painike syttyy, kun kaikki alueet on kutistettu.                                                         |
+| **Rivinumerot**                       | `#asiantuntijan-rivinumerot-painike`                                     | Rivinumerovälin pitäminen päällä/pois editorin vasemmalla puolella. Väliviiva pysyy synkronoituna vierityskohdan kanssa ja päivittyy reaaliajassa kirjoittaessasi.                                                                                                                                                   |
+| **Etsi**                              | `#asiantuntijan-etsintäpainike`                                          | Avaa kelluva hakupalkki (`Ctrl+F`). Kirjoita hakeaksesi; osumat näkyvät korostettuna hakukentässä. `Enter` / `Shift+Enter` selaa osumien välillä. `Esc` sulkee palkin.                                                                                                                                               |
+| **Loitonna / lähennä**                | `#asiantuntijan-loitonnuspainike` / `#asiantuntijan-loitonnuspainike`    | Pienennä/suurenna editorin fonttikokoa (8–28 px). `Ctrl` + hiiren rulla (`Cmd` + rulla macOS:ssä tai nipistys kosketuslevyllä) editorin päällä tekee saman. Asetus pysyy voimassa.                                                                                                                                   |
+| **Paletti**                           | `#asiantuntijapaletin-painike`                                           | Näytä/piilota vasen muistitoimintojen paletti                                                                                                                                                                                                                                                                        |
+| **Disasm**                            | `#asiantuntijan-disasm-painike`                                          | Näytä/piilota purkupaneeli (puhdas 6502, makrot laajennettu)                                                                                                                                                                                                                                                         |
+| **Näyttö**                            | `#asiantuntijan-monitorin-painike`                                       | Näytä/piilota näytön heksadecimaalinen vedospaneeli; muuta sen kokoa vetämällä sen vasemmalla puolella olevaa jakajaa                                                                                                                                                                                                |
+| **Työkalupaketti**                    | `#asiantuntijatyökalupakki-painike`                                      | Näytä/piilota [Toolkit](#toolkit-tab) -sivupaneeli (C64-paletti, PETSCII-koodit); koon muuttaminen mahdollista kuten Monitorissa                                                                                                                                                                                     |
+| **Minikartta**                        | `#asiantuntijan-minikarttapainike`                                       | Näytä/piilota koodin minimap-nauha editorin oikealla puolella                                                                                                                                                                                                                                                        |
+| **Projektipaneeli**                   | `#asiantuntijaprojektin-painike`                                         | Näytä/piilota projektipaneeli (tiedostot, symbolit, projektiasetukset)                                                                                                                                                                                                                                               |
+| **Syklien määrä**                     | `#asiantuntijasyklien-painike`                                           | Näytä/piilota syklin katuviiva — katso [Syklien määrät](#cycle-counts)                                                                                                                                                                                                                                               |
+| **Siirry riville / Kirjanmerkit**     | `#asiantuntija-siirry-rivipainikkeeseen`, `#asiantuntija-kirjanmerkki-*` | Ctrl+G hyppää riville; Ctrl+F2 vaihtaa kirjanmerkin, F2 / Shift+F2 siirtyy seuraavaan / edelliseen                                                                                                                                                                                                                   |
+| **Rakenna ACME**                      | `#expert-acme-build-btn`                                                 | ACME-tilassa: rakenna lähdekoodi ACME:llä — katso [ACME-tila](#acme-mode)                                                                                                                                                                                                                                            |
+
+Avoimeksi jättämäsi paneelit (Palette, Disasm, Monitor, Toolkit, Project) ja
+niiden leveydet palautetaan seuraavan käynnistyksen yhteydessä riippumatta
+siitä, missä tilassa sovellus käynnistyy.
 
 *(Uutta versiossa 2.3.9.)* Pisteellä alkava tunniste — `.loop`, `.skip`, `.done`
 — on **paikallinen tunniste**. Se kuuluu lähimmän edeltävän **global**
@@ -2444,6 +2489,17 @@ jokaisessa lohkossa.
 | **epäsuoraY**      | Epäsuora, Y         | `LDA ($FB),Y`         | Nollasivu epäsuora indeksointi (operandi = nollasivun osoite, 1 tavu)     |
 | **epäsuora**       | Epäsuora            | `JMP (0100 dollaria)` | Epäsuora; käytettävissä vain JMP:n kanssa                                 |
 
+### Vakiot nollasivulla
+
+Vain vakioista (`.const`, `name = value`, a `.var`) koostuva operandi, joka
+mahtuu tavuun, ottaa käskyn **zero-page** -tilan, täsmälleen samalla tavalla
+kuin numero: `.const zp = $FB`:n jälkeen `lda zp` muodostaa `A5 FB`:n (2 tavua,
+3 sykliä) ja `lda zp,x` muodostaa `B5 FB`. Tila, jolla käskyllä ei ole
+nollasivuista muotoa, pysyy absoluuttisena (`lda zp,y` → `B9 FB 00`). Nimikettä
+ei rajata – sen osoite tiedetään vasta asettelun jälkeen – ja `lda.abs zp`
+pakottaa absoluuttisen tilan. Numero säilyttää kirjoitusleveyden: `$FB` on
+nollasivu, `$00FB` on absoluuttinen. *(Uutta versiossa 2.1.)*
+
 ### Tiedonsiirto
 
 Mikä tahansa operandikenttä, joka hyväksyy osoitteen tai välittömän arvon,
@@ -2451,15 +2507,17 @@ hyväksyy myös suoraan **vakion nimen** (`CONST`-lohkosta tai `LABEL`-lohkosta)
 Lisäksi voit käyttää **label+offset**- tai **label−offset**-lausekkeita
 viitataksesi osoitteeseen suhteessa nimettyyn vakioon:
 
-| Syntaksi | Esimerkki              | Kuvaus                                                                                                            |
-| -------- | ---------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| `LDA`    | Kuorma-akku            | välitön, nollasivu, absoluuttinen, absoluuttinenX, absoluuttinenY, epäsuoraX, epäsuoraY                           |
-| `LDX`    | Lataa X-rekisteri      | välitön, nollasivu, nollasivuY, absoluuttinen, absoluuttinenY                                                     |
-| `LDY`    | Lataa Y-rekisteri      | välitön, nollasivu, absoluuttinen, absoluuttinenX                                                                 |
-| `STA`    | Säilytä akkumulaattori | nollasivu, absoluuttinen, absoluuttinenX, absoluuttinenY, epäsuoraX, epäsuoraY                                    |
-| `STX`    | Myymälä X kassa        | nollaSivu, nollaSivuY, absoluuttinen                                                                              |
-| `STY`    | Myymälän Y-kassa       | nollasivu, absoluuttinen                                                                                          |
-| `*`      | `BNE *`                | Nykyinen ohjelmalaskuri (käskyn oma osoite); haarat, joissa on `*`, luovat äärettömän itsesilmukan (offset `$FE`) |
+| Syntaksi       | Esimerkki                           | Kuvaus                                                                                                            |
+| -------------- | ----------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `LDA`          | Kuorma-akku                         | välitön, nollasivu, absoluuttinen, absoluuttinenX, absoluuttinenY, epäsuoraX, epäsuoraY                           |
+| `LDX`          | Lataa X-rekisteri                   | välitön, nollasivu, nollasivuY, absoluuttinen, absoluuttinenY                                                     |
+| `LDY`          | Lataa Y-rekisteri                   | välitön, nollasivu, absoluuttinen, absoluuttinenX                                                                 |
+| `STA`          | Säilytä akkumulaattori              | nollasivu, absoluuttinen, absoluuttinenX, absoluuttinenY, epäsuoraX, epäsuoraY                                    |
+| `$hex+lauseke` | `LDA $1234+1`, `STA $0400+40*2,X`   | Mikä tahansa numeroiden, tunnisteiden ja vakioiden lauseke *(2.1)*                                                |
+| `(etiketti)`   | `JMP (vektori)`, `JMP (taulukko+2)` | Epäsuora hyppy otsikon tai lausekkeen kautta *(2.1)*                                                              |
+| `STX`          | Myymälä X kassa                     | nollaSivu, nollaSivuY, absoluuttinen                                                                              |
+| `STY`          | Myymälän Y-kassa                    | nollasivu, absoluuttinen                                                                                          |
+| `*`            | `BNE *`                             | Nykyinen ohjelmalaskuri (käskyn oma osoite); haarat, joissa on `*`, luovat äärettömän itsesilmukan (offset `$FE`) |
 
 **Esimerkki — kahden näyttösivun tyhjentäminen CONST:**-muuttujalla
 ```
@@ -2994,6 +3052,11 @@ LDA #$01
 
 **Koko:** `tavujen_määrä × 5` tavua (yksi LDA + yksi STA tavua kohden).
 
+> **2.1:** tavut voivat nimetä tunnisteita: `.data $2010, <target, >target`
+> kirjoittaa kohteen `kohteen` osoitteen, joka myös myöhemmin määritellyn
+> tunnisteen mukainen. Makron `:nimi`-tunniste voi osoittaa kohdeosoitteeseen,
+> joka itse on tunniste.
+
 ---
 
 ### RAWBYTES
@@ -3021,6 +3084,11 @@ minkä tarvitsee vain olla tietyssä osoitteessa.
 > **DATA vs. RAWBYTES:** DATA luo LDA/STA-koodia, joka kopioi tavuja suorituksen
 > aikana (hitaampaa, mutta toimii, jos datan on oltava dynaamista). RAWBYTES
 > vain sijoittaa tavut suoraan – ei koodia, välittömästi, ilman kustannuksia.
+
+> **2.1:** tavut voivat nimetä tunnisteita (`.rawbytes $2000, <target, >target`
+> — osoitintaulukko); `:name` tunniste voi osoittaa tunnisteeseen
+> kohdeosoitteena, joka myös määritellään myöhemmin. Makron puskuriargumenttina
+> tavut vievät oman tilansa puskureissa ohjelman jälkeen.
 
 ---
 
@@ -3635,6 +3703,11 @@ Kahta tiedostotyyppiä tuetaan:
 > latausosoite, kun kirjastolla ei ole omaa ORG:ta tai kun haluat ohittaa sen
 > oletussijainnin.
 
+> **2.1:** Sisällytetty tiedosto, jota ei löydy, on virhe, samoin kuin tiedosto,
+> joka sisällyttää itsensä (suoraan tai alempana). Sisällytetyn tiedoston omat
+> rivit `.include`, `.incbin` ja `.sid` ladataan myös suhteessa sen omaan
+> kansioon, ja sen makrokutsuja laajennetaan – jopa 16 tasoa syvälle.
+
 ---
 
 ### TAULUKKO
@@ -3996,6 +4069,11 @@ sallittu.
 
 > **Vinkki:** Määrittele makrot ohjelmasi ylä- (tai alareunassa) ja KUTSU niitä
 > sitten tarvittaessa. Makroja voidaan kutsua useita kertoja eri argumenteilla.
+
+> **2.1:** makro voi kutsua toista makroa (`both(a, b)` kutsumalla `setc(a)`);
+> sisempi kutsu saa ulomman kutsun argumentit ja omat yksilölliset paikalliset
+> tunnisteensa. Itseään kutsuva makro pysähtyy virheeseen 16 tason jälkeen
+> jumiutumisen sijaan.
 
 ---
 
@@ -4417,6 +4495,10 @@ vastaamaan pyydettyä kokoa.
 Jopa 256 tavun koot käyttävät lyhyttä 8-bittistä silmukkaa. Suuremmat koot
 vaihtavat automaattisesti 16-bittiseen laskuriin.
 
+> **2.1:** Koodin koko on tiedettävä jo koodia piirrettäessä — luku tai vakio.
+> Myöhemmin määritelty merkintä (jonka arvoa asettelu ei vielä tiedä) on virhe
+> eikä paikkaansa sopimaton koodi.
+
 ---
 
 ### TULOSTA / TULOSTA_MERKKI / TULOSTA_HEX / TYHJENNÄ_NÄYTTÖ / ODOTA_NÄPPÄIN / VIIVE / ASETA_REUNUS / ASETA_REUNUS
@@ -4751,6 +4833,9 @@ $DC01`), joten kumpi tahansa portti toimii.
 ---
 
 <a id="mouse"></a>
+
+> **2.1:** portti on tiedettävä koodia kirjoitettaessa (numero tai vakio), koska
+> portti 3 pidentää koodia 3 tavua; myöhemmin määritelty tunniste on virhe.
 ### HIIRI
 
 Lukee Commodore 1351 -suhteellisen hiiren ja liikuttaa спрайтиa. Täysin
@@ -5683,11 +5768,14 @@ Ultimate II+ -kasettipaikalla. Se on saatavilla **lohkotilassa**,
     `$8009`.
   - `$8004–$8008` = KERNAL-nollauskoodin vaatima `CBM80`-allekirjoitus.
   - `$8009–$807F` = lataaja: SEI / stack init / `JSR $FDA3` (IOINIT) / `JSR
-    $FD50` (RAMTAS) / `JSR $FD15` (RESTOR) / `JSR $FF5B` (CINT), sitten
-    tavukopiointisilmukka, joka suoratoistaa hyötykuorman cart ROM:sta RAM:iin
-    ja vaihtaa pankkia, kun `$FC` saavuttaa `$A0`. Lopuksi se kopioi pienen
-    **exit stub** kohteeseen `$0100`, poistaa ostoskorin käytöstä `LDA #$80 :
-    STA $DE00` -komennolla ja `JMP` -komennolla sisääntulopisteeseen.
+    $FD50` (RAMTAS) / `JSR $FD15` (RESTOR) / `JSR $FF5B` (CINT), sitten se
+    kopioi 60-tavuisen **kopiointirutiinin** (`$8044–$807F`) kansioon `$0100` ja
+    hyppää sinne. RAM-muistista suoritettava rutiini lähettää hyötykuorman
+    kärryn ROM-muistista latausosoitteeseensa, vaihtaa pankkeja
+    `$DE00`-osoitteen kautta, kun `$FC` saavuttaa `$A0`-osoitteen, poistaa
+    kärryn käytöstä `LDA #$80 : STA $DE00`-komennolla ja `JMP`-komennolla
+    aloituspisteeseen. (Sen on suoritettava RAM-muistista: pankin vaihto korvaa
+    ROM-muistin kohdassa `$8000`, lataajan oma koodi mukaan lukien.)
 - **Hyötykuorma** alkaa pankissa 0 kohdasta `$8080` ja jakautuu tarvittaessa
   pankkeihin 1–7. Suurin hyötykuorma = `8 * 8192 − 128 = 65 408 tavua`.
 
@@ -5732,11 +5820,11 @@ muistiasettelu tai jaa tiedot.
 > - **CIA1 / CIA2** alustetaan uudelleen komennolla `IOINIT`. Mukautetut
 >   ajastinasetukset (rasteri-IRQ:t, musiikkisoitin CIA-A) on ohjelmoitava
 >   uudelleen syötön jälkeen.
-> - Kärry on poistettu käytöstä 8-tavuisen tynkän avulla **RAM-muistissa
->   kohdassa `$0100`**, jotta `STA $DE00` -muistin toimintaa ei voida keskeyttää
->   virheellisen ROM-muistin noudon vuoksi. Älä luota siihen, että `$0100–$0107`
->   sisältää pinon päällimmäisen kuvan heti syötön yhteydessä – ensimmäinen
->   RAM-muistin nouto ylikirjoittaa tynkän.
+> - Kopiointirutiini suoritetaan **RAM-muistista kohdissa `$0100–$013B`**, joten
+>   pankin kytkimet ja lopullinen `STA $DE00` eivät koskaan vedä koodia
+>   suorittimen alta. Älä luota `$0100–$013B` -alkuisiin alkuihin ja pidä
+>   hyötykuorma poissa tästä alueesta ja lataajan käyttämien nollasivutavujen
+>   `$02–$04` / `$FB–$FE` ulkopuolella.
 > 
 > Jos CRT toimii VICE-ympäristössä, mutta epäonnistuu oikealla laitteistolla, on
 > ensin tarkistettava, olettaako ohjelma tietyn KERNAL-vektorin vai
@@ -5782,6 +5870,12 @@ kääntää VMA- (ja Kick-projektin) lähdekoodit:
 
 Kääntämisikkuna nimeää käytössä olevan moottorin. VMA-versio näkyy
 Tietoja-ruudussa.
+
+Sama kääntäjä toimii komentorivillä (VMA 2.1.0): `vma build game.asm` kirjoittaa
+`game.prg`, `--crt game.crt` Magic Desk -kasetin (samat tavut kuin **Build
+CRT**), ja `--d64` 1541-levykuvan ohjelmalla (`--add` lisää siihen lisää
+tiedostoja) — c1541-tiedostoa ei tarvita. Katso käyttöohje
+[VMA-repositoriossa](https://github.com/zstarczali/VMA).
 
 ### Korkean resoluution / monivärinen editori
 

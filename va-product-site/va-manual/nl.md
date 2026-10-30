@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Gebruikershandleiding
 
-**Versie 2.6.7**
+**Versie 2.6.8**
 
 Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw
 programma's door instructieblokken te slepen en neer te zetten, en bekijk de
@@ -10,6 +10,7 @@ gegenereerde assembly- en machinecode in realtime.
 
 ## Inhoudsopgave
 
+- [Hoogtepunten van versie 2.6.8](#version-268-highlights)
 - [Hoogtepunten van versie 2.6.7](#version-267-highlights)
 - [Hoogtepunten van versie 2.6.6](#version-266-highlights)
 - [Hoogtepunten van versie 2.6.5](#version-265-highlights)
@@ -239,6 +240,36 @@ gegenereerde assembly- en machinecode in realtime.
   - [Nummeromzetter](#number-converter)
 
 ---
+
+## Hoogtepunten van versie 2.6.8
+
+- **Toolkit in Expert- en UB-modus** — de *Toolkit*-werkbalkknop toont het
+  C64-palet en de PETSCII-codes naast de editor: in Expert-modus als een
+  zijpaneel naast Disassembly / Monitor, in UB-modus in het rechterpaneel (het
+  wisselt af met Disassembly en Monitor).
+- **Panelen onthouden** — de Monitor- en Toolkit-panelen van de Expert-modus
+  kunnen net als de Disassembly-panelen worden aangepast qua grootte; de panelen
+  die u open laat (Palette, Disassembly, Monitor, Toolkit, Project) en hun
+  breedte worden bij de volgende opstart behouden, ongeacht in welke modus de
+  app start — ook in de UB-modus.
+- **VMA-taal** — een `.const` of `.var` in de nulpagina maakt `lda zp` een
+  nulpagina-instructie (`A5 FB`, zoals KickAssembler doet; `lda.abs zp` behoudt
+  absolute); `JMP (label)` / `JMP (table+2)`; expressies zoals `lda $1234+1` en
+  `sta $0400+40*2,x`; een macro kan een andere macro aanroepen; labels in de
+  bytes van `.data` / `.rawbytes` (pointertabellen); een `:name` label kan naar
+  een label verwijzen.
+- **Includes** — de eigen `.include`, `.incbin` en `.sid` regels van een
+  opgenomen bestand worden geladen (relatief ten opzichte van de map) en de
+  macro-aanroepen worden uitgebreid; een ontbrekende include, of een include die
+  zichzelf includeert, is een fout in plaats van een lege bibliotheek.
+- **Veiligere builds** — fouten in plaats van stilletjes foute code: een
+  onopgeloste TURBO_SET / SPRITE_ANIM-waarde, een MEMCPY / MEMSET /
+  JOYSTICK-grootte die is overgenomen van een later gedefinieerd label; de
+  automatische buffer van een `.data` / `.rawbytes` macro-argument neemt zijn
+  bytes. Programma's die zero-page constanten gebruiken, worden korter.
+- **Oplossingen** — een CRT groter dan 8 KB (meer dan één bank) startte niet: de
+  loader draait nu vanuit RAM; een `.asm` naam die in het dialoogvenster Opslaan
+  van een project wordt gegeven, slaat de brontekst op, niet de VA JSON.
 
 ## Hoogtepunten van versie 2.6.7
 
@@ -1215,6 +1246,13 @@ versie:
 
 Na het downloaden installeert de app de update en start opnieuw op:
 
+In de **Expert-modus** en de **UltimateBasic-modus** wordt dezelfde Toolkit
+geopend via de **Toolkit**-knop in de werkbalk: in de Expert-modus als een
+zijpaneel naast Demontage / Monitor (sleep de scheidingslijn links ervan om het
+formaat aan te passen), in de UB-modus in het rechterpaneel, waar het
+afwisselend met Demontage en Monitor wordt weergegeven. Of het geopend is en de
+breedte ervan worden onthouden.
+
 ### Compileer informatie en uitvoerinstellingen
 
 - **Compileerinfo** (boven de uitvoer) toont een samenvatting van het
@@ -2005,8 +2043,10 @@ Expert-modus. Deze biedt het volgende:
 - De panelen **Project** en **Commands** zijn onafhankelijk van elkaar in- en
   uitschakelbaar en worden naast elkaar weergegeven wanneer beide zijn
   ingeschakeld;
-- Onafhankelijk in- en uitschakelbare en in grootte aanpasbare **Build Output**
-  en **Disassembly** panelen.
+- De panelen **Build Output** en **Disassembly** zijn onafhankelijk van elkaar
+  in- en uitschakelbaar en aanpasbaar; **Disassembly**, **Monitor** en
+  **Toolkit** delen het rechterpaneel (één tegelijk). Welk paneel geopend is en
+  de breedte ervan worden onthouden.
 
 Het paneel 'Disassembly' bevat een knop **Kopiëren** waarmee de volledige
 weergegeven broncode naar het klembord wordt gekopieerd. De meegeleverde
@@ -2207,26 +2247,31 @@ staat op elk blok.
 
 ### Lokale (gestippelde) labels
 
-| Knop                                  | ID                                                  | Functie                                                                                                                                                                                                                                                       |
-| ------------------------------------- | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Formaat**                           | `#expert-format-btn`                                | Broncode automatisch formatteren (labels naar kolom 0, 4 spaties inspringen, 1 spatie voor mnemonic/operand)                                                                                                                                                  |
-| **Laad .asm**                         | `#expert-load-asm-btn`                              | Open een `.asm`-bestand — de inhoud wordt geladen in een **nieuw tabblad** met de bestandsnaam als tabbladlabel. Elk geladen bestand wordt een onafhankelijk tabblad met eigen programmablokken en editorstatus.                                              |
-| **Sla .asm op**                       | `#expert-save-asm-btn`                              | Sla de editorinhoud op in een `.asm`-bestand (bestanddialoogvenster bij de eerste keer opslaan)                                                                                                                                                               |
-| **Bouwinfo**                          | `#expert-build-info-btn`                            | Open het dialoogvenster Build Info: bovenaan ziet u de oorsprong, het einde, de grootte en het aantal segmenten, daaronder de segmenten, fouten (`file:line` in een Kick-project) en de uitvoer `.print`, en in de kolommen de labels, constanten en macro's. |
-| **Automatisch aanvullen**             | `#expert-autocomplete-btn`                          | Schakel de automatische aanvulsuggesties voor experts in of uit. Wanneer deze functie is uitgeschakeld, verschijnen er geen instructies, ezelsbruggetjes of labels in de experteditor.                                                                        |
-| **Regioselectie**                     | `#expert-regio-selectie-knop`                       | Schakel de automatische regiomarkering in de expertmodus in of uit. De vouwstatus blijft behouden, maar wanneer deze functie is uitgeschakeld, blijft de volledige broncode zichtbaar in de editor en wordt het huidige gebied niet automatisch geselecteerd. |
-| **Alle regio's inklappen/uitklappen** | `#expert-region-fold-all-btn`                       | Vouw elk `.region`-blok in één klik in of uit. Als er momenteel een regio open is, vouwt de knop ze allemaal in; als alle regio's al ingeklapt zijn, vouwt de volgende klik ze allemaal uit. De knop licht op wanneer alle regio's zijn ingeklapt.            |
-| **Regelnummers**                      | `#expert-line-numbers-btn`                          | Schakel de regelnummermarge aan de linkerkant van de editor in of uit. De marge blijft gesynchroniseerd met de scrollpositie en wordt live bijgewerkt terwijl u typt.                                                                                         |
-| **Vind**                              | `#expert-find-btn`                                  | Open de zwevende zoekbalk (`Ctrl+F`). Typ om te zoeken; overeenkomsten worden gemarkeerd in de overlay. `Enter` / `Shift+Enter` navigeer tussen overeenkomsten. `Escape` sluit de balk.                                                                       |
-| **Uitzoomen/inzoomen**                | `#expert-zoom-out-btn` / `#expert-zoom-in-btn`      | Verklein/vergroot de lettergrootte van de editor (8–28 px). `Ctrl` + muiswiel (`Cmd` + wiel op macOS, of knijpen op het touchpad) boven de editor heeft hetzelfde effect. De instelling wordt opgeslagen.                                                     |
-| **Palet**                             | `#expert-palette-btn`                               | Toon/verberg het linker geheugenpalet                                                                                                                                                                                                                         |
-| **Disasm**                            | `#expert-disasm-btn`                                | Het demontagepaneel weergeven/verbergen (pure 6502, macro's uitgebreid)                                                                                                                                                                                       |
-| **Monitor**                           | `#expert-monitor-btn`                               | Het paneel voor de hex-dump van de monitor weergeven/verbergen                                                                                                                                                                                                |
-| **Minimap**                           | `#expert-minimap-btn`                               | Toon/verberg de code-minimap aan de rechterkant van de editor                                                                                                                                                                                                 |
-| **Projectpaneel**                     | `#expert-project-btn`                               | Het projectpaneel (bestanden, symbolen, projectinstellingen) weergeven/verbergen.                                                                                                                                                                             |
-| **Cyclus tellingen**                  | `#expert-cycles-btn`                                | De cyclusmarge weergeven/verbergen — zie [Cycle counts](#cycle-counts)                                                                                                                                                                                        |
-| **Ga naar regel / Bladwijzers**       | `#expert-ga-naar-lijn-knop`, `#expert-bladwijzer-*` | Ctrl+G springt naar een regel; Ctrl+F2 schakelt een bladwijzer in/uit; F2 / Shift+F2 gaan naar de volgende / vorige regel.                                                                                                                                    |
-| ** Bouw ACME **                       | `#expert-acme-build-btn`                            | In ACME-modus: compileer de broncode met ACME — zie [ACME-modus](#acme-mode)                                                                                                                                                                                  |
+| Knop                                  | ID                                                  | Functie                                                                                                                                                                                                                                                                                                               |
+| ------------------------------------- | --------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Formaat**                           | `#expert-format-btn`                                | Broncode automatisch formatteren (labels naar kolom 0, 4 spaties inspringen, 1 spatie voor mnemonic/operand)                                                                                                                                                                                                          |
+| **Laad .asm**                         | `#expert-load-asm-btn`                              | Open een `.asm`-bestand — de inhoud wordt geladen in een **nieuw tabblad** met de bestandsnaam als tabbladlabel. Elk geladen bestand wordt een onafhankelijk tabblad met eigen programmablokken en editorstatus.                                                                                                      |
+| **Sla .asm op**                       | `#expert-save-asm-btn`                              | De inhoud van de editor wordt opgeslagen in een `.asm`-bestand (bestanddialoogvenster bij de eerste keer opslaan). Een bronbestand krijgt altijd zijn tekst: Ctrl+S, **Menu → Opslaan**, en een opslaandialoogvenster met een naam zoals `.asm`, `.s`, `.inc`, `.a`, `.a65` of `.lib` schrijft nooit de VA JSON erin. |
+| **Bouwinfo**                          | `#expert-build-info-btn`                            | Open het dialoogvenster Build Info: bovenaan ziet u de oorsprong, het einde, de grootte en het aantal segmenten, daaronder de segmenten, fouten (`file:line` in een Kick-project) en de uitvoer `.print`, en in de kolommen de labels, constanten en macro's.                                                         |
+| **Automatisch aanvullen**             | `#expert-autocomplete-btn`                          | Schakel de automatische aanvulsuggesties voor experts in of uit. Wanneer deze functie is uitgeschakeld, verschijnen er geen instructies, ezelsbruggetjes of labels in de experteditor.                                                                                                                                |
+| **Regioselectie**                     | `#expert-regio-selectie-knop`                       | Schakel de automatische regiomarkering in de expertmodus in of uit. De vouwstatus blijft behouden, maar wanneer deze functie is uitgeschakeld, blijft de volledige broncode zichtbaar in de editor en wordt het huidige gebied niet automatisch geselecteerd.                                                         |
+| **Alle regio's inklappen/uitklappen** | `#expert-region-fold-all-btn`                       | Vouw elk `.region`-blok in één klik in of uit. Als er momenteel een regio open is, vouwt de knop ze allemaal in; als alle regio's al ingeklapt zijn, vouwt de volgende klik ze allemaal uit. De knop licht op wanneer alle regio's zijn ingeklapt.                                                                    |
+| **Regelnummers**                      | `#expert-line-numbers-btn`                          | Schakel de regelnummermarge aan de linkerkant van de editor in of uit. De marge blijft gesynchroniseerd met de scrollpositie en wordt live bijgewerkt terwijl u typt.                                                                                                                                                 |
+| **Vind**                              | `#expert-find-btn`                                  | Open de zwevende zoekbalk (`Ctrl+F`). Typ om te zoeken; overeenkomsten worden gemarkeerd in de overlay. `Enter` / `Shift+Enter` navigeer tussen overeenkomsten. `Escape` sluit de balk.                                                                                                                               |
+| **Uitzoomen/inzoomen**                | `#expert-zoom-out-btn` / `#expert-zoom-in-btn`      | Verklein/vergroot de lettergrootte van de editor (8–28 px). `Ctrl` + muiswiel (`Cmd` + wiel op macOS, of knijpen op het touchpad) boven de editor heeft hetzelfde effect. De instelling wordt opgeslagen.                                                                                                             |
+| **Palet**                             | `#expert-palette-btn`                               | Toon/verberg het linker geheugenpalet                                                                                                                                                                                                                                                                                 |
+| **Disasm**                            | `#expert-disasm-btn`                                | Het demontagepaneel weergeven/verbergen (pure 6502, macro's uitgebreid)                                                                                                                                                                                                                                               |
+| **Monitor**                           | `#expert-monitor-btn`                               | Toon/verberg het paneel met de hexadecimale weergave van de monitor; sleep de scheidingslijn aan de linkerkant om het formaat aan te passen.                                                                                                                                                                          |
+| **Toolkit**                           | `#expert-toolkit-btn`                               | Toon/verberg het zijpaneel [Toolkit](#toolkit-tab) (C64-palet, PETSCII-codes); aanpasbaar in grootte zoals de monitor.                                                                                                                                                                                                |
+| **Minimap**                           | `#expert-minimap-btn`                               | Toon/verberg de code-minimap aan de rechterkant van de editor                                                                                                                                                                                                                                                         |
+| **Projectpaneel**                     | `#expert-project-btn`                               | Het projectpaneel (bestanden, symbolen, projectinstellingen) weergeven/verbergen.                                                                                                                                                                                                                                     |
+| **Cyclus tellingen**                  | `#expert-cycles-btn`                                | De cyclusmarge weergeven/verbergen — zie [Cycle counts](#cycle-counts)                                                                                                                                                                                                                                                |
+| **Ga naar regel / Bladwijzers**       | `#expert-ga-naar-lijn-knop`, `#expert-bladwijzer-*` | Ctrl+G springt naar een regel; Ctrl+F2 schakelt een bladwijzer in/uit; F2 / Shift+F2 gaan naar de volgende / vorige regel.                                                                                                                                                                                            |
+| ** Bouw ACME **                       | `#expert-acme-build-btn`                            | In ACME-modus: compileer de broncode met ACME — zie [ACME-modus](#acme-mode)                                                                                                                                                                                                                                          |
+
+De panelen die u open laat staan (Palet, Demontage, Monitor, Toolkit, Project)
+en hun breedte worden bij de volgende opstart hersteld, ongeacht in welke modus
+de app start.
 
 *(Nieuw in 2.3.9.)* Een label waarvan de naam begint met een punt — `.loop`,
 `.skip`, `.done` — is een **lokaal label**. Het behoort tot het bereik van het
@@ -2502,6 +2547,18 @@ staat op elk blok.
 | **indirectY**    | Indirect, Y    | `LDA ($FB),Y` | Indirecte indexering op nulpagina (operand = adres op nulpagina, 1 byte)                  |
 | **indirect**     | Indirect       | `JMP ($0100)` | Indirect; alleen bruikbaar met JMP                                                        |
 
+### Constanten op de nulpagina
+
+Een operand die alleen uit constanten bestaat (`.const`, `name = value`, a
+`.var`) die in een byte past, neemt de **zero-page**-modus van de instructie
+aan, precies zoals het getal dat zou doen: na `.const zp = $FB`, wordt `lda zp`
+geassembleerd tot `A5 FB` (2 bytes, 3 cycli) en `lda zp,x` tot `B5 FB`. Een
+modus waarin de instructie geen nulpagina-vorm heeft, blijft absoluut (`lda
+zp,y` → `B9 FB 00`). Een label wordt niet versmald — het adres ervan is pas na
+de lay-out bekend — en `lda.abs zp` dwingt de absolute modus af. Een getal
+behoudt de breedte waarmee het is geschreven: `$FB` is nulpagina, `$00FB`
+absoluut. *(Nieuw in 2.1.)*
+
 ### Gegevensverplaatsing
 
 Elk operandveld dat een adres of directe waarde accepteert, accepteert ook
@@ -2509,15 +2566,17 @@ rechtstreeks een **constante naam** (uit een `CONST`-blok of een `LABEL`).
 Daarnaast kunt u **label+offset** of **label−offset** expressies gebruiken om te
 verwijzen naar een adres ten opzichte van een benoemde constante:
 
-| Syntaxis | Voorbeeld             | Beschrijving                                                                                                                 |
-| -------- | --------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| `LDA`    | Belastingsaccumulator | onmiddellijk, nulPagina, absoluut, absoluutX, absoluutY, indirectX, indirectY                                                |
-| `LDX`    | Laad X-register       | onmiddellijk, nulpagina, nulpaginaY, absoluut, absoluutY                                                                     |
-| `LDY`    | Laad Y-register       | onmiddellijk, nulpagina, absoluut, absoluteX                                                                                 |
-| `STA`    | Winkelaccumulator     | zeroPage, absolute, absoluteX, absoluteY, indirectX, indirectY                                                               |
-| `STX`    | Winkel X kassa        | nulPagina, nulPaginaY, absoluut                                                                                              |
-| `STY`    | Winkel Y kassa        | nulPagina, absoluut                                                                                                          |
-| `*`      | `BNE *`               | Huidige programmateller (het eigen adres van de instructie); sprongen met `*` genereren een oneindige zelflus (offset `$FE`) |
+| Syntaxis    | Voorbeeld                         | Beschrijving                                                                                                                 |
+| ----------- | --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `LDA`       | Belastingsaccumulator             | onmiddellijk, nulPagina, absoluut, absoluutX, absoluutY, indirectX, indirectY                                                |
+| `LDX`       | Laad X-register                   | onmiddellijk, nulpagina, nulpaginaY, absoluut, absoluutY                                                                     |
+| `LDY`       | Laad Y-register                   | onmiddellijk, nulpagina, absoluut, absoluteX                                                                                 |
+| `STA`       | Winkelaccumulator                 | zeroPage, absolute, absoluteX, absoluteY, indirectX, indirectY                                                               |
+| `$hex+expr` | `LDA $1234+1`, `STA $0400+40*2,X` | Elke uitdrukking van getallen, labels en constanten *(2.1)*                                                                  |
+| `(label)`   | `JMP (vector)`, `JMP (tabel+2)`   | Indirecte sprong via een label of een expressie *(2.1)*                                                                      |
+| `STX`       | Winkel X kassa                    | nulPagina, nulPaginaY, absoluut                                                                                              |
+| `STY`       | Winkel Y kassa                    | nulPagina, absoluut                                                                                                          |
+| `*`         | `BNE *`                           | Huidige programmateller (het eigen adres van de instructie); sprongen met `*` genereren een oneindige zelflus (offset `$FE`) |
 
 **Voorbeeld — wis twee schermpagina's met behulp van een CONST:**
 ```
@@ -3087,6 +3146,11 @@ LDA #$01
 
 **Grootte:** `byte_count × 5` bytes (één LDA + één STA per byte).
 
+> **2.1:** de bytes kunnen labels benoemen: `.data $2010, <target, >target`
+> schrijft het adres van `target`, ook van een later gedefinieerd label. Het
+> `:name` label van de macro kan verwijzen naar een doeladres dat zelf een label
+> is.
+
 ---
 
 ### RAWBYTES
@@ -3115,6 +3179,11 @@ uitvoer geplaatst.
 > **DATA vs RAWBYTES:** DATA genereert LDA/STA-code die bytes tijdens runtime
 > kopieert (langzamer, maar werkt als de data dynamisch moet zijn). RAWBYTES
 > plaatst de bytes direct — geen code, direct, geen kosten.
+
+> **2.1:** De bytes kunnen labels benoemen (`.rawbytes $2000, <target, >target`
+> — een pointertabel); het label `:name` kan naar een label wijzen als het
+> doeladres, ook een label dat later wordt gedefinieerd. Als bufferargument van
+> een macro nemen de bytes hun eigen ruimte in de buffers in na het programma.
 
 ---
 
@@ -3798,6 +3867,12 @@ Er worden twee bestandstypen ondersteund:
 > de bibliotheek geen eigen ORG heeft, of wanneer u de standaardplaatsing wilt
 > overschrijven.
 
+> **2.1:** Een include die niet gevonden wordt, is een fout, net als een bestand
+> dat zichzelf includeert (direct of verderop). De eigen `.include`, `.incbin`
+> en `.sid` regels van een geïncludeerd bestand worden ook geladen, relatief ten
+> opzichte van de eigen map, en de macro-aanroepen worden uitgebreid — tot wel
+> 16 niveaus diep.
+
 ---
 
 ### TAFEL
@@ -4200,6 +4275,11 @@ de daadwerkelijke argumenten. De door spaties gescheiden vorm (`.invoke setColor
 > **Tip:** Definieer macro's bovenaan (of onderaan) je programma en roep ze
 > vervolgens aan waar nodig. Macro's kunnen meerdere keren met verschillende
 > argumenten worden aangeroepen.
+
+> **2.1:** Een macro kan een andere macro aanroepen (`both(a, b)` roept
+> `setc(a)` aan); de binnenste aanroep krijgt de argumenten van de buitenste
+> aanroep en zijn eigen unieke lokale labels. Een macro die zichzelf aanroept,
+> stopt na 16 niveaus met een foutmelding in plaats van vast te lopen.
 
 ---
 
@@ -4639,6 +4719,11 @@ gevraagde grootte.
 Groottes tot 256 bytes gebruiken een korte 8-bits lus. Grotere groottes
 schakelen automatisch over naar een 16-bits teller.
 
+> **2.1:** De grootte moet bekend zijn wanneer de code wordt opgemaakt — een
+> getal of een constante. Een later gedefinieerd label (waarvan de waarde nog
+> niet bekend is bij de lay-out) is een fout in plaats van code die niet op de
+> juiste plaats past.
+
 ---
 
 ### PRINT / PRINT_CHAR / PRINT_HEX / CLEAR_SCREEN / WAIT_KEY / DELAY / SET_BORDER / SET_BG
@@ -5008,6 +5093,10 @@ $DC00` / `AND $DC01`), dus beide poorten werken.
 ---
 
 <a id="mouse"></a>
+
+> **2.1:** De poort moet bekend zijn wanneer de code wordt opgesteld (een getal
+> of een constante), omdat poort 3 de code 3 bytes langer maakt; een later
+> gedefinieerd label is een fout.
 ### MUIS
 
 Leest een proportionele muis van een Commodore 1351 en beweegt een sprite.
@@ -6159,11 +6248,14 @@ II+ cartridge-slots. Het is beschikbaar in **blokmodus**, **Expertmodus** en
   - `$8004–$8008` = de `CBM80` handtekening die vereist is door de KERNAL
     resetcode.
   - `$8009–$807F` = de loader: SEI / stack init / `JSR $FDA3` (IOINIT) / `JSR
-    $FD50` (RAMTAS) / `JSR $FD15` (RESTOR) / `JSR $FF5B` (CINT), vervolgens een
-    byte-kopieerlus die de payload van cart-ROM naar RAM streamt en van bank
-    wisselt wanneer `$FC` `$A0` bereikt. Aan het einde kopieert het een kleine
-    **exit stub** naar `$0100`, schakelt de wagen uit met `LDA #$80 : STA
-    $DE00`, en `JMP`s naar het ingangspunt.
+    $FD50` (RAMTAS) / `JSR $FD15` (RESTOR) / `JSR $FF5B` (CINT), vervolgens
+    kopieert hij de 60-byte **kopieerroutine** (`$8044–$807F`) naar `$0100` en
+    springt daarheen. De routine, die vanuit het RAM-geheugen draait, streamt de
+    payload van de cartridge-ROM naar het laadadres, schakelt tussen
+    geheugenbanken via `$DE00` wanneer `$FC` `$A0` bereikt, schakelt de
+    cartridge uit met `LDA #$80 : STA $DE00` en `JMP`s naar het ingangspunt.
+    (Het moet vanuit het RAM-geheugen draaien: een bankwissel vervangt de ROM
+    onder `$8000`, inclusief de eigen code van de loader.)
 - **Payload** begint bij `$8080` in bank 0 en loopt door naar banken 1–7 indien
   nodig. Maximale payload = `8 * 8192 − 128 = 65 408 bytes`.
 
@@ -6206,10 +6298,11 @@ de gegevens.
 > - **CIA1 / CIA2** worden opnieuw geïnitialiseerd door `IOINIT`. Aangepaste
 >   timerinstellingen (raster-IRQ's, muziekspeler CIA-A) moeten na binnenkomst
 >   opnieuw worden geprogrammeerd.
-> - De cartridge wordt uitgeschakeld door een 8-byte stub in **RAM op `$0100`**
->   zodat de `STA $DE00` niet kan worden onderbroken door een foutieve
->   ROM-fetch. Vertrouw er niet op dat `$0100–$0107` de stack top image bevat
->   bij binnenkomst — de eerste RAM-push overschrijft de stub.
+> - De kopieerroutine wordt uitgevoerd vanuit **RAM op `$0100–$013B`**, zodat de
+>   bankwisselingen en de uiteindelijke `STA $DE00` de code nooit onder de CPU
+>   vandaan halen. Vertrouw niet op `$0100–$013B` bij binnenkomst en houd de
+>   payload buiten dat bereik en buiten de nulpaginabytes `$02–$04` / `$FB–$FE`
+>   die de loader gebruikt.
 > 
 > Als een CRT-programma in VICE werkt, maar op echte hardware niet, controleer
 > dan eerst of het programma bij aanvang een specifieke KERNAL-vector of
@@ -6254,6 +6347,12 @@ VMA- (en Kick-project) broncode compileert:
 
 In het dialoogvenster voor het compileren wordt de gebruikte engine genoemd. De
 VMA-versie wordt weergegeven in het venster 'Over'.
+
+Dezelfde compiler draait op de commandoregel (VMA 2.1.0): `vma build game.asm`
+schrijft `game.prg`, `--crt game.crt` een Magic Desk-cartridge (dezelfde bytes
+als **Build CRT**), en `--d64` een 1541-schijfimage met het programma (`--add`
+plaatst er nog meer bestanden op) — geen c1541 nodig. Zie de handleiding in de
+[VMA-repository](https://github.com/zstarczali/VMA).
 
 ### Editor voor hoge resolutie / meerkleurig
 

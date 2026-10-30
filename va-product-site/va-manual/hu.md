@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**2.6.7-es verzió**
+**2.6.8-as verzió**
 
 Vizuális, blokk alapú 6502 assembler a Commodore 64-hez. Programokat hozhat
 létre húzással és elengedéssel (fogd és vidd) utasításblokkokkal, és valós
@@ -10,6 +10,7 @@ időben tekintheti meg a létrehozott assembly és gépi kódot.
 
 ## Tartalomjegyzék
 
+- [2.6.8-as verzió kiemelt funkciói](#version-268-highlights)
 - [2.6.7-es verzió – kiemelt funkciók](#version-267-highlights)
 - [2.6.6-os verzió – kiemelt funkciók](#version-266-highlights)
 - [2.6.5-ös verzió – kiemelt funkciók](#version-265-highlights)
@@ -241,6 +242,35 @@ időben tekintheti meg a létrehozott assembly és gépi kódot.
   - [Számátváltó](#number-converter)
 
 ---
+
+## A 2.6.8-as verzió legfontosabb elemei
+
+- **Eszközkészlet Szakértői és UB módban** — az *Eszközkészlet* eszköztár gomb a
+  C64 palettát és a PETSCII kódokat jeleníti meg a szerkesztő mellett: Szakértői
+  módban oldalpanelként a Szétszerelés / Monitor mellett, UB módban a jobb
+  oldali panelen (felváltva jelenik meg a Szétszerelés és a Monitor panellel).
+- **Panelek megjegyzése** — a Szakértői mód Monitor és Eszközkészlet paneljei
+  átméretezhetők, mint a Szétszerelés; a nyitva hagyott panelek (Paletták,
+  Szétszerelés, Monitorok, Eszközkészletek, Projektek) és szélességük a
+  következő indításkor visszaáll az eredeti értékre, attól függően, hogy az
+  alkalmazás melyik módban indul el — UB módban is.
+- **VMA nyelv** — egy `.const` vagy `.var` a nulladik oldalon az `lda zp`
+  utasítást nulladik oldalas utasítássá teszi (`A5 FB`, ahogy a KickAssembler is
+  teszi; az `lda.abs zp` abszolút értéket tart); `JMP (label)` / `JMP
+  (table+2)`; olyan kifejezések, mint az `lda $1234+1` és az `sta $0400+40*2,x`;
+  egy makró meghívhat egy másik makrót; címkék az `.data` / `.rawbytes` táblák
+  bájtjaiban (pointer táblák); egy `:name` címke mutathat egy címkére.
+- **Include** — egy beillesztett fájl saját `.include`, `.incbin` és `.sid`
+  sorai betöltődnek (a mappájához képest), és a makróhívásai kibővülnek; a
+  hiányzó, vagy önmagát beillesztett include hiba, nem pedig üres könyvtár.
+- **Biztonságosabb buildek** — hibák a csendesen hibás kód helyett: egy fel nem
+  oldott TURBO_SET / SPRITE_ANIM érték, egy később definiált címkéből vett
+  MEMCPY / MEMSET / JOYSTICK méret; egy `.data` / `.rawbytes` makró argumentum
+  automatikus puffere a saját bájtjait veszi igénybe. A nulla oldalas
+  konstansokat használó programok rövidebbek lesznek.
+- **Javítások** — 8 KB-nál nagyobb CRT (egynél több bank) nem indult el: a
+  betöltő mostantól RAM-ból fut; a projekt Mentés párbeszédpanelén megadott
+  `.asm` név a forrásszöveget menti, nem a VA JSON-t.
 
 ## A 2.6.7-es verzió legfontosabb elemei
 
@@ -1212,6 +1242,13 @@ verzióval:
 
 A letöltés után az alkalmazás telepíti a frissítést, majd újraindul:
 
+**Szakértői módban** és **UltimateBasic módban** ugyanaz az Eszközkészlet nyílik
+meg az **Eszközkészlet** eszköztár gombjáról: Szakértői módban oldalsó panelként
+a Szétszerelés / Monitor mellett (a bal oldalon lévő elválasztót húzva
+méretezhető át), UB módban a jobb oldali panelen, ahol felváltva jelenik meg a
+Szétszereléssel és a Monitorral. A program megjegyzi, hogy nyitva van-e, és a
+szélességét is.
+
 ### Információk és kimeneti beállítások fordítása
 
 - A **Fordítási info** (a kimenet felett) a lefordított program összefoglalását
@@ -1996,8 +2033,10 @@ mint a Szakértő mód. A következőket kínálja:
   fordított részek esetében pedig az angolt használják;
 - függetlenül kapcsolható **Projekt** és **Parancsok** panelek, amelyek egymás
   mellett jelennek meg, ha mindkettő engedélyezve van;
-- függetlenül ki-be kapcsolható és átméretezhető **Build Output** és
-  **Disassembly** panelek.
+- A függetlenül ki-be kapcsolható és átméretezhető **Build Output** és
+  **Disassembly** panelek; a **Disassembly**, **Monitor** és **Toolkit** panelek
+  a jobb oldali panelt használják (egyenként). A panelek szélességét a rendszer
+  megjegyzi.
 
 A Szétszerelés panel tartalmaz egy **Másolás** gombot, amely a teljes
 megjelenített forráskódot a vágólapra másolja. A parancssúgó a mellékelt
@@ -2203,26 +2242,31 @@ minden blokkon megjelenik.
 
 ### Helyi (pontozott) címkék
 
-| Gomb                                      | azonosító                                                   | Funkció                                                                                                                                                                                                                                                                                      |
-| ----------------------------------------- | ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Formátum**                              | `#szakértői formátum gomb`                                  | Forrás automatikus formázása (0. oszlop címkéi, 4-es behúzás, 1-es mnemonikus/operandus)                                                                                                                                                                                                     |
-| ** .asm betöltése**                       | `#szakértői-asm-betöltés-gomb`                              | Nyisson meg egy `.asm` fájlt — a tartalom egy **új fülre** töltődik be, amelynek címkéje a fájlnév lesz. Minden betöltött fájl független fül lesz, saját programblokkokkal és szerkesztőállapottal.                                                                                          |
-| ** .asm mentése**                         | `#szakértői-mentés-asm-gomb`                                | Szerkesztő tartalmának mentése `.asm` fájlba (fájl párbeszédablak az első mentéskor)                                                                                                                                                                                                         |
-| **Build információk**                     | `#szakértői-építési-info-gomb`                              | Nyisd meg a Build Info párbeszédablakot: felül a kezdőpont, a végpont, a méret és a szegmensek száma, majd a szegmensek, a hibák (`file:line` egy Kick projektben) és az `.print` kimenet, az oszlopokban pedig a címkék, konstansok és makrók.                                              |
-| **Automatikus kiegészítés**               | `#szakértői-automatikus-kiegészítés-gomb`                   | Szakértői automatikus kiegészítési javaslatok be- és kikapcsolása. Ha le van tiltva, nem jelenik meg utasítás, emlékeztető vagy címke felugró ablak a szakértői szerkesztőben.                                                                                                               |
-| **Régió kiválasztása**                    | `#szakértői-régió-kiválasztó-gomb`                          | Szakértő módban be-/kikapcsolja az automatikus régiók kiemelését. A hajtási állapot tárolva marad, de kikapcsolt állapotban a szerkesztő láthatóvá teszi a teljes forráskódot, és nem választja ki automatikusan az aktuális régiót.                                                         |
-| **Összes régió összecsukása / kibontása** | `#szakértői-régió-összes-gombfelhajtás`                     | Egyetlen kattintással összehajthatja vagy kibonthatja az összes `.region` blokkot. Ha bármelyik régió meg van nyitva, a gomb az összeset összecsukja; ha már minden régió össze van csukva, a következő kattintás az összeset kibontja. A gomb világít, ha az összes régió össze van csukva. |
-| **Sorszámok**                             | `#szakértői-sorszámok-gomb`                                 | Be-/kikapcsolhatod a sorszámozás utáni kötésmargót a szerkesztő bal oldalán. A kötésmargó szinkronban marad a görgetési pozícióval, és gépelés közben frissül.                                                                                                                               |
-| **Keresés**                               | `#szakértői-kereső-gomb`                                    | Nyisd meg a lebegő keresősávot (`Ctrl+F`). Gépelj be a kereséshez; a találatok kiemelve jelennek meg az átfedésben. Az `Enter` / `Shift+Enter` navigál a találatok között. Az `Escape` bezárja a sávot.                                                                                      |
-| **Kicsinyítés / Kicsinyítés**             | `#szakértői-kicsinyítés-gomb` / `#szakértői-közelítés-gomb` | A szerkesztő betűméretének csökkentése/növelése (8–28 px). A szerkesztő feletti `Ctrl` + egérgörgő (`Cmd` + görgő macOS-en, vagy érintőpados csippentés) lenyomása ugyanezt teszi. A beállítás megmarad.                                                                                     |
-| **Paletták**                              | `#szakértői-paletta-gomb`                                   | A bal oldali mnemonikus paletta megjelenítése/elrejtése                                                                                                                                                                                                                                      |
-| **Diazmus**                               | `#szakértői-disazm-gomb`                                    | A szétszerelési panel megjelenítése/elrejtése (tiszta 6502, makrók kibontva)                                                                                                                                                                                                                 |
-| **Monitor**                               | `#szakértői-monitor-gomb`                                   | A monitor hex-dump paneljének megjelenítése/elrejtése                                                                                                                                                                                                                                        |
-| **Minitérkép**                            | `#szakértői-minitérkép-gomb`                                | A kód minitérkép sávjának megjelenítése/elrejtése a szerkesztő jobb oldalán                                                                                                                                                                                                                  |
-| **Projekt panel**                         | `#szakértői-projekt-gomb`                                   | Projektpanel megjelenítése/elrejtése (fájlok, szimbólumok, projektbeállítások)                                                                                                                                                                                                               |
-| **Ciklusszám**                            | `#szakértői-ciklusok-gomb`                                  | Ciklusvonal megjelenítése/elrejtése — lásd: [Ciklusszámlálók](#cycle-counts)                                                                                                                                                                                                                 |
-| **Ugrás a sorhoz / Könyvjelzők**          | `#szakértői-lépés-sorra`, `#szakértői-könyvjelző-*`         | A Ctrl+G egy sorra ugrik; a Ctrl+F2 ki-be kapcsolja a könyvjelzőt, az F2 / Shift+F2 a következő / előző sorra ugrik                                                                                                                                                                          |
-| **ACME építése**                          | `#expert-acme-build-btn`                                    | ACME módban: forráskód létrehozása ACME-vel — lásd: [ACME mód](#acme-mode)                                                                                                                                                                                                                   |
+| Gomb                                      | azonosító                                                   | Funkció                                                                                                                                                                                                                                                                                        |
+| ----------------------------------------- | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Formátum**                              | `#szakértői formátum gomb`                                  | Forrás automatikus formázása (0. oszlop címkéi, 4-es behúzás, 1-es mnemonikus/operandus)                                                                                                                                                                                                       |
+| ** .asm betöltése**                       | `#szakértői-asm-betöltés-gomb`                              | Nyisson meg egy `.asm` fájlt — a tartalom egy **új fülre** töltődik be, amelynek címkéje a fájlnév lesz. Minden betöltött fájl független fül lesz, saját programblokkokkal és szerkesztőállapottal.                                                                                            |
+| ** .asm mentése**                         | `#szakértői-mentés-asm-gomb`                                | Mentse el a szerkesztő tartalmát egy `.asm` fájlba (fájl párbeszédablak az első mentéskor). Egy forrásfájl mindig megkapja a szövegét: Ctrl+S, **Menu → Mentés**, és egy Mentés párbeszédablak, amely `.asm`, `.s`, `.inc`, `.a`, `.a65` vagy `.lib` nevet kap. Soha ne írja bele a VA JSON-t. |
+| **Build információk**                     | `#szakértői-építési-info-gomb`                              | Nyisd meg a Build Info párbeszédablakot: felül a kezdőpont, a végpont, a méret és a szegmensek száma, majd a szegmensek, a hibák (`file:line` egy Kick projektben) és az `.print` kimenet, az oszlopokban pedig a címkék, konstansok és makrók.                                                |
+| **Automatikus kiegészítés**               | `#szakértői-automatikus-kiegészítés-gomb`                   | Szakértői automatikus kiegészítési javaslatok be- és kikapcsolása. Ha le van tiltva, nem jelenik meg utasítás, emlékeztető vagy címke felugró ablak a szakértői szerkesztőben.                                                                                                                 |
+| **Régió kiválasztása**                    | `#szakértői-régió-kiválasztó-gomb`                          | Szakértő módban be-/kikapcsolja az automatikus régiók kiemelését. A hajtási állapot tárolva marad, de kikapcsolt állapotban a szerkesztő láthatóvá teszi a teljes forráskódot, és nem választja ki automatikusan az aktuális régiót.                                                           |
+| **Összes régió összecsukása / kibontása** | `#szakértői-régió-összes-gombfelhajtás`                     | Egyetlen kattintással összehajthatja vagy kibonthatja az összes `.region` blokkot. Ha bármelyik régió meg van nyitva, a gomb az összeset összecsukja; ha már minden régió össze van csukva, a következő kattintás az összeset kibontja. A gomb világít, ha az összes régió össze van csukva.   |
+| **Sorszámok**                             | `#szakértői-sorszámok-gomb`                                 | Be-/kikapcsolhatod a sorszámozás utáni kötésmargót a szerkesztő bal oldalán. A kötésmargó szinkronban marad a görgetési pozícióval, és gépelés közben frissül.                                                                                                                                 |
+| **Keresés**                               | `#szakértői-kereső-gomb`                                    | Nyisd meg a lebegő keresősávot (`Ctrl+F`). Gépelj be a kereséshez; a találatok kiemelve jelennek meg az átfedésben. Az `Enter` / `Shift+Enter` navigál a találatok között. Az `Escape` bezárja a sávot.                                                                                        |
+| **Kicsinyítés / Kicsinyítés**             | `#szakértői-kicsinyítés-gomb` / `#szakértői-közelítés-gomb` | A szerkesztő betűméretének csökkentése/növelése (8–28 px). A szerkesztő feletti `Ctrl` + egérgörgő (`Cmd` + görgő macOS-en, vagy érintőpados csippentés) lenyomása ugyanezt teszi. A beállítás megmarad.                                                                                       |
+| **Paletták**                              | `#szakértői-paletta-gomb`                                   | A bal oldali mnemonikus paletta megjelenítése/elrejtése                                                                                                                                                                                                                                        |
+| **Diazmus**                               | `#szakértői-disazm-gomb`                                    | A szétszerelési panel megjelenítése/elrejtése (tiszta 6502, makrók kibontva)                                                                                                                                                                                                                   |
+| **Monitor**                               | `#szakértői-monitor-gomb`                                   | A monitor hex-dump paneljének megjelenítése/elrejtése; a bal oldalon lévő elválasztót húzva átméretezheti.                                                                                                                                                                                     |
+| **Eszközkészlet**                         | `#szakértői-eszközkészlet-gomb`                             | A [Toolkit](#toolkit-tab) oldalpanel megjelenítése/elrejtése (C64 paletta, PETSCII kódok); átméretezhető, mint a Monitor                                                                                                                                                                       |
+| **Minitérkép**                            | `#szakértői-minitérkép-gomb`                                | A kód minitérkép sávjának megjelenítése/elrejtése a szerkesztő jobb oldalán                                                                                                                                                                                                                    |
+| **Projekt panel**                         | `#szakértői-projekt-gomb`                                   | Projektpanel megjelenítése/elrejtése (fájlok, szimbólumok, projektbeállítások)                                                                                                                                                                                                                 |
+| **Ciklusszám**                            | `#szakértői-ciklusok-gomb`                                  | Ciklusvonal megjelenítése/elrejtése — lásd: [Ciklusszámlálók](#cycle-counts)                                                                                                                                                                                                                   |
+| **Ugrás a sorhoz / Könyvjelzők**          | `#szakértői-lépés-sorra`, `#szakértői-könyvjelző-*`         | A Ctrl+G egy sorra ugrik; a Ctrl+F2 ki-be kapcsolja a könyvjelzőt, az F2 / Shift+F2 a következő / előző sorra ugrik                                                                                                                                                                            |
+| **ACME építése**                          | `#expert-acme-build-btn`                                    | ACME módban: forráskód létrehozása ACME-vel — lásd: [ACME mód](#acme-mode)                                                                                                                                                                                                                     |
+
+A nyitva hagyott panelek (Paletták, Kikapcsolás, Monitor, Eszköztár, Projekt) és
+szélességük a következő indításkor visszaállnak, attól függően, hogy az
+alkalmazás melyik módban indul el.
 
 *(Újdonság a 2.3.9. verzióban.)* Egy ponttal kezdődő címke — `.loop`, `.skip`,
 `.done` — egy **lokális címke**. A legközelebbi megelőző **global** (nem
@@ -2488,6 +2532,18 @@ minden blokkon megjelenik.
 | **indirektY**   | Közvetett, Y   | `LDA ($FB),Y`       | Nulla oldalas indirekt indexelés (operandus = nulla oldalcím, 1 bájt)          |
 | **közvetett**   | Közvetett      | `JMP (0100 dollár)` | Közvetett; csak JMP-vel használható                                            |
 
+### Konstansok a nulladik oldalon
+
+Egy csak konstansokból álló operandus (`.const`, `name = value`, a `.var`),
+amely elfér egy bájtban, az utasítás **zero-page** módját veszi fel, pontosan
+úgy, ahogy a szám tenné: miután az `.const zp = $FB`, az `lda zp` `A5 FB`-be (2
+bájt, 3 ciklus) és az `lda zp,x` `B5 FB`-be áll össze. Az az üzemmód, amelynek
+nincs nulla oldalas alakja az utasításnak, abszolút marad (`lda zp,y` → `B9 FB
+00`). Egy címke nincs szűkítve – a címe csak az elrendezés után ismert – és az
+`lda.abs zp` kényszeríti az abszolút módot. Egy szám megtartja azt a
+szélességet, amellyel írva van: `$FB` nulla oldal, `$00FB` abszolút. *(Újdonság
+a 2.1-ben.)*
+
 ### Adatmozgás
 
 Bármely operandusmező, amely címet vagy azonnali értéket fogad el, közvetlenül
@@ -2495,15 +2551,17 @@ elfogad egy **konstans nevű** értéket is (egy `CONST` blokkból vagy egy
 `LABEL`-ből). Ezenkívül használhatod a **label+offset** vagy az **label−offset**
 kifejezéseket egy elnevezett konstanshoz viszonyított címre való hivatkozáshoz:
 
-| Szintaxis | Példa                   | Leírás                                                                                                             |
-| --------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `LDA`     | Töltésakkumulátor       | azonnali, nulla oldal, abszolút, abszolútX, abszolútY, közvetettX, közvetettY                                      |
-| `LDX`     | X regiszter betöltése   | azonnali, nulla oldal, nulla oldalY, abszolút, abszolútY                                                           |
-| `LDY`     | Y regiszter betöltése   | azonnali, nulla oldal, abszolút, abszolútX                                                                         |
-| `STA`     | Tároló akkumulátor      | zeroPage, abszolút, abszolútX, abszolútY, közvetettX, közvetettY                                                   |
-| `STX`     | X pénztárgép üzlet      | nulla oldal, nulla oldalY, abszolút                                                                                |
-| `STY`     | Y pénztárgép tárolására | nulla oldal, abszolút                                                                                              |
-| `*`       | `BNE *`                 | Aktuális programszámláló (az utasítás saját címe); az `*` elágazások végtelen önhurkot generálnak (eltolás: `$FE`) |
+| Szintaxis        | Példa                             | Leírás                                                                                                             |
+| ---------------- | --------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `LDA`            | Töltésakkumulátor                 | azonnali, nulla oldal, abszolút, abszolútX, abszolútY, közvetettX, közvetettY                                      |
+| `LDX`            | X regiszter betöltése             | azonnali, nulla oldal, nulla oldalY, abszolút, abszolútY                                                           |
+| `LDY`            | Y regiszter betöltése             | azonnali, nulla oldal, abszolút, abszolútX                                                                         |
+| `STA`            | Tároló akkumulátor                | zeroPage, abszolút, abszolútX, abszolútY, közvetettX, közvetettY                                                   |
+| `$hex+kifejezés` | `LDA $1234+1`, `STA $0400+40*2,X` | Számok, címkék és konstansok bármilyen kifejezése *(2.1)*                                                          |
+| `(címke)`        | `JMP (vektor)`, `JMP (tábla+2)`   | Közvetett ugrás címkén vagy kifejezésen keresztül *(2.1)*                                                          |
+| `STX`            | X pénztárgép üzlet                | nulla oldal, nulla oldalY, abszolút                                                                                |
+| `STY`            | Y pénztárgép tárolására           | nulla oldal, abszolút                                                                                              |
+| `*`              | `BNE *`                           | Aktuális programszámláló (az utasítás saját címe); az `*` elágazások végtelen önhurkot generálnak (eltolás: `$FE`) |
 
 **Példa — két képernyőoldal törlése CONST használatával:**
 ```
@@ -3038,6 +3096,10 @@ LDA #$01
 
 **Méret:** `bájt_szám × 5` bájt (egy LDA + egy STA bájtonként).
 
+> **2.1:** a bájtok címkéket nevezhetnek el: `.data $2010, <cél, >cél` kiírja az
+> `cél` címét, amely egy később definiált címke is. A makró `:név` címkéje
+> mutathat egy olyan célcímre, amely maga is egy címke.
+
 ---
 
 ### RAWBYTES
@@ -3066,6 +3128,11 @@ keresőtáblákhoz, bármihez, aminek csak egy adott címen kell lennie.
 > a bájtokat (lassabb, de működik, ha az adatoknak dinamikusnak kell lenniük). A
 > RAWBYTES közvetlenül elhelyezi a bájtokat – nincs kód, azonnal, nulla
 > költséggel.
+
+> **2.1:** a bájtok címkéket adhatnak meg (`.rawbytes $2000, <cél, >target` —
+> egy mutatótábla); az `:name` címke egy címkére, mint célcímre mutathat,
+> amelyet szintén később definiálunk. Makró puffer argumentumaként a bájtok a
+> program utáni pufferekben foglalják el a saját helyüket.
 
 ---
 
@@ -3682,6 +3749,11 @@ Két fájltípus támogatott:
 > készült. Állítson be egy betöltési címet, ha a könyvtárnak nincs saját ORG-ja,
 > vagy ha felül szeretné írni az alapértelmezett elhelyezését.
 
+> **2.1:** A nem található include hiba, ahogy az is, ha egy fájl önmagát
+> foglalja magába (közvetlenül vagy lejjebb). Egy included fájl saját
+> `.include`, `.incbin` és `.sid` sorai is betöltődnek a saját mappájához
+> képest, és a makróhívásai kibővülnek – akár 16 szinttel mélyebbre.
+
 ---
 
 ### TÁBLÁZAT
@@ -4048,6 +4120,11 @@ setColor #$07`) is elfogadott.
 > **Tipp:** Definiálj makrókat a programod tetején (vagy alján), majd HÍVD MEG
 > őket, ahol szükséges. A makrók többször is meghívhatók különböző
 > argumentumokkal.
+
+> **2.1:** egy makró meghívhat egy másik makrót (`both(a, b)` hívja a `setc(a)`
+> függvényt); a belső hívás a külső hívás argumentumait és a saját egyedi
+> lokális címkéit kapja meg. Egy önmagát meghívó makró 16 szint után hibával
+> leáll a lefagyás helyett.
 
 ---
 
@@ -4472,6 +4549,10 @@ megfelelően kiválasztva.
 A legfeljebb 256 bájtos méretek egy rövid, 8 bites ciklust használnak. Nagyobb
 méretek esetén automatikusan 16 bites számlálóra váltanak.
 
+> **2.1:** a méretet a kód elkészítésekor ismerni kell – ez lehet egy szám vagy
+> egy konstans. Egy később definiált címke (amelynek értékét az elrendezés még
+> nem ismeri) hiba, nem pedig olyan kód, amely nem illik a helyére.
+
 ---
 
 ### NYOMTATÁS / NYOMTATÁSI_KARKOLAT / NYOMTATÁSI_HEX / KÉPERNYŐ_TÖRLÉSE / VÁRAKOZÁSI_KULCS / KÉSLELTETÉS / SZEGÉLY BEÁLLÍTÁSA / SZEGÉLY BEÁLLÍTÁSA
@@ -4810,6 +4891,10 @@ vagy menükhöz. A `3` port egyszerre olvassa mindkét joystick portot (`LDA $DC
 ---
 
 <a id="mouse"></a>
+
+> **2.1:** a portot ismerni kell a kód írásakor (egy szám vagy egy konstans),
+> mivel a 3-as port 3 bájttal hosszabbá teszi a kódot; egy később definiált
+> címke hibát jelent.
 ### EGÉR
 
 Commodore 1351 proporcionális egér adatait olvassa és egy sprite-ot mozgat.
@@ -5750,11 +5835,14 @@ módban** és **UltimateBasic módban**.
   - `$8000/$8002` hidegindítás + melegindítás vektorok `$8009`-re mutatnak.
   - `$8004–$8008` = a KERNAL visszaállító kód által megkövetelt `CBM80` aláírás.
   - `$8009–$807F` = a betöltő: SEI / stack init / `JSR $FDA3` (IOINIT) / `JSR
-    $FD50` (RAMTAS) / `JSR $FD15` (RESTOR) / `JSR $FF5B` (CINT), majd egy
-    bájtmásoló ciklus, amely a hasznos adatot a cart ROM-ból a RAM-ba streameli,
-    és bankot vált, amikor az `$FC` eléri az `$A0` értéket. A végén egy apró
-    **kilépési csonkot** átmásol a `$0100` címre, letiltja a kosarat az `LDA
-    #$80 : STA $DE00` paranccsal, és a `JMP` paranccsal a belépési pontra.
+    $FD50` (RAMTAS) / `JSR $FD15` (RESTOR) / `JSR $FF5B` (CINT), majd a 60
+    bájtos **másoló rutint** (`$8044–$807F`) átmásolja az `$0100` mappába, és
+    oda ugrik. A RAM-ból futtatva a rutin a kocsi ROM-jából a betöltési címére
+    továbbítja a hasznos adatot, bankot vált a `$DE00` címen keresztül, amikor
+    az `$FC` eléri az `$A0` címet, letiltja a kocsit az `LDA #$80 : STA $DE00`
+    címmel, és a `JMP` címekkel a belépési pontra jut. (RAM-ból kell futnia: egy
+    bankváltó lecseréli a ROM-ot az `$8000` cím alatt, a betöltő saját kódjával
+    együtt.)
 - Az **Payload** a 0. bankban a `$8080` értéknél kezdődik, és szükség szerint az
   1–7. bankokba bonyolódik. Maximális hasznos adat = `8 * 8192 − 128 = 65 408
   bájt`.
@@ -5800,10 +5888,11 @@ memória-elrendezést, vagy felosztja az adatokat.
 > - Az **CIA1 / CIA2** újrainicializálása az `IOINIT` által történik. Az egyéni
 >   időzítő beállításokat (raszteres IRQ-k, CIA-A zenelejátszó) a belépés után
 >   újra kell programozni.
-> - A kocsit egy 8 bájtos csonk tiltja le az **RAM-ban a `$0100`** címen, így a
->   `STA $DE00` futási idejét nem szakíthatja meg egy hibás ROM-lehívás. Ne
->   hagyatkozzon arra, hogy a `$0100–$0107` mappák tartalmazzák a verem
->   tetejének képét a belépéskor – az első RAM-lehívás felülírja a csonkot.
+> - A másolási rutin az **RAM-ból fut a `$0100–$013B`** mappában, így a
+>   bankkapcsolók és a végső `STA $DE00` soha nem a CPU alól húzza ki a kódot.
+>   Ne hagyatkozz a `$0100–$013B` belépési tartományra, és a hasznos adatot
+>   tartsd távol ebből a tartományból, valamint a betöltő által használt
+>   `$02–$04` / `$FB–$FE` nulla oldalbájtjaitól.
 > 
 > Ha egy CRT VICE környezetben fut, de valódi hardveren hibát jelez, akkor
 > először is ellenőrizni kell, hogy a program a belépéskor feltételez-e egy
@@ -5848,6 +5937,13 @@ projekt) forráskódokat fordító motort:
 
 A fordítási párbeszédpanel megnevezi a használt motort. A VMA verziója a Névjegy
 mezőben látható.
+
+Ugyanez a fordítóprogram fut a parancssorban (VMA 2.1.0): az `vma build
+game.asm` fájlba írja a `game.prg` fájlt, a `--crt game.crt` fájlba egy Magic
+Desk kazettát (ugyanazok a bájtok, mint a **Build CRT** fájlban), és a `--d64`
+fájlba egy 1541-es lemezképet a programmal (az `--add` további fájlokat helyez
+rá) — nincs szükség c1541-re. Lásd a kézikönyvet a [VMA
+repository](https://github.com/zstarczali/VMA) fájlban.
 
 ### Nagy felbontású / többszínű szerkesztő
 

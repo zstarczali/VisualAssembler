@@ -1,6 +1,6 @@
 # Manuel d'utilisation de l'assembleur visuel C64
 
-**Version 2.6.7**
+**Version 2.6.8**
 
 Un assembleur 6502 visuel et basé sur des blocs pour le Commodore 64. Créez des
 programmes en faisant glisser et en déposant des blocs d'instructions, et
@@ -10,6 +10,7 @@ visualisez en temps réel le code assembleur et le code machine générés.
 
 ## Table des matières
 
+- [Points saillants de la version 2.6.8](#version-268-highlights)
 - [Points saillants de la version 2.6.7](#version-267-highlights)
 - [Points saillants de la version 2.6.6](#version-266-highlights)
 - [Points saillants de la version 2.6.5](#version-265-highlights)
@@ -244,6 +245,37 @@ visualisez en temps réel le code assembleur et le code machine générés.
   - [Convertisseur de nombres](#number-converter)
 
 ---
+
+## Points forts de la version 2.6.8
+
+- **Toolkit en mode Expert et UB** — le bouton de la barre d'outils *Toolkit*
+  affiche la palette C64 et les codes PETSCII à côté de l'éditeur : en mode
+  Expert sous forme de panneau latéral à côté de Désassemblage / Moniteur, en
+  mode UB dans le panneau de droite (il alterne avec Désassemblage et Moniteur).
+- **Panneaux mémorisés** — les panneaux Moniteur et Boîte à outils du mode
+  Expert peuvent être redimensionnés comme le Désassemblage ; les panneaux que
+  vous laissez ouverts (Palette, Désassemblage, Moniteur, Boîte à outils,
+  Projet) et leurs largeurs reviennent au prochain démarrage, quel que soit le
+  mode dans lequel l'application démarre — en mode UB également.
+- **Langage VMA** — une `.const` ou `.var` dans la page zéro fait de `lda zp`
+  une instruction de page zéro (`A5 FB`, comme le fait KickAssembler ; `lda.abs
+  zp` conserve les valeurs absolues) ; `JMP (label)` / `JMP (table+2)` ; des
+  expressions telles que `lda $1234+1` et `sta $0400+40*2,x` ; une macro peut
+  appeler une autre macro ; étiquettes dans les octets de `.data` / `.rawbytes`
+  (tables de pointeurs) ; une étiquette `:name` peut pointer vers une étiquette.
+- **Includes** — les lignes `.include`, `.incbin` et `.sid` propres à un fichier
+  inclus sont chargées (relativement à son dossier) et ses appels de macro sont
+  développés ; une inclusion manquante, ou une inclusion qui s'inclut elle-même,
+  est une erreur au lieu d'une bibliothèque vide.
+- **Compilations plus sûres** — erreurs plutôt que code incorrect silencieux :
+  valeur TURBO_SET / SPRITE_ANIM non résolue, taille MEMCPY / MEMSET / JOYSTICK
+  extraite d'une étiquette définie ultérieurement ; le tampon automatique d'un
+  argument de macro `.data` / `.rawbytes` utilise ses octets. Les programmes
+  utilisant des constantes de page zéro sont plus courts.
+- **Corrections** — un CRT de plus de 8 Ko (plus d'une banque) ne démarrait pas
+  : le chargeur s'exécute désormais à partir de la RAM ; un nom `.asm` donné
+  dans la boîte de dialogue Enregistrer d'un projet enregistre le texte source,
+  et non le JSON VA.
 
 ## Points forts de la version 2.6.7
 
@@ -1278,6 +1310,13 @@ compare avec la version en cours d'exécution :
 
 Après le téléchargement, l'application installe la mise à jour et redémarre :
 
+En mode Expert **** et en mode Ultimate Basic ****, le même Toolkit s'ouvre
+depuis le bouton Toolkit ** de la barre d'outils ** : en mode Expert, il s'agit
+d'un panneau latéral à côté de Désassemblage/Moniteur (redimensionnez-le en
+faisant glisser le séparateur à gauche) ; en mode UB, il s'affiche dans le
+panneau de droite, alternant avec Désassemblage et Moniteur. Son état (ouvert ou
+fermé) et sa largeur sont mémorisés.
+
 ### Informations de compilation et paramètres de sortie
 
 - **Informations de compilation** (au-dessus de la sortie) affiche un résumé du
@@ -2106,8 +2145,10 @@ personnalisées que le mode Expert. Elle offre :
   italien), en revenant à l'anglais pour tout ce qui n'est pas encore traduit ;
 - Panneaux **Projet** et **Commandes** activables indépendamment, affichés côte
   à côte lorsque les deux sont activés ;
-- Panneaux **Build Output** et **Disassembly** activables et redimensionnables
-  indépendamment.
+- Les panneaux **Build Output** et **Disassembly** sont activables et
+  redimensionnables indépendamment ; les panneaux **Disassembly**, **Monitor**
+  et **Toolkit** partagent le panneau de droite (un à la fois). Le panneau
+  ouvert et sa largeur sont mémorisés.
 
 Le panneau Désassemblage comprend un bouton **Copier** qui copie l'intégralité
 du code source affiché dans le presse-papiers. L'aide des commandes suit le
@@ -2329,26 +2370,31 @@ sélecteur de mode figure sur chaque bloc.
 
 ### Étiquettes locales (en pointillés)
 
-| Bouton                                    | IDENTIFIANT                                    | Fonction                                                                                                                                                                                                                                                                                            |
-| ----------------------------------------- | ---------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Format**                                | `#bouton-format-expert`                        | Formatage automatique du code source (étiquettes en colonne 0, retrait de 4 espaces, mnémonique/opérande de 1 espace)                                                                                                                                                                               |
-| **Charger .asm**                          | `#expert-load-asm-btn`                         | Ouvrez un fichier `.asm` : son contenu est chargé dans un nouvel onglet **** dont le nom correspond à celui du fichier. Chaque fichier chargé devient un onglet indépendant, avec ses propres blocs de programme et son propre état d'éditeur.                                                      |
-| **Enregistrer .asm**                      | `#expert-save-asm-btn`                         | Enregistrez le contenu de l'éditeur dans un fichier `.asm` (boîte de dialogue de fichier lors du premier enregistrement).                                                                                                                                                                           |
-| **Informations sur la version**           | `#expert-build-info-btn`                       | Ouvrez la boîte de dialogue Informations de compilation : l’origine, la fin, la taille et le nombre de segments s’affichent en haut, puis les segments, les erreurs (`fichier:ligne` dans un projet Kick) et la sortie `.print`, et enfin les étiquettes, les constantes et les macros en colonnes. |
-| **Saisie automatique**                    | `#expert-autocomplete-btn`                     | Activer/désactiver les suggestions de saisie semi-automatique pour les experts. Lorsqu'elles sont désactivées, aucune directive, aucun mnémonique ni aucune étiquette ne s'affiche dans l'éditeur expert.                                                                                           |
-| **Sélection de région**                   | `#bouton-sélection-région-expert`              | Activez ou désactivez la mise en surbrillance automatique des régions en mode Expert. L'état de pliage est conservé, mais lorsque cette option est désactivée, l'éditeur affiche l'intégralité du code source et ne sélectionne pas automatiquement la région active.                               |
-| **Réduire/développer toutes les régions** | `#expert-region-fold-all-btn`                  | Dépliez ou repliez chaque bloc `.region` en un clic. Si une région est ouverte, le bouton les replie toutes ; si toutes les régions sont déjà repliées, un clic supplémentaire les déplie. Le bouton s'illumine lorsque toutes les régions sont repliées.                                           |
-| **Numéros de ligne**                      | `#expert-line-numbers-btn`                     | Activez ou désactivez l'affichage de la marge de numérotation des lignes à gauche de l'éditeur. Cette marge reste synchronisée avec la position de défilement et se met à jour en temps réel pendant que vous tapez.                                                                                |
-| **Trouver**                               | `#expert-find-btn`                             | Ouvrez la barre de recherche flottante (Ctrl+F). Saisissez votre recherche ; les résultats s’affichent en surbrillance. Appuyez sur Entrée ou Maj+Entrée pour naviguer entre les résultats. Appuyez sur Échap pour fermer la barre.                                                                 |
-| **Zoom arrière / zoom avant**             | `#expert-zoom-out-btn` / `#expert-zoom-in-btn` | Augmenter/diminuer la taille de la police de l'éditeur (8 à 28 px). Ctrl + molette de la souris (Cmd + molette sur macOS, ou pincer l'écran avec le pavé tactile) sur l'éditeur produit le même résultat. Le réglage est conservé.                                                                  |
-| **Palette**                               | `#expert-palette-btn`                          | Afficher/masquer la palette mnémotechnique de gauche                                                                                                                                                                                                                                                |
-| **Désastre**                              | `#expert-disasm-btn`                           | Afficher/masquer le panneau de démontage (6502 pur, macros étendues)                                                                                                                                                                                                                                |
-| **Moniteur**                              | `#expert-monitor-btn`                          | Afficher/masquer le panneau d'affichage hexadécimal du moniteur                                                                                                                                                                                                                                     |
-| **Mini-carte**                            | `#expert-minimap-btn`                          | Afficher/masquer la mini-carte du code sur le côté droit de l'éditeur                                                                                                                                                                                                                               |
-| **Panneau de projet**                     | `#expert-project-btn`                          | Afficher/masquer le panneau du projet (fichiers, symboles, paramètres du projet)                                                                                                                                                                                                                    |
-| **Nombre de cycles**                      | `#expert-cycles-btn`                           | Afficher/masquer la gouttière du cycle — voir [Nombre de cycles](#cycle-counts)                                                                                                                                                                                                                     |
-| **Aller à la ligne / Signets**            | `#expert-goto-line-btn`, `#expert-bookmark-*`  | Ctrl+G permet d'accéder à une ligne ; Ctrl+F2 active/désactive un signet ; F2 / Maj+F2 permettent de passer à la ligne suivante/précédente.                                                                                                                                                         |
-| **Construire ACME**                       | `#expert-acme-build-btn`                       | En mode ACME : compilez le code source avec ACME — voir [mode ACME](#acme-mode)                                                                                                                                                                                                                     |
+| Bouton                                    | IDENTIFIANT                                    | Fonction                                                                                                                                                                                                                                                                                                                                                                                                   |
+| ----------------------------------------- | ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Format**                                | `#bouton-format-expert`                        | Formatage automatique du code source (étiquettes en colonne 0, retrait de 4 espaces, mnémonique/opérande de 1 espace)                                                                                                                                                                                                                                                                                      |
+| **Charger .asm**                          | `#expert-load-asm-btn`                         | Ouvrez un fichier `.asm` : son contenu est chargé dans un nouvel onglet **** dont le nom correspond à celui du fichier. Chaque fichier chargé devient un onglet indépendant, avec ses propres blocs de programme et son propre état d'éditeur.                                                                                                                                                             |
+| **Enregistrer .asm**                      | `#expert-save-asm-btn`                         | Enregistrez le contenu de l'éditeur dans un fichier `.asm` (boîte de dialogue d'enregistrement lors du premier enregistrement). Un fichier source contient toujours son texte : Ctrl+S, **Menu → Enregistrer**, et une boîte de dialogue Enregistrer s'affiche pour un nom de fichier `.asm`, `.s`, `.inc`, `.a`, `.a65` ou `.lib`. Le JSON de l'interface utilisateur n'est jamais écrit dans ce fichier. |
+| **Informations sur la version**           | `#expert-build-info-btn`                       | Ouvrez la boîte de dialogue Informations de compilation : l’origine, la fin, la taille et le nombre de segments s’affichent en haut, puis les segments, les erreurs (`fichier:ligne` dans un projet Kick) et la sortie `.print`, et enfin les étiquettes, les constantes et les macros en colonnes.                                                                                                        |
+| **Saisie automatique**                    | `#expert-autocomplete-btn`                     | Activer/désactiver les suggestions de saisie semi-automatique pour les experts. Lorsqu'elles sont désactivées, aucune directive, aucun mnémonique ni aucune étiquette ne s'affiche dans l'éditeur expert.                                                                                                                                                                                                  |
+| **Sélection de région**                   | `#bouton-sélection-région-expert`              | Activez ou désactivez la mise en surbrillance automatique des régions en mode Expert. L'état de pliage est conservé, mais lorsque cette option est désactivée, l'éditeur affiche l'intégralité du code source et ne sélectionne pas automatiquement la région active.                                                                                                                                      |
+| **Réduire/développer toutes les régions** | `#expert-region-fold-all-btn`                  | Dépliez ou repliez chaque bloc `.region` en un clic. Si une région est ouverte, le bouton les replie toutes ; si toutes les régions sont déjà repliées, un clic supplémentaire les déplie. Le bouton s'illumine lorsque toutes les régions sont repliées.                                                                                                                                                  |
+| **Numéros de ligne**                      | `#expert-line-numbers-btn`                     | Activez ou désactivez l'affichage de la marge de numérotation des lignes à gauche de l'éditeur. Cette marge reste synchronisée avec la position de défilement et se met à jour en temps réel pendant que vous tapez.                                                                                                                                                                                       |
+| **Trouver**                               | `#expert-find-btn`                             | Ouvrez la barre de recherche flottante (Ctrl+F). Saisissez votre recherche ; les résultats s’affichent en surbrillance. Appuyez sur Entrée ou Maj+Entrée pour naviguer entre les résultats. Appuyez sur Échap pour fermer la barre.                                                                                                                                                                        |
+| **Zoom arrière / zoom avant**             | `#expert-zoom-out-btn` / `#expert-zoom-in-btn` | Augmenter/diminuer la taille de la police de l'éditeur (8 à 28 px). Ctrl + molette de la souris (Cmd + molette sur macOS, ou pincer l'écran avec le pavé tactile) sur l'éditeur produit le même résultat. Le réglage est conservé.                                                                                                                                                                         |
+| **Palette**                               | `#expert-palette-btn`                          | Afficher/masquer la palette mnémotechnique de gauche                                                                                                                                                                                                                                                                                                                                                       |
+| **Désastre**                              | `#expert-disasm-btn`                           | Afficher/masquer le panneau de démontage (6502 pur, macros étendues)                                                                                                                                                                                                                                                                                                                                       |
+| **Moniteur**                              | `#expert-monitor-btn`                          | Afficher/masquer le panneau d'affichage hexadécimal du moniteur ; redimensionnez-le en faisant glisser le séparateur situé à sa gauche.                                                                                                                                                                                                                                                                    |
+| **Boîte à outils**                        | `#bouton-boîte-à-outils-expert`                | Afficher/masquer le panneau latéral [Toolkit](#toolkit-tab) (palette C64, codes PETSCII) ; redimensionnable comme l’écran                                                                                                                                                                                                                                                                                  |
+| **Mini-carte**                            | `#expert-minimap-btn`                          | Afficher/masquer la mini-carte du code sur le côté droit de l'éditeur                                                                                                                                                                                                                                                                                                                                      |
+| **Panneau de projet**                     | `#expert-project-btn`                          | Afficher/masquer le panneau du projet (fichiers, symboles, paramètres du projet)                                                                                                                                                                                                                                                                                                                           |
+| **Nombre de cycles**                      | `#expert-cycles-btn`                           | Afficher/masquer la gouttière du cycle — voir [Nombre de cycles](#cycle-counts)                                                                                                                                                                                                                                                                                                                            |
+| **Aller à la ligne / Signets**            | `#expert-goto-line-btn`, `#expert-bookmark-*`  | Ctrl+G permet d'accéder à une ligne ; Ctrl+F2 active/désactive un signet ; F2 / Maj+F2 permettent de passer à la ligne suivante/précédente.                                                                                                                                                                                                                                                                |
+| **Construire ACME**                       | `#expert-acme-build-btn`                       | En mode ACME : compilez le code source avec ACME — voir [mode ACME](#acme-mode)                                                                                                                                                                                                                                                                                                                            |
+
+Les panneaux que vous laissez ouverts (Palette, Disasm, Monitor, Toolkit,
+Project) et leurs largeurs sont restaurés au prochain démarrage, quel que soit
+le mode dans lequel l'application démarre.
 
 *(Nouveau dans la version 2.3.9.)* Une étiquette dont le nom commence par un
 point — `.loop`, `.skip`, `.done` — est une étiquette locale.**Elle appartient à
@@ -2629,6 +2675,18 @@ sélecteur de mode figure sur chaque bloc.
 | **indirectY** | Indirect,Y        | `LDA ($FB),Y` | Indexation indirecte de la page zéro (opérande = adresse de la page zéro, 1 octet)            |
 | **indirect**  | Indirect          | `JMP ($0100)` | Indirect ; utilisable uniquement avec JMP                                                     |
 
+### Constantes de la page zéro
+
+Un opérande composé uniquement de constantes (`.const`, `name = value`, a
+`.var`) qui tient dans un octet prend le mode **page zéro** de l'instruction,
+exactement comme le ferait le nombre : après `.const zp = $FB`, `lda zp`
+s'assemble en `A5 FB` (2 octets, 3 cycles) et `lda zp,x` en `B5 FB`. Un mode
+pour lequel l'instruction n'a pas de forme de page zéro reste absolu (`lda zp,y`
+→ `B9 FB 00`). Une étiquette n'est pas réduite — son adresse n'est connue
+qu'après la mise en page — et `lda.abs zp` force le mode absolu. Un nombre
+conserve la largeur avec laquelle il est écrit : `$FB` est une page zéro,
+`$00FB` est absolu. *(Nouveau dans la version 2.1.)*
+
 ### Mouvement de données
 
 Tout champ d'opérande acceptant une adresse ou une valeur immédiate accepte
@@ -2636,15 +2694,17 @@ Tout champ d'opérande acceptant une adresse ou une valeur immédiate accepte
 bloc LABEL). De plus, vous pouvez utiliser les expressions label+offset ou
 label−offset pour référencer une adresse relative à une constante nommée.
 
-| Syntaxe | Exemple                  | Description                                                                                                                                            |
-| ------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `LDA`   | Accumulateur de charge   | immédiat, page zéro, absolu, absoluX, absoluY, indirectX, indirectY                                                                                    |
-| `LDX`   | Registre Charger X       | immédiat, page zéro, page zéroY, absolu, absoluY                                                                                                       |
-| `LDY`   | Registre de chargement Y | immédiat, page zéro, absolu, absoluX                                                                                                                   |
-| `STA`   | Accumulateur de stockage | page zéro, absolu, absoluX, absoluY, indirectX, indirectY                                                                                              |
-| `STX`   | Caisse du magasin X      | page zéro, page zéroY, absolu                                                                                                                          |
-| `STY`   | Caisse du magasin Y      | page zéro, absolu                                                                                                                                      |
-| `*`     | `BNE *`                  | Compteur de programme actuel (l'adresse propre à l'instruction) ; les branchements avec `*` génèrent une boucle infinie sur elle-même (décalage `$FE`) |
+| Syntaxe       | Exemple                            | Description                                                                                                                                            |
+| ------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `LDA`         | Accumulateur de charge             | immédiat, page zéro, absolu, absoluX, absoluY, indirectX, indirectY                                                                                    |
+| `LDX`         | Registre Charger X                 | immédiat, page zéro, page zéroY, absolu, absoluY                                                                                                       |
+| `LDY`         | Registre de chargement Y           | immédiat, page zéro, absolu, absoluX                                                                                                                   |
+| `STA`         | Accumulateur de stockage           | page zéro, absolu, absoluX, absoluY, indirectX, indirectY                                                                                              |
+| `$hex+expr`   | `LDA $1234+1`, `STA $0400+40*2,X`  | Toute expression de nombres, d'étiquettes et de constantes *(2.1)*                                                                                     |
+| `(étiquette)` | `JMP (vecteur)`, `JMP (tableau+2)` | Saut indirect à travers une étiquette ou une expression *(2.1)*                                                                                        |
+| `STX`         | Caisse du magasin X                | page zéro, page zéroY, absolu                                                                                                                          |
+| `STY`         | Caisse du magasin Y                | page zéro, absolu                                                                                                                                      |
+| `*`           | `BNE *`                            | Compteur de programme actuel (l'adresse propre à l'instruction) ; les branchements avec `*` génèrent une boucle infinie sur elle-même (décalage `$FE`) |
 
 **Exemple — effacer deux pages d'écran à l'aide d'une CONST : **
 ```
@@ -3226,6 +3286,11 @@ LDA #$01
 
 **Taille : ** `byte_count × 5 ` octets (un LDA + un STA par octet).
 
+> **2.1:** Les octets peuvent nommer des étiquettes : `.data $2010, <target,
+> >target` écrit l’adresse de `target`, qui est également une étiquette définie
+> ultérieurement. L’étiquette `:name` de la macro peut pointer vers une adresse
+> cible qui est elle-même une étiquette.
+
 ---
 
 ### BAWBYTES
@@ -3258,6 +3323,12 @@ dans la sortie.
 > l’exécution (plus lent, mais fonctionne si les données doivent être
 > dynamiques). RAWBYTES place directement les octets : sans code, instantané et
 > sans coût.
+
+> **2.1:** Les octets peuvent nommer des étiquettes (`.rawbytes $2000, <target,
+> >target` — une table de pointeurs) ; l’étiquette `:name` peut pointer vers une
+> étiquette comme adresse cible, y compris une étiquette définie ultérieurement.
+> En tant qu’argument de tampon d’une macro, les octets occupent leur propre
+> espace dans les tampons après le programme.
 
 ---
 
@@ -3965,6 +4036,12 @@ Deux types de fichiers sont pris en charge :
 > pas de répertoire ORG ou si vous souhaitez modifier son emplacement par
 > défaut.
 
+> **2.1:** Une inclusion introuvable constitue une erreur, de même qu'un fichier
+> qui s'inclut lui-même (directement ou plus bas dans l'arborescence). Les
+> lignes `.include`, `.incbin` et `.sid` propres au fichier inclus sont
+> également chargées, par rapport à son propre dossier, et ses appels de macros
+> sont développés – jusqu'à 16 niveaux de profondeur.
+
 ---
 
 ### TABLEAU
@@ -4373,6 +4450,11 @@ est également acceptée.
 > **Conseil :** Définissez les macros en haut (ou en bas) de votre programme,
 > puis invoquez-les là où c’est nécessaire. Les macros peuvent être invoquées
 > plusieurs fois avec différents arguments.
+
+> **2.1:** Une macro peut appeler une autre macro (`both(a, b)` appelant
+> `setc(a)`) ; l’appel interne reçoit les arguments de l’appel externe ainsi que
+> ses propres étiquettes locales uniques. Une macro qui s’appelle elle-même
+> s’arrête avec une erreur après 16 niveaux au lieu de se bloquer.
 
 ---
 
@@ -4823,6 +4905,11 @@ correspondre à la taille demandée.
 Les données jusqu'à 256 octets utilisent une boucle courte de 8 bits. Au-delà,
 un compteur 16 bits est automatiquement utilisé.
 
+> **2.1:** La taille doit être connue lors de la mise en page du code : il doit
+> s’agir d’un nombre ou d’une constante. Une étiquette définie ultérieurement
+> (dont la valeur est encore inconnue de la mise en page) est considérée comme
+> une erreur et non comme un code mal positionné.
+
 ---
 
 ### IMPRIMER / IMPRIMER_CARACTÈRES / IMPRIMER_HEXAGONAL / EFFACER_ÉCRAN / ATTENDRE_TOUTE / DÉLAI / DÉFINIR_BORDURE / DÉFINIR_ARRIÈRE_PLAN
@@ -5208,6 +5295,10 @@ simultanément (`LDA $DC00` / `AND $DC01`), donc les deux ports fonctionnent.
 ---
 
 <a id="mouse"></a>
+
+> **2.1:** le port doit être connu lors de la mise en page du code (un nombre ou
+> une constante), car le port 3 allonge le code de 3 octets ; une étiquette
+> définie ultérieurement est une erreur.
 ### SOURIS
 
 Interprète un signal de souris proportionnelle Commodore 1351 et déplace un
@@ -6420,10 +6511,13 @@ et en mode UltimateBasic.
     du KERNAL.
   - `$8009–$807F` = le chargeur : SEI / initialisation de la pile / `JSR $FDA3`
     (IOINIT) / `JSR $FD50` (RAMTAS) / `JSR $FD15` (RESTOR) / `JSR $FF5B` (CINT),
-    puis une boucle de copie d'octets qui transfère la charge utile de la ROM de
-    la cartouche vers la RAM et change de banque lorsque `$FC` atteint `$A0`. À
-    la fin, il copie un minuscule **exit stub** vers `$0100`, désactive la
-    cartouche avec `LDA #$80 : STA $DE00`, et `JMP`s vers le point d'entrée.
+    puis il copie la routine de copie de 60 octets **** (`$8044–$807F`) vers
+    `$0100` et saute là. S'exécutant depuis la RAM, la routine transfère la
+    charge utile de la ROM de la cartouche vers son adresse de chargement,
+    change de banque via `$DE00` lorsque `$FC` atteint `$A0`, désactive la
+    cartouche avec `LDA #$80 : STA $DE00`, et effectue des sauts `JMP` vers le
+    point d'entrée. (Elle doit s'exécuter depuis la RAM : un changement de
+    banque remplace la ROM sous `$8000`, y compris le code propre au chargeur.)
 - **La charge utile** commence à `$8080` dans la banque 0 et se répartit dans
   les banques 1 à 7 selon les besoins. Charge utile maximale = `8 * 8192 − 128 =
   65 408 octets`.
@@ -6471,11 +6565,12 @@ fractionner les données.
 > - Les interfaces **CIA1 et **CIA2 sont réinitialisées par `IOINIT`. Les
 >   configurations de minuterie personnalisées (IRQ raster, interface CIA-A du
 >   lecteur de musique) doivent être reprogrammées après la saisie.
-> - La cartouche est désactivée par un stub de 8 octets dans la RAM ** à
->   l'adresse `$0100`** afin que l'opération `STA $DE00` ne puisse pas être
->   interrompue par une erreur de lecture de la ROM. Ne vous fiez pas à l'image
->   de la pile dans `$0100–$0107` lors de l'entrée : la première écriture en RAM
->   écrase le stub.
+> - La routine de copie s'exécute depuis la RAM ** à l'adresse `$0100–$013B`**,
+>   de sorte que les changements de banque et l'appel final `STA $DE00` ne
+>   récupèrent jamais le code sous le processeur. Ne vous fiez pas à
+>   `$0100–$013B` à l'entrée et veillez à ce que la charge utile soit en dehors
+>   de cette plage et des octets de page zéro `$02–$04` / `$FB–$FE` utilisés par
+>   le chargeur.
 > 
 > Si un programme CRT fonctionne sous VICE mais échoue sur du matériel physique,
 > il faut d'abord vérifier s'il suppose un état spécifique du vecteur KERNAL ou
@@ -6522,6 +6617,13 @@ construit les sources VMA (et du projet Kick) :
 
 La boîte de dialogue de compilation indique le moteur utilisé. La version de VMA
 est affichée dans la boîte de dialogue À propos.
+
+Le même compilateur s'exécute en ligne de commande (VMA 2.1.0) : ``vma build
+game.asm`` écrit ``game.prg``, ``--crt game.crt`` crée une cartouche Magic Desk
+(avec les mêmes octets que `**Build CRT**`), et ``--d64`` crée une image disque
+1541 contenant le programme (``--add`` y ajoute des fichiers supplémentaires) ;
+aucun fichier c1541 n'est nécessaire. Consultez le manuel dans le dépôt VMA
+(https://github.com/zstarczali/VMA).
 
 ### Éditeur haute résolution/multicolore
 

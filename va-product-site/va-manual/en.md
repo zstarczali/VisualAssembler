@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.6.7**
+**Version 2.6.8**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -8,6 +8,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 
 ## Table of Contents
 
+- [Version 2.6.8 Highlights](#version-268-highlights)
 - [Version 2.6.7 Highlights](#version-267-highlights)
 - [Version 2.6.6 Highlights](#version-266-highlights)
 - [Version 2.6.5 Highlights](#version-265-highlights)
@@ -227,6 +228,15 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
   - [Number Converter](#number-converter)
 
 ---
+
+## Version 2.6.8 Highlights
+
+- **Toolkit in Expert and UB mode** — the *Toolkit* toolbar button shows the C64 palette and the PETSCII codes next to the editor: in Expert mode as a side panel beside Disassembly / Monitor, in UB mode in the right-hand pane (it takes turns with Disassembly and Monitor).
+- **Panels remembered** — the Monitor and Toolkit panels of Expert mode can be resized like the Disassembly; the panels you leave open (Palette, Disassembly, Monitor, Toolkit, Project) and their widths come back on the next start, whichever mode the app starts in — in UB mode too.
+- **VMA language** — a `.const` or `.var` in the zero page makes `lda zp` a zero-page instruction (`A5 FB`, as KickAssembler does; `lda.abs zp` keeps absolute); `JMP (label)` / `JMP (table+2)`; expressions such as `lda $1234+1` and `sta $0400+40*2,x`; a macro may call another macro; labels in the bytes of `.data` / `.rawbytes` (pointer tables); a `:name` label may point at a label.
+- **Includes** — an included file's own `.include`, `.incbin` and `.sid` lines are loaded (relative to its folder) and its macro calls are expanded; a missing include, or one that includes itself, is an error instead of an empty library.
+- **Safer builds** — errors instead of silently wrong code: an unresolved TURBO_SET / SPRITE_ANIM value, a MEMCPY / MEMSET / JOYSTICK size taken from a label defined later; the automatic buffer of a `.data` / `.rawbytes` macro argument takes its bytes. Programs using zero-page constants get shorter.
+- **Fixes** — a CRT larger than 8 KB (more than one bank) did not start: the loader now runs from RAM; an `.asm` name given in the Save dialog of a project saves the source text, not the VA JSON.
 
 ## Version 2.6.7 Highlights
 
@@ -634,6 +644,8 @@ The **Toolkit** tab in the ASM view is a read-only quick-reference panel — it 
 
 The Toolkit is the fastest way to look up a colour index or a PETSCII control byte without leaving the editor.
 
+In **Expert mode** and **UltimateBasic mode** the same Toolkit opens from the **Toolkit** toolbar button: in Expert mode as a side panel next to Disassembly / Monitor (drag the divider on its left to resize it), in UB mode in the right-hand pane, where it takes turns with Disassembly and Monitor. Whether it is open and its width are remembered.
+
 ### Compile info and output settings
 
 - **Compile info** (above the output) shows a summary of the compiled program: code start address, size and the BASIC SYS stub.
@@ -988,7 +1000,7 @@ The UB toolbar follows the same visual language and custom tooltips as Expert mo
 - autocomplete for commands and built-in functions;
 - a searchable **Commands** panel with syntax, description, and usage guidance — descriptions follow the current UI language (Hungarian, English, Spanish, German, Dutch, Polish, Italian), falling back to English for anything not yet translated;
 - independently toggleable **Project** and **Commands** panels, displayed side by side when both are enabled;
-- independently toggleable and resizable **Build Output** and **Disassembly** panels.
+- independently toggleable and resizable **Build Output** and **Disassembly** panels; **Disassembly**, **Monitor** and **Toolkit** share the right-hand pane (one at a time). Which one is open and the pane widths are remembered.
 
 The Disassembly panel includes a **Copy** button that copies its complete displayed source to the clipboard. Command help follows the bundled compiler: for example, `sprite_frame id, data_address [, frame]` selects an animation image from consecutive 64-byte sprite frames.
 
@@ -1105,7 +1117,7 @@ Expert Mode is a full-featured direct-text 6502 assembly editor that lives along
 |--------|----|----------|
 | **Format** | `#expert-format-btn` | Auto-format source (labels to col 0, 4-space indent, 1-space mnemonic/operand) |
 | **Load .asm** | `#expert-load-asm-btn` | Open a `.asm` file — the content is loaded into a **new tab** with the filename as the tab label. Each loaded file becomes an independent tab with its own program blocks and editor state. |
-| **Save .asm** | `#expert-save-asm-btn` | Save editor content to a `.asm` file (file dialog on first save) |
+| **Save .asm** | `#expert-save-asm-btn` | Save editor content to a `.asm` file (file dialog on first save). A source file always gets its text: Ctrl+S, **Menu → Save**, and a Save dialog given an `.asm`, `.s`, `.inc`, `.a`, `.a65` or `.lib` name never write the VA JSON into it |
 | **Build Info** | `#expert-build-info-btn` | Open the Build Info dialog: origin, end, size and segment count on top, then the segments, errors (`file:line` in a Kick project) and `.print` output, and the labels, constants and macros in columns |
 | **Autocomplete** | `#expert-autocomplete-btn` | Toggle expert autocomplete suggestions on/off. When disabled, no directive, mnemonic, or label popup appears in the expert editor. |
 | **Region selection** | `#expert-region-selection-btn` | Toggle the automatic region highlight in Expert mode. The fold state stays stored, but when this is off the editor keeps the full source visible and does not auto-select the current region. |
@@ -1115,12 +1127,15 @@ Expert Mode is a full-featured direct-text 6502 assembly editor that lives along
 | **Zoom out / in** | `#expert-zoom-out-btn` / `#expert-zoom-in-btn` | Decrease / increase the editor font size (8–28 px). `Ctrl` + mouse wheel (`Cmd` + wheel on macOS, or a touchpad pinch) over the editor does the same. The setting is persisted. |
 | **Palette** | `#expert-palette-btn` | Show/hide the left mnemonic palette |
 | **Disasm** | `#expert-disasm-btn` | Show/hide the disassembly panel (pure 6502, macros expanded) |
-| **Monitor** | `#expert-monitor-btn` | Show/hide the monitor hex-dump panel |
+| **Monitor** | `#expert-monitor-btn` | Show/hide the monitor hex-dump panel; drag the divider on its left to resize it |
+| **Toolkit** | `#expert-toolkit-btn` | Show/hide the [Toolkit](#toolkit-tab) side panel (C64 palette, PETSCII codes); resizable like the Monitor |
 | **Minimap** | `#expert-minimap-btn` | Show/hide the code minimap strip on the right side of the editor |
 | **Project panel** | `#expert-project-btn` | Show/hide the project panel (files, symbols, project settings) |
 | **Cycle counts** | `#expert-cycles-btn` | Show/hide the cycle gutter — see [Cycle counts](#cycle-counts) |
 | **Go to line / Bookmarks** | `#expert-goto-line-btn`, `#expert-bookmark-*` | Ctrl+G jumps to a line; Ctrl+F2 toggles a bookmark, F2 / Shift+F2 go to the next / previous one |
 | **Build ACME** | `#expert-acme-build-btn` | In ACME mode: build the source with ACME — see [ACME mode](#acme-mode) |
+
+The panels you leave open (Palette, Disasm, Monitor, Toolkit, Project) and their widths are restored on the next start, whichever mode the app starts in.
 
 Editor shortcuts: `Ctrl+/` (`Cmd+/` on macOS) comments the current line or every selected line; adding `Shift` removes the leading comment marker from those lines.
 Inline comments (for example `LDA $12 ; explanation`) remain on the instruction line when switching between Expert and Block mode. Block mode shows them as a green italic `; comment` marker in the block header; hovering the marker reveals the full text when it is truncated.
@@ -1280,6 +1295,14 @@ Each 6502 instruction supports one or more addressing modes. The mode selector a
 | **indirectY** | Indirect,Y | `LDA ($FB),Y` | Zero page indirect indexed (operand = zero page address, 1 byte) |
 | **indirect** | Indirect | `JMP ($0100)` | Indirect; only usable with JMP |
 
+### Constants in the zero page
+
+An operand made of constants only (`.const`, `name = value`, a `.var`) that fits in a byte takes the instruction's
+**zero-page** mode, exactly as the number would: after `.const zp = $FB`, `lda zp` assembles to `A5 FB` (2 bytes,
+3 cycles) and `lda zp,x` to `B5 FB`. A mode the instruction has no zero-page form of stays absolute (`lda zp,y` →
+`B9 FB 00`). A label is not narrowed — its address is known only after the layout — and `lda.abs zp` forces the
+absolute mode. A number keeps the width it is written with: `$FB` is zero page, `$00FB` absolute. *(New in 2.1.)*
+
 ### Label expressions as operands
 
 Any operand field that accepts an address or immediate value also accepts a **constant name** (from a `CONST` block or a `LABEL`) directly. Additionally, you can use **label+offset** or **label−offset** expressions to reference an address relative to a named constant:
@@ -1290,6 +1313,8 @@ Any operand field that accepts an address or immediate value also accepts a **co
 | `label+$hex` | `STA screen_ram+$0100,X` | Label address plus a hex offset |
 | `label+decimal` | `STA screen_ram+256,X` | Label address plus a decimal offset |
 | `label-$hex` | `LDA table-$10` | Label address minus a hex offset |
+| `$hex+expr` | `LDA $1234+1`, `STA $0400+40*2,X` | Any expression of numbers, labels and constants *(2.1)* |
+| `(label)` | `JMP (vector)`, `JMP (table+2)` | Indirect jump through a label or an expression *(2.1)* |
 | `#<label` | `LDA #<screen_ram` | Low byte of the label address |
 | `#>label` | `LDA #>screen_ram` | High byte of the label address |
 | `*` | `BNE *` | Current program counter (the instruction's own address); branches with `*` generate an infinite self-loop (offset `$FE`) |
@@ -1779,6 +1804,8 @@ Like a **POKE loop** — writes a list of raw bytes to a memory address at runti
 
 **Size:** `byte_count × 5` bytes (one LDA + one STA per byte).
 
+> **2.1:** the bytes may name labels: `.data $2010, <target, >target` writes the address of `target`, also of a label defined later. The `:name` label of the macro may point at a target address that is itself a label.
+
 ---
 
 ### RAWBYTES
@@ -1801,6 +1828,8 @@ Like **DATA that loads directly into memory** — no runtime code at all. The by
 **Size in code:** 0 bytes. The data is placed at the given address in the output.
 
 > **DATA vs RAWBYTES:** DATA generates LDA/STA code that copies bytes at runtime (slower, but works if the data needs to be dynamic). RAWBYTES just places the bytes directly — no code, instant, zero cost.
+
+> **2.1:** the bytes may name labels (`.rawbytes $2000, <target, >target` — a pointer table); the `:name` label may point at a label as the target address, also one defined later. As a macro's buffer argument, the bytes take their own space in the buffers after the program.
 
 ---
 
@@ -2310,6 +2339,8 @@ Two file kinds are supported:
 
 > **Tip:** Use INCLUDE to build reusable subroutine libraries that you can share across projects. `.inc`/`.asm`/`.s` files are best when you want to edit the library in a plain text editor or share it with other 6502 assemblers; `.json` when the library is authored in Visual Assembler itself. Set a load address when the library has no ORG of its own, or when you want to override its default placement.
 
+> **2.1:** an include that is not found is an error, and so is a file that includes itself (directly or further down). An included file's own `.include`, `.incbin` and `.sid` lines are loaded too, relative to its own folder, and its macro calls are expanded — up to 16 levels deep.
+
 ---
 
 ### TABLE
@@ -2645,6 +2676,8 @@ The macro body is expanded inline with `{paramName}` replaced by the actual argu
 - **Mixed**: `#$07, "hello", $20` — any combination
 
 > **Tip:** Define macros at the top (or bottom) of your program, then INVOKE them wherever needed. Macros can be invoked multiple times with different arguments.
+
+> **2.1:** a macro may call another macro (`both(a, b)` calling `setc(a)`); the inner call gets the outer call's arguments and its own unique local labels. A macro that calls itself stops with an error after 16 levels instead of hanging.
 
 ---
 
@@ -3014,6 +3047,8 @@ Like **small memory routines you reach for constantly** — `MEMCPY` copies a co
 
 Sizes up to 256 bytes use a short 8-bit loop. Larger sizes switch to a 16-bit counter automatically.
 
+> **2.1:** the size must be known when the code is laid out — a number or a constant. A label defined later (whose value the layout does not know yet) is an error instead of code that does not fit its place.
+
 ---
 
 ### PRINT / PRINT_CHAR / PRINT_HEX / CLEAR_SCREEN / WAIT_KEY / DELAY / SET_BORDER / SET_BG
@@ -3303,6 +3338,8 @@ skip_right:
 ---
 
 <a id="mouse"></a>
+
+> **2.1:** the port must be known when the code is laid out (a number or a constant), because port 3 makes the code 3 bytes longer; a label defined later is an error.
 ### MOUSE
 
 Reads a Commodore 1351 proportional mouse and moves a sprite. Entirely **inline** — no JSR or label needed. The macro selects the CIA port, waits for the SID paddle inputs to settle, then decodes the delta movement using the standard 1351 driver pattern and applies it to the sprite registers.
@@ -4128,7 +4165,7 @@ The directory listing renders filenames in the same font and uppercase style as 
 - **Bank 0** contains a 128-byte header + boot loader:
   - `$8000/$8002` cold + warm start vectors point at `$8009`.
   - `$8004–$8008` = the `CBM80` signature required by the KERNAL reset code.
-  - `$8009–$807F` = the loader: SEI / stack init / `JSR $FDA3` (IOINIT) / `JSR $FD50` (RAMTAS) / `JSR $FD15` (RESTOR) / `JSR $FF5B` (CINT), then a byte-copy loop that streams the payload from cart ROM into RAM and switches banks when `$FC` reaches `$A0`. At the end it copies a tiny **exit stub** to `$0100`, disables the cart with `LDA #$80 : STA $DE00`, and `JMP`s to the entry point.
+  - `$8009–$807F` = the loader: SEI / stack init / `JSR $FDA3` (IOINIT) / `JSR $FD50` (RAMTAS) / `JSR $FD15` (RESTOR) / `JSR $FF5B` (CINT), then it copies the 60-byte **copy routine** (`$8044–$807F`) to `$0100` and jumps there. Running from RAM, the routine streams the payload from cart ROM to its load address, switches banks through `$DE00` when `$FC` reaches `$A0`, disables the cart with `LDA #$80 : STA $DE00`, and `JMP`s to the entry point. (It must run from RAM: a bank switch replaces the ROM under `$8000`, the loader’s own code included.)
 - **Payload** starts at `$8080` in bank 0 and spills into banks 1–7 as needed. Maximum payload = `8 * 8192 − 128 = 65 408 bytes`.
 
 ### Load address and entry point
@@ -4152,7 +4189,7 @@ Because the payload is stored linearly — one flat image from the lowest to the
 > - **Any IRQ / NMI / BRK hooks set before the CRT boots are wiped.** Your program must install them itself after entry — exactly like a fresh `LOAD "",8,1 : RUN` from tape/disk.
 > - **UltimateBasic programs** that rely on non-default KERNAL vectors being live at entry may need an explicit `SYS` or init call in the autostart stub. The standard UB autostart works out of the box; extension libraries that hook vectors *before* `RUN` do not.
 > - **CIA1 / CIA2** are re-initialised by `IOINIT`. Custom timer setups (raster IRQs, music player CIA-A) must be reprogrammed after entry.
-> - The cart is disabled from an 8-byte stub in **RAM at `$0100`** so that the `STA $DE00` cannot be interrupted by a bad ROM fetch. Do not rely on `$0100–$0107` containing the stack top image on entry — the first RAM push overwrites the stub.
+> - The copy routine runs from **RAM at `$0100–$013B`**, so the bank switches and the final `STA $DE00` never pull the code from under the CPU. Do not rely on `$0100–$013B` on entry, and keep the payload out of that range and out of the zero page bytes `$02–$04` / `$FB–$FE` the loader uses.
 >
 > If a CRT runs in VICE but fails on real hardware, the first thing to check is whether the program assumes a specific KERNAL vector or CIA timer state at entry. Install the state explicitly in your init routine and it will behave the same on both.
 
@@ -4182,6 +4219,8 @@ Open via **Menu → Settings…** (formerly *Hardware Settings*). The dialog has
 - **Rust + JavaScript check** — builds with JavaScript and with Rust, uses the JavaScript result and logs any difference (bytes, memory view, errors) to the error log, which the bug report sends along.
 
 The compiling dialog names the engine in use. The VMA version is shown in the About box.
+
+The same compiler runs on the command line (VMA 2.1.0): `vma build game.asm` writes `game.prg`, `--crt game.crt` a Magic Desk cartridge (the same bytes as **Build CRT**), and `--d64` a 1541 disk image with the program (`--add` puts further files on it) — no c1541 needed. See the manual in the [VMA repository](https://github.com/zstarczali/VMA).
 
 ### VICE Emulator
 
