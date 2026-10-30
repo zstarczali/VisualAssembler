@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.6.9**
+**Version 2.7.0**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -8,6 +8,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 
 ## Table of Contents
 
+- [Version 2.7.0 Highlights](#version-270-highlights)
 - [Version 2.6.9 Highlights](#version-269-highlights)
 - [Version 2.6.8 Highlights](#version-268-highlights)
 - [Version 2.6.7 Highlights](#version-267-highlights)
@@ -193,6 +194,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
   - [Breakpoint Blocks](#breakpoint-blocks)
   - [Debugger flags](#debugger-flags)
   - [VICE Monitor (hot reload, live watch, profiler)](#vice-monitor-hot-reload-live-watch-profiler)
+  - [Built-in C64 and debugger](#built-in-c64-and-debugger)
 - [11. Knowledge Base Links](#11-knowledge-base-links)
 - [12. D64 Export & Run](#12-d64-export--run)
   - [Split Run button](#split-run-button)
@@ -229,6 +231,14 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
   - [Number Converter](#number-converter)
 
 ---
+
+## Version 2.7.0 Highlights
+
+- **Built-in C64** — VICE 3.10 (x64sc, compiled to WebAssembly) now runs inside the app, nothing to install. Choose **Built-in C64** in the Run menu, or open it with its toolbar button. See [Built-in C64 and debugger](#built-in-c64-and-debugger).
+- **Debugger** — it stops before the instruction at a breakpoint; **Continue**, **Break**, **Step into / over / out**; editable registers and flags, disassembly around PC, memory view and breakpoint list. Breakpoints come from the editor, from Block mode and from the disassembly, and the editor follows the CPU. The **Debug** button uses it in this mode, and whenever no RetroDebugger is set.
+- **Machine settings** — PAL or NTSC, SID 6581 or 8580, reSID or FastSID, REU up to 16 MB, joystick port, warp and sound.
+- **Your own files** — the **Files** menu loads a PRG and attaches a D64 or a cartridge (`.crt`). The status bar shows the drive LED and track, and a blinking LED shows as a drive error, for example when a file cannot be found.
+- **Display** — a CRT filter with scanlines, full screen and a resizable window. The window and its settings come back on the next start.
 
 ## Version 2.6.9 Highlights
 
@@ -714,7 +724,7 @@ The line under the bar names the step that is running, with the file — for exa
 | **Build D64** (`Menu → Build`) | Package the program and extra files into a `.d64` disk image — see [Export to D64 dialog](#export-to-d64-dialog) |
 | **Build CRT** | Export the program as a 64K Magic Desk (`.crt`, cartridge type 19) file. See [Section 12b](#12b-crt-export-magic-desk-64k-cartridge). |
 | **Build project** (`Menu → Build`) | Compile every buildable file of the project (or of the open tabs) to a `.prg` next to its source — see [Build project](#build-project) |
-| **Run (split button)** | The main **▶ Run** button runs the current mode; click the **▾** arrow to switch between: **Run as PRG** (compile and launch VICE directly), **Run via D64** (package into a .d64 disk image and launch VICE), **Run on hardware** (send PRG to a C64 Ultimate / 1541 Ultimate device), **D64 on hardware** (send a D64 to the same device), or **Kung Fu Flash 2** (upload the PRG over USB to a real C64/C128 with a Kung Fu Flash 2 cartridge). See [Section 12](#12-d64-export--run) and [Section 13](#13-settings). |
+| **Run (split button)** | The main **▶ Run** button runs the current mode; click the **▾** arrow to switch between: **Run as PRG** (compile and launch VICE directly), **Run via D64** (package into a .d64 disk image and launch VICE), **Run on hardware** (send PRG to a C64 Ultimate / 1541 Ultimate device), **D64 on hardware** (send a D64 to the same device), or **Kung Fu Flash 2** (upload the PRG over USB to a real C64/C128 with a Kung Fu Flash 2 cartridge). See [Section 12](#12-d64-export--run) and [Section 13](#13-settings). **Built-in C64** runs the program on the C64 inside the app, see [Built-in C64 and debugger](#built-in-c64-and-debugger). |
 | **Debug (RetroDebugger)** | Compile and launch in RetroDebugger with breakpoints, symbols, and autostart flags (see [Section 10](#10-debugger-integration)) |
 | **Run with Exomizer** | Checkbox in **Settings → General → Program** — when enabled, all Run and Build operations crunch the PRG through `exomizer sfx` before launching or saving (`sfx basic` for a PRG that starts with a BASIC line, so RUN works again after the program returns; `sfx $<load address>` otherwise). Works with Run as PRG, Run via D64, Run on Hardware, Build PRG, and Build D64. Configure the Exomizer executable in **Settings → Files and paths** first. |
 | **Automatic autosave entries** | Checkbox in **Settings → General → Version control**. When enabled, the app adds an autosave entry to the version history about 2.5 seconds after you stop editing a tab (for a tab of a project also to the project history). Turn it off if you only want your own commits. See [Version control](#version-control). |
@@ -4084,6 +4094,62 @@ Quick reference links available in the app under **Knowledge Base**:
 | Restore64 Disassembler (C64 PRG → KickAssembler / ACME source) | https://restore64.dev/ |
 
 ---
+
+### Built-in C64 and debugger
+
+The app contains a complete C64: VICE 3.10 (x64sc) compiled to WebAssembly. It needs no installation and no settings, and it works without an external VICE.
+
+**Starting a program:** choose **Built-in C64** in the split **Run** menu, then press **Run**. The program is built, the machine gets a hard reset and the program starts: `RUN` for a program with a BASIC line at `$0801`, otherwise `SYS` with its load address. The toolbar button opens the window without running anything; the first button of its toolbar builds and runs again.
+
+**The keyboard** goes to the C64 while the screen has the focus (click it). **Tab** is CTRL, **Alt** is the Commodore key, and you can paste text with Ctrl+V. With a **Joystick** port selected the arrow keys and Space or right Ctrl are the joystick.
+
+**The Files menu**
+
+| Item | What it does |
+|---|---|
+| **Load PRG…** | Starts a `.prg` with autostart |
+| **Attach D64…** | Attaches the image to drive 8, resets, then `LOAD"*",8,1` and `RUN` |
+| **Attach cartridge…** | Attaches a `.crt` and resets |
+| **Detach disk / Detach cartridge** | Removes the image; detaching a cartridge also resets |
+
+The status bar shows what is attached and the LED of drive 8 with the track of the head. The LED stays lit during a load. A blinking LED means the drive reports an error, such as a file it cannot find or read: the LED turns red and the status bar says **Drive error** until the drive clears it. Attached files are not remembered. Running your own program from the editor removes an attached cartridge first, otherwise the cartridge would start instead.
+
+**Machine settings** on the toolbar:
+
+| Setting | Values | Note |
+|---|---|---|
+| **Video** | PAL, NTSC | Hard reset |
+| **SID chip** | 6581, 8580 | Applies at once |
+| **SID engine** | reSID, FastSID | Applies at once. The VA SID Core is not available here: this machine uses the SID engines of VICE |
+| **REU** | Off, 128 KB – 16 MB | Hard reset |
+| **Joystick** | —, Port 1, Port 2 | |
+
+The toolbar also has **Reset**, **Pause**, **Warp**, **Sound**, **CRT filter** and **Full screen**. The CRT filter uses the CRT emulation of VICE, smooth scaling and scanlines; the scanlines appear once a C64 line is at least 3 pixels high. Full screen also starts with a double click on the screen, and Esc or another double click leaves it. The window can be moved by its header and resized at its bottom right corner. Its place, size, open state and settings come back on the next start.
+
+**Debugging:** press **Debug** while the run mode is **Built-in C64**. The Debug button also uses this debugger whenever no RetroDebugger is set. It works with VMA, Kick projects, ACME and Ultimate Basic alike. The program stops at the first breakpoint it reaches, or at its first instruction if there are no breakpoints.
+
+The CPU stops **before** the instruction at the breakpoint, so the registers and memory show the state just before it runs.
+
+| Button | Key | What it does |
+|---|---|---|
+| **Continue** | F5 | Runs to the next breakpoint |
+| **Break** | F5 while running | Stops a running program |
+| **Step into** | F11 | Runs one instruction |
+| **Step over** | F10 | Runs a JSR to its return |
+| **Step out** | Shift+F11 | Runs to the instruction after the RTS / RTI of the routine |
+
+The keys work while the focus is in the window but not on the C64 screen, because F5 is also a C64 key there.
+
+The **Debugger panel** shows:
+
+- **Registers:** PC, A, X, Y and SP are editable hex fields, and the flags are buttons. Changes take effect when the CPU goes on.
+- **Disassembly** around PC, with the labels of your program. Click the dot at the start of a line to set or remove a breakpoint.
+- **Memory:** type an address as `$hex`, a decimal number or a label. Reading has no side effects, so looking at `$DC0D` does not acknowledge an interrupt.
+- **Breakpoints:** the address and the `file:line` of each one.
+
+Breakpoints come from the line gutter of the editor (every open tab of the build), from Block-mode breakpoints and from the disassembly. A change in the editor counts at the next Continue or step. When the CPU stops, the editor opens the file and marks the line; in Block mode the block is selected.
+
+The **VICE Monitor** window keeps working with an external VICE only; it does not connect to this machine.
 
 ## 12. D64 Export & Run
 

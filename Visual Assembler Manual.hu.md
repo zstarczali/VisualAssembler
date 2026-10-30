@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**Verzió: 2.6.9**
+**Verzió: 2.7.0**
 
 Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasításblokkok fogd-és-vidd módszerrel történő elrendezésével építed fel, a generált assembly és gépi kód pedig valós időben frissül.
 
@@ -10,6 +10,7 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 
 ## Tartalomjegyzék
 
+- [A 2.7.0 verzió újdonságai](#a-270-verzió-újdonságai)
 - [A 2.6.9 verzió újdonságai](#a-269-verzió-újdonságai)
 - [A 2.6.8 verzió újdonságai](#a-268-verzió-újdonságai)
 - [A 2.6.7 verzió újdonságai](#a-267-verzió-újdonságai)
@@ -195,6 +196,7 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
   - [Breakpoint blokkok](#breakpoint-blokkok)
   - [Debugger flag-ek](#debugger-flag-ek)
   - [VICE Monitor (hot reload, élő változók, profiler)](#vice-monitor-hot-reload-élő-változók-profiler)
+  - [Beépített C64 és debugger](#beépített-c64-és-debugger)
 - [11. Tudásbázis linkek](#11-tudásbázis-linkek)
 - [12. D64 export és futtatás](#12-d64-export-és-futtatás)
   - [Osztott Run gomb](#osztott-run-gomb)
@@ -231,6 +233,14 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
   - [Számrendszer-átváltó](#számrendszer-átváltó)
 
 ---
+
+## A 2.7.0 verzió újdonságai
+
+- **Beépített C64** — a VICE 3.10 (x64sc, WebAssembly-re fordítva) mostantól az appon belül fut, nem kell telepíteni. Válaszd a **Beépített C64** pontot a Run menüben, vagy nyisd meg az eszköztár gombjával. Lásd: [Beépített C64 és debugger](#beépített-c64-és-debugger).
+- **Debugger** — a töréspontnál az utasítás előtt áll meg; **Folytatás**, **Megállítás**, **Lépés be / át / ki**; szerkeszthető regiszterek és flagek, disassembly a PC körül, memórianézet és töréspontlista. A töréspontok a szerkesztőből, Block módból és a disassemblyből jönnek, a szerkesztő követi a CPU-t. A **Debug** gomb ebben a módban ezt használja, és akkor is, ha nincs beállítva RetroDebugger.
+- **Gép beállításai** — PAL vagy NTSC, SID 6581 vagy 8580, reSID vagy FastSID, REU 16 MB-ig, joystick port, warp és hang.
+- **Saját fájlok** — a **Files** menü PRG-t tölt be, D64-et és cartridge-et (`.crt`) csatol. A státuszsor mutatja a meghajtó LED-jét és a tracket, a villogó LED lemezhibaként jelenik meg, például ha egy fájl nem található.
+- **Kép** — CRT szűrő scanline-okkal, teljes képernyő és átméretezhető ablak. Az ablak és a beállításai a következő indításkor visszatérnek.
 
 ## A 2.6.9 verzió újdonságai
 
@@ -708,7 +718,7 @@ A sáv alatti sor az éppen futó lépést mutatja a fájllal — például *Kic
 | **Build D64** (`Menu → Build`) | A program és az extra fájlok `.d64` lemezképbe csomagolása — lásd: [Export to D64 dialógus](#export-to-d64-dialógus) |
 | **Build CRT** | A program exportja 64K Magic Desk (`.crt`, cartridge type 19) fájlként. Lásd a [12b. szakaszt](#12b-crt-export-magic-desk-64k-cartridge). |
 | **Build projekt** (`Menu → Build`) | A projekt (vagy a nyitott fülek) minden fordítható fájlját a forrás mellé fordítja `.prg`-be — lásd: [Build projekt](#build-projekt) |
-| **Run (osztott gomb)** | A fő **▶ Run** gomb az aktuális módot futtatja; a **▾** nyíllal válthatsz: **Run as PRG** (fordítás és VICE közvetlen indítása), **Run via D64** (.d64 lemezképbe csomagolás és VICE indítása), **Run on hardware** (PRG küldése egy C64 Ultimate / 1541 Ultimate eszközre), **D64 on hardware** (D64 küldése ugyanoda), vagy **Kung Fu Flash 2** (a PRG feltöltése USB-n egy Kung Fu Flash 2 cartridge-dzsel felszerelt valódi C64/C128-ra). Lásd a [12.](#12-d64-export-és-futtatás) és [13. szakaszt](#13-beállítások). |
+| **Run (osztott gomb)** | A fő **▶ Run** gomb az aktuális módot futtatja; a **▾** nyíllal válthatsz: **Run as PRG** (fordítás és VICE közvetlen indítása), **Run via D64** (.d64 lemezképbe csomagolás és VICE indítása), **Run on hardware** (PRG küldése egy C64 Ultimate / 1541 Ultimate eszközre), **D64 on hardware** (D64 küldése ugyanoda), vagy **Kung Fu Flash 2** (a PRG feltöltése USB-n egy Kung Fu Flash 2 cartridge-dzsel felszerelt valódi C64/C128-ra). Lásd a [12.](#12-d64-export-és-futtatás) és [13. szakaszt](#13-beállítások). A **Beépített C64** az appon belüli C64-en futtatja a programot, lásd: [Beépített C64 és debugger](#beépített-c64-és-debugger). |
 | **Debug (RetroDebugger)** | Fordítás és indítás RetroDebuggerben breakpointokkal, szimbólumokkal és autostart flag-ekkel (lásd a [10. szakaszt](#10-debugger-integráció)) |
 | **Run with Exomizer** | Jelölőnégyzet a **Beállítások → Általános → Program** alatt — bekapcsolva minden Run és Build művelet `exomizer sfx`-szel tömöríti a PRG-t indítás vagy mentés előtt (BASIC sorral kezdődő PRG-nél `sfx basic`, így a program visszatérése után a RUN újra működik; egyébként `sfx $<betöltési cím>`). Működik a Run as PRG, Run via D64, Run on Hardware, Build PRG és Build D64 műveletekkel. Először állítsd be az Exomizer futtathatót a **Beállítások → Fájlok és útvonalak** alatt. |
 | **Automatikus mentések a verziókezelésbe** | Jelölőnégyzet a **Beállítások → Általános → Verziókezelés** alatt. Bekapcsolva az app kb. 2,5 másodperccel azután, hogy abbahagytad egy fül szerkesztését, automatikus mentést tesz a verziótörténetbe (projekthez tartozó fülnél a projekt történetébe is). Kapcsold ki, ha csak a saját commitjaidat szeretnéd. Lásd: [Verziókezelés](#verziókezelés). |
@@ -4073,6 +4083,62 @@ Gyorsreferencia linkek az appban a **Knowledge Base** alatt:
 | Restore64 visszafejtő (C64 PRG → KickAssembler / ACME forrás) | https://restore64.dev/ |
 
 ---
+
+### Beépített C64 és debugger
+
+Az app egy teljes C64-et tartalmaz: a VICE 3.10-et (x64sc) WebAssembly-re fordítva. Nem kell telepíteni vagy beállítani, és külső VICE nélkül is működik.
+
+**Program indítása:** válaszd a **Beépített C64** pontot az osztott **Run** menüben, majd nyomd meg a **Run** gombot. A program lefordul, a gép hard resetet kap, és a program elindul: `$0801`-es BASIC sorral `RUN`, egyébként `SYS` a betöltési címre. Az eszköztár gombja futtatás nélkül nyitja meg az ablakot; az ablak eszköztárának első gombja újrafordít és újraindít.
+
+**A billentyűzet** a C64-é, amíg a képernyőn van a fókusz (kattints rá). A **Tab** a CTRL, az **Alt** a Commodore billentyű, és Ctrl+V-vel szöveget illeszthetsz be. Kiválasztott **Joystick** port mellett a nyilak és a Szóköz vagy a jobb Ctrl a joystick.
+
+**A Files menü**
+
+| Menüpont | Mit csinál |
+|---|---|
+| **PRG betöltése…** | Autostarttal elindít egy `.prg`-t |
+| **D64 csatolása…** | A 8-as meghajtóra csatolja a képet, resetel, majd `LOAD"*",8,1` és `RUN` |
+| **Cartridge csatolása…** | Csatol egy `.crt`-t és resetel |
+| **Lemez / Cartridge leválasztása** | Leveszi a képet; a cartridge leválasztása resetel is |
+
+A státuszsor mutatja, mi van csatolva, valamint a 8-as meghajtó LED-jét és a fej trackjét. Betöltés közben a LED folyamatosan ég. A villogó LED azt jelenti, hogy a meghajtó hibát jelez, például nem talál vagy nem tud olvasni egy fájlt: a LED piros lesz, és a státuszsorban **Lemezhiba** látszik, amíg a meghajtó nem törli a hibát. A csatolt fájlokat nem jegyzi meg. A saját programod indítása a szerkesztőből előbb leveszi a csatolt cartridge-et, különben a cartridge indulna helyette.
+
+**A gép beállításai** az eszköztáron:
+
+| Beállítás | Értékek | Megjegyzés |
+|---|---|---|
+| **Videó** | PAL, NTSC | Hard reset |
+| **SID chip** | 6581, 8580 | Azonnal érvényes |
+| **SID motor** | reSID, FastSID | Azonnal érvényes. A VA SID Core itt nem érhető el: ez a gép a VICE SID-motorjait használja |
+| **REU** | Ki, 128 KB – 16 MB | Hard reset |
+| **Joystick** | —, Port 1, Port 2 | |
+
+Az eszköztáron van még **Reset**, **Szünet**, **Gyorsítás (warp)**, **Hang**, **CRT szűrő** és **Teljes képernyő**. A CRT szűrő a VICE CRT-emulációját, sima nagyítást és scanline-okat ad; a scanline-ok akkor jelennek meg, ha egy C64-sor legalább 3 képpont magas. A teljes képernyő a képernyőre duplán kattintva is indul, Esc-kel vagy újabb dupla kattintással lehet kilépni. Az ablak a fejlécénél mozgatható, a jobb alsó sarkánál méretezhető. A helye, mérete, nyitott állapota és a beállításai a következő indításkor visszatérnek.
+
+**Hibakeresés:** nyomd meg a **Debug** gombot, miközben a futtatási mód **Beépített C64**. A Debug gomb akkor is ezt a debuggert használja, ha nincs beállítva RetroDebugger. VMA-val, Kick projekttel, ACME-vel és Ultimate Basic-kel egyaránt működik. A program az első elért töréspontnál áll meg, töréspont nélkül az első utasításánál.
+
+A CPU a töréspont utasítása **előtt** áll meg, így a regiszterek és a memória a lefutása előtti állapotot mutatják.
+
+| Gomb | Billentyű | Mit csinál |
+|---|---|---|
+| **Folytatás** | F5 | Fut a következő töréspontig |
+| **Megállítás** | F5 futás közben | Megállítja a futó programot |
+| **Lépés be** | F11 | Egy utasítást futtat |
+| **Lépés át** | F10 | A JSR-t a visszatérésig futtatja |
+| **Lépés ki** | Shift+F11 | Fut a rutin RTS / RTI-je utáni utasításig |
+
+A billentyűk akkor működnek, ha a fókusz az ablakban van, de nem a C64 képernyőjén, mert ott az F5 C64-billentyű.
+
+A **Debugger panel** tartalma:
+
+- **Regiszterek:** a PC, A, X, Y és SP szerkeszthető hex mezők, a flagek gombok. A módosítás a CPU továbbfutásakor érvényes.
+- **Disassembly** a PC körül, a programod címkéivel. A sor elején lévő pontra kattintva tehetsz vagy vehetsz le töréspontot.
+- **Memória:** a címet `$hex`, decimális szám vagy címke alakban add meg. Az olvasásnak nincs mellékhatása, így a `$DC0D` megnézése nem nyugtáz megszakítást.
+- **Töréspontok:** mindegyik címe és `fájl:sor` helye.
+
+A töréspontok a szerkesztő sorszám-gutteréből (a build minden nyitott füle), a Block módú töréspontokból és a disassemblyből jönnek. A szerkesztőbeli változás a következő Folytatásnál vagy lépésnél számít. Megálláskor a szerkesztő megnyitja a fájlt és jelöli a sort, Block módban a blokkot jelöli ki.
+
+A **VICE Monitor** ablak továbbra is csak külső VICE-szal működik, ehhez a géphez nem kapcsolódik.
 
 ## 12. D64 export és futtatás
 

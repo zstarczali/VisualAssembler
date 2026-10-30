@@ -77,54 +77,54 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "git-269",
+  id: "web64-270",
   url: "https://www.c64va.pro/docs.html",
   hu: {
-    eyebrow: "Újdonság a 2.6.9-ben",
+    eyebrow: "Újdonság a 2.7.0-ban",
     title: "Üdvözöl a Visual Assembler",
-    body: `<ul><li><strong>Git ágak</strong>: a Verziókezelés ablakban ágat váltasz, újat hozol létre, átnevezel, törölsz és beolvasztasz (merge); ütközésnél a fájlok listája és <em>Merge megszakítása</em>.</li><li><strong>Fájlonként és stash</strong>: stage / unstage / elvetés fájlonként, kattintásra diff; a <em>Stash</em> félreteszi a változásokat, a listából visszahozható.</li><li><strong>Szebb diff</strong>: fájlonkénti kártya, régi és új sorszám, szintaxisszínezés, a sor megváltozott része kiemelve; kétoldali nézet.</li><li><strong>A Változások elvetése tényleg elvet</strong>: megerősítés után a lemezen is visszaáll a HEAD-re, utána ágat válthatsz.</li><li><strong>Kick projektek</strong>: ciklusszám, hibák és tippek az indítófájl által nem importált fájlokban is; <code>.pseudopc</code>-beli előre mutató ág és <code>charAt(i) == '1'</code> javítva.</li><li>Javítva: a <em>Save project</em> a megnyitott projektet a helyére menti; a Verziókezelés ablak nem nyúlik túl magasra.</li></ul><p>Kérdés, ötlet vagy hiba: <strong>Menu → Támogatás</strong>.</p>`,
+    body: `<ul><li><strong>Beépített C64</strong>: a VICE 3.10 mostantól az appon belül fut, nem kell telepíteni. Run menü → <em>Beépített C64</em>, vagy az eszköztár gombja.</li><li><strong>Debugger</strong>: töréspont, lépés be / át / ki, szerkeszthető regiszterek, disassembly, memória; a szerkesztő követi a CPU-t.</li><li><strong>Gép</strong>: PAL / NTSC, SID 6581 / 8580, reSID / FastSID, REU 16 MB-ig, joystick, warp.</li><li><strong>Fájlok</strong>: PRG, D64 és cartridge betöltése.</li><li><strong>Kép</strong>: CRT szűrő, teljes képernyő, átméretezhető ablak; a beállításokat megjegyzi.</li></ul><p>Kérdés, ötlet vagy hiba: <strong>Menu → Támogatás</strong>.</p>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
-    eyebrow: "New in 2.6.9",
+    eyebrow: "New in 2.7.0",
     title: "Welcome to Visual Assembler",
-    body: `<ul><li><strong>Git branches</strong>: the Version control window switches, creates, renames, deletes and merges branches; a merge conflict lists the files and offers <em>Abort merge</em>.</li><li><strong>File by file and stash</strong>: stage / unstage / discard each file, open its diff with a click; <em>Stash</em> puts the changes aside, the list brings them back.</li><li><strong>A better diff</strong>: a card per file, old and new line numbers, syntax colours, the changed part of a line highlighted; side-by-side view.</li><li><strong>Discard changes really discards</strong>: after a confirmation the files on disk go back to HEAD too, so you can switch branches.</li><li><strong>Kick projects</strong>: cycle counts, errors and hints in files the startup file does not import; a forward branch in <code>.pseudopc</code> and <code>charAt(i) == '1'</code> fixed.</li><li>Fixed: <em>Save project</em> saves an opened project in place; the Version control window no longer grows too tall.</li></ul><p>Questions, ideas or bugs: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Built-in C64</strong>: VICE 3.10 now runs inside the app, nothing to install. Run menu → <em>Built-in C64</em>, or its toolbar button.</li><li><strong>Debugger</strong>: breakpoints, step into / over / out, editable registers, disassembly, memory; the editor follows the CPU.</li><li><strong>Machine</strong>: PAL / NTSC, SID 6581 / 8580, reSID / FastSID, REU up to 16 MB, joystick, warp.</li><li><strong>Files</strong>: load a PRG, a D64 or a cartridge.</li><li><strong>Display</strong>: CRT filter, full screen, resizable window; your settings are remembered.</li></ul><p>Questions, ideas or bugs: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
-    eyebrow: "Novedad en la 2.6.9",
+    eyebrow: "Novedad en la 2.7.0",
     title: "Bienvenido a Visual Assembler",
-    body: `<ul><li><strong>Ramas Git</strong>: la ventana de control de versiones cambia, crea, renombra, elimina y fusiona ramas; un conflicto de merge lista los archivos y ofrece <em>Abort merge</em>.</li><li><strong>Archivo por archivo y stash</strong>: stage / unstage / descartar cada archivo, abrir su diff con un clic; <em>Stash</em> aparta los cambios y la lista los recupera.</li><li><strong>Un diff mejor</strong>: una tarjeta por archivo, números de línea antiguos y nuevos, colores de sintaxis, la parte cambiada de la línea resaltada; vista lado a lado.</li><li><strong>Descartar cambios descarta de verdad</strong>: tras confirmar, los archivos del disco vuelven también a HEAD y puedes cambiar de rama.</li><li><strong>Proyectos Kick</strong>: ciclos, errores y consejos también en archivos que el archivo de inicio no importa; corregidos el salto hacia delante en <code>.pseudopc</code> y <code>charAt(i) == '1'</code>.</li><li>Corregido: <em>Save project</em> guarda en su sitio el proyecto abierto; la ventana de control de versiones ya no crece demasiado.</li></ul><p>Preguntas, ideas o errores: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>C64 integrado</strong>: VICE 3.10 ahora funciona dentro de la aplicación, sin instalar nada. Menú Run → <em>C64 integrado</em>, o su botón de la barra.</li><li><strong>Depurador</strong>: puntos de interrupción, paso a paso, registros editables, desensamblado, memoria; el editor sigue a la CPU.</li><li><strong>Máquina</strong>: PAL / NTSC, SID 6581 / 8580, reSID / FastSID, REU hasta 16 MB, joystick, warp.</li><li><strong>Archivos</strong>: carga PRG, D64 o cartuchos.</li><li><strong>Imagen</strong>: filtro CRT, pantalla completa, ventana redimensionable; recuerda tus ajustes.</li></ul><p>Preguntas, ideas o errores: <strong>Menu → Support</strong>.</p>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
-    eyebrow: "Neu in 2.6.9",
+    eyebrow: "Neu in 2.7.0",
     title: "Willkommen bei Visual Assembler",
-    body: `<ul><li><strong>Git-Branches</strong>: das Versionsverwaltungsfenster wechselt, erstellt, benennt um, löscht und mergt Branches; ein Merge-Konflikt listet die Dateien und bietet <em>Abort merge</em>.</li><li><strong>Dateiweise und Stash</strong>: jede Datei stagen / unstagen / verwerfen, ihr Diff per Klick öffnen; <em>Stash</em> legt Änderungen beiseite, die Liste holt sie zurück.</li><li><strong>Ein besseres Diff</strong>: eine Karte pro Datei, alte und neue Zeilennummern, Syntaxfarben, der geänderte Teil einer Zeile hervorgehoben; Ansicht nebeneinander.</li><li><strong>Änderungen verwerfen verwirft wirklich</strong>: nach einer Bestätigung gehen auch die Dateien auf der Festplatte auf HEAD zurück, danach kannst du den Branch wechseln.</li><li><strong>Kick-Projekte</strong>: Zyklen, Fehler und Hinweise auch in Dateien, die die Startdatei nicht importiert; Vorwärtssprung in <code>.pseudopc</code> und <code>charAt(i) == '1'</code> behoben.</li><li>Behoben: <em>Save project</em> speichert ein geöffnetes Projekt an seinem Ort; das Versionsverwaltungsfenster wird nicht mehr zu hoch.</li></ul><p>Fragen, Ideen oder Fehler: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Eingebauter C64</strong>: VICE 3.10 läuft jetzt in der App, ohne Installation. Run-Menü → <em>Eingebauter C64</em> oder der Knopf in der Werkzeugleiste.</li><li><strong>Debugger</strong>: Haltepunkte, Einzelschritt / Prozedurschritt / Rücksprung, editierbare Register, Disassembly, Speicher; der Editor folgt der CPU.</li><li><strong>Maschine</strong>: PAL / NTSC, SID 6581 / 8580, reSID / FastSID, REU bis 16 MB, Joystick, Warp.</li><li><strong>Dateien</strong>: PRG, D64 oder Modul laden.</li><li><strong>Bild</strong>: CRT-Filter, Vollbild, veränderbares Fenster; die Einstellungen bleiben erhalten.</li></ul><p>Fragen, Ideen oder Fehler: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
-    eyebrow: "Nieuw in 2.6.9",
+    eyebrow: "Nieuw in 2.7.0",
     title: "Welkom bij Visual Assembler",
-    body: `<ul><li><strong>Git-branches</strong>: het versiebeheervenster wisselt, maakt, hernoemt, verwijdert en merget branches; een mergeconflict toont de bestanden en biedt <em>Abort merge</em>.</li><li><strong>Per bestand en stash</strong>: elk bestand stagen / unstagen / negeren, de diff openen met een klik; <em>Stash</em> zet wijzigingen opzij, de lijst haalt ze terug.</li><li><strong>Een betere diff</strong>: een kaart per bestand, oude en nieuwe regelnummers, syntaxkleuren, het gewijzigde deel van een regel gemarkeerd; weergave naast elkaar.</li><li><strong>Wijzigingen negeren negeert echt</strong>: na bevestiging gaan ook de bestanden op schijf terug naar HEAD, daarna kun je van branch wisselen.</li><li><strong>Kick-projecten</strong>: cycli, fouten en tips ook in bestanden die het startbestand niet importeert; voorwaartse sprong in <code>.pseudopc</code> en <code>charAt(i) == '1'</code> opgelost.</li><li>Opgelost: <em>Save project</em> slaat een geopend project op zijn plaats op; het versiebeheervenster wordt niet meer te hoog.</li></ul><p>Vragen, ideeën of bugs: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Ingebouwde C64</strong>: VICE 3.10 draait nu in de app, zonder installatie. Run-menu → <em>Ingebouwde C64</em> of de knop in de werkbalk.</li><li><strong>Debugger</strong>: breekpunten, stap in / over / uit, bewerkbare registers, disassembly, geheugen; de editor volgt de CPU.</li><li><strong>Machine</strong>: PAL / NTSC, SID 6581 / 8580, reSID / FastSID, REU tot 16 MB, joystick, warp.</li><li><strong>Bestanden</strong>: laad een PRG, D64 of cartridge.</li><li><strong>Beeld</strong>: CRT-filter, volledig scherm, aanpasbaar venster; je instellingen blijven bewaard.</li></ul><p>Vragen, ideeën of bugs: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
-    eyebrow: "Nowość w 2.6.9",
+    eyebrow: "Nowość w 2.7.0",
     title: "Witamy w Visual Assembler",
-    body: `<ul><li><strong>Gałęzie Git</strong>: okno kontroli wersji przełącza, tworzy, zmienia nazwę, usuwa i scala gałęzie; konflikt merge wypisuje pliki i oferuje <em>Abort merge</em>.</li><li><strong>Plik po pliku i stash</strong>: stage / unstage / odrzucenie każdego pliku, diff po kliknięciu; <em>Stash</em> odkłada zmiany, lista je przywraca.</li><li><strong>Lepszy diff</strong>: karta na plik, stare i nowe numery linii, kolory składni, zmieniona część linii wyróżniona; widok obok siebie.</li><li><strong>Odrzuć zmiany naprawdę odrzuca</strong>: po potwierdzeniu pliki na dysku też wracają do HEAD, potem można zmienić gałąź.</li><li><strong>Projekty Kick</strong>: cykle, błędy i wskazówki także w plikach, których plik startowy nie importuje; poprawiono skok w przód w <code>.pseudopc</code> i <code>charAt(i) == '1'</code>.</li><li>Poprawiono: <em>Save project</em> zapisuje otwarty projekt na miejscu; okno kontroli wersji nie rośnie już za wysoko.</li></ul><p>Pytania, pomysły lub błędy: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Wbudowany C64</strong>: VICE 3.10 działa teraz w aplikacji, bez instalacji. Menu Run → <em>Wbudowany C64</em> lub przycisk na pasku.</li><li><strong>Debugger</strong>: pułapki, krok do wnętrza / nad / wyjście, edytowalne rejestry, deasemblacja, pamięć; edytor podąża za CPU.</li><li><strong>Maszyna</strong>: PAL / NTSC, SID 6581 / 8580, reSID / FastSID, REU do 16 MB, joystick, warp.</li><li><strong>Pliki</strong>: wczytaj PRG, D64 lub kartridż.</li><li><strong>Obraz</strong>: filtr CRT, pełny ekran, zmienny rozmiar okna; ustawienia są zapamiętywane.</li></ul><p>Pytania, pomysły lub błędy: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
-    eyebrow: "Novità nella 2.6.9",
+    eyebrow: "Novità nella 2.7.0",
     title: "Benvenuto in Visual Assembler",
-    body: `<ul><li><strong>Branch Git</strong>: la finestra del controllo versione cambia, crea, rinomina, elimina e unisce i branch; un conflitto di merge elenca i file e offre <em>Abort merge</em>.</li><li><strong>File per file e stash</strong>: stage / unstage / scarta per ogni file, diff con un clic; <em>Stash</em> mette da parte le modifiche, l’elenco le riporta.</li><li><strong>Un diff migliore</strong>: una scheda per file, numeri di riga vecchi e nuovi, colori della sintassi, la parte cambiata della riga evidenziata; vista affiancata.</li><li><strong>Scarta modifiche scarta davvero</strong>: dopo la conferma anche i file su disco tornano a HEAD, poi puoi cambiare branch.</li><li><strong>Progetti Kick</strong>: cicli, errori e suggerimenti anche nei file che il file di avvio non importa; corretti il salto in avanti in <code>.pseudopc</code> e <code>charAt(i) == '1'</code>.</li><li>Corretto: <em>Save project</em> salva al suo posto il progetto aperto; la finestra del controllo versione non cresce più troppo.</li></ul><p>Domande, idee o bug: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>C64 integrato</strong>: VICE 3.10 ora funziona dentro l’app, senza installazione. Menu Run → <em>C64 integrato</em> o il pulsante della barra.</li><li><strong>Debugger</strong>: breakpoint, entra / scavalca / esci, registri modificabili, disassemblato, memoria; l’editor segue la CPU.</li><li><strong>Macchina</strong>: PAL / NTSC, SID 6581 / 8580, reSID / FastSID, REU fino a 16 MB, joystick, warp.</li><li><strong>File</strong>: carica PRG, D64 o cartucce.</li><li><strong>Immagine</strong>: filtro CRT, schermo intero, finestra ridimensionabile; le impostazioni vengono ricordate.</li></ul><p>Domande, idee o bug: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
@@ -2388,7 +2388,8 @@ function initPalette() {
   });
   chooseViceButton?.addEventListener("click", chooseViceExecutable);
   runEmulatorButton?.addEventListener("click", () => {
-    if (ultimateBasicMode) _ubRun(runMode);
+    if (runMode === "web64") _w64Run();
+    else if (ultimateBasicMode) _ubRun(runMode);
     else if (runMode === "d64") runViaD64();
     else if (runMode === "ultimate") runOnUltimate();
     else if (runMode === "ultimate-d64") runUltimateD64();
@@ -2586,6 +2587,7 @@ function setupDraggableEditorDialogs() {
     ["curve-gen-dialog", ".cg-hdr"],
     ["table-gen-dialog", ".tg-hdr"],
     ["vice-mon-dialog", ".vm-hdr"],
+    ["web64-dialog", ".w64-hdr"],
     ["memory-float-dialog", ".mem-float-hdr"],
     ["d64-editor-dialog", ".de-hdr"],
     ["d64-block-editor-dialog", ".dbe-hdr"],
@@ -4373,6 +4375,29 @@ function _applyEditorTranslations() {
   setText("#mem-float-title", t("memoryTitle"));
   setAttr("#vice-mon-btn", t("vmTitle"));
   setText("#vm-title", t("vmTitle").toUpperCase());
+  setAttr("#web64-btn", t("w64Title"));
+  setText("#w64-title", t("w64Title").toUpperCase());
+  setText("#run-web64-label", t("runInWeb64"));
+  [["#w64-run", "w64Run"], ["#w64-reset", "w64Reset"], ["#w64-pause", "w64Pause"], ["#w64-continue", "w64Continue"],
+    ["#w64-break", "w64Break"], ["#w64-step-into", "w64StepInto"], ["#w64-step-over", "w64StepOver"],
+    ["#w64-step-out", "w64StepOut"], ["#w64-warp", "w64Warp"], ["#w64-sound", "w64Sound"],
+    ["#w64-debug-toggle", "w64Debugger"], ["#w64-fullscreen", "w64Fullscreen"], ["#w64-crt", "w64Crt"], ["#w64-close", "w64Close"], ["#w64-mem-addr", "w64Address"]]
+    .forEach(([sel, key]) => setAttr(sel, t(key)));
+  setText("#w64-joy-lbl", t("w64Joystick"));
+  setText("#w64-reu-lbl", t("w64Reu"));
+  setText("#w64-load-prg", t("w64LoadPrg"));
+  setText("#w64-attach-d64", t("w64AttachD64"));
+  setText("#w64-attach-crt", t("w64AttachCrt"));
+  setText("#w64-detach-d64", t("w64DetachD64"));
+  setText("#w64-detach-crt", t("w64DetachCrt"));
+  setText("#w64-video-lbl", t("w64Video"));
+  setText("#w64-sid-model-lbl", t("w64SidChip"));
+  setText("#w64-sid-engine-lbl", t("w64SidEngine"));
+  setText('#w64-reu option[value="0"]', t("w64ReuOff"));
+  setText("#w64-regs-lbl", t("w64Registers"));
+  setText("#w64-disasm-lbl", t("w64Disassembly"));
+  setText("#w64-mem-lbl", t("w64Memory"));
+  setText("#w64-bps-lbl", t("w64Breakpoints"));
   setAttr("#vm-inject", t("vmInject"));
   setAttr("#vm-restart", t("vmRestart"));
   setAttr("#vm-live", t("vmLive"));
@@ -7038,6 +7063,7 @@ let lastAssemblerEditorMode = localStorage.getItem("lastAssemblerEditorMode") ||
 let _expertParseTimer = null;
 let _expertLintHints = [];
 let _expertErrorLineNos = new Set();  // source line indices (0-based) with compile errors
+let _w64DebugLine = null;  // built-in C64 debugger: { file, line } (0-based) where the CPU is stopped
 let _expertAsmFilePath = "";          // current .asm file path (empty = unsaved)
 let _expertIncludeReloadTimer = null;
 let _expertIncludeReloadSeq = 0;
@@ -8613,7 +8639,7 @@ function _ubRefreshEditor() {
   if (code) code.innerHTML = _ubHighlightEnabled ? _ubHighlightSource(ubEditor.value) : _ubEsc(ubEditor.value) + "\n";
   const lineCount = ubEditor.value.split("\n").length;
   const lineDigits = Math.max(2, String(lineCount).length);
-  const gutterWidth = Math.max(48, Math.ceil(lineDigits * _ubFontSize * 0.62 + 28)) + (_ubHeatEnabled ? Math.ceil(_ubFontSize * 0.62 * 4 + 6) : 0);
+  const gutterWidth = Math.max(48, Math.ceil(lineDigits * _ubFontSize * 0.62 + 28)) + (_ubHeatEnabled ? Math.ceil(_ubFontSize * 0.62 * 4 + 14) : 0);
   const costs = _ubHeatEnabled ? (_ubLineCostMap || (_ubLineCostMap = _ubLineCost(_ubLastResult))) : null;
   let maxCost = 1;
   costs?.forEach((c) => { if (c.bytes > maxCost) maxCost = c.bytes; });
@@ -11865,6 +11891,8 @@ function _expertApplyHighlight() {
     ? new Set([..._expertErrorLineNos].map(_expertSourceLineToVisibleLine).filter(n => n >= 0))
     : _expertErrorLineNos;
   const hintLines = new Set(_expertLintHints.map((h) => _expertProjectionActive ? _expertSourceLineToVisibleLine(h.srcLine) : h.srcLine));
+  const dbgSource = _w64DebugLineOfActiveTab();
+  const dbgLine = dbgSource < 0 ? -1 : _expertProjectionActive ? _expertSourceLineToVisibleLine(dbgSource) : dbgSource;
 
   const syntax = typeof assemblerSyntax !== "undefined" ? assemblerSyntax : "";
   if (_expertHlCache.syntax !== syntax || _expertHlCache.map.size > 50000) {
@@ -11917,7 +11945,8 @@ function _expertApplyHighlight() {
         lineHtml = `<span class="hl-region-bracket">${hl}</span>`;
       // body lines: background covered by #expert-region-bg div (no per-line span needed)
     }
-    const lineClasses = errorLines.has(i) ? "expert-hl-line expert-err-line"
+    const lineClasses = i === dbgLine ? "expert-hl-line expert-dbg-line"
+      : errorLines.has(i) ? "expert-hl-line expert-err-line"
       : hintLines.has(i) ? "expert-hl-line expert-hint-line" : "expert-hl-line";
     const lineBody = lineHtml || "&#8203;";
     const lineBreak = i < allLines.length - 1 ? "\n" : "";
@@ -19378,7 +19407,69 @@ function _buildDebuggerSidecarPayload(prg, { force = false, layout = null, sourc
   }
 }
 
+// Debugger targets of a built (non-UB) program: symbols, Block-mode BREAKPOINT addresses,
+// Expert breakpoint addresses, the .dbg / .sym / .vs texts and the source path of the build.
+// Used by the RetroDebugger launch and by the built-in C64's debugger.
+function _debuggerTargets(prg) {
+  const acme = assemblerSyntax === "acme";
+  const debugCodeOrigin = _getDebuggerCodeOrigin(prg);
+  const savedProgram = program;
+  const savedUserMacros = userMacros;
+  const startupProgram = _expertGetStartupProgram();
+  const debuggerProgram = startupProgram || (expertMode ? _expertBuildProgram() : program);
+  let symbols;
+  let breakpoints;
+  let expertBreakpoints;
+  let sidecars;
+  // The Expert breakpoint lines: the startup file's tab when the project builds that file.
+  let sourcePath = "";
+  let expertBreakpointLines = _getTabBreakpointLines("expert");
+  if ((startupProgram || prg.vma?.input.sourcePath) && _expertProjectData?.startupFile) {
+    const startupFile = _expertProjectData.files.find(file => file.path === _expertProjectData.startupFile);
+    if (startupFile && (startupProgram || _normFilePath(_projResolveAbsPath(startupFile.path)) === _normFilePath(prg.vma.input.sourcePath))) {
+      sourcePath = _projResolveAbsPath(startupFile.path);
+      const normalizedPath = _normFilePath(sourcePath);
+      const startupTab = tabs.find(tab => tab.filePath && _normFilePath(tab.filePath) === normalizedPath);
+      if (startupTab && Array.isArray(startupTab.expertBreakpointLines)) {
+        expertBreakpointLines = startupTab.expertBreakpointLines;
+      }
+    }
+  }
+  let layout = null;
+  if (acme) {
+    ({ symbols, breakpoints } = _acmeDebuggerTargets(prg, _getTabBreakpointLines("expert")));
+    expertBreakpoints = breakpoints;
+    sidecars = _buildDebuggerSidecarPayload(prg, { force: true });
+  } else if (prg.vma) {
+    ({ symbols, breakpoints, expertBreakpoints } = _vmaDebuggerTargets(prg.vma, expertBreakpointLines));
+    sidecars = _buildDebuggerSidecarPayload(prg, { force: true });
+  } else try {
+    if (debuggerProgram?.length) program = debuggerProgram;
+    parseUserMacros();
+    layout = getProgramLayout(debugCodeOrigin);
+    ({ symbols, breakpoints } = _collectDebuggerSymbols(layout));
+    const kick = _kickBuiltProject();
+    if (kick) {
+      symbols = symbols.map(sym => ({ ...sym, name: _kickDisplayLabel(sym.name) })).filter(sym => sym.name);
+      expertBreakpoints = _kickBreakpointAddresses(layout, kick);
+    } else {
+      expertBreakpoints = expertMode
+        ? _breakpointAddressForSourceLines(layout, expertBreakpointLines)
+        : breakpoints;
+    }
+    sidecars = _buildDebuggerSidecarPayload(prg, { force: true, layout, sourcePath });
+  } finally {
+    program = savedProgram;
+    userMacros = savedUserMacros;
+  }
+  return { symbols, breakpoints, expertBreakpoints, sidecars, sourcePath, layout };
+}
+
 async function runInDebugger() {
+  if (runMode === "web64" || !debuggerPath) {
+    await _w64Debug();
+    return;
+  }
   if (ultimateBasicMode) {
     await _ubRunDebugger();
     return;
@@ -19415,58 +19506,7 @@ async function runInDebugger() {
     setWorkStep("stepDebugFiles");
 
     const debugCodeOrigin = _getDebuggerCodeOrigin(prg);
-    const savedProgram = program;
-    const savedUserMacros = userMacros;
-    const startupProgram = _expertGetStartupProgram();
-    const debuggerProgram = startupProgram || (expertMode ? _expertBuildProgram() : program);
-    let symbols;
-    let breakpoints;
-    let expertBreakpoints;
-    let debuggerSidecars;
-    // The Expert breakpoint lines: the startup file's tab when the project builds that file.
-    let debuggerSourcePath = "";
-    let expertBreakpointLines = _getTabBreakpointLines("expert");
-    if ((startupProgram || prg.vma?.input.sourcePath) && _expertProjectData?.startupFile) {
-      const startupFile = _expertProjectData.files.find(file => file.path === _expertProjectData.startupFile);
-      if (startupFile && (startupProgram || _normFilePath(_projResolveAbsPath(startupFile.path)) === _normFilePath(prg.vma.input.sourcePath))) {
-        debuggerSourcePath = _projResolveAbsPath(startupFile.path);
-        const normalizedPath = _normFilePath(debuggerSourcePath);
-        const startupTab = tabs.find(tab => tab.filePath && _normFilePath(tab.filePath) === normalizedPath);
-        if (startupTab && Array.isArray(startupTab.expertBreakpointLines)) {
-          expertBreakpointLines = startupTab.expertBreakpointLines;
-        }
-      }
-    }
-    if (acme) {
-      ({ symbols, breakpoints } = _acmeDebuggerTargets(prg, _getTabBreakpointLines("expert")));
-      expertBreakpoints = breakpoints;
-      debuggerSidecars = _buildDebuggerSidecarPayload(prg, { force: true });
-    } else if (prg.vma) {
-      ({ symbols, breakpoints, expertBreakpoints } = _vmaDebuggerTargets(prg.vma, expertBreakpointLines));
-      debuggerSidecars = _buildDebuggerSidecarPayload(prg, { force: true });
-    } else try {
-      if (debuggerProgram?.length) program = debuggerProgram;
-      parseUserMacros();
-      const layout = getProgramLayout(debugCodeOrigin);
-      ({ symbols, breakpoints } = _collectDebuggerSymbols(layout));
-      const kick = _kickBuiltProject();
-      if (kick) {
-        symbols = symbols.map(sym => ({ ...sym, name: _kickDisplayLabel(sym.name) })).filter(sym => sym.name);
-        expertBreakpoints = _kickBreakpointAddresses(layout, kick);
-      } else {
-        expertBreakpoints = expertMode
-          ? _breakpointAddressForSourceLines(layout, expertBreakpointLines)
-          : breakpoints;
-      }
-      debuggerSidecars = _buildDebuggerSidecarPayload(prg, {
-        force: true,
-        layout,
-        sourcePath: debuggerSourcePath
-      });
-    } finally {
-      program = savedProgram;
-      userMacros = savedUserMacros;
-    }
+    const { symbols, breakpoints, expertBreakpoints, sidecars: debuggerSidecars, sourcePath: debuggerSourcePath } = _debuggerTargets(prg);
 
     setWorkProgress(80);
     setWorkStep("stepDebugger", { file: debuggerSourcePath ? _workStepName(debuggerSourcePath) : _workStepSource() || "PRG" });
@@ -24404,6 +24444,7 @@ function getRunModeLabel(mode) {
   if (mode === "ultimate") return t("runOnUltimate");
   if (mode === "ultimate-d64") return t("runD64OnHardware");
   if (mode === "kff2") return t("runOnKff2");
+  if (mode === "web64") return t("runInWeb64");
   return t("runInEmulator");
 }
 
@@ -24450,9 +24491,10 @@ function setupRunModeDropdown() {
   document.getElementById("run-ultimate-mode")?.addEventListener("click", () => { setRunMode("ultimate"); closeMenu(); });
   document.getElementById("run-ultimate-d64-mode")?.addEventListener("click", () => { setRunMode("ultimate-d64"); closeMenu(); });
   document.getElementById("run-kff2-mode")?.addEventListener("click", () => { setRunMode("kff2"); closeMenu(); });
+  document.getElementById("run-web64-mode")?.addEventListener("click", () => { setRunMode("web64"); closeMenu(); });
 
   const saved = localStorage.getItem("runMode");
-  if (["prg", "d64", "ultimate", "ultimate-d64", "kff2"].includes(saved)) setRunMode(saved);
+  if (["prg", "d64", "ultimate", "ultimate-d64", "kff2", "web64"].includes(saved)) setRunMode(saved);
 }
 
 function setRunMode(mode) {
@@ -24468,6 +24510,7 @@ function setRunMode(mode) {
   if (ulBtn) ulBtn.classList.toggle("active", mode === "ultimate");
   if (ulD64Btn) ulD64Btn.classList.toggle("active", mode === "ultimate-d64");
   if (kff2Btn) kff2Btn.classList.toggle("active", mode === "kff2");
+  document.getElementById("run-web64-mode")?.classList.toggle("active", mode === "web64");
   const label = document.querySelector("#run-emulator .run-label");
   const runLabel = getRunModeLabel(mode);
   if (label) label.textContent = runLabel;
@@ -30236,7 +30279,7 @@ async function _applyProjectPayload(projectData, { sourceFilePath = "", keepFile
     applyZoom();
   }
 
-  const validRunModes = ["prg", "d64", "ultimate", "ultimate-d64", "kff2"];
+  const validRunModes = ["prg", "d64", "ultimate", "ultimate-d64", "kff2", "web64"];
   if (projectData.ui?.runMode && validRunModes.includes(projectData.ui.runMode)) {
     setRunMode(projectData.ui.runMode);
   }
@@ -40502,7 +40545,7 @@ async function loadSampleFromFile(sampleName) {
     d64ExportState.progName = "";
   }
 
-  const validRunModes = ["prg", "d64", "ultimate", "ultimate-d64", "kff2"];
+  const validRunModes = ["prg", "d64", "ultimate", "ultimate-d64", "kff2", "web64"];
   if (sampleData.ui?.runMode && validRunModes.includes(sampleData.ui.runMode)) {
     setRunMode(sampleData.ui.runMode);
   }
@@ -58893,6 +58936,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setupTableGenerator();
   setupExpertLint();
   setupViceMonitor();
+  setupWeb64();
   setupMemoryFloat();
   setupDialogStacking();
   setupBugReport();
@@ -59829,6 +59873,1316 @@ function _vmRenderProfile(agg) {
   table(t("vmLine"), agg.lines,
     (r) => (r.srcLine !== undefined && (expertMode || ultimateBasicMode) ? tf("zpLine", { n: r.srcLine + 1 }) : r.fileLine || "#" + (r.index + 1)) + " · " + r.routine,
     (r) => (ultimateBasicMode ? _ubGotoLine(r.srcLine) : _zpGotoRef(r)));
+}
+
+// ── Beépített C64: VICE 3.10 x64sc WebAssembly-ben (www/web64/), debuggerrel ──
+// A modul (vice-3.10-web64, GPLv2+) Asyncify-jal a háttérben fut; a JS képkockánként rajzol,
+// továbbadja a hangot és figyeli a megállást. Töréspontnál és lépés végén a CPU az utasítás
+// ELŐTT vár (vice_web_monitor_break_active), így a regiszterek és a memória pontosan az ottani
+// állapotot mutatják, és az írásuk a folytatáskor érvényes. Csak függvények + egy állapot-objektum
+// (a setup a deklarációk előtt is futhat).
+const _W64_KEY_GAP_MS = 45;
+let _w64 = null;
+
+function _w64S() {
+  if (!_w64) {
+    _w64 = {
+      mod: null, loading: null, booted: false, raf: 0, image: null, lastFrame: -1,
+      audioCtx: null, audioNode: null, audioOn: false, aq: new Float32Array(0), aqLen: 0,
+      keyQueue: [], keyTimer: null, held: new Set(), joy: 0,
+      stopped: false, stopPc: -1, session: null, applied: new Set(), manual: new Set(), tempBp: -1,
+      starting: false, lastStatus: 0, memAddr: 0x0400, lastMemRefresh: 0,
+    };
+  }
+  return _w64;
+}
+function _w64Sleep(ms) { return new Promise((resolve) => setTimeout(resolve, ms)); }
+// Remembered state: { open, warp, sound, debug, joy } (the window position: _editorDialogPositions)
+function _w64Prefs() {
+  let p = {};
+  try { p = JSON.parse(localStorage.getItem("c64va-web64") || "{}") || {}; } catch (_) { p = {}; }
+  return p;
+}
+function _w64SavePref(name, value) {
+  const p = _w64Prefs();
+  p[name] = value;
+  try { localStorage.setItem("c64va-web64", JSON.stringify(p)); } catch (_) {}
+}
+function _w64Hex(v, w = 4) { return "$" + (v & (w === 2 ? 0xFF : 0xFFFF)).toString(16).toUpperCase().padStart(w, "0"); }
+
+async function _w64Load() {
+  const s = _w64S();
+  if (s.mod) return s.mod;
+  if (s.loading) return s.loading;
+  _w64SetOverlay(t("w64Booting"));
+  s.loading = (async () => {
+    const base = new URL("web64/", location.href);
+    const factory = (await import(new URL("x64sc.js", base).href)).default;
+    const mod = await factory({
+      noInitialRun: true,
+      locateFile: (name) => new URL(name, base).href,
+      print: () => {},
+      printErr: () => {},
+    });
+    const setRes = (name, value) => mod.ccall("vice_web_set_resource", "number", ["string", "string"], [name, String(value)]);
+    setRes("SidEngine", "1");
+    setRes("SidResidSampling", "0");
+    mod._vice_web_boot();
+    s.mod = mod;
+    _w64StartLoop();
+    return mod;
+  })();
+  try {
+    return await s.loading;
+  } catch (err) {
+    s.loading = null;
+    _w64SetOverlay(tf("w64LoadFailed", { error: String(err?.message || err) }));
+    throw err;
+  }
+}
+
+async function _w64WaitBoot() {
+  const s = _w64S();
+  const mod = await _w64Load();
+  const t0 = performance.now();
+  while (!s.booted && mod._vice_web_frame_number() < 30 && performance.now() - t0 < 30000) await _w64Sleep(50);
+  s.booted = true;
+  if (!s.prefsReady) s.prefsReady = _w64ApplyBootPrefs(mod);
+  await s.prefsReady;
+  return mod;
+}
+
+// The boot resets warp, and REU only exists after it; a program must see the REU from a reset.
+async function _w64ApplyBootPrefs(mod) {
+  const prefs = _w64Prefs();
+  if (prefs.warp) mod._vice_web_set_warp_enabled(1);
+  if (prefs.crt === false) _w64QueueCrt(false);
+  let reset = false;
+  if (prefs.video === "ntsc") reset = await _w64ApplyVideo("ntsc");
+  _w64ApplySid(prefs);
+  if (prefs.reu > 0 && await _w64ApplyReu(prefs.reu)) reset = true;
+  if (reset) mod._vice_web_reset(1);
+  _w64SyncMachineSelects();
+  _w64SyncButtons();
+}
+
+// PAL / NTSC = the C64 model (0 / 3); the model also sets the SID chip, so the chosen one is applied after it.
+async function _w64ApplyVideo(video) {
+  const mod = _w64S().mod;
+  if (mod._vice_web_set_model(video === "ntsc" ? 3 : 0) !== 0) return false;
+  const t0 = performance.now();
+  while (mod._vice_web_deferred_pending() > 0 && performance.now() - t0 < 3000) await _w64Sleep(20);
+  return true;
+}
+// Queued: while the CPU is halted (debugger) they take effect on resuming.
+function _w64QueueRes(name, value) {
+  _w64S().mod?.ccall("vice_web_queue_resource", "number", ["string", "string"], [name, String(value)]);
+}
+// The engine first: setting it also sets the chip to 8580 in the web build.
+function _w64ApplySid(prefs) {
+  if (prefs.sidEngine === 0 || prefs.sidEngine === 1) _w64QueueRes("SidEngine", prefs.sidEngine);
+  if (prefs.sidModel === 0 || prefs.sidModel === 1) _w64QueueRes("SidModel", prefs.sidModel);
+}
+// The lists show the remembered choice, otherwise what the machine has.
+function _w64SyncMachineSelects() {
+  const mod = _w64S().mod;
+  const prefs = _w64Prefs();
+  const set = (id, value) => { const el = document.getElementById(id); if (el) el.value = String(value); };
+  const res = (name) => mod?.ccall("vice_web_get_resource", "string", ["string"], [name]);
+  set("w64-video", prefs.video || "pal");
+  set("w64-sid-model", prefs.sidModel ?? (res("SidModel") === "0" ? 0 : 1));
+  set("w64-sid-engine", prefs.sidEngine ?? (res("SidEngine") === "0" ? 0 : 1));
+}
+async function _w64SetVideo(video) {
+  const s = _w64S();
+  _w64SavePref("video", video);
+  await _w64WaitBoot();
+  s.session = null;
+  _w64EndDebugView();
+  await _w64Unhalt();
+  if (await _w64ApplyVideo(video)) {
+    _w64ApplySid(_w64Prefs());
+    await _w64ResetToReady();
+  } else {
+    showViceToast(t("w64VideoFailed"), true);
+  }
+  _w64SyncButtons();
+  document.getElementById("w64-screen")?.focus();
+}
+
+// Reconfiguring must run on the emulation side (a CPU trap), so the CPU has to be running.
+async function _w64QueueResource(name, value) {
+  const mod = _w64S().mod;
+  const r = mod.ccall("vice_web_queue_resource", "number", ["string", "string"], [name, String(value)]);
+  if (r !== 0) return false;
+  const t0 = performance.now();
+  while (mod._vice_web_deferred_pending() > 0 && performance.now() - t0 < 3000) await _w64Sleep(20);
+  return mod.ccall("vice_web_get_resource", "string", ["string"], [name]) === String(value);
+}
+async function _w64ApplyReu(kb) {
+  if (kb > 0) return await _w64QueueResource("REUsize", kb) && await _w64QueueResource("REU", 1);
+  return _w64QueueResource("REU", 0);
+}
+function _w64ReuActive() {
+  const mod = _w64S().mod;
+  const get = (name) => mod.ccall("vice_web_get_resource", "string", ["string"], [name]);
+  return get("REU") === "1" ? Number(get("REUsize")) : 0;
+}
+
+// VICE's CRT emulation (on by default). Queued: while the CPU is halted it takes effect on resuming.
+function _w64QueueCrt(on) {
+  _w64S().mod?.ccall("vice_web_queue_resource", "number", ["string", "string"], ["VICIIFilter", on ? "1" : "0"]);
+}
+function _w64ToggleCrt() {
+  const on = _w64Prefs().crt === false;
+  _w64SavePref("crt", on);
+  _w64QueueCrt(on);
+  _w64SyncButtons();
+  _w64LayoutCrt();
+}
+
+// The VICE picture has no line structure (384x272, no double scan): with the filter on the screen is
+// scaled smoothly and this layer adds the scanlines over the picture. The period is a whole number of
+// device pixels (no moire at fractional scales); too small a picture only gets the vignette.
+function _w64LayoutCrt() {
+  const canvas = document.getElementById("w64-screen");
+  const layer = document.getElementById("w64-crt-layer");
+  if (!canvas || !layer) return;
+  const on = _w64Prefs().crt !== false;
+  canvas.classList.toggle("w64-screen--crt", on);
+  const cw = canvas.clientWidth;
+  const ch = canvas.clientHeight;
+  layer.hidden = !on || !(cw > 0) || !(ch > 0);
+  if (layer.hidden) return;
+  const dpr = window.devicePixelRatio || 1;
+  const scale = Math.min(cw / canvas.width, ch / canvas.height);
+  const snap = (v) => Math.round(v * dpr) / dpr;
+  const w = canvas.width * scale;
+  const h = canvas.height * scale;
+  layer.style.left = snap((cw - w) / 2) + "px";
+  layer.style.top = snap((ch - h) / 2) + "px";
+  layer.style.width = snap(w) + "px";
+  layer.style.height = snap(h) + "px";
+  const period = Math.round(scale * dpr);
+  layer.classList.toggle("w64-crt-layer--lines", period >= 3);
+  layer.style.setProperty("--w64-sl-period", period / dpr + "px");
+  layer.style.setProperty("--w64-sl-dark", Math.max(1, Math.round(period * 0.4)) / dpr + "px");
+}
+
+// Runs the CPU if it is stopped in the debugger or paused.
+async function _w64Unhalt() {
+  const mod = _w64S().mod;
+  _w64ClearBreakpoints();
+  if (mod._vice_web_monitor_break_active()) {
+    mod._vice_web_monitor_breakpoint_hit_clear();
+    mod._vice_web_monitor_continue();
+    await _w64Sleep(30);
+  }
+  if (mod._vice_web_pause_status()) mod._vice_web_resume();
+}
+
+async function _w64SetReu(kb) {
+  const s = _w64S();
+  const sel = document.getElementById("w64-reu");
+  _w64SavePref("reu", kb);
+  const mod = await _w64WaitBoot();
+  s.session = null;
+  _w64EndDebugView();
+  await _w64Unhalt();
+  if (await _w64ApplyReu(kb)) await _w64ResetToReady();
+  else showViceToast(t("w64ReuFailed"), true);
+  const now = _w64ReuActive();
+  _w64SavePref("reu", now);
+  if (sel) sel.value = String(now);
+  _w64SyncButtons();
+  document.getElementById("w64-screen")?.focus();
+  return mod;
+}
+
+function _w64SetOverlay(text) {
+  const el = document.getElementById("w64-overlay");
+  if (!el || el.textContent === (text || "") && el.hidden === !text) return;
+  el.hidden = !text;
+  el.textContent = text || "";
+}
+
+function _w64Peek(address, length) {
+  const mod = _w64S().mod;
+  if (!mod) return new Uint8Array(length);
+  const out = new Uint8Array(length);
+  for (let done = 0; done < length;) {
+    const n = Math.min(4096, length - done);
+    const ptr = mod._vice_web_monitor_memory_peek((address + done) & 0xFFFF, n);
+    out.set(mod.HEAPU8.subarray(ptr, ptr + n), done);
+    done += n;
+  }
+  return out;
+}
+function _w64Poke(address, bytes) {
+  const mod = _w64S().mod;
+  if (!mod || !bytes.length) return;
+  const ptr = mod._malloc(bytes.length);
+  mod.HEAPU8.set(bytes, ptr);
+  mod._vice_web_monitor_memory_write(address & 0xFFFF, ptr, bytes.length);
+  mod._free(ptr);
+}
+function _w64Reg(id) { return _w64S().mod?._vice_web_monitor_register_get(id) ?? 0; }
+function _w64Paste(text) {
+  const mod = _w64S().mod;
+  // the VICE keyboard buffer takes ASCII: lower case shows as normal upper case, '\n' is RETURN
+  mod?.ccall("vice_web_paste_text", "number", ["string"], [text.replace(/\\/g, "\\\\").toLowerCase()]);
+}
+
+// ── Kép, hang, állapot ──
+// Drive LED: a 1541 reports a DOS error (file not found, read error…) by blinking it, about 140 ms
+// on / 140 ms off; a load keeps it lit. Regular edges mean an error, a steady LED ends it.
+function _w64LedStep(led, lit, now) {
+  if (lit !== led.lit) {
+    const gap = now - led.edge;
+    led.edges = gap >= 30 && gap <= 300 ? led.edges + 1 : 0;
+    led.lit = lit;
+    led.edge = now;
+    if (led.edges >= 4) led.error = true;
+  } else if (now - led.edge > 600) {
+    led.edges = 0;
+    led.error = false;
+  }
+  return led;
+}
+function _w64RenderDrive(now) {
+  const s = _w64S();
+  const led = s.led || (s.led = { lit: false, edge: 0, edges: 0, error: false, text: "" });
+  const pwm = s.mod._vice_web_drive_led(8);
+  _w64LedStep(led, pwm >= 500, now);
+  const el = document.getElementById("w64-drive");
+  if (!el) return;
+  el.style.setProperty("--w64-led", (pwm / 1000).toFixed(2));
+  const track = s.diskName ? s.mod._vice_web_drive_track(8) : 0;
+  const text = ["8", track > 0 && `T${track}`, led.error && t("w64DriveError")].filter(Boolean).join(" · ");
+  if (text !== led.text) {
+    led.text = text;
+    document.getElementById("w64-drive-text").textContent = text;
+    el.classList.toggle("w64-drive--error", led.error);
+  }
+}
+function _w64StartLoop() {
+  const s = _w64S();
+  if (s.raf) return;
+  const loop = (now) => {
+    s.raf = 0;
+    const dlg = document.getElementById("web64-dialog");
+    if (!s.mod) return;
+    _w64DrawFrame();
+    _w64DrainAudio();
+    const active = s.mod._vice_web_monitor_break_active();
+    // the time stands still at a stop or pause, not the blinking
+    if (!active && !s.mod._vice_web_pause_status()) _w64RenderDrive(now);
+    // a step can end before a frame notices the running state: every stop sets hit_pending
+    if (active && (!s.stopped || s.mod._vice_web_monitor_breakpoint_hit_pending())) _w64OnStop();
+    else if (!active && s.stopped) _w64OnResume();
+    if (now - s.lastStatus > 400) {
+      s.lastStatus = now;
+      _w64RenderStatus();
+      if (!s.stopped && !document.getElementById("w64-debug")?.hidden && now - s.lastMemRefresh > 500) {
+        s.lastMemRefresh = now;
+        _w64RenderMemory();
+      }
+    }
+    if (dlg?.open) s.raf = requestAnimationFrame(loop);
+  };
+  s.raf = requestAnimationFrame(loop);
+}
+
+function _w64DrawFrame() {
+  const s = _w64S();
+  const mod = s.mod;
+  if (!mod?._vice_web_frame_ready()) return;
+  const frame = mod._vice_web_frame_number();
+  if (frame === s.lastFrame) return;
+  s.lastFrame = frame;
+  const w = mod._vice_web_frame_width();
+  const h = mod._vice_web_frame_height();
+  const ptr = mod._vice_web_frame_pixels();
+  const canvas = document.getElementById("w64-screen");
+  if (!ptr || w <= 0 || h <= 0 || !canvas) return;
+  const ctx = canvas.getContext("2d", { alpha: false });
+  if (!s.image || s.image.width !== w || s.image.height !== h) {
+    canvas.width = w;
+    canvas.height = h;
+    s.image = ctx.createImageData(w, h);
+    _w64LayoutCrt();
+  }
+  s.image.data.set(mod.HEAPU8.subarray(ptr, ptr + w * h * 4));
+  ctx.putImageData(s.image, 0, 0);
+  if (frame > 2) _w64SetOverlay(s.starting ? t("w64Starting") : "");
+}
+
+function _w64DrainAudio() {
+  const s = _w64S();
+  const mod = s.mod;
+  for (let guard = 8; guard > 0; guard--) {
+    const n = mod._vice_web_audio_sample_count();
+    if (n <= 0) break;
+    const ptr = mod._vice_web_audio_samples();
+    if (s.audioOn) {
+      const samples = new Int16Array(mod.HEAPU8.buffer.slice(ptr, ptr + n * 2));
+      const channels = Math.max(1, mod._vice_web_audio_channels());
+      const frames = Math.floor(samples.length / channels);
+      const maxLen = (s.audioCtx?.sampleRate || 44100) * 0.25;
+      if (s.aqLen + frames > s.aq.length) {
+        const next = new Float32Array(Math.max(s.aq.length * 2, s.aqLen + frames, 8192));
+        next.set(s.aq.subarray(0, s.aqLen));
+        s.aq = next;
+      }
+      for (let i = 0; i < frames; i++) {
+        let v = 0;
+        for (let c = 0; c < channels; c++) v += samples[i * channels + c];
+        s.aq[s.aqLen++] = v / (channels * 32768);
+      }
+      if (s.aqLen > maxLen) {
+        const drop = s.aqLen - maxLen;
+        s.aq.copyWithin(0, drop, s.aqLen);
+        s.aqLen -= drop;
+      }
+    }
+    mod._vice_web_audio_consume(n);
+  }
+}
+
+async function _w64SetSound(on) {
+  const s = _w64S();
+  const mod = s.mod;
+  _w64SavePref("sound", !!on);
+  _w64SyncButtons();
+  if (!mod) return;
+  if (on) {
+    if (!s.audioCtx) {
+      const rate = mod._vice_web_audio_sample_rate() || 44100;
+      try { s.audioCtx = new AudioContext({ sampleRate: rate }); } catch (_) { s.audioCtx = new AudioContext(); }
+      s.audioNode = s.audioCtx.createScriptProcessor(2048, 0, 2);
+      s.audioNode.onaudioprocess = (e) => {
+        const left = e.outputBuffer.getChannelData(0);
+        const right = e.outputBuffer.getChannelData(1);
+        const n = Math.min(left.length, s.aqLen);
+        for (let i = 0; i < n; i++) left[i] = right[i] = s.aq[i];
+        for (let i = n; i < left.length; i++) left[i] = right[i] = 0;
+        s.aq.copyWithin(0, n, s.aqLen);
+        s.aqLen -= n;
+      };
+      s.audioNode.connect(s.audioCtx.destination);
+    }
+    try { await s.audioCtx.resume(); } catch (_) {}
+    mod._vice_web_audio_set_enabled(1);
+    s.audioOn = true;
+  } else {
+    mod._vice_web_audio_set_enabled(0);
+    s.audioOn = false;
+    s.aqLen = 0;
+    try { await s.audioCtx?.suspend(); } catch (_) {}
+  }
+  _w64SyncButtons();
+}
+function _w64SoundWanted() {
+  return _w64Prefs().sound !== false;
+}
+// an AudioContext started without a user gesture stays suspended: the first click / key resumes it
+function _w64ResumeAudio() {
+  const s = _w64S();
+  if (s.audioOn && s.audioCtx?.state === "suspended") s.audioCtx.resume().catch(() => {});
+}
+
+function _w64RenderStatus() {
+  const s = _w64S();
+  const el = document.getElementById("w64-status");
+  if (!el) return;
+  let text = "";
+  let cls = "";
+  if (!s.mod) text = t("w64Booting");
+  else if (s.stopped) {
+    const src = _w64SourceAt(s.stopPc);
+    const where = src ? ` · ${String(src.file).replace(/\\/g, "/").split("/").pop()}:${src.line}` : "";
+    text = tf("w64StoppedAt", { addr: _w64Hex(s.stopPc) }) + where;
+    cls = "busy";
+  } else if (s.mod._vice_web_pause_status()) {
+    text = t("w64Paused");
+  } else {
+    text = `${s.mod._vice_web_emulated_fps().toFixed(0)} fps`;
+    cls = "ok";
+  }
+  el.textContent = text;
+  el.className = "vm-status" + (cls ? " vm-status--" + cls : "");
+}
+
+function _w64SyncButtons() {
+  const s = _w64S();
+  const mod = s.mod;
+  const set = (id, on) => {
+    const b = document.getElementById(id);
+    b?.classList.toggle("cg-tool--on", !!on);
+    b?.setAttribute("aria-pressed", String(!!on));
+  };
+  set("w64-warp", mod?._vice_web_warp_enabled());
+  set("w64-pause", mod?._vice_web_pause_status() && !s.stopped);
+  set("w64-sound", s.audioOn);
+  set("w64-debug-toggle", !document.getElementById("w64-debug")?.hidden);
+  set("w64-fullscreen", _w64IsFullscreen());
+  set("w64-crt", _w64Prefs().crt !== false);
+  const dbg = !!s.session;
+  for (const id of ["w64-continue", "w64-step-into", "w64-step-over", "w64-step-out"]) {
+    const b = document.getElementById(id);
+    if (b) b.disabled = !s.stopped;
+  }
+  const brk = document.getElementById("w64-break");
+  if (brk) brk.disabled = !mod || s.stopped;
+  document.getElementById("w64-debug-tools")?.classList.toggle("w64-tools--session", dbg);
+  document.getElementById("web64-btn")?.classList.toggle("main-tb-btn--active", !!document.getElementById("web64-dialog")?.open);
+}
+
+// ── Billentyűzet, joystick ──
+const _W64_JOY_KEYS = { ArrowUp: "up", ArrowDown: "down", ArrowLeft: "left", ArrowRight: "right", Space: "fire", ControlRight: "fire" };
+function _w64WriteInput(type, code, pressed, port, value) {
+  return _w64S().mod?.ccall("vice_web_write_input", "number", ["string", "string", "number", "number", "string"],
+    [type, code, pressed ? 1 : 0, port, value]);
+}
+function _w64SendKey(ev, pressed) {
+  const s = _w64S();
+  if (s.joy && _W64_JOY_KEYS[ev.code]) {
+    _w64WriteInput("joystick", _W64_JOY_KEYS[ev.code], pressed, s.joy, pressed ? "1" : "0");
+    return;
+  }
+  const alias = { Tab: "CTRL", AltLeft: "CBM", AltRight: "CBM" };
+  _w64WriteInput("key", alias[ev.code] || ev.code, pressed, -1, ev.key && ev.key.length === 1 ? ev.key : "");
+}
+// the KERNAL scans the keyboard once a frame: keys are queued with a gap so fast typing is not lost
+function _w64QueueKey(ev, pressed) {
+  const s = _w64S();
+  s.keyQueue.push({ ev: { code: ev.code, key: ev.key }, pressed });
+  const pump = () => {
+    s.keyTimer = null;
+    const next = s.keyQueue.shift();
+    if (!next) return;
+    _w64SendKey(next.ev, next.pressed);
+    s.keyTimer = setTimeout(pump, _W64_KEY_GAP_MS);
+  };
+  if (!s.keyTimer) pump();
+}
+
+// ── Program indítása ──
+function _w64SysAddress(bytes) {
+  // the SYS of a BASIC stub at $0801 (10 SYS2061), otherwise the load address
+  const load = bytes[0] | (bytes[1] << 8);
+  if (load === 0x0801 && bytes.length > 8) {
+    const line = [];
+    for (let i = 6; i < Math.min(bytes.length, 64) && bytes[i] !== 0; i++) line.push(bytes[i]);
+    const sys = line.indexOf(0x9E);
+    if (sys >= 0) {
+      const digits = String.fromCharCode(...line.slice(sys + 1)).replace(/[\s(]/g, "").match(/^\d+/);
+      if (digits) return Number(digits[0]) & 0xFFFF;
+    }
+  }
+  return load;
+}
+
+function _w64ScreenHasReady() {
+  const screen = _w64Peek(0x0400, 1000);
+  const ready = [0x12, 0x05, 0x01, 0x04, 0x19, 0x2E];
+  for (let i = 0; i <= screen.length - ready.length; i++) {
+    if (ready.every((c, k) => screen[i + k] === c)) return true;
+  }
+  return false;
+}
+
+async function _w64ResetToReady() {
+  const s = _w64S();
+  const mod = await _w64WaitBoot();
+  await _w64Unhalt();
+  _w64Poke(0x0400, new Uint8Array(1000).fill(0x20));
+  mod._vice_web_reset(1);
+  if (s.cartName) { s.stopped = false; return; }
+  const warp = mod._vice_web_warp_enabled();
+  mod._vice_web_set_warp_enabled(1);
+  await _w64Sleep(60);
+  const t0 = performance.now();
+  while (performance.now() - t0 < 10000 && !_w64ScreenHasReady()) await _w64Sleep(30);
+  mod._vice_web_set_warp_enabled(warp);
+  s.stopped = false;
+}
+
+// Injects a PRG into the freshly reset machine and starts it like LOAD + RUN (BASIC stub at
+// $0801) or SYS <load address>. With debug, breakpoints are set before the start.
+async function _w64StartPrg(bytes, { debug = false } = {}) {
+  const s = _w64S();
+  if (!bytes || bytes.length < 3) return false;
+  s.starting = true;
+  _w64SetOverlay(t("w64Starting"));
+  try {
+    if (s.cartName) _w64DetachCart(false);
+    await _w64ResetToReady();
+    const load = bytes[0] | (bytes[1] << 8);
+    const body = bytes.subarray ? bytes.subarray(2) : Uint8Array.from(bytes.slice(2));
+    _w64Poke(load, Uint8Array.from(body));
+    const end = (load + body.length) & 0xFFFF;
+    if (load === 0x0801) {
+      // the pointers LOAD sets: start of variables / arrays / end of arrays, end of the loaded program
+      const lo = end & 0xFF, hi = end >> 8;
+      _w64Poke(0x2D, Uint8Array.from([lo, hi, lo, hi, lo, hi]));
+      _w64Poke(0xAE, Uint8Array.from([lo, hi]));
+    }
+    if (debug) _w64ApplyBreakpoints(true);
+    _w64Paste(load === 0x0801 ? "RUN\n" : `SYS${_w64SysAddress(bytes)}\n`);
+    return true;
+  } finally {
+    s.starting = false;
+    _w64SetOverlay("");
+  }
+}
+
+async function _w64Show() {
+  const dlg = document.getElementById("web64-dialog");
+  if (!dlg) return;
+  if (!dlg.open) {
+    _w64ApplySize();
+    dlg._applyPosition?.();
+    dlg.show();
+  }
+  _w64S();
+  _w64SavePref("open", true);
+  const prefs = _w64Prefs();
+  if (prefs.debug && document.getElementById("w64-debug")?.hidden) _w64ShowDebugPanel(true);
+  try { await _w64Load(); } catch (_) { return; }
+  _w64WaitBoot().catch(() => {});
+  if (_w64.mod._vice_web_pause_status() && !_w64.stopped && _w64.pausedByClose) {
+    _w64.mod._vice_web_resume();
+  }
+  _w64.pausedByClose = false;
+  _w64StartLoop();
+  if (_w64SoundWanted() && !_w64.audioOn) _w64SetSound(true);
+  _w64SyncButtons();
+  _w64RenderStatus();
+  document.getElementById("w64-screen")?.focus();
+}
+
+function _w64Close() {
+  const dlg = document.getElementById("web64-dialog");
+  dlg?.close();
+}
+
+function _w64OnDialogClose() {
+  // the close event is asynchronous: the window may already be open again
+  if (document.getElementById("web64-dialog")?.open) return;
+  const s = _w64S();
+  _w64SavePref("open", false);
+  _w64ExitFullscreen();
+  if (s.mod && !s.stopped && !s.mod._vice_web_pause_status()) {
+    s.mod._vice_web_pause();
+    s.pausedByClose = true;
+  }
+  if (s.audioOn) {
+    s.mod?._vice_web_audio_set_enabled(0);
+    s.audioOn = false;
+    s.aqLen = 0;
+    s.audioCtx?.suspend().catch(() => {});
+  }
+  _w64DebugLine = null;
+  if (expertMode) _expertApplyHighlight();
+  _w64SyncButtons();
+}
+
+async function _w64Run() {
+  const prg = await buildRunPrgForCurrentMode();
+  if (!prg.ok) {
+    if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
+    showViceToast(prg.error || t("launchingViceFailed"), true);
+    return;
+  }
+  await _w64Show();
+  _w64S().session = null;
+  _w64EndDebugView();
+  await _w64StartPrg(Uint8Array.from(prg.bytes));
+  _w64SyncButtons();
+  document.getElementById("w64-screen")?.focus();
+}
+
+// ── Fájlok: PRG, D64, cartridge ──
+function _w64WriteWorkFile(name, bytes) {
+  const mod = _w64S().mod;
+  try { mod.FS.mkdir("/work"); } catch (_) {}
+  const path = "/work/" + String(name).toLowerCase().replace(/[^a-z0-9._-]/g, "_");
+  mod.FS.writeFile(path, bytes);
+  return path;
+}
+function _w64RenderMedia() {
+  const s = _w64S();
+  const el = document.getElementById("w64-media");
+  if (el) {
+    el.textContent = [s.diskName && tf("w64MediaDisk", { name: s.diskName }), s.cartName && tf("w64MediaCart", { name: s.cartName })].filter(Boolean).join(" · ");
+  }
+  const detachDisk = document.getElementById("w64-detach-d64");
+  if (detachDisk) detachDisk.disabled = !s.diskName;
+  const detachCart = document.getElementById("w64-detach-crt");
+  if (detachCart) detachCart.disabled = !s.cartName;
+}
+async function _w64OpenFile(kind, file) {
+  if (!file) return;
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  await _w64Show();
+  const s = _w64S();
+  const mod = await _w64WaitBoot();
+  s.session = null;
+  _w64EndDebugView();
+  await _w64Unhalt();
+  const path = _w64WriteWorkFile(file.name, bytes);
+  const fail = () => showViceToast(tf("w64FileFailed", { file: file.name }), true);
+  if (kind === "prg") {
+    if (bytes.length < 3 || mod.ccall("vice_web_autostart_prg", "number", ["string", "number"], [path, 1]) < 0) fail();
+  } else if (kind === "d64") {
+    if (mod.ccall("vice_web_attach_disk", "number", ["number", "string"], [8, path]) !== 0) { fail(); return; }
+    s.diskName = file.name;
+    if (s.cartName) _w64DetachCart(false);
+    await _w64ResetToReady();
+    // the KERNAL is ready sooner than the drive's own CPU
+    await _w64Sleep(1500);
+    _w64Paste('LOAD"*",8,1\nRUN\n');
+  } else {
+    if (mod.ccall("vice_web_attach_cartridge", "number", ["string"], [path]) !== 0) { fail(); return; }
+    s.cartName = file.name;
+    mod._vice_web_reset(1);
+  }
+  _w64RenderMedia();
+  _w64SyncButtons();
+  document.getElementById("w64-screen")?.focus();
+}
+function _w64DetachCart(reset = true) {
+  const s = _w64S();
+  s.mod?._vice_web_detach_cartridge(-1);
+  s.cartName = "";
+  if (reset) s.mod?._vice_web_reset(1);
+  _w64RenderMedia();
+}
+function _w64DetachDisk() {
+  const s = _w64S();
+  s.mod?._vice_web_detach_disk(8);
+  s.diskName = "";
+  _w64RenderMedia();
+}
+
+// ── Debugger ──
+// A .dbg (RetroDebugger) szövegből: forrásfájlok + cím-tartomány → fájl:sor (1-based).
+function _w64ParseDbg(text) {
+  const files = [];
+  const entries = [];
+  let inSources = false;
+  const unescape = (v) => v.replace(/&quot;/g, "\"").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+  for (const raw of String(text || "").split("\n")) {
+    const line = raw.trim();
+    if (/^<Sources\b/i.test(line)) { inSources = true; continue; }
+    if (/^<\/Sources>/i.test(line)) { inSources = false; continue; }
+    if (inSources) {
+      const m = /^(\d+),(.*)$/.exec(line);
+      if (m) files[Number(m[1])] = unescape(m[2]);
+      continue;
+    }
+    const m = /^\$?([0-9a-f]{1,4}),\$?([0-9a-f]{1,4}),(\d+),(\d+),/i.exec(line);
+    if (m) entries.push({ start: parseInt(m[1], 16), end: parseInt(m[2], 16), file: files[Number(m[3])] ?? "", line: Number(m[4]) });
+  }
+  return entries;
+}
+
+// The build and its source map for a debug session.
+async function _w64DebugBuild() {
+  if (ultimateBasicMode) {
+    const startupTab = _ubStartupTabId !== null ? tabs.find(tab => tab.id === _ubStartupTabId) : null;
+    const useStartup = startupTab && startupTab.id !== activeTabId;
+    const source = useStartup ? startupTab.ubText || "" : ubEditor?.value || "";
+    const sourcePath = useStartup ? startupTab.ubFilePath || startupTab.filePath || "" : _ubFilePath || "";
+    if (!source.trim()) { _ubSetStatus(t("ubNothingToRun"), true); return null; }
+    const build = useStartup
+      ? await _ubCompileSource(source, sourcePath, startupTab.name, { skipExomizer: true })
+      : await _ubCompile(false, { skipExomizer: true });
+    if (!build) return null;
+    const entries = _w64ParseDbg(build.debug?.dbg).map(e => ({ ...e, file: e.file || sourcePath }));
+    return { bytes: Uint8Array.from(build.prg || []), entries, symbols: _ubDebuggerSymbols(build), blockBps: [], blockAt: null, kind: "ub", primary: sourcePath };
+  }
+  if (isProgramEmpty()) { showViceToast(t("nothingToRunAddSomeInstructionsFirst"), true); return null; }
+  const acme = assemblerSyntax === "acme";
+  const prg = acme ? await _buildAcmePrg() : await _kickOrVaPrg();
+  if (!prg.ok) {
+    if (prg.errors?.length) showCompileErrorDialog(prg.errors);
+    else showViceToast(prg.error || t("launchingViceFailed"), true);
+    return null;
+  }
+  const targets = _debuggerTargets(prg);
+  const primary = targets.sourcePath || _getDebuggerPrimarySourcePath();
+  let entries = _w64ParseDbg(targets.sidecars?.dbg);
+  if (acme) {
+    entries = _acmeReportRows(prg.report, prg.sourceLineOffset ?? 0)
+      .filter(row => row.srcLine !== null && row.address !== null && row.bytes.length)
+      .map(row => ({ start: row.address, end: row.address + row.bytes.length - 1, file: primary, line: row.srcLine + 1 }));
+  }
+  // Block mode: address → block (the selection follows the CPU)
+  let blockAt = null;
+  if (!expertMode && targets.layout) {
+    const lines = targets.layout.lines.filter(l => l.size > 0 && !l.conditionallySkipped && l.block?.id)
+      .map(l => ({ start: l.address, end: l.address + l.size - 1, id: l.block.id }));
+    blockAt = (pc) => lines.find(l => pc >= l.start && pc <= l.end)?.id || null;
+  }
+  return {
+    bytes: Uint8Array.from(prg.bytes), entries, symbols: targets.symbols || [],
+    blockBps: expertMode ? [] : (targets.breakpoints || []), blockAt, kind: acme ? "acme" : "va", primary,
+  };
+}
+
+async function _w64Debug() {
+  const session = await _w64DebugBuild();
+  if (!session) return;
+  await _w64Show();
+  const s = _w64S();
+  session.labels = new Map();
+  for (const sym of session.symbols || []) {
+    if (Number.isFinite(sym.address) && !session.labels.has(sym.address & 0xFFFF)) session.labels.set(sym.address & 0xFFFF, sym.name);
+  }
+  s.session = session;
+  s.manual = new Set();
+  _w64ShowDebugPanel(true);
+  // without any breakpoint the program stops at its first instruction
+  const bps = _w64BreakpointAddresses();
+  s.tempBp = bps.size ? -1 : _w64SysAddress(session.bytes);
+  await _w64StartPrg(session.bytes, { debug: true });
+  _w64SyncButtons();
+  _w64RenderBreakpoints();
+}
+
+function _w64SourceAt(pc) {
+  const entries = _w64S().session?.entries;
+  if (!entries?.length || pc < 0) return null;
+  let best = null;
+  for (const e of entries) {
+    // ranges nest (a sub or loop and the statements in it): the innermost one is the line
+    if (pc >= e.start && pc <= Math.max(e.end, e.start) && (!best || e.end - e.start <= best.end - best.start)) best = e;
+  }
+  return best;
+}
+
+// Breakpoint lines of the open tabs → addresses through the source map; plus the Block-mode
+// BREAKPOINT blocks and the ones set in the disassembly.
+function _w64BreakpointAddresses() {
+  const s = _w64S();
+  const session = s.session;
+  const out = new Set(s.manual);
+  if (!session) return out;
+  (session.blockBps || []).forEach(a => out.add(a & 0xFFFF));
+  const kind = session.kind === "ub" ? "ub" : "expert";
+  const key = kind === "ub" ? "ubBreakpointLines" : "expertBreakpointLines";
+  const byFile = new Map();
+  for (const e of session.entries) {
+    const f = _normFilePath(e.file);
+    if (!byFile.has(f)) byFile.set(f, []);
+    byFile.get(f).push(e);
+  }
+  for (const list of byFile.values()) list.sort((a, b) => a.line - b.line || a.start - b.start);
+  const primaryNorm = _normFilePath(session.primary);
+  for (const tab of tabs) {
+    const lines = tab.id === activeTabId ? _getTabBreakpointLines(kind) : tab[key];
+    if (!Array.isArray(lines) || !lines.length) continue;
+    const path = kind === "ub" ? (tab.ubFilePath || tab.filePath || "") : (tab.filePath || "");
+    let list = path ? byFile.get(_normFilePath(path)) : null;
+    if (!list && tab.id === activeTabId) list = byFile.get(primaryNorm) || (byFile.size === 1 ? [...byFile.values()][0] : null);
+    if (!list) continue;
+    for (const line of lines) {
+      const hit = list.find(e => e.line === line + 1) || list.find(e => e.line > line + 1);
+      if (hit) out.add(hit.start & 0xFFFF);
+    }
+  }
+  return out;
+}
+
+function _w64ApplyBreakpoints(withTemp = false) {
+  const s = _w64S();
+  const mod = s.mod;
+  if (!mod) return;
+  const want = _w64BreakpointAddresses();
+  if (withTemp && s.tempBp >= 0) want.add(s.tempBp);
+  else if (s.tempBp >= 0 && s.applied.has(s.tempBp)) want.add(s.tempBp);
+  for (const a of s.applied) if (!want.has(a)) mod._vice_web_monitor_breakpoint_clear(a);
+  for (const a of want) if (!s.applied.has(a)) mod._vice_web_monitor_breakpoint_set(a, 1);
+  s.applied = want;
+}
+function _w64ClearBreakpoints() {
+  const s = _w64S();
+  for (const a of s.applied) s.mod?._vice_web_monitor_breakpoint_clear(a);
+  s.applied = new Set();
+}
+
+async function _w64OnStop() {
+  const s = _w64S();
+  s.mod._vice_web_monitor_breakpoint_hit_clear();
+  clearTimeout(s.resumeTimer);
+  s.stopped = true;
+  s.stopPc = _w64Reg(0);
+  if (s.tempBp >= 0 && s.tempBp === s.stopPc) {
+    s.mod._vice_web_monitor_breakpoint_clear(s.tempBp);
+    s.applied.delete(s.tempBp);
+    s.tempBp = -1;
+  }
+  s.memAddr = s.memAddr ?? 0x0400;
+  _w64ShowDebugPanel(true);
+  _w64RenderStatus();
+  await _w64ShowSource(s.stopPc);
+}
+
+function _w64OnResume() {
+  const s = _w64S();
+  s.stopped = false;
+  // a step stops again within a few frames: the panel and the editor only change if it keeps running
+  clearTimeout(s.resumeTimer);
+  s.resumeTimer = setTimeout(() => {
+    if (s.stopped) return;
+    _w64DebugLine = null;
+    if (expertMode) _expertApplyHighlight();
+    _w64RenderDebug();
+    _w64SyncButtons();
+  }, 200);
+}
+
+function _w64Continue() {
+  const s = _w64S();
+  if (!s.stopped) return;
+  _w64ApplyBreakpoints();
+  s.mod._vice_web_monitor_breakpoint_hit_clear();
+  s.mod._vice_web_monitor_continue();
+}
+function _w64Step(mode) {
+  const s = _w64S();
+  if (!s.stopped) return;
+  _w64ApplyBreakpoints();
+  s.mod._vice_web_monitor_breakpoint_hit_clear();
+  s.mod._vice_web_monitor_step(mode, 1);
+}
+function _w64Break() {
+  const s = _w64S();
+  if (!s.mod || s.stopped) return;
+  if (!s.session) s.session = { adhoc: true, entries: [], symbols: [], labels: new Map(), blockBps: [], kind: "va", primary: "" };
+  if (s.mod._vice_web_pause_status()) s.mod._vice_web_resume();
+  s.mod._vice_web_monitor_break();
+}
+
+// The editor follows the CPU: the file of the stop is opened, its line marked.
+async function _w64ShowSource(pc) {
+  const s = _w64S();
+  const session = s.session;
+  if (!session) return;
+  if (session.blockAt && !expertMode && !ultimateBasicMode) {
+    const id = session.blockAt(pc);
+    if (id) {
+      selectBlockInAsm(id);
+      const node = _blockFindNode(`[data-block-id="${id}"]`);
+      if (node) _scrollIntoContainer(node);
+    }
+    return;
+  }
+  const src = _w64SourceAt(pc);
+  if (!src) { _w64DebugLine = null; if (expertMode) _expertApplyHighlight(); return; }
+  if (ultimateBasicMode) {
+    const active = _normFilePath(_ubFilePath || _getActiveTab()?.filePath || "");
+    if (!active || !src.file || _normFilePath(src.file) === active) _ubGotoLine(src.line - 1);
+    return;
+  }
+  if (!expertMode) return;
+  const norm = _normFilePath(src.file);
+  const tab = src.file ? tabs.find(t => t.filePath && _normFilePath(t.filePath) === norm) : null;
+  if (tab && tab.id !== activeTabId) _tabActivate(tab.id);
+  else if (!tab && /[\\/]/.test(src.file || "")) {
+    try { await _kickGotoError(src.file, src.line); } catch (_) {}
+  }
+  _w64DebugLine = { file: src.file, line: src.line - 1 };
+  _expertGotoSourceLine(src.line - 1, { focus: false });
+  _expertApplyHighlight();
+}
+
+// Source line (0-based) of the stop in the active Expert tab, or -1.
+function _w64DebugLineOfActiveTab() {
+  if (!_w64DebugLine) return -1;
+  const tab = _getActiveTab();
+  const file = _w64DebugLine.file || "";
+  const path = tab?.filePath || "";
+  if (path ? _normFilePath(path) === _normFilePath(file) : !/[\\/]/.test(file)) return _w64DebugLine.line;
+  return -1;
+}
+
+function _w64ShowDebugPanel(show) {
+  const panel = document.getElementById("w64-debug");
+  if (!panel) return;
+  panel.hidden = !show;
+  document.getElementById("web64-dialog")?.classList.toggle("w64-dialog--debug", show);
+  if (show) _w64RenderDebug();
+  _w64SyncButtons();
+}
+function _w64EndDebugView() {
+  const s = _w64S();
+  s.tempBp = -1;
+  _w64ClearBreakpoints();
+  _w64DebugLine = null;
+  if (expertMode) _expertApplyHighlight();
+}
+
+function _w64RenderDebug() {
+  _w64RenderRegisters();
+  _w64RenderDisassembly();
+  _w64RenderMemory();
+  _w64RenderBreakpoints();
+}
+
+function _w64RenderRegisters() {
+  const el = document.getElementById("w64-regs");
+  const s = _w64S();
+  if (!el) return;
+  if (!s.stopped) {
+    el.innerHTML = `<div class="w64-muted">${_vcEsc(t("w64Running"))}</div>`;
+    return;
+  }
+  const regs = [["PC", 0, 4], ["A", 1, 2], ["X", 2, 2], ["Y", 3, 2], ["SP", 4, 2]];
+  const p = _w64Reg(5);
+  const flags = ["N", "V", "-", "B", "D", "I", "Z", "C"];
+  el.innerHTML = regs.map(([name, id, w]) =>
+    `<label class="w64-reg"><span>${name}</span><input class="cg-text-in w64-reg-in" data-reg="${id}" data-w="${w}" value="${_w64Hex(_w64Reg(id), w).slice(1)}" spellcheck="false"></label>`).join("")
+    + `<div class="w64-flags">${flags.map((f, i) => {
+      const bit = 7 - i;
+      return `<button type="button" class="w64-flag${(p >> bit) & 1 ? " w64-flag--on" : ""}" data-bit="${bit}"${f === "-" ? " disabled" : ""}>${f}</button>`;
+    }).join("")}</div>`;
+}
+
+// Disassembly around PC: the furthest start before PC whose instructions land exactly on PC.
+function _w64RenderDisassembly() {
+  const el = document.getElementById("w64-disasm");
+  const s = _w64S();
+  if (!el) return;
+  if (!s.mod || !s.stopped) { el.innerHTML = ""; return; }
+  const pc = s.stopPc;
+  if (s.disasmFrom !== undefined) {
+    const kept = _disasmBytes(Array.from(_w64Peek(s.disasmFrom, 96)), s.disasmFrom).slice(0, 22);
+    const i = kept.findIndex(l => l.address === pc);
+    if (i >= 1 && i <= 17) { _w64RenderDisasmRows(el, kept, pc); return; }
+  }
+  const landsOnPc = (from) => _disasmBytes(Array.from(_w64Peek(from, pc - from + 3)), from).some(l => l.address === pc);
+  // known instruction starts of the source map first, then the nearest decodable start
+  const known = (s.session?.entries || []).map(e => e.start).filter(a => a < pc && pc - a <= 24).sort((a, b) => a - b);
+  let start = known.find(landsOnPc) ?? pc;
+  if (start === pc) {
+    for (let back = 1; back <= 12; back++) if (landsOnPc((pc - back) & 0xFFFF)) start = (pc - back) & 0xFFFF;
+  }
+  const bytes = Array.from(_w64Peek(start, 96));
+  const all = _disasmBytes(bytes, start);
+  const at = all.findIndex(l => l.address === pc);
+  const rows = all.slice(Math.max(0, at - 6), Math.max(0, at - 6) + 22);
+  s.disasmFrom = rows[0]?.address;
+  _w64RenderDisasmRows(el, rows, pc);
+}
+
+function _w64RenderDisasmRows(el, rows, pc) {
+  const s = _w64S();
+  const labels = s.session?.labels || new Map();
+  el.innerHTML = rows.map(l => {
+    const a = l.address & 0xFFFF;
+    const label = labels.get(a);
+    const bp = s.applied.has(a) || _w64BreakpointAddresses().has(a);
+    return `<div class="w64-dline${a === pc ? " w64-dline--pc" : ""}" data-addr="${a}">`
+      + `<button type="button" class="w64-bp${bp ? " w64-bp--on" : ""}" data-addr="${a}" aria-label="${_vcEsc(t("w64ToggleBreakpoint"))}"></button>`
+      + `<span class="w64-daddr">${_w64Hex(a).slice(1)}</span>`
+      + `<span class="w64-dbytes">${l.bytes.map(b => b.toString(16).toUpperCase().padStart(2, "0")).join(" ")}</span>`
+      + `<span class="w64-dins"><span class="hl-mnem">${_vcEsc(l.mnemonic)}</span> ${_vcEsc(l.operand)}</span>`
+      + (label ? `<span class="w64-dlabel">${_vcEsc(label)}</span>` : "")
+      + `</div>`;
+  }).join("");
+}
+
+function _w64RenderMemory() {
+  const el = document.getElementById("w64-mem");
+  const s = _w64S();
+  if (!el || !s.mod) return;
+  const base = s.memAddr & 0xFFF8;
+  const bytes = _w64Peek(base, 128);
+  const rows = [];
+  for (let r = 0; r < 16; r++) {
+    const row = bytes.subarray(r * 8, r * 8 + 8);
+    const hex = Array.from(row).map(b => b.toString(16).toUpperCase().padStart(2, "0")).join(" ");
+    // screen codes 1–26 are the letters, 32–63 the digits and signs
+    const text = Array.from(row).map(b => {
+      const c = b & 0x7F;
+      const ch = c >= 1 && c <= 26 ? String.fromCharCode(64 + c) : c >= 32 && c < 64 ? String.fromCharCode(c) : ".";
+      return _vcEsc(ch);
+    }).join("");
+    rows.push(`<div class="w64-mline"><span class="w64-daddr">${_w64Hex(base + r * 8).slice(1)}</span><span class="w64-mhex">${hex}</span><span class="w64-mtxt">${text}</span></div>`);
+  }
+  el.innerHTML = rows.join("");
+}
+
+function _w64RenderBreakpoints() {
+  const el = document.getElementById("w64-bps");
+  const s = _w64S();
+  if (!el) return;
+  const list = [..._w64BreakpointAddresses()].sort((a, b) => a - b);
+  if (!list.length) { el.innerHTML = `<div class="w64-muted">${_vcEsc(t("w64NoBreakpoints"))}</div>`; return; }
+  el.innerHTML = list.map(a => {
+    const src = _w64SourceAt(a);
+    const where = src ? `${String(src.file).replace(/\\/g, "/").split("/").pop()}:${src.line}` : (s.session?.labels?.get(a) || "");
+    const manual = s.manual.has(a);
+    return `<div class="w64-bpline"><span class="w64-bp w64-bp--on" aria-hidden="true"></span><span class="w64-daddr">${_w64Hex(a).slice(1)}</span>`
+      + `<span class="w64-bpsrc">${_vcEsc(where)}</span>`
+      + (manual ? `<button type="button" class="vc-row-tool vc-tool--danger" data-unbp="${a}" aria-label="${_vcEsc(t("w64RemoveBreakpoint"))}">×</button>` : "")
+      + `</div>`;
+  }).join("");
+}
+
+function _w64ParseAddress(text) {
+  const v = String(text || "").trim();
+  if (/^\$[0-9a-f]{1,4}$/i.test(v)) return parseInt(v.slice(1), 16);
+  if (/^[0-9a-f]{1,4}$/i.test(v) && /[a-f]/i.test(v)) return parseInt(v, 16);
+  if (/^\d+$/.test(v)) return Number(v) & 0xFFFF;
+  const labels = _w64S().session?.labels;
+  if (labels) for (const [addr, name] of labels) if (name.toLowerCase() === v.toLowerCase()) return addr;
+  return NaN;
+}
+
+// Full screen: the dialog itself fills the window (CSS), in the desktop app the window goes full screen too.
+function _w64IsFullscreen() {
+  return !!document.getElementById("web64-dialog")?.classList.contains("w64-dialog--full");
+}
+function _w64SetWindowFullscreen(on) {
+  try { window.__TAURI__?.window?.getCurrentWindow()?.setFullscreen(!!on).catch(() => {}); } catch (_) {}
+}
+function _w64ToggleFullscreen() {
+  if (_w64IsFullscreen()) { _w64ExitFullscreen(); return; }
+  document.getElementById("web64-dialog")?.classList.add("w64-dialog--full");
+  _w64SetWindowFullscreen(true);
+  document.getElementById("w64-screen")?.focus();
+  _w64SyncButtons();
+}
+function _w64ExitFullscreen() {
+  if (!_w64IsFullscreen()) return;
+  document.getElementById("web64-dialog")?.classList.remove("w64-dialog--full");
+  _w64SetWindowFullscreen(false);
+  _w64SyncButtons();
+}
+
+// Saved size (prefs.size), kept inside the window. The grip pins the dialog to its place first:
+// a centred (translated) dialog would grow in both directions.
+function _w64ApplySize() {
+  const dlg = document.getElementById("web64-dialog");
+  const size = _w64Prefs().size;
+  if (!dlg || !size) return;
+  dlg.style.width = Math.min(size.w, innerWidth) + "px";
+  dlg.style.height = Math.min(size.h, innerHeight) + "px";
+}
+function _w64SetupResize() {
+  const dlg = document.getElementById("web64-dialog");
+  const grip = document.getElementById("w64-resize");
+  if (!dlg || !grip) return;
+  let start = null;
+  grip.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const r = dlg.getBoundingClientRect();
+    dlg.style.position = "fixed";
+    dlg.style.margin = "0";
+    dlg.style.transform = "none";
+    dlg.style.left = r.left + "px";
+    dlg.style.top = r.top + "px";
+    start = { x: e.clientX, y: e.clientY, w: r.width, h: r.height, left: r.left, top: r.top };
+    grip.setPointerCapture(e.pointerId);
+  });
+  grip.addEventListener("pointermove", (e) => {
+    if (!start) return;
+    dlg.style.width = Math.max(520, Math.min(innerWidth - start.left, start.w + e.clientX - start.x)) + "px";
+    dlg.style.height = Math.max(360, Math.min(innerHeight - start.top, start.h + e.clientY - start.y)) + "px";
+  });
+  const end = () => {
+    if (!start) return;
+    start = null;
+    const r = dlg.getBoundingClientRect();
+    _w64SavePref("size", { w: Math.round(r.width), h: Math.round(r.height) });
+  };
+  grip.addEventListener("pointerup", end);
+  grip.addEventListener("pointercancel", end);
+}
+
+function setupWeb64() {
+  const on = (id, ev, fn) => document.getElementById(id)?.addEventListener(ev, fn);
+  _w64SetupResize();
+  on("w64-fullscreen", "click", _w64ToggleFullscreen);
+  on("w64-crt", "click", _w64ToggleCrt);
+  if (typeof ResizeObserver === "function") {
+    const screen = document.getElementById("w64-screen");
+    if (screen) new ResizeObserver(_w64LayoutCrt).observe(screen);
+  }
+  on("web64-btn", "click", () => {
+    const dlg = document.getElementById("web64-dialog");
+    if (dlg?.open) _w64Close(); else _w64Show();
+  });
+  on("w64-close", "click", _w64Close);
+  on("web64-dialog", "close", _w64OnDialogClose);
+  on("w64-run", "click", () => (_w64S().session && !_w64S().session.adhoc ? _w64Debug() : _w64Run()));
+  on("w64-reset", "click", async () => {
+    const s = _w64S();
+    s.session = null;
+    _w64EndDebugView();
+    _w64ShowDebugPanel(!!_w64Prefs().debug);
+    await _w64ResetToReady();
+    _w64SyncButtons();
+  });
+  on("w64-pause", "click", () => {
+    const mod = _w64S().mod;
+    if (!mod || _w64S().stopped) return;
+    if (mod._vice_web_pause_status()) mod._vice_web_resume(); else mod._vice_web_pause();
+    setTimeout(_w64SyncButtons, 60);
+  });
+  on("w64-warp", "click", () => {
+    const mod = _w64S().mod;
+    if (!mod) return;
+    const warp = mod._vice_web_warp_enabled() ? 0 : 1;
+    mod._vice_web_set_warp_enabled(warp);
+    _w64SavePref("warp", !!warp);
+    _w64SyncButtons();
+  });
+  on("w64-sound", "click", () => _w64SetSound(!_w64S().audioOn));
+  on("w64-debug-toggle", "click", () => {
+    const show = !!document.getElementById("w64-debug")?.hidden;
+    _w64SavePref("debug", show);
+    _w64ShowDebugPanel(show);
+  });
+  on("w64-continue", "click", _w64Continue);
+  on("w64-break", "click", _w64Break);
+  on("w64-step-into", "click", () => _w64Step(0));
+  on("w64-step-over", "click", () => _w64Step(1));
+  on("w64-step-out", "click", () => _w64Step(2));
+  for (const [kind, button, input] of [["prg", "w64-load-prg", "w64-prg-file"], ["d64", "w64-attach-d64", "w64-d64-file"], ["crt", "w64-attach-crt", "w64-crt-file"]]) {
+    on(button, "click", () => document.getElementById(input)?.click());
+    on(input, "change", (e) => {
+      const file = e.target.files?.[0];
+      e.target.value = "";
+      _w64OpenFile(kind, file);
+    });
+  }
+  on("w64-detach-d64", "click", _w64DetachDisk);
+  on("w64-detach-crt", "click", () => _w64DetachCart());
+  _w64RenderMedia();
+  on("w64-video", "change", (e) => _w64SetVideo(e.target.value === "ntsc" ? "ntsc" : "pal"));
+  on("w64-sid-model", "change", (e) => {
+    const v = Number(e.target.value) ? 1 : 0;
+    _w64SavePref("sidModel", v);
+    _w64QueueRes("SidModel", v);
+  });
+  on("w64-sid-engine", "change", (e) => {
+    const v = Number(e.target.value) ? 1 : 0;
+    _w64SavePref("sidEngine", v);
+    _w64QueueRes("SidEngine", v);
+    _w64QueueRes("SidModel", Number(document.getElementById("w64-sid-model")?.value) ? 1 : 0);
+  });
+  _w64SyncMachineSelects();
+  on("w64-reu", "change", (e) => _w64SetReu(Number(e.target.value) || 0));
+  const reuSel = document.getElementById("w64-reu");
+  if (reuSel) reuSel.value = String(_w64Prefs().reu || 0);
+  on("w64-joy", "change", (e) => {
+    _w64S().joy = Number(e.target.value) || 0;
+    _w64SavePref("joy", _w64S().joy);
+    document.getElementById("w64-screen")?.focus();
+  });
+  try {
+    const joy = Number(_w64Prefs().joy ?? localStorage.getItem("c64va-web64-joy")) || 0;
+    _w64S().joy = joy;
+    const sel = document.getElementById("w64-joy");
+    if (sel) sel.value = String(joy);
+  } catch (_) {}
+  const canvas = document.getElementById("w64-screen");
+  canvas?.addEventListener("keydown", (e) => {
+    if (e.ctrlKey && (e.key === "v" || e.key === "V")) return;
+    _w64ResumeAudio();
+    if (e.key === "Escape" && _w64IsFullscreen()) { e.preventDefault(); _w64ExitFullscreen(); return; }
+    e.preventDefault();
+    e.stopPropagation();
+    const s = _w64S();
+    if (e.repeat || s.held.has(e.code)) return;
+    s.held.add(e.code);
+    _w64QueueKey(e, true);
+  });
+  canvas?.addEventListener("keyup", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!_w64S().held.delete(e.code)) return;
+    _w64QueueKey(e, false);
+  });
+  canvas?.addEventListener("blur", () => {
+    const s = _w64S();
+    for (const code of s.held) _w64QueueKey({ code, key: "" }, false);
+    s.held.clear();
+  });
+  canvas?.addEventListener("paste", (e) => {
+    const text = e.clipboardData?.getData("text");
+    if (text) _w64Paste(text.replace(/\r\n?/g, "\n"));
+  });
+  canvas?.addEventListener("click", () => { canvas.focus(); _w64ResumeAudio(); });
+  canvas?.addEventListener("dblclick", (e) => { e.preventDefault(); _w64ToggleFullscreen(); });
+  // debugger keys while the focus is in the window but not on the C64 screen (F5 is a C64 key)
+  on("web64-dialog", "keydown", (e) => {
+    if (e.key === "Escape" && _w64IsFullscreen()) { e.preventDefault(); _w64ExitFullscreen(); return; }
+    if (e.target === canvas || /^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName)) return;
+    const s = _w64S();
+    if (e.key === "F5") { e.preventDefault(); if (s.stopped) _w64Continue(); else _w64Break(); }
+    else if (e.key === "F10") { e.preventDefault(); _w64Step(1); }
+    else if (e.key === "F11") { e.preventDefault(); _w64Step(e.shiftKey ? 2 : 0); }
+  });
+  on("w64-disasm", "click", (e) => {
+    const btn = e.target.closest(".w64-bp[data-addr]");
+    if (!btn) return;
+    const s = _w64S();
+    const a = Number(btn.dataset.addr);
+    if (s.manual.has(a)) s.manual.delete(a); else s.manual.add(a);
+    _w64ApplyBreakpoints();
+    _w64RenderDisassembly();
+    _w64RenderBreakpoints();
+  });
+  on("w64-bps", "click", (e) => {
+    const btn = e.target.closest("[data-unbp]");
+    if (!btn) return;
+    _w64S().manual.delete(Number(btn.dataset.unbp));
+    _w64ApplyBreakpoints();
+    _w64RenderDebug();
+  });
+  on("w64-mem-form", "submit", (e) => {
+    e.preventDefault();
+    const input = document.getElementById("w64-mem-addr");
+    const a = _w64ParseAddress(input?.value);
+    if (!Number.isFinite(a)) { input?.classList.add("tg-invalid"); return; }
+    input.classList.remove("tg-invalid");
+    _w64S().memAddr = a & 0xFFFF;
+    _w64RenderMemory();
+  });
+  on("w64-regs", "change", (e) => {
+    const input = e.target.closest(".w64-reg-in");
+    const s = _w64S();
+    if (!input || !s.stopped) return;
+    const v = parseInt(String(input.value).replace(/^\$/, ""), 16);
+    if (Number.isFinite(v)) s.mod._vice_web_monitor_register_set(Number(input.dataset.reg), v);
+    if (Number(input.dataset.reg) === 0) s.stopPc = _w64Reg(0);
+    _w64RenderRegisters();
+    _w64RenderDisassembly();
+  });
+  on("w64-regs", "click", (e) => {
+    const flag = e.target.closest(".w64-flag[data-bit]");
+    const s = _w64S();
+    if (!flag || !s.stopped) return;
+    s.mod._vice_web_monitor_register_set(5, _w64Reg(5) ^ (1 << Number(flag.dataset.bit)));
+    _w64RenderRegisters();
+  });
+  _w64SyncButtons();
+  // left open at the last exit: open it again after the splash (the emulator's load and boot
+  // block the main thread, the splash bar would stop)
+  if (_w64Prefs().open) {
+    const restore = () => {
+      if (document.getElementById("splash-screen")) { setTimeout(restore, 200); return; }
+      _w64Show().catch(() => {});
+    };
+    setTimeout(restore, 800);
+  }
 }
 
 function _vmOpen() {

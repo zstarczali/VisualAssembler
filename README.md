@@ -2,11 +2,19 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.6.9**
+**Current version: v2.7.0**
 
 Visual Assembler is free and open source (GPLv3): every feature — editors, builds, hardware runs, languages and themes — works without a registration or serial. At most once a day the app sends an anonymous startup ping (version, OS, UI language, launch count, a random install ID) for the usage statistics; no email, project or source code is sent.
 
-## What's New in v2.6.9
+## What's New in v2.7.0
+
+- **Built-in C64** — VICE 3.10 (x64sc, compiled to WebAssembly) now runs inside the app, nothing to install. Choose **Built-in C64** in the Run menu, or open it with its toolbar button. Run builds your program, resets the machine and starts it.
+- **Debugger** — it stops before the instruction at a breakpoint; Continue, Break, Step into / over / out; editable registers and flags, disassembly around PC, memory view and breakpoint list. Breakpoints come from the editor, from Block mode and from the disassembly, and the editor follows the CPU. The **Debug** button uses it in this mode, and whenever no RetroDebugger is set.
+- **Machine settings** — PAL or NTSC, SID 6581 or 8580, reSID or FastSID, REU up to 16 MB, joystick port, warp and sound.
+- **Your own files** — the **Files** menu loads a PRG and attaches a D64 or a cartridge (.crt). The status bar shows the drive LED and track, and a blinking LED shows as a drive error, for example when a file cannot be found.
+- **Display** — a CRT filter with scanlines, full screen (button or double click, Esc leaves) and a resizable window. The window and its settings come back on the next start.
+
+## Earlier: v2.6.9
 
 - **Git branches** — the Version control window switches, creates, renames and deletes branches and merges one into the current branch; a merge conflict lists the files, marks them red and offers **Abort merge**. The open tabs reload from disk after a switch, merge or stash.
 - **File by file and stash** — every changed file can be staged, unstaged, discarded (an untracked one deleted) and its diff opened with a click; **Stash** puts the changes aside and the stash list applies, pops or drops them. Without *Stage all changes* a project commit takes only the staged files.
