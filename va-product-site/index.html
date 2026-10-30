@@ -2192,7 +2192,7 @@
       </div>
     </div>
     <div class="hero-left">
-      <div class="badge">V2.6.9 — LATEST RELEASE</div>
+      <div class="badge">V2.7.0 — LATEST RELEASE</div>
       <h1 class="hero-title">WRITE C64 PROGRAMS<br><span>BLOCKS, MACRO-ASM OR ULTIMATE BASIC.</span></h1>
       <p class="hero-tagline">&ldquo;The best all-in-one, multiplatform Commodore 64 IDE.&rdquo;</p>
       <p class="hero-sub">A modern Commodore 64 IDE: drag-and-drop 6502 assembly blocks or switch to a full text editor
@@ -2287,10 +2287,48 @@
 
   <hr class="div">
 
+  <!-- V2.7.0: BUILT-IN C64 + DEBUGGER -->
+  <div id="release-270" style="background:var(--scr-darker);padding:80px 0">
+    <div class="sec" style="padding-top:0;padding-bottom:0">
+      <div class="ub-tag">NEW IN V2.7.0</div>
+      <div class="sec-s">// A C64 INSIDE THE IDE</div>
+      <h2 class="sec-t">BUILT-IN C64<br><span style="color:var(--ylw)">WITH A REAL DEBUGGER</span></h2>
+      <p class="sec-d" style="max-width:680px">Version 2.7.0 puts VICE 3.10 inside the app: press Run, and your program starts on a complete C64, with nothing to install. Press Debug, and the editor follows the CPU, line by line.</p>
+      <div class="feature-list fl-2col">
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>Built-in C64:</b> <span>VICE 3.10 (x64sc) compiled to WebAssembly, with sound, keyboard and joystick.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>Debugger:</b> <span>stops before the instruction at a breakpoint; step into / over / out, editable registers and flags, disassembly, memory view.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>The editor follows the CPU:</b> <span>breakpoints from the line gutter, Block mode or the disassembly; the current line is marked in your source.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>Machine settings:</b> <span>PAL or NTSC, SID 6581 or 8580, reSID or FastSID, REU up to 16 MB, warp.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>Your own files:</b> <span>load a PRG, attach a D64 or a cartridge.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>Display:</b> <span>CRT filter with scanlines, full screen, resizable window; everything is remembered.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="div">
+
   <!-- V2.6.9: GIT BRANCHES, BETTER DIFF -->
   <div id="release-269" style="background:var(--scr-darker);padding:80px 0">
     <div class="sec" style="padding-top:0;padding-bottom:0">
-      <div class="ub-tag">NEW IN V2.6.9</div>
+      <div class="ub-tag">V2.6.9</div>
       <div class="sec-s">// BRANCH, MERGE, STASH — WITHOUT LEAVING THE IDE</div>
       <h2 class="sec-t">GIT BRANCHES<br><span style="color:var(--ylw)">AND A DIFF YOU CAN READ</span></h2>
       <p class="sec-d" style="max-width:680px">Version 2.6.9 turns the Version control window into a small git client: switch and merge branches, stage files one by one, stash work aside — and read every change in a new diff view with line numbers and syntax colours.</p>
@@ -3681,6 +3719,7 @@
         <div class="tab" data-tab="map" onclick="showTab('map')">TILEMAP</div>
         <div class="tab" data-tab="level" onclick="showTab('level')">LEVEL EDITOR</div>
         <div class="tab" data-tab="hires" onclick="showTab('hires')">GRAPHICS</div>
+        <div class="tab" data-tab="web64" onclick="showTab('web64')">BUILT-IN C64</div>
         <div class="tab" data-tab="curve" onclick="showTab('curve')">CURVES</div>
         <div class="tab" data-tab="tablegen" onclick="showTab('tablegen')">TABLE GENERATOR</div>
         <div class="tab" data-tab="char" onclick="showTab('char')">CHARACTERS</div>
@@ -3746,6 +3785,11 @@
         <img src="uploads/bitmaped.png" alt="Hi-res graphics editor">
         <div class="tab-cap"><span class="tab-cap-t">HI-RES GRAPHICS EDITOR — 320×200</span><span
             class="tab-cap-d">PIXEL DRAWING, MULTICOLOR MODE, NATIVE .BIN EXPORT (10KB)</span></div>
+      </div>
+      <div class="tab-panel" id="tab-web64">
+        <img src="uploads/built-in-c64.webp" alt="The built-in C64 and its debugger stopped at a breakpoint, with the source line marked in the editor" width="2000" height="1340" loading="lazy">
+        <div class="tab-cap"><span class="tab-cap-t">BUILT-IN C64 — VICE IN THE APP, WITH A DEBUGGER</span><span
+            class="tab-cap-d">BREAKPOINTS, STEPPING, REGISTERS, MEMORY — THE EDITOR FOLLOWS THE CPU</span></div>
       </div>
       <div class="tab-panel" id="tab-curve">
         <img src="uploads/curveed.png" alt="Curve editor">

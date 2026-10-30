@@ -1630,7 +1630,9 @@ async fn build_acme_prg(app: AppHandle, payload: BuildAcmePayload) -> serde_json
     let output_path = temp_dir.join(format!("{}-{}.prg", stem, stamp));
     let labels_path = temp_dir.join(format!("{}-{}.labels", stem, stamp));
     let report_path = temp_dir.join(format!("{}-{}.report", stem, stamp));
-    if let Err(error) = fs::write(&source_path, payload.source) {
+    // ACME leaves a last line without a newline out of its report
+    let acme_source = if payload.source.ends_with('\n') { payload.source } else { payload.source + "\n" };
+    if let Err(error) = fs::write(&source_path, acme_source) {
         return serde_json::json!({ "ok": false, "error": error.to_string() });
     }
     let mut command = Command::new(&acme_path);

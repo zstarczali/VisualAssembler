@@ -1,5 +1,7 @@
 C64 Visual Assembler - Installation Guide
-Version 2.6.9
+Version 2.7.0
+
+2.7.0: Built-in C64: VICE 3.10 (x64sc in WebAssembly) inside the app, nothing to install (Run menu -> Built-in C64, or its toolbar button); debugger that stops before the instruction at a breakpoint, with Continue, Break, Step into / over / out, editable registers and flags, disassembly, memory view and breakpoint list, breakpoints from the editor, Block mode and the disassembly, the editor following the CPU (the Debug button uses it in this mode and whenever no RetroDebugger is set); PAL / NTSC, SID 6581 / 8580, reSID / FastSID, REU up to 16 MB, joystick port, warp, sound; load a PRG, attach a D64 or a cartridge; CRT filter with scanlines, full screen, resizable window, window and settings remembered.
 
 2.6.9: Git branches in the Version control window (switch, new, rename, delete, merge with a conflict list and Abort merge), stage / unstage / discard / diff per file, stash (push, apply, pop, drop), a commit of only the staged files; a new diff view (a card per file, old and new line numbers, syntax colours, the changed part of a line highlighted, side-by-side view); Discard changes asks first and resets the files on disk to HEAD too (git restore), so a branch switch works afterwards; Kick projects: cycle counts, errors and hints in files the startup file does not import, a forward branch inside .pseudopc relative to the logical address, charAt(i) == '1' as in KickAssembler; fixed: Save project saves an opened project in place instead of asking for a name; the Version control window stays within the screen, with icon tool buttons; shorter fields in the Table Generator.
 
@@ -79,7 +81,7 @@ Tested on Ubuntu 22.04 and 24.04.
 -----------------------
 Download the .deb package from the releases page and install:
 
-  sudo dpkg -i "c64-visual-assembler_2.6.9_amd64.deb"
+  sudo dpkg -i "c64-visual-assembler_2.7.0_amd64.deb"
   sudo apt-get install -f   # fix any missing dependencies
 
 Launch from the Applications menu or:
@@ -172,7 +174,7 @@ Requirements: macOS 11.0+, Apple Silicon (M1/M2/M3)
 
 1. C64 Visual Assembler
 -----------------------
-1. Download the 2.6.9 DMG for your architecture from the releases page
+1. Download the 2.7.0 DMG for your architecture from the releases page
 2. Mount the DMG and drag the app to /Applications
 3. First launch: Right-click the app -> "Open" (macOS will block double-click)
 4. Click "Open" in the security dialog

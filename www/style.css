@@ -7215,10 +7215,13 @@ html[data-theme="commodore77"] .splash-image {
   overflow: hidden;
 }
 .splash-panel .splash-loader-bar {
-  width: 0%;
+  width: 100%;
   height: 100%;
   background: #7a8dff;
   border-radius: 2px;
+  transform: scaleX(0);
+  transform-origin: left center;
+  will-change: transform;
   animation-play-state: paused;
 }
 .splash-panel.ready .splash-loader-bar {
@@ -7346,10 +7349,10 @@ html[data-theme="commodore77"] .splash-image {
 
 @keyframes splash-loading {
   0% {
-    width: 0%;
+    transform: scaleX(0);
   }
   100% {
-    width: 100%;
+    transform: scaleX(1);
   }
 }
 
@@ -12821,7 +12824,7 @@ button.vm-prof-row:hover { outline: 1px solid var(--primary); }
 .ub-show-heat .ub-line-numbers-content .source-line-number[data-cost]::after {
   content: attr(data-cost);
   position: absolute;
-  left: 4px;
+  left: 12px; /* the breakpoint dot is in front of it */
   right: auto;
   bottom: auto;
   width: auto;
@@ -12928,3 +12931,90 @@ dialog.dlg-active[open]:not(:modal) > :first-child > :first-child {
 .sid-viz-bands select { width: 62px; min-width: 62px; height: 24px; min-height: 0; padding: 1px 26px 1px 8px; font-size: 0.75rem; flex: none; }
 .sid-viz-hdr .websid-play-xbtn { margin-left: 0; }
 .sid-viz-canvas { display: block; flex: 1; min-height: 0; width: 100%; background: #000; }
+
+/* ── Beépített C64 (VICE web, nem modális) ───────────────────────── */
+/* fix méret: a tartalom (státusz, debugger panel) nem méretezi át, így mozgatáskor sem ugrik */
+.w64-dialog { width: min(1180px, 96vw); height: min(694px, 92vh); max-width: 100vw; max-height: 100vh; overflow: hidden; z-index: 9400; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35); border-radius: 8px; }
+.w64-card { position: relative; display: flex; flex-direction: column; height: 100%; max-height: none; overflow: hidden; }
+.w64-resize { position: absolute; right: 0; bottom: 0; width: 16px; height: 16px; cursor: nwse-resize; touch-action: none; z-index: 2;
+  background: linear-gradient(135deg, transparent 50%, var(--secondary) 50%, var(--secondary) 58%, transparent 58%, transparent 70%, var(--secondary) 70%, var(--secondary) 78%, transparent 78%); }
+.w64-dialog--full .w64-resize { display: none; }
+.w64-hdr .cg-xbtn { margin-left: auto; }
+.w64-statusbar { flex: none; display: flex; align-items: center; min-height: 24px; padding: 3px 24px 3px 12px; border-top: 1px solid var(--panel-border); background: var(--panel-bg); }
+.w64-statusbar .vm-status { min-width: 0; }
+.w64-media { margin-left: auto; }
+.w64-drive { display: inline-flex; align-items: center; gap: 6px; margin-left: 14px; font-size: 0.74rem; color: var(--secondary); white-space: nowrap; }
+.w64-led { width: 12px; height: 6px; border-radius: 1px; background: color-mix(in srgb, var(--secondary) 28%, transparent); position: relative; overflow: hidden; }
+.w64-led::after { content: ""; position: absolute; inset: 0; background: #22c55e; opacity: var(--w64-led, 0); }
+.w64-drive--error { color: #ef4444; font-weight: 700; }
+.w64-drive--error .w64-led::after { background: #ef4444; }
+.w64-hdr .ed-file-menu button:disabled { opacity: 0.45; cursor: default; }
+.w64-dialog--full .w64-statusbar { display: none; }
+.w64-toolbar .cg-tool:disabled { opacity: 0.35; cursor: default; background: transparent; }
+.w64-joy { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; font-size: 0.74rem; color: var(--secondary); }
+.w64-joy .cg-select { width: auto; }
+.w64-joy + .w64-joy { margin-left: 0; }
+.w64-body { display: flex; gap: 12px; padding: 12px; flex: 1; min-height: 0; overflow: hidden; }
+.w64-screen-wrap { position: relative; flex: 1 1 0; min-width: 0; min-height: 0; display: flex; }
+/* a képernyő kitölti a helyét, az arány megmarad (a vászon object-fit-tel illeszkedik) */
+.w64-screen { display: block; width: 100%; height: 100%; object-fit: contain; background: transparent; image-rendering: pixelated;
+  border-radius: 4px; outline: none; }
+.w64-screen:focus, .w64-screen:focus-visible { outline: none; box-shadow: none; }
+.w64-screen--crt { image-rendering: auto; filter: brightness(1.12) saturate(1.05); }
+.w64-crt-layer { position: absolute; pointer-events: none; background: radial-gradient(ellipse at center, transparent 62%, rgba(0, 0, 0, 0.3) 100%); }
+.w64-crt-layer[hidden] { display: none; }
+.w64-crt-layer--lines { background:
+  radial-gradient(ellipse at center, transparent 62%, rgba(0, 0, 0, 0.3) 100%),
+  repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.32) 0, rgba(0, 0, 0, 0.32) var(--w64-sl-dark), transparent var(--w64-sl-dark), transparent var(--w64-sl-period)); }
+.w64-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none;
+  color: #fff; font-size: 0.85rem; text-shadow: 0 1px 3px #000; }
+.w64-overlay[hidden] { display: none; }
+.w64-debug { flex: 0 0 340px; display: flex; flex-direction: column; gap: 12px; min-height: 0; overflow-y: auto;
+  font-family: 'JetBrains Mono', 'Consolas', monospace; font-size: 0.74rem; }
+.w64-debug[hidden] { display: none; }
+.w64-sec { display: flex; flex-direction: column; gap: 6px; }
+.w64-sec-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.w64-muted { color: var(--secondary); font-family: inherit; }
+.w64-regs { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; }
+.w64-reg { display: inline-flex; align-items: center; gap: 4px; color: var(--secondary); }
+.w64-reg .w64-reg-in { width: 52px; height: 24px; text-align: right; font-family: inherit; }
+.w64-flags { display: flex; gap: 2px; }
+.w64-flag { min-height: 0; width: 20px; height: 22px; padding: 0; border: 1px solid var(--panel-border); border-radius: 2px;
+  background: transparent; color: var(--secondary); font-family: inherit; font-size: 0.72rem; cursor: pointer; }
+.w64-flag--on { background: color-mix(in srgb, var(--primary) 24%, transparent); color: var(--primary); font-weight: 700; }
+.w64-flag:disabled { opacity: 0.35; cursor: default; }
+.w64-disasm, .w64-mem, .w64-bps { border: 1px solid var(--panel-border); border-radius: 3px; background: var(--panel-bg); padding: 4px 0; }
+.w64-dline, .w64-mline, .w64-bpline { display: flex; align-items: center; gap: 8px; padding: 0 6px; min-height: 18px; white-space: pre; }
+.w64-dline--pc { background: color-mix(in srgb, #f59e0b 22%, transparent); box-shadow: inset 2px 0 0 #f59e0b; }
+.w64-bp { flex: none; width: 10px; height: 10px; min-height: 0; padding: 0; border-radius: 50%; border: 1px solid transparent;
+  background: transparent; cursor: pointer; }
+.w64-dline:hover .w64-bp:not(.w64-bp--on) { border-color: color-mix(in srgb, #e05050 50%, transparent); }
+.w64-bp--on { background: #e05050; }
+.w64-daddr { color: var(--secondary); }
+.w64-dbytes { color: color-mix(in srgb, var(--secondary) 70%, transparent); width: 7.5em; overflow: hidden; }
+.w64-dins { color: var(--text); }
+.w64-dins .hl-mnem { color: var(--hl-mnem); }
+.w64-dlabel { margin-left: auto; color: var(--hl-label); overflow: hidden; text-overflow: ellipsis; }
+.w64-mhex { color: var(--text); }
+.w64-mtxt { color: var(--secondary); }
+.w64-mem-form .cg-text-in { width: 110px; height: 24px; }
+.w64-bpsrc { color: var(--text); overflow: hidden; text-overflow: ellipsis; }
+.w64-bpline .vc-row-tool { margin-left: auto; }
+/* a debugger aktuális sora az Expert szerkesztőben */
+.expert-dbg-line { background-image: linear-gradient(90deg, color-mix(in srgb, #f59e0b 30%, transparent), color-mix(in srgb, #f59e0b 8%, transparent));
+  box-shadow: inset 3px 0 0 #f59e0b; }
+/* teljes képernyő: a dialógus tölti ki az ablakot, csak a C64 képernyője látszik (a húzás inline stílusa fölött) */
+.w64-dialog.w64-dialog--full { left: 0 !important; top: 0 !important; transform: none !important; margin: 0 !important; width: 100vw !important;
+  height: 100vh !important; max-width: none; max-height: none; z-index: 2147483000 !important; border-radius: 0; background: #000; }
+.w64-dialog--full .w64-card { width: 100%; height: 100%; max-height: none; border-radius: 0; border: none; background: #000; }
+.w64-dialog--full .w64-hdr, .w64-dialog--full .w64-toolbar, .w64-dialog--full .w64-debug { display: none; }
+.w64-dialog--full .w64-body { flex: 1; height: 100%; padding: 0; gap: 0; }
+.w64-dialog--full .w64-screen { border-radius: 0; box-shadow: none; }
+
+.whats-new-previous {
+  margin: 16px 0 6px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--secondary);
+}
