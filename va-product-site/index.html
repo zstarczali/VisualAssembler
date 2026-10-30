@@ -1129,7 +1129,7 @@
     .download-group--va { position: relative }
 
 
-    .download-group:last-child {
+    .download-group:last-child:nth-child(odd) {
       grid-column: 1 / -1
     }
 
@@ -1953,7 +1953,7 @@
         grid-template-columns: 1fr
       }
 
-      .download-group:last-child {
+      .download-group:last-child:nth-child(odd) {
         grid-column: auto
       }
 
@@ -3830,7 +3830,7 @@
         <div class="dl-corner br">─┘</div>
         <div class="sec-s" style="text-align:center;margin-bottom:16px">// DOWNLOAD</div>
         <h2 class="sec-t" style="text-align:center">C64 VISUAL ASSEMBLER<br><span style="color:var(--ylw)">FREE DOWNLOAD</span></h2>
-        <p class="sec-d">Download the ready-to-use Visual Assembler installer for your system, Ultimate Basic command-line packages, manuals and example projects directly from this site.</p>
+        <p class="sec-d">Download the ready-to-use Visual Assembler installer for your system, Ultimate Basic and VMA command-line packages, manuals and example projects directly from this site.</p>
         <div class="download-groups">
           <div class="download-group download-group--va">
             <div class="download-group-title">VISUAL ASSEMBLER</div>
@@ -3881,11 +3881,37 @@
             </div>
           </div>
           <div class="download-group">
+            <div class="download-group-title">VMA COMPILER (CLI)</div>
+            <div class="download-picker" data-download-picker>
+              <p class="download-picker-label">1. SELECT YOUR PLATFORM</p>
+              <div class="platform-choices" role="group" aria-label="VMA platform">
+                <button class="platform-choice" type="button" data-platform="windows" aria-pressed="true">WINDOWS</button>
+                <button class="platform-choice" type="button" data-platform="macos" aria-pressed="false">MACOS</button>
+                <button class="platform-choice" type="button" data-platform="linux" aria-pressed="false">LINUX</button>
+              </div>
+              <p class="download-picker-label">2. SELECT YOUR PROCESSOR</p>
+              <div class="download-variant is-active" data-platform="windows">
+                <a class="download-item" href="download.php?file=vma-windows-x64">INTEL / AMD X64</a>
+                <a class="download-item" href="download.php?file=vma-windows-arm64">WINDOWS ARM64</a>
+              </div>
+              <div class="download-variant" data-platform="macos">
+                <a class="download-item" href="download.php?file=vma-macos-x64">INTEL MAC</a>
+                <a class="download-item" href="download.php?file=vma-macos-arm64">APPLE SILICON</a>
+              </div>
+              <div class="download-variant" data-platform="linux">
+                <a class="download-item" href="download.php?file=vma-linux-x64">LINUX X64</a>
+              </div>
+            </div>
+          </div>
+          <div class="download-group">
             <div class="download-group-title">MANUALS &amp; EXAMPLES</div>
             <div class="download-list">
               <a class="download-item" href="downloads/VA/Visual%20Assembler%20Manual.pdf" download>VISUAL ASSEMBLER MANUAL</a>
               <a class="download-item" href="downloads/VA/Visual%20Assembler%20Manual.hu.pdf" download>HUNGARIAN MANUAL</a>
               <a class="download-item" href="downloads/VA/MANUAL.pdf" download>ULTIMATE BASIC MANUAL</a>
+              <a class="download-item" href="downloads/VMA/VMA-Manual.pdf" download>VMA LANGUAGE MANUAL</a>
+              <a class="download-item" href="downloads/VMA/VMA-Manual.hu.pdf" download>VMA HUNGARIAN MANUAL</a>
+              <a class="download-item" href="downloads/VMA/README.pdf" download>VMA COMMAND LINE (README)</a>
               <a class="download-item" href="downloads/VA/ACME-0.97-reference.pdf" download>ACME 0.97 REFERENCE</a>
               <a class="download-item" href="downloads/VA/va-samples.zip" download>VISUAL ASSEMBLER SAMPLES</a>
               <a class="download-item" href="downloads/VA/ub-examples.zip" download>ULTIMATE BASIC EXAMPLES</a>
@@ -4067,9 +4093,11 @@
       <div class="ub-repo-copy">
         <div class="sec-s">// OPEN SOURCE COMPILER</div>
         <h2 class="sec-t">ULTIMATE BASIC</h2>
-        <p class="sec-d">Explore the compiler source, language documentation and latest development on GitHub.</p>
+        <p class="sec-d">Explore the compiler source, language documentation and latest development on GitHub; ready-made command-line packages for Windows, macOS and Linux are in the Download section.</p>
         <a class="btn btn-o" href="https://github.com/zstarczali/UltimateBasic" target="_blank" rel="noopener">►
           ULTIMATE BASIC REPOSITORY</a>
+        <a class="btn btn-o" href="#download">►
+          ULTIMATE BASIC DOWNLOADS</a>
       </div>
     </div>
   </section>
@@ -4084,10 +4112,10 @@
       <div class="ub-repo-copy">
         <div class="sec-s">// OPEN SOURCE COMPILER</div>
         <h2 class="sec-t">VISUAL MACRO ASSEMBLER</h2>
-        <p class="sec-d">The VMA assembler of Visual Assembler in Rust: library and command-line compiler, with the language manual in English and Hungarian. Version 2.1 builds a PRG, a Magic Desk cartridge (<code>--crt</code>) or a 1541 disk image (<code>--d64</code>, no c1541 needed); ready-made <code>vma</code> binaries for Windows, macOS and Linux are on the releases page.</p>
+        <p class="sec-d">The VMA assembler of Visual Assembler in Rust: library and command-line compiler, with the language manual in English and Hungarian. Version 2.1 builds a PRG, a Magic Desk cartridge (<code>--crt</code>) or a 1541 disk image (<code>--d64</code>, no c1541 needed); ready-made <code>vma</code> binaries for Windows, macOS and Linux (with the manuals as PDF) are in the Download section.</p>
         <a class="btn btn-o" href="https://github.com/zstarczali/VMA" target="_blank" rel="noopener">►
           VMA REPOSITORY</a>
-        <a class="btn btn-o" href="https://github.com/zstarczali/VMA/releases" target="_blank" rel="noopener">►
+        <a class="btn btn-o" href="#download">►
           VMA DOWNLOADS</a>
       </div>
     </div>
