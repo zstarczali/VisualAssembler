@@ -7192,7 +7192,6 @@ let _ubFontSize = 14;
 let _ubFindMatches = [];
 let _ubFindIndex = -1;
 let _ubSelectedCommand = "print";
-let _ubStartupTabId = null;
 let _ubProjectData = null;
 let _ubProjectDirty = false;
 
@@ -9314,7 +9313,7 @@ function _ubRenderProjectFiles() {
     const remove = _makeProjDelBtn(() => {
       const idx = container.indexOf(file);
       if (idx >= 0) container.splice(idx, 1);
-      if (_ubProjectData.startupFile === file.path) { _ubProjectData.startupFile = null; _ubStartupTabId = null; }
+      if (_ubProjectData.startupFile === file.path) _ubProjectData.startupFile = null;
       _ubProjectDirty = true;
       _ubRenderProjectFiles();
     });
@@ -9376,7 +9375,6 @@ function _ubRenderProjectFiles() {
     startup.addEventListener("click", (event) => {
       event.stopPropagation();
       _ubProjectData.startupFile = isStartup ? null : file.path;
-      _ubStartupTabId = isStartup ? null : (tab?.id || null);
       _ubProjectDirty = true;
       _ubRenderProjectFiles();
     });
@@ -9478,6 +9476,8 @@ function _ubCreateFileTab(path, content) {
   selectedBlockId = null;
   if (!ultimateBasicMode) setUltimateBasicMode(true);
   ubEditor.value = content;
+  _ubEditorTabId = tab.id; // _tabSaveCurrent keeps the editor's text only for this tab
+  _ubBreakpointLines = [];
   _ubFilePath = path;
   _ubDirty = false;
   updateWindowTitle(fileName);
@@ -9497,8 +9497,8 @@ async function _ubOpenProject() {
   _ubProjectData = { name: project.name || "UltimateBasic", files: (project.files || []).filter(file => !file.type || file.type === "file" || file.type === "folder"), startupFile: project.startupFile || null, _projPath: result.filePath };
   _ubProjectDirty = false;
   _ubRenderProjectFiles();
-  const startup = _ubProjectData.files.find(file => file.path === _ubProjectData.startupFile);
-  if (startup) { const tab = await _ubOpenProjectFile(startup); _ubStartupTabId = tab?.id || null; }
+  const startup = _projFindEntry(_ubProjectData.files, _ubProjectData.startupFile);
+  if (startup) await _ubOpenProjectFile(startup);
   _ubSetStatus(`${t("ubProjectOpened")}: ${_ubProjectData.name}`);
 }
 
@@ -9921,10 +9921,34 @@ async function _ubCompile(showProgress = false, options = {}) {
   return result;
 }
 
+// What a UB build compiles: the project's starred file, open or not; the active tab when
+// nothing is starred or the tab is outside the project.
+async function _ubBuildTarget() {
+  const current = { source: ubEditor?.value || "", path: _ubFilePath || null, startup: false };
+  const entry = _projFindEntry(_ubProjectData?.files, _ubProjectData?.startupFile);
+  if (!entry) return current;
+  const inProject = (nodes, norm) => (nodes || []).some(n => n.type === "folder"
+    ? inProject(n.children, norm) : _normFilePath(_ubResolveProjectPath(n.path)) === norm);
+  const active = tabs.find(tab => tab.id === activeTabId);
+  const activeNorm = _normFilePath(active?.ubFilePath || active?.filePath || _ubFilePath);
+  if (!activeNorm || !inProject(_ubProjectData.files, activeNorm)) return current;
+  const path = _ubResolveProjectPath(entry.path);
+  if (_normFilePath(path) === activeNorm) return current;
+  const tab = _findTabByPath(path);
+  if (tab) return { source: tab.ubText || "", path, name: tab.name, startup: true, breakpoints: tab.ubBreakpointLines };
+  const file = await window.electronAPI?.readTextFile?.(path);
+  if (!file?.ok) return { error: tf("projStartupMissing", { file: entry.name || entry.path }) };
+  return { source: file.content || "", path, name: entry.name, startup: true };
+}
+
+function _ubCompileTarget(target, options = {}) {
+  return target.startup ? _ubCompileSource(target.source, target.path, target.name, options) : _ubCompile(false, options);
+}
+
 async function _ubRun(mode) {
-  const startupTab = _ubStartupTabId !== null ? tabs.find(tab => tab.id === _ubStartupTabId) : null;
-  const source = startupTab && startupTab.id !== activeTabId ? startupTab.ubText || "" : ubEditor?.value || "";
-  const sourcePath = startupTab ? startupTab.ubFilePath || startupTab.filePath || null : _ubFilePath || null;
+  const target = await _ubBuildTarget();
+  if (target.error) { _ubSetStatus(target.error, true); return; }
+  const { source } = target;
   if (!source.trim()) { _ubSetStatus(t("ubNothingToRun"), true); return; }
   const usesUltimate = mode === "ultimate" || mode === "ultimate-d64";
   const usesKff2 = mode === "kff2";
@@ -9938,9 +9962,7 @@ async function _ubRun(mode) {
   let success = false;
   try {
     setWorkProgress(18);
-    const build = startupTab && startupTab.id !== activeTabId
-      ? await _ubCompileSource(source, sourcePath, startupTab.name)
-      : await _ubCompile();
+    const build = await _ubCompileTarget(target);
     if (!build) return;
     setWorkProgress(exomizerEnabled ? 78 : 70);
 
@@ -10024,10 +10046,9 @@ function _debuggerStartOptions(hasBasicSysStub, codeOrigin, enabled = debuggerJm
 }
 
 async function _ubRunDebugger() {
-  const startupTab = _ubStartupTabId !== null ? tabs.find(tab => tab.id === _ubStartupTabId) : null;
-  const source = startupTab && startupTab.id !== activeTabId ? startupTab.ubText || "" : ubEditor?.value || "";
-  const sourcePath = startupTab ? startupTab.ubFilePath || startupTab.filePath || null : _ubFilePath || null;
-  if (!source.trim()) {
+  const target = await _ubBuildTarget();
+  if (target.error) { _ubSetStatus(target.error, true); return; }
+  if (!target.source.trim()) {
     _ubSetStatus(t("ubNothingToRun"), true);
     return;
   }
@@ -10044,13 +10065,11 @@ async function _ubRunDebugger() {
   let success = false;
   try {
     setWorkProgress(20);
-    const build = startupTab && startupTab.id !== activeTabId
-      ? await _ubCompileSource(source, sourcePath, startupTab.name, { skipExomizer: true })
-      : await _ubCompile(false, { skipExomizer: true });
+    const build = await _ubCompileTarget(target, { skipExomizer: true });
     if (!build) return;
     setWorkProgress(60);
-    const breakpointLines = startupTab && Array.isArray(startupTab.ubBreakpointLines)
-      ? startupTab.ubBreakpointLines
+    const breakpointLines = target.startup
+      ? (Array.isArray(target.breakpoints) ? target.breakpoints : [])
       : _getTabBreakpointLines("ub");
     const result = await window.electronAPI.launchDebugger({
       bytes: Array.from(build.prg || []),
@@ -10986,8 +11005,8 @@ async function showBuildInfoDialog() {
 async function _buildInfoSourcePath() {
   const tab = tabs.find(tb => tb.id === activeTabId);
   if (ultimateBasicMode) {
-    const startup = _ubStartupTabId !== null ? tabs.find(tb => tb.id === _ubStartupTabId) : null;
-    return startup?.ubFilePath || startup?.filePath || _ubFilePath || tab?.filePath || "";
+    const target = await _ubBuildTarget();
+    return target.path || tab?.filePath || "";
   }
   if (_kickProjectActive()) return _kickNormPath(_projResolveAbsPath(_expertProjectData.startupFile));
   if (expertMode) {
@@ -15936,7 +15955,6 @@ async function _closeProject() {
 
     _ubProjectData = null;
     _ubProjectDirty = false;
-    _ubStartupTabId = null;
     _ubFilePath = "";
     _ubDirty = false;
     _ubLastResult = null;
@@ -16036,7 +16054,7 @@ async function _openProjectFromMenu() {
     _expertRenderProjectTree();
     // Auto-open startup file if set
     if (_expertProjectData.startupFile) {
-      const sf = _expertProjectData.files.find(f => f.path === _expertProjectData.startupFile);
+      const sf = _projFindEntry(_expertProjectData.files, _expertProjectData.startupFile);
       if (sf) await _expertProjectOpenFile(sf);
     }
     _expertSetStatus(t("projOpened") + ": " + _expertProjectData.name, "ok");
@@ -16114,7 +16132,7 @@ async function _expertOpenProject() {
   _expertRenderProjectTree();
   // Auto-open startup file if set
   if (_expertProjectData.startupFile) {
-    const sf = _expertProjectData.files.find(f => f.path === _expertProjectData.startupFile);
+    const sf = _projFindEntry(_expertProjectData.files, _expertProjectData.startupFile);
     if (sf) await _expertProjectOpenFile(sf);
   }
   _expertSetStatus(t("projOpened") + ": " + _expertProjectData.name, "ok");
@@ -16412,7 +16430,6 @@ async function _templateCreateProject() {
     };
     _ubProjectDirty = false;
     const opened = await _ubOpenProjectFile(_ubProjectData.files[0]);
-    _ubStartupTabId = opened?.id || null;
     const blankIdx = tabs.findIndex(tab => tab.id === blankId && tab !== opened);
     if (blankIdx >= 0) {
       tabs.splice(blankIdx, 1);
@@ -19425,7 +19442,7 @@ function _debuggerTargets(prg) {
   let sourcePath = "";
   let expertBreakpointLines = _getTabBreakpointLines("expert");
   if ((startupProgram || prg.vma?.input.sourcePath) && _expertProjectData?.startupFile) {
-    const startupFile = _expertProjectData.files.find(file => file.path === _expertProjectData.startupFile);
+    const startupFile = _projFindEntry(_expertProjectData.files, _expertProjectData.startupFile);
     if (startupFile && (startupProgram || _normFilePath(_projResolveAbsPath(startupFile.path)) === _normFilePath(prg.vma.input.sourcePath))) {
       sourcePath = _projResolveAbsPath(startupFile.path);
       const normalizedPath = _normFilePath(sourcePath);
@@ -21984,7 +22001,6 @@ async function _tabClose(tabId) {
     tab.expertText = "";
     tab.ubText = "";
     tab.ubFilePath = "";
-    if (_ubStartupTabId === tab.id) _ubStartupTabId = null;
     if (expertMode && expertEditor) {
       _expertSourceText = "";
       _expertProjectionActive = false;
@@ -22000,7 +22016,6 @@ async function _tabClose(tabId) {
     return true;
   }
   const idx = tabs.findIndex(t => t.id === tabId);
-  if (_ubStartupTabId === tabId) _ubStartupTabId = null;
   tabs.splice(idx, 1);
   if (activeTabId === tabId) {
     const nextTab = tabs[Math.min(idx, tabs.length - 1)];
@@ -22095,11 +22110,6 @@ function _workspaceRestoreProjects(projects) {
   _ubProjectData = toData(projects?.ub);
   _ubProjectDirty = !!projects?.ub?.dirty;
 
-  _ubStartupTabId = null;
-  if (_ubProjectData?.startupFile) {
-    const startupTab = _findTabByPath(_ubResolveProjectPath(_ubProjectData.startupFile));
-    _ubStartupTabId = startupTab?.id ?? null;
-  }
   _expertRenderProjectTree();
   _ubRenderProjectFiles();
 }
@@ -23150,9 +23160,8 @@ async function saveD64ToFile() {
   }
 
   if (ultimateBasicMode) {
-    const startupTab = _ubStartupTabId !== null ? tabs.find(tab => tab.id === _ubStartupTabId) : null;
-    const source = startupTab && startupTab.id !== activeTabId ? startupTab.ubText || "" : ubEditor?.value || "";
-    _ubApplyD64LoadAddresses(source);
+    const target = await _ubBuildTarget();
+    _ubApplyD64LoadAddresses(target.source || "");
   }
 
   openD64ExportDialog(prg.bytes, ultimateBasicMode ? prg.sidecars : _buildDebuggerSidecarPayload(prg));
@@ -24637,17 +24646,11 @@ async function runViaExomizer() {
 
 async function buildRunPrgForCurrentMode() {
   if (ultimateBasicMode) {
-    const startupTab = _ubStartupTabId !== null ? tabs.find(tab => tab.id === _ubStartupTabId) : null;
-    const useStartupTab = startupTab && startupTab.id !== activeTabId;
-    const source = useStartupTab ? startupTab.ubText || "" : ubEditor?.value || "";
-    const sourcePath = useStartupTab
-      ? startupTab.ubFilePath || startupTab.filePath || null
-      : _ubFilePath || null;
-    if (!source.trim()) return { ok: false, error: t("ubNothingToRun") };
+    const target = await _ubBuildTarget();
+    if (target.error) return { ok: false, error: target.error };
+    if (!target.source.trim()) return { ok: false, error: t("ubNothingToRun") };
 
-    const build = useStartupTab
-      ? await _ubCompileSource(source, sourcePath, startupTab.name)
-      : await _ubCompile();
+    const build = await _ubCompileTarget(target);
     if (!build) return { ok: false };
 
     return {
@@ -24671,6 +24674,10 @@ async function buildRunPrgForCurrentMode() {
 // `preview`: the plain build (panels, VICE hot reload), never wrapped in a start loader.
 async function _buildAcmePrg(useCurrentEditor = false, options = null) {
   const preview = !!options?.preview;
+  if (!preview && !useCurrentEditor) {
+    const startupError = await _projEnsureStartupTab();
+    if (startupError) return { ok: false, error: startupError };
+  }
   if (!preview) setWorkStep("stepAcme", { file: _workStepSource() });
   if (!window.electronAPI?.buildAcmePrg) {
     return { ok: false, error: "Az ACME fordítás csak a desktop alkalmazásban érhető el." };
@@ -27875,6 +27882,17 @@ function _kickProjectActive() {
   return !active?.filePath || _projHasFile(active.filePath);
 }
 
+// A project tree's entry by its path, at any depth.
+function _projFindEntry(nodes, path) {
+  for (const node of nodes || []) {
+    if (node.type === "folder") {
+      const found = _projFindEntry(node.children, path);
+      if (found) return found;
+    } else if (node.path === path) return node;
+  }
+  return null;
+}
+
 function _projHasFile(path) {
   const norm = _normFilePath(path);
   const inProject = (nodes) => (nodes || []).some(n => n.type === "folder" ? inProject(n.children) : _normFilePath(_projResolveAbsPath(n.path)) === norm);
@@ -28189,6 +28207,8 @@ async function _kickBuildPrg() {
 
 // The PRG every build path uses: the Kick project's, or the VA build of the editor.
 async function _kickOrVaPrg() {
+  const startupError = await _projEnsureStartupTab();
+  if (startupError) return { ok: false, error: startupError };
   return (await _kickBuildPrg()) || _vaBuildPrg();
 }
 
@@ -28226,7 +28246,7 @@ function _vmaBuildInput(kick = null) {
   const activeTab = tabs.find(tab => tab.id === activeTabId);
   const fileDir = dirOf(activeTab?.filePath || _expertAsmFilePath) || workingFolder || "";
   const startupPath = () => {
-    const file = _expertProjectData?.files.find(f => f.path === _expertProjectData.startupFile);
+    const file = _projFindEntry(_expertProjectData?.files, _expertProjectData?.startupFile);
     return file ? _projResolveAbsPath(file.path) : "";
   };
   if (expertMode) {
@@ -31160,14 +31180,14 @@ function _expertGetStartupProgram() {
   if (!_expertProjectData?.startupFile) return null;
   // A Kick project builds the preprocessed tree (_kickPrepare runs before every build).
   if (_kickLast?.program && _kickProjectActive()) return _kickLast.program;
-  const sf = _expertProjectData.files.find(f => f.path === _expertProjectData.startupFile);
+  const sf = _projFindEntry(_expertProjectData.files, _expertProjectData.startupFile);
   if (!sf) return null;
 
   const absPath  = _projResolveAbsPath(sf.path);
   const normAbs  = _normFilePath(absPath);
   const activeTab = tabs.find(t => t.id === activeTabId);
   const activeTabNorm = activeTab?.filePath ? _normFilePath(activeTab.filePath) : "";
-  const activeTabInProject = !!(activeTabNorm && _expertProjectData.files.some(f => _normFilePath(_projResolveAbsPath(f.path)) === activeTabNorm));
+  const activeTabInProject = !!(activeTabNorm && _projHasFile(activeTab.filePath));
 
   // If the active tab is not part of the current project (for example a sample
   // or a scratch tab), compile the visible tab instead of silently switching to
@@ -31182,8 +31202,10 @@ function _expertGetStartupProgram() {
     return expertMode ? _expertBuildProgram() : JSON.parse(JSON.stringify(program));
   }
 
-  // Otherwise use the tab's saved program (from last _tabSaveCurrent)
+  // Otherwise the tab's text (an Expert tab's blocks are as old as its last rebuild),
+  // or its saved program (from last _tabSaveCurrent)
   const tab = tabs.find(t => _normFilePath(t.filePath) === normAbs);
+  if (tab?.expertText) return _expertBuildProgramFromText(tab.expertText, tab.program || []);
   if (tab?.program?.length > 0) {
     return JSON.parse(JSON.stringify(tab.program));
   }
@@ -31195,16 +31217,32 @@ function _expertGetStartupProgram() {
 // null when the active tab is not part of the project or the text is unknown.
 function _expertGetStartupSource() {
   if (!_expertProjectData?.startupFile) return null;
-  const sf = _expertProjectData.files.find(f => f.path === _expertProjectData.startupFile);
+  const sf = _projFindEntry(_expertProjectData.files, _expertProjectData.startupFile);
   if (!sf) return null;
   const absPath = _projResolveAbsPath(sf.path);
   const normAbs = _normFilePath(absPath);
   const activeTab = tabs.find(t => t.id === activeTabId);
   const activeTabNorm = activeTab?.filePath ? _normFilePath(activeTab.filePath) : "";
-  if (activeTab && !_expertProjectData.files.some(f => _normFilePath(_projResolveAbsPath(f.path)) === activeTabNorm)) return null;
+  if (activeTab && !(activeTabNorm && _projHasFile(activeTab.filePath))) return null;
   if (activeTabNorm === normAbs && expertMode) return { text: _expertGetSourceText(), path: absPath };
   const tab = tabs.find(t => _normFilePath(t.filePath) === normAbs);
   return tab?.expertText ? { text: tab.expertText, path: absPath } : null;
+}
+
+// A build needs the startup file in a tab (its blocks, breakpoints, loaded binaries): opens it
+// behind the active tab if it is closed. Returns an error text when it cannot be opened.
+async function _projEnsureStartupTab() {
+  if (ultimateBasicMode || !_expertProjectData?.startupFile || _kickProjectActive()) return null;
+  const sf = _projFindEntry(_expertProjectData.files, _expertProjectData.startupFile);
+  const active = tabs.find(t => t.id === activeTabId);
+  if (!sf || !active?.filePath || !_projHasFile(active.filePath)) return null;
+  const normAbs = _normFilePath(_projResolveAbsPath(sf.path));
+  if (tabs.some(t => _normFilePath(t.filePath) === normAbs)) return null;
+  const activeId = activeTabId;
+  await _expertProjectOpenFile(sf);
+  if (!tabs.some(t => _normFilePath(t.filePath) === normAbs)) return tf("projStartupMissing", { file: sf.name || sf.path });
+  if (activeTabId !== activeId) _tabActivate(activeId);
+  return null;
 }
 
 function _buildAutostartPrgCore() {
@@ -59745,7 +59783,9 @@ function _vmSetLive(on) {
 // UB módban friss UB build: a teljes PRG egy szegmens, újraindítás a kód elején (map.loadAddress).
 async function _vmBuildSegments() {
   if (ultimateBasicMode) {
-    const r = await _ubCompile(false, { skipExomizer: true });
+    const target = await _ubBuildTarget();
+    if (target.error) { _ubSetStatus(target.error, true); return null; }
+    const r = await _ubCompileTarget(target, { skipExomizer: true });
     if (!r?.ok || !r.prg || r.prg.length < 3) return null;
     const load = r.prg[0] | (r.prg[1] << 8);
     return { segments: [{ address: load, bytes: Array.from(r.prg.slice(2)) }], sys: r.map?.loadAddress ?? load };
@@ -60591,14 +60631,11 @@ function _w64ParseDbg(text) {
 // The build and its source map for a debug session.
 async function _w64DebugBuild() {
   if (ultimateBasicMode) {
-    const startupTab = _ubStartupTabId !== null ? tabs.find(tab => tab.id === _ubStartupTabId) : null;
-    const useStartup = startupTab && startupTab.id !== activeTabId;
-    const source = useStartup ? startupTab.ubText || "" : ubEditor?.value || "";
-    const sourcePath = useStartup ? startupTab.ubFilePath || startupTab.filePath || "" : _ubFilePath || "";
-    if (!source.trim()) { _ubSetStatus(t("ubNothingToRun"), true); return null; }
-    const build = useStartup
-      ? await _ubCompileSource(source, sourcePath, startupTab.name, { skipExomizer: true })
-      : await _ubCompile(false, { skipExomizer: true });
+    const target = await _ubBuildTarget();
+    if (target.error) { _ubSetStatus(target.error, true); return null; }
+    if (!target.source.trim()) { _ubSetStatus(t("ubNothingToRun"), true); return null; }
+    const sourcePath = target.path || "";
+    const build = await _ubCompileTarget(target, { skipExomizer: true });
     if (!build) return null;
     const entries = _w64ParseDbg(build.debug?.dbg).map(e => ({ ...e, file: e.file || sourcePath }));
     return { bytes: Uint8Array.from(build.prg || []), entries, symbols: _ubDebuggerSymbols(build), blockBps: [], blockAt: null, kind: "ub", primary: sourcePath };

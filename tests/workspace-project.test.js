@@ -22,7 +22,7 @@ function run(code) {
   vm.createContext(ctx);
   vm.runInContext(`
     let _expertProjectData = null, _expertProjectDirty = false;
-    let _ubProjectData = null, _ubProjectDirty = false, _ubStartupTabId = 99;
+    let _ubProjectData = null, _ubProjectDirty = false;
     const tabs = [{ id: 7, filePath: "C:/proj/boot.ub" }];
     const _normFilePath = (p) => (p || "").replace(/\\\\/g, "/").toLowerCase();
     const _findTabByPath = (p) => tabs.find(t => _normFilePath(t.filePath) === _normFilePath(p)) || null;
@@ -58,18 +58,18 @@ test("workspace project snapshot strips runtime fields and keeps the save target
   assert.equal(run(`this.out = _workspaceProjectSnapshot(null, false);`), null);
 });
 
-test("workspace restore brings back both projects and rebinds the UB startup tab", () => {
+test("workspace restore brings back both projects", () => {
   const out = run(`
     _workspaceRestoreProjects({
       expert: { name: "asm", files: [], startupFile: null, projPath: "C:/a/asm.proj", dirty: false },
       ub: { name: "ub", files: [{ type: "file", name: "boot.ub", path: "boot.ub" }], startupFile: "boot.ub", projPath: "C:/proj/ub.proj", dirty: true }
     });
-    this.out = { expert: _expertProjectData, ub: _ubProjectData, ubDirty: _ubProjectDirty, startup: _ubStartupTabId, renders };
+    this.out = { expert: _expertProjectData, ub: _ubProjectData, ubDirty: _ubProjectDirty, renders };
   `);
   assert.equal(out.expert._projPath, "C:/a/asm.proj");
   assert.equal(out.ub._projPath, "C:/proj/ub.proj");
   assert.equal(out.ubDirty, true);
-  assert.equal(out.startup, 7);
+  assert.equal(out.ub.startupFile, "boot.ub");
   assert.equal(out.renders, 2);
 });
 
