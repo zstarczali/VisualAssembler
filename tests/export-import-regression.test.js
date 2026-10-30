@@ -59,6 +59,8 @@ test("ACME Run sends an autostart source through the configured compiler", async
     expertMode: false,
     basicSysToggle: { checked: true },
     _expertGetStartupProgram: () => null,
+    _projEnsureStartupTab: async () => null,
+
     _expertGetStartupSource: () => null,
     parseUserMacros: () => {},
     _getEmbeddedBasicSysAddress: () => null,
@@ -110,6 +112,8 @@ test("ACME project Run builds the startup file's source, not its blocks", async 
     _ACME_VA_CLOSERS: new Set(["endregion", "endif", "else", "endm", "endmacro", "endf", "next", "end"]),
     _DIRECTIVE_TO_MNEM: { loop: "LOOP", end: "END", region: "REGION" },
     basicSysToggle: { checked: true },
+    _projEnsureStartupTab: async () => null,
+
     _expertGetStartupSource: () => ({ text: original, path: "F:\\proj\\main.asm" }),
     _expertGetStartupProgram: () => { throw Error("startup blocks must not be used"); },
     _expertGetSourceText: () => { throw Error("the startup file is built, not the editor"); },
@@ -151,6 +155,8 @@ test("ACME Expert Run preserves assembler expressions and directives", async () 
     _DIRECTIVE_TO_MNEM: { loop: "LOOP", end: "END", region: "REGION" },
     basicSysToggle: { checked: true },
     _expertGetStartupProgram: () => null,
+    _projEnsureStartupTab: async () => null,
+
     _expertGetStartupSource: () => null,
     _expertBuildProgram: () => [],
     _expertGetSourceText: () => original,
@@ -179,6 +185,8 @@ test("ACME Build rejects VMA macros without translating native ACME syntax", asy
     _DIRECTIVE_TO_MNEM: { loop: "LOOP", end: "END", region: "REGION" },
     opcodeMap: { LDA: {}, RTS: {} },
     _expertGetStartupProgram: () => null,
+    _projEnsureStartupTab: async () => null,
+
     _expertGetStartupSource: () => null,
     _expertGetSourceText: () => '* = $0801\n!region init\n!text 14, 8, "hello c64!", lower\n!endregion',
     tf: (_key, values) => `${values.directive} is VMA-only`,
@@ -918,6 +926,8 @@ test("ACME memory dump below $0801: no stub shift, start loader around the plain
     _DIRECTIVE_TO_MNEM: { loop: "LOOP", end: "END", region: "REGION" },
     basicSysToggle: { checked: true },
     _expertGetStartupProgram: () => null,
+    _projEnsureStartupTab: async () => null,
+
     _expertGetStartupSource: () => null,
     _expertBuildProgram: () => [],
     _expertGetSourceText: () => original,
