@@ -3430,6 +3430,8 @@ function applyTranslations() {
     setText("#menu-info-label", t("menuInfo"));
     setText("#about-sid-credit-label", t("aboutSidCreditLabel"));
     setText("#about-sid-credit-license", t("aboutSidCreditLicense"));
+    setText("#about-vice-credit-label", t("aboutViceCreditLabel"));
+    setText("#about-vice-credit-license", t("aboutLicenseLabel"));
     setText("#about-repo-label", t("aboutRepoLabel"));
     setText("#about-ub-version-label", t("aboutUbVersionLabel"));
     setText("#about-vma-version-label", t("aboutVmaVersionLabel"));

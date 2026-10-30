@@ -5336,6 +5336,8 @@ async fn check_for_update(app: AppHandle) -> Result<serde_json::Value, String> {
         {
             Ok(resp) => match resp.text().await {
                 Ok(html) => {
+                    // a later page answered: an earlier page's error is not the reason any more
+                    last_err.clear();
                     latest = find_latest_asset_version(&html, prefix, suffix);
                     found_html = html;
                     found_on = i;
