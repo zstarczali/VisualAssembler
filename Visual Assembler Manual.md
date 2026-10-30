@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.6.7**
+**Version 2.6.8**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -8,6 +8,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 
 ## Table of Contents
 
+- [Version 2.6.8 Highlights](#version-268-highlights)
 - [Version 2.6.7 Highlights](#version-267-highlights)
 - [Version 2.6.6 Highlights](#version-266-highlights)
 - [Version 2.6.5 Highlights](#version-265-highlights)
@@ -227,6 +228,15 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
   - [Number Converter](#number-converter)
 
 ---
+
+## Version 2.6.8 Highlights
+
+- **Toolkit in Expert and UB mode** — the *Toolkit* toolbar button shows the C64 palette and the PETSCII codes next to the editor: in Expert mode as a side panel beside Disassembly / Monitor, in UB mode in the right-hand pane (it takes turns with Disassembly and Monitor).
+- **Panels remembered** — the Monitor and Toolkit panels of Expert mode can be resized like the Disassembly; the panels you leave open (Palette, Disassembly, Monitor, Toolkit, Project) and their widths come back on the next start, whichever mode the app starts in — in UB mode too.
+- **VMA language** — a `.const` or `.var` in the zero page makes `lda zp` a zero-page instruction (`A5 FB`, as KickAssembler does; `lda.abs zp` keeps absolute); `JMP (label)` / `JMP (table+2)`; expressions such as `lda $1234+1` and `sta $0400+40*2,x`; a macro may call another macro; labels in the bytes of `.data` / `.rawbytes` (pointer tables); a `:name` label may point at a label.
+- **Includes** — an included file's own `.include`, `.incbin` and `.sid` lines are loaded (relative to its folder) and its macro calls are expanded; a missing include, or one that includes itself, is an error instead of an empty library.
+- **Safer builds** — errors instead of silently wrong code: an unresolved TURBO_SET / SPRITE_ANIM value, a MEMCPY / MEMSET / JOYSTICK size taken from a label defined later; the automatic buffer of a `.data` / `.rawbytes` macro argument takes its bytes. Programs using zero-page constants get shorter.
+- **Fixes** — a CRT larger than 8 KB (more than one bank) did not start: the loader now runs from RAM; an `.asm` name given in the Save dialog of a project saves the source text, not the VA JSON.
 
 ## Version 2.6.7 Highlights
 

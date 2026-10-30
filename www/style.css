@@ -11461,10 +11461,6 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
   width: min(680px, 94vw);
   border: 1px solid color-mix(in srgb, var(--text) 22%, var(--panel));
 }
-.pal-ed-hdr-icon {
-  width: 14px; height: 14px; border-radius: 2px;
-  background: conic-gradient(#813338, #edf171, #56ac4d, #75cec8, #2e2c9b, #8e3c97, #813338);
-}
 .pal-ed-tools { display: flex; align-items: flex-end; gap: 8px; flex-wrap: wrap; }
 .pal-ed-tools .ps-field { width: 180px; }
 .pal-ed-tools button { height: 30px; min-height: 0; padding: 0 12px; font-size: 0.78rem; }

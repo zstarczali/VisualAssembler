@@ -14,7 +14,7 @@
     rel="stylesheet">
   <link rel="icon" type="image/png" href="assets/icon.png">
   <link rel="shortcut icon" href="favicon.ico">
-  <link rel="stylesheet" href="style.css?v=2.6.7">
+  <link rel="stylesheet" href="style.css?v=2.6.8">
 </head>
 
 <body>
@@ -1017,7 +1017,6 @@ PRINTABLE CHARACTERS
   <dialog id="palette-editor-dialog" class="ps-dialog pal-ed-dialog" aria-labelledby="pal-ed-title">
     <div class="ps-card">
       <div class="ps-hdr">
-        <span class="pal-ed-hdr-icon" aria-hidden="true"></span>
         <span class="ps-title" id="pal-ed-title">Custom C64 palette</span>
         <button id="pal-ed-close" class="ps-xbtn" type="button" aria-label="Close">×</button>
       </div>
@@ -1485,7 +1484,7 @@ PRINTABLE CHARACTERS
           <img src="assets/logo-about.png" alt="C64 Visual Assembler" width="200" height="160">
         </div>
         <h2 class="about-title">C64 Visual Assembler</h2>
-        <p class="about-version" id="about-version">v2.6.7</p>
+        <p class="about-version" id="about-version">v2.6.8</p>
         <p class="about-version" id="about-ub-version"><span id="about-ub-version-label">UltimateBasic:</span> <span id="about-ub-version-value">v?</span></p>
         <p class="about-version" id="about-vma-version"><span id="about-vma-version-label">VMA:</span> <span id="about-vma-version-value">v?</span></p>
       </div>
@@ -1520,34 +1519,25 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.6.7</p>
+      <p class="whats-new-version">v2.6.8</p>
       <ul class="whats-new-list">
         <li>
-          <strong>Rust VMA compiler:</strong> <em>Settings → General → Program → VMA compiler</em> chooses the engine: JavaScript (the default), Rust, or Rust + JavaScript check, which builds with both and logs any difference. The Rust compiler gives the same bytes, the same memory view, segments and translated error messages; Kick projects build through it too, with errors shown at <code>file:line</code>.
+          <strong>Toolkit in Expert and UB mode:</strong> the <em>Toolkit</em> toolbar button shows the C64 palette and the PETSCII codes next to the editor — in Expert mode as a side panel beside Disassembly / Monitor, in UB mode in the right-hand pane.
         </li>
         <li>
-          <strong>VMA is open source:</strong> the Visual Macro Assembler compiler lives in its own GPLv3 repository, <code>github.com/zstarczali/VMA</code> (version 2.0.0), with an English and a Hungarian language manual. The About box shows the VMA version and banner next to Ultimate Basic.
+          <strong>Panels remembered:</strong> the Monitor and Toolkit panels of Expert mode can be resized like the Disassembly; the panels you leave open (Palette, Disassembly, Monitor, Toolkit, Project) and their widths come back on the next start, whichever mode the app starts in — in UB mode too.
         </li>
         <li>
-          <strong>Project symbols and constants:</strong> <em>Project settings</em> sets VMA symbols (<code>.define</code>, for <code>.if</code> / <code>.ifdef</code>) and constants (<code>.const</code>) for the whole project, saved in the <code>.proj</code>; error lines stay correct.
+          <strong>VMA language:</strong> a <code>.const</code> or <code>.var</code> in the zero page makes <code>lda zp</code> a zero-page instruction (<code>A5 FB</code>, as KickAssembler does; <code>lda.abs zp</code> keeps absolute); <code>JMP (label)</code> and <code>JMP (table+2)</code>; expressions such as <code>lda $1234+1</code> or <code>sta $0400+40*2,x</code>; a macro may call another macro; labels in the bytes of <code>.data</code> / <code>.rawbytes</code> (pointer tables).
         </li>
         <li>
-          <strong>Compiling dialog:</strong> a step line under the progress bar shows what the build is doing: the engine, the file and the size of the PRG.
+          <strong>Includes:</strong> an included file’s own <code>.include</code>, <code>.incbin</code> and <code>.sid</code> lines are loaded (relative to its folder) and its macro calls are expanded; a missing include, or one that includes itself, is now an error instead of an empty library.
         </li>
         <li>
-          <strong>Build info:</strong> shows the file it describes; an ACME source gets its own view from the real ACME build (origin, end, size, segments, labels) instead of VMA errors. The dialog no longer closes on an outside click.
+          <strong>Safer builds:</strong> instead of silently wrong code: an unresolved TURBO_SET / SPRITE_ANIM value and a MEMCPY / MEMSET / JOYSTICK size taken from a label defined later are errors; a <code>:name</code> label may point at a label; the automatic buffer of a <code>.data</code> / <code>.rawbytes</code> macro argument takes its bytes. Programs using zero-page constants get shorter — the same in the JavaScript and the Rust compiler.
         </li>
         <li>
-          <strong>Faster typing:</strong> in ACME mode the Disassembly and Monitor panels are rebuilt once per build and dimmed while the source is newer; big Kick projects re-use their last preprocessing and render the disassembly in chunks.
-        </li>
-        <li>
-          <strong>Project tree:</strong> the right-click menu on files and folders has <em>Move up</em> / <em>Move down</em>. Kick compatibility is switched in <em>Project settings</em> (the separate toolbar button is gone).
-        </li>
-        <li>
-          <strong>Fixes:</strong> saving an <code>.asm</code> (Ctrl+S, Menu → Save, before a git commit) writes plain text again, not the VA JSON; version control snapshots keep source files as text; library macros inside a user macro (SET_BORDER, SPRITE_*, JOYSTICK, TEXT …) get their parameters, runtime IF / WHILE / REPEAT labels are unique per call and a <code>'A'</code> argument stays a character; draggable dialogs open at their saved place.
-        </li>
-        <li>
-          <strong>Look:</strong> the compiling, build info, D64 export, compile error and question dialogs have the About box frame; the manuals are revised.
+          <strong>Fixes:</strong> a CRT larger than 8 KB (more than one bank) did not start — the loader now runs from RAM; an <code>.asm</code> name given in the Save dialog of a project saves the source text, not the VA JSON.
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
@@ -3902,13 +3892,13 @@ PRINTABLE CHARACTERS
     </div>
   </div>
 
-  <script src="tauri-bridge.js?v=2.6.7"></script>
-  <script src="i18n.js?v=2.6.7"></script>
-  <script src="tutorial-data.js?v=2.6.7"></script>
+  <script src="tauri-bridge.js?v=2.6.8"></script>
+  <script src="i18n.js?v=2.6.8"></script>
+  <script src="tutorial-data.js?v=2.6.8"></script>
   <script>window.WASM_SEARCH_PATH = "lib/websid/";</script>
   <script src="lib/websid/scriptprocessor_player.min.js"></script>
   <script src="lib/websid/backend_websid.js"></script>
-  <script src="app.js?v=2.6.7"></script>
+  <script src="app.js?v=2.6.8"></script>
 
 </body>
 
