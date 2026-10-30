@@ -1,5 +1,7 @@
 # Linux Installation Guide (Ubuntu / Debian)
-Version 2.6.7
+Version 2.6.8
+
+2.6.8: Toolkit in Expert and UB mode (palette + PETSCII codes beside the editor), resizable Monitor / Toolkit panels and every panel's open state and width remembered across restarts; VMA language: zero-page .const / .var make lda zp a zero-page instruction (lda.abs zp keeps absolute), JMP (label), expressions like lda $1234+1, a macro calling a macro, labels in .data / .rawbytes bytes, an included file's own .include / .incbin / .sid loaded and its macros expanded; errors instead of wrong code (missing or self-including include, unresolved TURBO_SET / SPRITE_ANIM, a MEMCPY / MEMSET / JOYSTICK size from a later label); fixed: a CRT over 8 KB did not start (the loader runs from RAM), an .asm name in a project's Save dialog saves text.
 
 2.6.7: Rust VMA compiler selectable in Settings -> General -> Program -> VMA compiler (JavaScript default, Rust, Rust + JavaScript check; same bytes, memory view, segments and translated errors; Kick projects too), VMA is open source (github.com/zstarczali/VMA, 2.0.0, English and Hungarian language manuals; version and banner in the About box), project VMA symbols (.define) and constants (.const) in Project settings, a step line in the compiling dialog, Build info with the file path and a real ACME view, faster typing in ACME mode and big Kick projects, Move up / down in the project tree (the Kick toggle button moved into Project settings), the About box frame on more dialogs; fixed: saving an .asm writes text, not JSON; version control snapshots keep source files as text; library macro parameters inside user macros, unique runtime IF / WHILE / REPEAT labels per call, 'A' arguments; draggable dialogs open at their saved place.
 
@@ -68,7 +70,7 @@ Tested on Ubuntu 22.04 and 24.04.
 Download the `.deb` package from the releases page and install:
 
 ```bash
-  sudo dpkg -i "c64-visual-assembler_2.6.7_amd64.deb"
+  sudo dpkg -i "c64-visual-assembler_2.6.8_amd64.deb"
 sudo apt-get install -f   # fix any missing dependencies
 ```
 
@@ -182,4 +184,4 @@ The app propagates `DISPLAY`, `WAYLAND_DISPLAY`, `XDG_RUNTIME_DIR`, `DBUS_SESSIO
 
 ---
 
-**Version:** 2.6.7 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 2.6.8 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64

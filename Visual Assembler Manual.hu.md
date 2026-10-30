@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**Verzió: 2.6.7**
+**Verzió: 2.6.8**
 
 Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasításblokkok fogd-és-vidd módszerrel történő elrendezésével építed fel, a generált assembly és gépi kód pedig valós időben frissül.
 
@@ -10,6 +10,7 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 
 ## Tartalomjegyzék
 
+- [A 2.6.8 verzió újdonságai](#a-268-verzió-újdonságai)
 - [A 2.6.7 verzió újdonságai](#a-267-verzió-újdonságai)
 - [A 2.6.6 verzió újdonságai](#a-266-verzió-újdonságai)
 - [A 2.6.5 verzió újdonságai](#a-265-verzió-újdonságai)
@@ -229,6 +230,15 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
   - [Számrendszer-átváltó](#számrendszer-átváltó)
 
 ---
+
+## A 2.6.8 verzió újdonságai
+
+- **Toolkit Expert és UB módban** — az eszköztár *Toolkit* gombja a szerkesztő mellett mutatja a C64 palettát és a PETSCII kódokat: Expert módban oldalpanelként a Disassembly / Monitor mellett, UB módban a jobb oldali panelen (a Disassemblyvel és a Monitorral váltja egymást).
+- **Megjegyzett panelek** — az Expert mód Monitor és Toolkit panele a Disassemblyhez hasonlóan méretezhető; a nyitva hagyott panelek (Paletta, Disassembly, Monitor, Toolkit, Projekt) és a szélességük a következő indításkor visszaállnak, bármelyik módban indul az app — UB módban is.
+- **VMA nyelv** — a zero page-en lévő `.const` vagy `.var` miatt az `lda zp` zero page utasítás lesz (`A5 FB`, mint a KickAssemblerben; az `lda.abs zp` abszolút marad); `JMP (címke)` / `JMP (table+2)`; kifejezések, mint az `lda $1234+1` és a `sta $0400+40*2,x`; makró hívhat makrót; címkék a `.data` / `.rawbytes` bájtjaiban (pointertáblák); a `:név` címke mutathat címkére.
+- **Include-ok** — a beemelt fájl saját `.include`, `.incbin` és `.sid` sorai is betöltődnek (a saját mappájához képest), a makróhívásai kibomlanak; a hiányzó vagy önmagát beemelő include hiba, nem üres könyvtár.
+- **Biztonságosabb fordítás** — csendesen rossz kód helyett hiba: feloldatlan TURBO_SET / SPRITE_ANIM érték, később definiált címkéből vett MEMCPY / MEMSET / JOYSTICK méret; a `.data` / `.rawbytes` makró-argumentum automatikus puffere lefoglalja a bájtjait. A zero page konstansokat használó programok rövidebbek lesznek.
+- **Javítások** — a 8 KB-nál nagyobb (több bankos) CRT nem indult el: a loader most RAM-ból fut; a projekt mentés-dialógusában megadott `.asm` név a forrásszöveget menti, nem a VA JSON-t.
 
 ## A 2.6.7 verzió újdonságai
 
