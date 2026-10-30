@@ -469,7 +469,7 @@ van **0 bytes**.
 
 ---
 
-### OPMERKING
+### COMMENT
 
 Net als **REM in BASIC** — een notitie voor jezelf die de assembler volledig
 negeert.
@@ -522,7 +522,7 @@ sprongtabellen en adreslijsten.
 
 ---
 
-### WOORD
+### WORD
 
 Net als **DATA in BASIC, maar dan voor 16-bits getallen **. Elke waarde wordt
 opgeslagen als twee bytes (eerst de lage byte, dan de hoge byte — 6502
@@ -546,7 +546,7 @@ little-endian volgorde).
 
 ---
 
-### VULLEN
+### FILL
 
 Zoals `FOR I=1 TO N : POKE addr+I, val : NEXT` — vult een geheugenblok met
 dezelfde byte, in één regel. Ideaal voor het wissen van gebieden of het vooraf
@@ -586,7 +586,7 @@ Laagste/hoogste byte: `lo(expr)`, `hi(expr)`
 
 ---
 
-### UITLIJNEN
+### ALIGN
 
 Schuift het huidige adres naar voren naar de volgende schone grens door
 nulopvullingsbytes in te voegen. De C64 vereist dat spritegegevens beginnen op
@@ -614,7 +614,7 @@ een grens van 64 bytes — `ALIGN 64` regelt dat automatisch.
 
 ---
 
-### TEKST
+### TEXT
 
 Net als **PRINT AT** — schrijft tekst rechtstreeks naar het C64-scherm op een
 bepaalde kolom en rij, zonder de kernel te gebruiken. Het genereert één
@@ -671,7 +671,7 @@ Tekens worden gecodeerd als **schermcodes** (niet PETSCII). **Grootte:**
 
 ---
 
-### SNAAR
+### STRING
 
 Net zoals **POKE een string** in een willekeurig geheugenadres tijdens runtime.
 Genereert LDA/STA-paren die de schermcode van elk teken naar opeenvolgende
@@ -714,7 +714,7 @@ teken).
 
 ---
 
-### GEGEVENS
+### DATA
 
 Net als een **POKE-lus** — schrijft een lijst met ruwe bytes naar een
 geheugenadres tijdens de uitvoering, één LDA/STA-paar per byte.
@@ -913,7 +913,7 @@ RTS
 
 ---
 
-### TEKENSET
+### CHARSET
 
 Schakelt de VIC-II-karakter-ROM tussen hoofdletter-/grafische modus (standaard
 C64) en kleine letter-/hoofdlettermodus door bit 1 van `$D018` tijdens runtime
@@ -1238,14 +1238,14 @@ Assembler exporteert een compatibel bestand.
 
 ---
 
-### NIVEAU / NIVEAU_RIJ
+### LEVEL / LEVEL_ROW
 
 Hiermee wordt een **Level Editor**-project in je programma geplaatst en worden
 levelrijen naar een schermbuffer gekopieerd — de bouwstenen van een scrollend
 spel. Het `level-demo.asm`-voorbeeld van C64 Visual Assembler is een compleet
 level dat met een joystick wordt gescrolld.
 
-#### NIVEAU
+#### LEVEL
 
 Een INCBIN-achtige instructie die **0 bytes code** genereert. Alleen de
 **geplaatste** schermen van het Level Editor-project (de `.bin` die de Level
@@ -1281,7 +1281,7 @@ de schermen. Een level kan maximaal 7 × 10 schermen bevatten.
 Typische beveiliging: `.assert LEVEL_END <= $9200, "niveaugegevens komen in
 de code terecht"`.
 
-#### NIVEAU_RIJ
+#### LEVEL_ROW
 
 Kopieert één rij van 40 tekens van het niveau naar een buffer: de niveaurij in
 **X**, beginnend bij de niveaukolom die wordt bewaard in de variabele `col`,
@@ -1389,7 +1389,7 @@ interrupt (`ASL $D019`), roept `JSR SID_PLAY` aan en gaat verder naar de KERNAL
 
 ---
 
-### ERBIJ BETREKKEN
+### INCLUDE
 
 Net als **MERGE in BASIC** — haalt een ander bestand binnen en breidt het inline
 uit op deze positie. Perfect voor herbruikbare subroutinebibliotheken.
@@ -1452,7 +1452,7 @@ Er worden twee bestandstypen ondersteund:
 
 ---
 
-### TAFEL
+### TABLE
 
 Net als **DIM op een specifiek adres** — hiermee wordt een opzoektabel benoemd
 en de locatie ervan in het geheugen bepaald. Plaats de regels `.byte`, `.word`
@@ -1539,13 +1539,13 @@ RTS
 
 ---
 
-### LUS / VOLGENDE
+### LOOP / NEXT
 
 Net zoals **`FOR X=N TO 1 STEP -1 : ... : NEXT X`** in BASIC — telt af van N
 naar 1 met behulp van het X- of Y-register. Plaats je instructies tussen LOOP en
 NEXT, en de lus wordt automatisch het juiste aantal keren herhaald.
 
-#### LUS
+#### LOOP
 
 | Argument | Beschrijving                                                            |
 | -------- | ----------------------------------------------------------------------- |
@@ -1566,7 +1566,7 @@ loop0:
 
 **Grootte:** 2 bytes (LD_ opcode + directe operand).
 
-#### VOLGENDE
+#### NEXT
 
 | Argument | Beschrijving                                |
 | -------- | ------------------------------------------- |
@@ -1603,13 +1603,13 @@ BNE loop0
 
 ---
 
-### VOOR / EINDE
+### FOR / ENDF
 
 Net als **`FOR X=0 TO N-1 : ... : NEXT X`** in BASIC — telt *up* vanaf 0. Ideaal
 wanneer je een voorwaartse index nodig hebt, bijvoorbeeld om door een tekenreeks
 of een array te stappen.
 
-#### VOOR
+#### FOR
 
 | Argument | Beschrijving                                                                          |
 | -------- | ------------------------------------------------------------------------------------- |
@@ -1630,7 +1630,7 @@ voor0:
 
 **Grootte:** 2 bytes (LD_ opcode + `#$00`).
 
-#### EINDE
+#### ENDF
 
 | Argument | Beschrijving                                 |
 | -------- | -------------------------------------------- |
@@ -1681,14 +1681,14 @@ RTS
 
 ---
 
-### DUWEN / TREKKEN
+### PUSH / PULL
 
 Net als ** waarbij variabelen worden opgeslagen vóór een GOSUB en hersteld na **
 — maar dan met gebruik van de 6502 hardwarestack. Als een subroutine A, X of Y
 gebruikt, moet deze worden omwikkeld met PUSH en PULL, zodat de registers van de
 aanroepende code behouden blijven.
 
-#### DUW
+#### PUSH
 
 Plaatst een of meer registers op de stack. De volgorde is altijd A → X → Y
 (binnenste eerst).
@@ -1713,7 +1713,7 @@ PHA
 
 **Grootte:** 1 byte voor A (`PHA`), 2 bytes voor X of Y (overdracht + push).
 
-#### TREKKEN
+#### PULL
 
 Herstelt registers van de stack in **omgekeerde volgorde** (Y → X → A).
 
@@ -1741,7 +1741,7 @@ PLA
 
 ---
 
-### EINDE / RTS-alias
+### END / RTS alias
 
 Net als **RTS met een vriendelijkere macronaam ** — `.end` zendt één enkele
 `RTS` byte uit, een korte subroutine-terminator.
@@ -1763,14 +1763,14 @@ meer op een macro lijkt dan op een gewone instructie.
 
 ---
 
-### MACRO / EINDE / AANROEPEN
+### MACRO / ENDM / INVOKE
 
 Net als ** een benoemde GOSUB met parameters** — definieer een herbruikbaar stuk
 code eenmalig (MACRO…ENDM) en roep het vervolgens overal aan met INVOKE. Geef
 elke keer andere argumentwaarden door in plaats van code te kopiëren en te
 plakken.
 
-#### MACRO (begin definitie)
+#### MACRO (definition start)
 
 | Argument   | Beschrijving                                                                        |
 | ---------- | ----------------------------------------------------------------------------------- |
@@ -1805,11 +1805,11 @@ STA $D020
 .endm
 ```
 
-#### ENDM (einde definitie)
+#### ENDM (definition end)
 
 Sluit de huidige macrodefinitie. Geen argumenten.
 
-#### AANROEPEN
+#### INVOKE
 
 Roept op deze positie een gedefinieerde macro aan en vervangt de opgegeven
 argumentwaarden door de placeholders `{paramName}` in de body.
@@ -1868,7 +1868,7 @@ de daadwerkelijke argumenten. De door spaties gescheiden vorm (`.invoke setColor
 
 ---
 
-### REGIO / ENDREGIO
+### REGION / ENDREGION
 
 Puur een groepering voor editors en lijsten — **nul bytes**, geen effect op de
 geassembleerde code.
@@ -1901,14 +1901,14 @@ geassembleerde code.
 
 ---
 
-### DEFINIEER / ALS / ANDERS / EINDE ALS
+### DEFINE / IF / ELSE / ENDIF
 
 Net als ** een schakelaar leest de assembler ** — `DEFINE DEBUG` zet een symbool
 aan, waarna de regels van elke `IF DEBUG` worden geassembleerd en de `ELSE`-tak
 wordt overgeslagen. Verwijder de DEFINE en het IF-gedeelte verdwijnt uit de
 uitvoer. Het is niet nodig om code te verwijderen voor release-builds.
 
-#### DEFINIËREN
+#### DEFINE
 
 | Argument | Beschrijving                                                                                        |
 | -------- | --------------------------------------------------------------------------------------------------- |
@@ -1928,7 +1928,7 @@ uitvoer. Het is niet nodig om code te verwijderen voor release-builds.
 Een `DEFINE` kan meerdere symbolen tegelijk activeren (gescheiden door komma's).
 Plaats DEFINEs bovenaan je programma.
 
-#### ALS
+#### IF
 
 | Argument   | Beschrijving                                                                                                                           |
 | ---------- | -------------------------------------------------------------------------------------------------------------------------------------- |
@@ -1951,7 +1951,7 @@ voorwaarde moet een constante expressie zijn — een die niet tijdens het
 assembleren kan worden geëvalueerd, is een fout. Overgeslagen regels verschijnen
 als `; [IF skipped] …` commentaar en genereren **nul bytes**.
 
-#### ANDERS
+#### ELSE
 
 Geen argumenten. Markeer de alternatieve tak — samengesteld wanneer de
 `IF`-conditie *not* actief is.
@@ -1966,7 +1966,7 @@ Geen argumenten. Markeer de alternatieve tak — samengesteld wanneer de
 ; ANDERS
 ```
 
-#### EINDE ALS
+#### ENDIF
 
 Geen argumenten. Sluit het voorwaardelijke gedeelte af.
 
@@ -2020,7 +2020,7 @@ overgeslagen, worden de binnenste delen ook overgeslagen.
 > afgehandeld. Voor runtime vergelijkings-/vertakkingssyntax, zie **Runtime IF /
 > ELSE / ENDIF** hieronder.
 
-### .BEWEREN
+### .ASSERT
 
 Een **compile-time sanity check**. `.assert` evalueert een expressie tijdens het
 assembleren; als deze onwaar is (`0`), stopt de build met een duidelijke
@@ -2204,7 +2204,7 @@ register.
 
 ---
 
-### TERWIJL / EINDE
+### WHILE / ENDW
 
 Zoals **een runtime-lus met een test bovenaan** — de body wordt uitgevoerd
 zolang de voorwaarde waar blijft.
@@ -2231,7 +2231,7 @@ NEXT` helper.
 
 ---
 
-### HERHALEN / TOTDAT
+### REPEAT / UNTIL
 
 Zoals **een runtime-lus met een test onderaan** — de body wordt altijd minstens
 één keer uitgevoerd, waarna de voorwaarde bepaalt of er gestopt moet worden.
@@ -2288,7 +2288,7 @@ schakelen automatisch over naar een 16-bits teller.
 
 ### PRINT / PRINT_CHAR / PRINT_HEX / CLEAR_SCREEN / WAIT_KEY / DELAY / SET_BORDER / SET_BG
 
-#### AFDRUKKEN
+#### PRINT
 
 Net als **PETSCII-uitvoer zonder de boilerplate** — print een tekenreeks via
 `CHROUT` met dezelfde behandeling van hoofdletters/kleine letters (`lower`) als
@@ -2323,7 +2323,7 @@ KERNAL-uitvoerpad.
 .print_hex A
 ```
 
-#### WIS SCHERM
+#### CLEAR_SCREEN
 
 Sneltoets voor de standaard C64-code om het scherm te wissen.
 
@@ -2342,7 +2342,7 @@ handmatig hoeft te genereren.
 .wacht_sleutel
 ```
 
-#### VERTRAGING
+#### DELAY
 
 Wacht het gevraagde aantal frames af via een gedeelde hulpfunctie. Gebruik dit
 voor korte pauzes en timingproblemen wanneer een volledige, op maat gemaakte lus
@@ -2646,7 +2646,7 @@ $DC00` / `AND $DC01`), dus beide poorten werken.
 > **2.1:** De poort moet bekend zijn wanneer de code wordt opgesteld (een getal
 > of een constante), omdat poort 3 de code 3 bytes langer maakt; een later
 > gedefinieerd label is een fout.
-### MUIS
+### MOUSE
 
 Leest een proportionele muis van een Commodore 1351 en beweegt een sprite.
 Volledig **inline** — geen JSR of label nodig. De macro selecteert de CIA-poort,
@@ -2878,7 +2878,7 @@ JMP gameloop
 
 ---
 
-### LAADBESTAND
+### LOADFILE
 
 Net als **`LOAD "file",8`** in BASIC — laadt een bestand van een D64-diskette
 tijdens de uitvoering met behulp van de KERNAL LOAD-routine. Gebruik dit om
@@ -2946,7 +2946,7 @@ overschrijven) + 5 (LOAD) + (2 indien foutlabel)` bytes. Minimum 27 bytes.
 
 ---
 
-### EXODECRUNCHT
+### EXODECRUNCH
 
 In-programma **Exomizer-decompressie**. Gebruik deze macro direct na een
 `LOADFILE` die een Exomizer `mem`-modus gecomprimeerde stream heeft geladen —

@@ -398,7 +398,7 @@ Tänk på dem som inbyggda subrutiner.
 
 ---
 
-### MÄRKA
+### LABEL
 
 Som ett **radnummer i BASIC** — men med ett namn istället för ett nummer.
 Hoppmål för `JMP`, `JSR`, `BNE`, etc.
@@ -422,7 +422,7 @@ byte**.
 
 ---
 
-### KOMMENTAR
+### COMMENT
 
 Liksom **REM i BASIC** — en anmärkning till dig själv som assemblern ignorerar
 helt.
@@ -475,7 +475,7 @@ adresslistor.
 
 ---
 
-### ORD
+### WORD
 
 Liksom **DATA i BASIC men för 16-bitars tal **. Varje värde lagras som två byte
 (låg byte först, sedan hög byte — 6502 little-endian-ordning).
@@ -498,7 +498,7 @@ Liksom **DATA i BASIC men för 16-bitars tal **. Varje värde lagras som två by
 
 ---
 
-### FYLLA
+### FILL
 
 Liksom `FOR I=1 TO N : POKE addr+I, val : NEXT` — fyller ett minnesblock med
 samma byte, på en rad. Utmärkt för att rensa områden eller förfylla tabeller.
@@ -537,7 +537,7 @@ Operatorer: `+ - * /` Literaler: `$FF` (hex), `%10110000` (binär) Låg/hög byt
 
 ---
 
-### JUSTERA
+### ALIGN
 
 Skjuter den aktuella adressen framåt till nästa rena gräns genom att infoga
 noll-utfyllnadsbyte. C64 kräver att sprite-data börjar på en 64-byte-gräns —
@@ -611,7 +611,7 @@ byte (LDA + STA per tecken).
 
 ---
 
-### STRÄNG
+### STRING
 
 Som att **POKEa en sträng** till valfri minnesadress vid körning. Genererar
 LDA/STA-par som kopierar varje teckens skärmkod till efterföljande adresser.
@@ -712,7 +712,7 @@ specifik adress.
 
 ---
 
-### RÅTEXT
+### RAWTEXT
 
 Som RAWBYTES men för text — kodar strängen som skärmkoder och placerar bytena på
 en fast adress utan **körningskod**. Texten är klar i minnet så fort PRG laddas.
@@ -820,7 +820,7 @@ klar: RTS
 
 ---
 
-### TECKENUPPSÄTTNING
+### CHARSET
 
 Växlar VIC-II-tecken-ROM:et mellan versaler/grafikläge (C64-standard) och
 gemener/versaler-läge genom att modifiera bit 1 av `$D018` vid körning.
@@ -1084,14 +1084,14 @@ kompatibel fil.
 
 ---
 
-### NIVÅ / NIVÅRAD
+### LEVEL / LEVEL_ROW
 
 Lägger in ett **Level Editor**-projekt i ditt program och kopierar nivårader
 till en skärmbuffert — byggstenarna i ett rullande spel.
 `level-demo.asm`-exemplet av C64 Visual Assembler är en komplett joystick-rullad
 nivå.
 
-#### NIVÅ
+#### LEVEL
 
 Ett INCBIN-liknande direktiv som avger **0 byte kod**. Endast de
 **placerade**-skärmarna i Level Editor-projektet (`.bin` som Level Editor i C64
@@ -1125,7 +1125,7 @@ Pektabellarna följer skärmarna. En nivå kan vara upp till 7 × 10 skärmar.
 
 Typisk skydd: `.assert LEVEL_END <= $9200, "nivådata körs in i koden"`.
 
-#### NIVÅ_RAD
+#### LEVEL_ROW
 
 Kopierar en 40-teckensrad av nivån till en buffert: nivåraden i **X**, med
 början vid nivåkolumnen som finns i variabeln `col`, till adressen som finns i
@@ -1231,7 +1231,7 @@ skannar tangentbordet).
 
 ---
 
-### OMFATTA
+### INCLUDE
 
 Liksom **MERGE i BASIC** — hämtar en annan fil och expanderar den inline på
 denna position. Perfekt för återanvändbara subrutinbibliotek.
@@ -1289,7 +1289,7 @@ Två filtyper stöds:
 
 ---
 
-### TABELL
+### TABLE
 
 Liksom **DIM vid en specifik adress** — namnger en uppslagstabell och anger var
 den finns i minnet. Skriv in rader som `.byte`, `.word` eller `.fill` efter den
@@ -1361,13 +1361,13 @@ loop: LDA $C000,X STA $D800,X INX BNE-loop RTS
 
 ---
 
-### LOPP / NÄSTA
+### LOOP / NEXT
 
 Liksom **`FOR X=N TO 1 STEP -1 : ... : NEXT X`** i BASIC — räknar ner från N
 till 1 med hjälp av X- eller Y-registret. Placera dina instruktioner mellan LOOP
 och NEXT, så loopas rätt antal gånger automatiskt.
 
-#### SLINGA
+#### LOOP
 
 | Argument | Beskrivning                                                     |
 | -------- | --------------------------------------------------------------- |
@@ -1388,7 +1388,7 @@ loop0:
 
 **Storlek:** 2 byte (LD_ opcode + omedelbar operand).
 
-#### NÄSTA
+#### NEXT
 
 | Argument | Beskrivning                            |
 | -------- | -------------------------------------- |
@@ -1415,13 +1415,13 @@ loop0: LDA #$20; mellanslag STA $0400,X DEX BNE loop0
 
 ---
 
-### FÖR / SLUT
+### FOR / ENDF
 
 Liksom **`FOR X=0 TO N-1 : ... : NEXT X`** i BASIC — räknar *upp* från 0.
 Perfekt när du behöver ett framåtriktat index, t.ex. stega igenom en sträng
 eller en array.
 
-#### FÖR
+#### FOR
 
 | Argument | Beskrivning                                                                       |
 | -------- | --------------------------------------------------------------------------------- |
@@ -1441,7 +1441,7 @@ LDX #00 kr för 0:
 
 **Storlek:** 2 byte (LD_ opcode + `#$00`).
 
-#### SLUT
+#### ENDF
 
 | Argument | Beskrivning                              |
 | -------- | ---------------------------------------- |
@@ -1475,13 +1475,13 @@ klar: RTS
 
 ---
 
-### TRYCK / DRA
+### PUSH / PULL
 
 Som att ** spara variabler före en GOSUB och återställa dem efter ** — men
 använder 6502-hårdvarustacken. Om en subrutin använder A, X eller Y, omslut den
 med PUSH och PULL så att den anropande kodens register bevaras.
 
-#### TRYCK
+#### PUSH
 
 Skjuter ett eller flera register till stacken. Ordningen är alltid A → X → Y
 (innerst först).
@@ -1502,7 +1502,7 @@ PHA TXA PHA
 
 **Storlek:** 1 byte för A (`PHA`), 2 byte för X eller Y (överföring + push).
 
-#### DRA
+#### PULL
 
 Återställer register från stacken i **omvänd ordning** (Y → X → A).
 
@@ -1526,7 +1526,7 @@ PLA MOMS PLA
 
 ---
 
-### END / RTS-alias
+### END / RTS alias
 
 Liksom **RTS med ett vänligare makronamn ** — `.end` avger en enda `RTS` byte,
 en kort subrutinterminator.
@@ -1548,14 +1548,14 @@ makro mer än en rå instruktion.
 
 ---
 
-### MAKRO / ENDM / ANROPA
+### MACRO / ENDM / INVOKE
 
 Liksom **en namngiven GOSUB med parametrarna ** — definiera en återanvändbar
 kodbit en gång (MACRO…ENDM), och anropa den sedan var som helst med INVOKE.
 Skicka olika argumentvärden varje gång istället för att kopiera och klistra in
 kod.
 
-#### MAKRO (definitionsstart)
+#### MACRO (definition start)
 
 | Argument   | Beskrivning                                                              |
 | ---------- | ------------------------------------------------------------------------ |
@@ -1584,11 +1584,11 @@ Etiketter, LOOP-etiketter och runtime `.if` / `.medan `-etiketter för brödtext
 .endm
 ```
 
-#### ENDM (definitionsslut)
+#### ENDM (definition end)
 
 Stänger den aktuella makrodefinitionen. Inga argument.
 
-#### ÅBEROPA
+#### INVOKE
 
 Anropar ett definierat makro på denna position och ersätter de angivna
 argumentvärdena med platshållarna `{paramName}` i brödtexten.
@@ -1679,14 +1679,14 @@ på den sammansatta koden.
 
 ---
 
-### DEFINERA / OM / ANNARS / ENDIF
+### DEFINE / IF / ELSE / ENDIF
 
 Precis som med en **-brytare läser assemblern ** — `DEFINE DEBUG` aktiverar en
 symbol, varefter raderna i valfri `IF DEBUG` assembleras och dess `ELSE`-gren
 hoppas över. Ta bort DEFINE så försvinner IF-delen från utdata. Du behöver inte
 ta bort kod för versionsversioner.
 
-#### DEFINIERA
+#### DEFINE
 
 | Argument | Beskrivning                                                                                  |
 | -------- | -------------------------------------------------------------------------------------------- |
@@ -1706,7 +1706,7 @@ ta bort kod för versionsversioner.
 En `DEFINE` kan aktivera flera symboler samtidigt (kommaseparerade). Placera
 DEFINEs högst upp i ditt program.
 
-#### OM
+#### IF
 
 | Argument | Beskrivning                                                                                                                              |
 | -------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
@@ -1729,7 +1729,7 @@ konstant uttryck — ett som inte kan utvärderas vid assemblern är ett fel.
 Överhoppade rader visas som `; [IF skipped] …` kommentarer och genererar **noll
 byte**.
 
-#### ANNAN
+#### ELSE
 
 Inga argument. Markerar den alternativa grenen — monteras när villkoret `OM` är
 *inte* aktivt.
@@ -1793,7 +1793,7 @@ Kapslade `IF` stöds. Om en yttre del hoppas över, hoppas även de inre över.
 > jämförelse/förgreningssockrar vid körning, se **Runtime IF / ELSE / ENDIF**
 > nedan.
 
-### .HÄVDA
+### .ASSERT
 
 En **sanity check vid kompileringstid**. `.assert` utvärderar ett uttryck under
 assemblering; om det är falskt (`0`) stoppas bygget med ett tydligt fel som
@@ -1835,7 +1835,7 @@ sprite_data_end:
 
 ---
 
-### KONSTANT
+### CONST
 
 Liksom **en namngiven variabel som aldrig ändras** — `SCREEN = $0400`. Använd
 namnet istället för att skriva råa adresser överallt, vilket gör koden lättare
@@ -1940,7 +1940,7 @@ etikett, avger kompilatorn en varning.
 
 ---
 
-### Körtid IF / ELSE / ENDIF
+### Runtime IF / ELSE / ENDIF
 
 Precis som **en riktig grenmall** — den här versionen fungerar vid körning, inte
 kompileringstid. Den jämför `A`, `X` eller `Y` mot ett omedelbart värde och
@@ -1966,7 +1966,7 @@ till den kortaste ekvivalenta grenkedjan för det valda registret.
 
 ---
 
-### MEDAN / SLUT
+### WHILE / ENDW
 
 Liksom **en runtime-loop med ett test högst upp** — kroppen körs medan villkoret
 förblir sant.
@@ -1991,7 +1991,7 @@ motsvarigheten vid körning till den räknarbaserade `LOOP / NEXT`-hjälpen.
 
 ---
 
-### UPPREPA / TILLS
+### REPEAT / UNTIL
 
 Liksom **en runtime-loop med ett test längst ner** — kroppen körs alltid minst
 en gång, sedan avgör villkoret om den ska stoppas.
@@ -2044,9 +2044,9 @@ växlar automatiskt till en 16-bitarsräknare.
 
 ---
 
-### SKRIV UT / SKRIV_UT_CHAR / SKRIV_UT_HEX / CLEAR_SCREEN / VÄNTA_KEY / FÖRDRÖJNING / SET_BORDER / SET_BG
+### PRINT / PRINT_CHAR / PRINT_HEX / CLEAR_SCREEN / WAIT_KEY / DELAY / SET_BORDER / SET_BG
 
-#### SKRIVA UT
+#### PRINT
 
 Liksom **PETSCII-utdata utan standardtexten ** — skriver ut en sträng genom
 `CHROUT` med samma hantering av versaler/gemener (`lower`) som `.petscii`.
@@ -2089,7 +2089,7 @@ Genväg för standard C64-kontrollkoden för tydlig skärm.
 .clear_screen
 ```
 
-#### VÄNTA_NYCKEL
+#### WAIT_KEY
 
 Väntar tills en tangent trycks ned, så att du inte behöver rulla `GETIN`-slingan
 för hand varje gång.
@@ -2099,7 +2099,7 @@ för hand varje gång.
 .vänta_nyckel
 ```
 
-#### DRÖJSMÅL
+#### DELAY
 
 Väntar det begärda antalet bildrutiner genom en delad hjälprutin. Använd detta
 för korta pauser och tidsintervall när en fullständig anpassad loop skulle vara
@@ -2250,7 +2250,7 @@ den.
 ---
 
 <a id="wait_raster"></a>
-### VÄNTA_RASTER
+### WAIT_RASTER
 
 Väntar på att VIC-II-elektronstrålen ska nå en specifik skanningslinje – som att
 synkronisera med en TV-bildruta. Placera detta högst upp i din spelloop för att
@@ -2351,7 +2351,7 @@ $DC01`), så båda portarna fungerar.
 > **2.1:** Porten måste vara känd när koden läggs ut (ett tal eller en
 > konstant), eftersom port 3 gör koden 3 byte längre; en etikett som definieras
 > senare är ett fel.
-### MUS
+### MOUSE
 
 Läser en Commodore 1351 proportionell mus och flyttar en sprite. Helt **inline**
 — ingen JSR eller etikett behövs. Makrot väljer CIA-porten, väntar på att
@@ -2455,7 +2455,7 @@ STA $D020; ljusblå kant = klar JMP gameloop
 
 ---
 
-### LADDA IN FIL
+### LOADFILE
 
 Liksom **`LOAD "fil",8`** i BASIC — laddar en fil från en D64-disk vid körning
 med hjälp av KERNAL LOAD-rutinen. Använd detta för att ladda data, musik eller
@@ -2509,7 +2509,7 @@ BCS misslyckande ; (endast om feletiketten är angiven)
 
 ---
 
-### EXODECRUNSH
+### EXODECRUNCH
 
 Inbyggd **Exomizer-dekomprimering**. Använd detta makro direkt efter en
 `LOADFILE` som laddade en komprimerad ström i Exomizer-läge `mem` — EXODECRUNCH
@@ -2733,7 +2733,7 @@ no_scpu:
 
 ---
 
-### TURBO_AKTIVERA
+### TURBO_ENABLE
 
 Slår på eller av **CMD SuperCPU turboläge**. Anropa `SUPERCPU_DETECT` först och
 hoppa över detta om SuperCPU inte finns.

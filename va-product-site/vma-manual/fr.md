@@ -453,7 +453,7 @@ code. On peut les considérer comme des sous-programmes intégrés.
 
 ---
 
-### ÉTIQUETTE
+### LABEL
 
 Comme un numéro de ligne ** en BASIC** — mais avec un nom au lieu d'un numéro.
 Cibles de saut pour `JMP`, `JSR`, `BNE`, etc.
@@ -477,7 +477,7 @@ L'adresse actuelle est affichée en commentaire. Les étiquettes ont une taille 
 
 ---
 
-### COMMENTAIRE
+### COMMENT
 
 Comme **REM en BASIC** — une note pour vous-même que l'assembleur ignore
 complètement.
@@ -494,7 +494,7 @@ Votre commentaire ici
 
 ---
 
-### OCTET
+### BYTE
 
 Comme **DATA en BASIC** — stocke une liste de valeurs d'octets bruts directement
 dans le programme.
@@ -531,7 +531,7 @@ construction de tables de branchement et de listes d'adresses.
 
 ---
 
-### MOT
+### WORD
 
 Comme **DATA en BASIC mais pour les nombres de 16 bits **. Chaque valeur est
 stockée sur deux octets (octet de poids faible en premier, puis octet de poids
@@ -555,7 +555,7 @@ fort — ordre little-endian 6502).
 
 ---
 
-### REMPLIR
+### FILL
 
 Comme `FOR I=1 TO N : POKE addr+I, val : NEXT` — remplit un bloc de mémoire avec
 le même octet, sur une seule ligne. Idéal pour effacer des zones ou pré-remplir
@@ -596,7 +596,7 @@ Octet de poids faible/de poids fort : `lo(expr)`, `hi(expr)`
 
 ---
 
-### ALIGNER
+### ALIGN
 
 Décale l'adresse actuelle jusqu'à la prochaine limite libre en insérant des
 octets de remplissage nuls. Le C64 exige que les données de sprite commencent
@@ -625,7 +625,7 @@ programme.
 
 ---
 
-### TEXTE
+### TEXT
 
 Comme **PRINT AT** — écrit du texte directement sur l'écran du C64 à une colonne
 et une ligne données, sans utiliser le KERNAL. Il génère une paire LDA/STA par
@@ -681,7 +681,7 @@ longueur du texte × 5 octets (LDA + STA par caractère).
 
 ---
 
-### CHAÎNE
+### STRING
 
 Comme **POKEing une chaîne ** dans n'importe quelle adresse mémoire à
 l'exécution. Génère des paires LDA/STA qui copient le code d'écran de chaque
@@ -727,7 +727,7 @@ inversée. Taille : longueur du texte × 5 octets (un LDA + un STA par caractèr
 
 ---
 
-### DONNÉES
+### DATA
 
 Comme une boucle **POKE** — écrit une liste d'octets bruts à une adresse mémoire
 au moment de l'exécution, une paire LDA/STA par octet.
@@ -765,7 +765,7 @@ LDA #$01
 
 ---
 
-### BAWBYTES
+### RAWBYTES
 
 Comme les données ** qui se chargent directement en mémoire ** — aucun code
 d'exécution n'est nécessaire. Les octets sont présents dès le chargement du PRG,
@@ -804,7 +804,7 @@ dans la sortie.
 
 ---
 
-### TEXTE BRUT
+### RAWTEXT
 
 Comme RAWBYTES, mais pour le texte : encode la chaîne en caractères d’écran et
 place les octets à une adresse fixe sans code d’exécution. Le texte est
@@ -1276,14 +1276,14 @@ l'assembleur visuel C64 exporte un fichier compatible.
 
 ---
 
-### NIVEAU / LIGNE_NIVEAU
+### LEVEL / LEVEL_ROW
 
 Intègre un projet **Level Editor** dans votre programme et copie les lignes du
 niveau dans une mémoire tampon d'écran — les éléments de base d'un jeu à
 défilement. L'exemple `level-demo.asm` de l'assembleur visuel C64 est un niveau
 complet à défilement au joystick.
 
-#### NIVEAU
+#### LEVEL
 
 Directive de type INCBIN générant 0 octet de code. Seuls les écrans placés du
 projet Level Editor (le fichier .bin enregistré par Level Editor de C64 Visual
@@ -1319,7 +1319,7 @@ les écrans. Un niveau peut comporter jusqu'à 7 × 10 écrans.
 garde typique : `.assert LEVEL_END <= $9200, "les données de niveau entrent
 dans le code"`.
 
-#### LIGNE_NIVEAU
+#### LEVEL_ROW
 
 Copie une ligne de 40 caractères du niveau dans un tampon : la ligne de niveau
 dans **X**, commençant à la colonne de niveau stockée dans la variable `col`,
@@ -1433,7 +1433,7 @@ KERNAL (`JMP $EA31`, qui analyse également le clavier).
 
 ---
 
-### INCLURE
+### INCLUDE
 
 Comme la fonction MERGE en BASIC, elle importe un autre fichier et l'étend à cet
 emplacement. Idéal pour les bibliothèques de sous-programmes réutilisables.
@@ -1499,7 +1499,7 @@ Deux types de fichiers sont pris en charge :
 
 ---
 
-### TABLEAU
+### TABLE
 
 Comme **DIM à une adresse spécifique** — nomme une table de consultation et
 indique son emplacement en mémoire. Ajoutez ensuite les lignes `.byte`, `.word`
@@ -1588,13 +1588,13 @@ RTS
 
 ---
 
-### BOUCLE / SUIVANT
+### LOOP / NEXT
 
 Comme **`FOR X=N TO 1 STEP -1 : ... : NEXT X`** en BASIC — effectue un décompte
 de N à 1 en utilisant le registre X ou Y. Placez vos instructions entre LOOP et
 NEXT, et la boucle s'exécutera automatiquement le nombre de fois nécessaire.
 
-#### BOUCLE
+#### LOOP
 
 | Argument  | Description                                                                      |
 | --------- | -------------------------------------------------------------------------------- |
@@ -1615,7 +1615,7 @@ boucle0 :
 
 **Taille : ** 2 octets (code d’opération LD + opérande immédiat).
 
-#### SUIVANT
+#### NEXT
 
 | Argument  | Description                                      |
 | --------- | ------------------------------------------------ |
@@ -1652,13 +1652,13 @@ BNE boucle0
 
 ---
 
-### POUR / FIN
+### FOR / ENDF
 
 Comme **`FOR X=0 TO N-1 : ... : NEXT X`** en BASIC — compte *up* à partir de 0.
 Idéal lorsque vous avez besoin d'un index avant, par exemple pour parcourir une
 chaîne ou un tableau.
 
-#### POUR
+#### FOR
 
 | Argument  | Description                                                                                      |
 | --------- | ------------------------------------------------------------------------------------------------ |
@@ -1679,7 +1679,7 @@ pour0:
 
 **Taille : ** 2 octets (code d’opération LD_ + `#$00`).
 
-#### FINDF
+#### ENDF
 
 | Argument  | Description                                     |
 | --------- | ----------------------------------------------- |
@@ -1731,14 +1731,14 @@ RTS
 
 ---
 
-### POUSSER / TIRER
+### PUSH / PULL
 
 Comme ** la sauvegarde des variables avant un GOSUB et leur restauration après
 ** — mais utilise la pile matérielle du 6502. Si une sous-routine utilise A, X
 ou Y, encapsulez-la dans des instructions PUSH et PULL afin de préserver les
 registres du code appelant.
 
-#### POUSSER
+#### PUSH
 
 Empile un ou plusieurs registres. L'ordre est toujours A → X → Y (du plus
 interne au plus externe).
@@ -1763,7 +1763,7 @@ PHA
 
 **Taille : ** 1 octet pour A (`PHA`), 2 octets pour X ou Y (transfert + push).
 
-#### TIRER
+#### PULL
 
 Restaure les registres de la pile dans l'ordre inverse **** (Y → X → A).
 
@@ -1790,7 +1790,7 @@ PLA
 
 ---
 
-### END / Alias RTS
+### END / RTS alias
 
 Comme **RTS avec un nom de macro plus convivial** — `.end` émet un seul octet
 `RTS`, un court terminateur de sous-routine.
@@ -1812,14 +1812,14 @@ ressemble davantage à une macro qu'à une instruction brute.
 
 ---
 
-### MACRO / ENDM / INVOQUER
+### MACRO / ENDM / INVOKE
 
 Comme **une GOSUB nommée avec des paramètres** — définissez un bloc de code
 réutilisable une seule fois (MACRO…ENDM), puis appelez-le n'importe où avec
 INVOKE. Transmettez des valeurs d'arguments différentes à chaque fois au lieu de
 copier-coller du code.
 
-#### MACRO (début de la définition)
+#### MACRO (definition start)
 
 | Argument   | Description                                                                                         |
 | ---------- | --------------------------------------------------------------------------------------------------- |
@@ -1855,11 +1855,11 @@ STA $D020
 .endm
 ```
 
-#### FIN (fin de définition)
+#### ENDM (definition end)
 
 Ferme la définition de macro actuelle. Aucun argument.
 
-#### INVOQUER
+#### INVOKE
 
 Appelle une macro définie à cette position et remplace les valeurs d'argument
 fournies par les espaces réservés `{paramName}` dans le corps.
@@ -1924,7 +1924,7 @@ est également acceptée.
 
 ---
 
-### RÉGION / ENDRÉGION
+### REGION / ENDREGION
 
 Un regroupement purement destiné aux éditeurs et aux listes — **zéro octet**,
 aucun effet sur le code assemblé.
@@ -1958,14 +1958,14 @@ aucun effet sur le code assemblé.
 
 ---
 
-### DÉFINIR / SI / SINON / FIN SI
+### DEFINE / IF / ELSE / ENDIF
 
 Comme un interrupteur, l'assembleur lit : `DEFINE DEBUG` active un symbole, puis
 les lignes de toute instruction `IF DEBUG` sont assemblées et sa branche `ELSE`
 est ignorée. Supprimez `DEFINE` et la partie `IF` disparaît du résultat. Il
 n'est pas nécessaire de supprimer le code pour les versions de production.
 
-#### DÉFINIR
+#### DEFINE
 
 | Argument | Description                                                                                           |
 | -------- | ----------------------------------------------------------------------------------------------------- |
@@ -1985,7 +1985,7 @@ n'est pas nécessaire de supprimer le code pour les versions de production.
 Une directive DEFINE ` peut activer plusieurs symboles simultanément (séparés
 par des virgules). Placez les directives DEFINE en haut de votre programme.
 
-#### SI
+#### IF
 
 | Argument  | Description                                                                                                                               |
 | --------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
@@ -2008,7 +2008,7 @@ expression constante — une expression qui ne peut être évaluée lors de
 l'assemblage constitue une erreur. Les lignes ignorées apparaissent sous forme
 de commentaires `; [IF skipped] …` et génèrent **zéro octet**.
 
-#### AUTRE
+#### ELSE
 
 Aucun argument. Marque la branche alternative — assemblée lorsque la condition
 `IF` n'est *pas* active.
@@ -2023,7 +2023,7 @@ Aucun argument. Marque la branche alternative — assemblée lorsque la conditio
 ; .AUTRE
 ```
 
-#### FINSI
+#### ENDIF
 
 Aucun argument. Clôture la partie conditionnelle.
 
@@ -2081,7 +2081,7 @@ est ignorée, les parties internes le sont également.
 > une syntaxe simplifiée de comparaison/branchement à l’exécution, voir **IF /
 > ELSE / ENDIF à l’exécution** ci-dessous.
 
-### .AFFIRMER
+### .ASSERT
 
 Une vérification de cohérence à la compilation (**) est effectuée. **`.assert`
 évalue une expression lors de l'assemblage ; si elle est fausse (`0`), la
@@ -2236,7 +2236,7 @@ attribue le prochain emplacement libre. Si la région demandée chevauche une
 
 ---
 
-### Exécution IF / ELSE / ENDIF
+### Runtime IF / ELSE / ENDIF
 
 Comme un véritable modèle de branchement, cette version fonctionne à
 l'exécution, et non à la compilation. Elle compare A, X ou Y à une valeur
@@ -2267,7 +2267,7 @@ sélectionné.
 
 ---
 
-### TANT QUE / FIN
+### WHILE / ENDW
 
 Comme **une boucle d'exécution avec un test au sommet** — le corps s'exécute
 tant que la condition reste vraie.
@@ -2294,7 +2294,7 @@ l'utilitaire `LOOP / NEXT` basé sur le comptage.
 
 ---
 
-### RÉPÉTER / JUSQU'À
+### REPEAT / UNTIL
 
 Comme **une boucle d'exécution avec un test à la fin** — le corps s'exécute
 toujours au moins une fois, puis la condition décide s'il faut s'arrêter.
@@ -2350,9 +2350,9 @@ un compteur 16 bits est automatiquement utilisé.
 
 ---
 
-### IMPRIMER / IMPRIMER_CARACTÈRES / IMPRIMER_HEXAGONAL / EFFACER_ÉCRAN / ATTENDRE_TOUTE / DÉLAI / DÉFINIR_BORDURE / DÉFINIR_ARRIÈRE_PLAN
+### PRINT / PRINT_CHAR / PRINT_HEX / CLEAR_SCREEN / WAIT_KEY / DELAY / SET_BORDER / SET_BG
 
-#### IMPRIMER
+#### PRINT
 
 Comme la sortie **PETSCII sans le texte standard** — imprime une chaîne via
 `CHROUT` avec la même gestion des majuscules/minuscules (`minuscules`) que
@@ -2364,7 +2364,7 @@ Comme la sortie **PETSCII sans le texte standard** — imprime une chaîne via
 .print "bonjour", lower
 ```
 
-#### IMPRIMER_CARACTÈRE
+#### PRINT_CHAR
 
 Imprime un octet PETSCII sous forme de code numérique et l'envoie via `CHROUT`.
 La valeur peut également être une constante nommée ou une étiquette qui sera
@@ -2379,7 +2379,7 @@ résolue en un octet lors de l'assemblage.
 .print_char couleur
 ```
 
-#### IMPRIMER_HEX
+#### PRINT_HEX
 
 Imprime une valeur 8 bits sous forme de texte hexadécimal via le chemin de
 sortie normal du KERNAL.
@@ -2389,7 +2389,7 @@ sortie normal du KERNAL.
 .print_hex A
 ```
 
-#### EFFACER_ÉCRAN
+#### CLEAR_SCREEN
 
 Raccourci pour le code de contrôle standard de l'écran transparent du C64.
 
@@ -2398,7 +2398,7 @@ Raccourci pour le code de contrôle standard de l'écran transparent du C64.
 .clear_screen
 ```
 
-#### ATTENDRE_CLÉ
+#### WAIT_KEY
 
 Attend qu'une touche soit pressée, vous n'avez donc pas à parcourir manuellement
 la boucle `GETIN` à chaque fois.
@@ -2408,7 +2408,7 @@ la boucle `GETIN` à chaque fois.
 .wait_key
 ```
 
-#### RETARD
+#### DELAY
 
 Attend le nombre d'images demandé via une routine auxiliaire partagée. Utilisez
 cette fonction pour les pauses courtes et les intervalles de temps lorsqu'une
@@ -2425,7 +2425,7 @@ nombre brut ou une constante nommée, et `.wait` est simplement un alias de
 .delay frames=FRAMES_1S
 ```
 
-#### DÉFINIR_BORDURE / DÉFINIR_ARRIÈRE-PLAN
+#### SET_BORDER / SET_BG
 
 Fonctions d'encapsulation simplifiées pour les registres de couleur VIC-II. La
 valeur de couleur peut être un nombre brut ou une constante nommée comprise
@@ -2593,7 +2593,7 @@ l'effacer.
 ---
 
 <a id="wait_raster"></a>
-### ATTENDRE_RASTER
+### WAIT_RASTER
 
 Attend que le faisceau d'électrons du VIC-II atteigne une ligne de balayage
 spécifique, comme pour la synchronisation avec une image TV. Placez ce programme
@@ -2725,7 +2725,7 @@ simultanément (`LDA $DC00` / `AND $DC01`), donc les deux ports fonctionnent.
 > **2.1:** le port doit être connu lors de la mise en page du code (un nombre ou
 > une constante), car le port 3 allonge le code de 3 octets ; une étiquette
 > définie ultérieurement est une erreur.
-### SOURIS
+### MOUSE
 
 Interprète un signal de souris proportionnelle Commodore 1351 et déplace un
 sprite. Entièrement intégré (X71X) — aucun JSR ni étiquette requis. La macro
@@ -2989,7 +2989,7 @@ JMP boucle de jeu
 
 ---
 
-### CHARGEMENT DE FICHIER
+### LOADFILE
 
 Comme **`LOAD "fichier",8`** en BASIC, cette commande charge un fichier depuis
 une disquette D64 à l'exécution, en utilisant la routine KERNAL LOAD.
@@ -3132,7 +3132,7 @@ saisie.
 
 ---
 
-### VÉRIFICATION REU
+### REU_CHECK
 
 Détecte si une unité d'extension de RAM Commodore (REU) est branchée — comme
 vérifier `PEEK($D010)` pour voir si le matériel est présent. Teste en écrivant
@@ -3271,7 +3271,7 @@ A9 xx LDA #speed_byte
 
 ---
 
-### DÉTECTION DU SUPERCPU
+### SUPERCPU_DETECT
 
 Vérifie si un accélérateur **CMD SuperCPU** est installé — comme `PEEK($D0B8)`
 pour voir s'il renvoie quelque chose d'autre que `$FF`.
@@ -3304,7 +3304,7 @@ no_scpu :
 
 ---
 
-### ACTIVATION TURBO
+### TURBO_ENABLE
 
 Active ou désactive le mode turbo SuperCPU **CMD **. Appelez d'abord
 `SUPERCPU_DETECT ` et ignorez cette étape si le SuperCPU n'est pas présent.
@@ -3332,7 +3332,7 @@ A9 00 LDA #$00
 ---
 
 <a id="map_copy"></a>
-### COPIE_CARTE
+### MAP_COPY
 
 Copie une carte de tuiles depuis une adresse source vers la RAM écran (et
 éventuellement la RAM couleur) à l'aide d'une série de boucles `LDA abs,X` /
@@ -3419,7 +3419,7 @@ fichier est chargé (par exemple, avec `.incbin` à `$C000`).
 ---
 
 <a id="map_copy16x16"></a>
-### COPIE_MAP16X16
+### MAP_COPY16X16
 
 Copie une zone de caractères de 16×16 à partir d'un bloc de code écran compact
 de 256 octets et d'un bloc de mémoire RAM couleur correspondant de 256 octets.

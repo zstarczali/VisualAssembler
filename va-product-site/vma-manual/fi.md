@@ -412,7 +412,7 @@ assembler luo koodin. Ajattele niitä sisäänrakennettuina aliohjelmina.
 
 ---
 
-### TARRA
+### LABEL
 
 Kuten **rivinumero BASICissa** — mutta nimellä numeron sijaan. Hyppykohteet
 `JMP`, `JSR`, `BNE` jne.
@@ -435,7 +435,7 @@ Nykyinen osoite näkyy kommenttina. Nimikkeiden koko on **0 tavua **.
 
 ---
 
-### KOMMENTTI
+### COMMENT
 
 Kuten **REM BASIC**:ssä — huomautus itsellesi, jonka assembler jättää täysin
 huomiotta.
@@ -452,7 +452,7 @@ huomiotta.
 
 ---
 
-### TAVU
+### BYTE
 
 Kuten **DATA BASIC**-ohjelmassa — tallentaa luettelon raakatavuarvoista
 ohjelmaan.
@@ -488,7 +488,7 @@ osoitelistojen rakentamiseen.
 
 ---
 
-### SANA
+### WORD
 
 Kuten BASICin **DATA, mutta 16-bittisille luvuille **. Jokainen arvo
 tallennetaan kahtena tavuna (ensin pienin tavu, sitten suurin – 6502
@@ -512,7 +512,7 @@ little-endian -järjestys).
 
 ---
 
-### TÄYTTÄÄ
+### FILL
 
 Kuten `FOR I=1 TO N : POKE addr+I, val : NEXT` — täyttää muistilohkon samalla
 tavulla yhdellä rivillä. Erinomainen alueiden tyhjentämiseen tai taulukoiden
@@ -553,7 +553,7 @@ Operaattorit: `+ - * /` Literaalit: `$FF` (heksadesimaali), `%10110000`
 
 ---
 
-### TASOITA
+### ALIGN
 
 Liu'uttaa nykyisen osoitteen eteenpäin seuraavaan puhtaaseen reunaan lisäämällä
 nollilla täytettäviä tavuja. C64 vaatii sprite-datan alkavan 64-tavuiselta
@@ -581,7 +581,7 @@ rajalta — `ALIGN 64` käsittelee tämän automaattisesti.
 
 ---
 
-### TEKSTI
+### TEXT
 
 Kuten **PRINT AT** — kirjoittaa tekstiä suoraan C64-näytölle tiettyyn
 sarakkeeseen ja riville käyttämättä KERNAL-kutsua. Se luo yhden LDA/STA-parin
@@ -737,7 +737,7 @@ minkä tarvitsee vain olla tietyssä osoitteessa.
 
 ---
 
-### RAAKATEKSTI
+### RAWTEXT
 
 Kuten RAWBYTES, mutta tekstille — koodaa merkkijonon näyttökoodeiksi ja
 sijoittaa tavut kiinteään osoitteeseen ilman ajonaikaista koodia ****. Teksti on
@@ -855,7 +855,7 @@ RTS
 
 ---
 
-### MERKKIJÄRJESTELMÄ
+### CHARSET
 
 Vaihtaa VIC-II-merkki-ROMin isojen kirjainten/grafiikkatilan (C64-oletus) ja
 pienten kirjainten/isojen kirjainten tilan välillä muokkaamalla `$D018`:n bittiä
@@ -1129,13 +1129,13 @@ tiedoston.
 
 ---
 
-### TASO / TASO_RIVI
+### LEVEL / LEVEL_ROW
 
 Lisää **Level Editor** -projektin ohjelmaasi ja kopioi tason rivit
 näyttöpuskuriin – vierityspelin rakennuspalikoita. C64 Visual Assemblerin
 `level-demo.asm` -esimerkki on täydellinen joystick-vieritystaso.
 
-#### TASO
+#### LEVEL
 
 INCBIN-tyylinen direktiivi, joka tuottaa **0 tavua koodia**. Vain **sijoitetut**
 näytöt tasoeditoriprojektista (`.bin`, jonka C64 Visual Assemblerin tasoeditori
@@ -1170,7 +1170,7 @@ näyttöä.
 
 Tyypillinen vartija: `.assert LEVEL_END <= $9200, "tasodata törmää koodiin"`.
 
-#### TASO_RIVI
+#### LEVEL_ROW
 
 Kopioi yhden 40-merkkisen rivin tasosta puskuriin: tasorivin muuttujassa **X**
 alkaen `col`-muuttujassa olevasta tasosarakkeesta, `dst`-osoittimessa olevaan
@@ -1279,7 +1279,7 @@ KERNAL-käsittelijään (`JMP $EA31`), joka myös skannaa näppäimistön.
 
 ---
 
-### SISÄLLYTÄ
+### INCLUDE
 
 Kuten **MERGE BASIC**-komennossa — noutaa toisen tiedoston ja laajentaa sen
 rivillä tässä kohdassa. Täydellinen uudelleenkäytettäville
@@ -1339,7 +1339,7 @@ Kahta tiedostotyyppiä tuetaan:
 
 ---
 
-### TAULUKKO
+### TABLE
 
 Kuten **DIM tietyssä osoitteessa** — nimeää hakutaulukon ja määrittää sen
 sijainnin muistissa. Lisää sen jälkeen rivit `.byte`, `.word` tai `.fill`
@@ -1419,14 +1419,14 @@ RTS
 
 ---
 
-### SILMUKKA / SEURAAVA
+### LOOP / NEXT
 
 Kuten **`FOR X=N TO 1 STEP -1 : ... : NEXT X`** BASICissa — laskee alaspäin
 N:stä 1:een käyttäen X- tai Y-rekisteriä. Aseta käskysi LOOP- ja
 NEXT-rekisterien väliin, niin se toistaa silmukan automaattisesti oikean määrän
 kertoja.
 
-#### SILMUKKA
+#### LOOP
 
 | Argumentti   | Kuvaus                                                              |
 | ------------ | ------------------------------------------------------------------- |
@@ -1446,7 +1446,7 @@ LDX #$0A}silmukka0:
 
 **Koko:** 2 tavua (LD_-operaatiokoodi + välitön operandi).
 
-#### SEURAAVA
+#### NEXT
 
 | Argumentti   | Kuvaus                                     |
 | ------------ | ------------------------------------------ |
@@ -1543,14 +1543,14 @@ RTS
 
 ---
 
-### TYÖNNÄ / VEDÄ
+### PUSH / PULL
 
 Kuten **muuttujien tallentaminen ennen GOSUBia ja niiden palauttaminen **:n
 jälkeen — mutta käyttää 6502-laitteistopinoa. Jos aliohjelma käyttää A:ta, X:ää
 tai Y:tä, se kiedotaan PUSH- ja PULL-käskyihin, jotta kutsuvan koodin rekisterit
 säilyvät.
 
-#### TYÖNNÄ
+#### PUSH
 
 Lisää yhden tai useamman rekisterin pinoon. Järjestys on aina A → X → Y (sisin
 ensin).
@@ -1571,7 +1571,7 @@ PHA Lähetys PHA
 
 **Koko:** 1 tavu A:lle (`PHA`), 2 tavua X:lle tai Y:lle (siirto + push).
 
-#### VEDÄ
+#### PULL
 
 Palauttaa rekisterit pinosta käänteisessä **järjestyksessä ** (Y → X → A).
 
@@ -1595,7 +1595,7 @@ PLA VERO PLA
 
 ---
 
-### LOPPU / RTS-alias
+### END / RTS alias
 
 Kuten **RTS, mutta ystävällisemmällä makronimellä ** — `.end` lähettää yhden
 `RTS` tavun, lyhyen aliohjelman päättäjäismerkin.
@@ -1617,14 +1617,14 @@ kuin raakakäskyn kaltaisesti.
 
 ---
 
-### MAKRO / LOPPU / KUTSU
+### MACRO / ENDM / INVOKE
 
 Kuten **niminen GOSUB parametreilla ** — määrittele uudelleenkäytettävä
 koodipätkä kerran (MACRO…ENDM) ja kutsu sitä sitten missä tahansa
 INVOKE-komennolla. Anna eri argumenttiarvot joka kerta koodin kopioinnin ja
 liittämisen sijaan.
 
-#### MAKRO (määritelmän alku)
+#### MACRO (definition start)
 
 | Argumentti | Kuvaus                                                                             |
 | ---------- | ---------------------------------------------------------------------------------- |
@@ -1655,11 +1655,11 @@ STA $D020
 .endm
 ```
 
-#### ENDM (määritelmän loppu)
+#### ENDM (definition end)
 
 Sulkee nykyisen makromäärityksen. Ei argumentteja.
 
-#### VEDOTA
+#### INVOKE
 
 Kutsuu tässä kohdassa määriteltyä makroa ja korvaa annetuilla argumenttiarvoilla
 `{paramName}` -paikkamerkit rungossa.
@@ -1717,7 +1717,7 @@ sallittu.
 
 ---
 
-### ALUE / LOPPUALUE
+### REGION / ENDREGION
 
 Puhdas ryhmittely editoreille ja listauksille — **nolla tavua**, nolla
 vaikutusta koottuun koodiin.
@@ -1749,14 +1749,14 @@ vaikutusta koottuun koodiin.
 
 ---
 
-### MÄÄRITTELE / JOS / MUUTEN / ENDIF
+### DEFINE / IF / ELSE / ENDIF
 
 Kuten **-kytkin, assembler lukee** — `DEFINE DEBUG` kytkee symbolin päälle,
 minkä jälkeen minkä tahansa `IF DEBUG`-haaran rivit kootaan ja sen `ELSE`-haaran
 ohitetaan. Poistamalla DEFINE-osan IF-osa katoaa tulosteesta. Julkaisuversioita
 varten ei tarvitse poistaa koodia.
 
-#### MÄÄRITELLÄ
+#### DEFINE
 
 | Argumentti | Kuvaus                                                                                      |
 | ---------- | ------------------------------------------------------------------------------------------- |
@@ -1776,7 +1776,7 @@ varten ei tarvitse poistaa koodia.
 `DEFINE` voi aktivoida useita symboleja kerralla (pilkulla erotettuna). Lisää
 DEFINE-käskyt ohjelmasi alkuun.
 
-#### JOS
+#### IF
 
 | Argumentti | Kuvaus                                                                                                                           |
 | ---------- | -------------------------------------------------------------------------------------------------------------------------------- |
@@ -1799,7 +1799,7 @@ vakiolauseke – lauseke, jota ei voida laskea kokoamisvaiheessa, on virhe.
 Ohitetut rivit näkyvät muodossa `; [IF skipped] …` kommentteja ja luovat **zero
 bytes**.
 
-#### MUU
+#### ELSE
 
 Ei argumentteja. Merkitsee vaihtoehtoisen haaran — kootaan, kun `IF`-ehto on
 *not* aktiivinen.
@@ -1903,7 +1903,7 @@ sprite_data_end:
 
 ---
 
-### VAKION
+### CONST
 
 Kuten **nimetty muuttuja, joka ei koskaan muutu** — `SCREEN = $0400`. Käytä
 nimeä sen sijaan, että kirjoittaisit raakaosoitteita kaikkialle, mikä helpottaa
@@ -2009,7 +2009,7 @@ tunnisteen kanssa, kääntäjä antaa varoituksen.
 
 ---
 
-### Suorituksenaikainen JOS / MUUTEN / ENDIF
+### Runtime IF / ELSE / ENDIF
 
 Kuten **oikea haarautumismalli** — tämä versio toimii ajonaikana, ei
 käännösaikana. Se vertaa `A`, `X` tai `Y` välittömään arvoon ja tuottaa oikean
@@ -2037,7 +2037,7 @@ laajenee valitun rekisterin lyhyimpään vastaavaan haaraketjuun.
 
 ---
 
-### SAMALLA / LOPPU
+### WHILE / ENDW
 
 Kuten **suorituksenaikainen silmukka, jonka alussa on testi** — runko
 suoritetaan niin kauan kuin ehto pysyy tosi.
@@ -2063,7 +2063,7 @@ ajonaikainen vastine.
 
 ---
 
-### TOISTA / KUNNES
+### REPEAT / UNTIL
 
 Kuten **suorituksenaikainen silmukka, jonka lopussa on testi** — runko
 suoritetaan aina ainakin kerran, minkä jälkeen ehto päättää, pysähtyykö se.
@@ -2116,9 +2116,9 @@ vaihtavat automaattisesti 16-bittiseen laskuriin.
 
 ---
 
-### TULOSTA / TULOSTA_MERKKI / TULOSTA_HEX / TYHJENNÄ_NÄYTTÖ / ODOTA_NÄPPÄIN / VIIVE / ASETA_REUNUS / ASETA_REUNUS
+### PRINT / PRINT_CHAR / PRINT_HEX / CLEAR_SCREEN / WAIT_KEY / DELAY / SET_BORDER / SET_BG
 
-#### PAINAA
+#### PRINT
 
 Kuten **PETSCII-tuloste ilman vakiomuotoista **-tulostetta — tulostaa
 merkkijonon `CHROUT`-funktion kautta samalla isojen/pienten kirjainten
@@ -2130,7 +2130,7 @@ käsittelyllä (`lower`) kuin `.petscii`.
 .print "hei", alempi
 ```
 
-#### TULOSTA_MERKKI
+#### PRINT_CHAR
 
 Tulostaa yhden PETSCII-tavun numeerisena koodina ja lähettää sen
 `CHROUT`-funktion kautta. Arvo voi olla myös nimetty vakio tai tunniste, joka
@@ -2143,7 +2143,7 @@ muunnetaan tavuksi kokoamisvaiheessa.
 .print_char väri
 ```
 
-#### TULOSTA_HEX
+#### PRINT_HEX
 
 Tulostaa 8-bittisen arvon heksadesimaalimuotoisena tekstinä normaalin
 KERNAL-tulostuspolun kautta.
@@ -2153,7 +2153,7 @@ KERNAL-tulostuspolun kautta.
 .print_hex A
 ```
 
-#### TYHJENNÄ_NÄYTTÖ
+#### CLEAR_SCREEN
 
 Pikanäppäin C64:n vakiomuotoiseen selkeän näytön ohjauskoodiin.
 
@@ -2172,7 +2172,7 @@ Odottaa, kunnes näppäintä painetaan, joten sinun ei tarvitse suorittaa
 .wait_key
 ```
 
-#### VIIV.
+#### DELAY
 
 Odottaa pyydetyn määrän kehyksiä jaetun apurutiinin kautta. Käytä tätä lyhyisiin
 taukoihin ja ajoitusaukkoihin, kun täysin mukautettu silmukka olisi liiallinen.
@@ -2186,7 +2186,7 @@ Kehysten määrä voi olla raakaluku tai nimetty vakio, ja `.wait` on vain
 .delay frames=FRAMES_1S
 ```
 
-#### ASETA_REUNUS / ASETA_REUNUS
+#### SET_BORDER / SET_BG
 
 VIC-II-värirekisterien mukavuuskääreet. Väriarvo voi olla raakaluku tai nimetty
 vakio, joka ratkaisee välillä 0–15.
@@ -2228,7 +2228,7 @@ CLI" -mallin hajottamatta sitä koko ohjelmaan.
 
 ---
 
-### SATUNNAINEN
+### RAND
 
 Kuten pieni sisäänrakennettu PRNG** — palauttaa 8-bittisen pseudo-satunnaisen
 arvon kompaktista nollasivuisesta siemenestä.
@@ -2364,7 +2364,7 @@ BNE odota ; silmukka takaisin (-7 tavua)
 
 ---
 
-### OHJAUSSAUVA
+### JOYSTICK
 
 Kuten lukee **`PEEK($DC00)`** ja sitten POKE-käyttää спрайtin sijaintia – mutta
 yhdellä rivillä. Lukee yhden CIA-joystick-portin ja säätää спрайtin
@@ -2440,7 +2440,7 @@ $DC01`), joten kumpi tahansa portti toimii.
 
 > **2.1:** portti on tiedettävä koodia kirjoitettaessa (numero tai vakio), koska
 > portti 3 pidentää koodia 3 tavua; myöhemmin määritelty tunniste on virhe.
-### HIIRI
+### MOUSE
 
 Lukee Commodore 1351 -suhteellisen hiiren ja liikuttaa спрайтиa. Täysin
 **inline** — ei JSR:ää tai label-koodausta tarvita. Makro valitsee CIA-portin,
@@ -2556,7 +2556,7 @@ JMP gameloop
 
 ---
 
-### LATAA TIEDOSTO
+### LOADFILE
 
 Kuten BASICissa komennot **`LOAD "tiedosto",8`** — lataa tiedoston D64-levyltä
 suorituksen aikana käyttämällä KERNAL LOAD -rutiinia. Käytä tätä ladataksesi
@@ -2839,7 +2839,7 @@ no_scpu:
 
 ---
 
-### TURBO_KÄYTÖSSÄ
+### TURBO_ENABLE
 
 Kytkee **CMD SuperCPU turbo -tilan** päälle tai pois päältä. Kutsu ensin
 `SUPERCPU_DETECT` ja ohita tämä, jos SuperCPU:ta ei ole.
@@ -2867,7 +2867,7 @@ A9 00 LDA #$00
 ---
 
 <a id="map_copy"></a>
-### KARTTAKOPIO
+### MAP_COPY
 
 Kopioi laattakartan lähdeosoitteesta näyttömuistiin (ja valinnaisesti
 värimuistiin) käyttämällä sarjaa `LDA abs,X` / `STA abs,X` silmukoita. Yksi
@@ -2927,7 +2927,7 @@ kohdassa `$C000`):
 ---
 
 <a id="map_copy16x16"></a>
-### KARTTA_KOPIO 16X16
+### MAP_COPY16X16
 
 Kopioi 16×16 merkkialueen kompaktista 256-tavuisesta näyttökoodilohkosta sekä
 vastaavan 256-tavuisen Color RAM -lohkon. Se on tarkoitettu Charset Canvas
@@ -3031,7 +3031,7 @@ JMP-gameloop
 ---
 
 <a id="score_bcd"></a>
-### PISTEET_BCD
+### SCORE_BCD
 
 Lisää kiinteän pisteen arvon muistiin tallennettuun monitavuiseen
 BCD-pistemäärään ja renderöi sitten jokaisen numeron näyttö-RAM-muistiin

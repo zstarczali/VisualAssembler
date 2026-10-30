@@ -417,7 +417,7 @@ generuje kod. Pomyśl o nich jak o wbudowanych podprogramach.
 
 ---
 
-### ETYKIETA
+### LABEL
 
 Podobnie jak numer wiersza ** w BASIC** — ale z nazwą zamiast numeru. Cele skoku
 dla `JMP`, `JSR`, `BNE` itd.
@@ -441,7 +441,7 @@ bajtów**.
 
 ---
 
-### KOMENTARZ
+### COMMENT
 
 Podobnie jak **REM w BASIC-u** — uwaga dla Ciebie, którą asembler całkowicie
 ignoruje.
@@ -458,7 +458,7 @@ ignoruje.
 
 ---
 
-### BAJT
+### BYTE
 
 Podobnie jak **DATA w BASIC** — przechowuje listę surowych wartości bajtów w
 tekście programu.
@@ -494,7 +494,7 @@ skoków i list adresowych.
 
 ---
 
-### SŁOWO
+### WORD
 
 Podobnie jak **DATA w BASIC-u, ale dla liczb 16-bitowych **. Każda wartość jest
 przechowywana jako dwa bajty (najpierw bajt młodszy, potem bajt starszy —
@@ -518,7 +518,7 @@ kolejność little-endian 6502).
 
 ---
 
-### WYPEŁNIĆ
+### FILL
 
 Podobnie jak `FOR I=1 TO N : POKE addr+I, val : NEXT` — wypełnia blok pamięci
 tym samym bajtem w jednym wierszu. Świetnie nadaje się do czyszczenia obszarów
@@ -558,7 +558,7 @@ młodszy/starszy: `lo(wyrażenie)`, `hi(wyrażenie)`
 
 ---
 
-### WYRÓWNYWAĆ
+### ALIGN
 
 Przesuwa bieżący adres do przodu do następnej czystej granicy, wstawiając bajty
 uzupełniające zerami. C64 wymaga, aby dane sprite'a zaczynały się od granicy 64
@@ -586,7 +586,7 @@ bajtów — `ALIGN 64` obsługuje to automatycznie.
 
 ---
 
-### TEKST
+### TEXT
 
 Podobnie jak **PRINT AT** — zapisuje tekst bezpośrednio na ekranie C64 w podanej
 kolumnie i wierszu, bez użycia KERNAL-a. Generuje jedną parę LDA/STA na znak,
@@ -639,7 +639,7 @@ tekstu × 5` bajtów (LDA + STA na znak).
 
 ---
 
-### SMYCZKOWY
+### STRING
 
 Podobnie jak **Wprowadzanie ciągu ** do dowolnego adresu pamięci w czasie
 wykonywania. Generuje pary LDA/STA, które kopiują kod ekranu każdego znaku do
@@ -677,7 +677,7 @@ dodawana jest opcjonalna wartość **Shift**, np. `$80` dla odwróconego obrazu.
 
 ---
 
-### DANE
+### DATA
 
 Podobnie jak pętla **POKE** — zapisuje listę surowych bajtów do adresu pamięci w
 czasie wykonywania, jedną parę LDA/STA na bajt.
@@ -865,7 +865,7 @@ RTS
 
 ---
 
-### ZESTAW ZNAKÓW
+### CHARSET
 
 Przełącza pamięć ROM znaków VIC-II pomiędzy trybem wielkich liter/grafiki
 (domyślnie w C64) a trybem małych liter/wielkich liter, poprzez modyfikację bitu
@@ -1153,14 +1153,14 @@ kompatybilny plik.
 
 ---
 
-### POZIOM / RZĄD_POZIOMU
+### LEVEL / LEVEL_ROW
 
 Umieszcza projekt **Edytora poziomów** w programie i kopiuje wiersze poziomów do
 bufora ekranu – podstawowych elementów gry z przewijaniem. Przykład
 `level-demo.asm` w C64 Visual Assembler to kompletny poziom przewijany
 joystickiem.
 
-#### POZIOM
+#### LEVEL
 
 Dyrektywa w stylu INCBIN, która emituje **0 bajtów kodu**. Tylko **umieszczone**
 ekrany projektu Level Editor (`.bin` zapisywane przez Level Editor w C64 Visual
@@ -1196,7 +1196,7 @@ pusty ekran. Tabele wskaźników odpowiadają ekranom. Poziom może mieć maksym
 Typowy strażnik: `.assert LEVEL_END <= $9200, „dane poziomu trafiają do
 kodu”`.
 
-#### POZIOM_WIERZA
+#### LEVEL_ROW
 
 Kopiuje jeden 40-znakowy wiersz poziomu do bufora: wiersz poziomu w **X**,
 zaczynając od kolumny poziomu przechowywanej w zmiennej `col`, do adresu
@@ -1304,7 +1304,7 @@ KERNAL (`JMP $EA31`, który skanuje również klawiaturę).
 
 ---
 
-### WŁĄCZAĆ
+### INCLUDE
 
 Podobnie jak **MERGE w BASIC** — wciąga inny plik i rozwija go w linii w tym
 miejscu. Idealne dla bibliotek podprogramów wielokrotnego użytku.
@@ -1363,7 +1363,7 @@ Obsługiwane są dwa rodzaje plików:
 
 ---
 
-### TABELA
+### TABLE
 
 Podobnie jak **DIM pod określonym adresem ** — nadaje nazwę tabeli odnośników i
 określa jej miejsce w pamięci. Umieść po niej wiersze `.byte`, `.word` lub
@@ -1444,13 +1444,13 @@ RTS
 
 ---
 
-### PĘTLA / NASTĘPNY
+### LOOP / NEXT
 
 Podobnie jak **`FOR X=N TO 1 STEP -1 : ... : NEXT X`** w języku BASIC — odlicza
 od N do 1 przy użyciu rejestru X lub Y. Umieść instrukcje pomiędzy LOOP i NEXT,
 a pętla automatycznie wykona odpowiednią liczbę razy.
 
-#### PĘTLA
+#### LOOP
 
 | Argument | Opis                                                               |
 | -------- | ------------------------------------------------------------------ |
@@ -1471,7 +1471,7 @@ pętla0:
 
 **Rozmiar:** 2 bajty (kod operacji LD_ + bezpośredni operand).
 
-#### NASTĘPNY
+#### NEXT
 
 | Argument | Opis                                      |
 | -------- | ----------------------------------------- |
@@ -1503,13 +1503,13 @@ pętla BNE 0
 
 ---
 
-### DLA / ZAKOŃCZENIE
+### FOR / ENDF
 
 Podobnie jak **`FOR X=0 TO N-1 : ... : NEXT X`** w języku BASIC — zlicza *w
 górę* od 0. Idealne, gdy potrzebujesz indeksu do przodu, np. podczas
 przechodzenia przez ciąg lub tablicę.
 
-#### DLA
+#### FOR
 
 | Argument | Opis                                                                                   |
 | -------- | -------------------------------------------------------------------------------------- |
@@ -1572,13 +1572,13 @@ RTS
 
 ---
 
-### PCHNIJ / POCIĄGNIJ
+### PUSH / PULL
 
 Podobnie jak **zapisywanie zmiennych przed GOSUB i przywracanie ich po ** — ale
 wykorzystuje stos sprzętowy 6502. Jeśli podprogram używa A, X lub Y, należy go
 opakować za pomocą PUSH i PULL, aby zachować rejestry kodu wywołującego.
 
-#### NACISKAĆ
+#### PUSH
 
 Umieszcza jeden lub więcej rejestrów na stosie. Kolejność jest zawsze
 następująca: A → X → Y (najpierw najbardziej wewnętrzny).
@@ -1601,7 +1601,7 @@ PHA
 
 **Rozmiar:** 1 bajt dla A (`PHA`), 2 bajty dla X lub Y (transfer + push).
 
-#### CIĄGNĄĆ
+#### PULL
 
 Przywraca rejestry ze stosu w **odwrotnej kolejności** (Y → X → A).
 
@@ -1627,7 +1627,7 @@ PLA
 
 ---
 
-### END / alias RTS
+### END / RTS alias
 
 Podobnie jak **RTS z przyjaźniejszą nazwą makra ** — `.end` emituje pojedynczy
 bajt `RTS`, krótki terminator podprogramu.
@@ -1649,14 +1649,14 @@ bardziej jak makro niż surowa instrukcja.
 
 ---
 
-### MAKRO / ENDM / WYWOŁAJ
+### MACRO / ENDM / INVOKE
 
 Podobnie jak **nazwany GOSUB z parametrami ** — zdefiniuj fragment kodu
 wielokrotnego użytku raz (MACRO…ENDM), a następnie wywołaj go w dowolnym miejscu
 za pomocą INVOKE. Przekazuj za każdym razem różne wartości argumentów zamiast
 kopiować i wklejać kod.
 
-#### MAKRO (początek definicji)
+#### MACRO (definition start)
 
 | Argument  | Opis                                                                                  |
 | --------- | ------------------------------------------------------------------------------------- |
@@ -1688,11 +1688,11 @@ STA $D020
 .endm
 ```
 
-#### ENDM (koniec definicji)
+#### ENDM (definition end)
 
 Zamyka bieżącą definicję makra. Brak argumentów.
 
-#### ODWOŁAĆ SIĘ
+#### INVOKE
 
 Wywołuje zdefiniowaną makroinstrukcję w tym miejscu i podstawia podane wartości
 argumentów w miejsce symboli zastępczych `{paramName}` w treści.
@@ -1783,14 +1783,14 @@ zmontowany kod.
 
 ---
 
-### DEFINIUJ / JEŻELI / W PRZECIWNYM RAZIE / ENDIF
+### DEFINE / IF / ELSE / ENDIF
 
 Podobnie jak **przełącznik, który asembler odczytuje** — `DEFINE DEBUG` włącza
 symbol, a następnie wiersze dowolnej gałęzi `IF DEBUG` są asemblowane, a jej
 gałąź `ELSE` jest pomijana. Usunięcie DEFINE powoduje zniknięcie części IF z
 wyniku. Nie ma potrzeby usuwania kodu w kompilacjach wersji.
 
-#### OKREŚLIĆ
+#### DEFINE
 
 | Argument | Opis                                                                                                   |
 | -------- | ------------------------------------------------------------------------------------------------------ |
@@ -1810,7 +1810,7 @@ wyniku. Nie ma potrzeby usuwania kodu w kompilacjach wersji.
 `DEFINE` może aktywować wiele symboli jednocześnie (rozdzielonych przecinkami).
 Umieść DEFINE na początku programu.
 
-#### JEŚLI
+#### IF
 
 | Argument | Opis                                                                                                                          |
 | -------- | ----------------------------------------------------------------------------------------------------------------------------- |
@@ -1833,7 +1833,7 @@ musi być wyrażeniem stałym — taki, którego nie można ocenić w trakcie
 asemblacji, jest błędem. Pominięte wiersze są wyświetlane jako komentarze `; [IF
 skipped] …` i generują **zerowe bajty**.
 
-#### W PRZECIWNYM RAZIE
+#### ELSE
 
 Brak argumentów. Oznacza gałąź alternatywną — montowaną, gdy warunek `JEŻELI`
 jest *nie* aktywny.
@@ -1896,7 +1896,7 @@ części wewnętrzne również zostaną pominięte.
 > porównywania/rozgałęziania w czasie wykonania można znaleźć poniżej w sekcji
 > **Instrukcje IF / ELSE / ENDIF w czasie wykonania **.
 
-### .ZAPEWNIAĆ
+### .ASSERT
 
 **Kontrola poprawności w czasie kompilacji**. `.assert` ocenia wyrażenie podczas
 asemblacji; jeśli jest ono fałszywe (`0`), kompilacja zatrzymuje się z wyraźnym
@@ -1939,7 +1939,7 @@ sprite_data_end:
 
 ---
 
-### STAŁA
+### CONST
 
 Podobnie jak **zmienna o nazwie, która nigdy się nie zmienia** — `SCREEN =
 $0400`. Użyj nazwy zamiast wpisywać wszędzie surowe adresy, dzięki czemu kod
@@ -2044,7 +2044,7 @@ etykietę, kompilator generuje ostrzeżenie.
 
 ---
 
-### Czas wykonania IF / ELSE / ENDIF
+### Runtime IF / ELSE / ENDIF
 
 Podobnie jak **prawdziwy szablon gałęzi** — ta wersja działa w czasie
 wykonywania, a nie kompilacji. Porównuje `A`, `X` lub `Y` z wartością
@@ -2100,7 +2100,7 @@ iteracji. Jest to odpowiednik w czasie wykonywania funkcji pomocniczej
 
 ---
 
-### POWTARZAJ / DO
+### REPEAT / UNTIL
 
 Podobnie jak **pętla czasu wykonania z testem na dole** — treść zawsze jest
 uruchamiana co najmniej raz, a następnie warunek decyduje, czy się zatrzymać.
@@ -2153,9 +2153,9 @@ automatycznie przełączają się na licznik 16-bitowy.
 
 ---
 
-### DRUKUJ / DRUKUJ_ZNAK / DRUKUJ_SZESNASTKOWY / WYCZYŚĆ_EKRAN / KLUCZ_CZEKAJĄCY / OPÓŹNIJ / USTAW_OBRAMOWANIE / USTAW_BG
+### PRINT / PRINT_CHAR / PRINT_HEX / CLEAR_SCREEN / WAIT_KEY / DELAY / SET_BORDER / SET_BG
 
-#### WYDRUKOWAĆ
+#### PRINT
 
 Podobnie jak wyjście **PETSCII bez szablonu ** — drukuje ciąg przez `CHROUT` z
 takim samym traktowaniem wielkich/małych liter (`mniejsze`) jak `.petscii`.
@@ -2166,7 +2166,7 @@ takim samym traktowaniem wielkich/małych liter (`mniejsze`) jak `.petscii`.
 .print "cześć", dolna część
 ```
 
-#### DRUKUJ_ZNAK
+#### PRINT_CHAR
 
 Drukuje jeden bajt PETSCII według kodu numerycznego i wysyła go przez `CHROUT`.
 Wartość może być również nazwaną stałą lub etykietą, która w momencie montażu
@@ -2179,7 +2179,7 @@ jest przekształcana na bajt.
 .print_char kolor
 ```
 
-#### DRUKUJ_SZESNASTKO
+#### PRINT_HEX
 
 Drukuje 8-bitową wartość jako tekst szesnastkowy poprzez normalną ścieżkę
 wyjściową KERNAL.
@@ -2189,7 +2189,7 @@ wyjściową KERNAL.
 .print_hex A
 ```
 
-#### WYCZYŚĆ_EKRAN
+#### CLEAR_SCREEN
 
 Skrót do standardowego kodu sterującego czystym ekranem w C64.
 
@@ -2208,7 +2208,7 @@ pętli `GETIN` za każdym razem.
 .wait_key
 ```
 
-#### OPÓŹNIENIE
+#### DELAY
 
 Oczekuje żądaną liczbę klatek w ramach współdzielonej procedury pomocniczej.
 Używaj tego w przypadku krótkich przerw i przerw w synchronizacji, gdy pełna
@@ -2222,7 +2222,7 @@ lub stałą o określonej nazwie, a `.wait` to po prostu alias `.delay`.
 .delay frames=FRAMES_1S
 ```
 
-#### USTAW_GRANICĘ / USTAW_BG
+#### SET_BORDER / SET_BG
 
 Wygodne opakowania dla rejestrów kolorów VIC-II. Wartość koloru może być liczbą
 całkowitą lub nazwaną stałą z zakresu 0–15.
@@ -2264,7 +2264,7 @@ Użyj tego, jeśli chcesz mieć standardowy kod „SEI / install handler / enabl
 
 ---
 
-### SKRAJ
+### RAND
 
 Podobnie jak **niewielki wbudowany PRNG** — zwraca 8-bitową pseudolosową wartość
 z kompaktowego ziarna zerowej strony.
@@ -2368,7 +2368,7 @@ W przypadku X > 255 makro ustawia odpowiedni bit w `$D010` zamiast go czyścić.
 ---
 
 <a id="wait_raster"></a>
-### CZEKAJ_RASTER
+### WAIT_RASTER
 
 Czeka, aż wiązka elektronów VIC-II dotrze do określonej linii skanowania – jak
 synchronizacja z ramką telewizora. Umieść to na początku pętli gry, aby zapobiec
@@ -2399,7 +2399,7 @@ na `LDA`).
 
 ---
 
-### DRĄŻEK STEROWY
+### JOYSTICK
 
 Jak odczytanie **`PEEK($DC00)`**, a następnie POKE-owanie pozycji sprite'a — ale
 w jednym wierszu. Odczytuje jeden port joysticka CIA i odpowiednio dostosowuje
@@ -2476,7 +2476,7 @@ $DC00` / `AND $DC01`), więc oba porty działają.
 > **2.1:** port musi być znany podczas tworzenia kodu (liczba lub stała),
 > ponieważ port 3 wydłuża kod o 3 bajty; etykieta zdefiniowana później jest
 > błędem.
-### MYSZ
+### MOUSE
 
 Odczytuje dane z myszy proporcjonalnej Commodore 1351 i przesuwa sprite'a.
 Całkowicie **inline** — bez JSR ani etykiety. Makro wybiera port CIA, czeka na
@@ -2651,7 +2651,7 @@ Pętla gry JMP
 
 ---
 
-### WCZYTAJ PLIK
+### LOADFILE
 
 Podobnie jak **`LOAD „plik”, 8`** w BASIC-u — ładuje plik z dysku D64 w czasie
 wykonywania za pomocą procedury KERNAL LOAD. Użyj tej funkcji, aby załadować
@@ -2902,7 +2902,7 @@ A9 xx LDA #speed_byte
 
 ---
 
-### WYKRYWANIE SUPERCPU
+### SUPERCPU_DETECT
 
 Sprawdza, czy zainstalowany jest akcelerator **CMD SuperCPU** — na przykład
 `PEEK($D0B8)`, aby sprawdzić, czy zwraca on coś innego niż `$FF`.
@@ -3028,7 +3028,7 @@ plik (np. z `.incbin` w `$C000`):
 ---
 
 <a id="map_copy16x16"></a>
-### MAPA_KOPIA16X16
+### MAP_COPY16X16
 
 Kopiuje obszar znaków o wymiarach 16×16 z kompaktowego, 256-bajtowego bloku kodu
 ekranowego oraz pasującego do niego 256-bajtowego bloku pamięci RAM kolorów.
@@ -3141,7 +3141,7 @@ pętla gry JMP
 ---
 
 <a id="score_bcd"></a>
-### WYNIK_BCD
+### SCORE_BCD
 
 Dodaje wartość stałego punktu do wielobajtowego wyniku BCD przechowywanego w
 pamięci, a następnie renderuje każdą cyfrę do pamięci RAM ekranu jako znak kodu

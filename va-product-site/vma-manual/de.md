@@ -430,7 +430,7 @@ sich wie integrierte Unterprogramme vorstellen.
 
 ---
 
-### ETIKETT
+### LABEL
 
 Ähnlich einer Zeilennummer in BASIC – jedoch mit einem Namen anstelle einer
 Nummer. Sprungziele für JMP, JSR, BNE usw.
@@ -454,7 +454,7 @@ Die aktuelle Adresse wird als Kommentar angezeigt. Labels haben eine Größe von
 
 ---
 
-### KOMMENTAR
+### COMMENT
 
 Wie **REM in BASIC** — eine Notiz für Sie selbst, die der Assembler vollständig
 ignoriert.
@@ -507,7 +507,7 @@ Erstellen von Sprungtabellen und Adresslisten.
 
 ---
 
-### WORT
+### WORD
 
 Wie **DATA in BASIC, aber für 16-Bit-Zahlen**. Jeder Wert wird als zwei Bytes
 gespeichert (zuerst das niederwertige Byte, dann das höherwertige Byte – 6502
@@ -531,7 +531,7 @@ Little-Endian-Reihenfolge).
 
 ---
 
-### FÜLLEN
+### FILL
 
 Wie `FOR I=1 TO N : POKE addr+I, val : NEXT` — füllt einen Speicherblock mit
 demselben Byte in einer Zeile. Ideal zum Löschen von Bereichen oder Vorbefüllen
@@ -571,7 +571,7 @@ Niedrigstes/höchstes Byte: `lo(expr)`, `hi(expr)`
 
 ---
 
-### AUSRICHTEN
+### ALIGN
 
 Verschiebt die aktuelle Adresse durch Einfügen von Null-Auffüllungsbytes zur
 nächsten freien Grenze. Der C64 benötigt Sprite-Daten, die an einer
@@ -651,7 +651,7 @@ Die Zeichen werden als **Bildschirmcodes** (nicht PETSCII) kodiert. **Größe:**
 
 ---
 
-### Saite
+### STRING
 
 Wie **POKE, das zur Laufzeit eine Zeichenkette ** in eine beliebige
 Speicheradresse schreibt. Erzeugt LDA/STA-Paare, die den Bildschirmcode jedes
@@ -693,7 +693,7 @@ Wert **Shift** wird zu jedem Byte addiert, z. B. `$80` für umgekehrtes Video.
 
 ---
 
-### DATEN
+### DATA
 
 Wie eine **POKE-Schleife** — schreibt eine Liste von Rohbytes zur Laufzeit an
 eine Speicheradresse, ein LDA/STA-Paar pro Byte.
@@ -768,7 +768,7 @@ Ausgabe platziert.
 
 ---
 
-### Rohtext
+### RAWTEXT
 
 Ähnlich wie RAWBYTES, jedoch für Text – die Zeichenkette wird als Bildschirmcode
 kodiert und die Bytes werden an einer festen Adresse ohne Laufzeitcode **
@@ -900,7 +900,7 @@ RTS
 
 ---
 
-### Zeichensatz
+### CHARSET
 
 Schaltet den VIC-II-Zeichen-ROM zwischen Großbuchstaben-/Grafikmodus
 (C64-Standard) und Kleinbuchstaben-/Großbuchstabenmodus um, indem Bit 1 von
@@ -1222,14 +1222,14 @@ exportiert eine kompatible Datei.
 
 ---
 
-### Ebene / Ebene_Zeile
+### LEVEL / LEVEL_ROW
 
 Fügt ein **Level-Editor**-Projekt in Ihr Programm ein und kopiert Levelzeilen in
 einen Bildschirmpuffer – die Bausteine eines Scrolling-Spiels. Das
 `level-demo.asm`-Beispiel des C64 Visual Assembler ist ein vollständiges, per
 Joystick scrollbares Level.
 
-#### EBENE
+#### LEVEL
 
 Eine INCBIN-ähnliche Direktive erzeugt **0 Bytes Code**. Nur die **platzierten**
 Bildschirme des Level-Editor-Projekts (die `.bin`, die der Level-Editor des C64
@@ -1377,7 +1377,7 @@ Unterbrechung (`ASL $D019`), ruft `JSR SID_PLAY` auf und geht dann zum KERNAL
 
 ---
 
-### ENTHALTEN
+### INCLUDE
 
 Wie **MERGE in BASIC** – lädt eine weitere Datei und erweitert sie an dieser
 Position direkt im Code. Ideal für wiederverwendbare Unterprogrammbibliotheken.
@@ -1444,7 +1444,7 @@ Es werden zwei Dateitypen unterstützt:
 
 ---
 
-### TISCH
+### TABLE
 
 Wie **DIM an einer bestimmten Adresse** – benennt eine Nachschlagetabelle und
 legt deren Speicherort fest. Fügen Sie im Anschluss die Zeilen `.byte`, `.word`
@@ -1526,14 +1526,14 @@ RTS
 
 ---
 
-### SCHLEIFE / WEITER
+### LOOP / NEXT
 
 Wie **`FOR X=N TO 1 STEP -1 : ... : NEXT X`** in BASIC – zählt von N bis 1
 herunter und verwendet dabei das X- oder Y-Register. Platzieren Sie Ihre
 Anweisungen zwischen LOOP und NEXT, und die Schleife wird automatisch die
 richtige Anzahl Male ausgeführt.
 
-#### SCHLEIFE
+#### LOOP
 
 | Argument     | Beschreibung                                                               |
 | ------------ | -------------------------------------------------------------------------- |
@@ -1554,7 +1554,7 @@ Schleife0:
 
 **Größe:** 2 Bytes (LD_ Opcode + unmittelbarer Operand).
 
-#### NÄCHSTE
+#### NEXT
 
 | Argument     | Beschreibung                             |
 | ------------ | ---------------------------------------- |
@@ -1586,13 +1586,13 @@ BNE Schleife0
 
 ---
 
-### FÜR / ENDE
+### FOR / ENDF
 
 Wie **`FOR X=0 TO N-1 : ... : NEXT X`** in BASIC — zählt *up* von 0. Ideal, wenn
 Sie einen Vorwärtsindex benötigen, z. B. zum Durchlaufen einer Zeichenkette oder
 eines Arrays.
 
-#### FÜR
+#### FOR
 
 | Argument     | Beschreibung                                                                                             |
 | ------------ | -------------------------------------------------------------------------------------------------------- |
@@ -1655,14 +1655,14 @@ RTS
 
 ---
 
-### DRÜCKEN / ZIEHEN
+### PUSH / PULL
 
 Ähnlich wie ** das Speichern von Variablen vor einem GOSUB und deren
 Wiederherstellung danach ** – jedoch unter Verwendung des 6502-Hardware-Stacks.
 Wenn eine Subroutine A, X oder Y verwendet, muss sie mit PUSH und PULL
 umschlossen werden, damit die Register des aufrufenden Codes erhalten bleiben.
 
-#### DRÜCKEN
+#### PUSH
 
 Legt ein oder mehrere Register auf den Stack. Die Reihenfolge ist immer A → X →
 Y (das innerste zuerst).
@@ -1685,7 +1685,7 @@ PHA
 
 **Größe:** 1 Byte für A (`PHA`), 2 Bytes für X oder Y (Transfer + Push).
 
-#### ZIEHEN
+#### PULL
 
 Stellt Register vom Stack in umgekehrter Reihenfolge wieder her **** (Y → X →
 A).
@@ -1712,7 +1712,7 @@ PLA
 
 ---
 
-### ENDE / RTS-Alias
+### END / RTS alias
 
 Wie **RTS mit einem benutzerfreundlicheren Makronamen** — `.end` gibt ein
 einzelnes `RTS` Byte aus, einen kurzen Unterprogrammterminator.
@@ -1741,7 +1741,7 @@ Codeabschnitt einmal (MACRO…ENDM) und rufen Sie ihn dann überall mit INVOKE a
 Übergeben Sie jedes Mal unterschiedliche Argumentwerte, anstatt Code zu kopieren
 und einzufügen.
 
-#### MAKRO (Definitionsbeginn)
+#### MACRO (definition start)
 
 | Argument  | Beschreibung                                                                         |
 | --------- | ------------------------------------------------------------------------------------ |
@@ -1778,11 +1778,11 @@ STA $D020
 .endm
 ```
 
-#### ENDM (Definition Ende)
+#### ENDM (definition end)
 
 Schließt die aktuelle Makrodefinition. Keine Argumente.
 
-#### AUFRUFEN
+#### INVOKE
 
 Ruft an dieser Position ein definiertes Makro auf und ersetzt die Platzhalter
 `{paramName}` im Makrokörper durch die angegebenen Argumentwerte.
@@ -1876,7 +1876,7 @@ auf den assemblierten Code.
 
 ---
 
-### DEFINIEREN / WENN / SONST / ENDEWENN
+### DEFINE / IF / ELSE / ENDIF
 
 Wie ein Schalter, den der Assembler liest, wird durch die Anweisung **DEFINE
 DEBUG** ein Symbol aktiviert. Anschließend werden die Zeilen von `IF DEBUG`
@@ -1884,7 +1884,7 @@ assembliert und der zugehörige Zweig `ELSE` übersprungen. Entfernt man DEFINE,
 verschwindet der IF-Teil aus der Ausgabe. Für Release-Builds ist kein
 Code-Löschen erforderlich.
 
-#### DEFINIEREN
+#### DEFINE
 
 | Argument | Beschreibung                                                                                         |
 | -------- | ---------------------------------------------------------------------------------------------------- |
@@ -1905,7 +1905,7 @@ Code-Löschen erforderlich.
 Ein `DEFINE` kann mehrere Symbole gleichzeitig aktivieren (durch Kommas
 getrennt). Platzieren Sie DEFINEs am Anfang Ihres Programms.
 
-#### WENN
+#### IF
 
 | Argument | Beschreibung                                                                                                                          |
 | -------- | ------------------------------------------------------------------------------------------------------------------------------------- |
@@ -1929,7 +1929,7 @@ Ausdruck, der zur Kompilierzeit nicht ausgewertet werden kann, führt zu einem
 Fehler. Übersprungene Zeilen erscheinen als `; [IF übersprungen] …`-Kommentare
 und erzeugen **Nullbytes**.
 
-#### ANDERS
+#### ELSE
 
 Keine Argumente. Markiert den alternativen Zweig – wird zusammengesetzt, wenn
 die Bedingung `IF` nicht *aktiv ist.
@@ -1999,7 +1999,7 @@ Verschachtelte `IF`-Anweisungen werden unterstützt. Wird ein äußerer Teil
 > Informationen zu Vergleichs- und Verzweigungsfunktionen zur Laufzeit finden
 > Sie unter **Laufzeit-IF / ELSE / ENDIF** weiter unten.
 
-### .BEHAUPTEN
+### .ASSERT
 
 Eine Kompilierzeit-Integritätsprüfung **.assert` wertet einen Ausdruck während
 der Assemblierung aus; ist das Ergebnis falsch (0), wird der Build mit einer
@@ -2156,7 +2156,7 @@ Compiler eine Warnung aus.
 
 ---
 
-### Laufzeit IF / ELSE / ENDIF
+### Runtime IF / ELSE / ENDIF
 
 Wie **eine echte Verzweigungsvorlage** – diese Version arbeitet zur Laufzeit,
 nicht zur Kompilierzeit. Sie vergleicht `A`, `X` oder `Y` mit einem
@@ -2217,7 +2217,7 @@ Hilfsprogramm `LOOP / NEXT`.
 
 ---
 
-### WIEDERHOLEN / BIS
+### REPEAT / UNTIL
 
 Wie **eine Laufzeitschleife mit einem Test am Ende** – der Schleifenkörper wird
 immer mindestens einmal ausgeführt, dann entscheidet die Bedingung, ob
@@ -2274,9 +2274,9 @@ Größen schalten automatisch auf einen 16-Bit-Zähler um.
 
 ---
 
-### DRUCKEN / ZEICHEN DRUCKEN / HEX-DRUCKEN / BILDSCHIRM LÖSCHEN / TASTE WARTEN / VERZÖGERUNG / RAHMEN FESTLEGEN / HINTERGRUND FESTLEGEN
+### PRINT / PRINT_CHAR / PRINT_HEX / CLEAR_SCREEN / WAIT_KEY / DELAY / SET_BORDER / SET_BG
 
-#### DRUCKEN
+#### PRINT
 
 Wie **PETSCII Ausgabe ohne den Boilerplate** — gibt eine Zeichenkette durch
 `CHROUT` mit der gleichen Groß-/Kleinschreibungsbehandlung (`lower`) wie
@@ -2311,7 +2311,7 @@ aus.
 .print_hex A
 ```
 
-#### Bildschirm löschen
+#### CLEAR_SCREEN
 
 Abkürzung für den Standard-C64-Clear-Screen-Steuerungscode.
 
@@ -2330,7 +2330,7 @@ Mal manuell ausführen müssen.
 .wait_key
 ```
 
-#### VERZÖGERUNG
+#### DELAY
 
 Wartet die angeforderte Anzahl an Frames mithilfe einer gemeinsamen Hilfsroutine
 ab. Verwenden Sie dies für kurze Pausen und Zeitlücken, wenn eine vollständige
@@ -2629,7 +2629,7 @@ gleichzeitig (`LDA $DC00` / `AND $DC01`), daher funktioniert jeder Port.
 > **2.1:** Der Port muss bei der Codeerstellung bekannt sein (eine Zahl oder
 > eine Konstante), da Port 3 den Code um 3 Bytes verlängert; eine später
 > definierte Bezeichnung ist ein Fehler.
-### MAUS
+### MOUSE
 
 Liest die proportionale Maus eines Commodore 1351 und bewegt einen Sprite.
 Vollständig inline ** – kein JSR oder Label erforderlich. Das Makro wählt den

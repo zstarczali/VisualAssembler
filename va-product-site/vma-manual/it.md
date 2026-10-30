@@ -431,7 +431,7 @@ l'assembler genera il codice. Pensatele come subroutine integrate.
 
 ---
 
-### ETICHETTA
+### LABEL
 
 Come un numero di riga ** in BASIC** — ma con un nome invece di un numero.
 Destinazioni di salto per `JMP`, `JSR`, `BNE`, ecc.
@@ -455,7 +455,7 @@ dimensione di **0 byte**.
 
 ---
 
-### COMMENTO
+### COMMENT
 
 Come **REM in BASIC** — una nota per te stesso che l'assembler ignora
 completamente.
@@ -508,7 +508,7 @@ indirizzi.
 
 ---
 
-### PAROLA
+### WORD
 
 Come **DATA in BASIC ma per numeri a 16 bit **. Ogni valore è memorizzato come
 due byte (prima il byte meno significativo, poi il byte più significativo -
@@ -532,7 +532,7 @@ ordine little-endian 6502).
 
 ---
 
-### RIEMPIRE
+### FILL
 
 Come `FOR I=1 TO N : POKE addr+I, val : NEXT` — riempie un blocco di memoria con
 lo stesso byte, in una riga. Ottimo per liberare aree o pre-riempire tabelle.
@@ -571,7 +571,7 @@ basso/alto: `lo(expr)`, `hi(expr)`
 
 ---
 
-### ALLINEARE
+### ALIGN
 
 Sposta l'indirizzo corrente in avanti fino al successivo limite pulito inserendo
 byte di riempimento con zeri. Il C64 richiede che i dati degli sprite inizino su
@@ -600,7 +600,7 @@ programma.
 
 ---
 
-### TESTO
+### TEXT
 
 Come **PRINT AT** — scrive il testo direttamente sullo schermo del C64 in una
 data colonna e riga, senza usare il KERNAL. Genera una coppia LDA/STA per
@@ -656,7 +656,7 @@ I caratteri sono codificati come **codici schermo** (non PETSCII).
 
 ---
 
-### CORDA
+### STRING
 
 Come **inserire una stringa ** in qualsiasi indirizzo di memoria durante
 l'esecuzione. Genera coppie LDA/STA che copiano il codice schermo di ciascun
@@ -699,7 +699,7 @@ carattere).
 
 ---
 
-### DATI
+### DATA
 
 Come un ciclo **POKE** — scrive un elenco di byte grezzi in un indirizzo di
 memoria in fase di esecuzione, una coppia LDA/STA per byte.
@@ -772,7 +772,7 @@ specificato nell'output.
 
 ---
 
-### TESTO NON RAW
+### RAWTEXT
 
 Come RAWBYTES ma per il testo: codifica la stringa come codici schermo e
 posiziona i byte a un indirizzo fisso senza **codice runtime**. Il testo è
@@ -894,7 +894,7 @@ RTS
 
 ---
 
-### SET DI CARATTERI
+### CHARSET
 
 Commuta la ROM dei caratteri del VIC-II tra la modalità maiuscolo/grafica
 (impostazione predefinita del C64) e la modalità minuscolo/maiuscolo,
@@ -1197,14 +1197,14 @@ Assembler esporta un file compatibile.
 
 ---
 
-### LIVELLO / LIVELLO_RIGA
+### LEVEL / LEVEL_ROW
 
 Inserisce un progetto **Level Editor** nel tuo programma e copia le righe del
 livello in un buffer dello schermo: i blocchi di costruzione di un gioco a
 scorrimento. L'esempio `level-demo.asm` di C64 Visual Assembler è un livello
 completo a scorrimento tramite joystick.
 
-#### LIVELLO
+#### LEVEL
 
 Una direttiva in stile INCBIN che emette **0 byte di codice**. Solo le schermate
 **posizionate** del progetto dell'Editor di Livello (il `.bin` salvato
@@ -1241,7 +1241,7 @@ a 7 × 10 schermate.
 Guardia tipica: `.assert LEVEL_END <= $9200, "i dati di livello vengono
 eseguiti nel codice"`.
 
-#### LIVELLO_RIGA
+#### LEVEL_ROW
 
 Copia una riga di 40 caratteri del livello in un buffer: la riga del livello in
 **X**, a partire dalla colonna del livello contenuta nella variabile `col`, fino
@@ -1349,7 +1349,7 @@ una scansione della tastiera).
 
 ---
 
-### INCLUDERE
+### INCLUDE
 
 Come **MERGE in BASIC** — importa un altro file e lo espande in linea in questa
 posizione. Perfetto per librerie di subroutine riutilizzabili.
@@ -1412,7 +1412,7 @@ Sono supportati due tipi di file:
 
 ---
 
-### TAVOLO
+### TABLE
 
 Come **DIM a un indirizzo specifico** — specifica il nome di una tabella di
 ricerca e ne definisce la posizione in memoria. Aggiungi le righe `.byte`,
@@ -1496,13 +1496,13 @@ RTS
 
 ---
 
-### CICLO / SUCCESSIVO
+### LOOP / NEXT
 
 Come **`FOR X=N TO 1 STEP -1 : ... : NEXT X`** in BASIC — conta alla rovescia da
 N a 1 usando il registro X o Y. Inserisci le tue istruzioni tra LOOP e NEXT e il
 ciclo verrà eseguito automaticamente per il numero corretto di volte.
 
-#### CICLO CONTINUO
+#### LOOP
 
 | Discussione | Descrizione                                                                   |
 | ----------- | ----------------------------------------------------------------------------- |
@@ -1523,7 +1523,7 @@ loop0:
 
 **Dimensione:** 2 byte (codice operativo LD_ + operando immediato).
 
-#### PROSSIMO
+#### NEXT
 
 | Discussione | Descrizione                                |
 | ----------- | ------------------------------------------ |
@@ -1558,13 +1558,13 @@ BNE loop0
 
 ---
 
-### PER / FINE
+### FOR / ENDF
 
 Come **`FOR X=0 TO N-1 : ... : NEXT X`** in BASIC — conta *up* da 0. Ideale
 quando è necessario un indice in avanti, ad esempio per scorrere una stringa o
 un array.
 
-#### PER
+#### FOR
 
 | Discussione | Descrizione                                                                              |
 | ----------- | ---------------------------------------------------------------------------------------- |
@@ -1628,13 +1628,13 @@ RTS
 
 ---
 
-### SPINGERE / TIRARE
+### PUSH / PULL
 
 Come **salvare le variabili prima di un GOSUB e ripristinarle dopo** — ma usa lo
 stack hardware del 6502. Se una subroutine usa A, X o Y, racchiuderla in PUSH e
 PULL in modo che i registri del codice chiamante vengano preservati.
 
-#### SPINGERE
+#### PUSH
 
 Inserisce uno o più registri nello stack. L'ordine è sempre A → X → Y (dal più
 interno al più esterno).
@@ -1659,7 +1659,7 @@ PHA
 
 **Dimensione:** 1 byte per A (`PHA`), 2 byte per X o Y (trasferimento + push).
 
-#### TIRO
+#### PULL
 
 Ripristina i registri dallo stack in ordine inverso** (Y → X → A).
 
@@ -1685,7 +1685,7 @@ PLA
 
 ---
 
-### FINE / Alias RTS
+### END / RTS alias
 
 Come **RTS con un nome di macro più amichevole** — `.end` emette un singolo byte
 `RTS`, un breve terminatore di subroutine.
@@ -1714,7 +1714,7 @@ riutilizzabile una volta (MACRO…ENDM), quindi richiamalo ovunque con INVOKE.
 Passa valori di argomento diversi ogni volta invece di copiare e incollare il
 codice.
 
-#### MACRO (inizio definizione)
+#### MACRO (definition start)
 
 | Discussione | Descrizione                                                                                 |
 | ----------- | ------------------------------------------------------------------------------------------- |
@@ -1750,11 +1750,11 @@ STA $D020
 .endm
 ```
 
-#### ENDM (fine della definizione)
+#### ENDM (definition end)
 
 Chiude la definizione della macro corrente. Nessun argomento.
 
-#### INVOCARE
+#### INVOKE
 
 Richiama una macro definita in questa posizione e sostituisce i valori degli
 argomenti forniti ai segnaposto `{paramName}` nel corpo.
@@ -1813,7 +1813,7 @@ setColor #$07`).
 
 ---
 
-### REGIONE / ENDREGIONE
+### REGION / ENDREGION
 
 Semplicemente un raggruppamento per editor e liste — **zero byte**, nessun
 effetto sul codice assemblato.
@@ -1847,14 +1847,14 @@ endregion
 
 ---
 
-### DEFINISCI / SE / ALTRIMENTI / FINE SE
+### DEFINE / IF / ELSE / ENDIF
 
 Come **un interruttore, l'assembler legge ** — `DEFINE DEBUG` attiva un simbolo,
 quindi le righe di qualsiasi `IF DEBUG` vengono assemblate e il suo ramo `ELSE`
 viene saltato. Rimuovi DEFINE e la parte IF scompare dall'output. Non è
 necessario eliminare il codice per le build di rilascio.
 
-#### DEFINIRE
+#### DEFINE
 
 | Discussione | Descrizione                                                                                  |
 | ----------- | -------------------------------------------------------------------------------------------- |
@@ -1874,7 +1874,7 @@ necessario eliminare il codice per le build di rilascio.
 Un `DEFINE` può attivare più simboli contemporaneamente (separati da virgole).
 Posiziona le direttive DEFINE all'inizio del programma.
 
-#### SE
+#### IF
 
 | Discussione | Descrizione                                                                                                                               |
 | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
@@ -1897,7 +1897,7 @@ un'espressione costante: una che non può essere valutata in fase di assemblaggi
 è un errore. Le righe saltate appaiono come commenti `; [IF saltato] …` e
 generano **zero byte**.
 
-#### ALTRO
+#### ELSE
 
 Nessun argomento. Contrassegna il ramo alternativo — assemblato quando la
 condizione `IF` non è *attiva.
@@ -2005,7 +2005,7 @@ sprite_data_end:
 
 ---
 
-### COST
+### CONST
 
 Come **una variabile denominata che non cambia mai** — `SCREEN = $0400`. Usa il
 nome invece di digitare indirizzi grezzi ovunque, rendendo il codice più facile
@@ -2144,7 +2144,7 @@ registro selezionato.
 
 ---
 
-### MENTRE / FINE
+### WHILE / ENDW
 
 Come **un ciclo di runtime con un test in cima** — il corpo viene eseguito
 finché la condizione rimane vera.
@@ -2171,7 +2171,7 @@ NEXT` basato sul conteggio.
 
 ---
 
-### RIPETI / FINO A
+### REPEAT / UNTIL
 
 Come **un ciclo di runtime con un test in fondo** — il corpo viene sempre
 eseguito almeno una volta, poi la condizione decide se fermarsi.
@@ -2226,9 +2226,9 @@ automaticamente.
 
 ---
 
-### STAMPA / STAMPA_CARATTERE / STAMPA_ESAGENICO / CANCELLA_SCHERMO / ATTENDI_TASTO / RITARDO / IMPOSTA_BORDO / IMPOSTA_SFONDO
+### PRINT / PRINT_CHAR / PRINT_HEX / CLEAR_SCREEN / WAIT_KEY / DELAY / SET_BORDER / SET_BG
 
-#### STAMPA
+#### PRINT
 
 Come l'output **PETSCII senza il boilerplate** — stampa una stringa tramite
 `CHROUT` con la stessa gestione delle maiuscole/minuscole (`lower`) di
@@ -2253,7 +2253,7 @@ un byte in fase di assemblaggio.
 .print_char colore
 ```
 
-#### STAMPA_ESATTEZZA
+#### PRINT_HEX
 
 Stampa un valore a 8 bit come testo esadecimale attraverso il normale percorso
 di output del KERNAL.
@@ -2263,7 +2263,7 @@ di output del KERNAL.
 .print_hex A
 ```
 
-#### SCHERMO CHIARO
+#### CLEAR_SCREEN
 
 Scorciatoia per il codice di controllo standard per cancellare lo schermo del
 C64.
@@ -2283,7 +2283,7 @@ il ciclo `GETIN` ogni volta.
 .wait_key
 ```
 
-#### RITARDO
+#### DELAY
 
 Attende il numero di fotogrammi richiesto tramite una routine di supporto
 condivisa. Utilizzare questa opzione per brevi pause e intervalli di
@@ -2298,7 +2298,7 @@ e `.wait` è semplicemente un alias di `.delay`.
 .ritardo frame=FRAMES_1S
 ```
 
-#### IMPOSTA_BORDO / IMPOSTA_BORDO
+#### SET_BORDER / SET_BG
 
 Funzioni di convenienza per i registri colore del VIC-II. Il valore del colore
 può essere un numero grezzo o una costante denominata che restituisce un valore
@@ -2591,7 +2591,7 @@ funzionano.
 > **2.1:** la porta deve essere nota quando il codice viene impostato (un numero
 > o una costante), perché la porta 3 rende il codice più lungo di 3 byte;
 > un'etichetta definita successivamente è un errore.
-### TOPO
+### MOUSE
 
 Legge un mouse proporzionale Commodore 1351 e muove uno sprite. Interamente
 **inline** — non sono necessari JSR o etichette. La macro seleziona la porta
@@ -2782,7 +2782,7 @@ JMP ciclo di gioco
 
 ---
 
-### CARICAMENTO DEL FILE
+### LOADFILE
 
 Come **`LOAD "file",8`** in BASIC — carica un file da un disco D64 in fase di
 esecuzione utilizzando la routine KERNAL LOAD. Usalo per caricare dati, musica o
@@ -2848,7 +2848,7 @@ sovrascrivi) + 5 (LOAD) + (2 se etichetta di errore)` byte. Minimo 27 byte.
 
 ---
 
-### ESODECRO
+### EXODECRUNCH
 
 Decompressione Exomizer in-program ** **. Utilizzare questa macro subito dopo un
 `LOADFILE ` che ha caricato un flusso compresso in modalità `mem ` di Exomizer:
@@ -3082,7 +3082,7 @@ no_scpu:
 
 ---
 
-### TURBO_ABILITA
+### TURBO_ENABLE
 
 Attiva o disattiva la modalità turbo **CMD SuperCPU**. Chiama prima
 `SUPERCPU_DETECT` e salta questo passaggio se la SuperCPU non è presente.
@@ -3110,7 +3110,7 @@ A9 00 LDA #$00
 ---
 
 <a id="map_copy"></a>
-### COPIA_MAPPA
+### MAP_COPY
 
 Copia una tilemap da un indirizzo sorgente alla RAM dello schermo (e
 opzionalmente alla RAM dei colori) utilizzando una serie di cicli `LDA abs,X` /
@@ -3321,7 +3321,7 @@ Ciclo di gioco JMP
 ---
 
 <a id="score_bcd"></a>
-### PUNTEGGIO_BCD
+### SCORE_BCD
 
 Aggiunge un valore a virgola fissa a un punteggio BCD multibyte memorizzato in
 memoria, quindi visualizza ogni cifra nella RAM dello schermo come carattere di

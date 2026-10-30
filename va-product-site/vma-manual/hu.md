@@ -414,7 +414,7 @@ mint beépített alprogramokra.
 
 ---
 
-### CÍMKE
+### LABEL
 
 Mint egy ** sorszám a BASIC**-ben — de névvel a szám helyett. Ugrási célpontok a
 `JMP`, `JSR`, `BNE` stb. fájlokhoz.
@@ -437,7 +437,7 @@ Az aktuális cím megjegyzésként jelenik meg. A címkék mérete **0 bájt **.
 
 ---
 
-### MEGJEGYZÉS
+### COMMENT
 
 Mint a BASIC**-ben szereplő **REM — egy megjegyzés magadnak, amit az assembler
 teljesen figyelmen kívül hagy.
@@ -488,7 +488,7 @@ ugyanezt a(z) `frame_1` címét. Hasznos ugrótáblák és címlisták létrehoz
 
 ---
 
-### SZÓ
+### WORD
 
 Mint a BASIC **DATA függvénye, de 16 bites számokhoz **. Minden érték két
 bájtként tárolódik (először az alacsony bájt, majd a magasabb – 6502 kis-endián
@@ -512,7 +512,7 @@ sorrend).
 
 ---
 
-### KITÖLTÉS
+### FILL
 
 Mint például a `FOR I=1 TO N : POKE addr+I, val : NEXT` — egy memóriablokkot
 tölt ki ugyanazzal a bájttal, egyetlen sorban. Nagyszerű területek törlésére
@@ -552,7 +552,7 @@ Alacsony/magas bájt: `lo(kifejezés)`, `hi(kifejezés)`
 
 ---
 
-### IGAZÍTÁS
+### ALIGN
 
 Nullákkal kiegészített bájtok beszúrásával az aktuális címet előrecsúsztatja a
 következő tiszta határra. A C64 megköveteli, hogy a sprite adatok 64 bájtos
@@ -580,7 +580,7 @@ határon kezdődjenek — az `ALIGN 64` ezt automatikusan kezeli.
 
 ---
 
-### SZÖVEG
+### TEXT
 
 A **PRINT AT** parancshoz hasonlóan — közvetlenül a C64 képernyőjére írja a
 szöveget egy adott oszlopba és sorba, a KERNAL használata nélkül. Karakterenként
@@ -631,7 +631,7 @@ A karakterek **képernyőkódként** vannak kódolva (nem PETSCII). **Méret:**
 
 ---
 
-### HÚR
+### STRING
 
 Mint például egy ** karakterlánc beszúrása ** bármely memóriacímre futásidőben.
 LDA/STA párokat generál, amelyek minden karakter képernyőkódját egymást követő
@@ -669,7 +669,7 @@ A karaktereket **képernyőkódként** kódoljuk (nem PETSCII). Az opcionális
 
 ---
 
-### ADAT
+### DATA
 
 Mint egy **POKE ciklus** — futásidőben egy nyers bájtok listáját írja ki egy
 memóriacímre, bájtonként egy LDA/STA párt.
@@ -738,7 +738,7 @@ keresőtáblákhoz, bármihez, aminek csak egy adott címen kell lennie.
 
 ---
 
-### NYERS SZÖVEG
+### RAWTEXT
 
 Mint a RAWBYTES, de szöveg esetén — képernyőkódként kódolja a karakterláncot, és
 a bájtokat egy fix címre helyezi **futásidejű kód nélkül **. A szöveg a PRG
@@ -856,7 +856,7 @@ RTS
 
 ---
 
-### KARAKTERHEZÉS
+### CHARSET
 
 Futásidőben a `$D018` 1. bitjének módosításával átkapcsolja a VIC-II karakter
 ROM-ot nagybetűs/grafikus mód (C64 alapértelmezett) és kisbetűs/nagybetűs mód
@@ -981,7 +981,7 @@ STA $D018
 
 ---
 
-### DOBOZ_TALÁLAT
+### BOX_HIT
 
 Tengelyhez igazított határolókeret (AABB) ütközési teszt két, 4 bájtos nulla
 oldalas struktúrákkal leírt téglalap között. Az eredményt az akkumulátorban adja
@@ -1132,13 +1132,13 @@ fájlt exportál.
 
 ---
 
-### SZINT / SZINT_SOR
+### LEVEL / LEVEL_ROW
 
 Egy **Level Editor** projektet helyez a programodba, és a pálya sorait egy
 képernyőpufferbe másolja – egy görgetős játék építőelemeit. A C64 Visual
 Assembler `level-demo.asm` példája egy komplett joystick-os görgetős pálya.
 
-#### SZINT
+#### LEVEL
 
 Egy INCBIN stílusú direktíva, amely **0 bájtnyi kódot bocsát ki**. Csak a Level
 Editor projekt **elt** képernyői (a C64 Visual Assembler Level Editorja által
@@ -1173,7 +1173,7 @@ képernyőn osztozik. A pointer táblák a képernyőket követik. Egy szint leg
 
 Tipikus őr: `.assert LEVEL_END <= $9200, "szintadatok futnak a kódba"`.
 
-#### SZINT_SORBAN
+#### LEVEL_ROW
 
 A szint egy 40 karakteres sorát egy pufferbe másolja: az **X** változóban lévő
 szint sorát, a `col` változóban lévő szint oszloptól kezdve, a `dst` mutatóban
@@ -1281,7 +1281,7 @@ a KERNAL-hoz (`JMP $EA31`), amely szintén beolvassa a billentyűzetet.
 
 ---
 
-### BELEÉRTVE
+### INCLUDE
 
 Mint a BASIC** **MERGE függvénye — behúz egy másik fájlt, és kibontja azt ezen a
 pozíción. Tökéletes az újrafelhasználható alprogramkönyvtárakhoz.
@@ -1340,7 +1340,7 @@ Két fájltípus támogatott:
 
 ---
 
-### TÁBLÁZAT
+### TABLE
 
 Mint az **DIM egy adott címen** — elnevezi a keresőtáblát, és meghatározza, hogy
 hol található a memóriában. Írjon utána `.byte`, `.word` vagy `.fill` sorokat a
@@ -1419,13 +1419,13 @@ RTS
 
 ---
 
-### KÖVETKEZŐ / KÖVETKEZŐ
+### LOOP / NEXT
 
 Mint a BASIC-ben a **`FOR X=N TO 1 STEP -1 : ... : NEXT X`** — N-től 1-ig számol
 vissza az X vagy Y regiszter használatával. Írd az utasításaidat a LOOP és a
 NEXT közé, és a program automatikusan a megfelelő számú ciklust ismétli.
 
-#### HUROK
+#### LOOP
 
 | Érv           | Leírás                                                  |
 | ------------- | ------------------------------------------------------- |
@@ -1445,7 +1445,7 @@ LDX #$0A}hurok0:
 
 **Méret:** 2 bájt (LD_ opkód + azonnali operandus).
 
-#### KÖVETKEZŐ
+#### NEXT
 
 | Érv           | Leírás                                        |
 | ------------- | --------------------------------------------- |
@@ -1481,7 +1481,7 @@ Mint a BASIC-ben a **`FOR X=0 TO N-1 : ... : NEXT X`** — 0-tól *felfelé* sz�
 Ideális, ha előre mutató indexre van szükség, például egy karakterláncon vagy
 tömbön való lépéshez.
 
-#### A
+#### FOR
 
 | Érv           | Leírás                                                                      |
 | ------------- | --------------------------------------------------------------------------- |
@@ -1542,14 +1542,14 @@ RTS
 
 ---
 
-### TOLJA / HÚZZA
+### PUSH / PULL
 
 Mint az **változók mentése egy GOSUB előtt és visszaállítása után ** — de a 6502
 hardververmet használja. Ha egy alprogram A, X vagy Y értékeket használ, akkor
 PUSH és PULL utasításokkal kell becsomagolni, hogy a hívó kód regiszterei
 megmaradjanak.
 
-#### NYOMJA
+#### PUSH
 
 Egy vagy több regisztert helyez a verembe. A sorrend mindig A → X → Y (a
 legbelső először).
@@ -1570,7 +1570,7 @@ PHA (Védőoltás) Adás PHA
 
 **Méret:** 1 bájt A-nak (`PHA`), 2 bájt X-nek vagy Y-nak (átvitel + push).
 
-#### HÚZNI
+#### PULL
 
 Visszaállítja a regisztereket a veremből ** fordított sorrendben ** (Y → X → A).
 
@@ -1594,7 +1594,7 @@ PLA ADÓ PLA
 
 ---
 
-### END / RTS álnév
+### END / RTS alias
 
 Az **RTS-hez hasonlóan, egy barátságosabb makrónévvel ** — az `.end` egyetlen
 `RTS` bájtot bocsát ki, egy rövid alprogram terminátort.
@@ -1616,14 +1616,14 @@ makróként, mint nyers utasításként olvasható.
 
 ---
 
-### MAKRO / VÉGE / MEGHÍVÁS
+### MACRO / ENDM / INVOKE
 
 Mint egy ** nevű GOSUB, paraméterekkel ** — definiáljon egyszer egy
 újrafelhasználható kódrészletet (MACRO…ENDM), majd hívja meg bárhol az INVOKE
 paranccsal. Minden alkalommal más argumentumértékeket adjon át a kód
 másolása-beillesztése helyett.
 
-#### MAKRO (definíció kezdete)
+#### MACRO (definition start)
 
 | Érv         | Leírás                                                                             |
 | ----------- | ---------------------------------------------------------------------------------- |
@@ -1655,11 +1655,11 @@ STA $D020
 .endm
 ```
 
-#### ENDM (definíció vége)
+#### ENDM (definition end)
 
 Bezárja az aktuális makródefiníciót. Nincsenek argumentumok.
 
-#### MEGHÍVÁS
+#### INVOKE
 
 Meghív egy definiált makrót ezen a pozíción, és a megadott argumentumértékeket
 helyettesíti a törzsben lévő `{paramName}` helyőrzők helyére.
@@ -1718,7 +1718,7 @@ setColor #$07`) is elfogadott.
 
 ---
 
-### RÉGIÓ / RÉGIÓ VÉGRÉGIÓ
+### REGION / ENDREGION
 
 Pusztán egy csoportosítás szerkesztők és listázások számára — **nulla bájt**,
 nulla hatás az összeállított kódra.
@@ -1750,14 +1750,14 @@ nulla hatás az összeállított kódra.
 
 ---
 
-### DEFINE / HA / KÜLÖNBEN / ENDIF
+### DEFINE / IF / ELSE / ENDIF
 
 Mint egy ** kapcsoló, az assembler a következőt olvassa: ** — `DEFINE DEBUG`
 bekapcsol egy szimbólumot, majd bármely `IF DEBUG` sorai assemblerre kerülnek,
 és az `ELSE` ág kimarad. A DEFINE eltávolításával az IF rész eltűnik a
 kimenetből. A kiadott buildekhez nem kell kódot törölni.
 
-#### MEGHATÁROZÁS
+#### DEFINE
 
 | Érv       | Leírás                                                                                         |
 | --------- | ---------------------------------------------------------------------------------------------- |
@@ -1777,7 +1777,7 @@ kimenetből. A kiadott buildekhez nem kell kódot törölni.
 Egy `DEFINE` egyszerre több szimbólumot is aktiválhat (vesszővel elválasztva).
 Írd a DEFINE-okat a programod elejére.
 
-#### HA
+#### IF
 
 | Érv     | Leírás                                                                                                                              |
 | ------- | ----------------------------------------------------------------------------------------------------------------------------------- |
@@ -1800,7 +1800,7 @@ amelyik nem értékelhető ki összeszerelési időben, hibát jelent. A kihagyo
 sorok `; [IF skipped] …` megjegyzésként jelennek meg, és **nulla bájtot**
 generálnak.
 
-#### MÁS
+#### ELSE
 
 Nincsenek argumentumok. Az alternatív ágat jelöli — akkor állítódik össze,
 amikor az `IF` feltétel *not* aktív.
@@ -1907,7 +1907,7 @@ sprite_data_end:
 
 ---
 
-### KONST
+### CONST
 
 Mint egy ** nevű változó, ami sosem változik** — `SCREEN = $0400`. Használd a
 nevet a nyers címek begépelése helyett, így a kód könnyebben olvasható és később
@@ -2013,7 +2013,7 @@ van egy már használt címkével, a fordító figyelmeztetést ad.
 
 ---
 
-### Futásidejű IF / ELSE / ENDIF
+### Runtime IF / ELSE / ENDIF
 
 Mint egy **egy igazi elágazási sablon** — ez a verzió futásidőben működik, nem
 fordítási időben. Összehasonlítja az `A`, `X` vagy `Y` értékeket egy azonnali
@@ -2042,7 +2042,7 @@ elágazási láncra bővül.
 
 ---
 
-### MÍG / VÉGE
+### WHILE / ENDW
 
 Mint egy **futásidejű ciklus tetején egy teszttel** — a törzs addig fut, amíg a
 feltétel igaz marad.
@@ -2067,7 +2067,7 @@ megfelelője.
 
 ---
 
-### ISMÉTELD / AMÍG
+### REPEAT / UNTIL
 
 Mint egy **futásidejű ciklus alul egy teszttel** — a törzs mindig lefut legalább
 egyszer, majd a feltétel eldönti, hogy leálljon-e.
@@ -2121,9 +2121,9 @@ méretek esetén automatikusan 16 bites számlálóra váltanak.
 
 ---
 
-### NYOMTATÁS / NYOMTATÁSI_KARKOLAT / NYOMTATÁSI_HEX / KÉPERNYŐ_TÖRLÉSE / VÁRAKOZÁSI_KULCS / KÉSLELTETÉS / SZEGÉLY BEÁLLÍTÁSA / SZEGÉLY BEÁLLÍTÁSA
+### PRINT / PRINT_CHAR / PRINT_HEX / CLEAR_SCREEN / WAIT_KEY / DELAY / SET_BORDER / SET_BG
 
-#### NYOMTATÁS
+#### PRINT
 
 Mint a **PETSCII kimenet a sablon nélkül** — egy karakterláncot nyomtat ki a
 `CHROUT` függvénnyel ugyanazzal a nagybetűs/kisbetűs kezeléssel (`lower`), mint
@@ -2135,7 +2135,7 @@ a `.petscii`.
 .print "szia", alsó
 ```
 
-#### NYOMTATÁSI KARAKTER
+#### PRINT_CHAR
 
 Kiír egy PETSCII bájtot numerikus kódként, és elküldi azt a `CHROUT` metóduson
 keresztül. Az érték lehet egy elnevezett konstans vagy címke is, amely
@@ -2148,7 +2148,7 @@ keresztül. Az érték lehet egy elnevezett konstans vagy címke is, amely
 .print_char szín
 ```
 
-#### NYOMTATÁS_HEX
+#### PRINT_HEX
 
 Egy 8 bites értéket nyomtat ki hexadecimális szövegként a normál KERNAL kimeneti
 útvonalon keresztül.
@@ -2158,7 +2158,7 @@ Egy 8 bites értéket nyomtat ki hexadecimális szövegként a normál KERNAL ki
 .print_hex A
 ```
 
-#### TÖRLŐ_KÉPERNYŐ
+#### CLEAR_SCREEN
 
 A szabványos C64 képernyős vezérlőkód gyorsbillentyűje.
 
@@ -2167,7 +2167,7 @@ A szabványos C64 képernyős vezérlőkód gyorsbillentyűje.
 .clear_screen
 ```
 
-#### VÁRAKOZÁSI KULCS
+#### WAIT_KEY
 
 Megvárja, amíg lenyomnak egy billentyűt, így nem kell minden alkalommal kézzel
 futtatni a `GETIN` ciklust.
@@ -2177,7 +2177,7 @@ futtatni a `GETIN` ciklust.
 .wait_key
 ```
 
-#### KÉSLELTETÉS
+#### DELAY
 
 Egy megosztott segítőrutinon keresztül megvárja a kért számú képkockát. Ezt
 rövid szünetekhez és időzítési hézagokhoz használjuk, amikor egy teljes egyéni
@@ -2191,7 +2191,7 @@ konstans, és az `.wait` csak az `.delay` álneve.
 .delay képkockák=KÉPKOCKA_1S
 ```
 
-#### SET_BORDER / SET_BORDER
+#### SET_BORDER / SET_BG
 
 Kényelmi burkolók a VIC-II színregiszterekhez. A színérték lehet nyers szám vagy
 egy elnevezett konstans, amely 0–15-re oldódik fel.
@@ -2340,7 +2340,7 @@ hogy törölné azt.
 ---
 
 <a id="wait_raster"></a>
-### WAIT_RASZTER
+### WAIT_RASTER
 
 Megvárja, amíg a VIC-II elektronnyaláb eléri a megadott pásztázási vonalat –
 mintha egy tévéképernyő képkockájához szinkronizálna. Tedd ezt a játék
@@ -2450,7 +2450,7 @@ vagy menükhöz. A `3` port egyszerre olvassa mindkét joystick portot (`LDA $DC
 > **2.1:** a portot ismerni kell a kód írásakor (egy szám vagy egy konstans),
 > mivel a 3-as port 3 bájttal hosszabbá teszi a kódot; egy később definiált
 > címke hibát jelent.
-### EGÉR
+### MOUSE
 
 Commodore 1351 proporcionális egér adatait olvassa és egy sprite-ot mozgat.
 Teljesen **inline** — nincs szükség JSR-re vagy címkére. A makró kiválasztja a
@@ -2574,7 +2574,7 @@ JMP gameloop
 
 ---
 
-### FÁJL BETÖLTÉSE
+### LOADFILE
 
 Mint a BASIC-ben a **`LOAD "fájl",8`** — futásidőben betölt egy fájlt egy D64
 lemezről a KERNAL LOAD rutin használatával. Ezzel adatokat, zenét vagy extra
@@ -2792,7 +2792,7 @@ LDA #cmd STA $DF01 ; DMA végrehajtása ($90/$91/$92 = stash/fetch/swap, azonnal
 
 ---
 
-### TURBÓ_BEÁLLÍTÁS
+### TURBO_SET
 
 Beállítja az **Ultimate-64 (U64) CPU sebességét** a `$D031` regiszteren
 keresztül. Nincs hatással egy valódi C64-re vagy más emulátorokra.
@@ -2857,7 +2857,7 @@ no_scpu:
 
 ---
 
-### TURBO_ENGEDÉLYEZÉS
+### TURBO_ENABLE
 
 Be- vagy kikapcsolja a(z) **CMD SuperCPU turbó módot**. Először hívja meg a(z)
 `SUPERCPU_DETECT` függvényt, és hagyja ki ezt, ha a SuperCPU nincs jelen.
@@ -3049,7 +3049,7 @@ JMP gameloop
 ---
 
 <a id="score_bcd"></a>
-### PONTSZÁM_BCD
+### SCORE_BCD
 
 Hozzáad egy fixpontos értéket egy memóriában tárolt többbájtos BCD-pontszámhoz,
 majd minden számjegyet képernyőkód karakterként jelenít meg a képernyő RAM-ban.
