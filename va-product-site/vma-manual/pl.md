@@ -10,15 +10,15 @@ znajdują się w podręczniku C64 Visual Assembler.
 
 ## Zawartość
 
-1. [Format źródłowy](#1-format-źródłowy)
-2. [Liczby i wyrażenia](#2-liczby-i-wyrażenia)
+1. [Format źródłowy](#1-format-zrod-owy)
+2. [Liczby i wyrażenia](#2-liczby-i-wyrazenia)
 3. [Wyjście: PRG, szczątkowy moduł BASIC i punkt
-   wejścia](#3-wyjście-prg-szczątkowy-moduł-basic-i-punkt-wejścia)
+   wejścia](#3-wyjscie-prg-szczatkowy-modu-basic-i-punkt-wejscia)
 4. [Tryby adresowania](#4-tryby-adresowania)
 5. [instrukcje 6502](#5-instrukcje-6502)
-6. [Dyrektywy i makra — odniesienie](#6-dyrektywy-i-makra--odniesienie)
-7. [Składnia w stylu KickAssembler](#7-składnia-w-stylu-kickassembler)
-8. [Wiersz poleceń](#8-wiersz-poleceń)
+6. [Dyrektywy i makra — odniesienie](#6-dyrektywy-i-makra-odniesienie)
+7. [Składnia w stylu KickAssembler](#7-sk-adnia-w-stylu-kickassembler)
+8. [Wiersz poleceń](#8-wiersz-polecen)
 9. [Znane ograniczenia](#9-znane-ograniczenia)
 
 ---
@@ -63,7 +63,7 @@ loop: dex                ; a label and an instruction on one line
 | Dwójkowy       | `%00001111`    | Prefiks `%`                                                                      |
 | Dziesiętny     | `255`, `40*25` | bez prefiksu                                                                     |
 | Charakter      | `'A'`          | jego kod (`$41`)                                                                 |
-| Aktualny adres | `*`            | adres linii (patrz [Licznik programu `*`](#licznik-programu--w-wyrażeniach)) |
+| Aktualny adres | `*`            | adres linii (patrz [Licznik programu `*`](#licznik-programu-w-wyrazeniach)) |
 
 W operandach instrukcji należy zapisywać liczby szesnastkowe za pomocą `$`. W
 argumentach adresowych makr bibliotecznych (`.rawbytes C000, …`, `.sprite_init
@@ -109,7 +109,7 @@ między nimi są zerami.
   szczątkowego elementu.
 
 Z poziomu PRG wiersz poleceń tworzy także kasetę **** i obraz dysku **** (nowość
-w wersji 2.1.0, patrz [8. Wiersz poleceń](#8-wiersz-poleceń)):
+w wersji 2.1.0, patrz [8. Wiersz poleceń](#8-wiersz-polecen)):
 
 - `--crt FILE` — kartridż Magic Desk (typ CRT 19, 8 banków × 8 KB, maksymalnie
   65 408 bajtów programu). Ładowarka w banku 0 inicjuje jądro (KERNAL),
@@ -1260,7 +1260,7 @@ określonym adresem jako odroczony fragment w PRG.
 > "tune.sid", $1000`), gdy jego natywny adres koliduje z Twoim kodem. Wywołaj
 > funkcję Init raz podczas uruchamiania, a następnie wywołaj funkcję Play co
 > klatkę z rastrowego programu obsługi przerwań IRQ — lub pozwól, aby funkcja
-> [SID_PLAYER](#sid_player) wykonała obie te czynności.
+> [SID_PLAYER](#sid-player) wykonała obie te czynności.
 
 **Etykiety: ** dyrektywa SID definiuje `SID_LOAD` (miejsce, w którym umieszczane
 są dane), `SID_INIT` i `SID_PLAY` (adresy init i play, przenoszone razem z
@@ -1440,7 +1440,7 @@ loop:
 > dziesiętnym), czyli od początku języka BASIC. Z plikiem BASIC SYS (domyślnym)
 > asembler umieszcza krótką linię `10 SYS…` w punkcie `$0801`, a kod rozpoczyna
 > się od `$080D`. Zobacz [Wyjście: PRG, plik BASIC i punkt
-> wejścia](#3-wyjście-prg-szczątkowy-moduł-basic-i-punkt-wejścia).
+> wejścia](#3-wyjscie-prg-szczatkowy-modu-basic-i-punkt-wejscia).
 
 ---
 

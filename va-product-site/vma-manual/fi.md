@@ -9,13 +9,13 @@ sovelluksen työkalut löytyvät C64 Visual Assembler -käyttöoppaasta.
 
 ## Sisällys
 
-1. [Lähdetiedoston muoto](#1-lähdetiedoston-muoto)
+1. [Lähdetiedoston muoto](#1-lahdetiedoston-muoto)
 2. [Numerot ja lausekkeet](#2-numerot-ja-lausekkeet)
 3. [Tuloste: PRG, BASIC-tynkä ja
-   aloituskohta](#3-lähtö-prg-basic-tynkä-ja-aloituspiste)
+   aloituskohta](#3-lahto-prg-basic-tynka-ja-aloituspiste)
 4. [Osoitetilat](#4-osoitustavat)
 5. [6502 ohjeet](#5-6502-ohjeet)
-6. [Direktiivit ja makrot — viite](#6-direktiivit-ja-makrot--viite)
+6. [Direktiivit ja makrot — viite](#6-direktiivit-ja-makrot-viite)
 7. [KickAssembler-tyylinen syntaksi](#7-kickassembler-tyylinen-syntaksi)
 8. [Komentorivi](#8-komentorivi)
 9. [Tunnetut rajoitukset](#9-tunnetut-rajoitukset)
@@ -61,7 +61,7 @@ loop: dex                ; a label and an instruction on one line
 | Binääri         | `%00001111`    | `%` etuliite                                                                     |
 | Desimaali       | `255`, `40*25` | ei etuliitettä                                                                   |
 | Merkki          | `'A'`          | sen koodi (`$41`)                                                                |
-| Nykyinen osoite | `*`            | linjan osoite (katso [`*` ohjelmalaskuri](#lausekkeissa-oleva--ohjelmalaskuri)) |
+| Nykyinen osoite | `*`            | linjan osoite (katso [`*` ohjelmalaskuri](#lausekkeissa-oleva-ohjelmalaskuri)) |
 
 Käskyoperandeissa kirjoitetaan heksadesimaalilukuja muodossa `$`.
 Kirjastomakrojen osoiteargumenteissa (`.rawbytes C000, …`, `.sprite_init 0, 1,
@@ -1251,7 +1251,7 @@ määritettyyn osoitteeseen lykättynä osana.
 > **Tyypillinen käyttö:** Anna SID:lle oma osoite (`.sid "tune.sid", $1000`),
 > kun sen natiiviosoite on ristiriidassa koodisi kanssa. Kutsu Init-funktiota
 > kerran käynnistyksen yhteydessä ja sitten Play-funktiota joka kehys
-> rasteri-IRQ-käsittelijältä — tai anna [SID_PLAYER](#sid_player):n tehdä
+> rasteri-IRQ-käsittelijältä — tai anna [SID_PLAYER](#sid-player):n tehdä
 > molemmat.
 
 **Tunnisteet:** SID-direktiivi määrittelee `SID_LOAD` (mihin data sijoitetaan),
@@ -1433,7 +1433,7 @@ loop:
 > desimaalia), joka on BASIC-ohjelman alku. BASIC SYS -tynkällä (oletusarvo)
 > assembler lisää lyhyen `10 SYS…` rivin kohtaan `$0801` ja koodisi alkaa
 > kohdasta `$080D`. Katso [Tuloste: PRG, BASIC-tynkä ja
-> aloituskohta](#3-lähtö-prg-basic-tynkä-ja-aloituspiste).
+> aloituskohta](#3-lahto-prg-basic-tynka-ja-aloituspiste).
 
 ---
 

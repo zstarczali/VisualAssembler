@@ -14,9 +14,9 @@ altri strumenti dell'applicazione sono nel manuale di C64 Visual Assembler.
 2. [Numeri ed espressioni](#2-numeri-ed-espressioni)
 3. [Output: PRG, stub BASIC e punto di
    ingresso](#3-output-prg-stub-basic-e-punto-di-ingresso)
-4. [Modalità di indirizzamento](#4-modalità-di-indirizzamento)
+4. [Modalità di indirizzamento](#4-modalita-di-indirizzamento)
 5. [6502 istruzioni](#5-istruzioni-6502)
-6. [Direttive e macro — riferimento](#6-direttive-e-macro--riferimento)
+6. [Direttive e macro — riferimento](#6-direttive-e-macro-riferimento)
 7. [Sintassi in stile KickAssembly](#7-sintassi-in-stile-kickassembly)
 8. [Riga di comando](#8-riga-di-comando)
 9. [Limitazioni note](#9-limitazioni-note)
@@ -64,7 +64,7 @@ loop: dex                ; a label and an instruction on one line
 | Binario           | `%00001111`    | prefisso `%`                                                                                           |
 | Decimale          | `255`, `40*25` | nessun prefisso                                                                                        |
 | Carattere         | `'A'`          | il suo codice (`$41`)                                                                                  |
-| Indirizzo attuale | `*`            | l'indirizzo della linea (vedere [Il contatore di programma `*`](#il-contatore-di-programma--nelle-espressioni)) |
+| Indirizzo attuale | `*`            | l'indirizzo della linea (vedere [Il contatore di programma `*`](#il-contatore-di-programma-nelle-espressioni)) |
 
 Negli operandi delle istruzioni, scrivere i numeri esadecimali con `$`. Negli
 argomenti di indirizzo delle macro di libreria (`.rawbytes C000, …`,
@@ -1269,7 +1269,7 @@ all'indirizzo specificato come blocco differito nel PRG.
 > **Uso tipico:** Assegna al SID un indirizzo proprio (`.sid "tune.sid", $1000`)
 > quando quello nativo è in conflitto con il tuo codice. Chiama Init una volta
 > all'avvio, quindi chiama Play ogni frame da un gestore IRQ raster — oppure
-> lascia che [SID_PLAYER](#sid_player) faccia entrambe le cose.
+> lascia che [SID_PLAYER](#sid-player) faccia entrambe le cose.
 
 **Etichette:** la direttiva SID definisce `SID_LOAD` (dove vengono posizionati i
 dati), `SID_INIT` e `SID_PLAY` (gli indirizzi di inizializzazione e

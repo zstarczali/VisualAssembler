@@ -11,15 +11,15 @@ Werkzeuge der Anwendung sind im Handbuch zu C64 Visual Assembler beschrieben.
 ## Inhalt
 
 1. [Quellformat](#1-quellformat)
-2. [Zahlen und Ausdrücke](#2-zahlen-und-ausdrücke)
+2. [Zahlen und Ausdrücke](#2-zahlen-und-ausdrucke)
 3. [Ausgabe: PRG, BASIC-Stub und
    Einstiegspunkt](#3-ausgabe-prg-basic-stub-und-einstiegspunkt)
 4. [Adressierungsmodi](#4-adressierungsmodi)
 5. [6502 Anweisungen](#5-6502-anweisungen)
-6. [Direktiven und Makros – Referenz](#6-direktiven-und-makros--referenz)
-7. [KickAssembler-ähnliche Syntax](#7-kickassembler-ähnliche-syntax)
+6. [Direktiven und Makros – Referenz](#6-direktiven-und-makros-referenz)
+7. [KickAssembler-ähnliche Syntax](#7-kickassembler-ahnliche-syntax)
 8. [Befehlszeile](#8-befehlszeile)
-9. [Bekannte Einschränkungen](#9-bekannte-einschränkungen)
+9. [Bekannte Einschränkungen](#9-bekannte-einschrankungen)
 
 ---
 
@@ -65,7 +65,7 @@ loop: dex                ; a label and an instruction on one line
 | Binär            | `%00001111`    | `%` Präfix                                                                                     |
 | Dezimal          | `255`, `40*25` | kein Präfix                                                                                    |
 | Charakter        | `'A'`          | sein Code (`$41`)                                                                              |
-| Aktuelle Adresse | `*`            | die Adresse der Leitung (siehe [Der `*` Programmzähler](#der--programmzähler-in-ausdrücken)) |
+| Aktuelle Adresse | `*`            | die Adresse der Leitung (siehe [Der `*` Programmzähler](#der-programmzahler-in-ausdrucken)) |
 
 In den Befehlsoperanden werden Hexadezimalzahlen mit `$` geschrieben. In den
 Adressargumenten der Bibliotheksmakros (`.rawbytes C000, …`, `.sprite_init 0, 1,
@@ -1270,7 +1270,7 @@ an der angegebenen Adresse im PRG abgelegt.
 > **Typische Verwendung:** Weisen Sie der SID eine eigene Adresse zu (`.sid
 > "tune.sid", $1000`), wenn ihre native Adresse mit Ihrem Code kollidiert. Rufen
 > Sie Init einmal beim Start auf und anschließend Play für jedes Frame über
-> einen Raster-IRQ-Handler – oder lassen Sie [SID_PLAYER](#sid_player) beides
+> einen Raster-IRQ-Handler – oder lassen Sie [SID_PLAYER](#sid-player) beides
 > erledigen.
 
 **Labels:** Die SID-Direktive definiert `SID_LOAD` (wo die Daten abgelegt

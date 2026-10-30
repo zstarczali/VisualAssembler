@@ -10,16 +10,16 @@ manualen för C64 Visual Assembler.
 
 ## Innehåll
 
-1. [Källformat](#1-källformat)
+1. [Källformat](#1-kallformat)
 2. [Siffror och uttryck](#2-tal-och-uttryck)
 3. [Utdata: PRG, BASIC-stub och
-   startpunkt](#3-utdata-prg-basic-stub-och-ingångspunkt)
-4. [Adresseringslägen](#4-adresseringslägen)
+   startpunkt](#3-utdata-prg-basic-stub-och-ingangspunkt)
+4. [Adresseringslägen](#4-adresseringslagen)
 5. [6502 instruktioner](#5-6502-instruktioner)
-6. [Direktiv och makron — referens](#6-direktiv-och-makron--referens)
+6. [Direktiv och makron — referens](#6-direktiv-och-makron-referens)
 7. [Syntax i KickAssembler-stil](#7-syntax-i-kickassembler-stil)
 8. [Kommandoraden](#8-kommandorad)
-9. [Kända begränsningar](#9-kända-begränsningar)
+9. [Kända begränsningar](#9-kanda-begransningar)
 
 ---
 
@@ -63,7 +63,7 @@ loop: dex                ; a label and an instruction on one line
 | Binär            | `%00001111`    | `%` prefix                                                                     |
 | Decimal          | `255`, `40*25` | inget prefix                                                                   |
 | Karaktär         | `'A'`          | dess kod (`$41`)                                                               |
-| Nuvarande adress | `*`            | radens adress (se [Programräknaren `*`](#programräknaren--i-uttryck)) |
+| Nuvarande adress | `*`            | radens adress (se [Programräknaren `*`](#programraknaren-i-uttryck)) |
 
 I instruktionsoperander skrivs hexadecimala tal med `$`. I adressargumenten för
 biblioteksmakron (`.rawbytes C000, …`, `.sprite_init 0, 1, 80`) läses ett enkelt
@@ -1231,7 +1231,7 @@ adressen som en uppskjuten del i PRG.
 > **Typisk användning:** Ge SID:t en egen adress (`.sid "tune.sid", $1000`) när
 > dess ursprungliga adress kolliderar med din kod. Anropa Init en gång vid
 > start, anropa sedan Play every frame från en raster IRQ-hanterare — eller låt
-> [SID_PLAYER](#sid_player) göra båda.
+> [SID_PLAYER](#sid-player) göra båda.
 
 **Etiketter:** SID-direktivet definierar `SID_LOAD` (där data placeras),
 `SID_INIT` och `SID_PLAY` (init- och play-adresserna, flyttade tillsammans med
@@ -1408,7 +1408,7 @@ loop:
 > **Tips:** Utan en ORG börjar programmet vid `$0801` (2049 decimaler), början
 > av BASIC. Med BASIC SYS-stubben (standard) lägger assemblern in en kort `10
 > SYS…`-rad vid `$0801` och din kod börjar vid `$080D`. Se [Utdata: PRG,
-> BASIC-stub och startpunkt](#3-utdata-prg-basic-stub-och-ingångspunkt).
+> BASIC-stub och startpunkt](#3-utdata-prg-basic-stub-och-ingangspunkt).
 
 ---
 

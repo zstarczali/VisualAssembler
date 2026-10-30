@@ -9,16 +9,16 @@ alkalmazás egyéb eszközei a C64 Visual Assembler kézikönyvében található
 
 ## Tartalomjegyzék
 
-1. [Forrásformátum](#1-forrásformátum)
-2. [Számok és kifejezések](#2-számok-és-kifejezések)
+1. [Forrásformátum](#1-forrasformatum)
+2. [Számok és kifejezések](#2-szamok-es-kifejezesek)
 3. [Kimenet: PRG, BASIC stub és belépési
-   pont](#3-kimenet-prg-basic-stub-és-belépési-pont)
-4. [Címzési módok](#4-címzési-módok)
-5. [6502 utasítások](#5-6502-utasítások)
-6. [Utasítások és makrók — hivatkozás](#6-irányelvek-és-makrók--hivatkozás)
-7. [KickAssembler-stílusú szintaxis](#7-kickassembler-stílusú-szintaxis)
+   pont](#3-kimenet-prg-basic-stub-es-belepesi-pont)
+4. [Címzési módok](#4-cimzesi-modok)
+5. [6502 utasítások](#5-6502-utasitasok)
+6. [Utasítások és makrók — hivatkozás](#6-iranyelvek-es-makrok-hivatkozas)
+7. [KickAssembler-stílusú szintaxis](#7-kickassembler-stilusu-szintaxis)
 8. [Parancssor](#8-parancssor)
-9. [Ismert korlátok](#9-ismert-korlátok)
+9. [Ismert korlátok](#9-ismert-korlatok)
 
 ---
 
@@ -45,7 +45,7 @@ loop: dex                ; a label and an instruction on one line
 - Az **címkék** írásmódja `name:` — betűk, számjegyek és `_`, nem számjeggyel
   kezdődnek. A címke önálló sorban vagy egy utasítás előtt is állhat. A ponttal
   kezdődő név (`.loop:`) egy **lokális címke** (lásd [Local (dotted)
-  labels](#helyi-pontozott-címkék)); Az `-` és az `+` önmagukban **anonim címkék**,
+  labels](#helyi-pontozott-cimkek)); Az `-` és az `+` önmagukban **anonim címkék**,
   amelyekre az `bne -` / `beq +` hivatkozik (a legközelebbi előtte / utána).
 - Az **utasítások** egy emlékeztető és egy operandus; a behúzás szabad.
 - Az **** direktívák ponttal kezdődnek (`.byte`, `.macro`, `.if` …); az `* =
@@ -61,7 +61,7 @@ loop: dex                ; a label and an instruction on one line
 | Bináris       | `%00001111`    | `%` előtag                                                                          |
 | Decimális     | `255`, `40*25` | nincs előtag                                                                        |
 | Karakter      | `'A'`          | a kódja (`$41`)                                                                     |
-| Jelenlegi cím | `*`            | a vonal címe (lásd: [Az `*` programszámláló](#az--programszámláló-kifejezésekben)) |
+| Jelenlegi cím | `*`            | a vonal címe (lásd: [Az `*` programszámláló](#az-programszamlalo-kifejezesekben)) |
 
 Az utasításoperandusokban a `$` paranccsal hexadecimális számokat írunk. A
 könyvtármakrók címargumentumában (`.rawbytes C000, …`, `.sprite_init 0, 1, 80`)
@@ -1251,7 +1251,7 @@ késleltetett chunkként kerül a PRG-be.
 > **Tipikus használat:** Adj a SID-nek egy saját címet (`.sid "tune.sid",
 > $1000`), ha a natív címe ütközik a kódoddal. Indításkor hívd meg egyszer az
 > Init függvényt, majd hívd meg a Play minden képkockát egy raszteres IRQ
-> kezelőből — vagy hagyd, hogy a [SID_PLAYER](#sid_player) mindkettőt megtegye.
+> kezelőből — vagy hagyd, hogy a [SID_PLAYER](#sid-player) mindkettőt megtegye.
 
 **Címkék:** az SID direktíva definiálja az `SID_LOAD` (ahová az adatok
 kerülnek), az `SID_INIT` és az `SID_PLAY` címeket (az init és play címek, egy
@@ -1430,7 +1430,7 @@ loop:
 > (2049 decimális). A BASIC SYS csonkkal (alapértelmezett) az assembler egy
 > rövid `10 SYS…` sort helyez el a `$0801`-nél, és a kódod a `$080D`-nél
 > kezdődik. Lásd: [Kimenet: PRG, BASIC csonk és belépési
-> pont](#3-kimenet-prg-basic-stub-és-belépési-pont).
+> pont](#3-kimenet-prg-basic-stub-es-belepesi-pont).
 
 ---
 

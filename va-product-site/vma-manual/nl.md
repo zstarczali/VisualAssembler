@@ -16,7 +16,7 @@ van de app staan in de handleiding van C64 Visual Assembler.
    ingangspunt](#3-uitvoer-prg-basic-stub-en-ingangspunt)
 4. [Adresmodi](#4-adresseringsmodi)
 5. [6502 instructies](#5-6502-instructies)
-6. [Richtlijnen en macro's — referentie](#6-richtlijnen-en-macros--referentie)
+6. [Richtlijnen en macro's — referentie](#6-richtlijnen-en-macro-s-referentie)
 7. [KickAssembler-achtige syntaxis](#7-syntaxis-in-kickassembler-stijl)
 8. [Opdrachtregel](#8-opdrachtregel)
 9. [Bekende beperkingen](#9-bekende-beperkingen)
@@ -63,7 +63,7 @@ loop: dex                ; a label and an instruction on one line
 | Binair       | `%00001111`    | `%` prefix                                                                                 |
 | Decimale     | `255`, `40*25` | geen voorvoegsel                                                                           |
 | Karakter     | `'A'`          | de code ervan (`$41`)                                                                      |
-| Huidig adres | `*`            | het adres van de lijn (zie [De `*` programmateller](#de--programmateller-in-expressies)) |
+| Huidig adres | `*`            | het adres van de lijn (zie [De `*` programmateller](#de-programmateller-in-expressies)) |
 
 In instructieoperanden worden hexadecimale getallen geschreven met `$`. In de
 adresargumenten van de bibliotheekmacro's (`.rawbytes C000, …`, `.sprite_init 0,
@@ -1261,7 +1261,7 @@ opgegeven adres geplaatst als een uitgesteld blok in de PRG.
 > **Typisch gebruik:** Geef de SID een eigen adres (`.sid "tune.sid", $1000`)
 > wanneer het native adres conflicteert met uw code. Roep Init eenmaal aan bij
 > het opstarten en roep vervolgens Play elke frame aan vanuit een raster
-> IRQ-handler — of laat [SID_PLAYER](#sid_player) beide doen.
+> IRQ-handler — of laat [SID_PLAYER](#sid-player) beide doen.
 
 **Labels:** De SID-richtlijn definieert `SID_LOAD` (waar de data wordt
 geplaatst), `SID_INIT` en `SID_PLAY` (de init- en play-adressen, verplaatst

@@ -14,9 +14,9 @@ l'application sont décrits dans le manuel de C64 Visual Assembler.
 2. [Nombres et expressions](#2-nombres-et-expressions)
 3. [Sortie : PRG, stub BASIC et point
    d'entrée](#3-sortie-prg-stub-basic-et-point-dentrée)
-4. [Modes d'adressage](#4-modes-dadressage)
+4. [Modes d'adressage](#4-modes-d-adressage)
 5. [6502 instructions](#5-instructions-6502)
-6. [Directives et macros — référence](#6-directives-et-macros--référence)
+6. [Directives et macros — référence](#6-directives-et-macros-reference)
 7. [Syntaxe de style KickAssembler](#7-syntaxe-de-type-kickassembler)
 8. [Ligne de commande](#8-ligne-de-commande)
 9. [Limitations connues](#9-limitations-connues)
@@ -63,7 +63,7 @@ loop: dex                ; a label and an instruction on one line
 | Binaire          | `%00001111`    | préfixe `%`                                                                                       |
 | Décimal          | `255`, `40*25` | pas de préfixe                                                                                    |
 | Personnage       | `'A'`          | son code (`$41`)                                                                                  |
-| Adresse actuelle | `*`            | l'adresse de la ligne (voir [Le compteur de programme `*`](#le-compteur-de-programme--dans-les-expressions)) |
+| Adresse actuelle | `*`            | l'adresse de la ligne (voir [Le compteur de programme `*`](#le-compteur-de-programme-dans-les-expressions)) |
 
 Dans les opérandes des instructions, écrivez les nombres hexadécimaux avec `$`.
 Dans les arguments d'adresse des macros de bibliothèque (`.rawbytes C000, …`,
@@ -1274,7 +1274,7 @@ spécifiée en tant que bloc différé dans le PRG.
 > **Utilisation typique :** Attribuez au SID une adresse spécifique (`.sid
 > "tune.sid", $1000`) lorsque son adresse native entre en conflit avec votre
 > code. Appelez Init une fois au démarrage, puis Play à chaque image depuis un
-> gestionnaire d'interruption raster — ou laissez [SID_PLAYER](#sid_player)
+> gestionnaire d'interruption raster — ou laissez [SID_PLAYER](#sid-player)
 > effectuer les deux.
 
 Étiquettes : la directive SID définit SID_LOAD (emplacement des données),
