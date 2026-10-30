@@ -5882,9 +5882,17 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
   overflow: hidden;
 }
 
-.vc-dialog { max-width: 860px; }
+.vc-dialog { max-width: 860px; max-height: min(84vh, 780px); }
 .vc-dialog [hidden] { display: none !important; }
+.vc-dialog .project-snapshot-card { max-height: min(84vh, 780px); }
 .vc-dialog .project-snapshot-card > * { flex-shrink: 0; }
+/* a magasság fix: a commit-napló kapja a maradék helyet saját görgetéssel, a diff is összenyomható */
+.vc-dialog .project-snapshot-card > .project-snapshot-list { flex: 1 1 160px; min-height: 96px; overflow-y: auto; }
+.vc-dialog .project-snapshot-card > .vc-diff { flex: 2 1 240px; min-height: 140px; display: flex; flex-direction: column; overflow: hidden; }
+.vc-dialog .project-snapshot-card > .vc-changes { max-height: 132px; }
+.vc-dialog .vc-diff > .vc-diff-body { flex: 1 1 auto; min-height: 0; }
+.vc-dialog .vc-diff--expanded > .vc-diff-body { max-height: none; }
+.vc-dialog .project-snapshot-card > .vc-diff--expanded { flex: 1 1 auto; }
 /* fejléc a szerkesztőablakok mintájára (.se-hdr / .se-title) */
 .vc-dialog .project-snapshot-card { padding-top: 0; }
 .vc-dialog .project-snapshot-hdr {
@@ -5912,9 +5920,39 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
 .vc-branch { margin-left: 8px; font-family: "IBM Plex Mono", monospace; color: var(--primary); }
 .vc-status { margin: 0; padding: 8px 10px; border-left: 3px solid #3fbf6a; background: color-mix(in srgb, #3fbf6a 10%, transparent); font-size: 0.82rem; }
 .vc-status--dirty { border-left-color: #e0a030; background: color-mix(in srgb, #e0a030 12%, transparent); }
-.vc-git-bar { display: flex; flex-wrap: wrap; gap: 8px; }
-.vc-git-bar button { min-height: 0; height: 30px; padding: 0 12px; font-size: 0.8rem; }
-.vc-changes { max-height: 120px; overflow: auto; font-family: "IBM Plex Mono", monospace; font-size: 0.74rem; color: var(--secondary); }
+/* git eszköztár a .se-toolbar mintájára: ikon-gombok csoportokban, csak aria-label tooltip */
+.vc-toolbar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.vc-tool-groups { display: flex; align-items: center; gap: 12px; }
+.vc-tool-group { display: flex; gap: 2px; align-items: center; background: var(--control-bg);
+  border: 1px solid var(--panel-border); border-radius: 2px; padding: 2px; }
+.vc-tool, .vc-row-tool { min-height: 0; padding: 0; display: inline-flex; align-items: center; justify-content: center;
+  border: none; border-radius: 2px; background: transparent; color: var(--secondary); cursor: pointer; box-shadow: none; }
+.vc-tool { width: 28px; height: 26px; }
+.vc-tool svg { display: block; width: 15px; height: 15px; }
+.vc-row-tool { width: 22px; height: 20px; }
+.vc-row-tool svg { display: block; width: 13px; height: 13px; }
+.vc-tool:hover:not(:disabled), .vc-row-tool:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--secondary) 18%, transparent); color: var(--text); }
+.vc-tool:disabled { opacity: 0.4; cursor: default; }
+.vc-tool--danger { color: #e05050; }
+.vc-tool--danger:hover:not(:disabled) { background: color-mix(in srgb, #e05050 18%, transparent); color: #e05050; }
+.vc-branch-select { min-height: 0; height: 32px; padding: 0 30px 0 10px; font-size: 0.8rem; min-width: 140px; max-width: 240px; width: auto; }
+.vc-ask { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 10px;
+  background: var(--control-bg); border: 1px solid var(--panel-border); border-radius: 2px; }
+.vc-ask[hidden] { display: none; }
+.vc-ask-label { flex: 1 1 100%; font-size: 0.8rem; }
+.vc-ask .vc-ask-input { flex: 0 1 320px; width: 320px; max-width: 100%; min-width: 0; min-height: 0; height: 30px; padding: 3px 8px; font-size: 0.8rem; }
+.vc-ask select.vc-ask-input { padding-right: 26px; }
+.vc-ask button { min-height: 0; height: 30px; padding: 0 12px; font-size: 0.8rem; }
+
+.vc-change { display: flex; align-items: center; gap: 6px; min-height: 22px; }
+.vc-change-path { all: unset; cursor: pointer; flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vc-change-path:hover { text-decoration: underline; }
+.vc-change-acts { display: inline-flex; gap: 2px; margin-left: auto; }
+/* a görgethető listában a lefelé nyíló tooltip levágódna: balra nyílik, a sor magasságában */
+.vc-change-acts .vc-row-tool[aria-label]::after { top: 50%; left: auto; right: calc(100% + 6px); transform: translateY(-50%); }
+.vc-change--conflict, .vc-change--conflict .vc-change-code { color: #e05050; font-weight: 600; }
+.vc-changes { max-height: 180px; overflow: auto; font-family: "IBM Plex Mono", monospace; font-size: 0.74rem; color: var(--secondary); }
 .vc-changes:empty { display: none; }
 .vc-changes-title { font-family: inherit; font-weight: 600; margin-bottom: 2px; }
 .vc-change--mine { color: var(--text); font-weight: 600; }
@@ -5944,17 +5982,83 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
 .vc-actions button { min-height: 0; height: 24px; padding: 0 8px; font-size: 0.72rem; }
 .vc-actions .vc-del { width: 24px; padding: 0; }
 .vc-diff { border: 1px solid var(--panel-border); border-radius: 2px; background: var(--control-bg); }
-.vc-diff-hdr { display: flex; align-items: center; justify-content: space-between; padding: 4px 4px 4px 10px; border-bottom: 1px solid var(--panel-border);
+.vc-diff-hdr { display: flex; align-items: center; gap: 10px; padding: 4px 4px 4px 10px; border-bottom: 1px solid var(--panel-border);
   font-family: "IBM Plex Mono", monospace; font-size: 0.76rem; color: var(--secondary); }
-.vc-diff-tools { display: flex; align-items: center; gap: 6px; }
-.vc-diff-hdr #vc-diff-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.vc-diff-body { margin: 0; padding: 6px 0; max-height: 320px; overflow: auto; font-family: "IBM Plex Mono", monospace; font-size: 0.74rem; line-height: 1.45; }
-.vc-diff-body span { display: block; padding: 0 10px; white-space: pre; }
-.vc-diff-add { background: color-mix(in srgb, #3fbf6a 18%, transparent); color: var(--text); }
-.vc-diff-del { background: color-mix(in srgb, #e05555 18%, transparent); color: var(--text); }
-.vc-diff-hunk { color: #4aa0d0; }
-.vc-diff-meta { color: var(--secondary); font-weight: 600; }
-.vc-diff-ctx { color: var(--secondary); }
+.vc-diff-tools { display: flex; align-items: center; gap: 4px; margin-left: auto; }
+.vc-diff-hdr #vc-diff-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); font-weight: 600; }
+/* Diff nézet: fájlkártyák, sorszám-oszlopok, egyesített / kétoldali táblázat */
+.vc-diff {
+  --vcd-add: #3fbf6a;
+  --vcd-del: #e05555;
+  --vcd-add-bg: color-mix(in srgb, var(--vcd-add) 14%, transparent);
+  --vcd-del-bg: color-mix(in srgb, var(--vcd-del) 14%, transparent);
+  --vcd-add-word: color-mix(in srgb, var(--vcd-add) 38%, transparent);
+  --vcd-del-word: color-mix(in srgb, var(--vcd-del) 38%, transparent);
+}
+.vc-diff-body { padding: 8px; max-height: 360px; overflow: auto; font-family: "IBM Plex Mono", monospace; font-size: 0.74rem; line-height: 1.5;
+  display: flex; flex-direction: column; gap: 8px; }
+.vc-diff--expanded .vc-diff-body { max-height: 68vh; }
+.vcd-stats { display: inline-flex; gap: 8px; flex: none; font-weight: 600; }
+.vcd-n-add { color: var(--vcd-add); }
+.vcd-n-del { color: var(--vcd-del); }
+.vcd-empty-msg { padding: 10px; color: var(--secondary); font-family: inherit; }
+.vcd-preamble { padding: 8px 10px; border: 1px solid var(--panel-border); border-radius: 3px; background: var(--panel-bg); color: var(--secondary); }
+.vcd-pre-key { display: inline-block; min-width: 4.5em; color: var(--primary); font-weight: 600; }
+.vcd-pre-msg { margin: 4px 0; color: var(--text); font-weight: 600; white-space: pre-wrap; }
+.vcd-pre-stat { white-space: pre; opacity: 0.85; }
+.vcd-file { border: 1px solid var(--panel-border); border-radius: 3px; background: var(--panel-bg); overflow: hidden; flex: none; }
+.vcd-file-hdr { display: flex; align-items: center; gap: 8px; padding: 5px 10px; cursor: pointer; list-style: none;
+  background: var(--panel-strong); border-bottom: 1px solid var(--panel-border); position: sticky; top: -8px; z-index: 1; user-select: none; }
+.vcd-file-hdr::-webkit-details-marker { display: none; }
+.vcd-file-hdr::before { content: "▾"; color: var(--secondary); font-size: 0.7rem; width: 10px; }
+.vcd-file:not([open]) > .vcd-file-hdr { border-bottom: none; }
+.vcd-file:not([open]) > .vcd-file-hdr::before { content: "▸"; }
+.vcd-badge { flex: none; min-width: 18px; padding: 0 4px; border-radius: 2px; text-align: center; font-size: 0.68rem; font-weight: 700; color: #fff; background: #4a8fd0; }
+.vcd-badge--A { background: #2f9e57; }
+.vcd-badge--D { background: #c94848; }
+.vcd-badge--R { background: #9a6fd0; }
+.vcd-badge--B { background: #8a8a8a; }
+.vcd-path { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); font-weight: 600; }
+.vcd-file-n { display: inline-flex; gap: 6px; margin-left: auto; font-weight: 600; }
+.vcd-blocks { display: inline-flex; gap: 1px; }
+.vcd-blk { width: 7px; height: 7px; border-radius: 1px; background: color-mix(in srgb, var(--secondary) 30%, transparent); }
+.vcd-blk--a { background: var(--vcd-add); }
+.vcd-blk--d { background: var(--vcd-del); }
+.vcd-file-note { padding: 6px 10px; color: var(--secondary); font-style: italic; }
+.vcd-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.vcd-col-no { width: 3.6em; }
+.vcd-col-sign { width: 1.4em; }
+.vcd-table td { padding: 0 6px; vertical-align: top; }
+.vcd-no { text-align: right; color: color-mix(in srgb, var(--secondary) 70%, transparent); user-select: none;
+  border-right: 1px solid color-mix(in srgb, var(--panel-border) 60%, transparent); }
+.vcd-sign { text-align: center; user-select: none; font-weight: 700; }
+.vcd-code { white-space: pre; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
+.vcd-table--split .vcd-code { white-space: pre-wrap; word-break: break-all; }
+.vcd-table--split td.vcd-code:nth-child(2) { border-right: 1px solid var(--panel-border); }
+.vcd-ctx .vcd-code { color: color-mix(in srgb, var(--text) 82%, transparent); }
+tr.vcd-add, td.vcd-add { background: var(--vcd-add-bg); }
+tr.vcd-del, td.vcd-del { background: var(--vcd-del-bg); }
+tr.vcd-add .vcd-sign, td.vcd-no.vcd-add { color: var(--vcd-add); }
+tr.vcd-del .vcd-sign, td.vcd-no.vcd-del { color: var(--vcd-del); }
+tr.vcd-add .vcd-no, td.vcd-no.vcd-add { background: color-mix(in srgb, var(--vcd-add) 22%, transparent); }
+tr.vcd-del .vcd-no, td.vcd-no.vcd-del { background: color-mix(in srgb, var(--vcd-del) 22%, transparent); }
+td.vcd-empty { background: repeating-linear-gradient(135deg, transparent 0 4px, color-mix(in srgb, var(--secondary) 8%, transparent) 4px 8px); }
+mark.vcd-word { color: inherit; border-radius: 2px; }
+.vcd-add mark.vcd-word, td.vcd-add mark.vcd-word { background: var(--vcd-add-word); }
+.vcd-del mark.vcd-word, td.vcd-del mark.vcd-word { background: var(--vcd-del-word); }
+.vcd-hunk td { padding: 3px 10px; color: #4aa0d0; background: color-mix(in srgb, #4aa0d0 10%, transparent);
+  border-top: 1px solid var(--panel-border); border-bottom: 1px solid var(--panel-border); }
+.vcd-table tr:first-child.vcd-hunk td { border-top: none; }
+.vcd-note td { padding: 1px 10px; color: var(--secondary); font-style: italic; }
+.vc-diff-body .hl-comment, .vc-diff-body .ub-comment { color: var(--hl-comment); font-style: italic; }
+.vc-diff-body .hl-directive { color: var(--hl-directive); }
+.vc-diff-body .hl-mnem, .vc-diff-body .ub-kw { color: var(--hl-mnem); }
+.vc-diff-body .hl-number, .vc-diff-body .ub-number { color: var(--hl-number); }
+.vc-diff-body .hl-string, .vc-diff-body .ub-string { color: var(--hl-string); }
+.vc-diff-body .hl-label { color: var(--hl-label); font-weight: 600; }
+.vc-diff-body .hl-macro { color: var(--hl-macro); font-weight: 600; }
+.vc-diff-body .hl-macro-param { color: var(--hl-macro-param); }
+.vc-diff-body .ub-type, .vc-diff-body .ub-fn { color: var(--hl-directive); }
 
 .project-snapshot-dialog::backdrop {
   background: rgba(0, 0, 0, 0.48);
@@ -10393,6 +10497,11 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .tg-params { display: flex; flex-direction: column; gap: 10px; }
 .tg-controls [hidden] { display: none !important; }
 .tg-params .cg-text-in.tg-invalid { border-color: #f87171; }
+/* szám-paraméter: címke és rövid mező egy sorban */
+.tg-controls .tg-num-field { flex-direction: row; align-items: center; justify-content: space-between; gap: 10px; }
+.tg-controls .tg-num-field .cg-lbl { min-width: 0; }
+.tg-controls .tg-num-in { flex: none; width: 96px; text-align: right; font-variant-numeric: tabular-nums; }
+.tg-controls select.tg-num-in { text-align: left; }
 .tg-preview-wrap { display: flex; flex-direction: column; gap: 8px; min-width: 0; min-height: 0; }
 .tg-desc { font-size: 0.78rem; color: var(--secondary); line-height: 1.45; }
 .tg-preview {
@@ -10917,6 +11026,9 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .cg-tool,
 .dbe-tool,
 .websid-play-tool,
+.vc-diff-tools .vc-mode-btn,
+.vc-tool,
+.vc-row-tool,
 #curve-gen-btn,
 #disasm-copy-source-btn,
 #expert-disasm-copy-source-btn {
@@ -10942,6 +11054,9 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .cg-tool[aria-label]::after,
 .dbe-tool[aria-label]::after,
 .websid-play-tool[aria-label]::after,
+.vc-diff-tools .vc-mode-btn[aria-label]::after,
+.vc-tool[aria-label]::after,
+.vc-row-tool[aria-label]::after,
 #curve-gen-btn[aria-label]::after,
 #disasm-copy-source-btn[aria-label]::after,
 #expert-disasm-copy-source-btn[aria-label]::after {
@@ -10969,6 +11084,7 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
    the card's `overflow: hidden` clips it. Anchor left instead. */
 .cg-tool[aria-label]::after,
 .websid-play-tool[aria-label]::after,
+.vc-tool[aria-label]::after,
 #curve-gen-btn[aria-label]::after {
   left: 0;
   right: auto;
@@ -11007,6 +11123,12 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .dbe-tool:hover[aria-label]::after,
 .websid-play-tool:hover[aria-label]::after,
 .websid-play-tool:focus-visible[aria-label]::after,
+.vc-diff-tools .vc-mode-btn:hover[aria-label]::after,
+.vc-diff-tools .vc-mode-btn:focus-visible[aria-label]::after,
+.vc-tool:hover[aria-label]::after,
+.vc-tool:focus-visible[aria-label]::after,
+.vc-row-tool:hover[aria-label]::after,
+.vc-row-tool:focus-visible[aria-label]::after,
 #curve-gen-btn:hover[aria-label]::after,
 #disasm-copy-source-btn:hover[aria-label]::after,
 #expert-disasm-copy-source-btn:hover[aria-label]::after,

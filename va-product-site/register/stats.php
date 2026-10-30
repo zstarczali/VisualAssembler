@@ -226,7 +226,7 @@ ob_start(); ?>
 
     <div class="grid">
         <div class="box"><div class="box-t">DOWNLOADS BY PLATFORM</div><table>
-            <?php foreach ($dlByKey as $r): ?><tr><td><?= $h(str_replace('va-', '', $r['file_key'])) ?><span class="bar" style="width:<?= round((int) $r['n'] * 90 / $maxDl) ?>px"></span></td><td class="n"><?= (int) $r['n'] ?></td></tr><?php endforeach; ?>
+            <?php foreach ($dlByKey as $r): ?><tr><td><?= $h(preg_replace('/^va-/', '', $r['file_key'])) ?><span class="bar" style="width:<?= round((int) $r['n'] * 90 / $maxDl) ?>px"></span></td><td class="n"><?= (int) $r['n'] ?></td></tr><?php endforeach; ?>
             <?php if (!$dlByKey): ?><tr><td class="no">NO DATA YET.</td></tr><?php endif; ?>
         </table></div>
         <div class="box"><div class="box-t">DOWNLOADS PER DAY / 30 DAYS</div><table>

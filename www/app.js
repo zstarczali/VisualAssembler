@@ -77,54 +77,54 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "toolkit-268",
+  id: "git-269",
   url: "https://www.c64va.pro/docs.html",
   hu: {
-    eyebrow: "Újdonság a 2.6.8-ban",
+    eyebrow: "Újdonság a 2.6.9-ben",
     title: "Üdvözöl a Visual Assembler",
-    body: `<ul><li><strong>Toolkit Expert és UB módban</strong>: az eszköztár Toolkit gombja a szerkesztő mellett mutatja a C64 palettát és a PETSCII kódokat.</li><li><strong>Megjegyzett panelek</strong>: az Expert mód Monitor és Toolkit panele méretezhető; a nyitva hagyott panelek és a szélességük újraindítás után is megmaradnak (UB-ben is).</li><li><strong>VMA nyelv</strong>: zero page <code>.const</code> / <code>.var</code> → <code>lda zp</code> = <code>A5 FB</code>; <code>JMP (címke)</code>; <code>lda $1234+1</code>; makróban hívott makró; címkék a <code>.data</code> / <code>.rawbytes</code> bájtjaiban.</li><li><strong>Include-ok</strong>: a beemelt fájl saját <code>.include</code> / <code>.incbin</code> / <code>.sid</code> sorai is betöltődnek; a hiányzó include hiba.</li><li><strong>Biztonságosabb fordítás</strong>: csendesen rossz kód helyett hibaüzenet (feloldatlan TURBO_SET / SPRITE_ANIM, később definiált MEMCPY / MEMSET / JOYSTICK méret).</li><li>Javítva: a 8 KB-nál nagyobb CRT nem indult el; a projekt mentésében megadott <code>.asm</code> név szöveget ment.</li></ul><p>Kérdés, ötlet vagy hiba: <strong>Menu → Támogatás</strong>.</p>`,
+    body: `<ul><li><strong>Git ágak</strong>: a Verziókezelés ablakban ágat váltasz, újat hozol létre, átnevezel, törölsz és beolvasztasz (merge); ütközésnél a fájlok listája és <em>Merge megszakítása</em>.</li><li><strong>Fájlonként és stash</strong>: stage / unstage / elvetés fájlonként, kattintásra diff; a <em>Stash</em> félreteszi a változásokat, a listából visszahozható.</li><li><strong>Szebb diff</strong>: fájlonkénti kártya, régi és új sorszám, szintaxisszínezés, a sor megváltozott része kiemelve; kétoldali nézet.</li><li><strong>A Változások elvetése tényleg elvet</strong>: megerősítés után a lemezen is visszaáll a HEAD-re, utána ágat válthatsz.</li><li><strong>Kick projektek</strong>: ciklusszám, hibák és tippek az indítófájl által nem importált fájlokban is; <code>.pseudopc</code>-beli előre mutató ág és <code>charAt(i) == '1'</code> javítva.</li><li>Javítva: a <em>Save project</em> a megnyitott projektet a helyére menti; a Verziókezelés ablak nem nyúlik túl magasra.</li></ul><p>Kérdés, ötlet vagy hiba: <strong>Menu → Támogatás</strong>.</p>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
-    eyebrow: "New in 2.6.8",
+    eyebrow: "New in 2.6.9",
     title: "Welcome to Visual Assembler",
-    body: `<ul><li><strong>Toolkit in Expert and UB mode</strong>: the Toolkit toolbar button shows the C64 palette and the PETSCII codes next to the editor.</li><li><strong>Panels remembered</strong>: the Monitor and Toolkit panels of Expert mode can be resized; the panels you leave open and their widths come back on the next start (in UB mode too).</li><li><strong>VMA language</strong>: zero-page <code>.const</code> / <code>.var</code> → <code>lda zp</code> = <code>A5 FB</code>; <code>JMP (label)</code>; <code>lda $1234+1</code>; a macro calling a macro; labels in the bytes of <code>.data</code> / <code>.rawbytes</code>.</li><li><strong>Includes</strong>: an included file’s own <code>.include</code> / <code>.incbin</code> / <code>.sid</code> lines are loaded; a missing include is an error.</li><li><strong>Safer builds</strong>: an error instead of silently wrong code (unresolved TURBO_SET / SPRITE_ANIM, a MEMCPY / MEMSET / JOYSTICK size from a later label).</li><li>Fixed: a CRT larger than 8 KB did not start; an <code>.asm</code> name in a project’s Save dialog saves text.</li></ul><p>Questions, ideas or bugs: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Git branches</strong>: the Version control window switches, creates, renames, deletes and merges branches; a merge conflict lists the files and offers <em>Abort merge</em>.</li><li><strong>File by file and stash</strong>: stage / unstage / discard each file, open its diff with a click; <em>Stash</em> puts the changes aside, the list brings them back.</li><li><strong>A better diff</strong>: a card per file, old and new line numbers, syntax colours, the changed part of a line highlighted; side-by-side view.</li><li><strong>Discard changes really discards</strong>: after a confirmation the files on disk go back to HEAD too, so you can switch branches.</li><li><strong>Kick projects</strong>: cycle counts, errors and hints in files the startup file does not import; a forward branch in <code>.pseudopc</code> and <code>charAt(i) == '1'</code> fixed.</li><li>Fixed: <em>Save project</em> saves an opened project in place; the Version control window no longer grows too tall.</li></ul><p>Questions, ideas or bugs: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
-    eyebrow: "Novedad en la 2.6.8",
+    eyebrow: "Novedad en la 2.6.9",
     title: "Bienvenido a Visual Assembler",
-    body: `<ul><li><strong>Toolkit en los modos Experto y UB</strong>: el botón Toolkit de la barra muestra la paleta C64 y los códigos PETSCII junto al editor.</li><li><strong>Paneles recordados</strong>: los paneles Monitor y Toolkit del modo Experto se pueden redimensionar; los paneles abiertos y su ancho vuelven al reiniciar (también en UB).</li><li><strong>Lenguaje VMA</strong>: <code>.const</code> / <code>.var</code> en página cero → <code>lda zp</code> = <code>A5 FB</code>; <code>JMP (etiqueta)</code>; <code>lda $1234+1</code>; una macro que llama a otra; etiquetas en los bytes de <code>.data</code> / <code>.rawbytes</code>.</li><li><strong>Includes</strong>: se cargan las líneas <code>.include</code> / <code>.incbin</code> / <code>.sid</code> propias del archivo incluido; un include que falta es un error.</li><li><strong>Compilación más segura</strong>: un error en lugar de código erróneo en silencio (TURBO_SET / SPRITE_ANIM sin resolver, un tamaño de MEMCPY / MEMSET / JOYSTICK de una etiqueta posterior).</li><li>Corregido: un CRT de más de 8 KB no arrancaba; un nombre <code>.asm</code> en el diálogo Guardar de un proyecto guarda texto.</li></ul><p>Preguntas, ideas o errores: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Ramas Git</strong>: la ventana de control de versiones cambia, crea, renombra, elimina y fusiona ramas; un conflicto de merge lista los archivos y ofrece <em>Abort merge</em>.</li><li><strong>Archivo por archivo y stash</strong>: stage / unstage / descartar cada archivo, abrir su diff con un clic; <em>Stash</em> aparta los cambios y la lista los recupera.</li><li><strong>Un diff mejor</strong>: una tarjeta por archivo, números de línea antiguos y nuevos, colores de sintaxis, la parte cambiada de la línea resaltada; vista lado a lado.</li><li><strong>Descartar cambios descarta de verdad</strong>: tras confirmar, los archivos del disco vuelven también a HEAD y puedes cambiar de rama.</li><li><strong>Proyectos Kick</strong>: ciclos, errores y consejos también en archivos que el archivo de inicio no importa; corregidos el salto hacia delante en <code>.pseudopc</code> y <code>charAt(i) == '1'</code>.</li><li>Corregido: <em>Save project</em> guarda en su sitio el proyecto abierto; la ventana de control de versiones ya no crece demasiado.</li></ul><p>Preguntas, ideas o errores: <strong>Menu → Support</strong>.</p>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
-    eyebrow: "Neu in 2.6.8",
+    eyebrow: "Neu in 2.6.9",
     title: "Willkommen bei Visual Assembler",
-    body: `<ul><li><strong>Toolkit im Experten- und UB-Modus</strong>: der Toolkit-Knopf der Werkzeugleiste zeigt die C64-Palette und die PETSCII-Codes neben dem Editor.</li><li><strong>Gemerkte Panels</strong>: die Monitor- und Toolkit-Panels des Expertenmodus lassen sich in der Breite ändern; offene Panels und ihre Breite kommen beim nächsten Start wieder (auch im UB-Modus).</li><li><strong>VMA-Sprache</strong>: Zero-Page-<code>.const</code> / <code>.var</code> → <code>lda zp</code> = <code>A5 FB</code>; <code>JMP (label)</code>; <code>lda $1234+1</code>; ein Makro ruft ein Makro auf; Labels in den Bytes von <code>.data</code> / <code>.rawbytes</code>.</li><li><strong>Includes</strong>: die eigenen <code>.include</code>- / <code>.incbin</code>- / <code>.sid</code>-Zeilen einer eingebundenen Datei werden geladen; ein fehlendes Include ist ein Fehler.</li><li><strong>Sicherere Builds</strong>: ein Fehler statt still falschem Code (nicht aufgelöstes TURBO_SET / SPRITE_ANIM, eine MEMCPY- / MEMSET- / JOYSTICK-Größe aus einem späteren Label).</li><li>Behoben: ein CRT über 8 KB startete nicht; ein <code>.asm</code>-Name im Speichern-Dialog eines Projekts speichert Text.</li></ul><p>Fragen, Ideen oder Fehler: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Git-Branches</strong>: das Versionsverwaltungsfenster wechselt, erstellt, benennt um, löscht und mergt Branches; ein Merge-Konflikt listet die Dateien und bietet <em>Abort merge</em>.</li><li><strong>Dateiweise und Stash</strong>: jede Datei stagen / unstagen / verwerfen, ihr Diff per Klick öffnen; <em>Stash</em> legt Änderungen beiseite, die Liste holt sie zurück.</li><li><strong>Ein besseres Diff</strong>: eine Karte pro Datei, alte und neue Zeilennummern, Syntaxfarben, der geänderte Teil einer Zeile hervorgehoben; Ansicht nebeneinander.</li><li><strong>Änderungen verwerfen verwirft wirklich</strong>: nach einer Bestätigung gehen auch die Dateien auf der Festplatte auf HEAD zurück, danach kannst du den Branch wechseln.</li><li><strong>Kick-Projekte</strong>: Zyklen, Fehler und Hinweise auch in Dateien, die die Startdatei nicht importiert; Vorwärtssprung in <code>.pseudopc</code> und <code>charAt(i) == '1'</code> behoben.</li><li>Behoben: <em>Save project</em> speichert ein geöffnetes Projekt an seinem Ort; das Versionsverwaltungsfenster wird nicht mehr zu hoch.</li></ul><p>Fragen, Ideen oder Fehler: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
-    eyebrow: "Nieuw in 2.6.8",
+    eyebrow: "Nieuw in 2.6.9",
     title: "Welkom bij Visual Assembler",
-    body: `<ul><li><strong>Toolkit in Expert- en UB-modus</strong>: de Toolkit-knop in de werkbalk toont het C64-palet en de PETSCII-codes naast de editor.</li><li><strong>Onthouden panelen</strong>: de Monitor- en Toolkit-panelen van de Expert-modus zijn in breedte aan te passen; open panelen en hun breedte komen terug bij de volgende start (ook in UB).</li><li><strong>VMA-taal</strong>: zero-page <code>.const</code> / <code>.var</code> → <code>lda zp</code> = <code>A5 FB</code>; <code>JMP (label)</code>; <code>lda $1234+1</code>; een macro die een macro aanroept; labels in de bytes van <code>.data</code> / <code>.rawbytes</code>.</li><li><strong>Includes</strong>: de eigen <code>.include</code>- / <code>.incbin</code>- / <code>.sid</code>-regels van een ingevoegd bestand worden geladen; een ontbrekende include is een fout.</li><li><strong>Veiligere builds</strong>: een fout in plaats van stilletjes verkeerde code (onopgeloste TURBO_SET / SPRITE_ANIM, een MEMCPY- / MEMSET- / JOYSTICK-grootte uit een later label).</li><li>Opgelost: een CRT groter dan 8 KB startte niet; een <code>.asm</code>-naam in het Opslaan-venster van een project slaat tekst op.</li></ul><p>Vragen, ideeën of bugs: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Git-branches</strong>: het versiebeheervenster wisselt, maakt, hernoemt, verwijdert en merget branches; een mergeconflict toont de bestanden en biedt <em>Abort merge</em>.</li><li><strong>Per bestand en stash</strong>: elk bestand stagen / unstagen / negeren, de diff openen met een klik; <em>Stash</em> zet wijzigingen opzij, de lijst haalt ze terug.</li><li><strong>Een betere diff</strong>: een kaart per bestand, oude en nieuwe regelnummers, syntaxkleuren, het gewijzigde deel van een regel gemarkeerd; weergave naast elkaar.</li><li><strong>Wijzigingen negeren negeert echt</strong>: na bevestiging gaan ook de bestanden op schijf terug naar HEAD, daarna kun je van branch wisselen.</li><li><strong>Kick-projecten</strong>: cycli, fouten en tips ook in bestanden die het startbestand niet importeert; voorwaartse sprong in <code>.pseudopc</code> en <code>charAt(i) == '1'</code> opgelost.</li><li>Opgelost: <em>Save project</em> slaat een geopend project op zijn plaats op; het versiebeheervenster wordt niet meer te hoog.</li></ul><p>Vragen, ideeën of bugs: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
-    eyebrow: "Nowość w 2.6.8",
+    eyebrow: "Nowość w 2.6.9",
     title: "Witamy w Visual Assembler",
-    body: `<ul><li><strong>Toolkit w trybie Ekspert i UB</strong>: przycisk Toolkit na pasku pokazuje paletę C64 i kody PETSCII obok edytora.</li><li><strong>Zapamiętane panele</strong>: panele Monitor i Toolkit trybu Ekspert można poszerzać; otwarte panele i ich szerokość wracają po ponownym uruchomieniu (także w UB).</li><li><strong>Język VMA</strong>: <code>.const</code> / <code>.var</code> na stronie zerowej → <code>lda zp</code> = <code>A5 FB</code>; <code>JMP (etykieta)</code>; <code>lda $1234+1</code>; makro wywołujące makro; etykiety w bajtach <code>.data</code> / <code>.rawbytes</code>.</li><li><strong>Include</strong>: wczytywane są własne linie <code>.include</code> / <code>.incbin</code> / <code>.sid</code> dołączonego pliku; brakujący include to błąd.</li><li><strong>Bezpieczniejsza kompilacja</strong>: błąd zamiast po cichu złego kodu (nierozwiązane TURBO_SET / SPRITE_ANIM, rozmiar MEMCPY / MEMSET / JOYSTICK z późniejszej etykiety).</li><li>Poprawiono: CRT większy niż 8 KB nie uruchamiał się; nazwa <code>.asm</code> w oknie Zapisz projektu zapisuje tekst.</li></ul><p>Pytania, pomysły lub błędy: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Gałęzie Git</strong>: okno kontroli wersji przełącza, tworzy, zmienia nazwę, usuwa i scala gałęzie; konflikt merge wypisuje pliki i oferuje <em>Abort merge</em>.</li><li><strong>Plik po pliku i stash</strong>: stage / unstage / odrzucenie każdego pliku, diff po kliknięciu; <em>Stash</em> odkłada zmiany, lista je przywraca.</li><li><strong>Lepszy diff</strong>: karta na plik, stare i nowe numery linii, kolory składni, zmieniona część linii wyróżniona; widok obok siebie.</li><li><strong>Odrzuć zmiany naprawdę odrzuca</strong>: po potwierdzeniu pliki na dysku też wracają do HEAD, potem można zmienić gałąź.</li><li><strong>Projekty Kick</strong>: cykle, błędy i wskazówki także w plikach, których plik startowy nie importuje; poprawiono skok w przód w <code>.pseudopc</code> i <code>charAt(i) == '1'</code>.</li><li>Poprawiono: <em>Save project</em> zapisuje otwarty projekt na miejscu; okno kontroli wersji nie rośnie już za wysoko.</li></ul><p>Pytania, pomysły lub błędy: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
-    eyebrow: "Novità nella 2.6.8",
+    eyebrow: "Novità nella 2.6.9",
     title: "Benvenuto in Visual Assembler",
-    body: `<ul><li><strong>Toolkit nelle modalità Esperto e UB</strong>: il pulsante Toolkit della barra mostra la tavolozza C64 e i codici PETSCII accanto all’editor.</li><li><strong>Pannelli ricordati</strong>: i pannelli Monitor e Toolkit della modalità Esperto si possono ridimensionare; i pannelli aperti e la loro larghezza tornano al riavvio (anche in UB).</li><li><strong>Linguaggio VMA</strong>: <code>.const</code> / <code>.var</code> in pagina zero → <code>lda zp</code> = <code>A5 FB</code>; <code>JMP (etichetta)</code>; <code>lda $1234+1</code>; una macro che chiama un’altra macro; etichette nei byte di <code>.data</code> / <code>.rawbytes</code>.</li><li><strong>Include</strong>: vengono caricate le righe <code>.include</code> / <code>.incbin</code> / <code>.sid</code> proprie del file incluso; un include mancante è un errore.</li><li><strong>Build più sicure</strong>: un errore invece di codice sbagliato in silenzio (TURBO_SET / SPRITE_ANIM non risolti, una dimensione MEMCPY / MEMSET / JOYSTICK da un’etichetta successiva).</li><li>Corretto: un CRT più grande di 8 KB non partiva; un nome <code>.asm</code> nel dialogo Salva di un progetto salva testo.</li></ul><p>Domande, idee o bug: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Branch Git</strong>: la finestra del controllo versione cambia, crea, rinomina, elimina e unisce i branch; un conflitto di merge elenca i file e offre <em>Abort merge</em>.</li><li><strong>File per file e stash</strong>: stage / unstage / scarta per ogni file, diff con un clic; <em>Stash</em> mette da parte le modifiche, l’elenco le riporta.</li><li><strong>Un diff migliore</strong>: una scheda per file, numeri di riga vecchi e nuovi, colori della sintassi, la parte cambiata della riga evidenziata; vista affiancata.</li><li><strong>Scarta modifiche scarta davvero</strong>: dopo la conferma anche i file su disco tornano a HEAD, poi puoi cambiare branch.</li><li><strong>Progetti Kick</strong>: cicli, errori e suggerimenti anche nei file che il file di avvio non importa; corretti il salto in avanti in <code>.pseudopc</code> e <code>charAt(i) == '1'</code>.</li><li>Corretto: <em>Save project</em> salva al suo posto il progetto aperto; la finestra del controllo versione non cresce più troppo.</li></ul><p>Domande, idee o bug: <strong>Menu → Support</strong>.</p>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
@@ -2224,12 +2224,9 @@ function initPalette() {
     if (ultimateBasicMode) {
       await _ubSaveProject();
     } else if (expertMode) {
-      // The menu command keeps its Save As behaviour for Expert projects.
-      if (!_expertProjectData) {
-        _expertProjectData = { name: "Új projekt", files: [], _projPath: "" };
-      } else {
-        _expertProjectData._projPath = "";
-      }
+      // megnyitott projekt: a mentetlen fájl-fülei és a .proj a helyére; fájlnevet csak új projekt kér
+      if (!_expertProjectData) _expertProjectData = { name: "Új projekt", files: [], _projPath: "" };
+      else await _expertSaveProjectTabs();
       await _expertSaveProject();
     } else {
       await saveProjectToFile();
@@ -3475,10 +3472,17 @@ function applyTranslations() {
   setText("#vc-scope-project", t("vcScopeProject"));
   document.getElementById("vc-scope")?.setAttribute("aria-label", t("vcScopeLabel"));
   setText("#vc-diff-working", t("vcDiff"));
-  setText("#vc-git-init", t("vcGitInit"));
-  setText("#vc-git-pull", t("vcGitPull"));
-  setText("#vc-git-push", t("vcGitPush"));
-  setText("#vc-git-refresh", t("vcGitRefresh"));
+  document.getElementById("vc-branch-select")?.setAttribute("aria-label", t("vcGitBranch"));
+  // git eszköztár: ikon-gombok, a felirat csak aria-label (egyedi tooltip)
+  [["vc-git-init", "vcGitInit"], ["vc-branch-new", "vcBranchNew"], ["vc-branch-rename", "vcBranchRename"],
+    ["vc-branch-delete", "vcBranchDelete"], ["vc-branch-merge", "vcBranchMerge"], ["vc-merge-abort", "vcMergeAbort"],
+    ["vc-stash-save", "vcStash"], ["vc-git-pull", "vcGitPull"], ["vc-git-push", "vcGitPush"], ["vc-git-refresh", "vcGitRefresh"]]
+    .forEach(([id, key]) => document.getElementById(id)?.setAttribute("aria-label", t(key)));
+  setText("#vc-diff-split", t("vcDiffSplit"));
+  document.getElementById("vc-diff-split")?.setAttribute("aria-label", t("vcDiffSplitTip"));
+  document.getElementById("vc-diff-expand")?.setAttribute("aria-label", t("vcDiffExpand"));
+  setText("#vc-ask-ok", t("vcAskOk"));
+  setText("#vc-ask-cancel", t("vcAskCancel"));
   setText("#vc-stage-all-label", t("vcGitStageAll"));
   setText("#git-exe-label", t("gitExeLabel"));
   setText("#update-settings-label", t("updateSettings"));
@@ -16094,6 +16098,17 @@ async function _expertNewProject() {
   await _expertSaveProject();
 }
 
+// A megnyitott projekt mentetlen, fájlhoz kötött fülei (a projekten kívüli fülek maradnak)
+async function _expertSaveProjectTabs() {
+  const originId = activeTabId;
+  for (const tab of [...tabs]) {
+    if (!tab.dirty || !tab.filePath || !_projHasFile(tab.filePath)) continue;
+    if (tab.id !== activeTabId) _tabActivate(tab.id);
+    await saveProjectToFile();
+  }
+  if (activeTabId !== originId && tabs.some(tab => tab.id === originId)) _tabActivate(originId);
+}
+
 async function _expertSaveProject() {
   if (!_expertProjectData) return;
   // Strip runtime-only fields before serialising
@@ -19977,15 +19992,6 @@ function _vcSmartDiff(oldPayload, newPayload) {
   const [a, b] = _vcComparable(oldPayload, newPayload);
   return _vcLineDiff(a, b);
 }
-function _vcDiffStats(diffText) {
-  let add = 0;
-  let del = 0;
-  diffText.split("\n").forEach(line => {
-    if (line.startsWith("+") && !line.startsWith("+++")) add++;
-    else if (line.startsWith("-") && !line.startsWith("---")) del++;
-  });
-  return add || del ? `  +${add} / −${del}` : "";
-}
 // Fájltartalom (git show) → összehasonlítható payload a fájl típusa szerint
 function _vcParseFileContent(name, content) {
   if (/\.ub$/i.test(name)) return { ubText: content };
@@ -20180,6 +20186,193 @@ function _vcFilesHtml(files) {
   const more = files.length > 8 ? `<span class="vc-file">${_vcEsc(tf("vcProjectFilesMore", { n: files.length - 8 }))}</span>` : "";
   return `<div class="vc-files">${shown}${more}</div>`;
 }
+// ── Diff megjelenítés: fájlonkénti kártya, sorszámok, szintaxiskiemelés, soron belüli kiemelés, egyesített / kétoldali nézet ──
+let _vcDiffSplit = (() => { try { return localStorage.getItem("c64va-vc-diff-split") === "1"; } catch { return false; } })();
+let _vcDiffLast = "";
+
+function _vcDiffStatsHtml(diffText) {
+  let add = 0;
+  let del = 0;
+  diffText.split("\n").forEach(line => {
+    if (line.startsWith("+") && !line.startsWith("+++")) add++;
+    else if (line.startsWith("-") && !line.startsWith("---")) del++;
+  });
+  return add || del ? `<span class="vcd-n-add">+${add}</span><span class="vcd-n-del">−${del}</span>` : "";
+}
+
+// Egységes diff szöveg → { preamble, files: [{ path, status, binary, notes, hunks: [{ oldStart, newStart, header, lines: [{ type, text }] }] }] }
+function _vcParseDiff(text) {
+  const lines = String(text || "").replace(/\r\n/g, "\n").split("\n");
+  while (lines.length && lines[lines.length - 1] === "") lines.pop();
+  const hasHeaders = lines.some(line => /^diff /.test(line));
+  const preamble = [];
+  const files = [];
+  let file = hasHeaders ? null : { path: "", status: "M", binary: false, notes: [], hunks: [] };
+  if (file) files.push(file);
+  let hunk = null;
+  for (const line of lines) {
+    const head = /^diff (?:--git a\/(.+?) b\/(.+)|(.+))$/.exec(line);
+    if (head) {
+      file = { path: head[2] || head[3] || "", status: "M", binary: false, notes: [], hunks: [] };
+      files.push(file);
+      hunk = null;
+      continue;
+    }
+    if (!file) { preamble.push(line); continue; }
+    if (!hunk) {
+      if (/^(new file|--- \/dev\/null)/.test(line)) { file.status = "A"; continue; }
+      if (/^(deleted file|\+\+\+ \/dev\/null)/.test(line)) { file.status = "D"; continue; }
+      if (/^rename to /.test(line)) { file.status = "R"; file.path = line.slice(10); continue; }
+      if (/^Binary file/.test(line)) { file.binary = true; file.notes.push(line); continue; }
+      if (/^(index |--- |\+\+\+ |similarity |dissimilarity |rename from |old mode |new mode |copy )/.test(line)) continue;
+    }
+    const at = /^@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@ ?(.*)$/.exec(line);
+    if (at) {
+      hunk = { oldStart: +at[1], newStart: +at[2], header: at[3] || "", lines: [] };
+      file.hunks.push(hunk);
+      continue;
+    }
+    if (!hunk) { hunk = { oldStart: 1, newStart: 1, header: "", lines: [] }; file.hunks.push(hunk); }
+    const c = line[0];
+    if (c === "\\") hunk.lines.push({ type: "note", text: line.slice(1).trim() });
+    else hunk.lines.push({ type: c === "+" ? "add" : c === "-" ? "del" : "ctx", text: c === "+" || c === "-" || c === " " ? line.slice(1) : line });
+  }
+  return { preamble, files: files.filter(f => f.hunks.length || f.notes.length || f.path) };
+}
+
+function _vcDiffHighlighter(path) {
+  if (/\.(asm|s|a65|inc)$/i.test(path) && typeof _expertHighlightLine === "function") return line => _expertHighlightLine(line);
+  if (/\.ub$/i.test(path) && typeof _ubHighlightSource === "function") return line => _ubHighlightSource(line).replace(/\n$/, "");
+  return line => _vcEsc(line);
+}
+
+// Kiemelt HTML-ben a [from, to) szöveg-tartomány <mark>-ba; tagnél a mark lezárul és újranyílik (helyes egymásba ágyazás)
+function _vcMarkRange(html, from, to) {
+  if (from >= to) return html;
+  let out = "";
+  let pos = 0;
+  let open = false;
+  for (let i = 0; i < html.length;) {
+    if (pos === from && !open && from < to) { out += `<mark class="vcd-word">`; open = true; }
+    if (pos === to && open) { out += "</mark>"; open = false; }
+    if (html[i] === "<") {
+      const close = html.indexOf(">", i);
+      const tag = html.slice(i, close + 1);
+      out += open ? `</mark>${tag}<mark class="vcd-word">` : tag;
+      i = close + 1;
+      continue;
+    }
+    const ent = html[i] === "&" ? /^&[#\w]+;/.exec(html.slice(i, i + 10)) : null;
+    const chunk = ent ? ent[0] : html[i];
+    out += chunk;
+    i += chunk.length;
+    pos++;
+  }
+  if (open) out += "</mark>";
+  return out.replace(/<mark class="vcd-word"><\/mark>/g, "");
+}
+
+// Párosított törölt / hozzáadott sor: a közös eleje és vége utáni rész kap kiemelést (ha a sor nagyja közös)
+function _vcWordRanges(a, b) {
+  let pre = 0;
+  while (pre < a.length && pre < b.length && a[pre] === b[pre]) pre++;
+  let suf = 0;
+  while (suf < a.length - pre && suf < b.length - pre && a[a.length - 1 - suf] === b[b.length - 1 - suf]) suf++;
+  const common = pre + suf;
+  if (common < Math.max(3, Math.min(a.length, b.length) * 0.3)) return null;
+  return [[pre, a.length - suf], [pre, b.length - suf]];
+}
+
+// Egy hunk sorai: kontextus- / megjegyzés-sorok és változás-blokkok (a törölt és hozzáadott sorok páronként szó-kiemeléssel)
+function _vcDiffRows(hunk, hl) {
+  const rows = [];
+  let oldNo = hunk.oldStart;
+  let newNo = hunk.newStart;
+  const lines = hunk.lines;
+  for (let i = 0; i < lines.length;) {
+    const line = lines[i];
+    if (line.type === "note") { rows.push({ note: line.text }); i++; continue; }
+    if (line.type === "ctx") { rows.push({ ctx: { oldNo: oldNo++, newNo: newNo++, html: hl(line.text) } }); i++; continue; }
+    const delText = [];
+    const addText = [];
+    while (i < lines.length && lines[i].type === "del") delText.push(lines[i++].text);
+    while (i < lines.length && lines[i].type === "add") addText.push(lines[i++].text);
+    const dels = delText.map((text, k) => {
+      const r = k < addText.length ? _vcWordRanges(text, addText[k]) : null;
+      return { no: oldNo++, html: r ? _vcMarkRange(hl(text), ...r[0]) : hl(text) };
+    });
+    const adds = addText.map((text, k) => {
+      const r = k < delText.length ? _vcWordRanges(delText[k], text) : null;
+      return { no: newNo++, html: r ? _vcMarkRange(hl(text), ...r[1]) : hl(text) };
+    });
+    rows.push({ dels, adds });
+  }
+  return rows;
+}
+
+function _vcDiffHunkHtml(hunk, hl, split) {
+  const header = `<tr class="vcd-hunk"><td colspan="4">@@ −${hunk.oldStart} +${hunk.newStart} @@${hunk.header ? " " + _vcEsc(hunk.header) : ""}</td></tr>`;
+  const code = (html, cls = "") => `<td class="vcd-code${cls}">${html || "&nbsp;"}</td>`;
+  const no = (n, cls = "") => `<td class="vcd-no${cls}">${n ?? ""}</td>`;
+  const side = (cell, cls) => (cell ? no(cell.no, cls) + code(cell.html, cls) : no("", " vcd-empty") + code("", " vcd-empty"));
+  return header + _vcDiffRows(hunk, hl).map(row => {
+    if (row.note) return `<tr class="vcd-note"><td colspan="4">${_vcEsc(row.note)}</td></tr>`;
+    if (row.ctx) return split
+      ? `<tr class="vcd-ctx">${no(row.ctx.oldNo)}${code(row.ctx.html)}${no(row.ctx.newNo)}${code(row.ctx.html)}</tr>`
+      : `<tr class="vcd-ctx">${no(row.ctx.oldNo)}${no(row.ctx.newNo)}<td class="vcd-sign"></td>${code(row.ctx.html)}</tr>`;
+    if (split) {
+      return Array.from({ length: Math.max(row.dels.length, row.adds.length) }, (_, k) =>
+        `<tr>${side(row.dels[k], " vcd-del")}${side(row.adds[k], " vcd-add")}</tr>`).join("");
+    }
+    return row.dels.map(d => `<tr class="vcd-del">${no(d.no)}${no("")}<td class="vcd-sign">−</td>${code(d.html)}</tr>`).join("")
+      + row.adds.map(a => `<tr class="vcd-add">${no("")}${no(a.no)}<td class="vcd-sign">+</td>${code(a.html)}</tr>`).join("");
+  }).join("");
+}
+
+function _vcDiffHtml(diffText, split, fallbackName = "") {
+  if (!String(diffText || "").trim()) return `<div class="vcd-empty-msg">${_vcEsc(t("vcDiffNone"))}</div>`;
+  const parsed = _vcParseDiff(diffText);
+  const pre = parsed.preamble.filter(line => line.trim());
+  const preHtml = pre.length ? `<div class="vcd-preamble">${pre.map(line => {
+    const m = /^(commit|Author:|Date:)\s*(.*)$/.exec(line);
+    return m ? `<div><span class="vcd-pre-key">${_vcEsc(m[1].replace(/:$/, ""))}</span> ${_vcEsc(m[2])}</div>`
+      : /^\s{4}/.test(line) ? `<div class="vcd-pre-msg">${_vcEsc(line.trim())}</div>`
+      : `<div class="vcd-pre-stat">${_vcEsc(line)}</div>`;
+  }).join("")}</div>` : "";
+  const filesHtml = parsed.files.map(file => {
+    const name = file.path || fallbackName;
+    const hl = _vcDiffHighlighter(name);
+    let add = 0;
+    let del = 0;
+    file.hunks.forEach(h => h.lines.forEach(l => { if (l.type === "add") add++; else if (l.type === "del") del++; }));
+    const total = add + del;
+    const blocks = Array.from({ length: 5 }, (_, i) => {
+      const cls = !total ? "" : i < Math.round(add / total * 5) ? "a" : i < Math.round((add + del) / total * 5) ? "d" : "";
+      return `<i class="vcd-blk${cls ? " vcd-blk--" + cls : ""}"></i>`;
+    }).join("");
+    const status = file.binary && file.status === "M" ? "B" : file.status;
+    const body = file.hunks.length
+      ? `<table class="vcd-table${split ? " vcd-table--split" : ""}">${split ? `<colgroup><col class="vcd-col-no"><col><col class="vcd-col-no"><col></colgroup>` : `<colgroup><col class="vcd-col-no"><col class="vcd-col-no"><col class="vcd-col-sign"><col></colgroup>`}${file.hunks.map(h => _vcDiffHunkHtml(h, hl, split)).join("")}</table>`
+      : "";
+    const notes = file.notes.map(note => `<div class="vcd-file-note">${_vcEsc(note)}</div>`).join("");
+    return `<details class="vcd-file" open><summary class="vcd-file-hdr"><span class="vcd-badge vcd-badge--${status}">${status}</span>`
+      + `<span class="vcd-path">${_vcEsc(name || "—")}</span><span class="vcd-file-n">${add ? `<span class="vcd-n-add">+${add}</span>` : ""}${del ? `<span class="vcd-n-del">−${del}</span>` : ""}</span>`
+      + `<span class="vcd-blocks">${blocks}</span></summary>${notes}${body}</details>`;
+  }).join("");
+  return preHtml + (filesHtml || `<div class="vcd-empty-msg">${_vcEsc(t("vcDiffNone"))}</div>`);
+}
+
+function _vcDiffSyncTools() {
+  const split = document.getElementById("vc-diff-split");
+  if (split) {
+    split.classList.toggle("vc-mode-btn--active", _vcDiffSplit);
+    split.setAttribute("aria-pressed", String(_vcDiffSplit));
+  }
+  const box = document.getElementById("vc-diff");
+  const expand = document.getElementById("vc-diff-expand");
+  if (expand) expand.classList.toggle("vc-mode-btn--active", !!box?.classList.contains("vc-diff--expanded"));
+}
+
 let _vcRawDiff = null;
 function _vcShowDiff(title, diffText, raw = null) {
   const box = document.getElementById("vc-diff");
@@ -20194,17 +20387,12 @@ function _vcShowDiff(title, diffText, raw = null) {
     rawBtn.hidden = !_vcRawDiff;
     rawBtn.classList.toggle("vc-mode-btn--active", !!_vcRawDiff?.showingRaw);
   }
-  if (head) head.textContent = title + _vcDiffStats(diffText);
-  if (!diffText.trim()) {
-    body.innerHTML = `<span class="vc-diff-ctx">${_vcEsc(t("vcDiffNone"))}</span>`;
-  } else {
-    body.innerHTML = diffText.split("\n").map(line => {
-      const cls = line.startsWith("@@") ? "vc-diff-hunk"
-        : /^(diff |index |--- |\+\+\+ |new file|deleted file|commit |Author:|Date:)/.test(line) ? "vc-diff-meta"
-        : line.startsWith("+") ? "vc-diff-add" : line.startsWith("-") ? "vc-diff-del" : "vc-diff-ctx";
-      return `<span class="${cls}">${_vcEsc(line) || " "}</span>`;
-    }).join("");
-  }
+  if (head) head.textContent = title;
+  const stats = document.getElementById("vc-diff-stats");
+  if (stats) stats.innerHTML = _vcDiffStatsHtml(diffText);
+  _vcDiffLast = diffText;
+  _vcDiffSyncTools();
+  body.innerHTML = _vcDiffHtml(diffText, _vcDiffSplit, _vcTabFile(_getActiveTab())?.name || "");
   box.hidden = false;
   _vcClampDialog();
   box.scrollIntoView({ block: "nearest" });
@@ -20215,6 +20403,8 @@ function _vcSetOutput(text, isError = false) {
   out.hidden = !text;
   out.textContent = text || "";
   out.classList.toggle("vc-output--error", !!isError);
+  // menüből indított műveletnél (zárt ablak) a visszajelzés toast
+  if (text && !projectSnapshotDialog?.open) showViceToast(text, isError, true);
 }
 async function _vcGit(args, cwd) {
   if (!window.electronAPI?.gitExec) return { ok: false, code: -1, stdout: "", stderr: "git unavailable" };
@@ -20281,6 +20471,8 @@ function _vcSetModeButtons(mode, gitUsable) {
   document.getElementById("vc-git-bar")?.toggleAttribute("hidden", !gitOnly);
   document.getElementById("vc-stage-all-row")?.toggleAttribute("hidden", !gitOnly);
   document.getElementById("vc-changes")?.toggleAttribute("hidden", !gitOnly);
+  document.getElementById("vc-stash")?.toggleAttribute("hidden", !gitOnly);
+  if (!gitOnly) _vcAskClose(false);
 }
 
 // ── Projekt-szintű verziókezelés ──
@@ -20531,7 +20723,6 @@ async function _renderProjectSnapshotHistory() {
   projectSnapshotTabName.textContent = scoped ? tf("vcProjectTitle", { name: scoped.name }) : (tab?.name || t("snapshotCurrentProgram"));
   const mode = await _vcResolveMode(tab);
   _vcSetModeButtons(mode, !!(_vcGitPath && _vcTabFile(tab)));
-  if (scoped) document.getElementById("vc-stage-all-row")?.setAttribute("hidden", "");
   if (projectSnapshotNoteInput) projectSnapshotNoteInput.placeholder = t("snapshotNotePlaceholder");
   if (mode === "git") await _vcRenderGit(tab);
   else await _vcRenderLocal(tab);
@@ -20613,6 +20804,9 @@ async function _vcRenderGit(tab) {
   if (!isRepo) {
     if (statusEl) { statusEl.textContent = st.stderr && /not found/i.test(st.stderr) ? t("vcGitNotFound") : t("vcGitNotRepo"); statusEl.classList.remove("vc-status--dirty"); }
     if (branchEl) branchEl.textContent = "";
+    ["vc-branch-select", "vc-branch-tools", "vc-merge-abort"].forEach(id => document.getElementById(id)?.setAttribute("hidden", ""));
+    const stashEl = document.getElementById("vc-stash");
+    if (stashEl) stashEl.innerHTML = "";
     if (changesEl) changesEl.innerHTML = "";
     projectSnapshotList.innerHTML = "";
     projectSnapshotEmpty.hidden = true;
@@ -20638,19 +20832,35 @@ async function _vcRenderGit(tab) {
     const sync = [info.ahead ? "↑" + info.ahead : "", info.behind ? "↓" + info.behind : ""].filter(Boolean).join(" ");
     branchEl.textContent = "⎇ " + info.branch + (sync ? "  " + sync : "");
   }
+  await _vcRenderBranches(info, file.dir);
+  const merging = (await _vcGit(["rev-parse", "-q", "--verify", "MERGE_HEAD"], file.dir)).ok;
+  document.getElementById("vc-merge-abort")?.toggleAttribute("hidden", !merging);
+  const conflicts = changes.filter(c => _VC_CONFLICT_CODES.has(c.code)).length;
   if (statusEl) {
     const parts = [ctx ? (mine || dirty ? tf("vcGitProjectChanged", { n: mineList.length }) : t("vcClean"))
       : mine || dirty ? tf("vcGitFileChanged", { file: file.name }) : t("vcClean")];
     if (dirty) parts.push(t("vcGitUnsaved"));
+    if (merging) parts.unshift(conflicts ? tf("vcMergeConflictCount", { n: conflicts }) : t("vcMergeInProgress"));
     statusEl.textContent = parts.join(" ");
-    statusEl.classList.toggle("vc-status--dirty", !!(mine || dirty));
+    statusEl.classList.toggle("vc-status--dirty", !!(mine || dirty || merging));
   }
   if (changesEl) {
     changesEl.innerHTML = changes.length
-      ? `<div class="vc-changes-title">${_vcEsc(tf("vcGitChanges", { n: changes.length }))}</div>` + changes.slice(0, 60).map(c =>
-        `<div class="vc-change${(ctx ? mineList.includes(c) : c === mine) ? " vc-change--mine" : ""}"><code class="vc-change-code">${_vcEsc(c.code.replace(/ /g, "·"))}</code> ${_vcEsc(c.path)}</div>`).join("")
+      ? `<div class="vc-changes-title">${_vcEsc(tf("vcGitChanges", { n: changes.length }))}</div>` + changes.slice(0, 200).map(c => {
+        const path = _vcChangePath(c);
+        const conflict = _VC_CONFLICT_CODES.has(c.code);
+        const untracked = c.code === "??";
+        const staged = !untracked && !conflict && c.code[0] !== " ";
+        const unstaged = untracked || conflict || c.code[1] !== " ";
+        const btn = (act, label) => `<button class="vc-row-tool${act === "discard" ? " vc-tool--danger" : ""}" type="button" data-file-act="${act}" data-path="${_vcEsc(path)}" data-code="${_vcEsc(c.code)}" aria-label="${_vcEsc(t(label))}">${_VC_ICONS[label]}</button>`;
+        const cls = (ctx ? mineList.includes(c) : c === mine) ? " vc-change--mine" : "";
+        return `<div class="vc-change${cls}${conflict ? " vc-change--conflict" : ""}"><code class="vc-change-code">${_vcEsc(c.code.replace(/ /g, "·"))}</code>`
+          + `<button class="vc-change-path" type="button" data-file-act="diff" data-path="${_vcEsc(path)}" data-code="${_vcEsc(c.code)}">${_vcEsc(c.path)}</button>`
+          + `<span class="vc-change-acts">${unstaged ? btn("stage", conflict ? "vcFileResolved" : "vcFileStage") : ""}${staged ? btn("unstage", "vcFileUnstage") : ""}${btn("discard", untracked ? "vcFileDelete" : "vcFileDiscard")}</span></div>`;
+      }).join("")
       : "";
   }
+  await _vcRenderStashes(info, file.dir);
   // projekt-módban az egész repó naplója, commitonként a változott fájlokkal
   const log = info.empty ? { ok: true, stdout: "" } : await _vcGit(ctx
     ? ["log", "-n", "60", "--date=iso", "--name-status", "--pretty=format:%x1e%h%x1f%an%x1f%ad%x1f%s%x1f%D"]
@@ -20684,8 +20894,11 @@ async function _openProjectSnapshotDialog() {
   _vcMode = "";
   _vcScope = "";
   _vcSetOutput("");
+  _vcAskClose(false);
   const diff = document.getElementById("vc-diff");
   if (diff) diff.hidden = true;
+  const stageAll = document.getElementById("vc-stage-all");
+  if (stageAll) stageAll.checked = !!_vcProjectScope(_getActiveTab());
   await _renderProjectSnapshotHistory();
   // mentett pozíció (setupDraggableEditorDialogs) a megnyitás előtt, méretre igazítás utána
   projectSnapshotDialog._applyPosition?.();
@@ -20736,8 +20949,10 @@ async function _vcGitCommit(tab, message) {
     await saveProjectToFile();
     if (isDirty()) { _vcSetOutput(t("projectSaveFailed"), true); return false; }
   }
-  const stageAll = !!ctx || document.getElementById("vc-stage-all")?.checked;
-  const add = await _vcGit(stageAll ? ["add", "-A"] : ["add", "--", file.name], file.dir);
+  // „Stage all” nélkül projektben csak a már stage-elt fájlok mennek, egy fájlnál a fül fájlja
+  const stageAll = !!document.getElementById("vc-stage-all")?.checked;
+  const addArgs = stageAll ? ["add", "-A"] : ctx ? null : ["add", "--", file.name];
+  const add = addArgs ? await _vcGit(addArgs, file.dir) : { ok: true };
   if (!add.ok) { _vcSetOutput(tf("vcGitFailed", { cmd: "add" }) + "\n" + add.stderr, true); return false; }
   const res = await _vcGit(["commit", "-m", message], file.dir);
   if (!res.ok) {
@@ -20778,11 +20993,328 @@ async function _restoreProjectSnapshotByIndex(index) {
 async function _restoreLatestProjectSnapshot() {
   const tab = _getActiveTab();
   if (!tab) return false;
-  if (await _vcCurrentMode() === "git") return _vcGitCheckout(tab, "HEAD");
+  if (await _vcCurrentMode() === "git") return _vcGitDiscard(tab);
   const entries = await _vcEntries(tab);
-  if (!entries.length) return false;
+  if (!entries.length) { _vcSetOutput(t("vcNoCommits")); return false; }
   const headIndex = entries.findIndex(entry => entry.kind !== "auto");
   return _restoreProjectSnapshotByIndex(headIndex >= 0 ? headIndex : 0);
+}
+
+function _vcTabsUnder(dir) {
+  const prefix = _normFilePath(dir) + "/";
+  return tabs.filter(tab => _normFilePath(_vcUbFilePath(tab) || tab.filePath || "").startsWith(prefix));
+}
+
+// A fülek tartalma a lemezről (git restore / switch után), tisztán; visszaadja a sikertelenek nevét.
+async function _vcReloadTabsFromDisk(list) {
+  const originId = activeTabId;
+  const failed = [];
+  for (const tab of list) {
+    const full = _vcUbFilePath(tab) || tab.filePath;
+    const res = await window.electronAPI?.readTextFile?.(full);
+    if (!res?.ok || typeof res.content !== "string") { failed.push(tab.name || full); continue; }
+    const content = res.content.replace(/\r\n/g, "\n");
+    if (!_vcTabDirty(tab) && String(_vcTabText(tab, full)).replace(/\r\n/g, "\n") === content) continue;
+    if (tab.id !== activeTabId) _tabActivate(tab.id);
+    if (!await _vcApplyText(tab, content)) { failed.push(tab.name || full); continue; }
+    if (_vcIsUbTab(tab)) { _ubDirty = false; tab.ubText = content; }
+    tab.dirty = false;
+    _clearProjectSnapshotTimer(tab.id);
+  }
+  if (activeTabId !== originId && tabs.some(tab => tab.id === originId)) _tabActivate(originId);
+  renderTabBar();
+  if (expertMode) _expertRenderProjectTree();
+  if (ultimateBasicMode) _ubRenderProjectFiles();
+  return failed;
+}
+
+// Git „Változások elvetése”: a követett fájlok a lemezen is a HEAD-re állnak (git restore), a fülek onnan töltődnek újra.
+async function _vcGitDiscard(tab) {
+  const file = _vcTabFile(tab);
+  if (!file) return false;
+  const ctx = _vcProjectScope(tab);
+  const cwd = ctx ? ctx.dir : file.dir;
+  if (!await _vcGitRoot(cwd)) { _vcSetOutput(t("vcGitNotRepo"), true); return false; }
+  const pathspec = ctx ? "." : file.name;
+  const st = await _vcGit(["status", "--porcelain=v1", "--untracked-files=no", "--", pathspec], cwd);
+  if (!st.ok) { _vcSetOutput(st.stderr || tf("vcGitFailed", { cmd: "status" }), true); return false; }
+  const changed = st.stdout.split(/\r?\n/).filter(Boolean).length;
+  const scopeTabs = ctx ? _vcTabsUnder(ctx.dir) : [tab];
+  const dirty = scopeTabs.filter(_vcTabDirty).length;
+  if (!changed && !dirty) { _vcSetOutput(t("vcGitNothingToDiscard")); return false; }
+  if (!await _showConfirm(tf("vcGitDiscardConfirm", { n: Math.max(changed, dirty) }))) return false;
+  if (changed) {
+    const res = await _vcGit(["restore", "--staged", "--worktree", "--source=HEAD", "--", pathspec], cwd);
+    if (!res.ok) { _vcSetOutput((res.stdout + "\n" + res.stderr).trim() || tf("vcGitFailed", { cmd: "restore" }), true); return false; }
+  }
+  const failed = await _vcReloadTabsFromDisk(scopeTabs);
+  const lines = [tf("vcGitDiscarded", { n: Math.max(changed, dirty) })];
+  if (failed.length) lines.push(tf("vcGitReloadFailed", { files: failed.join(", ") }));
+  _vcSetOutput(lines.join("\n"), failed.length > 0);
+  if (projectSnapshotDialog?.open) await _renderProjectSnapshotHistory();
+  return true;
+}
+
+async function _vcGitSwitch(branch) {
+  const tab = _getActiveTab();
+  const file = _vcTabFile(tab);
+  if (!file || !branch || branch === _vcGitState?.branch) return;
+  const root = await _vcGitRoot(file.dir);
+  if (!root) return;
+  const open = _vcTabsUnder(root);
+  if (open.some(_vcTabDirty)) {
+    _vcSetOutput(t("vcGitSwitchUnsaved"), true);
+    await _renderProjectSnapshotHistory();
+    return;
+  }
+  _vcSetOutput(tf("vcGitRunning", { cmd: "switch" }));
+  const res = await _vcGit(["switch", branch], file.dir);
+  if (!res.ok) {
+    _vcSetOutput((res.stdout + "\n" + res.stderr).trim() || tf("vcGitFailed", { cmd: "switch" }), true);
+    await _renderProjectSnapshotHistory();
+    return;
+  }
+  const failed = await _vcReloadTabsFromDisk(open);
+  const lines = [tf("vcGitSwitched", { branch })];
+  if (failed.length) lines.push(tf("vcGitReloadFailed", { files: failed.join(", ") }));
+  _vcSetOutput(lines.join("\n"), failed.length > 0);
+  await _renderProjectSnapshotHistory();
+}
+
+async function _vcRenderBranches(info, cwd) {
+  const select = document.getElementById("vc-branch-select");
+  if (!select) return;
+  const names = info.empty ? [] : await _vcGitBranches(cwd);
+  if (!names.includes(info.branch)) names.unshift(info.branch);
+  select.innerHTML = names.map(name => `<option value="${_vcEsc(name)}">${_vcEsc(name)}</option>`).join("");
+  select.value = info.branch;
+  select.hidden = !!info.empty;
+  document.getElementById("vc-branch-tools")?.toggleAttribute("hidden", !!info.empty);
+  const single = names.filter(name => name !== info.branch).length === 0;
+  ["vc-branch-delete", "vc-branch-merge"].forEach(id => { const b = document.getElementById(id); if (b) b.disabled = single; });
+  const renameBtn = document.getElementById("vc-branch-rename");
+  if (renameBtn) renameBtn.disabled = info.branch === "HEAD";
+}
+
+// ── Git: ágak, merge, stash, fájlonkénti műveletek ──
+const _VC_CONFLICT_CODES = new Set(["DD", "AU", "UD", "UA", "DU", "AA", "UU"]);
+// Sor-gombok ikonjai (a fordítási kulcs szerint)
+const _VC_ICONS = (() => {
+  const svg = (d) => `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+  const trash = svg('<path d="M2.5 4h11M6 4V2.5h4V4"/><path d="M4 4l.7 9.5h6.6L12 4"/>');
+  return {
+    vcFileStage: svg('<path d="M8 3v10M3 8h10"/>'),
+    vcFileUnstage: svg('<path d="M3 8h10"/>'),
+    vcFileResolved: svg('<path d="M3 8.5l3 3 7-7"/>'),
+    vcFileDiscard: svg('<path d="M3.5 6.5h6.5a3.5 3.5 0 0 1 0 7H6"/><path d="M6 3.5l-3 3 3 3"/>'),
+    vcFileDelete: trash,
+    vcStashApply: svg('<path d="M8 2v7.5M5 6.5l3 3 3-3"/><path d="M2.5 10.5v3h11v-3"/>'),
+    vcStashPop: svg('<path d="M8 10V2.5M5 5.5l3-3 3 3"/><path d="M2.5 10.5v3h11v-3"/>'),
+    vcStashDrop: trash,
+  };
+})();
+let _vcAskResolve = null;
+
+function _vcChangePath(change) {
+  return change.path.replace(/^.* -> /, "").replace(/^"|"$/g, "");
+}
+async function _vcGitBranches(cwd) {
+  const res = await _vcGit(["branch", "--format=%(refname:short)"], cwd);
+  return res.ok ? res.stdout.split(/\r?\n/).map(s => s.trim()).filter(Boolean) : [];
+}
+function _vcBranchNameOk(name) {
+  return !!name && !name.startsWith("-") && !name.endsWith(".lock") && !name.endsWith("/")
+    && !/[\s~^:?*[\\\x00-\x1f\x7f]|\.\.|@\{|\/\/|^\/|\/\./.test(name);
+}
+function _vcGitOut(res, label) {
+  return (res.stdout + "\n" + res.stderr).trim() || tf(res.ok ? "vcGitDone" : "vcGitFailed", { cmd: label });
+}
+async function _vcGitConflicts(root) {
+  const res = await _vcGit(["diff", "--name-only", "--diff-filter=U"], root);
+  return res.ok ? res.stdout.split(/\r?\n/).filter(Boolean) : [];
+}
+// Az aktív fül repója; a repóban nyitott fülekkel
+async function _vcGitCtx() {
+  const file = _vcTabFile(_getActiveTab());
+  if (!file) return null;
+  const root = await _vcGitRoot(file.dir);
+  if (!root) { _vcSetOutput(t("vcGitNotRepo"), true); return null; }
+  return { file, root, open: _vcTabsUnder(root) };
+}
+function _vcRefuseDirty(g) {
+  if (!g.open.some(_vcTabDirty)) return false;
+  _vcSetOutput(t("vcGitSaveFirst"), true);
+  return true;
+}
+// Műveletek utáni közös rész: fülek újratöltése, ütközések, kimenet, frissítés
+async function _vcGitFinish(g, res, label, okText = "") {
+  const failed = await _vcReloadTabsFromDisk(g.open);
+  const conflicts = await _vcGitConflicts(g.root);
+  const lines = [conflicts.length ? tf("vcMergeConflicts", { n: conflicts.length, files: conflicts.join("\n") })
+    : res.ok && okText ? okText : _vcGitOut(res, label)];
+  if (failed.length) lines.push(tf("vcGitReloadFailed", { files: failed.join(", ") }));
+  _vcSetOutput(lines.join("\n"), !res.ok || conflicts.length > 0 || failed.length > 0);
+  await _renderProjectSnapshotHistory();
+}
+
+// Beépített kérdező sor a Verziókezelés ablakban (szöveg vagy lista)
+function _vcAsk(label, { value = "", options = null } = {}) {
+  const box = document.getElementById("vc-ask");
+  const input = document.getElementById("vc-ask-input");
+  const select = document.getElementById("vc-ask-select");
+  if (!box || !input || !select) return Promise.resolve(null);
+  _vcAskClose(false);
+  document.getElementById("vc-ask-label").textContent = label;
+  input.hidden = !!options;
+  select.hidden = !options;
+  if (options) select.innerHTML = options.map(o => `<option value="${_vcEsc(o)}">${_vcEsc(o)}</option>`).join("");
+  else input.value = value;
+  box.hidden = false;
+  _vcClampDialog();
+  setTimeout(() => { const el = options ? select : input; el.focus(); if (!options) input.select(); }, 0);
+  return new Promise(resolve => { _vcAskResolve = resolve; });
+}
+function _vcAskClose(ok) {
+  const box = document.getElementById("vc-ask");
+  if (!box || box.hidden) return;
+  const select = document.getElementById("vc-ask-select");
+  const value = !ok ? null : !select.hidden ? select.value : document.getElementById("vc-ask-input").value.trim();
+  box.hidden = true;
+  const resolve = _vcAskResolve;
+  _vcAskResolve = null;
+  resolve?.(value);
+}
+
+async function _vcBranchNew() {
+  const g = await _vcGitCtx();
+  if (!g) return;
+  const name = await _vcAsk(t("vcBranchNewName"));
+  if (name === null) return;
+  if (!_vcBranchNameOk(name)) { _vcSetOutput(t("vcBranchBadName"), true); return; }
+  const res = await _vcGit(["switch", "-c", name], g.root);
+  _vcSetOutput(res.ok ? tf("vcGitSwitched", { branch: name }) : _vcGitOut(res, "switch -c"), !res.ok);
+  await _renderProjectSnapshotHistory();
+}
+
+async function _vcBranchRename() {
+  const g = await _vcGitCtx();
+  const current = _vcGitState?.branch;
+  if (!g || !current || current === "HEAD") return;
+  const name = await _vcAsk(tf("vcBranchRenameTo", { branch: current }), { value: current });
+  if (name === null || name === current) return;
+  if (!_vcBranchNameOk(name)) { _vcSetOutput(t("vcBranchBadName"), true); return; }
+  const res = await _vcGit(["branch", "-m", current, name], g.root);
+  _vcSetOutput(res.ok ? tf("vcBranchRenamed", { from: current, to: name }) : _vcGitOut(res, "branch -m"), !res.ok);
+  await _renderProjectSnapshotHistory();
+}
+
+async function _vcBranchDelete() {
+  const g = await _vcGitCtx();
+  if (!g) return;
+  const others = (await _vcGitBranches(g.root)).filter(name => name !== _vcGitState?.branch);
+  if (!others.length) return;
+  const name = await _vcAsk(t("vcBranchDeleteWhich"), { options: others });
+  if (!name || !await _showConfirm(tf("vcBranchDeleteConfirm", { branch: name }))) return;
+  let res = await _vcGit(["branch", "-d", name], g.root);
+  if (!res.ok && /not fully merged/i.test(res.stderr)) {
+    if (!await _showConfirm(tf("vcBranchForceDelete", { branch: name }))) return;
+    res = await _vcGit(["branch", "-D", name], g.root);
+  }
+  _vcSetOutput(res.ok ? tf("vcBranchDeleted", { branch: name }) : _vcGitOut(res, "branch -d"), !res.ok);
+  await _renderProjectSnapshotHistory();
+}
+
+async function _vcBranchMerge() {
+  const g = await _vcGitCtx();
+  if (!g || _vcRefuseDirty(g)) return;
+  const current = _vcGitState?.branch || "HEAD";
+  const others = (await _vcGitBranches(g.root)).filter(name => name !== current);
+  if (!others.length) return;
+  const name = await _vcAsk(tf("vcBranchMergeWhich", { branch: current }), { options: others });
+  if (!name) return;
+  _vcSetOutput(tf("vcGitRunning", { cmd: "merge" }));
+  const res = await _vcGit(["merge", "--no-edit", name], g.root);
+  await _vcGitFinish(g, res, "merge");
+}
+
+async function _vcMergeAbort() {
+  const g = await _vcGitCtx();
+  if (!g || !await _showConfirm(t("vcMergeAbortConfirm"))) return;
+  const res = await _vcGit(["merge", "--abort"], g.root);
+  await _vcGitFinish(g, res, "merge --abort", t("vcMergeAborted"));
+}
+
+async function _vcStashSave() {
+  const g = await _vcGitCtx();
+  if (!g || _vcRefuseDirty(g)) return;
+  const message = await _vcAsk(t("vcStashMessage"));
+  if (message === null) return;
+  const res = await _vcGit(message ? ["stash", "push", "-m", message] : ["stash", "push"], g.root);
+  await _vcGitFinish(g, res, "stash");
+}
+
+async function _vcStashAction(act, ref) {
+  const g = await _vcGitCtx();
+  if (!g || !/^stash@\{\d+\}$/.test(ref)) return;
+  if (act === "drop") {
+    if (!await _showConfirm(tf("vcStashDropConfirm", { name: ref }))) return;
+  } else if (_vcRefuseDirty(g)) return;
+  const res = await _vcGit(["stash", act, ref], g.root);
+  await _vcGitFinish(g, res, "stash " + act);
+}
+
+async function _vcRenderStashes(info, cwd) {
+  const box = document.getElementById("vc-stash");
+  if (!box) return;
+  const res = info.empty ? null : await _vcGit(["stash", "list", "--format=%gd%x1f%s%x1f%cr"], cwd);
+  const rows = res?.ok ? res.stdout.split(/\r?\n/).filter(Boolean).map(line => line.split("\x1f")) : [];
+  box.innerHTML = rows.length
+    ? `<div class="vc-changes-title">${_vcEsc(tf("vcStashTitle", { n: rows.length }))}</div>` + rows.map(([ref, subject, when]) => {
+      const btn = (act, label) => `<button class="vc-row-tool${act === "drop" ? " vc-tool--danger" : ""}" type="button" data-stash-act="${act}" data-ref="${_vcEsc(ref)}" aria-label="${_vcEsc(t(label))}">${_VC_ICONS[label]}</button>`;
+      return `<div class="vc-change"><code class="vc-change-code">${_vcEsc(ref)}</code><span class="vc-change-path">${_vcEsc(subject)} · ${_vcEsc(when)}</span>`
+        + `<span class="vc-change-acts">${btn("apply", "vcStashApply")}${btn("pop", "vcStashPop")}${btn("drop", "vcStashDrop")}</span></div>`;
+    }).join("")
+    : "";
+}
+
+// Változáslista: diff (névre kattintva), stage / unstage, elvetés / törlés fájlonként
+async function _vcFileAction(e) {
+  const btn = e.target.closest("button[data-file-act]");
+  if (!btn) return;
+  const g = await _vcGitCtx();
+  if (!g) return;
+  const path = btn.dataset.path;
+  const code = btn.dataset.code || "";
+  const spec = ":(literal)" + path;
+  const abs = _vcJoinPath(g.root, path);
+  const act = btn.dataset.fileAct;
+  if (act === "diff") {
+    const raw = await _vcGit(code === "??" ? ["status", "--short", "--", spec] : ["diff", "HEAD", "--", spec], g.root);
+    if (!_VC_PROJECT_TEXT_RE.test(path)) { _vcShowDiff(path, raw.ok ? raw.stdout : _vcGitOut(raw, "diff")); return; }
+    const head = code === "??" ? { ok: false } : await _vcGit(["show", `HEAD:${path}`], g.root);
+    const disk = await window.electronAPI?.readTextFile?.(abs);
+    const before = head.ok ? { [path]: head.stdout.replace(/\r\n/g, "\n") } : {};
+    const after = disk?.ok && typeof disk.content === "string" ? { [path]: disk.content.replace(/\r\n/g, "\n") } : {};
+    _vcShowDiff(path, _vcProjectDiff(before, after) || t("vcProjectNoChanges"), raw.ok ? raw.stdout : "");
+    return;
+  }
+  let res;
+  if (act === "stage") res = await _vcGit(["add", "--", spec], g.root);
+  else if (act === "unstage") res = await _vcGit(["restore", "--staged", "--", spec], g.root);
+  else if (act === "discard") {
+    const untracked = code === "??";
+    if (!await _showConfirm(tf(untracked ? "vcFileDeleteConfirm" : "vcFileDiscardConfirm", { file: path }))) return;
+    res = untracked
+      ? await _vcGit(["clean", "-f", "--", spec], g.root)
+      : await _vcGit(["restore", "--staged", "--worktree", "--source=HEAD", "--", spec], g.root);
+    if (res.ok) {
+      const norm = _normFilePath(abs);
+      const failed = await _vcReloadTabsFromDisk(g.open.filter(tab => _normFilePath(_vcUbFilePath(tab) || tab.filePath) === norm));
+      if (failed.length && !untracked) { _vcSetOutput(tf("vcGitReloadFailed", { files: failed.join(", ") }), true); await _renderProjectSnapshotHistory(); return; }
+    }
+  } else return;
+  _vcSetOutput(res.ok ? "" : _vcGitOut(res, act), !res.ok);
+  await _renderProjectSnapshotHistory();
 }
 
 async function _vcGitCheckout(tab, rev) {
@@ -20922,6 +21454,18 @@ function setupVersionControl() {
   projectSnapshotList?.addEventListener("click", _vcListAction);
   document.getElementById("vc-diff-working")?.addEventListener("click", _vcDiffWorking);
   document.getElementById("vc-diff-close")?.addEventListener("click", () => { const d = document.getElementById("vc-diff"); if (d) d.hidden = true; });
+  document.getElementById("vc-diff-split")?.addEventListener("click", () => {
+    _vcDiffSplit = !_vcDiffSplit;
+    try { localStorage.setItem("c64va-vc-diff-split", _vcDiffSplit ? "1" : "0"); } catch { /* nincs tároló */ }
+    _vcDiffSyncTools();
+    const body = document.getElementById("vc-diff-body");
+    if (body) body.innerHTML = _vcDiffHtml(_vcDiffLast, _vcDiffSplit, _vcTabFile(_getActiveTab())?.name || "");
+  });
+  document.getElementById("vc-diff-expand")?.addEventListener("click", () => {
+    document.getElementById("vc-diff")?.classList.toggle("vc-diff--expanded");
+    _vcDiffSyncTools();
+    _vcClampDialog();
+  });
   document.getElementById("vc-diff-raw")?.addEventListener("click", () => {
     if (!_vcRawDiff) return;
     _vcRawDiff.showingRaw = !_vcRawDiff.showingRaw;
@@ -20934,6 +21478,25 @@ function setupVersionControl() {
   document.getElementById("vc-git-refresh")?.addEventListener("click", () => { _vcSetOutput(""); _renderProjectSnapshotHistory(); });
   document.getElementById("vc-git-pull")?.addEventListener("click", () => _vcGitSimple(["pull", "--ff-only"], "pull"));
   document.getElementById("vc-git-push")?.addEventListener("click", () => _vcGitSimple(["push"], "push"));
+  document.getElementById("vc-branch-select")?.addEventListener("change", (e) => _vcGitSwitch(e.target.value));
+  document.getElementById("vc-branch-new")?.addEventListener("click", _vcBranchNew);
+  document.getElementById("vc-branch-rename")?.addEventListener("click", _vcBranchRename);
+  document.getElementById("vc-branch-delete")?.addEventListener("click", _vcBranchDelete);
+  document.getElementById("vc-branch-merge")?.addEventListener("click", _vcBranchMerge);
+  document.getElementById("vc-merge-abort")?.addEventListener("click", _vcMergeAbort);
+  document.getElementById("vc-stash-save")?.addEventListener("click", _vcStashSave);
+  document.getElementById("vc-changes")?.addEventListener("click", _vcFileAction);
+  document.getElementById("vc-stash")?.addEventListener("click", (e) => {
+    const btn = e.target.closest("button[data-stash-act]");
+    if (btn) _vcStashAction(btn.dataset.stashAct, btn.dataset.ref);
+  });
+  document.getElementById("vc-ask-ok")?.addEventListener("click", () => _vcAskClose(true));
+  document.getElementById("vc-ask-cancel")?.addEventListener("click", () => _vcAskClose(false));
+  ["vc-ask-input", "vc-ask-select"].forEach(id => document.getElementById(id)?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") { e.preventDefault(); _vcAskClose(true); }
+    else if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); _vcAskClose(false); }
+  }));
+  projectSnapshotDialog?.addEventListener("close", () => _vcAskClose(false));
   document.getElementById("vc-git-init")?.addEventListener("click", async () => {
     if (!await _showConfirm(t("vcGitInitConfirm"))) return;
     _vcMode = "git";
@@ -25511,6 +26074,11 @@ function _kickEval(src, scope) {
       throw new Error(`Operator ${op} is not defined for these values: ${src}`);
     }
     if (typeof a === "string" || typeof b === "string") {
+      // char ('1' = kód) vs. egykarakteres sztring (s.charAt(i)): a Kickben mindkettő char
+      const ch = (v) => (typeof v === "string" && v.length === 1 ? v.charCodeAt(0) : v);
+      if ((op === "==" || op === "!=") && typeof ch(a) === "number" && typeof ch(b) === "number" && typeof a !== typeof b) {
+        return op === "==" ? ch(a) === ch(b) : ch(a) !== ch(b);
+      }
       if (op === "+") return String(a) + String(b);
       if (op === "==") return a === b;
       if (op === "!=") return a !== b;
@@ -27010,8 +27578,11 @@ function _kickEmit(items, root, constValues, consts, errors, constOf, rootLs = _
     }
     const v = ev(operand);
     if (_KICK_BRANCHES.has(mnem)) {
-      if (!_kickIsSym(v) && pc !== null) {
-        const rel = Math.trunc(v) - pc;
+      // a később definiált .pseudopc címke ismert cím ({ label: "$hhhh" }): az ág ugyanúgy a logikai PC-hez képest relatív
+      const target = !_kickIsSym(v) ? v
+        : v.text === undefined && /^\$[0-9a-f]+$/i.test(v.label || "") ? parseInt(v.label.slice(1), 16) + (v.off || 0) : null;
+      if (target !== null && pc !== null) {
+        const rel = Math.trunc(target) - pc;
         return { lines: [`${mnem} *${rel >= 0 ? "+" : "-"}${Math.abs(rel)}`], size: 2 };
       }
       return { lines: [`${mnem} ${valueText(v, 4)}`], size: 2 };
@@ -27381,9 +27952,55 @@ function _kickSameTree(a, b) {
   return true;
 }
 
-async function _kickPrepare() {
+// A forrásfa szövegfájljai (#import / .import source), kisbetűs normalizált úttal
+async function _kickTreeSources(entry) {
+  const seen = new Set();
+  const queue = [_kickNormPath(entry)];
+  while (queue.length) {
+    const path = queue.shift();
+    if (seen.has(_normFilePath(path))) continue;
+    seen.add(_normFilePath(path));
+    let text = _kickOpenText(path);
+    if (text === null) {
+      const res = await window.electronAPI?.readTextFile?.(path);
+      text = res?.ok ? res.content : null;
+    }
+    if (text === null) continue;
+    for (const m of String(text).matchAll(/^[^\S\r\n]*(?:!?[A-Za-z_]\w*:\s*)?(?:#import|\.import\s+(source|binary|c64|text))\s+"([^"]+)"/gim)) {
+      if (!m[1] || m[1].toLowerCase() === "source") queue.push(_kickResolvePath(path, m[2]));
+    }
+  }
+  return seen;
+}
+
+// Az élő ellenőrzés (hibák, ciklus-gutter, tippek) gyökere: az indítófájl, ha a nyitott fájl az ő fájában van;
+// különben a projekt azon forrása, amelynek a fája tartalmazza (a legnagyobb). Futtatás / build mindig az indítófájl.
+const _kickCheckEntryCache = new Map();
+async function _kickCheckEntry() {
+  const startup = _kickNormPath(_projResolveAbsPath(_expertProjectData.startupFile));
+  const active = _normFilePath(tabs.find(t => t.id === activeTabId)?.filePath || "");
+  if (!active || active === _normFilePath(startup)) return startup;
+  const cached = _kickCheckEntryCache.get(active);
+  if (cached) return cached;
+  const size = async (entry) => { const tree = await _kickTreeSources(entry); return tree.has(active) ? tree.size : 0; };
+  let best = startup;
+  let bestSize = await size(startup);
+  if (!bestSize) {
+    const sources = _vcFlattenProjFiles(_expertProjectData.files)
+      .map(path => _kickNormPath(_projResolveAbsPath(path)))
+      .filter(path => /\.(asm|s|a65|inc)$/i.test(path) && _normFilePath(path) !== _normFilePath(startup));
+    for (const path of sources) {
+      const n = await size(path);
+      if (n > bestSize) { best = path; bestSize = n; }
+    }
+  }
+  _kickCheckEntryCache.set(active, best);
+  return best;
+}
+
+async function _kickPrepare(entryPath = null) {
   if (!_kickProjectActive()) return null;
-  const entry = _kickNormPath(_projResolveAbsPath(_expertProjectData.startupFile));
+  const entry = _kickNormPath(entryPath || _projResolveAbsPath(_expertProjectData.startupFile));
   setWorkStep("stepKickRead", { file: _workStepName(entry) });
   const { texts, bins, pictures } = await _kickReadTree(entry);
   const options = JSON.stringify([entry, _expertProjectData.kickDefines || [], _expertProjectData.kickVars || {}]);
@@ -27769,8 +28386,13 @@ function _kickScheduleCheck() {
   clearTimeout(_expertParseTimer);
   _expertParseTimer = setTimeout(async () => {
     const tabId = activeTabId;
-    const kick = await _kickPrepare();
+    const kick = _kickProjectActive() ? await _kickPrepare(await _kickCheckEntry()) : null;
     if (!kick || tabId !== activeTabId) return;
+    // az import megszűnt: a következő ellenőrzés újra keresi a gyökeret
+    const activeNorm = _normFilePath(tabs.find(t => t.id === activeTabId)?.filePath || "");
+    if (kick.ok && activeNorm && _kickCheckEntryCache.has(activeNorm) && !kick.origins.some(o => _normFilePath(o?.file) === activeNorm)
+      && !(await _kickTreeSources(kick.entry)).has(activeNorm)) _kickCheckEntryCache.delete(activeNorm);
+    if (tabId !== activeTabId) return;
     let errors = kick.errors;
     let bytes = 0;
     if (kick.ok) {
@@ -30385,13 +31007,13 @@ async function copyAsmToClipboard() {
 }
 
 let _viceToastTimer = null;
-function showViceToast(fileName, isError = false) {
+function showViceToast(fileName, isError = false, plain = false) {
   const toast = document.getElementById("vice-toast");
   const text = document.getElementById("vice-toast-text");
   if (!toast || !text) return;
   const icon = toast.querySelector(".vice-toast-icon");
-  if (icon) icon.textContent = isError ? "✕" : "▶";
-  text.textContent = isError ? fileName : `${t("viceRunning")} — ${fileName}`;
+  if (icon) icon.textContent = isError ? "✕" : plain ? "✓" : "▶";
+  text.textContent = isError || plain ? fileName : `${t("viceRunning")} — ${fileName}`;
   toast.dataset.error = isError ? "1" : "";
   toast.hidden = false;
   if (_viceToastTimer) clearTimeout(_viceToastTimer);
@@ -58534,13 +59156,13 @@ function _tgRenderParams() {
       span.textContent = t(meta.key);
       field.append(box, span);
     } else {
-      field.className = "cg-field";
+      field.className = "cg-field tg-num-field";
       const span = document.createElement("span");
       span.className = "cg-lbl";
       span.textContent = t(meta.key);
       const input = document.createElement("input");
       input.type = "text";
-      input.className = "cg-text-in";
+      input.className = "cg-text-in tg-num-in";
       input.spellcheck = false;
       input.value = meta.hex ? "$" + p[name].toString(16).toUpperCase().padStart(4, "0") : String(p[name]);
       input.addEventListener("input", () => {

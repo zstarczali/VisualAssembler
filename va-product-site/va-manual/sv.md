@@ -1,6 +1,6 @@
 # C64 Visuell Assembler — Användarmanual
 
-**Version 2.6.7**
+**Version 2.6.8**
 
 En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom att
 dra och släppa instruktionsblock och se den genererade assemblern och
@@ -10,6 +10,7 @@ maskinkoden i realtid.
 
 ## Innehållsförteckning
 
+- [Höjdpunkter i version 2.6.8](#version-268-highlights)
 - [Höjdpunkter i version 2.6.7](#version-267-highlights)
 - [Höjdpunkter i version 2.6.6](#version-266-highlights)
 - [Höjdpunkter i version 2.6.5](#version-265-highlights)
@@ -238,6 +239,35 @@ maskinkoden i realtid.
   - [Nummeromvandlare](#number-converter)
 
 ---
+
+## Höjdpunkter i version 2.6.8
+
+- **Verktygslåda i expert- och UB-läge** — verktygsfältsknappen *Verktygslåda*
+  visar C64-paletten och PETSCII-koderna bredvid editorn: i expertläge som en
+  sidopanel bredvid Demontering / Övervakning, i UB-läge i den högra panelen
+  (den turas om med Demontering och Övervakning).
+- **Paneler sparade** — panelerna Monitor och Toolkit i expertläget kan ändras i
+  storlek precis som vid demontering; panelerna du lämnar öppna (Palett,
+  Demontering, Monitor, Toolkit, Projekt) och deras bredder återställs vid nästa
+  start, oavsett vilket läge appen startas i — även i UB-läget.
+- **VMA-språk** — en `.const` eller `.var` på nollsidan gör `lda zp` till en
+  instruktion på nollsidan (`A5 FB`, som KickAssembler gör; `lda.abs zp`
+  behåller absolut); `JMP (etikett)` / `JMP (tabell+2)`; uttryck som `lda
+  $1234+1` och `sta $0400+40*2,x`; ett makro kan anropa ett annat makro;
+  etiketter i byte av `.data` / `.rawbytes` (pektabeller); en `:name`-etikett
+  kan peka på en etikett.
+- **Includes** — en inkluderad fils egna rader `.include`, `.incbin` och `.sid`
+  laddas (relativt till dess mapp) och dess makroanrop expanderas; en saknad
+  include, eller en som inkluderar sig själv, är ett fel istället för ett tomt
+  bibliotek.
+- **Säkrare byggen** — fel istället för tyst felaktig kod: ett olöst TURBO_SET /
+  SPRITE_ANIM-värde, en MEMCPY / MEMSET / JOYSTICK-storlek tagen från en etikett
+  som definieras senare; den automatiska bufferten för ett `.data` / `.rawbytes`
+  makroargument tar dess byte. Program som använder nollsidiga konstanter blir
+  kortare.
+- **Åtgärdar** — en CRT större än 8 KB (mer än en bank) startade inte: laddaren
+  körs nu från RAM; ett `.asm`-namn som anges i dialogrutan Spara för ett
+  projekt sparar källtexten, inte VA JSON.
 
 ## Höjdpunkter i version 2.6.7
 
@@ -1167,6 +1197,12 @@ version som körs:
 
 Efter nedladdningen installerar appen uppdateringen och startar om:
 
+I **Expertläge** och **UltimateBasic-läge** öppnas samma verktygslåda från
+verktygsfältsknappen **Toolkit**: i expertläge som en sidopanel bredvid
+Demontering / Övervaka (dra avdelaren till vänster för att ändra storlek), i
+UB-läge i den högra panelen, där den turas om att Demontera och Övervaka. Om den
+är öppen och dess bredd sparas.
+
 ### Kompilera information och utdatainställningar
 
 - **Kompileringsinfo** (ovanför utdata) visar en sammanfattning av det
@@ -1906,8 +1942,9 @@ expertläget. Det erbjuder:
   använder engelska för allt som ännu inte översatts;
 - oberoende växlingsbara paneler för **Projekt** och **Kommandon**, som visas
   sida vid sida när båda är aktiverade;
-- oberoende växlingsbara och storleksändrbara paneler **Bygg, utgång ** och
-  **Demontering **.
+- Oberoende växlingsbara och storleksändrbara paneler **Bygg, utdata ** och
+  **Demontering **; **Demontering **, **Skärm ** och **Verktygslåda ** delar den
+  högra rutan (en i taget). Vilken som är öppen och rutans bredd sparas.
 
 Panelen Demontering innehåller en **Kopiera**-knapp som kopierar hela den visade
 källan till urklipp. Kommandohjälpen följer den medföljande kompilatorn: till
@@ -2103,26 +2140,30 @@ visas på varje block.
 
 ### Lokala (prickade) etiketter
 
-| Knapp                                  | ID                                                | Fungera                                                                                                                                                                                                                            |
-| -------------------------------------- | ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Format**                             | `#expert-format-btn`                              | Autoformatera källa (etiketter till kolumn 0, 4-mellanslags indent, 1-mellanslags mnemonisk/operand)                                                                                                                               |
-| **Ladda .asm**                         | `#expert-load-asm-btn`                            | Öppna en `.asm`-fil — innehållet laddas till en **ny flik** med filnamnet som fliketikett. Varje laddad fil blir en oberoende flik med sina egna programblock och redigeringsstatus.                                               |
-| **Spara .asm**                         | `#expert-save-asm-btn`                            | Spara redigeringsinnehåll till en `.asm`-fil (fildialogruta vid första sparningen)                                                                                                                                                 |
-| **Bygginformation**                    | `#expert-bygg-info-btn`                           | Öppna dialogrutan Bygginfo: ursprung, slut, storlek och segmentantal överst, sedan segmenten, felen (`fil:rad` i ett Kick-projekt) och `.print` utdata, och etiketterna, konstanterna och makrona i kolumnerna.                    |
-| **Autokomplettera**                    | `#expert-autocomplete-btn`                        | Aktivera/avaktivera expertförslag för autoslutförande. När det är inaktiverat visas inga direktiv, mnemonik eller etikettfönster i expertredigeraren.                                                                              |
-| **Regionsval**                         | `#expert-region-val-btn`                          | Aktivera automatisk markering av regioner i expertläge. Vikningsläget förblir lagrat, men när det är avstängt håller redigeraren hela källan synlig och väljer inte automatiskt den aktuella regionen.                             |
-| **Komprimera/expandera alla regioner** | `#expert-region-vik-alla-btn`                     | Vik eller vik ut varje `.region`-block med ett enda klick. Om någon region är öppen komprimeras alla; om alla regioner redan är komprimerade expanderas alla med nästa klick. Knappen lyser upp när alla regioner är komprimerade. |
-| ** Radnummer **                        | `#expert-linjenummer-btn`                         | Aktivera radnummermarginalen på vänster sida av redigeraren. Mellanmarginalen är synkroniserad med rullningspositionen och uppdateras live medan du skriver.                                                                       |
-| **Hitta**                              | `#expert-hitta-btn`                               | Öppna den flytande sökfältet (`Ctrl+F`). Skriv för att söka; träffar markeras i överlägget. `Enter` / `Shift+Enter` navigerar mellan träffar. `Escape` stänger fältet.                                                             |
-| **Zooma ut/in**                        | `#expert-zoom-ut-knapp` / `#expert-zoom-in-knapp` | Minska/öka redigerarens teckenstorlek (8–28 px). `Ctrl` + mushjul (`Cmd` + hjul på macOS, eller nyp med pekplattan) över redigeraren gör detsamma. Inställningen sparas.                                                           |
-| **Palett**                             | `#expert-palett-btn`                              | Visa/dölj den vänstra mnemoniska paletten                                                                                                                                                                                          |
-| **Diasm**                              | `#expert-disasm-btn`                              | Visa/dölj demonteringspanelen (pure 6502, makron expanderade)                                                                                                                                                                      |
-| **Skärm**                              | `#expert-monitor-btn`                             | Visa/dölj skärmens hex-dump-panel                                                                                                                                                                                                  |
-| **Minikarta**                          | `#expert-minimap-btn`                             | Visa/dölj kodminimap-remsan på höger sida av redigeraren                                                                                                                                                                           |
-| **Projektpanel**                       | `#expert-projekt-btn`                             | Visa/dölj projektpanelen (filer, symboler, projektinställningar)                                                                                                                                                                   |
-| **Cykelräkningar**                     | `#expertcykler-btn`                               | Visa/dölj cykelrännan — se [Cykelräkningar](#cycle-counts)                                                                                                                                                                         |
-| **Gå till rad / Bokmärken**            | `#expert-goto-line-btn`, `#expert-bokmärke-*`     | Ctrl+G hoppar till en rad; Ctrl+F2 växlar mellan bokmärken, F2/Shift+F2 går till nästa/föregående rad                                                                                                                              |
-| **Bygg ACME**                          | `#expert-acme-build-btn`                          | I ACME-läge: bygg källkoden med ACME — se [ACME-läge](#acme-mode)                                                                                                                                                                  |
+| Knapp                                  | ID                                                | Fungera                                                                                                                                                                                                                                                        |
+| -------------------------------------- | ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Format**                             | `#expert-format-btn`                              | Autoformatera källa (etiketter till kolumn 0, 4-mellanslags indent, 1-mellanslags mnemonisk/operand)                                                                                                                                                           |
+| **Ladda .asm**                         | `#expert-load-asm-btn`                            | Öppna en `.asm`-fil — innehållet laddas till en **ny flik** med filnamnet som fliketikett. Varje laddad fil blir en oberoende flik med sina egna programblock och redigeringsstatus.                                                                           |
+| **Spara .asm**                         | `#expert-save-asm-btn`                            | Spara redigerarens innehåll till en `.asm`-fil (fildialogruta vid första sparningen). En källfil får alltid sin text: Ctrl+S, **Meny → Spara**, och en Spara-dialogruta med namnet `.asm`, `.s`, `.inc`, `.a`, `.a65` eller `.lib` skriv aldrig VA JSON i den. |
+| **Bygginformation**                    | `#expert-bygg-info-btn`                           | Öppna dialogrutan Bygginfo: ursprung, slut, storlek och segmentantal överst, sedan segmenten, felen (`fil:rad` i ett Kick-projekt) och `.print` utdata, och etiketterna, konstanterna och makrona i kolumnerna.                                                |
+| **Autokomplettera**                    | `#expert-autocomplete-btn`                        | Aktivera/avaktivera expertförslag för autoslutförande. När det är inaktiverat visas inga direktiv, mnemonik eller etikettfönster i expertredigeraren.                                                                                                          |
+| **Regionsval**                         | `#expert-region-val-btn`                          | Aktivera automatisk markering av regioner i expertläge. Vikningsläget förblir lagrat, men när det är avstängt håller redigeraren hela källan synlig och väljer inte automatiskt den aktuella regionen.                                                         |
+| **Komprimera/expandera alla regioner** | `#expert-region-vik-alla-btn`                     | Vik eller vik ut varje `.region`-block med ett enda klick. Om någon region är öppen komprimeras alla; om alla regioner redan är komprimerade expanderas alla med nästa klick. Knappen lyser upp när alla regioner är komprimerade.                             |
+| ** Radnummer **                        | `#expert-linjenummer-btn`                         | Aktivera radnummermarginalen på vänster sida av redigeraren. Mellanmarginalen är synkroniserad med rullningspositionen och uppdateras live medan du skriver.                                                                                                   |
+| **Hitta**                              | `#expert-hitta-btn`                               | Öppna den flytande sökfältet (`Ctrl+F`). Skriv för att söka; träffar markeras i överlägget. `Enter` / `Shift+Enter` navigerar mellan träffar. `Escape` stänger fältet.                                                                                         |
+| **Zooma ut/in**                        | `#expert-zoom-ut-knapp` / `#expert-zoom-in-knapp` | Minska/öka redigerarens teckenstorlek (8–28 px). `Ctrl` + mushjul (`Cmd` + hjul på macOS, eller nyp med pekplattan) över redigeraren gör detsamma. Inställningen sparas.                                                                                       |
+| **Palett**                             | `#expert-palett-btn`                              | Visa/dölj den vänstra mnemoniska paletten                                                                                                                                                                                                                      |
+| **Diasm**                              | `#expert-disasm-btn`                              | Visa/dölj demonteringspanelen (pure 6502, makron expanderade)                                                                                                                                                                                                  |
+| **Skärm**                              | `#expert-monitor-btn`                             | Visa/dölj skärmens hex-dump-panel; dra avdelaren till vänster för att ändra storleken                                                                                                                                                                          |
+| **Verktygslåda**                       | `#expert-toolkit-btn`                             | Visa/dölj sidopanelen [Toolkit](#toolkit-tab) (C64-paletten, PETSCII-koder); kan ändras i storlek som skärmen                                                                                                                                                  |
+| **Minikarta**                          | `#expert-minimap-btn`                             | Visa/dölj kodminimap-remsan på höger sida av redigeraren                                                                                                                                                                                                       |
+| **Projektpanel**                       | `#expert-projekt-btn`                             | Visa/dölj projektpanelen (filer, symboler, projektinställningar)                                                                                                                                                                                               |
+| **Cykelräkningar**                     | `#expertcykler-btn`                               | Visa/dölj cykelrännan — se [Cykelräkningar](#cycle-counts)                                                                                                                                                                                                     |
+| **Gå till rad / Bokmärken**            | `#expert-goto-line-btn`, `#expert-bokmärke-*`     | Ctrl+G hoppar till en rad; Ctrl+F2 växlar mellan bokmärken, F2/Shift+F2 går till nästa/föregående rad                                                                                                                                                          |
+| **Bygg ACME**                          | `#expert-acme-build-btn`                          | I ACME-läge: bygg källkoden med ACME — se [ACME-läge](#acme-mode)                                                                                                                                                                                              |
+
+De paneler du lämnar öppna (Palett, Disasm, Monitor, Verktygslåda, Projekt) och
+deras bredder återställs vid nästa start, oavsett vilket läge appen startas i.
 
 *(Nytt i 2.3.9.)* En etikett vars namn börjar med en punkt — `.loop`, `.skip`,
 `.done` — är en **lokal etikett**. Den tillhör omfånget för den närmaste
@@ -2374,6 +2415,17 @@ visas på varje block.
 | **indirektY**     | Indirekt, Y     | `LDA ($FB),Y`   | Noll sid indirekt indexerad (operand = noll sidadress, 1 byte)          |
 | **indirekt**      | Indirekt        | `JMP ($0100)`   | Indirekt; endast användbar med JMP                                      |
 
+### Konstanter på nollsidan
+
+En operand som endast består av konstanter (`.const`, `name = value`, a `.var`)
+som får plats i en byte tar instruktionens **zero-page**-läge, precis som talet
+skulle göra: efter `.const zp = $FB`, assembleras `lda zp` till `A5 FB` (2 byte,
+3 cykler) och `lda zp,x` till `B5 FB`. Ett läge där instruktionen inte har någon
+sidnollfönster förblir absolut (`lda zp,y` → `B9 FB 00`). En etikett är inte
+begränsad — dess adress är känd endast efter layouten — och `lda.abs zp` tvingar
+fram det absoluta läget. Ett tal behåller den bredd det skrivs med: `$FB` är
+sidnollfönster, `$00FB` absolut. *(Nytt i 2.1.)*
+
 ### Dataförflyttning
 
 Alla operandfält som accepterar en adress eller ett omedelbart värde accepterar
@@ -2381,15 +2433,17 @@ också en **konstant name** (från ett `CONST`-block eller ett `LABEL`) direkt.
 Dessutom kan du använda uttrycken **label+offset** eller **label−offset** för
 att referera till en adress relativt till en namngiven konstant:
 
-| Syntax | Exempel           | Beskrivning                                                                                                       |
-| ------ | ----------------- | ----------------------------------------------------------------------------------------------------------------- |
-| `LDA`  | Lastackumulator   | omedelbar, nollSida, absolut, absolutX, absolutY, indirektX, indirektY                                            |
-| `LDX`  | Ladda X-register  | omedelbar, nollSida, nollSidaY, absolut, absolutY                                                                 |
-| `LDY`  | Ladda Y-register  | omedelbar, nollSida, absolut, absolutX                                                                            |
-| `STA`  | Butiksackumulator | nollSida, absolut, absolutX, absolutY, indirektX, indirektY                                                       |
-| `STX`  | Lagra X-register  | nollSida, nollSidaY, absolut                                                                                      |
-| `STY`  | Lagra Y-register  | nollSida, absolut                                                                                                 |
-| `*`    | `BNE *`           | Aktuell programräknare (instruktionens egen adress); grenar med `*` genererar en oändlig självloop (offset `$FE`) |
+| Syntax         | Exempel                           | Beskrivning                                                                                                       |
+| -------------- | --------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `LDA`          | Lastackumulator                   | omedelbar, nollSida, absolut, absolutX, absolutY, indirektX, indirektY                                            |
+| `LDX`          | Ladda X-register                  | omedelbar, nollSida, nollSidaY, absolut, absolutY                                                                 |
+| `LDY`          | Ladda Y-register                  | omedelbar, nollSida, absolut, absolutX                                                                            |
+| `STA`          | Butiksackumulator                 | nollSida, absolut, absolutX, absolutY, indirektX, indirektY                                                       |
+| `$hex+uttryck` | `LDA $1234+1`, `STA $0400+40*2,X` | Alla uttryck av tal, etiketter och konstanter *(2.1)*                                                             |
+| `(etikett)`    | `JMP (vektor)`, `JMP (tabell+2)`  | Indirekt hopp genom en etikett eller ett uttryck *(2.1)*                                                          |
+| `STX`          | Lagra X-register                  | nollSida, nollSidaY, absolut                                                                                      |
+| `STY`          | Lagra Y-register                  | nollSida, absolut                                                                                                 |
+| `*`            | `BNE *`                           | Aktuell programräknare (instruktionens egen adress); grenar med `*` genererar en oändlig självloop (offset `$FE`) |
 
 **Exempel — rensa två skärmsidor med hjälp av en CONST:**
 ```
@@ -2906,6 +2960,10 @@ LDA #$01
 
 **Storlek:** `antal_byte × 5` byte (en LDA + en STA per byte).
 
+> **2.1:** byten kan namnge etiketter: `.data $2010, <mål, >mål` skriver
+> adressen till `mål`, också till en etikett som definieras senare. Makrots
+> etikett `:namn` kan peka på en måladress som i sig är en etikett.
+
 ---
 
 ### RAWBYTES
@@ -2933,6 +2991,11 @@ specifik adress.
 > **DATA vs RAWBYTES:** DATA genererar LDA/STA-kod som kopierar byte vid körning
 > (långsammare, men fungerar om data behöver vara dynamiska). RAWBYTES placerar
 > bara bytena direkt — ingen kod, omedelbart, ingen kostnad.
+
+> **2.1:** bytarna kan namnge etiketter (`.rawbytes $2000, <mål, >mål` — en
+> pektabel); etiketten `:namn` kan peka på en etikett som måladress, även en som
+> definieras senare. Som ett makros buffertargument tar bytarna sitt eget
+> utrymme i buffertarna efter programmet.
 
 ---
 
@@ -3519,6 +3582,11 @@ Två filtyper stöds:
 > Assembler. Ange en laddningsadress när biblioteket inte har någon egen ORG,
 > eller när du vill åsidosätta dess standardplacering.
 
+> **2.1:** En include som inte hittas är ett fel, och detsamma gäller en fil som
+> inkluderar sig själv (direkt eller längre ner). En inkluderad fils egna rader
+> `.include`, `.incbin` och `.sid` laddas också, relativt till dess egen mapp,
+> och dess makroanrop expanderas – upp till 16 nivåer djupt.
+
 ---
 
 ### TABELL
@@ -3861,6 +3929,11 @@ accepteras också.
 > **Tips:** Definiera makron högst upp (eller längst ner) i ditt program och
 > ANROPA dem sedan där det behövs. Makron kan anropas flera gånger med olika
 > argument.
+
+> **2.1:** ett makro kan anropa ett annat makro (`both(a, b)` anropa `etc(a)`);
+> det inre anropet får det yttre anropets argument och sina egna unika lokala
+> etiketter. Ett makro som anropar sig självt stoppar med ett fel efter 16
+> nivåer istället för att hänga sig.
 
 ---
 
@@ -4281,6 +4354,10 @@ begärda storleken.
 Storlekar upp till 256 byte använder en kort 8-bitarsloop. Större storlekar
 växlar automatiskt till en 16-bitarsräknare.
 
+> **2.1:** Storleken måste vara känd när koden läggs ut — ett tal eller en
+> konstant. En etikett som definieras senare (vars värde layouten ännu inte
+> känner till) är ett fel istället för kod som inte passar på sin plats.
+
 ---
 
 ### SKRIV UT / SKRIV_UT_CHAR / SKRIV_UT_HEX / CLEAR_SCREEN / VÄNTA_KEY / FÖRDRÖJNING / SET_BORDER / SET_BG
@@ -4596,6 +4673,10 @@ $DC01`), så båda portarna fungerar.
 ---
 
 <a id="mouse"></a>
+
+> **2.1:** Porten måste vara känd när koden läggs ut (ett tal eller en
+> konstant), eftersom port 3 gör koden 3 byte längre; en etikett som definieras
+> senare är ett fel.
 ### MUS
 
 Läser en Commodore 1351 proportionell mus och flyttar en sprite. Helt **inline**
@@ -5484,11 +5565,13 @@ patronplatser. Den är tillgänglig i **blockläge**, **Expertläge** och
   - `$8000/$8002` kall + varm startvektorer pekar på `$8009`.
   - `$8004–$8008` = `CBM80`-signaturen som krävs av KERNAL-återställningskoden.
   - `$8009–$807F` = laddaren: SEI / stack init / `JSR $FDA3` (IOINIT) / `JSR
-    $FD50` (RAMTAS) / `JSR $FD15` (RESTOR) / `JSR $FF5B` (CINT), sedan en
-    byte-kopieringsslinga som strömmar nyttolasten från vagnens ROM till RAM och
-    byter bank när `$FC` når `$A0`. I slutet kopierar den en liten **exit stub**
-    till `$0100`, inaktiverar varukorgen med `LDA #$80 : STA $DE00` och `JMP`
-    till startpunkten.
+    $FD50` (RAMTAS) / `JSR $FD15` (RESTOR) / `JSR $FF5B` (CINT), sedan kopierar
+    den 60-byte **kopieringsrutinen** (`$8044–$807F`) till `$0100` och hoppar
+    dit. Rutinen körs från RAM, strömmar nyttolasten från vagnens ROM till dess
+    laddningsadress, växlar banker genom `$DE00` när `$FC` når `$A0`,
+    inaktiverar vagnen med `LDA #$80 : STA $DE00` och `JMP`s till startpunkten.
+    (Den måste köras från RAM: en bankväxling ersätter ROM:et under `$8000`,
+    inklusive laddarens egen kod.)
 - **Nyttolast** börjar vid `$8080` i bank 0 och överförs till bankerna 1–7 efter
   behov. Maximal nyttolast = `8 * 8192 − 128 = 65 408 byte`.
 
@@ -5527,10 +5610,10 @@ fel – antingen komprimera minneslayouten eller dela upp data.
 >   tilläggsbibliotek som kopplar vektorer *före* `RUN` gör det inte.
 > - **CIA1 / CIA2** ominitialiseras av `IOINIT`. Anpassade timerinställningar
 >   (raster-IRQ:er, musikspelare CIA-A) måste omprogrammeras efter inmatning.
-> - Kundvagnen är inaktiverad från en 8-byte stub i **RAM vid `$0100`** så att
->   `STA $DE00` inte kan avbrytas av en felaktig ROM-hämtning. Lita inte på att
->   `$0100–$0107` innehåller stack top-avbildningen vid inmatning — den första
->   RAM-pushen skriver över stubben.
+> - Kopieringsrutinen körs från **RAM vid `$0100–$013B`**, så bankväxlarna och
+>   den slutliga `STA $DE00` hämtar aldrig koden under processorn. Lita inte på
+>   `$0100–$013B` vid inmatning, och håll nyttolasten utanför det intervallet
+>   och utanför noll sidbyte `$02–$04` / `$FB–$FE` som laddaren använder.
 > 
 > Om en CRT körs i VICE men misslyckas på riktig hårdvara, är det första man bör
 > kontrollera om programmet antar ett specifikt KERNAL-vektor- eller
@@ -5575,6 +5658,12 @@ VMA-källor (och Kick-projekt):
 
 Kompileringsdialogrutan anger vilken motor som används. VMA-versionen visas i
 rutan Om.
+
+Samma kompilator körs på kommandoraden (VMA 2.1.0): `vma build game.asm` skriver
+`game.prg`, `--crt game.crt` en Magic Desk-kassett (samma byte som **Build
+CRT**), och `--d64` en 1541-diskavbildning med programmet (`--add` lägger till
+ytterligare filer) — ingen c1541 behövs. Se manualen i
+[VMA-arkivet](https://github.com/zstarczali/VMA).
 
 ### Högupplöst/flerfärgsredigerare
 

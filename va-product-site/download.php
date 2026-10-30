@@ -9,6 +9,12 @@ $downloads = [
     'va-linux-appimage' => ['downloads/VA/C64 Visual Assembler_*_amd64.AppImage', 'c64-visual-assembler-linux-x64.AppImage'],
     'va-linux-deb' => ['downloads/VA/C64 Visual Assembler_*_amd64.deb', 'c64-visual-assembler-linux-x64.deb'],
     'va-linux-rpm' => ['downloads/VA/C64 Visual Assembler-*-1.x86_64.rpm', 'c64-visual-assembler-linux-x64.rpm'],
+    // VMA CLI: the newest uploaded version (vma-<ver>-<platform>.*), no dashboard release; name = the file's own
+    'vma-windows-x64' => ['downloads/VMA/vma-*-windows-x64.zip', null],
+    'vma-windows-arm64' => ['downloads/VMA/vma-*-windows-arm64.zip', null],
+    'vma-macos-x64' => ['downloads/VMA/vma-*-macos-x64.tar.gz', null],
+    'vma-macos-arm64' => ['downloads/VMA/vma-*-macos-arm64.tar.gz', null],
+    'vma-linux-x64' => ['downloads/VMA/vma-*-linux-x64.tar.gz', null],
 ];
 
 $key = $_GET['file'] ?? '';
@@ -23,16 +29,19 @@ require __DIR__ . '/register/lib.php';
 
 // only up to the version released on the dashboard (register/release.php); without the
 // database the last version released before the approval existed
-try {
-    $approved = vaUpdateApproved(vaDb());
-} catch (Throwable $e) {
-    $approved = VA_UPDATE_DEFAULT;
+$approved = null;
+if (strncmp($key, 'va-', 3) === 0) {
+    try {
+        $approved = vaUpdateApproved(vaDb());
+    } catch (Throwable $e) {
+        $approved = VA_UPDATE_DEFAULT;
+    }
 }
 $files = array_values(array_filter(
     glob(__DIR__ . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $pattern)) ?: [],
     static function (string $file) use ($approved): bool {
         $version = vaInstallerVersion(basename($file));
-        return $version !== null && version_compare($version, $approved, '<=');
+        return $version !== null && ($approved === null || version_compare($version, $approved, '<='));
     }
 ));
 if ($files === []) {
@@ -50,6 +59,7 @@ try {
 
 usort($files, static fn(string $a, string $b): int => version_compare((string) vaInstallerVersion(basename($b)), (string) vaInstallerVersion(basename($a))));
 $file = $files[0];
+$downloadName ??= basename($file);
 
 header('Content-Type: application/octet-stream');
 header('Content-Length: ' . (string) filesize($file));

@@ -1224,7 +1224,8 @@ async fn choose_git_executable(app: AppHandle) -> serde_json::Value {
 async fn git_exec(app: AppHandle, args: Vec<String>, cwd: String) -> serde_json::Value {
     const ALLOWED: &[&str] = &[
         "version", "rev-parse", "symbolic-ref", "status", "add", "commit", "log", "diff", "show",
-        "init", "pull", "push", "branch", "remote", "ls-files",
+        "init", "pull", "push", "branch", "remote", "ls-files", "switch", "restore",
+        "merge", "stash", "clean",
     ];
     let git = get_git_path(&read_config(&app));
     if git.is_empty() {

@@ -51,7 +51,7 @@ button,input{font:inherit}
 .toc::-webkit-scrollbar,.content::-webkit-scrollbar,.content pre::-webkit-scrollbar,.content table::-webkit-scrollbar{width:10px;height:10px}
 .toc::-webkit-scrollbar-track,.content::-webkit-scrollbar-track,.content pre::-webkit-scrollbar-track,.content table::-webkit-scrollbar-track{background:#090918}
 .toc::-webkit-scrollbar-thumb,.content::-webkit-scrollbar-thumb,.content pre::-webkit-scrollbar-thumb,.content table::-webkit-scrollbar-thumb{background:#45458c;border:2px solid #090918;border-radius:8px}
-@media(max-width:900px){.toolbar{flex-wrap:wrap;padding:10px 12px}.title{flex:1}.search{order:2;width:100%}.search input{width:auto;flex:1;min-width:0}.manuals{order:3;width:100%;display:grid;grid-template-columns:repeat(2,1fr);gap:4px}.manual{min-width:0;padding:7px 3px}.langs{order:4;width:100%;display:grid;grid-template-columns:repeat(9,1fr);gap:4px}.lang{min-width:0;padding:7px 3px}.layout{grid-template-columns:1fr}.toc{display:none}.content{padding:24px 16px;font-size:15px;-webkit-overflow-scrolling:touch}.content pre{padding:14px 12px}}
+@media(max-width:900px){.toolbar{flex-wrap:wrap;padding:10px 12px}.title{flex:1}.search{order:2;width:100%}.search input{width:auto;flex:1;min-width:0}.manuals{order:3;width:100%;display:grid;grid-template-columns:repeat(3,1fr);gap:4px}.manual{min-width:0;padding:7px 3px}.langs{order:4;width:100%;display:grid;grid-template-columns:repeat(9,1fr);gap:4px}.lang{min-width:0;padding:7px 3px}.layout{grid-template-columns:1fr}.toc{display:none}.content{padding:24px 16px;font-size:15px;-webkit-overflow-scrolling:touch}.content pre{padding:14px 12px}}
 </style>
 </head>
 <body>
@@ -66,8 +66,9 @@ button,input{font:inherit}
       <button class="search-nav next" type="button" aria-label="Next result" disabled>↓</button>
     </div>
     <div class="manuals" aria-label="Documentation manual">
-      <button class="manual" type="button" data-manual="va">VISUAL ASSEMBLER</button>
+      <button class="manual" type="button" data-manual="va">VISUAL ASSEMBLER IDE</button>
       <button class="manual" type="button" data-manual="ub">ULTIMATE BASIC</button>
+      <button class="manual" type="button" data-manual="vma">VISUAL MACRO ASSEMBLER (VMA)</button>
     </div>
     <div class="langs" aria-label="Documentation language">
       <button class="lang" data-doc="en">EN</button><button class="lang" data-doc="hu">HU</button><button class="lang" data-doc="de">DE</button><button class="lang" data-doc="fr">FR</button><button class="lang" data-doc="nl">NL</button><button class="lang" data-doc="fi">FI</button><button class="lang" data-doc="it">IT</button><button class="lang" data-doc="sv">SV</button><button class="lang" data-doc="pl">PL</button>
@@ -91,7 +92,7 @@ const searchPrev=document.querySelector('.prev');
 const searchNext=document.querySelector('.next');
 const backButton=document.querySelector('.back');
 const languages=['en','hu','de','fr','nl','fi','it','sv','pl'];
-const manuals={va:{title:'Visual Assembler Documentation',path:'va-manual/'},ub:{title:'Ultimate Basic Documentation',path:'ub-manual/'}};
+const manuals={va:{title:'Visual Assembler IDE Documentation',path:'va-manual/'},ub:{title:'Ultimate Basic Documentation',path:'ub-manual/'},vma:{title:'Visual Macro Assembler (VMA) Documentation',path:'vma-manual/'}};
 const savedLanguage=document.cookie.split('; ').find(row=>row.startsWith('va_docs_lang='))?.split('=')[1];
 const savedManual=document.cookie.split('; ').find(row=>row.startsWith('va_docs_manual='))?.split('=')[1];
 let currentLanguage=languages.includes(savedLanguage)?savedLanguage:'en';

@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Podręcznik użytkownika
 
-**Wersja 2.6.7**
+**Wersja 2.6.8**
 
 Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągając
 i upuszczając bloki instrukcji, i oglądaj generowany kod assemblera i maszynowy
@@ -10,6 +10,7 @@ w czasie rzeczywistym.
 
 ## Spis treści
 
+- [Najważniejsze cechy wersji 2.6.8](#version-268-highlights)
 - [Najważniejsze cechy wersji 2.6.7](#version-267-highlights)
 - [Najważniejsze cechy wersji 2.6.6](#version-266-highlights)
 - [Najważniejsze cechy wersji 2.6.5](#version-265-highlights)
@@ -244,6 +245,37 @@ w czasie rzeczywistym.
   - [Konwerter liczb](#number-converter)
 
 ---
+
+## Najważniejsze cechy wersji 2.6.8
+
+- **Zestaw narzędzi w trybie eksperta i UB** — przycisk paska narzędzi *Zestaw
+  narzędzi* wyświetla paletę C64 i kody PETSCII obok edytora: w trybie eksperta
+  jako panel boczny obok Dezasemblacji/Monitorowania, w trybie UB w prawym
+  panelu (na zmianę z Dezasemblacją i Monitorowaniem).
+- **Panele zapamiętywane** — panele Monitor i Zestaw narzędzi w trybie eksperta
+  można zmieniać rozmiarowo tak samo jak w trybie demontażu; panele, które
+  pozostawisz otwarte (Paleta, Demontaż, Monitor, Zestaw narzędzi, Projekt), a
+  ich szerokości powrócą po następnym uruchomieniu, niezależnie od trybu, w
+  jakim uruchomi się aplikacja — również w trybie UB.
+- **Język VMA** — `.const` lub `.var` na stronie zerowej sprawia, że `lda zp`
+  staje się instrukcją strony zerowej (`A5 FB`, tak jak robi to KickAssembler;
+  `lda.abs zp` zachowuje wartość bezwzględną); `JMP (etykieta)` / `JMP
+  (tabela+2)`; wyrażenia takie jak `lda $1234+1` i `sta $0400+40*2,x`; makro
+  może wywołać inne makro; etykiety w bajtach `.data` / `.rawbytes` (tabele
+  wskaźników); etykieta `:name` może wskazywać na etykietę.
+- **Includes** — ładowane są własne wiersze dołączonego pliku `.include`,
+  `.incbin` i `.sid` (względem jego folderu), a jego wywołania makr są
+  rozwijane; brakujący plik include lub taki, który zawiera sam siebie, jest
+  błędem, a nie pustą biblioteką.
+- **Bezpieczniejsze kompilacje** — błędy zamiast ukrytego, błędnego kodu:
+  nierozwiązana wartość TURBO_SET / SPRITE_ANIM, rozmiar MEMCPY / MEMSET /
+  JOYSTICK pobrany z etykiety zdefiniowanej później; automatyczny bufor
+  argumentu makra `.data` / `.rawbytes` pobiera swoje bajty. Programy
+  wykorzystujące stałe zerowej strony stają się krótsze.
+- **Naprawiono** — monitor CRT o rozmiarze większym niż 8 KB (więcej niż jeden
+  bank) nie uruchamiał się: moduł ładujący jest teraz uruchamiany z pamięci RAM;
+  nazwa `.asm` podana w oknie dialogowym Zapisz projektu powoduje zapisanie
+  tekstu źródłowego, a nie pliku VA JSON.
 
 ## Najważniejsze cechy wersji 2.6.7
 
@@ -1216,6 +1248,13 @@ bieżącą wersją:
 
 Po pobraniu aplikacja zainstaluje aktualizację i uruchomi się ponownie:
 
+W trybie **Eksperta** i **UltimateBasic** ten sam Zestaw Narzędzi otwiera się za
+pomocą przycisku **Zestaw Narzędzi** na pasku narzędzi: w trybie Eksperta jako
+panel boczny obok Demontażu/Monitorowania (przeciągnij separator po lewej
+stronie, aby zmienić jego rozmiar), w trybie UB w panelu po prawej stronie,
+gdzie na zmianę otwiera się z Demontażem i Monitorowaniem. Zapamiętywane są stan
+otwarcia i szerokość.
+
 ### Kompiluj informacje i ustawienia wyjściowe
 
 - **Informacje o kompilacji** (powyżej wyników) pokazują podsumowanie
@@ -1985,8 +2024,10 @@ podpowiedzi, co tryb Eksperta. Zapewnia on:
   stosuje się język angielski;
 - niezależnie przełączane panele **Projekt** i **Polecenia**, wyświetlane obok
   siebie, gdy oba są włączone;
-- niezależnie przełączane i zmieniane rozmiarowo panele **Wyjście kompilacji** i
-  **Demontaż**.
+- niezależnie przełączane i skalowalne panele **Wyjście kompilacji** i
+  **Demontaż**; panele **Demontaż**, **Monitor** i **Zestaw narzędzi**
+  współdzielą prawy panel (po jednym na raz). Zapamiętywane są, który panel jest
+  otwarty, oraz szerokości paneli.
 
 Panel Demontażu zawiera przycisk **Kopiuj**, który kopiuje cały wyświetlany kod
 źródłowy do schowka. Pomoc dotycząca poleceń jest zgodna z dołączonym
@@ -2193,26 +2234,31 @@ trybu znajduje się na każdym bloku.
 
 ### Etykiety lokalne (kropkowane)
 
-| Przycisk                            | ID                                                                 | Funkcjonować                                                                                                                                                                                                                                                                  |
-| ----------------------------------- | ------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Format**                          | `#przycisk-formatu-eksperta`                                       | Automatyczne formatowanie źródła (etykiety do kolumny 0, wcięcie 4-spacji, mnemonik/operand 1-spacji)                                                                                                                                                                         |
-| **Załaduj .asm**                    | `#expert-load-asm-btn`                                             | Otwórz plik `.asm` — zawartość zostanie załadowana do **nowej karty**, a nazwa pliku będzie etykietą karty. Każdy załadowany plik stanie się niezależną kartą z własnymi blokami programu i stanem edytora.                                                                   |
-| **Zapisz .asm**                     | `#ekspert-zapisz-asm-przycisk`                                     | Zapisz zawartość edytora do pliku `.asm` (okno dialogowe pliku przy pierwszym zapisywaniu)                                                                                                                                                                                    |
-| **Informacje o kompilacji**         | `#ekspert-build-info-przycisk`                                     | Otwórz okno dialogowe Informacje o kompilacji: początek, koniec, rozmiar i liczba segmentów na górze, następnie segmenty, błędy (`plik:linia` w projekcie Kick) i dane wyjściowe `.print`, a także etykiety, stałe i makra w kolumnach                                        |
-| **Autouzupełnianie**                | `#ekspert-autocomplete-przycisk`                                   | Włącz/wyłącz podpowiedzi autouzupełniania dla ekspertów. Po wyłączeniu tej opcji w edytorze ekspertów nie pojawi się żadne polecenie, mnemonik ani wyskakujące okienko z etykietą.                                                                                            |
-| **Wybór regionu**                   | `#ekspert-region-selection-btn`                                    | Włącz automatyczne podświetlanie regionu w trybie Eksperta. Stan zagięcia pozostaje zapisany, ale po wyłączeniu tej opcji edytor utrzymuje widoczny cały kod źródłowy i nie zaznacza automatycznie bieżącego regionu.                                                         |
-| **Zwiń / rozwiń wszystkie regiony** | `#ekspert-region-złóż-wszystkie-przyciski`                         | Złóż lub rozłóż każdy blok `.region` jednym kliknięciem. Jeśli którykolwiek region jest aktualnie otwarty, przycisk zwinie je wszystkie; jeśli wszystkie regiony są już zwinięte, kolejne kliknięcie je rozwinie. Przycisk zaświeci się, gdy wszystkie regiony będą zwinięte. |
-| **Numery wierszy**                  | `#ekspert-numery-linii-przycisk`                                   | Przełącz pasek z numerem wiersza po lewej stronie edytora. Pasek pozostaje zsynchronizowany z pozycją przewijania i aktualizuje się na bieżąco podczas pisania.                                                                                                               |
-| **Znajdź**                          | `#ekspert-znajdź-przycisk`                                         | Otwórz pasek wyszukiwania (`Ctrl+F`). Wpisz, aby wyszukać; dopasowania są podświetlone w nakładce. `Enter` / `Shift+Enter` umożliwia nawigację między dopasowaniami. `Escape` zamyka pasek.                                                                                   |
-| **Oddalanie/przybliżanie**          | `#ekspert-przycisk-oddalania-` / `#ekspert-przycisk-przybliżania-` | Zmniejsz/zwiększ rozmiar czcionki edytora (8–28 pikseli). Naciśnięcie klawiszy `Ctrl` + kółko myszy (`Cmd` + kółko w systemie macOS lub szczypanie na touchpadzie) nad edytorem powoduje ten sam efekt. Ustawienie zostaje zapisane.                                          |
-| **Paleta**                          | `#przycisk-palety-eksperta`                                        | Pokaż/ukryj lewą paletę mnemotechniczną                                                                                                                                                                                                                                       |
-| **Dyzasm**                          | `#ekspert-disasm-btn`                                              | Pokaż/ukryj panel demontażu (czysty 6502, rozwinięte makra)                                                                                                                                                                                                                   |
-| **Monitor**                         | `#przycisk-eksperta-monitora`                                      | Pokaż/ukryj panel zrzutu szesnastkowego monitora                                                                                                                                                                                                                              |
-| **Minimapa**                        | `#ekspert-minimapa-przycisk`                                       | Pokaż/ukryj pasek minimapy kodu po prawej stronie edytora                                                                                                                                                                                                                     |
-| **Panel projektu**                  | `#ekspert-projekt-przycisk`                                        | Pokaż/ukryj panel projektu (pliki, symbole, ustawienia projektu)                                                                                                                                                                                                              |
-| **Liczniki cykli**                  | `#ekspert-cykle-przycisk`                                          | Pokaż/ukryj rynnę cykli — zobacz [Liczniki cykli](#cycle-counts)                                                                                                                                                                                                              |
-| **Przejdź do wiersza / Zakładki**   | `#ekspert-przejdź-do-linii-przycisk`, `#ekspert-zakładka-*`        | Ctrl+G przeskakuje do wiersza; Ctrl+F2 przełącza zakładkę, F2 / Shift+F2 przechodzi do następnego / poprzedniego                                                                                                                                                              |
-| **Zbuduj ACME**                     | `#ekspert-acme-build-btn`                                          | W trybie ACME: skompiluj źródło za pomocą ACME — zobacz [tryb ACME](#acme-mode)                                                                                                                                                                                               |
+| Przycisk                            | ID                                                                 | Funkcjonować                                                                                                                                                                                                                                                                                     |
+| ----------------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Format**                          | `#przycisk-formatu-eksperta`                                       | Automatyczne formatowanie źródła (etykiety do kolumny 0, wcięcie 4-spacji, mnemonik/operand 1-spacji)                                                                                                                                                                                            |
+| **Załaduj .asm**                    | `#expert-load-asm-btn`                                             | Otwórz plik `.asm` — zawartość zostanie załadowana do **nowej karty**, a nazwa pliku będzie etykietą karty. Każdy załadowany plik stanie się niezależną kartą z własnymi blokami programu i stanem edytora.                                                                                      |
+| **Zapisz .asm**                     | `#ekspert-zapisz-asm-przycisk`                                     | Zapisz zawartość edytora do pliku `.asm` (okno dialogowe pliku przy pierwszym zapisie). Plik źródłowy zawsze otrzymuje swój tekst: Ctrl+S, **Menu → Zapisz** oraz okno dialogowe Zapisz, jeśli ma nazwę `.asm`, `.s`, `.inc`, `.a`, `.a65` lub `.lib`. Nigdy nie zapisuj do niego pliku JSON VA. |
+| **Informacje o kompilacji**         | `#ekspert-build-info-przycisk`                                     | Otwórz okno dialogowe Informacje o kompilacji: początek, koniec, rozmiar i liczba segmentów na górze, następnie segmenty, błędy (`plik:linia` w projekcie Kick) i dane wyjściowe `.print`, a także etykiety, stałe i makra w kolumnach                                                           |
+| **Autouzupełnianie**                | `#ekspert-autocomplete-przycisk`                                   | Włącz/wyłącz podpowiedzi autouzupełniania dla ekspertów. Po wyłączeniu tej opcji w edytorze ekspertów nie pojawi się żadne polecenie, mnemonik ani wyskakujące okienko z etykietą.                                                                                                               |
+| **Wybór regionu**                   | `#ekspert-region-selection-btn`                                    | Włącz automatyczne podświetlanie regionu w trybie Eksperta. Stan zagięcia pozostaje zapisany, ale po wyłączeniu tej opcji edytor utrzymuje widoczny cały kod źródłowy i nie zaznacza automatycznie bieżącego regionu.                                                                            |
+| **Zwiń / rozwiń wszystkie regiony** | `#ekspert-region-złóż-wszystkie-przyciski`                         | Złóż lub rozłóż każdy blok `.region` jednym kliknięciem. Jeśli którykolwiek region jest aktualnie otwarty, przycisk zwinie je wszystkie; jeśli wszystkie regiony są już zwinięte, kolejne kliknięcie je rozwinie. Przycisk zaświeci się, gdy wszystkie regiony będą zwinięte.                    |
+| **Numery wierszy**                  | `#ekspert-numery-linii-przycisk`                                   | Przełącz pasek z numerem wiersza po lewej stronie edytora. Pasek pozostaje zsynchronizowany z pozycją przewijania i aktualizuje się na bieżąco podczas pisania.                                                                                                                                  |
+| **Znajdź**                          | `#ekspert-znajdź-przycisk`                                         | Otwórz pasek wyszukiwania (`Ctrl+F`). Wpisz, aby wyszukać; dopasowania są podświetlone w nakładce. `Enter` / `Shift+Enter` umożliwia nawigację między dopasowaniami. `Escape` zamyka pasek.                                                                                                      |
+| **Oddalanie/przybliżanie**          | `#ekspert-przycisk-oddalania-` / `#ekspert-przycisk-przybliżania-` | Zmniejsz/zwiększ rozmiar czcionki edytora (8–28 pikseli). Naciśnięcie klawiszy `Ctrl` + kółko myszy (`Cmd` + kółko w systemie macOS lub szczypanie na touchpadzie) nad edytorem powoduje ten sam efekt. Ustawienie zostaje zapisane.                                                             |
+| **Paleta**                          | `#przycisk-palety-eksperta`                                        | Pokaż/ukryj lewą paletę mnemotechniczną                                                                                                                                                                                                                                                          |
+| **Dyzasm**                          | `#ekspert-disasm-btn`                                              | Pokaż/ukryj panel demontażu (czysty 6502, rozwinięte makra)                                                                                                                                                                                                                                      |
+| **Monitor**                         | `#przycisk-eksperta-monitora`                                      | Pokaż/ukryj panel heksadecymalny monitora; przeciągnij separator po jego lewej stronie, aby zmienić jego rozmiar                                                                                                                                                                                 |
+| **Zestaw narzędzi**                 | `#zestaw-narzędzi-ekspertów-przycisk`                              | Pokaż/ukryj panel boczny [Toolkit](#toolkit-tab) (paleta C64, kody PETSCII); można zmieniać jego rozmiar jak w przypadku monitora                                                                                                                                                                |
+| **Minimapa**                        | `#ekspert-minimapa-przycisk`                                       | Pokaż/ukryj pasek minimapy kodu po prawej stronie edytora                                                                                                                                                                                                                                        |
+| **Panel projektu**                  | `#ekspert-projekt-przycisk`                                        | Pokaż/ukryj panel projektu (pliki, symbole, ustawienia projektu)                                                                                                                                                                                                                                 |
+| **Liczniki cykli**                  | `#ekspert-cykle-przycisk`                                          | Pokaż/ukryj rynnę cykli — zobacz [Liczniki cykli](#cycle-counts)                                                                                                                                                                                                                                 |
+| **Przejdź do wiersza / Zakładki**   | `#ekspert-przejdź-do-linii-przycisk`, `#ekspert-zakładka-*`        | Ctrl+G przeskakuje do wiersza; Ctrl+F2 przełącza zakładkę, F2 / Shift+F2 przechodzi do następnego / poprzedniego                                                                                                                                                                                 |
+| **Zbuduj ACME**                     | `#ekspert-acme-build-btn`                                          | W trybie ACME: skompiluj źródło za pomocą ACME — zobacz [tryb ACME](#acme-mode)                                                                                                                                                                                                                  |
+
+Pozostawione otwarte panele (Palette, Disasm, Monitor, Toolkit, Project) i ich
+szerokości zostaną przywrócone po następnym uruchomieniu, niezależnie od trybu,
+w jakim uruchomiona zostanie aplikacja.
 
 *(Nowość w wersji 2.3.9.)* Etykieta, której nazwa zaczyna się od kropki —
 `.loop`, `.skip`, `.done` — jest **lokalną etykietą**. Należy ona do zakresu
@@ -2478,6 +2524,18 @@ trybu znajduje się na każdym bloku.
 | **pośredniY**     | Pośrednie, Y      | `LDA ($FB),Y`      | Strona zerowa indeksowana pośrednio (operand = adres strony zerowej, 1 bajt)          |
 | **pośredni**      | Pośredni          | `JMP ($0100)`      | Pośredni; można go używać tylko z JMP                                                 |
 
+### Stałe na stronie zerowej
+
+Operand składający się wyłącznie ze stałych (`.const`, `nazwa = wartość`, a
+`.zmienna`), który mieści się w bajcie, przyjmuje tryb **strony zerowej**
+instrukcji, dokładnie tak jak liczba: po `.const zp = $FB`, `lda zp` składa się
+do `A5 FB` (2 bajty, 3 cykle), a `lda zp,x` do `B5 FB`. Tryb, w którym
+instrukcja nie ma formy strony zerowej, pozostaje bezwzględny (`lda zp,y` → `B9
+FB 00`). Etykieta nie jest zwężana — jej adres jest znany dopiero po
+rozmieszczeniu — a `lda.abs zp` wymusza tryb bezwzględny. Liczba zachowuje
+szerokość, z jaką została zapisana: `$FB` to strona zerowa, `$00FB` to strona
+bezwzględna. * (Nowość w wersji 2.1.)*
+
 ### Przenoszenie danych
 
 Każde pole operandu akceptujące adres lub wartość bezpośrednią akceptuje również
@@ -2485,15 +2543,17 @@ bezpośrednio **nazwę stałej** (z bloku `CONST` lub `LABEL`). Dodatkowo można
 użyć wyrażeń **etykieta+przesunięcie** lub **etykieta−przesunięcie**, aby
 odwołać się do adresu względnego do nazwanej stałej:
 
-| Składnia | Przykład            | Opis                                                                                                                             |
-| -------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| `LDA`    | Załaduj akumulator  | natychmiastowy, zeroPage, absolutny, absolutnyX, absolutnyY, pośredniX, pośredniY                                                |
-| `LDX`    | Załaduj rejestr X   | natychmiastowy, zeroPage, zeroPageY, absolutny, absolutnyY                                                                       |
-| `LDY`    | Załaduj rejestr Y   | natychmiastowy, zeroPage, absolutny, absoluteX                                                                                   |
-| `STA`    | Akumulator sklepowy | zeroPage, absolutny, absolutnyX, absolutnyY, pośredniX, pośredniY                                                                |
-| `STX`    | Sklep X rejestr     | zeroPage, zeroPageY, absolutny                                                                                                   |
-| `STY`    | Sklep Y kasa        | zeroPage, absolutny                                                                                                              |
-| `*`      | `BNE *`             | Aktualny licznik programu (adres własny instrukcji); rozgałęzienia z `*` generują nieskończoną pętlę własną (przesunięcie `$FE`) |
+| Składnia         | Przykład                          | Opis                                                                                                                             |
+| ---------------- | --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `LDA`            | Załaduj akumulator                | natychmiastowy, zeroPage, absolutny, absolutnyX, absolutnyY, pośredniX, pośredniY                                                |
+| `LDX`            | Załaduj rejestr X                 | natychmiastowy, zeroPage, zeroPageY, absolutny, absolutnyY                                                                       |
+| `LDY`            | Załaduj rejestr Y                 | natychmiastowy, zeroPage, absolutny, absoluteX                                                                                   |
+| `STA`            | Akumulator sklepowy               | zeroPage, absolutny, absolutnyX, absolutnyY, pośredniX, pośredniY                                                                |
+| `$hex+wyrażenie` | `LDA $1234+1`, `STA $0400+40*2,X` | Dowolne wyrażenie liczb, etykiet i stałych *(2.1)*                                                                               |
+| `(etykieta)`     | `JMP (wektor)`, `JMP (tabela+2)`  | Pośredni skok przez etykietę lub wyrażenie *(2.1)*                                                                               |
+| `STX`            | Sklep X rejestr                   | zeroPage, zeroPageY, absolutny                                                                                                   |
+| `STY`            | Sklep Y kasa                      | zeroPage, absolutny                                                                                                              |
+| `*`              | `BNE *`                           | Aktualny licznik programu (adres własny instrukcji); rozgałęzienia z `*` generują nieskończoną pętlę własną (przesunięcie `$FE`) |
 
 **Przykład — wyczyść dwie strony ekranowe za pomocą stałej:**
 ```
@@ -3034,6 +3094,10 @@ LDA #01 USD
 
 **Rozmiar:** `liczba bajtów × 5` bajtów (jeden LDA + jeden STA na bajt).
 
+> **2.1:** bajty mogą nazywać etykiety: `.data $2010, <target, >target` zapisuje
+> adres `target`, również etykiety zdefiniowanej później. Etykieta `:name` makra
+> może wskazywać na adres docelowy, który sam jest etykietą.
+
 ---
 
 ### RAWBYTES
@@ -3063,6 +3127,11 @@ wyjściu.
 > czasie wykonywania (wolniej, ale działa, jeśli dane muszą być dynamiczne).
 > RAWBYTES po prostu umieszcza bajty bezpośrednio — bez kodu, natychmiast, bez
 > kosztów.
+
+> **2.1:** bajty mogą nazywać etykiety (`.rawbytes $2000, <target, >target` —
+> tablica wskaźników); etykieta `:name` może wskazywać na etykietę jako adres
+> docelowy, również zdefiniowany później. Jako argument bufora makra, bajty
+> zajmują własne miejsce w buforach po programie.
 
 ---
 
@@ -3690,6 +3759,11 @@ Obsługiwane są dwa rodzaje plików:
 > ładowania, gdy biblioteka nie ma własnej struktury ORG lub gdy chcesz zastąpić
 > jej domyślne położenie.
 
+> **2.1:** Nieznalezienie pliku include jest błędem, podobnie jak plik include
+> sam siebie (bezpośrednio lub niżej). Własne wiersze `.include`, `.incbin` i
+> `.sid` pliku include są również ładowane względem jego własnego folderu, a
+> wywołania makr są rozszerzane — do 16 poziomów w głąb.
+
 ---
 
 ### TABELA
@@ -4061,6 +4135,11 @@ rzeczywistymi argumentami. Akceptowana jest również forma rozdzielona spacjami
 > **Wskazówka: ** Zdefiniuj makra na górze (lub na dole) programu, a następnie
 > WYWOŁUJ je w razie potrzeby. Makra można wywoływać wielokrotnie z różnymi
 > argumentami.
+
+> **2.1:** makro może wywołać inne makro (`both(a, b)` wywołując `setc(a)`);
+> wywołanie wewnętrzne otrzymuje argumenty wywołania zewnętrznego i własne
+> unikalne etykiety lokalne. Makro wywołujące samo siebie zatrzymuje się z
+> błędem po 16 poziomach zamiast się zawiesić.
 
 ---
 
@@ -4483,6 +4562,10 @@ odpowiadały żądanemu rozmiarowi.
 Rozmiary do 256 bajtów korzystają z krótkiej pętla 8-bitowej. Większe rozmiary
 automatycznie przełączają się na licznik 16-bitowy.
 
+> **2.1:** rozmiar musi być znany podczas układania kodu — liczba lub stała.
+> Etykieta zdefiniowana później (której wartość układ jeszcze nie zna) jest
+> błędem, a nie kodem, który nie pasuje do swojego miejsca.
+
 ---
 
 ### DRUKUJ / DRUKUJ_ZNAK / DRUKUJ_SZESNASTKOWY / WYCZYŚĆ_EKRAN / KLUCZ_CZEKAJĄCY / OPÓŹNIJ / USTAW_OBRAMOWANIE / USTAW_BG
@@ -4816,6 +4899,10 @@ $DC00` / `AND $DC01`), więc oba porty działają.
 ---
 
 <a id="mouse"></a>
+
+> **2.1:** port musi być znany podczas tworzenia kodu (liczba lub stała),
+> ponieważ port 3 wydłuża kod o 3 bajty; etykieta zdefiniowana później jest
+> błędem.
 ### MYSZ
 
 Odczytuje dane z myszy proporcjonalnej Commodore 1351 i przesuwa sprite'a.
@@ -5825,10 +5912,12 @@ Basic**.
   - `$8004–$8008` = podpis `CBM80` wymagany przez kod resetujący KERNAL.
   - `$8009–$807F` = ładowarka: SEI / stack init / `JSR $FDA3` (IOINIT) / `JSR
     $FD50` (RAMTAS) / `JSR $FD15` (RESTOR) / `JSR $FF5B` (CINT), a następnie
-    pętla kopiowania bajtów, która przesyła strumieniowo ładunek z pamięci ROM
-    karty do pamięci RAM i przełącza banki, gdy `$FC` osiągnie `$A0`. Na końcu
-    kopiuje malutki **stykowy kod wyjściowy ** do `$0100`, wyłącza wózek za
-    pomocą `LDA #$80 : STA $DE00` i wykonuje `JMP`s do punktu wejścia.
+    kopiuje 60-bajtową procedurę kopiowania **** (`$8044–$807F`) do `$0100` i
+    tam przechodzi. Uruchomiona z pamięci RAM procedura przesyła ładunek z
+    pamięci ROM wózka do adresu ładowania, przełącza banki przez `$DE00`, gdy
+    `$FC` osiągnie `$A0`, wyłącza wózek za pomocą `LDA #$80 : STA $DE00` i `JMP`
+    do punktu wejścia. (Musi działać z pamięci RAM: przełączenie banku zastępuje
+    pamięć ROM pod adresem `$8000`, wliczając własny kod ładowarki).
 - **Ładunek** zaczyna się od `$8080` w banku 0 i w razie potrzeby przelewa się
   do banków 1–7. Maksymalny ładunek = `8 * 8192 − 128 = 65 408 bajtów`.
 
@@ -5870,10 +5959,11 @@ podzielić dane.
 > - **CIA1 / CIA2** są ponownie inicjowane przez `IOINIT`. Niestandardowe
 >   ustawienia timera (IRQ rastrowe, odtwarzacz muzyczny CIA-A) muszą zostać
 >   przeprogramowane po wprowadzeniu.
-> - Wózek jest wyłączany z 8-bajtowego szczątku w **RAM pod adresem `$0100`**,
->   aby `STA $DE00` nie mogła zostać przerwana przez błędne pobranie ROM-u. Nie
->   należy polegać na `$0100–$0107` zawierającym obraz wierzchołka stosu przy
->   wejściu — pierwsze wciśnięcie w RAM nadpisuje szczątek.
+> - Procedura kopiowania działa z **RAM w `$0100–$013B`**, więc bank się
+>   przełącza, a ostateczna `STA $DE00` nigdy nie pobiera kodu spod procesora.
+>   Nie należy polegać na `$0100–$013B` na wejściu i utrzymywać ładunek poza tym
+>   zakresem i poza bajtami strony zerowej `$02–$04` / `$FB–$FE` używanymi przez
+>   program ładujący.
 > 
 > Jeśli CRT działa w VICE, ale zawodzi na prawdziwym sprzęcie, pierwszą rzeczą
 > do sprawdzenia jest to, czy program przyjmuje konkretny stan wektora KERNAL
@@ -5919,6 +6009,12 @@ kompiluje źródła VMA (i projektu Kick):
 
 W oknie dialogowym kompilacji wyświetlana jest nazwa używanego silnika. Wersja
 VMA jest wyświetlana w polu Informacje.
+
+Ten sam kompilator działa w wierszu poleceń (VMA 2.1.0): `vma build game.asm`
+zapisuje `game.prg`, `--crt game.crt` kartridż Magic Desk (te same bajty co
+**Build CRT**), a `--d64` obraz dysku 1541 z programem (`--add` umieszcza na nim
+dalsze pliki) — nie jest wymagany c1541. Zobacz instrukcję w [repozytorium
+VMA](https://github.com/zstarczali/VMA).
 
 ### Edytor wysokiej rozdzielczości / wielokolorowy
 

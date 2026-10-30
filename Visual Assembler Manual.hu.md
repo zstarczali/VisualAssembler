@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**Verzió: 2.6.8**
+**Verzió: 2.6.9**
 
 Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasításblokkok fogd-és-vidd módszerrel történő elrendezésével építed fel, a generált assembly és gépi kód pedig valós időben frissül.
 
@@ -10,6 +10,7 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 
 ## Tartalomjegyzék
 
+- [A 2.6.9 verzió újdonságai](#a-269-verzió-újdonságai)
 - [A 2.6.8 verzió újdonságai](#a-268-verzió-újdonságai)
 - [A 2.6.7 verzió újdonságai](#a-267-verzió-újdonságai)
 - [A 2.6.6 verzió újdonságai](#a-266-verzió-újdonságai)
@@ -230,6 +231,15 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
   - [Számrendszer-átváltó](#számrendszer-átváltó)
 
 ---
+
+## A 2.6.9 verzió újdonságai
+
+- **Git ágak** — a Verziókezelés ablak ágat vált (az ágválasztó listával), ágat hoz létre, nevez át és töröl, és egy ágat az aktuálisba olvaszt (merge). Ütközésnél kiírja és pirossal jelöli a fájlokat, a **Merge megszakítása** visszaáll a merge előtti állapotra; ágváltás, merge és stash után a nyitott fülek újratöltődnek a lemezről. Lásd: [Git](#git).
+- **Fájlonként és stash** — minden változott fájlnak saját **Stage / Unstage / Elvetés** gombja van (a nem követett fájl törölhető), a nevére kattintva megnyílik a diffje. A **Stash** félreteszi a változásokat; a stash-listából alkalmazható, visszavehető (pop) vagy törölhető. A **Minden változás stage-elése** nélkül a projekt-commit csak a stage-elt fájlokat viszi.
+- **Szebb diff** — fájlonkénti kártya állapottal és +/− számokkal, régi és új sorszám, assembly / Ultimate Basic szintaxisszínezés, a sor megváltozott része kiemelve; a **Kétoldali** gomb egymás mellé teszi a régi és az új szöveget, a ⤢ nagyobb helyet ad.
+- **A Változások elvetése tényleg elvet** — Git módban előbb rákérdez, aztán a lemezen is visszaállítja a fájlokat a HEAD-re (`git restore`), és újratölti a füleket, így utána ágat válthatsz. A menüből indítva az eredménye üzenetként jelenik meg.
+- **Kick projektek** — a ciklusszám, a hibák és a tippek az indítófájl által nem importált fájlban is működnek: abból a fából jönnek, amelyikhez a fájl tartozik (pl. `main.asm` egy `boot.asm` indítófájl mellett). A `.pseudopc`-n belüli előre mutató ág (`bne !+`) a logikai címhez képest relatív, a karakterliterál pedig egyenlő az egykarakteres sztringgel (`s.charAt(i) == '1'`), ahogy a KickAssemblerben.
+- **Javítások és megjelenés** — a **Save project** a megnyitott Expert projektet a helyére menti, a mentetlen fájl-füleivel együtt, fájlnév kérése nélkül; a Verziókezelés ablak a képernyőn belül marad, és a szerkesztőkéhez hasonló ikonos eszközgombokat kapott; rövidebb számmezők a Táblagenerátorban.
 
 ## A 2.6.8 verzió újdonságai
 
@@ -713,13 +723,13 @@ A sáv alatti sor az éppen futó lépést mutatja a fájllal — például *Kic
 
 ### Verziókezelés
 
-Minden fülnek saját verziótörténete van, mint egy kis git repónak; a megnyitott `.proj` projekthez tartozó fül egész projektként is verziókezelhető (lásd: [Projekt mód](#projekt-mód)). A **Menu → Versioning → Verziókezelés…** (vagy **Commit…**) megnyitja a dialógust; a **Változások elvetése (vissza a HEAD-re)** közvetlenül visszaállítja az utolsó commitot.
+Minden fülnek saját verziótörténete van, mint egy kis git repónak; a megnyitott `.proj` projekthez tartozó fül egész projektként is verziókezelhető (lásd: [Projekt mód](#projekt-mód)). A **Menu → Versioning → Verziókezelés…** (vagy **Commit…**) megnyitja a dialógust; a **Változások elvetése (vissza a HEAD-re)** megerősítés után visszaállítja az utolsó commitot (Git módban a lemezen lévő fájlokat is).
 
 A szokásos menet: írj **commit üzenetet**, és nyomd meg a **Commit** gombot (vagy Ctrl+Enter) → dolgozz tovább → a **Diff** megmutatja, mi változott → újra commit.
 
 - **Commit** — a fül aktuális állapotát menti el az üzeneteddel. Minden commit rövid hash-t kap (pl. `1bd55ba`); a legújabb a **HEAD**. Ha a HEAD óta nincs változás, nem jön létre új commit.
 - **Állapotsor** — *Nincs mit commitolni, a munkapéldány tiszta* vagy *Commitolatlan változások a `<hash>` óta*.
-- **Diff** — a HEAD óta történt változások; egy naplóbejegyzés **Diff** gombja azt a verziót hasonlítja a szerkesztőhöz. Az új sorok zöldek, a töröltek pirosak, a fejléc **+N / −M** összesítőt mutat. A Block módú programokat assembly-sorokként (blokkonként egy sor), az Expert forrást soronként, az Ultimate Basic fület a forrása alapján hasonlítja össze, így a JSON-ként mentett Block módú projekt változásai is olvashatók. A forrásfájl (`.asm`, `.s`, `.inc` …) a szövegeként tárolódik, így egy verziója is forrásfájl marad.
+- **Diff** — a HEAD óta történt változások; egy naplóbejegyzés **Diff** gombja azt a verziót hasonlítja a szerkesztőhöz. Az új sorok zöldek, a töröltek pirosak, a fejléc **+N / −M** összesítőt mutat. A Block módú programokat assembly-sorokként (blokkonként egy sor), az Expert forrást soronként, az Ultimate Basic fület a forrása alapján hasonlítja össze, így a JSON-ként mentett Block módú projekt változásai is olvashatók. Minden fájl összecsukható kártya az állapotával (**M** / **A** / **D** / **R**) és a számaival, a sorok mellett a régi és az új sorszám áll, a szerkesztő szintaxisszíneivel, és a megváltozott sorban a különböző rész kiemelve látszik. A **Kétoldali** gomb egymás mellé teszi a régi és az új változatot (megjegyzi), a ⤢ nagyobb helyet ad a diffnek. A forrásfájl (`.asm`, `.s`, `.inc` …) a szövegeként tárolódik, így egy verziója is forrásfájl marad.
 - **Checkout** — az adott verziót a szerkesztőbe tölti. A lemezen lévő fájl csak mentéskor változik; a **Változások elvetése** visszavisz a HEAD-re.
 - **Automatikus mentések** — a **Beállítások → Általános → Verziókezelés → Automatikus mentések a verziókezelésbe** bekapcsolásával az app kb. 2,5 másodperccel a szerkesztés abbahagyása után bejegyzést tesz a naplóba. Ezek *autosave* jelölést kapnak; a legutóbbi 20 marad meg, a legfeljebb 100 commit mellett.
 - Az ablak a fejlécénél fogva mozgatható; ugyanott nyílik meg újra, és **Esc**-re vagy a bezáró gombbal zárul (kívülre kattintva nem).
@@ -743,8 +753,13 @@ Ha a fül egy megnyitott `.proj` projekthez tartozik (Expert vagy Ultimate Basic
 Ha a `git` telepítve van, ugyanez a dialógus valódi git repóval is dolgozik.
 
 - **Beállítások → Fájlok és útvonalak → git** / **Beállítások → Általános → Verziókezelés:** **git.exe kiválasztása…** vagy **Automatikus keresés** (a PATH-ban és a szokásos telepítési mappákban); alatta a git verziója látszik. A **Git használata, ha a projekt git repóban van** (alapból bekapcsolva) a repóban lévő fájloknál magától git módba váltja a dialógust. A dialógus fejlécében a **Beépített / Git** kapcsolóval kézzel is válthatsz.
-- A fejléc mutatja az ágat **↑** (push-ra váró) és **↓** (pull-ra váró) commitokkal, alatta a repó változott fájljait.
-- A **Commit** előbb elmenti a fájlt, csak ezt a fájlt stage-eli (vagy minden változást a **Minden változás stage-elése (git add -A)** bejelölésével), majd `git commit`-ot futtat.
+- A fejléc mutatja az ágat **↑** (push-ra váró) és **↓** (pull-ra váró) commitokkal. Az állapotsor alatti eszköztáron (ikon-gombok, a nevük rámutatáskor látszik) van az **ágválasztó lista**, az ág-eszközök, a **Stash** és a **Pull / Push / Frissítés**.
+- **Ágak** — a listában másik ágat választva átvált rá (`git switch`); az **Új ág** a HEAD-ből hoz létre egyet és átvált rá, az **Átnevezés** az aktuális ágat nevezi át, az **Ág törlése** egy másikat töröl (a még be nem olvasztott ágat csak egy második megerősítés után). Ágváltáshoz mentett fülek kellenek: előbb mentsd vagy vesd el a szerkesztő változásait. Váltás után a repó nyitott fülei újratöltődnek a lemezről.
+- A **Merge…** egy kiválasztott ágat olvaszt az aktuálisba (`git merge --no-edit`). Ütközésnél az ütköző fájlok listázódnak és pirosak, az állapotsor *Merge folyamatban*-t mutat: oldd fel őket a szerkesztőben, mentsd, jelöld mindegyiket **Feloldva** gombbal, és commitolj — vagy a **Merge megszakítása** (`git merge --abort`) visszavisz.
+- **A változáslista** a repó minden változott fájlját mutatja a `git status` kódjával. A névre kattintva megnyílik a diffje (HEAD a lemezen lévő fájllal szemben); a mellette lévő gombok **Stage**-elik (`git add`), **Unstage**-elik (`git restore --staged`) vagy **elvetik** (a lemezen vissza a HEAD-re, megerősítés után) — a nem követett fájl helyette **törölhető**.
+- A **Stash** opcionális üzenettel félreteszi a nem commitolt változásokat (`git stash push`); a változások alatti **stash-lista** egy bejegyzést **alkalmaz**, **visszavesz (pop)** vagy **töröl**.
+- A **Változások elvetése** előbb rákérdez, aztán a lemezen visszaállítja a változott fájlokat a HEAD-re (`git restore --staged --worktree`), és újratölti a füleiket — projektnél az egész projektmappát, egyébként a fül fájlját; a nem követett fájlok megmaradnak.
+- A **Commit** előbb elmenti a fájlt, csak ezt a fájlt stage-eli (vagy minden változást a **Minden változás stage-elése (git add -A)** bejelölésével), majd `git commit`-ot futtat. Projektben a **Minden változás stage-elése** alapból be van kapcsolva; kikapcsolva a commit csak a változáslistában stage-elt fájlokat viszi.
 - A napló ennek a fájlnak a commitjait mutatja az ágakkal és tagekkel. Egy bejegyzés **Diff** gombja a commitot a szülőjével veti össze; a **Diff** gomb a HEAD-et a szerkesztővel, a mentetlen változásokkal együtt. A projektfájlokat ugyanúgy hasonlítja, mint a beépített mód; a **RAW** a nyers `git diff`-et mutatja.
 - A **Checkout** az adott commit fájlját a szerkesztőbe tölti (`git show`), a lemezhez nem nyúl.
 - **Pull** (`--ff-only`), **Push** (az első push beállítja az upstreamet: `-u origin <ág>`), és **Repó létrehozása (git init)**, ha a mappa még nem repó.
@@ -928,6 +943,8 @@ Kick-kompatibilis projektben a VA makrói és direktívái a KickAssembler szkri
 | `.if DEBUG` … `.else` … `.endif` | `.if (kifejezés) { … } else { … }` |
 | `.macro név(p)` … `.endm`, hívása `.invoke` | `.macro Név(p) { … }`, hívása `Név(arg)` |
 | `.var név = érték` (futásidejű változó) | `.var név = érték` (szkript-változó) — Kick-kompatibilis projektben a `.var` mindig a KickAssembleré |
+
+**Élő ellenőrzés:** gépelés közben a hibák, a ciklus-gutter és a peephole tippek abból a fából jönnek, amelyikhez a nyitott fájl tartozik — az indítófájl fájából, vagy ha az nem importálja a fájlt (pl. `main.asm` egy `boot.asm` indítófájl mellett), annak a projektforrásnak a fájából, amelyik importálja. A Futtatás és a Build mindig az indítófájlt fordítja.
 
 A projektet a VA assemblere fordítja, nem a KickAssembler: minden build (Futtatás, Build PRG, D64, CRT, Exomizer, Debug, VICE Monitor, Build project, a Build gomb) előbb egy KickAssembler-előfeldolgozón futtatja át az indítófájlt, a nyitott fülek szerkesztőbeli szövegével, mentve vagy sem. Az eredmény ugyanaz a PRG, mint a KickAssembleré. Támogatott:
 

@@ -14,7 +14,7 @@
     rel="stylesheet">
   <link rel="icon" type="image/png" href="assets/icon.png">
   <link rel="shortcut icon" href="favicon.ico">
-  <link rel="stylesheet" href="style.css?v=2.6.8">
+  <link rel="stylesheet" href="style.css?v=2.6.9">
 </head>
 
 <body>
@@ -942,13 +942,36 @@ PRINTABLE CHARACTERS
         <button id="project-snapshot-close" class="project-snapshot-xbtn" type="button" aria-label="Close">×</button>
       </div>
       <p id="vc-status" class="vc-status"></p>
-      <div id="vc-git-bar" class="vc-git-bar" hidden>
-        <button id="vc-git-init" class="secondary" type="button" hidden>git init</button>
-        <button id="vc-git-pull" class="secondary" type="button">Pull</button>
-        <button id="vc-git-push" class="secondary" type="button">Push</button>
-        <button id="vc-git-refresh" class="secondary" type="button">Refresh</button>
+      <div id="vc-git-bar" class="vc-git-bar vc-toolbar" hidden>
+        <select id="vc-branch-select" class="vc-branch-select" aria-label="Branch" hidden></select>
+        <div id="vc-branch-tools" class="vc-tool-groups" hidden>
+          <div class="vc-tool-group">
+            <button id="vc-branch-new" class="vc-tool" type="button" aria-label="New branch"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="4" cy="3.5" r="1.6"/><circle cx="4" cy="12.5" r="1.6"/><path d="M4 5.1v5.8"/><path d="M4 9c0-2.5 2-3 4.5-3"/><path d="M12.5 3.5v5M10 6h5"/></svg></button>
+            <button id="vc-branch-rename" class="vc-tool" type="button" aria-label="Rename"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 2.5l3 3L6 13H3v-3z"/><path d="M9 4l3 3"/></svg></button>
+            <button id="vc-branch-delete" class="vc-tool" type="button" aria-label="Delete branch"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4h11M6 4V2.5h4V4"/><path d="M4 4l.7 9.5h6.6L12 4"/><path d="M6.5 6.5v4.5M9.5 6.5v4.5"/></svg></button>
+            <button id="vc-branch-merge" class="vc-tool" type="button" aria-label="Merge…"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="4" cy="3" r="1.6"/><circle cx="4" cy="13" r="1.6"/><circle cx="12" cy="9" r="1.6"/><path d="M4 4.6v6.8"/><path d="M4 4.6c0 3 2.5 4.4 6.4 4.4"/></svg></button>
+          </div>
+          <div class="vc-tool-group">
+            <button id="vc-stash-save" class="vc-tool" type="button" aria-label="Stash"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9.5l1.5-5h9l1.5 5v4H2z"/><path d="M2 9.5h3.5l1 1.5h3l1-1.5H14"/><path d="M8 1.5v5M6 4.5l2 2 2-2"/></svg></button>
+          </div>
+        </div>
+        <div class="vc-tool-group">
+          <button id="vc-merge-abort" class="vc-tool vc-tool--danger" type="button" aria-label="Abort merge" hidden><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="8" cy="8" r="6"/><path d="M5.8 5.8l4.4 4.4M10.2 5.8l-4.4 4.4"/></svg></button>
+          <button id="vc-git-init" class="vc-tool" type="button" aria-label="git init" hidden><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 4V13h13V5.5H7.5L6 4z"/><path d="M8 7.5v4M6 9.5h4"/></svg></button>
+          <button id="vc-git-pull" class="vc-tool" type="button" aria-label="Pull"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v8.5M4.5 7l3.5 3.5L11.5 7"/><path d="M3 14h10"/></svg></button>
+          <button id="vc-git-push" class="vc-tool" type="button" aria-label="Push"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 14V5.5M4.5 9L8 5.5 11.5 9"/><path d="M3 2h10"/></svg></button>
+          <button id="vc-git-refresh" class="vc-tool" type="button" aria-label="Refresh"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13 8a5 5 0 1 1-1.5-3.6"/><path d="M13 2.5v3h-3"/></svg></button>
+        </div>
+      </div>
+      <div id="vc-ask" class="vc-ask" hidden>
+        <label id="vc-ask-label" class="vc-ask-label" for="vc-ask-input"></label>
+        <input id="vc-ask-input" class="vc-ask-input" type="text" spellcheck="false" autocomplete="off">
+        <select id="vc-ask-select" class="vc-ask-input" hidden></select>
+        <button id="vc-ask-ok" class="primary" type="button">OK</button>
+        <button id="vc-ask-cancel" class="secondary" type="button">Cancel</button>
       </div>
       <div id="vc-changes" class="vc-changes" hidden></div>
+      <div id="vc-stash" class="vc-changes vc-stash" hidden></div>
       <label class="project-snapshot-note-field">
         <span id="project-snapshot-note-label">Commit message</span>
         <textarea id="project-snapshot-note" rows="2" placeholder="Describe what changed…"></textarea>
@@ -964,8 +987,8 @@ PRINTABLE CHARACTERS
       </div>
       <pre id="vc-output" class="vc-output" hidden></pre>
       <div id="vc-diff" class="vc-diff" hidden>
-        <div class="vc-diff-hdr"><span id="vc-diff-title"></span><span class="vc-diff-tools"><button id="vc-diff-raw" class="vc-mode-btn" type="button" hidden>RAW</button><button id="vc-diff-close" class="project-snapshot-xbtn" type="button" aria-label="Close">×</button></span></div>
-        <pre id="vc-diff-body" class="vc-diff-body"></pre>
+        <div class="vc-diff-hdr"><span id="vc-diff-title"></span><span id="vc-diff-stats" class="vcd-stats"></span><span class="vc-diff-tools"><button id="vc-diff-split" class="vc-mode-btn" type="button" aria-pressed="false">Split</button><button id="vc-diff-expand" class="vc-mode-btn" type="button">⤢</button><button id="vc-diff-raw" class="vc-mode-btn" type="button" hidden>RAW</button><button id="vc-diff-close" class="project-snapshot-xbtn" type="button" aria-label="Close">×</button></span></div>
+        <div id="vc-diff-body" class="vc-diff-body"></div>
       </div>
       <p id="project-snapshot-empty" class="project-snapshot-empty">No commits yet.</p>
       <div id="project-snapshot-list" class="project-snapshot-list vc-log"></div>
@@ -1484,7 +1507,7 @@ PRINTABLE CHARACTERS
           <img src="assets/logo-about.png" alt="C64 Visual Assembler" width="200" height="160">
         </div>
         <h2 class="about-title">C64 Visual Assembler</h2>
-        <p class="about-version" id="about-version">v2.6.8</p>
+        <p class="about-version" id="about-version">v2.6.9</p>
         <p class="about-version" id="about-ub-version"><span id="about-ub-version-label">UltimateBasic:</span> <span id="about-ub-version-value">v?</span></p>
         <p class="about-version" id="about-vma-version"><span id="about-vma-version-label">VMA:</span> <span id="about-vma-version-value">v?</span></p>
       </div>
@@ -1519,25 +1542,25 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.6.8</p>
+      <p class="whats-new-version">v2.6.9</p>
       <ul class="whats-new-list">
         <li>
-          <strong>Toolkit in Expert and UB mode:</strong> the <em>Toolkit</em> toolbar button shows the C64 palette and the PETSCII codes next to the editor — in Expert mode as a side panel beside Disassembly / Monitor, in UB mode in the right-hand pane.
+          <strong>Git branches:</strong> the Version control window switches, creates, renames and deletes branches and merges one into the current branch; a merge conflict lists the files, marks them red and offers <em>Abort merge</em>. The open tabs reload from disk after a switch or merge.
         </li>
         <li>
-          <strong>Panels remembered:</strong> the Monitor and Toolkit panels of Expert mode can be resized like the Disassembly; the panels you leave open (Palette, Disassembly, Monitor, Toolkit, Project) and their widths come back on the next start, whichever mode the app starts in — in UB mode too.
+          <strong>File by file and stash:</strong> in the change list each file can be staged, unstaged, discarded (or, untracked, deleted) and its diff opened with a click; <em>Stash</em> puts the changes aside, the stash list applies, pops or drops them. Without <em>Stage all</em> a project commit takes only the staged files.
         </li>
         <li>
-          <strong>VMA language:</strong> a <code>.const</code> or <code>.var</code> in the zero page makes <code>lda zp</code> a zero-page instruction (<code>A5 FB</code>, as KickAssembler does; <code>lda.abs zp</code> keeps absolute); <code>JMP (label)</code> and <code>JMP (table+2)</code>; expressions such as <code>lda $1234+1</code> or <code>sta $0400+40*2,x</code>; a macro may call another macro; labels in the bytes of <code>.data</code> / <code>.rawbytes</code> (pointer tables).
+          <strong>A better diff:</strong> a card per file with its status and +/− counts, old and new line numbers, assembly / UB syntax colours and the changed part of a line highlighted; <em>Split</em> shows old | new side by side, ⤢ gives it more room.
         </li>
         <li>
-          <strong>Includes:</strong> an included file’s own <code>.include</code>, <code>.incbin</code> and <code>.sid</code> lines are loaded (relative to its folder) and its macro calls are expanded; a missing include, or one that includes itself, is now an error instead of an empty library.
+          <strong>Discard changes really discards:</strong> in Git mode it asks first, then resets the files on disk to HEAD (git restore) and reloads the tabs, so you can switch branches afterwards; from the menu the result shows as a message.
         </li>
         <li>
-          <strong>Safer builds:</strong> instead of silently wrong code: an unresolved TURBO_SET / SPRITE_ANIM value and a MEMCPY / MEMSET / JOYSTICK size taken from a label defined later are errors; a <code>:name</code> label may point at a label; the automatic buffer of a <code>.data</code> / <code>.rawbytes</code> macro argument takes its bytes. Programs using zero-page constants get shorter — the same in the JavaScript and the Rust compiler.
+          <strong>Kick projects:</strong> cycle counts, errors and hints also work in files the startup file does not import (they come from the file’s own tree, e.g. <code>main.asm</code> next to a <code>boot.asm</code> startup); a forward branch inside <code>.pseudopc</code> (<code>bne !+</code>) is relative to the logical address; <code>s.charAt(i) == '1'</code> compares as in KickAssembler.
         </li>
         <li>
-          <strong>Fixes:</strong> a CRT larger than 8 KB (more than one bank) did not start — the loader now runs from RAM; an <code>.asm</code> name given in the Save dialog of a project saves the source text, not the VA JSON.
+          <strong>Fixes and looks:</strong> <em>Save project</em> saves an opened project in place (with its unsaved file tabs) instead of asking for a name; the Version control window stays within the screen and uses icon tool buttons; shorter fields in the Table Generator.
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
@@ -3210,9 +3233,9 @@ PRINTABLE CHARACTERS
               <option value="dec">Decimal</option>
             </select>
           </label>
-          <label class="cg-field">
+          <label class="cg-field tg-num-field">
             <span class="cg-lbl" id="tg-perline-lbl">Values per line</span>
-            <select id="tg-perline" class="cg-select">
+            <select id="tg-perline" class="cg-select tg-num-in">
               <option value="8">8</option>
               <option value="16" selected>16</option>
               <option value="32">32</option>
@@ -3892,13 +3915,13 @@ PRINTABLE CHARACTERS
     </div>
   </div>
 
-  <script src="tauri-bridge.js?v=2.6.8"></script>
-  <script src="i18n.js?v=2.6.8"></script>
-  <script src="tutorial-data.js?v=2.6.8"></script>
+  <script src="tauri-bridge.js?v=2.6.9"></script>
+  <script src="i18n.js?v=2.6.9"></script>
+  <script src="tutorial-data.js?v=2.6.9"></script>
   <script>window.WASM_SEARCH_PATH = "lib/websid/";</script>
   <script src="lib/websid/scriptprocessor_player.min.js"></script>
   <script src="lib/websid/backend_websid.js"></script>
-  <script src="app.js?v=2.6.8"></script>
+  <script src="app.js?v=2.6.9"></script>
 
 </body>
 
