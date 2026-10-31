@@ -5,12 +5,15 @@ const loadApp = require("./helpers/load-app");
 const app = loadApp();
 // no execCommand, as a test double: the setRangeText fallback does the edit
 app.document = new Proxy(app.document, { get: (doc, key) => (key === "execCommand" ? () => false : doc[key]) });
+app.InputEvent = class { constructor(type, options) { this.type = type; Object.assign(this, options); } };
 
 function fakeEditor(value, start, end) {
   return {
-    value, selectionStart: start, selectionEnd: end, inputs: 0,
+    value, selectionStart: start, selectionEnd: end, inputs: 0, events: [],
     focus() {},
-    dispatchEvent() { this.inputs++; },
+    addEventListener() {},
+    removeEventListener() {},
+    dispatchEvent(e) { this.events.push(e.type + ":" + e.inputType); if (e.type === "input") this.inputs++; },
     setRangeText(text, a, b) { this.value = this.value.slice(0, a) + text + this.value.slice(b); },
     setSelectionRange(a, b) { this.selectionStart = a; this.selectionEnd = b; },
   };
@@ -35,6 +38,17 @@ test("UPPERCASE and lowercase change only the selection and keep it selected", (
   item(items(ed), "edCtxLower").run();
   assert.equal(ed.value, "LDA #$FF ; comment");
   assert.deepEqual([ed.selectionStart, ed.selectionEnd], [11, 18]);
+});
+
+test("Paste reads the backend clipboard, without the WebView permission prompt, and normalizes line ends", async () => {
+  const ed = fakeEditor("aaa\nbbb", 3, 3);
+  app.window.electronAPI = Object.assign(app.window.electronAPI || {}, { readClipboardText: async () => "X\r\nY\rZ" });
+  app.navigator.clipboard = { readText: () => { throw new Error("the WebView clipboard asks for a permission"); } };
+  item(items(ed), "sidContextPaste").run();
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(ed.value, "aaaX\nY\nZ\nbbb");
+  assert.deepEqual([ed.selectionStart, ed.selectionEnd], [8, 8], "the caret is after the pasted text");
+  assert.deepEqual(ed.events, ["beforeinput:insertFromPaste", "input:insertFromPaste"], "one edit, as with Ctrl+V");
 });
 
 test("without a selection only Paste and Select all are enabled", () => {

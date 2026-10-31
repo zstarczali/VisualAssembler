@@ -76,6 +76,7 @@
     reloadSidFile: (filePath, baseDir) => invoke("reload_sid_file", { filePath, baseDir }),
     chooseIncludeFile: () => invoke("choose_include_file"),
     reloadIncludeFile: (filePath, baseDir) => invoke("reload_include_file", { filePath, baseDir }),
+    readClipboardText: () => invoke("plugin:clipboard-manager|read_text"),
     savePrg: (payload) => invoke("save_prg", { payload }),
     saveCrt: (payload) => invoke("save_crt", { payload }),
     saveBin: (payload) => invoke("save_bin", { payload }),
