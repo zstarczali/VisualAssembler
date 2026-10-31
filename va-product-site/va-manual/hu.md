@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**2.7.0-as verzió**
+**2.7.0 verzió**
 
 Vizuális, blokk alapú 6502 assembler a Commodore 64-hez. Programokat hozhat
 létre húzással és elengedéssel (fogd és vidd) utasításblokkokkal, és valós
@@ -10,6 +10,8 @@ időben tekintheti meg a létrehozott assembly és gépi kódot.
 
 ## Tartalomjegyzék
 
+- [2.7.0 verzió – kiemelt funkciók](#version-270-highlights)
+- [2.6.9-es verzió – kiemelt funkciók](#version-269-highlights)
 - [2.6.8-as verzió kiemelt funkciói](#version-268-highlights)
 - [2.6.7-es verzió – kiemelt funkciók](#version-267-highlights)
 - [2.6.6-os verzió – kiemelt funkciók](#version-266-highlights)
@@ -202,6 +204,7 @@ időben tekintheti meg a létrehozott assembly és gépi kódot.
   - [Hibakereső jelzések](#debugger-flags)
   - [VICE Monitor (gyors újratöltés, élő megfigyelés,
     profilkészítő)](#vice-monitor-hot-reload-live-watch-profiler)
+  - [Beépített C64 és hibakereső](#built-in-c64-and-debugger)
 - [11. Tudásbázis linkek](#11-knowledge-base-links)
 - [12. D64 Exportálás és futtatás](#12-d64-export--run)
   - [Felosztás gomb](#split-run-button)
@@ -242,6 +245,69 @@ időben tekintheti meg a létrehozott assembly és gépi kódot.
   - [Számátváltó](#number-converter)
 
 ---
+
+## A 2.7.0 verzió legfontosabb elemei
+
+- **Beépített C64** — A VICE 3.10 (x64sc, WebAssembly-re fordítva) mostantól az
+  alkalmazáson belül fut, nincs mit telepíteni. Válassza a **Beépített C64**
+  lehetőséget a Futtatás menüben, vagy nyissa meg az eszköztár gombjával. Lásd:
+  [Beépített C64 és hibakereső](#built-in-c64-and-debugger).
+- **Debugger** — megáll az utasítás előtt egy töréspontnál; **Continue**,
+  **Break**, **Step into / over / out**; szerkeszthető regiszterek és jelzők, PC
+  körüli szétszerelés, memória nézet és töréspont lista. A töréspontok a
+  szerkesztőből, a Blokk módból és a szétszerelésből származnak, és a szerkesztő
+  követi a CPU-t. A **Debug** gomb ebben a módban, és akkor is használja, amikor
+  nincs beállítva RetroDebugger.
+- **Gépbeállítások** — PAL vagy NTSC, SID 6581 vagy 8580, reSID vagy FastSID,
+  REU akár 16 MB-ig, joystick port, warp és hang.
+- **Saját fájlok** — a **Fájlok** menü betölt egy PRG-t, és csatlakoztat egy
+  D64-et vagy egy kazettát (`.crt`). Az állapotsoron látható a meghajtó LED-je
+  és a sáv, a villogó LED pedig meghajtóhibát jelez, például ha egy fájl nem
+  található.
+- **Kijelző** — CRT szűrő pásztázóvonalakkal, teljes képernyős megjelenítéssel
+  és átméretezhető ablakkal. Az ablak és a beállításai a következő indításkor
+  újra megjelennek.
+- **Nagy felbontású szerkesztő** – a többszínű cellák mérete a papírra és 3
+  színre korlátozódik, a korlátot meghaladó cellák pirossal vannak jelölve, és a
+  kép szélén túli rajzolás bekapcsolt pixelráccsal már nem okoz hibákat. Lásd:
+  [Nagy felbontású / Többszínű szerkesztő](#hi-res--multicolor-editor).
+- **Szerkesztő jobb gombbal megnyitható menüje** — a Szakértő és az Ultimate
+  Basic szerkesztőkben: Kivágás, Másolás, Beillesztés, Összes kijelölése,
+  valamint NAGYBETŰS/KISBETŰS írásmód a kijelölt szöveghez.
+
+## A 2.6.9-es verzió legfontosabb elemei
+
+- **Git ágak** — a verziókövető ablak váltja az ágakat (az áglistát),
+  létrehozza, átnevezi és törli azokat, majd egyet egyesít az aktuális ággal.
+  Egy egyesítési ütközés esetén a fájlok listázva vannak, pirossal jelölve, és
+  az **Egyesítés megszakítása** parancs visszaállítja az egyesítés előtti
+  állapotot; a megnyitott lapok újratöltődnek a lemezről egy váltás, egyesítés
+  vagy mentés után. Lásd: [Git]{1].
+- **Fájlonként és stash módban** — minden módosított fájlnak megvan a saját
+  **Stage / Unstage / Discard** gombja (a nem követett fájlok törölhetők), és a
+  nevére kattintva megnyílnak a különbségei. A **Stash** félreteszi a
+  változtatásokat; a stash lista alkalmazza, kiemeli vagy elveti őket. A **Stash
+  összes változtatás stash módban** nélkül a projekt commit csak a staffolt
+  fájlokat veszi át.
+- **Jobb diff** — fájlonként egy kártya az állapotával és +/− számlálóival, régi
+  és új sorszámaival, assembly / Ultimate Basic szintaxis színeivel és a sor
+  módosított részével kiemelve; a **Split** a régi és az új szöveget egymás
+  mellett mutatja, és a ⤢ több helyet biztosít a diffnek.
+- A **Változások elvetése valójában eldobásokat jelent** — Git módban először
+  rákérdez, majd visszaállítja a lemezen lévő fájlokat HEAD állapotba (`git
+  restore`) és újratölti a füleket, így utána egy elágazási kapcsoló működik. A
+  menüből indítva az eredménye üzenetként jelenik meg.
+- **Kick projektek** — a ciklusszámlálók, hibák és tippek egy olyan fájlban is
+  működnek, amelyet az indítófájl nem importál: ezek a fájlhoz tartozó fából
+  származnak (például `main.asm` egy `boot.asm` indítófájl mellett). Az
+  `.pseudopc` fájlon belüli előre irányuló ág (`bne !+`) relatív a logikai
+  címhez képest, és egy char literál egy egykarakteres karakterlánccal egyenlő
+  (`s.charAt(i) == '1'`), mint a KickAssemblerben.
+- **Javítások és kinézetek** — **Projekt mentése** A megnyitott Szakértői
+  projektet a helyén, a nem mentett fájlok füleivel menti el, ahelyett, hogy
+  fájlnevet kérne; a verziókövetés ablaka a képernyőn marad, és ikon
+  eszközgombokkal rendelkezik, mint a szerkesztők; rövidebb számmezők a
+  Táblázatgenerátorban.
 
 ## A 2.6.8-as verzió legfontosabb elemei
 
@@ -1327,7 +1393,7 @@ sikertelen.
 | **D64 építése** (`Menü →` építése)                                                           | Csomagolja be a programot és a további fájlokat egy `.d64` lemezképbe — lásd: [Exportálás D64-be párbeszédpanel](#export-to-d64-dialog)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | **CRT építése**                                                                              | Exportáld a programot 64K-s Magic Desk (`.crt`, kazettatípus 19) fájlként. Lásd: [12b. szakasz](#12b-crt-export-magic-desk-64k-cartridge).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | **Projekt létrehozása** (`Menü → Építés`)                                                    | Fordítsd le a projekt (vagy a megnyitott lapok) összes összeállítható fájlját egy `.prg` fájlba a forráskódja mellett — lásd: [Projekt összeállítása](#build-project)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| **Futtatás (felosztó gomb)**                                                                 | A fő **▶ Futtatás** gomb futtatja az aktuális módot; kattintson az **▾** nyílra a következők közötti váltáshoz: **Futtatás PRG-ként** (a VICE közvetlen fordítása és indítása), **Futtatás D64-en keresztül** (.d64 lemezképbe csomagolni és VICE-ot indítani), **Futtatás hardveren** (PRG küldése C64 Ultimate / 1541 Ultimate eszközre), **D64 hardveren** (D64 küldése ugyanarra az eszközre), vagy **Kung Fu Flash 2** (PRG feltöltése USB-n keresztül egy valódi C64/C128-ra egy Kung Fu Flash 2 kazettával). Lásd a [12. szakasz](#12-d64-export--run) és a [13. szakasz](#13-settings) részeket.                                                                                                                                                                                                                                                                                                                                                        |
+| **Futtatás (felosztó gomb)**                                                                 | A fő **▶ Futtatás** gomb futtatja az aktuális módot; kattintson az **▾** nyílra a következők közötti váltáshoz: **Futtatás PRG-ként** (a VICE közvetlen fordítása és indítása), **Futtatás D64-en keresztül** (.d64 lemezképbe csomagolni és VICE-ot indítani), **Futtatás hardveren** (PRG küldése C64 Ultimate / 1541 Ultimate eszközre), **D64 hardveren** (D64 küldése ugyanarra az eszközre), vagy **Kung Fu Flash 2** (PRG feltöltése USB-n keresztül egy valódi C64/C128-ra egy Kung Fu Flash 2 kazettával). Lásd a [12. szakasz](#12-d64-export--run) és a [13. szakasz](#13-settings) részeket. A **Beépített C64** a programot a C64-en, az alkalmazáson belül futtatja, lásd: [Beépített C64 és hibakereső](#built-in-c64-and-debugger).                                                                                                                                                                                                             |
 | **Hibakeresés (RetroDebugger)**                                                              | Fordítás és indítás a RetroDebuggerben töréspontokkal, szimbólumokkal és automatikus indítási jelzőkkel (lásd: [10. szakasz](#10-debugger-integration))                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | **Futtatás az Exomizerrel**                                                                  | Jelölőnégyzet a **Beállítások → Általános → Program** menüpontban — ha engedélyezve van, akkor az összes Futtatás és Összeállítás művelet a PRG-t az `exomizer sfx` parancson keresztül futtatja indítás vagy mentés előtt (`sfx basic` egy BASIC sorral kezdődő PRG esetén, így a RUN a program visszatérése után újra működik; `sfx $<betöltési cím>` egyébként). Működik a Futtatás PRG-ként, Futtatás D64-en keresztül, Futtatás hardveren, PRG összeállítása és D64 összeállítása paranccsal. Először konfigurálja az Exomizer futtatható fájlját a **Beállítások → Fájlok és elérési utak** menüpontban.                                                                                                                                                                                                                                                                                                                                                  |
 | **Automatikus automatikus mentési bejegyzések**                                              | Jelölőnégyzet a **Beállítások → Általános → Verziókövetés** menüpontban. Ha engedélyezve van, az alkalmazás körülbelül 2,5 másodperccel a fül szerkesztésének befejezése után automatikusan mentésre kerül a verzióelőzményekbe (egy projekt füle esetén a projektelőzményekbe is). Kapcsold ki, ha csak a saját commitjaidat szeretnéd. Lásd: [Verziókövetés]{1].                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
@@ -1346,8 +1412,8 @@ Minden fülnek megvan a saját verzióelőzménye, mint egy kis git repositoryna
 egy megnyitott `.proj` projekthez tartozó fül is verziózható egy egész
 projektként (lásd [Projekt mód](#project-mode)). A **Menü → Verziókezelés →
 Verziókövetés…** (vagy **Kommit…**) megnyitja a párbeszédablakot; a
-**Változtatások elvetése (vissza a HEAD-be)** közvetlenül visszaállítja az
-utolsó commitot.
+**Változtatások elvetése (vissza a HEAD-hez)** visszaállítja az utolsó commitot
+egy megerősítés után (Git módban a lemezen lévő fájlokat is).
 
 A szokásos munkafolyamat: írj egy **commit üzenetet** és nyomd meg az **Commit**
 (vagy Ctrl+Enter) billentyűkombinációt → folytasd a szerkesztést → nyomd meg az
@@ -1360,12 +1426,17 @@ A szokásos munkafolyamat: írj egy **commit üzenetet** és nyomd meg az **Comm
   vagy *Nem véglegesített változtatások a(z) `<hash>`* óta.
 - **Diff** — a HEAD óta bekövetkezett változások; a naplóbejegyzés **Diff**
   gombja összehasonlítja az adott verziót a szerkesztővel. A hozzáadott sorok
-  zöldek, az eltávolított sorok pirosak, a fejléc pedig **+N / −M** feliratot
+  zöldek, az eltávolított sorok pirosak, és a fejléc **+N / −M** feliratot
   mutat. A blokk módú programok összeszerelési sorokként (blokkonként egy sor),
-  szakértői forrásként soronként, Ultimate Basic fülekként hasonlíthatók össze
-  forrásuk szerint, így a JSON-ként mentett blokk módú projekt továbbra is
-  olvasható változtatásokat mutat. A forrásfájl (`.asm`, `.s`, `.inc` …)
-  szövegként tárolódik, így a verzió forrásfájl marad.
+  a szakértői források soronként, az Ultimate Basic fülek forrás szerint
+  hasonlíthatók össze, így a JSON formátumban mentett blokk módú projekt
+  továbbra is olvasható változtatásokat mutat. Minden fájl egy összecsukható
+  kártya, amelyen látható az állapota (**M** / **A** / **D** / **R**) és a
+  darabszáma, a sorok a régi és új számukat, valamint a szerkesztő
+  szintaxisszíneit tartalmazzák, a módosított sorban pedig az eltérő rész
+  kiemelve jelenik meg. A **Split** a régi és az új verziót egymás mellett
+  mutatja (megjegyzi), ⤢ több helyet biztosít a különbségeknek. A forrásfájl
+  (`.asm`, `.s`, `.inc` …) szövegként tárolódik, így a verzió forrásfájl marad.
 - **Checkout** — betölti az adott verziót a szerkesztőbe. A lemezen lévő fájl
   csak mentéskor változik; a **Discard changes** visszakerül a HEAD-be.
 - **Automatikus mentésű bejegyzések** — a **Beállítások → Általános →
@@ -1431,11 +1502,40 @@ repositoryval.
   van** (alapértelmezés szerint bekapcsolva) automatikusan Git módba kapcsolja a
   párbeszédpanelt a tárolóban lévő fájlok esetén. A **Beépített / Git** kapcsoló
   a párbeszédpanel fejlécében manuálisan módosítja a módot.
-- A fejléc az **↑** (push végrehajtása) és az **↓** (pull végrehajtása) ágat
-  mutatja, majd a repository módosított fájljai.
-- A **Commit** először menti a fájlt, csak ezt a fájlt készíti elő (vagy minden
-  módosítást a **Steme all changes (git add -A)** paranccsal), majd lefuttatja a
-  `git commit` parancsot.
+- A fejléc az **↑** (küldésre véglegesít) és az **↓** (lehívásra véglegesít)
+  ágat mutatja. Az állapotsor alatt egy eszköztár (ikongombok, a nevek az egér
+  fölé helyezéskor jelennek meg) tartalmazza az **áglistát**, az ág eszközeit, a
+  **Stash** és a **Pull / Push / Refresh**-et.
+- **Ágak** — válassz egy másik ágat a listából a ráváltáshoz (`git switch`); Az
+  **Új ág** létrehoz egyet a HEAD-ből és arra vált, az **Átnevezés** átnevezi az
+  aktuális ágat, az **Ág törlése** töröl egy másikat (a még nem egyesített ág
+  csak egy második megerősítés után törlődik). A váltás mentett lapokat igényel:
+  először mentsd vagy vetd el a szerkesztő módosításait. Váltás után a
+  repository nyitott lapjai újratöltődnek a lemezről.
+- Az **Merge…** parancs egy kiválasztott ágat egyesít az aktuális ággal (`git
+  merge --no-edit`). Ütközés esetén az ütköző fájlok fel vannak sorolva és piros
+  színnel jelennek meg, az állapotsorban pedig az *Merge in process* felirat
+  olvasható: oldd fel őket a szerkesztőben, mentsd el, jelöld meg mindegyiket
+  **Resolved** és commitold — vagy nyomd meg az **Abort merge** (`git merge
+  --abort`) gombot a visszalépéshez.
+- **A változáslista** a repository összes módosított fájlját mutatja a hozzájuk
+  tartozó `git status` kóddal együtt. Kattintson egy nevére a különbséghez (HEAD
+  a lemezen lévő fájlhoz képest); a mellette lévő gombokra **Stage** (`git
+  add`), **Unstage** (`git restore --staged`) és **Discard** (vissza a lemezen
+  lévő HEAD állapotba, megerősítés után) — egy nem követett fájl ehelyett
+  **törölhető**.
+- A **Stash** egy opcionális üzenettel (`git stash push`) félreteszi a nem
+  véglegesített változtatásokat; a változtatások alatti **stash lista**
+  **alkalmaz**, **kiemel** vagy **eldob** egy bejegyzést.
+- A **Változások elvetése** először rákérdez, majd visszaállítja a lemezen lévő
+  módosított fájlokat HEAD állapotba (`git restore --staged --worktree`) és
+  újratölti a füleiket – egy projekt esetében a teljes projektmappát, egyébként
+  a fül fájlját; a nem követett fájlok megmaradnak.
+- Az **Commit** parancs először a fájlt menti el, csak ezt a fájlt készíti elő
+  (vagy minden módosítást a **Stage all changes (git add -A)** paranccsal), majd
+  lefuttatja a `git commit` parancsot. Egy projektben az **Stage all changes**
+  parancs alapértelmezés szerint be van kapcsolva; kikapcsolt állapotban a
+  commit csak a változáslistában előkészített fájlokat veszi át.
 - A napló felsorolja a fájl commitjait az ágaikkal és címkéikkel együtt. Egy
   bejegyzés **Diff** gombja összehasonlítja a commitot a szülőjével; az **Diff**
   gomb összehasonlítja a HEAD-et a szerkesztővel, a nem mentett változtatásokkal
@@ -1840,6 +1940,13 @@ mindkettőben létező direktívákat a formájuk különbözteti meg:
 | `.ha HIBAKERESÉS` … `.else` … `.endif`                     | `.if (kifejezés) { … } else { … }`                                                                                    |
 | `.makrónév(p)` … `.endm`, meghívva az `.invoke` paranccsal | `.makró Name(p) { … }`, meghívva: `Name(arg)`                                                                         |
 | `.var név = érték` (futásidejű változó)                    | `.var név = érték` (egy szkriptváltozó) — egy Kick-kompatibilis projektben az `.var` mindig a KickAssembler változója |
+
+**Élő ellenőrzés:** Gépelés közben a hibák, a ciklus ereszcsatorna és a
+kukucskálóra való utalások abból a fából származnak, amelyhez a megnyitott fájl
+tartozik — az indítófájl fájából, vagy egy olyan fájl esetében, amelyet nem
+importál (mondjuk a `main.asm` fájl egy `boot.asm` indítófájl mellett), akkor az
+azt importáló projektforrás fájából. A Futtatás és a Fordítás parancsok mindig
+az indítófájlt építik fel.
 
 A projekt a VA assemblerrel fordul, nem a KickAssemblerrel: minden fordítás
 (Run, Build PRG, D64, CRT, Exomizer, Debug, VICE Monitor, Build project, a Build
@@ -4047,10 +4154,14 @@ másolása-beillesztése helyett.
 | Név         | A makró azonosítója (pl. `setColor`)                                               |
 | Paraméterek | Opcionális vesszővel elválasztott paraméternevek (pl. `color` vagy `color, count`) |
 
-A makródefiníció kezdetét jelzi. A MACRO és ENDM közötti blokkok a makró törzsét
-alkotják – ezek **nem generálnak semmilyen kódot** ott, ahol a definíció
-található. Az argumentumokhoz használd a `{paramName}` karakterláncot
-helykitöltőként.
+Makródefiníció kezdetét jelöli. A MACRO és ENDM közötti blokkok a makró törzsét
+alkotják. Az ** paraméterekkel rendelkező makró nem generál kódot**, ahol a
+definíció található. A paraméterek nélküli makrók is ott tárolódnak
+alprogramként, így a `JSR név` meghívja: a programfolyamat átugrik rajta
+(`JMP`), és egy `RTS` kerül a végére. Ugyanez vonatkozik az ilyen makrókra is,
+ha egy fix címen található könyvtárban van (a `JMP` nélkül a könyvtár a
+programfolyamaton kívül esik). Az `{paramName}` paramétert használjuk
+helykitöltőként az argumentumokhoz.
 
 **Generált ASM:**
 ```
@@ -4456,7 +4567,7 @@ fordítási időben. Összehasonlítja az `A`, `X` vagy `Y` értékeket egy azon
 | Mező          | Leírás                                       |
 | ------------- | -------------------------------------------- |
 | Nyilvántartás | `A`, `X` vagy `Y`                            |
-| Operátor      | `==`, `!=`, `<`, `<=`, `>`, `>=` |
+| Operátor      | `==`, `!=`, `&lt;`, `&lt;=`, `&gt;`, `&gt;=` |
 | Érték         | Azonnali érték HEX vagy DEC formátumban      |
 
 **Szakértői szintaxis:**
@@ -4474,6 +4585,8 @@ Az összehasonlítás alapértelmezés szerint előjel nélküli. Az `<=` és az
 esetén a makró a kiválasztott regiszterhez tartozó legrövidebb ekvivalens
 elágazási láncra bővül.
 
+Minta: **Futásidejű IF / ELSE demo** (`samples/runtime-if-demo.asm`).
+
 ---
 
 ### MÍG / VÉGE
@@ -4484,7 +4597,7 @@ feltétel igaz marad.
 | Mező          | Leírás                                       |
 | ------------- | -------------------------------------------- |
 | Nyilvántartás | `A`, `X` vagy `Y`                            |
-| Operátor      | `==`, `!=`, `<`, `<=`, `>`, `>=` |
+| Operátor      | `==`, `!=`, `&lt;`, `&lt;=`, `&gt;`, `&gt;=` |
 | Érték         | Azonnali érték HEX vagy DEC formátumban      |
 
 **Szakértői szintaxis:**
@@ -4509,7 +4622,7 @@ egyszer, majd a feltétel eldönti, hogy leálljon-e.
 | Mező          | Leírás                                       |
 | ------------- | -------------------------------------------- |
 | Nyilvántartás | `A`, `X` vagy `Y`                            |
-| Operátor      | `==`, `!=`, `<`, `<=`, `>`, `>=` |
+| Operátor      | `==`, `!=`, `&lt;`, `&lt;=`, `&gt;`, `&gt;=` |
 | Érték         | Azonnali érték HEX vagy DEC formátumban      |
 
 **Szakértői szintaxis:**
@@ -5675,6 +5788,100 @@ exportálását máshol történő felhasználásra.
 
 ---
 
+### Beépített C64 és hibakereső
+
+Az alkalmazás egy teljes C64: VICE 3.10 (x64sc) környezetet tartalmaz,
+WebAssembly-re fordítva. Nem igényel telepítést és beállításokat, és külső VICE
+nélkül is működik.
+
+**Program indítása:** válaszd a **Built-in C64** opciót a **Futtatás** menüben,
+majd nyomd meg a **Futtatás** gombot. A program felépítése megtörténik, a gép
+hard reset-et kap, és a program elindul: `RUN` egy BASIC sorral rendelkező
+program esetén a `$0801` címen, egyébként `SYS` a betöltési címével. Az
+eszköztár gombja megnyitja az ablakot anélkül, hogy bármit is lefutna; az
+eszköztár első gombja újra felépítésre kerül és lefut.
+
+**A billentyűzet** a C64-re vált, miközben a képernyő van fókuszban (kattints
+rá). A **Tab** a CTRL, az **Alt** a Commodore billentyű, a szöveget pedig a
+Ctrl+V billentyűkombinációval lehet beilleszteni. A **Joystick** port
+kiválasztásával a nyílbillentyűk, a Space vagy a jobb Ctrl pedig a joystick.
+
+**A Fájlok menü**
+
+| Tétel                                         | Mit csinál                                                                              |
+| --------------------------------------------- | --------------------------------------------------------------------------------------- |
+| **PRG betöltése…**                            | Elindít egy `.prg` fájlt automatikus indítással                                         |
+| **D64 csatolása…**                            | Csatolja a képet a 8-as meghajtóhoz, alaphelyzetbe állítja, majd `LOAD"*",8,1` és `RUN` |
+| **Patron behelyezése…**                       | Csatol egy `.crt` fájlt és visszaállítja a fájlt.                                       |
+| **Lemez leválasztása / Kazetta leválasztása** | Eltávolítja a képet; a patron eltávolítása szintén visszaállítja az eredeti állapotot   |
+
+Az állapotsor mutatja a csatlakoztatott eszközöket és a 8-as meghajtó LED-jét a
+fej sávjával. A LED betöltés közben folyamatosan világít. A villogó LED azt
+jelenti, hogy a meghajtó hibát jelez, például egy olyan fájlt, amelyet nem talál
+vagy nem olvas: a LED pirosra vált, és az állapotsoron a **Meghajtóhiba** üzenet
+jelenik meg, amíg a meghajtó nem törli azt. A csatolt fájlokat a rendszer nem
+jegyzi meg. A saját program futtatása a szerkesztőből először eltávolítja a
+csatlakoztatott kazettát, különben a kazetta indulna el helyette.
+
+**Gépbeállítások** az eszköztáron:
+
+| Beállítás     | Értékek                     | Jegyzet                                                                                     |
+| ------------- | --------------------------- | ------------------------------------------------------------------------------------------- |
+| **Videó**     | PAL, NTSC                   | Hard reset                                                                                  |
+| **SID chip**  | 6581, 8580                  | Azonnal érvényes                                                                            |
+| **SID motor** | reSID, FastSID              | Azonnal érvényes. A VA SID Core itt nem érhető el: ez a gép a VICE SID motorjait használja. |
+| **REU**       | Kikapcsolva, 128 KB – 16 MB | Hard reset                                                                                  |
+| **Joystick**  | —, 1. port, 2. port         |                                                                                             |
+
+Az eszköztáron található még **Visszaállítás**, **Szünet**, **Tormítás**,
+**Hang**, **CRT szűrő** és **Teljes képernyő**. A CRT szűrő a VICE CRT
+emulációját, sima skálázást és pásztázási vonalakat használ; a pásztázási
+vonalak akkor jelennek meg, ha egy C64 vonal legalább 3 pixel magas. A teljes
+képernyős nézet szintén dupla kattintással indul el a képernyőn, majd az Esc
+vagy egy másik dupla kattintással kiléphet belőle. Az ablak a fejlécénél fogva
+mozgatható és a jobb alsó sarkában átméretezhető. A helye, mérete, megnyitott
+állapota és beállításai a következő indításkor visszatérnek.
+
+**Hibakeresés:** Nyomja meg a **Debug** gombot, miközben a futási mód **Built-in
+C64**. A Debug gomb ezt a hibakeresőt használja, ha nincs beállítva
+RetroDebugger. VMA, Kick projektekkel, ACME és Ultimate Basic programmal
+egyaránt működik. A program az első elért töréspontnál megáll, vagy az első
+utasításnál, ha nincsenek töréspontok.
+
+A CPU a töréspontnál lévő utasítást **előtt** állítja le, így a regiszterek és a
+memória a futás előtti állapotot mutatják.
+
+| Gomb           | Kulcsfontosságú | Mit csinál                              |
+| -------------- | --------------- | --------------------------------------- |
+| **Folytatás**  | F5              | A következő töréspontig fut             |
+| **Szünet**     | F5 futás közben | Leállít egy futó programot              |
+| **Lépj be**-be | F11             | Egy utasítást futtat                    |
+| **Lépj át**    | F10             | JSR-t futtat a visszatérési értékéig    |
+| **Lépj ki**    | Shift+F11       | A rutin RTS/RTI-je utáni utasításra fut |
+
+A billentyűk akkor működnek, amikor a fókusz az ablakban van, de a C64 képernyőn
+nem, mert az F5 ott is egy C64 billentyű.
+
+Az **Debugger panel** a következőket mutatja:
+
+- **Regiszterek:** A PC, A, X, Y és SP szerkeszthető hexadecimális mezők, a
+  jelzők pedig gombok. A változtatások a CPU bekapcsolásakor lépnek életbe.
+- **Szétszerelés** a PC körül, a programod címkéivel. Kattints a sor elején lévő
+  pontra egy töréspont beállításához vagy eltávolításához.
+- **Memória:** Írjon be egy címet `$hex` formátumban, decimális számként vagy
+  címkéként. Az olvasásnak nincsenek mellékhatásai, így az `$DC0D` cím
+  megtekintése nem ismeri fel a megszakítást.
+- **Töréspontok:** a cím és az egyes töréspontok `fájl:sora`.
+
+A töréspontok a szerkesztő sorvégi törléből (a build minden megnyitott
+lapjáról), a blokk módú töréspontokból és a szétszerelésből származnak. A
+szerkesztőben bekövetkező változás a következő Folytatás vagy lépésnél számít.
+Amikor a CPU leáll, a szerkesztő megnyitja a fájlt és megjelöli a sort; Blokk
+módban a blokk van kiválasztva.
+
+Az **VICE Monitor** ablak csak külső VICE eszközzel működik tovább; ehhez a
+géphez nem csatlakozik.
+
 ## 12b. CRT Export (Magic Desk 64K kazetta)
 
 A programodat (és a további adatfájlokat) becsomagolhatod egy C64 D64
@@ -5760,7 +5967,7 @@ helyben, így könnyűsúlyú lemezkezelőként is funkcionál.
 
 **Fájlok ▾ menü:**
 
-| Platform                 | Akció                                                  |
+| Tétel                    | Akció                                                  |
 | ------------------------ | ------------------------------------------------------ |
 | ALELNÖK (`x64sc`, `x64`) | A **Fájl → Kazettakép csatolása** menüpontban működik. |
 | TheC64 / TheC64 Mini     | A beépített patronbetöltőn keresztül működik.          |
@@ -6140,7 +6347,7 @@ móddal. Nyissa meg a Nagy felbontású szerkesztő eszköztár gombjával.
 | Sejtpapír (nagy felbontású) | A nagy felbontású mód minden 8×8-as cellában két színt engedélyez: a tintaszínt (beállított pixelek, a cella képernyő RAM-jának magas felhasználása) és a papírszínt (tiszta pixelek, alacsony felhasználás). A **Cell paper** eszköz minden kattintással vagy húzással kijelölt cella papírszínét a kiválasztott színre állítja; a **PAPER** továbbra is minden cellát egyszerre állít be. A radír törli a pixeleket, így a cella saját papírszíne látszik. Többszínű módban, ahol a háttér ($D021) megosztott, le van tiltva.                                                                                                                                                                                                                                                                |
 | Szóróeszköz                 | Airbrush stílusú festő, amely rajzolás közben pixeleket szór a kurzor körül.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | Permetezés intenzitása      | A szóróeszköz melletti legördülő menüvel szabályozható az egyes szóróvonások sűrűsége.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| Színpaletta                 | Előtér (tinta) + papír (háttér) választó. A többszínű mód automatikusan cellánként 3 extrát követ.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| Színpaletta                 | Előtér (tinta) + papír (háttér) választógombok. Többszínű módban minden 4×8-as cella tartalmazza a papírt plusz 3 további színt: a 4. cella elutasításra kerül egy üzenettel az állapotsorban. A papír megváltoztatása az összes háttérképpontot újraszínezi, ahogyan az `$D021` is teszi. A korlátot meghaladó cellák (például egy nyers 32000 bájtos fájlból) piros keretet kapnak, és az export figyelmeztet rajtuk, mert a felesleges színeik a háttérbe kerülnének.                                                                                                                                                                                                                                                                                                                       |
 | Visszavonás / Újraindítás   | Löketenkénti előzmények, ctrl-Z / ctrl-Y.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | Válasszon                   | A szaggatott négyzet eszköz: húzd az egeret a vásznon egy téglalap alakú régió kijelöléséhez. Az **Esc** billentyűkombináció törli a kijelölést.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | Másolás / Beillesztés       | A **Másolás** (`Ctrl/Cmd+C`) paranccsal másolható a kijelölt terület. A **Beillesztés** (`Ctrl/Cmd+V`) paranccsal a kurzort követő előnézetet jeleníthet meg: kattintson a vászonra az elhelyezéséhez, az **Esc** paranccsal megszakíthatja a műveletet. A másolat megmarad, ezért a `Ctrl/Cmd+V` billentyűkombináció megnyomásával és az újbóli kattintással annyiszor helyezheti el, ahányszor szükséges. Nagy felbontású módban a beillesztett képpontok továbbra is követik a cellánkénti két szín korlátját, ezért a terület színeinek megőrzése érdekében igazítsa a cellarácshoz a területet. A Másolás, Beillesztés és Átlátszó beillesztés funkciók a vászon jobb gombbal elérhető menüjében is elérhetők; a beillesztés ott kezdődik, ahol a kattintott ponton kezdődik az előnézet. |
@@ -6148,7 +6355,7 @@ móddal. Nyissa meg a Nagy felbontású szerkesztő eszköztár gombjával.
 | Rács + Raszter              | Az **Grid** a karaktercella-rácsot mutatja: 8×8 pixel nagy felbontású, 4×8 dupla széles pixel többszínű módban. 4×-es nagyítástól halványabb vonalat húz minden egyes pixel köré, így minden pixel pontosan elhelyezhető. Az **Raster** raszteres sorrátétet ad hozzá.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | Zoomolás                    | Csúsztassa a csúszkát 1×-ről 16×-ra, vagy vigye a Ctrl+görgőt a vásznon (a kurzor alatti pont a helyén marad).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | Kép importálása             | A vászonra dobott PNG/JPEG/GIF fájlok automatikusan kvantálódnak a 16 színű C64 palettára.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| Blokk exportálása           | BYTE/RAWBYTES blokkokat fűz a programhoz a kódolt bitképes, képernyő- és színadatokkal.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| Blokk exportálása           | Hozzáfűz egy betöltőt a programhoz: betölti a `HIRES` fájlt a lemezről a `$2000` mappába, átmásolja a képernyő RAM-ot a `$0400` mappába (és többszínű RAM-ban a `$D800` mappába), majd bekapcsolja a bitképes módot. A kép nincs a blokkokban: adja hozzá a lemezhez a **Mentés a D64-be** paranccsal.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | Exportálás: `.bin`          | Elmenti a natív többszínű formátumot (10000 bájt: 8000 bitkép + 1000 képernyő + 1000 szín) a LOADFILE-ra $2000 fájlformátumban.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 
 ### Sprite-szerkesztő

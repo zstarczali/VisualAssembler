@@ -10,6 +10,8 @@ reaaliajassa.
 
 ## Sisällysluettelo
 
+- [Version 2.7.0 kohokohdat](#version-270-highlights)
+- [Version 2.6.9 kohokohdat](#version-269-highlights)
 - [Version 2.6.8 kohokohdat](#version-268-highlights)
 - [Version 2.6.7 kohokohdat](#version-267-highlights)
 - [Version 2.6.6 kohokohdat](#version-266-highlights)
@@ -202,6 +204,7 @@ reaaliajassa.
   - [Virheenkorjausmerkinnät](#debugger-flags)
   - [VICE Monitor (pikalataus, reaaliaikainen katselu,
     profilointi)](#vice-monitor-hot-reload-live-watch-profiler)
+  - [Sisäänrakennettu C64 ja virheenkorjaus](#built-in-c64-and-debugger)
 - [11. Tietopankin linkit](#11-knowledge-base-links)
 - [12. D64 Vie ja suorita](#12-d64-export--run)
   - [Jaa suoritus -painike](#split-run-button)
@@ -243,6 +246,69 @@ reaaliajassa.
   - [Numeronmuunnin](#number-converter)
 
 ---
+
+## Version 2.7.0 kohokohdat
+
+- **Sisäänrakennettu C64** — VICE 3.10 (x64sc, käännetty WebAssemblyksi) toimii
+  nyt sovelluksen sisällä, eikä mitään tarvitse asentaa. Valitse
+  Suorita-valikosta **Sisäänrakennettu C64** tai avaa se työkalupalkin
+  painikkeella. Katso [Sisäänrakennettu C64 ja
+  virheenkorjaus](#built-in-c64-and-debugger).
+- **Debugger** — pysähtyy ennen käskyä keskeytyskohdassa; **Continue**,
+  **Break**, **Step into / over / out**; muokattavat rekisterit ja liput,
+  purkaminen tietokoneen ympärille, muistinäkymä ja keskeytyskohtaluettelo.
+  Keskeytyskohdat tulevat editorista, lohkotilasta ja purkamisesta, ja editori
+  seuraa suoritinta. **Debug** -painike käyttää sitä tässä tilassa ja aina, kun
+  RetroDebuggeria ei ole asetettu.
+- **Koneen asetukset** — PAL tai NTSC, SID 6581 tai 8580, reSID tai FastSID, REU
+  jopa 16 Mt:iin asti, joystick-portti, warp ja ääni.
+- **Omat tiedostosi** — **Tiedostot** -valikko lataa PRG:n ja liittää D64:n tai
+  kasetin (`.crt`). Tilarivillä näkyy aseman LED ja raita, ja vilkkuva LED
+  osoittaa aseman virheen, esimerkiksi silloin, kun tiedostoa ei löydy.
+- **Näyttö** — CRT-suodin, jossa on skannausviivat, koko näytön tila ja
+  muokattavissa oleva ikkuna. Ikkuna ja sen asetukset palautuvat seuraavan
+  käynnistyksen yhteydessä.
+- **Korkearesoluutioeditori** — moniväristen solujen koko on rajoitettu paperiin
+  ja kolmeen väriin, rajan ylittävät solut on merkitty punaisella, ja
+  pikseliruudukon ollessa päällä olevan kuvan reunan yli piirtäminen ei enää
+  aiheuta virheitä. Katso [Korkearesoluutio / Monivärinen editori]{1].
+- **Editorin hiiren kakkospainikkeen valikko** — Expert- ja Ultimate Basic
+  -editoreissa: Leikkaa, Kopioi, Liitä, Valitse kaikki ja ISOT/pienet kirjaimet
+  valitulle tekstille.
+
+## Version 2.6.9 kohokohdat
+
+- **Git-haarat** — versionhallintaikkuna vaihtaa haaraa (haaraluetteloa), luo,
+  nimeää uudelleen ja poistaa ne sekä yhdistää yhden nykyiseen haaraan.
+  Yhdistämiskonflikti listaa tiedostot, merkitsee ne punaisella ja **Keskeytä
+  yhdistäminen** palauttaa yhdistämistä edeltäneen tilan; avoimet välilehdet
+  latautuvat uudelleen levyltä vaihdon, yhdistämisen tai jemmauksen jälkeen.
+  Katso [Git]{1].
+- **Tiedosto tiedostolta ja stash** — jokaisella muutetulla tiedostolla on omat
+  **Stage / Unstage / Discard** -painikkeensa (seuraamattoman tiedoston voi
+  poistaa), ja sen nimeä napsauttamalla avautuu sen vertailunäkymä. **Stash**
+  siirtää muutokset sivuun; stash-luettelo ottaa ne käyttöön, poistaa ne tai
+  poistaa ne. Ilman **Stash all changes** -toimintoa projektin commit ottaa vain
+  stash-tiedostot.
+- **Parempi vertailu** — tiedostokohtainen kortti, jossa on sen tila ja +/−
+  -määrät, vanhat ja uudet rivinumerot, assembly / Ultimate Basic -syntaksin
+  värit ja rivin muuttunut osa korostettuna; **Jako** näyttää vanhan ja uuden
+  tekstin vierekkäin ja ⤢ antaa vertailulle enemmän tilaa.
+- **Hylkää muutokset tarkoittaa oikeastaan hylkäämistä** — Git-tilassa se kysyy
+  ensin, sitten palauttaa levyllä olevat tiedostot HEAD-tilaan (`git restore`)
+  ja lataa välilehdet uudelleen, joten haarautumiskytkin toimii sen jälkeen.
+  Valikosta käynnistettynä sen tulos näkyy viestinä.
+- **Kick-projektit** — syklien määrät, virheet ja vihjeet toimivat myös
+  tiedostossa, jota käynnistystiedosto ei tuo: ne tulevat tiedoston puusta
+  (esimerkiksi `main.asm` käynnistystiedoston `boot.asm` vieressä). Eteenpäin
+  suuntautuva haara `.pseudopc`-tiedoston sisällä (`bne !+`) on suhteellinen
+  loogiseen osoitteeseen nähden, ja char-literaali vastaa yksimerkkistä
+  merkkijonoa (`s.charAt(i) == '1'`), kuten KickAssemblerissa.
+- **Korjaukset ja ulkoasut** — **Tallenna projekti** tallentaa avatun
+  Expert-projektin paikoilleen tallentamattomien tiedostojen välilehtineen sen
+  sijaan, että se kysyisi tiedostonimeä; versionhallintaikkuna pysyy näytöllä ja
+  siinä on kuvaketyökalupainikkeet kuten editoreissa; lyhyemmät numerokentät
+  taulukkogeneraattorissa.
 
 ## Version 2.6.8 kohokohdat
 
@@ -1311,7 +1377,7 @@ kun toiminto on valmis tai epäonnistuu.
 | **Rakenna D64** (`Valikko → Rakenna`)                                                                  | Pakkaa ohjelma ja lisätiedostot `.d64`-levykuvaan — katso [Vie D64-tiedostoon -valintaikkuna](#export-to-d64-dialog)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | **Rakenna CRT**                                                                                        | Vie ohjelma 64K Magic Desk (`.crt`, kasettityyppi 19) -tiedostona. Katso [Osa 12b](#12b-crt-export-magic-desk-64k-cartridge).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | **Rakenna projekti** (`Valikko → Rakenna`)                                                             | Käännä jokainen projektin (tai avointen välilehtien) rakennettava tiedosto `.prg`-tiedostoksi lähdekoodin viereen — katso [Build project](#build-project)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| **Suorita (jakopainike)**                                                                              | Pääpainike **▶ Suorita** suorittaa nykyisen tilan; napsauta nuolta **▾** vaihtaaksesi seuraavien välillä: **Suorita PRG:nä** (käännä ja käynnistä VICE suoraan), **Suorita D64:n kautta** (pakkaa .d64-levykuvaan ja käynnistä VICE), **Suorita laitteistolla** (lähetä PRG C64 Ultimate / 1541 Ultimate -laitteeseen), **D64 laitteistolla** (lähetä D64 samaan laitteeseen) tai **Kung Fu Flash 2** (lataa PRG USB:n kautta oikeaan C64/C128:aan, jossa on Kung Fu Flash 2 -kasetti). Katso [Osa 12](#12-d64-export--run) ja [Osa 13]{2].                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| **Suorita (jakopainike)**                                                                              | Pääpainike **▶ Suorita** suorittaa nykyisen tilan; napsauta nuolta **▾** vaihtaaksesi seuraavien välillä: **Suorita PRG:nä** (käännä ja käynnistä VICE suoraan), **Suorita D64:n kautta** (pakkaa .d64-levykuvaan ja käynnistä VICE), **Suorita laitteistolla** (lähetä PRG C64 Ultimate / 1541 Ultimate -laitteeseen), **D64 laitteistolla** (lähetä D64 samaan laitteeseen) tai **Kung Fu Flash 2** (lataa PRG USB:n kautta oikeaan C64/C128:aan, jossa on Kung Fu Flash 2 -kasetti). Katso [Osa 12](#12-d64-export--run) ja [Osa 13]{2]. **Sisäänrakennettu C64** suorittaa ohjelman C64:llä sovelluksen sisällä, katso [Sisäänrakennettu C64 ja virheenkorjain](#built-in-c64-and-debugger).                                                                                                                                                                                                                                                                                  |
 | **Virheenkorjaus (RetroDebugger)**                                                                     | Käännä ja käynnistä RetroDebuggerissa käyttämällä keskeytyskohtia, symboleja ja automaattisen käynnistyksen lippuja (katso [Osio 10](#10-debugger-integration))                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | **Suorita Exomizerilla**                                                                               | Valintaruutu kohdassa **Asetukset → Yleiset → Ohjelma** — kun se on käytössä, kaikki Suorita- ja Kokoonpanotoiminnot käsittelevät PRG:n `exomizer sfx` -komennon avulla ennen käynnistämistä tai tallentamista (`sfx basic` PRG:lle, joka alkaa BASIC-rivillä, joten RUN toimii uudelleen ohjelman paluun jälkeen; `sfx $<latausosoite>` muuten). Toimii seuraavien kanssa: Suorita PRG:nä, Suorita D64:n kautta, Suorita laitteistolla, Kokoa PRG ja Kokoa D64. Määritä Exomizer-suoritettava tiedosto ensin kohdassa **Asetukset → Tiedostot ja polut**.                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | **Automaattiset automaattiset tallennusmerkinnät**                                                     | Valintaruutu kohdassa **Asetukset → Yleiset → Versiohallinta**. Kun tämä on käytössä, sovellus lisää automaattisen tallennuksen versiohistoriaan noin 2,5 sekuntia sen jälkeen, kun lopetat välilehden muokkaamisen (projektin välilehden osalta myös projektin historiaan). Poista se käytöstä, jos haluat vain omat commit-tiedostosi. Katso [Versiohallinta]{1].                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
@@ -1328,10 +1394,10 @@ kun toiminto on valmis tai epäonnistuu.
 
 Jokaisella välilehdellä on oma versiohistoriansa, kuten pienellä git-arkistolla;
 avoimeen `.proj` -projektiin kuuluva välilehti voidaan myös versioida
-kokonaiseksi projektiksi (katso [Projektitila](#project-mode)). **Valikko →
+kokonaisena projektina (katso [Projektitila](#project-mode)). **Valikko →
 Versiointi → Versioiden hallinta…** (tai **Commit…**) avaa valintaikkunan;
-**Hylkää muutokset (takaisin pääsisältöön)** palauttaa viimeisimmän commitin
-suoraan.
+**Hylkää muutokset (takaisin HEAD-osioon)** palauttaa viimeisimmän commitin
+vahvistuksen jälkeen (Git-tilassa myös levyllä olevat tiedostot).
 
 Tavallinen työnkulku: kirjoita **commit-viesti** ja paina **Commit** (tai
 Ctrl+Enter) → jatka muokkaamista → paina **Diff[X113X nähdäksesi, mikä muuttui →
@@ -1342,14 +1408,18 @@ commit uudelleen.
   Commit ilman muutoksia, koska HEAD-tähdettä ei luoda.
 - **Tilarivi** — *Ei mitään commitoitavaa, puun puhdistus käynnissä* tai
   *Muutoksia, joita ei ole commitoitu `<hash>`* jälkeen.
-- **Diff** — muutokset HEAD-tiedostosta lähtien; lokimerkinnän **Diff**-painike
+- **Diff** — muutokset HEAD-versiosta lähtien; lokimerkinnän **Diff**-painike
   vertaa kyseistä versiota editoriin. Lisätyt rivit ovat vihreitä, poistetut
   rivit punaisia ja otsikossa näkyy **+N / −M**. Lohkomuotoisia ohjelmia
   verrataan kokoonpanolinjoina (yksi rivi lohkoa kohden), Expert-lähteitä rivi
-  riviltä ja Ultimate Basic -välilehtiä lähdekoodin mukaan, joten JSON-muodossa
+  riviltä ja Ultimate Basic -välilehtiä lähteen mukaan, joten JSON-muodossa
   tallennettu lohkomuotoinen projekti näyttää edelleen luettavat muutokset.
-  Lähdetiedosto (`.asm`, `.s`, `.inc` …) tallennetaan tekstinä, joten versio
-  pysyy lähdekooditiedostona.
+  Jokainen tiedosto on kokoontaitettava kortti, jossa on sen tila (**M** / **A**
+  / **D** / **R**) ja lukumäärät, riveillä on vanhat ja uudet numerot sekä
+  editorin syntaksin värit, ja muutetulla rivillä eroava osa on korostettu.
+  **Split** näyttää vanhan ja uuden version rinnakkain (muistetaan), ⤢ antaa
+  eroille enemmän tilaa. Lähdetiedosto (`.asm`, `.s`, `.inc` …) tallennetaan
+  tekstinä, joten versio pysyy lähdetiedostona.
 - **Checkout** — lataa kyseisen version editoriin. Levyllä oleva tiedosto
   muuttuu vain tallennettaessa; **Discard changes** palaa takaisin
   HEAD-tiedostoon.
@@ -1415,11 +1485,41 @@ kanssa.
   päällä) vaihtaa valintaikkunan automaattisesti Git-tilaan repositorion sisällä
   oleville tiedostoille. Valintaikkunan otsikossa oleva **Built-in / Git**
   -kytkin vaihtaa tilan manuaalisesti.
-- Otsikko näyttää haaran, jossa on **↑** (vahvistaa push-toiminnon) ja **↓**
-  (vahvistaa pull-toiminnon), joita seuraavat repositorion muuttuneet tiedostot.
+- Ylätunnisteessa näkyy haara, jossa on **↑** (vahvistaa työntämisen) ja **↓**
+  (vahvistaa vetämisen). Tilarivin alapuolella oleva työkalupalkki
+  (kuvakepainikkeet, nimet näkyvät hiirellä viemällä) sisältää haaraluettelon
+  ****, haaratyökalut, **Stash** ja **Pull / Push / Refresh**.
+- **Haarat** — valitse listalta toinen haara vaihtaaksesi siihen (`git switch`);
+  **Uusi haara** luo uuden haaran HEAD-taulukosta ja vaihtaa siihen, **Nimeä
+  uudelleen** nimeää nykyisen haaran uudelleen, **Poista haara** poistaa toisen
+  haaran (haara, jota ei ole vielä yhdistetty, poistetaan vasta toisen
+  vahvistuksen jälkeen). Vaihtaminen vaatii tallennetut välilehdet: tallenna tai
+  hylkää editorin muutokset ensin. Vaihdon jälkeen repositorion avoimet
+  välilehdet latautuvat uudelleen levyltä.
+- **Yhdistä…** yhdistää valitun haaran nykyiseen haaraan (`git merge
+  --no-edit`). Ristiriitatilanteessa ristiriitaiset tiedostot luetellaan ja
+  näytetään punaisina, ja tilarivillä lukee *Yhdistämisprosessi käynnissä*:
+  ratkaise ne editorissa, tallenna, merkitse jokainen **Ratkaistu** ja commit —
+  tai paina **Keskeytä yhdistäminen** (`git merge --keskeytä`) palataksesi
+  takaisin.
+- **Muutosluettelo** näyttää jokaisen arkiston muuttuneen tiedoston ja sen `git
+  status` -koodin. Napsauta sen nimeä nähdäksesi sen vertailuarvon (HEAD levyllä
+  olevan tiedoston kohdalta); sen vieressä olevat painikkeet **Stage** (`git
+  add`), **Unstage** (`git restore --staged`) ja **Discard** (takaisin
+  HEAD-tilaan levyllä vahvistuksen jälkeen) — seuraamaton tiedosto voidaan sen
+  sijaan **poistaa**.
+- **Stash** siirtää vahvistamattomat muutokset sivuun valinnaisella viestillä
+  (`git stash push`); muutosten alapuolella oleva **stash-lista** joko
+  **käyttää**, **lisää** tai **pudottaa** merkinnän.
+- **Hylkää muutokset** kysyy ensin, sitten palauttaa muutetut tiedostot levylle
+  HEAD-tilaan (`git restore --staged --worktree`) ja lataa niiden välilehdet
+  uudelleen — projektille koko projektikansio, muuten välilehden tiedosto;
+  seuraamattomat tiedostot säilytetään.
 - **Commit** tallentaa tiedoston ensin, valmistelee vain tämän tiedoston (tai
   kaikki muutokset komennolla **Stage all changes (git add -A)**) ja suorittaa
-  komennon `git commit`.
+  komennon `git commit`. Projektissa **Stage all changes** on oletuksena päällä;
+  pois päältä kytkettynä commit ottaa vastaan vain muutosluettelossa
+  valmistelemasi tiedostot.
 - Lokissa luetellaan tiedoston commitit haaroineen ja tageineen. Merkinnän
   **Diff** vertaa committia sen päätiedostoon; **Diff**-painike vertaa
   HEAD-tiedostoa editoriin, tallentamattomat muutokset mukaan lukien.
@@ -1819,6 +1919,12 @@ direktiivit erotetaan toisistaan muodon perusteella:
 | `.jos VIRHEENJÄRJESTELMÄ` … `.muuten` … `.endif`             | `.if (lauseke) { … } muuten { … }`                                                                            |
 | `.makron nimi(p)` … `.endm`, kutsutaan `.invoke` -funktiolla | `.makro Nimi(p) { … }`, kutsutaan nimellä `Nimi(arg)`                                                         |
 | `.muuttujan nimi = arvo` (ajonaikainen muuttuja)             | `.var nimi = arvo` (skriptimuuttuja) — Kick-yhteensopivassa projektissa `.var` on aina KickAssembler-muuttuja |
+
+**Reaaliaikainen tarkistus:** Kirjoittamisen aikana virheet, syklin
+sisämarginaali ja kurkistusreiän vihjeet tulevat puusta, johon avoin tiedosto
+kuuluu — käynnistystiedoston puusta tai, jos tiedostoa ei tuoda (esimerkiksi
+`main.asm` käynnistystiedoston `boot.asm` vieressä), sen projektilähteen puusta,
+joka tuo sen. Suorita ja käännä -komennot kääntävät aina käynnistystiedoston.
 
 Projekti kootaan VA-assemblerilla, ei KickAssemblerilla: jokainen koonti (Run,
 Build PRG, D64, CRT, Exomizer, Debug, VICE Monitor, Build project,
@@ -3998,9 +4104,13 @@ sijaan.
 | Nimi       | Makron tunniste (esim. `setColor`)                                                 |
 | Parametrit | Valinnaiset pilkulla erotetut parametrien nimet (esim. `color` tai `color, count`) |
 
-Merkitsee makromääritelmän alun. MACRO- ja ENDM-lohkojen väliset lohkot ovat
-makron runko – ne eivät luo koodia,** jossa määritelmä sijaitsee. Käytä
-`{paramName}` paikkamerkkinä argumenteille.
+Merkitsee makromääritelmän alun. MACRO- ja ENDM-lohkot ovat makron runko.
+Parametreilla varustettu makro **ei luo koodia**, jossa määritelmä sijaitsee.
+Myös parametriton makro tallennetaan sinne aliohjelmana, joten `JSR-nimi` kutsuu
+sitä: ohjelmakulku hyppää sen yli (`JMP`), ja sen loppuun lisätään `RTS`. Sama
+pätee tällaiseen makroon, joka on kiinteässä osoitteessa olevassa kirjastossa
+(ilman `JMP`-osoitetta kirjasto on ohjelmakulun ulkopuolella). Käytä
+`{paramName}`-parametria argumenttien paikkamerkkinä.
 
 **Generoitu ASM:**
 ```
@@ -4403,7 +4513,7 @@ käännösaikana. Se vertaa `A`, `X` tai `Y` välittömään arvoon ja tuottaa o
 | Ala          | Kuvaus                                       |
 | ------------ | -------------------------------------------- |
 | Rekisteröidy | `A`, `X` tai `Y`                             |
-| Operaattori  | `==`, `!=`, `<`, `<=`, `>`, `>=` |
+| Operaattori  | `==`, `!=`, `&lt;`, `&lt;=`, `&gt;`, `&gt;=` |
 | Arvo         | Välitön arvo heksa- tai desimaalimuodossa    |
 
 **Asiantuntijan syntaksi:**
@@ -4420,6 +4530,9 @@ LDA #$0F
 Vertailu on oletusarvoisesti etumerkitön. Rekistereille `<=` ja `>` makro
 laajenee valitun rekisterin lyhyimpään vastaavaan haaraketjuun.
 
+Esimerkki: **Suorituksenaikainen IF / ELSE demo**
+(`samples/runtime-if-demo.asm`).
+
 ---
 
 ### SAMALLA / LOPPU
@@ -4430,7 +4543,7 @@ suoritetaan niin kauan kuin ehto pysyy tosi.
 | Ala          | Kuvaus                                       |
 | ------------ | -------------------------------------------- |
 | Rekisteröidy | `A`, `X` tai `Y`                             |
-| Operaattori  | `==`, `!=`, `<`, `<=`, `>`, `>=` |
+| Operaattori  | `==`, `!=`, `&lt;`, `&lt;=`, `&gt;`, `&gt;=` |
 | Arvo         | Välitön arvo heksa- tai desimaalimuodossa    |
 
 **Asiantuntijan syntaksi:**
@@ -4456,7 +4569,7 @@ suoritetaan aina ainakin kerran, minkä jälkeen ehto päättää, pysähtyykö 
 | Ala          | Kuvaus                                       |
 | ------------ | -------------------------------------------- |
 | Rekisteröidy | `A`, `X` tai `Y`                             |
-| Operaattori  | `==`, `!=`, `<`, `<=`, `>`, `>=` |
+| Operaattori  | `==`, `!=`, `&lt;`, `&lt;=`, `&gt;`, `&gt;=` |
 | Arvo         | Välitön arvo heksa- tai desimaalimuodossa    |
 
 **Asiantuntijan syntaksi:**
@@ -5606,6 +5719,98 @@ käytettäväksi.
 
 ---
 
+### Sisäänrakennettu C64 ja debuggeri
+
+Sovellus sisältää täydellisen C64: VICE 3.10 (x64sc) -käyttöjärjestelmän, joka
+on käännetty WebAssembly-kielelle. Se ei vaadi asennusta tai asetuksia, ja se
+toimii ilman ulkoista VICE-käyttöjärjestelmää.
+
+**Ohjelman käynnistäminen:** valitse **Built-in C64** jaetusta
+**Suorita**-valikosta ja paina sitten **Suorita**. Ohjelma on koottu, kone tekee
+hard resetin ja ohjelma käynnistyy: `RUN` ohjelmalle, jonka BASIC-rivi on
+kohdassa `$0801`, muuten `SYS` sen latausosoitteella. Työkalurivin painike avaa
+ikkunan suorittamatta mitään; sen työkalurivin ensimmäinen painike kootaan ja
+suoritetaan uudelleen.
+
+**Näppäimistö** siirtyy C64:ään, kun näyttö on fokusoituna (napsauta sitä).
+**Tab** on CTRL, **Alt** on Commodore-näppäin, ja voit liittää tekstiä
+Ctrl+V:llä. **Joystickin** portin ollessa valittuna nuolinäppäimet ja välilyönti
+tai oikea Ctrl toimivat joystickina.
+
+**Tiedostot-valikko**
+
+| Tuote                            | Mitä se tekee                                                              |
+| -------------------------------- | -------------------------------------------------------------------------- |
+| **Lataa PRG…**                   | Käynnistää `.prg`-tiedoston automaattisesti käynnistyvällä käynnistyksellä |
+| **Liitä D64…**                   | Liittää kuvan asemaan 8, nollaa asetukset, sitten `LOAD"*",8,1` ja `RUN`   |
+| **Kiinnitä kasetti…**            | Liittää `.crt`-tiedoston ja nollaa asetukset                               |
+| **Irrota levy / Irrota kasetti** | Poistaa kuvan; kasetin irrottaminen nollaa myös asetukset                  |
+
+Tilarivi näyttää, mitä on liitettynä, ja aseman 8 LED-valo sekä lukupään uran.
+LED-valo palaa latauksen aikana. Vilkkuva LED-valo tarkoittaa, että asema
+ilmoittaa virheestä, kuten tiedostosta, jota se ei löydä tai lue: LED-valo
+muuttuu punaiseksi ja tilarivillä lukee **Asemavirhe**, kunnes asema tyhjentää
+sen. Liitettyjä tiedostoja ei muisteta. Oman ohjelman suorittaminen editorista
+poistaa ensin liitetyn kasetin, muuten kasetti käynnistyisi sen sijaan.
+
+**Koneen asetukset** työkalupalkissa:
+
+| Asetus           | Arvot                       | Huomautus                                                                                      |
+| ---------------- | --------------------------- | ---------------------------------------------------------------------------------------------- |
+| **Video**        | PAL, NTSC                   | Pakkolunastus                                                                                  |
+| **SID-siru**     | 6581, 8580                  | Voimassa heti                                                                                  |
+| **SID-moottori** | reSID, FastSID              | Voimassa heti. VA SID Core ei ole saatavilla täällä: tämä kone käyttää VICE:n SID-moottoreita. |
+| **REU**          | Pois päältä, 128 kt – 16 Mt | Pakkolunastus                                                                                  |
+| **Ohjainsauva**  | —, Portti 1, Portti 2       |                                                                                                |
+
+Työkalurivillä on myös **Nollaus**, **Tauko**, **Vääristys**, **Ääni**,
+**CRT-suodatin** ja **Koko näyttö**. CRT-suodatin käyttää VICE:n CRT-emulointia,
+pehmeää skaalausta ja skannausviivoja; skannausviivat ilmestyvät, kun C64-viiva
+on vähintään 3 pikseliä korkea. Koko näyttö -tila käynnistyy myös
+kaksoisnapsauttamalla näyttöä, ja Esc tai toinen kaksoisnapsautus poistuu siitä.
+Ikkunaa voidaan siirtää sen otsikosta ja muuttaa sen kokoa oikeassa alakulmassa.
+Sen sijainti, koko, avaustila ja asetukset palautuvat seuraavan käynnistyksen
+yhteydessä.
+
+**Virheenkorjaus:** paina **Debug** suoritustilassa **Built-in C64**.
+Debug-painike käyttää tätä virheenkorjaajaa myös silloin, kun RetroDebuggeria ei
+ole asetettu. Se toimii sekä VMA:n, Kick-projektien, ACME:n että Ultimate
+Basicin kanssa. Ohjelma pysähtyy ensimmäiseen saavuttamaansa keskeytyspisteeseen
+tai ensimmäiseen käskyynsä, jos keskeytyspisteitä ei ole.
+
+CPU pysäyttää käskyn **ennen** keskeytyskohdassa, joten rekisterit ja muisti
+näyttävät tilan juuri ennen sen suorittamista.
+
+| Painike         | Avain             | Mitä se tekee                                        |
+| --------------- | ----------------- | ---------------------------------------------------- |
+| **Jatka**       | F5                | Suoritetaan seuraavaan keskeytyskohtaan              |
+| **Tauko**       | F5 juoksun aikana | Pysäyttää käynnissä olevan ohjelman                  |
+| **Astu sisään** | F11               | Suorittaa yhden käskyn                               |
+| **Astu yli**    | F10               | Suorittaa JSR:n paluukohtaan                         |
+| **Astu ulos**   | Vaihto+F11        | Suorittaa rutiinin RTS/RTI-käskyn jälkeiseen käskyyn |
+
+Näppäimet toimivat, kun kohdistus on ikkunassa, mutta eivät C64-näytössä, koska
+F5 on myös C64-näppäin siellä.
+
+**Debugger-paneelissa** näkyy:
+
+- **Rekisterit:** PC, A, X, Y ja SP ovat muokattavia heksadesimaalikenttiä ja
+  liput ovat painikkeita. Muutokset astuvat voimaan, kun suoritin käynnistyy.
+- **Purkaminen** PC:n ympäriltä ohjelmasi nimien avulla. Napsauta rivin alussa
+  olevaa pistettä asettaaksesi tai poistaaksesi keskeytyskohdan.
+- **Muisti:** kirjoita osoite muodossa `$hex`, desimaaliluku tai tunniste.
+  Lukemisella ei ole sivuvaikutuksia, joten `$DC0D`:n katsominen ei kuittaa
+  keskeytystä.
+- **Keskeytyskohdat:** kunkin pisteen osoite ja `tiedosto:rivi`.
+
+Keskeytyspisteet tulevat editorin rivivälilehdestä (jokaisesta koonnin avoimesta
+välilehdestä), lohkotilan keskeytyspisteistä ja purkamisesta. Editorissa tehty
+muutos lasketaan seuraavassa Jatka- tai Jatka-vaiheessa. Kun suoritin pysähtyy,
+editori avaa tiedoston ja merkitsee rivin; lohkotilassa lohko valitaan.
+
+**VICE Monitor** -ikkuna toimii edelleen vain ulkoisen VICE-laitteen kanssa; se
+ei muodosta yhteyttä tähän koneeseen.
+
 ## 12b. CRT-vienti (Magic Desk 64K -kasetti)
 
 Voit pakata ohjelmasi (ja muut datatiedostot) C64 D64 -levykuvaan ja käynnistää
@@ -5691,7 +5896,7 @@ kevyenä levynhallintaohjelmana.
 
 **Tiedostot ▾ -valikko:**
 
-| Alusta                    | Toiminta                                               |
+| Tuote                     | Toiminta                                               |
 | ------------------------- | ------------------------------------------------------ |
 | VARAPELI (`x64sc`, `x64`) | Toimii valitsemalla **Tiedosto → Liitä kasetin kuva**. |
 | TheC64 / TheC64 Mini      | Toimii sisäänrakennetun kasettilataajan kautta.        |
@@ -6067,7 +6272,7 @@ painikkeella.
 | Solupaperi (korkearesoluutio) | Korkearesoluutioinen kuva sallii kaksi väriä jokaisessa 8×8-solussa: musteen (asetetut pikselit, solun näytön RAM-tavun suuri näpyttely) ja paperin (tyhjennä pikselit, pieni näpyttely). **Solun paperi** -työkalu asettaa jokaisen napsauttamalla tai vetämällä hiirellä valitun värisen solun paperin; **PAPERI** asettaa silti jokaisen solun kerralla. Pyyhekumi tyhjentää pikselit, joten solun oma paperi näkyy. Pois käytöstä monivärisessä tilassa, jossa tausta ($D021) on jaettu.                                                                                                                                                                |
 | Ruiskutustyökalu              | Airbrush-tyylinen piirtäjä, joka sirottelee pikseleitä kohdistimen ympärille piirtäessään.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | Suihkutusintensiteetti        | Ruiskutustyökalun vieressä olevasta alasvetovalikosta säädetään kunkin ruiskutusjäljen tiheyttä.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| Väripaletti                   | Etualan (muste) ja paperin (tausta) poimijat. Moniväritila seuraa automaattisesti kolmea solukohtaista lisäväriä.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| Väripaletti                   | Etualan (muste) ja paperin (tausta) valitsimet. Monivärisessä tilassa jokaisessa 4×8-solussa on paperi ja 3 muuta väriä: neljäsosa hylätään ja tilarivillä näkyy viesti. Paperin vaihtaminen värittää kaikki taustapikselit uudelleen, kuten `$D021` tekee. Rajan ylittävät solut (esimerkiksi 32 000 tavun raakatiedostosta) saavat punaisen kehyksen, ja vienti varoittaa niistä, koska niiden ylimääräiset värit muuttuisivat taustaksi.                                                                                                                                                                                                                 |
 | Kumoa / Tee uudelleen         | Iskukohtainen historia, ctrl-Z / ctrl-Y.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 | Valitse                       | Katkoneliön työkalu: vedä osoitinta kankaalla merkitäksesi suorakulmaisen alueen. **Esc** tyhjentää valinnan.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | Kopioi / Liitä                | **Kopioi** (`Ctrl/Cmd+C`) kopioi valitun alueen. **Liitä** (`Ctrl/Cmd+V`) näyttää esikatselun, joka seuraa kohdistinta: napsauta piirtoaluetta sijoittaaksesi sen, **Esc** peruuttaa. Kopio säilytetään, joten `Ctrl/Cmd+V` painaminen ja uudelleen napsauttaminen sijoittaa sen niin monta kertaa kuin on tarpeen. Korkean resoluution tilassa liitetyt pikselit noudattavat edelleen kahden värin solukohtaista rajoitusta, joten kohdista alue soluruudukkoon säilyttääksesi sen värit. Kopioi, Liitä ja Läpinäkyvä liitä ovat myös piirtoalueen hiiren kakkospainikkeen valikossa; liittäminen aloitettiin siellä esikatselussa napsautetusta kohdasta. |
@@ -6075,7 +6280,7 @@ painikkeella.
 | Ruudukko + Rasteri            | **Grid** näyttää merkkisoluruudukon: 8×8 pikseliä korkearesoluutioisena, 4×8 kaksinkertaisen leveyden pikseliä monivärisenä. 4× zoomista alkaen se piirtää myös himmeämmän viivan jokaisen pikselin ympärille, jotta jokainen pikseli voidaan sijoittaa tarkasti. **Raster** lisää rasteririvin päällekkäiskerroksen.                                                                                                                                                                                                                                                                                                                                       |
 | Zoomaus                       | Liukusäädintä suurennetaan 1× - 16× tai Ctrl+rullaa kankaan päällä (kohdistimen alla oleva piste pysyy paikallaan).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | Tuo kuva                      | Kankaalle pudotetut PNG/JPEG/GIF-kuvat kvantisoituvat automaattisesti 16-väriseen C64-palettiin.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| Vie lohkot                    | Lisää ohjelmaan BYTE/RAWBYTES-lohkoja, jotka sisältävät koodatun bittikartta-, näyttö- ja väridatan.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| Vie lohkot                    | Lisää ohjelmaan latausohjelman: se lataa tiedoston `HIRES` levyltä kansioon `$2000`, kopioi näytön RAM-muistin kansioon `$0400` (ja monivärisessä RAM-muistissa kansioon `$D800`) ja kytkee sitten bittikarttatilan päälle. Kuva ei ole lohkoissa: lisää se levylle komennolla **Tallenna D64:ään**.                                                                                                                                                                                                                                                                                                                                                        |
 | Vie `.bin`                    | Tallentaa natiivin moniväritiedostomuodon (10000 tavua: 8000 bittikarttaa + 1000 näyttöä + 1000 väriä) valmiiksi LOADFILE-tiedostoon $2000.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 
 ### Sprite-editori

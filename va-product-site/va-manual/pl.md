@@ -10,6 +10,8 @@ w czasie rzeczywistym.
 
 ## Spis treści
 
+- [Najważniejsze cechy wersji 2.7.0](#version-270-highlights)
+- [Najważniejsze cechy wersji 2.6.9](#version-269-highlights)
 - [Najważniejsze cechy wersji 2.6.8](#version-268-highlights)
 - [Najważniejsze cechy wersji 2.6.7](#version-267-highlights)
 - [Najważniejsze cechy wersji 2.6.6](#version-266-highlights)
@@ -204,6 +206,7 @@ w czasie rzeczywistym.
   - [Flagi debugera](#debugger-flags)
   - [Monitor VICE (gorące przeładowanie, oglądanie na żywo,
     profilowanie)](#vice-monitor-hot-reload-live-watch-profiler)
+  - [Wbudowany C64 i debugger](#built-in-c64-and-debugger)
 - [11. Linki do bazy wiedzy](#11-knowledge-base-links)
 - [12. Eksport i uruchomienie D64](#12-d64-export--run)
   - [Przycisk Podziel bieg](#split-run-button)
@@ -245,6 +248,68 @@ w czasie rzeczywistym.
   - [Konwerter liczb](#number-converter)
 
 ---
+
+## Najważniejsze cechy wersji 2.7.0
+
+- **Wbudowany C64** — VICE 3.10 (x64sc, skompilowany do WebAssembly) działa
+  teraz w aplikacji, nie trzeba nic instalować. Wybierz **Wbudowany C64** w menu
+  Uruchom lub otwórz go przyciskiem na pasku narzędzi. Zobacz [Wbudowany C64 i
+  debugger](#built-in-c64-and-debugger).
+- **Debuger** — zatrzymuje się przed instrukcją w punkcie przerwania;
+  **Kontynuuj**, **Przerwij**, **Przejdź do/na/wyjdź**; edytowalne rejestry i
+  flagi, dezasemblacja w obrębie komputera, widok pamięci i lista punktów
+  przerwania. Punkty przerwania pochodzą z edytora, z trybu blokowego i z
+  dezasemblacji, a edytor podąża za procesorem. Przycisk **Debug** używa go w
+  tym trybie oraz zawsze, gdy nie jest ustawiony RetroDebugger.
+- **Ustawienia urządzenia** — PAL lub NTSC, SID 6581 lub 8580, reSID lub
+  FastSID, REU do 16 MB, port joysticka, zniekształcenie obrazu i dźwięk.
+- **Twoje własne pliki** — menu **Pliki** ładuje plik PRG i podłącza dysk D64
+  lub kartridż (`.crt`). Na pasku stanu wyświetlana jest dioda LED napędu i
+  ścieżka, a migająca dioda LED sygnalizuje błąd napędu, na przykład gdy nie
+  można znaleźć pliku.
+- **Wyświetlacz** — filtr CRT z liniami skanowania, trybem pełnoekranowym i
+  oknem o zmiennym rozmiarze. Okno i jego ustawienia zostaną przywrócone po
+  następnym uruchomieniu.
+- **Edytor wysokiej rozdzielczości ** — komórki wielokolorowe są ograniczone do
+  papieru plus 3 kolory, komórki przekraczające limit są oznaczane na czerwono,
+  a rysowanie poza krawędzią obrazu z włączoną siatką pikseli nie powoduje już
+  błędów. Zobacz [Edytor wysokiej rozdzielczości /
+  wielokolorowy](#hi-res--multicolor-editor).
+- **Menu prawym przyciskiem myszy edytora** — w edytorach Expert i Ultimate
+  Basic: Wytnij, Kopiuj, Wklej, Zaznacz wszystko oraz WIELKIE/MAŁE LITERY dla
+  zaznaczonego tekstu.
+
+## Najważniejsze cechy wersji 2.6.9
+
+- **Gałązie Git** — okno kontroli wersji przełącza gałęzie (listę gałęzi),
+  tworzy je, zmienia nazwy i usuwa, a następnie scala z bieżącą gałęzią.
+  Konflikt scalania wyświetla pliki, oznacza je na czerwono, a **Przerwij
+  scalanie** przywraca stan sprzed scalenia; otwarte karty są ponownie ładowane
+  z dysku po przełączeniu, scaleniu lub umieszczeniu w schowku. Zobacz
+  [Git](#git).
+- **Plik po pliku i w schowku** — każdy zmieniony plik ma własne przyciski
+  **Przechowuj / Usuń z przechowalni / Odrzuć** (nieśledzony plik można usunąć),
+  a kliknięcie jego nazwy otwiera różnice. **Przechowuj** odkłada zmiany; lista
+  schowków je stosuje, usuwa lub usuwa. Bez **Przechowuj wszystkie zmiany**
+  zatwierdzenie projektu obejmuje tylko pliki w schowku.
+- **Lepsza różnica** — karta na plik ze statusem i liczbami +/−, starymi i
+  nowymi numerami wierszy, kolorami składni języka assembly/Ultimate Basic oraz
+  podświetloną zmienioną częścią wiersza; **Podział** wyświetla stary i nowy
+  tekst obok siebie, a ⤢ zapewnia różnicy więcej miejsca.
+- **Odrzuć zmiany tak naprawdę odrzuca** — w trybie Git najpierw pyta, a
+  następnie resetuje pliki na dysku do HEAD (`git restore`) i przeładowuje
+  karty, więc przełączenie gałęzi działa później. Po uruchomieniu z menu, wynik
+  pojawia się jako komunikat.
+- **Projekty Kick** — liczniki cykli, błędy i wskazówki działają również w
+  pliku, którego plik startowy nie importuje: pochodzą z drzewa, do którego
+  należy plik (na przykład `main.asm` obok pliku startowego `boot.asm`). Gałąź
+  do przodu wewnątrz `.pseudopc` (`bne !+`) jest względna do adresu logicznego,
+  a literał char jest równy ciągowi jednego znaku (`s.charAt(i) == '1'`), jak w
+  KickAssembler.
+- **Poprawki i wygląd** — **Zapisywanie projektu** zapisuje otwarty projekt
+  eksperta w miejscu, z zakładkami niezapisanych plików, zamiast pytać o nazwę
+  pliku; okno kontroli wersji pozostaje na ekranie i ma ikony narzędzi, podobnie
+  jak edytory; krótsze pola liczbowe w generatorze tabel.
 
 ## Najważniejsze cechy wersji 2.6.8
 
@@ -1335,7 +1400,7 @@ zakończeniu lub niepowodzeniu akcji.
 | **Kompilacja D64** (`Menu → Kompilacja`)                                                       | Spakuj program i dodatkowe pliki do obrazu dysku `.d64` — zobacz [Okno dialogowe Eksportuj do D64](#export-to-d64-dialog)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | **Budowa CRT**                                                                                 | Wyeksportuj program jako plik Magic Desk o rozmiarze 64 KB (`.crt`, typ kartridża 19). Zobacz [Sekcję 12b](#12b-crt-export-magic-desk-64k-cartridge).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | **Buduj projekt** (`Menu → Buduj`)                                                             | Kompiluj każdy możliwy do skompilowania plik projektu (lub otwartych kart) do pliku `.prg` obok jego źródła — zobacz [Kompilowanie projektu](#build-project)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| **Uruchom (przycisk podziału)**                                                                | Główny przycisk **▶ Uruchom** uruchamia bieżący tryb; kliknij strzałkę **▾**, aby przełączać się pomiędzy: **Uruchom jako PRG** (skompiluj i uruchom program VICE bezpośrednio), **Uruchom przez D64** (spakuj do obrazu dysku .d64 i uruchom program VICE), **Uruchom na sprzęcie** (wyślij PRG do urządzenia C64 Ultimate / 1541 Ultimate), **D64 na sprzęcie** (wyślij D64 na to samo urządzenie) lub **Kung Fu Flash 2** (prześlij PRG przez USB do prawdziwego komputera C64/C128 za pomocą kartridża Kung Fu Flash 2). Zobacz [Sekcję 12](#12-d64-export--run) i [Sekcję 13](#13-settings).                                                                                                                                                                                                                                                                                                                                |
+| **Uruchom (przycisk podziału)**                                                                | Główny przycisk **▶ Uruchom** uruchamia bieżący tryb; kliknij strzałkę **▾**, aby przełączać się pomiędzy: **Uruchom jako PRG** (skompiluj i uruchom program VICE bezpośrednio), **Uruchom przez D64** (spakuj do obrazu dysku .d64 i uruchom program VICE), **Uruchom na sprzęcie** (wyślij PRG do urządzenia C64 Ultimate / 1541 Ultimate), **D64 na sprzęcie** (wyślij D64 na to samo urządzenie) lub **Kung Fu Flash 2** (prześlij PRG przez USB do prawdziwego komputera C64/C128 za pomocą kartridża Kung Fu Flash 2). Zobacz [Sekcję 12](#12-d64-export--run) i [Sekcję 13](#13-settings). **Wbudowany C64** uruchamia program na C64 wewnątrz aplikacji, zobacz [Wbudowany C64 i debugger](#built-in-c64-and-debugger).                                                                                                                                                                                                  |
 | **Debugowanie (RetroDebugger)**                                                                | Kompiluj i uruchamiaj w RetroDebuggerze z punktami przerwania, symbolami i flagami autostartu (patrz [Sekcja 10](#10-debugger-integration))                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | **Uruchom z Exomizerem**                                                                       | Pole wyboru w **Ustawienia → Ogólne → Program** — po zaznaczeniu wszystkie operacje uruchamiania i kompilacji przeszukują PRG przez `exomizer sfx` przed uruchomieniem lub zapisaniem (`sfx basic` dla PRG rozpoczynającego się od wiersza BASIC, więc RUN działa ponownie po zakończeniu programu; `sfx $<adres ładowania>` w przeciwnym razie). Działa z opcjami Uruchom jako PRG, Uruchom przez D64, Uruchom na sprzęcie, Kompiluj PRG i Kompiluj D64. Najpierw skonfiguruj plik wykonywalny Exomizera w **Ustawienia → Pliki i ścieżki**.                                                                                                                                                                                                                                                                                                                                                                                    |
 | **Automatyczne wpisy autozapisu**                                                              | Pole wyboru w **Ustawienia → Ogólne → Kontrola wersji **. Po włączeniu aplikacja dodaje wpis automatycznego zapisu do historii wersji około 2,5 sekundy po zakończeniu edycji karty (w przypadku karty projektu również do historii projektu). Wyłącz tę opcję, jeśli chcesz mieć dostęp tylko do własnych zatwierdzeń. Zobacz [Kontrola wersji](#version-control).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
@@ -1350,11 +1415,12 @@ zakończeniu lub niepowodzeniu akcji.
 
 ### Kontrola wersji
 
-Każda karta ma własną historię wersji, podobnie jak małe repozytorium Git; karta
+Każda karta ma swoją własną historię wersji, jak małe repozytorium Git; karta
 należąca do otwartego projektu `.proj` może być również wersjonowana jako cały
 projekt (patrz [Tryb projektu](#project-mode)). **Menu → Wersjonowanie →
 Kontrola wersji…** (lub **Zatwierdź…**) otwiera okno dialogowe; **Odrzuć zmiany
-(powrót do HEAD)** przywraca bezpośrednio ostatnie zatwierdzenie.
+(powrót do HEAD)** przywraca ostatnie zatwierdzenie po potwierdzeniu (w trybie
+Git również pliki na dysku).
 
 Typowy obieg pracy: napisz **komunikat zatwierdzenia** i naciśnij **Zatwierdź**
 (lub Ctrl+Enter) → kontynuuj edycję → naciśnij **Różnica**, aby zobaczyć, co się
@@ -1366,13 +1432,17 @@ zmieniło → ponownie zatwierdź.
 - **Wiersz stanu** — *Nic do zatwierdzenia, drzewo robocze czyste* lub
   *Niezatwierdzone zmiany od `<skrót>`*.
 - **Diff** — zmiany od wersji HEAD; przycisk **Diff** wpisu dziennika porównuje
-  tę wersję z edytorem. Dodane wiersze są oznaczone kolorem zielonym, usunięte
-  czerwonym, a nagłówek wyświetla **+N / −M**. Programy w trybie blokowym są
-  porównywane jako linie montażowe (jedna linia na blok), źródła w trybie
-  eksperckim wiersz po wierszu, karty w trybie Ultimate Basic według źródła,
-  więc projekt w trybie blokowym zapisany w formacie JSON nadal pokazuje
-  czytelne zmiany. Plik źródłowy (`.asm`, `.s`, `.inc` …) jest przechowywany
-  jako tekst, więc wersja pozostaje plikiem źródłowym.
+  tę wersję z edytorem. Dodane wiersze są zielone, usunięte wiersze czerwone, a
+  nagłówek pokazuje **+N / −M**. Programy w trybie blokowym są porównywane jako
+  linie montażowe (jedna linia na blok), źródła Expert wiersz po wierszu, karty
+  Ultimate Basic według ich źródła, więc projekt w trybie blokowym zapisany jako
+  JSON nadal pokazuje czytelne zmiany. Każdy plik jest zwijaną kartą ze swoim
+  statusem (**M** / **A** / **D** / **R**) i liczbami, wiersze noszą swoje stare
+  i nowe numery oraz kolory składni edytora, a w zmienionym wierszu część, która
+  się różni, jest podświetlona. **Podział** wyświetla starą i nową wersję obok
+  siebie (zapamiętywane), ⤢ dając więcej miejsca na różnice. Plik źródłowy
+  (`.asm`, `.s`, `.inc` …) jest przechowywany jako tekst, więc wersja pozostaje
+  plikiem źródłowym.
 - **Wymeldowanie** — wczytuje tę wersję do edytora. Plik na dysku zmienia się
   tylko po zapisaniu; **Odrzuć zmiany** wraca do HEAD.
 - **Automatyczne zapisywanie wpisów** — w **Ustawieniach → Ogólne → Kontrola
@@ -1436,9 +1506,40 @@ repozytorium git.
   repozytorium. Przełącznik **Wbudowany / Git** w nagłówku okna dialogowego
   zmienia tryb ręcznie.
 - Nagłówek pokazuje gałąź z **↑** (zatwierdzenia do wypchnięcia) i **↓**
-  (zatwierdzenia do ściągnięcia), a następnie zmienione pliki repozytorium.
-- **Commit** najpierw zapisuje plik, przygotowuje tylko ten plik (lub każdą
-  zmianę za pomocą **Stage all changes (git add -A)**) i uruchamia `git commit`.
+  (zatwierdzenia do ściągnięcia). Poniżej linii statusu znajduje się pasek
+  narzędzi (ikony przycisków, których nazwy pojawiają się po najechaniu
+  kursorem) zawierający listę gałęzi ****, narzędzia gałęzi, **Stash** oraz
+  **Pull/Pull/Refresh**.
+- **Gałęzie** — wybierz inną gałąź z listy, aby się na nią przełączyć (`git
+  switch`); **Nowa gałąź** tworzy gałąź z HEAD i się na nią przełącza, **Zmień
+  nazwę** zmienia nazwę bieżącej gałęzi, **Usuń gałąź** usuwa inną (gałąź, która
+  nie została jeszcze scalona, zostaje usunięta dopiero po drugim
+  potwierdzeniu). Przełączanie wymaga zapisanych kart: najpierw zapisz lub
+  odrzuć zmiany w edytorze. Po przełączeniu otwarte karty repozytorium zostaną
+  ponownie załadowane z dysku.
+- **Scalanie…** scala wybraną gałąź z bieżącą (`git merge --no-edit`). W
+  przypadku konfliktu pliki będące w konflikcie są wyświetlane na liście i
+  oznaczone na czerwono, a w wierszu statusu pojawia się komunikat *Scalanie w
+  toku*: rozwiąż je w edytorze, zapisz, zaznacz każdy z nich **Rozwiązany** i
+  zatwierdź — lub naciśnij **Przerwij scalanie** (`git merge --abort`), aby
+  wrócić.
+- **Lista zmian** pokazuje każdy zmieniony plik w repozytorium wraz z jego kodem
+  `statusu git`. Kliknij nazwę diffa (HEAD dla pliku na dysku); obok niej
+  znajdują się przyciski **Przygotuj** (`git add`), **Usuń z ** (`git restore
+  --staged`) i **Odrzuć** go (z powrotem do HEAD na dysku, po potwierdzeniu) —
+  zamiast tego nieśledzony plik można **usunąć**.
+- **Stash** odkłada niezatwierdzone zmiany na bok, wysyłając opcjonalny
+  komunikat (`git stash push`); **lista stash** poniżej zmian **zastosowuje**,
+  **usuwa** lub **usuwa** wpis.
+- **Odrzuć zmiany** najpierw pyta, a następnie resetuje zmienione pliki na dysku
+  do HEAD (`git restore --staged --worktree`) i ponownie ładuje ich zakładki —
+  dla projektu cały folder projektu, w przeciwnym razie plik zakładki;
+  nieśledzone pliki są zachowywane.
+- **Zatwierdź** najpierw zapisuje plik, przygotowuje tylko ten plik (lub każdą
+  zmianę za pomocą **Przygotowanie wszystkich zmian (git add -A)**) i uruchamia
+  `git commit`. W projekcie opcja **Przygotowanie wszystkich zmian** jest
+  domyślnie włączona; po jej wyłączeniu zatwierdzanie obejmuje tylko pliki
+  przygotowane na liście zmian.
 - Dziennik wyświetla commity tego pliku wraz z ich gałęziami i tagami. Przycisk
   **Diff** we wpisie porównuje commit z jego elementem nadrzędnym; przycisk
   **Diff** porównuje HEAD z edytorem, wliczając niezapisane zmiany. Pliki
@@ -1835,6 +1936,12 @@ można odróżnić po formie:
 | `.if DEBUG` … `.else` … `.endif`                          | `.if (wyrażenie) { … } else { … }`                                                                          |
 | `.nazwa makra(p)` … `.endm`, wywołane za pomocą `.invoke` | `.makro Nazwa(p) { … }`, wywoływane jako `Nazwa(arg)`                                                       |
 | `.var nazwa = wartość` (zmienna czasu wykonania)          | `.var name = value` (zmienna skryptu) — w projekcie zgodnym z Kick `.var` jest zawsze zmienną KickAssembler |
+
+**Sprawdzanie na żywo:** podczas pisania błędy, ścieżce cykli i wskazówki
+dotyczące podglądu pochodzą z drzewa, do którego należy otwarty plik — drzewa
+pliku startowego lub, w przypadku pliku, który nie jest importowany (np.
+`main.asm` obok pliku startowego `boot.asm`), drzewa źródła projektu, które go
+importuje. Polecenia „Uruchom” i „Buduj” zawsze budują plik startowy.
 
 Projekt kompiluje się za pomocą asemblera VA, a nie KickAssemblera: każda
 kompilacja (Uruchomienie, Kompilacja PRG, D64, CRT, Exomizer, Debugowanie,
@@ -4064,9 +4171,14 @@ kopiować i wklejać bloki.
 | Nazwa     | Identyfikator makra (np. `setColor`)                                                  |
 | Parametry | Opcjonalne nazwy parametrów rozdzielone przecinkami (np. `kolor` lub `kolor, liczba`) |
 
-Oznacza początek definicji makra. Bloki między MACRO a ENDM stanowią treść makra
-— **nie generują żadnego kodu** w miejscu, w którym znajduje się definicja. Użyj
-`{paramName}` jako symbolu zastępczego dla argumentów.
+Oznacza początek definicji makra. Bloki między MACRO i ENDM stanowią treść
+makra. Makro z parametrami **nie generuje kodu ** w miejscu, w którym znajduje
+się definicja. Makro bez parametrów jest również przechowywane w tym miejscu
+jako podprogram, więc `nazwa JSR` wywołuje je: przepływ programu przeskakuje nad
+nim (`JMP`), a na jego końcu dodawany jest `RTS`. To samo dotyczy takiego makra
+w bibliotece zawartej pod stałym adresem (bez `JMP` biblioteka znajduje się poza
+przepływem programu). Użyj `{paramName}` jako symbolu zastępczego dla
+argumentów.
 
 **Wygenerowano ASM:**
 ```
@@ -4470,7 +4582,7 @@ Ciebie.
 | Pole     | Opis                                          |
 | -------- | --------------------------------------------- |
 | Rejestr  | `A`, `X` lub `Y`                              |
-| Operator | `==`, `!=`, `<`, `<=`, `>`, `>=`  |
+| Operator | `==`, `!=`, `&lt;`, `&lt;=`, `&gt;`, `&gt;=`  |
 | Wartość  | Wartość natychmiastowa w formacie HEX lub DEC |
 
 **Składnia ekspercka:**
@@ -4487,6 +4599,8 @@ LDA #$0F
 Porównanie jest domyślnie bez znaku. W przypadku `<=` i `>` makro rozszerza się
 do najkrótszego równoważnego łańcucha rozgałęzień dla wybranego rejestru.
 
+Przykład: **Demo Runtime IF / ELSE** (`samples/runtime-if-demo.asm`).
+
 ---
 
 ### WHILE / ENDW
@@ -4497,7 +4611,7 @@ tak długo, jak długo warunek pozostaje prawdziwy.
 | Pole     | Opis                                          |
 | -------- | --------------------------------------------- |
 | Rejestr  | `A`, `X` lub `Y`                              |
-| Operator | `==`, `!=`, `<`, `<=`, `>`, `>=`  |
+| Operator | `==`, `!=`, `&lt;`, `&lt;=`, `&gt;`, `&gt;=`  |
 | Wartość  | Wartość natychmiastowa w formacie HEX lub DEC |
 
 **Składnia ekspercka:**
@@ -4523,7 +4637,7 @@ uruchamiana co najmniej raz, a następnie warunek decyduje, czy się zatrzymać.
 | Pole     | Opis                                          |
 | -------- | --------------------------------------------- |
 | Rejestr  | `A`, `X` lub `Y`                              |
-| Operator | `==`, `!=`, `<`, `<=`, `>`, `>=`  |
+| Operator | `==`, `!=`, `&lt;`, `&lt;=`, `&gt;`, `&gt;=`  |
 | Wartość  | Wartość natychmiastowa w formacie HEX lub DEC |
 
 **Składnia ekspercka:**
@@ -5752,6 +5866,99 @@ wyeksportowania obrazu dysku do wykorzystania w innym miejscu.
 
 ---
 
+### Wbudowany C64 i debugger
+
+Aplikacja zawiera kompletny kod C64: VICE 3.10 (x64sc) skompilowany do
+WebAssembly. Nie wymaga instalacji ani ustawień i działa bez zewnętrznego VICE.
+
+**Uruchamianie programu: ** wybierz **Wbudowany C64** w menu **Uruchom**, a
+następnie naciśnij **Uruchom**. Program zostaje skompilowany, komputer wykonuje
+twardy reset i program się uruchamia: `URUCHOM` dla programu z linią BASIC pod
+adresem `$0801`, w przeciwnym razie `SYS` z adresem ładowania. Przycisk paska
+narzędzi otwiera okno bez uruchamiania czegokolwiek; pierwszy przycisk na pasku
+narzędzi kompiluje się i uruchamia ponownie.
+
+**Klawiatura** przechodzi do C64, gdy ekran ma fokus (kliknij go). **Tab** to
+CTRL, **Alt** to klawisz Commodore, a tekst można wklejać za pomocą Ctrl+V. Po
+wybraniu portu **Joysticka** klawisze strzałek i spacja lub prawy Ctrl to
+joystick.
+
+**Menu Pliki**
+
+| Przedmiot                       | Co to robi                                                                 |
+| ------------------------------- | -------------------------------------------------------------------------- |
+| **Załaduj PRG…**                | Uruchamia `.prg` z autostartem                                             |
+| **Podłącz D64…**                | Dołącza obraz do dysku 8, resetuje, następnie `ZAŁADUJ"*",8,1` i `URUCHOM` |
+| **Podłącz wkład…**              | Dołącza `.crt` i resetuje                                                  |
+| **Odłącz dysk / Odłącz kasetę** | Usuwa obraz; wyjęcie wkładu również powoduje zresetowanie                  |
+
+Pasek stanu pokazuje podłączony moduł oraz diodę LED napędu 8 ze ścieżką
+głowicy. Dioda LED świeci się podczas ładowania. Migająca dioda LED oznacza, że
+napęd zgłasza błąd, na przykład nie może znaleźć lub odczytać pliku: dioda LED
+zmienia kolor na czerwony, a pasek stanu wyświetla komunikat **Błąd napędu **,
+aż do momentu usunięcia go przez napęd. Dołączone pliki nie są zapamiętywane.
+Uruchomienie własnego programu z edytora powoduje najpierw usunięcie
+podłączonego modułu, w przeciwnym razie moduł zostałby uruchomiony.
+
+**Ustawienia maszyny** na pasku narzędzi:
+
+| Ustawienie     | Wartości                  | Notatka                                                                                                      |
+| -------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| **Wideo**      | PAL, NTSC                 | Twardy reset                                                                                                 |
+| **Układ SID**  | 6581, 8580                | Stosuje się natychmiast                                                                                      |
+| **Silnik SID** | reSID, FastSID            | Obowiązuje natychmiast. Rdzeń VA SID nie jest tutaj dostępny: ta maszyna korzysta z silników SID firmy VICE. |
+| **REU**        | Wyłączone, 128 KB – 16 MB | Twardy reset                                                                                                 |
+| **Joystick**   | —, Port 1, Port 2         |                                                                                                              |
+
+Pasek narzędzi zawiera również **Reset**, **Pauzę**, **Odkształcenie**,
+**Dźwięk**, **Filtr CRT** i **Pełny ekran**. Filtr CRT wykorzystuje emulację CRT
+VICE, płynne skalowanie i linie skanowania; linie skanowania pojawiają się, gdy
+linia C64 ma co najmniej 3 piksele wysokości. Pełny ekran również uruchamia się
+podwójnym kliknięciem na ekranie, a Esc lub kolejne podwójne kliknięcie go
+opuszcza. Okno można przesuwać za pomocą nagłówka i zmieniać jego rozmiar w
+prawym dolnym rogu. Jego miejsce, rozmiar, stan otwarcia i ustawienia powracają
+przy następnym uruchomieniu.
+
+**Debugowanie: ** naciśnij **Debugowanie** w trybie **Wbudowany C64**. Przycisk
+Debugowanie również korzysta z tego debugera, gdy RetroDebugger nie jest
+ustawiony. Działa on zarówno z projektami VMA, Kick, ACME, jak i Ultimate Basic.
+Program zatrzymuje się po osiągnięciu pierwszego punktu przerwania lub po
+pierwszej instrukcji, jeśli nie ma punktów przerwania.
+
+Procesor zatrzymuje **przed** instrukcją w punkcie przerwania, więc rejestry i
+pamięć pokazują stan tuż przed jej uruchomieniem.
+
+| Przycisk      | Klawisz              | Co to robi                                                 |
+| ------------- | -------------------- | ---------------------------------------------------------- |
+| **Kontynuuj** | F5                   | Przechodzi do następnego punktu przerwania                 |
+| **Przerwa**   | F5 podczas działania | Zatrzymuje działający program                              |
+| **Wejdź do**  | F11                  | Uruchamia jedną instrukcję                                 |
+| **Przejdź**   | F10                  | Uruchamia JSR do powrotu                                   |
+| **Wyjdź**     | Shift+F11            | Przechodzi do instrukcji następującej po RTS/RTI procedury |
+
+Klawisze działają, gdy fokus znajduje się w oknie, ale nie działają na ekranie
+C64, ponieważ F5 jest tam również klawiszem C64.
+
+Panel debugera **** pokazuje:
+
+- **Rejestry: ** PC, A, X, Y i SP to edytowalne pola szesnastkowe, a flagi to
+  przyciski. Zmiany zaczną obowiązywać po włączeniu procesora.
+- **Demontaż** na komputerze PC z etykietami programu. Kliknij kropkę na
+  początku wiersza, aby ustawić lub usunąć punkt przerwania.
+- **Pamięć: ** wpisz adres jako `$hex`, liczbę dziesiętną lub etykietę. Odczyt
+  nie powoduje żadnych efektów ubocznych, więc spojrzenie na `$DC0D` nie
+  potwierdza przerwania.
+- **Punkty przerwania:** adres i `plik:linia` każdego z nich.
+
+Punkty przerwania pochodzą z obszaru wiersza edytora (z każdej otwartej zakładki
+kompilacji), z punktów przerwania w trybie blokowym oraz z deasemblacji. Zmiana
+w edytorze jest liczona przy następnym kliknięciu przycisku „Kontynuuj” lub
+kroku. Po zatrzymaniu procesora edytor otwiera plik i zaznacza wiersz; w trybie
+blokowym blok jest zaznaczony.
+
+Okno monitora **VICE** działa tylko z zewnętrznym VICE i nie łączy się z tym
+komputerem.
+
 ## 12b. Eksport CRT (wkład Magic Desk 64K)
 
 Możesz spakować swój program (oraz dodatkowe pliki danych) do obrazu dysku C64
@@ -5836,7 +6043,7 @@ lekkiego menedżera dysków.
 
 **Pliki ▾ menu:**
 
-| Platforma               | Działanie                                      |
+| Przedmiot               | Działanie                                      |
 | ----------------------- | ---------------------------------------------- |
 | IMADŁO (`x64sc`, `x64`) | Działa poprzez **Plik → Dołącz obraz wkładu**. |
 | TheC64 / TheC64 Mini    | Działa poprzez wbudowaną ładowarkę kaset.      |
@@ -6209,7 +6416,7 @@ wysokiej rozdzielczości.
 | Papier komórkowy (wysoka rozdzielczość) | Tryb wysokiej rozdzielczości pozwala na użycie dwóch kolorów w każdej komórce 8×8: atramentu (ustawione piksele, wysoki bit bajtu pamięci RAM komórki) i papieru (czystsze piksele, niski bit). Narzędzie **Papier w komórce** ustawia wybrany kolor papieru dla każdej klikniętej lub przeciągniętej komórki; narzędzie **PAPIER** ustawia kolor dla wszystkich komórek jednocześnie. Gumka czyści piksele, więc widoczny jest papier komórki. Wyłączone w trybie wielokolorowym, gdzie tło ($D021) jest współdzielone.                                                                                                                                        |
 | Narzędzie do rozpylania                 | Malarz w stylu aerografu, który rozprasza piksele wokół kursora podczas rysowania.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | Intensywność rozpylania                 | Lista rozwijana obok narzędzia natryskowego umożliwia kontrolowanie gęstości każdego pociągnięcia natryskiem.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| Paleta kolorów                          | Selektory pierwszego planu (tusz) i papieru (tło). Tryb wielokolorowy automatycznie śledzi 3 dodatkowe elementy na komórkę.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| Paleta kolorów                          | Selektory pierwszego planu (tusz) + papieru (tła). W trybie wielokolorowym każda komórka 4×8 zawiera papier plus 3 dodatkowe kolory: czwarta jest odrzucana z komunikatem na pasku stanu. Zmiana papieru powoduje zmianę kolorów wszystkich pikseli tła, podobnie jak w przypadku `$D021`. Komórki przekraczające limit (na przykład z pliku 32000-bajtowego) są oznaczane czerwoną ramką, a eksport ostrzega o nich, ponieważ ich dodatkowe kolory zamieniłyby się w tło.                                                                                                                                                                                      |
 | Cofnij / Ponów                          | Historia poszczególnych uderzeń, ctrl-Z / ctrl-Y.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | Wybierać                                | Narzędzie do zaznaczania przerywanymi kwadratami: przeciągnij na płótnie, aby zaznaczyć prostokątny obszar. **Esc** czyści zaznaczenie.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | Kopiuj/Wklej                            | **Kopiuj** (`Ctrl/Cmd+C`) kopiuje zaznaczony region. **Wklej** (`Ctrl/Cmd+V`) wyświetla podgląd podążający za kursorem: kliknij na płótnie, aby je umieścić, **Esc** anuluje. Kopia jest zachowywana, więc naciśnięcie `Ctrl/Cmd+V` i ponowne kliknięcie powoduje umieszczenie jej tyle razy, ile potrzeba. W trybie wysokiej rozdzielczości wklejone piksele nadal podlegają limitowi dwóch kolorów na komórkę, więc wyrównaj region z siatką komórek, aby zachować jego kolory. Kopiuj, Wklej i Wklej przezroczysto są również dostępne w menu prawego przycisku myszy na płótnie; wklejanie rozpoczęte w tym miejscu wyświetla podgląd w miejscu kliknięcia. |
@@ -6217,7 +6424,7 @@ wysokiej rozdzielczości.
 | Siatka + Raster                         | **Siatka** pokazuje siatkę komórek znaków: 8×8 pikseli w wysokiej rozdzielczości, 4×8 pikseli o podwójnej szerokości w wielokolorze. Przy powiększeniu 4x rysuje również cieńszą linię wokół każdego piksela, dzięki czemu każdy piksel można umieścić dokładnie. **Raster** dodaje nakładkę wiersza rastrowego.                                                                                                                                                                                                                                                                                                                                                |
 | Brzęczenie                              | Suwak od 1× do 16× lub Ctrl+kółko na płótnie (punkt pod kursorem pozostaje na swoim miejscu).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | Importuj obraz                          | Obrazy PNG/JPEG/GIF upuszczone na płótno są automatycznie kwantyzowane do 16-kolorowej palety C64.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| Eksportuj bloki                         | Dołącza do programu bloki BYTE/RAWBYTES zawierające zakodowane dane dotyczące mapy bitowej, ekranu i koloru.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| Eksportuj bloki                         | Dodaje do programu moduł ładujący: ładuje plik `HIRES` z dysku do `$2000`, kopiuje pamięć RAM ekranu do `$0400` (a w trybie wielokolorowym do `$D800`), a następnie przełącza w tryb bitmapowy. Obraz nie znajduje się w blokach: dodaj go do dysku za pomocą **Zapisz do D64**.                                                                                                                                                                                                                                                                                                                                                                                |
 | Eksportuj `.bin`                        | Zapisuje natywny format wielokolorowy (10000 bajtów: 8000 bitmap + 1000 ekran + 1000 kolorów) gotowy do załadowania pliku do $2000.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 
 ### Edytor Sprite'ów

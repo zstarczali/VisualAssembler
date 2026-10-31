@@ -10,6 +10,8 @@ maskinkoden i realtid.
 
 ## Innehållsförteckning
 
+- [Höjdpunkter i version 2.7.0](#version-270-highlights)
+- [Höjdpunkter i version 2.6.9](#version-269-highlights)
 - [Höjdpunkter i version 2.6.8](#version-268-highlights)
 - [Höjdpunkter i version 2.6.7](#version-267-highlights)
 - [Höjdpunkter i version 2.6.6](#version-266-highlights)
@@ -201,6 +203,7 @@ maskinkoden i realtid.
   - [Felsökningsflaggor](#debugger-flags)
   - [VICE Monitor (hot reload, live-bevakning,
     profilerare)](#vice-monitor-hot-reload-live-watch-profiler)
+  - [Inbyggd C64 och felsökare](#built-in-c64-and-debugger)
 - [11. Länkar till kunskapsbasen](#11-knowledge-base-links)
 - [12. D64 Exportera och kör](#12-d64-export--run)
   - [Knapp för delad körning](#split-run-button)
@@ -239,6 +242,67 @@ maskinkoden i realtid.
   - [Nummeromvandlare](#number-converter)
 
 ---
+
+## Höjdpunkter i version 2.7.0
+
+- **Inbyggd C64** — VICE 3.10 (x64sc, kompilerad till WebAssembly) körs nu inuti
+  appen, inget behöver installeras. Välj **Inbyggd C64** i Kör-menyn eller öppna
+  den med dess verktygsfältsknapp. Se [Inbyggd C64 och
+  felsökare](#built-in-c64-and-debugger).
+- **Felsökare** — den stannar före instruktionen vid en brytpunkt; **Fortsätt**,
+  **Bryt**, **Steg in i / över / ut**; redigerbara register och flaggor,
+  demontering runt PC, minnesvy och brytpunktslista. Brytpunkter kommer från
+  editorn, från blockläge och från demonteringen, och editorn följer CPU:n.
+  Knappen **Felsök** använder den i detta läge, och när ingen RetroDebugger är
+  inställd.
+- **Maskininställningar** — PAL eller NTSC, SID 6581 eller 8580, reSID eller
+  FastSID, REU upp till 16 MB, joystickport, warp och ljud.
+- **Dina egna filer** — menyn **Filer** laddar en PRG och ansluter en D64 eller
+  en pickup (`.crt`). Statusfältet visar enhets-LED och spår, och en blinkande
+  LED indikerar ett enhetsfel, till exempel när en fil inte kan hittas.
+- **Visning** — ett CRT-filter med skanningslinjer, helskärm och ett fönster som
+  kan ändras i storlek. Fönstret och dess inställningar återställs vid nästa
+  start.
+- **Högupplöst redigerare** — flerfärgade celler är begränsade till pappret plus
+  3 färger, celler över gränsen är markerade med rött, och att rita förbi
+  bildens kant med pixelrutnätet aktiverat ger inte längre upphov till fel. Se
+  [Högupplöst / Flerfärgsredigerare](#hi-res--multicolor-editor).
+- **Högerklicksmeny i redigeraren** — i Expert- och Ultimate Basic-redigerarna:
+  Klipp ut, Kopiera, Klistra in, Markera allt och VERSALER/gemener för den
+  markerade texten.
+
+## Höjdpunkter i version 2.6.9
+
+- **Git-grenar** — versionskontrollfönstret växlar grenar (grenlistan), skapar,
+  byter namn på och tar bort dem och sammanfogar en med den aktuella grenen. En
+  sammanfogningskonflikt listar filerna, markerar dem röda och **Avbryt
+  sammanfogning** återgår till tillståndet före sammanfogningen; de öppna
+  flikarna laddas om från disken efter en växling, sammanfogning eller stash. Se
+  [Git](#git).
+- **Fil för fil och stash** — varje ändrad fil har sina egna **Stage / Ta bort
+  stash / Ignorera**-knappar (en ospårad fil kan raderas), och ett klick på dess
+  namn öppnar dess diff. **Stash** lägger ändringarna åt sidan; stash-listan
+  tillämpar, visar eller tar bort dem. Utan **Stage alla ändringar** tar en
+  projektcommit endast de stagade filerna.
+- **En bättre diff** — ett kort per fil med dess status och +/− antal, gamla och
+  nya radnummer, syntaxfärger för assembly / Ultimate Basic och den ändrade
+  delen av en rad markerad; **Dela** visar den gamla och nya texten sida vid
+  sida och ⤢ ger diffen mer utrymme.
+- **Discard changes discards really** — i Git-läge frågar den först, återställer
+  sedan filerna på disken till HEAD (`git restore`) och laddar om flikarna, så
+  en branch switch fungerar efteråt. Startas från menyn visas resultatet som ett
+  meddelande.
+- **Kick projects** — cykelantal, fel och tips fungerar också i en fil som
+  startfilen inte importerar: de kommer från trädet som filen tillhör (till
+  exempel `main.asm` bredvid en `boot.asm` startfil). En forward branch inuti
+  `.pseudopc` (`bne !+`) är relativ till den logiska adressen, och en char
+  literal är lika med en enteckensträng (`s.charAt(i) == '1'`), som i
+  KickAssembler.
+- **Rättelser och utseende** — **Spara projekt** sparar ett öppnat Expertprojekt
+  på plats, med dess osparade filflikar, istället för att fråga efter ett
+  filnamn; versionskontrollfönstret stannar kvar på skärmen och har
+  ikonverktygsknappar som redigerarna; kortare numeriska fält i
+  tabellgeneratorn.
 
 ## Höjdpunkter i version 2.6.8
 
@@ -1280,7 +1344,7 @@ Modalfilen stängs automatiskt när åtgärden slutförs eller misslyckas.
 | **Bygg D64** (`Meny → Bygg`)                                                                     | Paketera programmet och extrafilerna till en `.d64`-diskavbildning — se [Dialogrutan Exportera till D64](#export-to-d64-dialog)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | **Bygg CRT**                                                                                     | Exportera programmet som en 64K Magic Desk-fil (`.crt`, patrontyp 19). Se [Avsnitt 12b](#12b-crt-export-magic-desk-64k-cartridge).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | **Bygg projekt** (`Meny → Bygg`)                                                                 | Kompilera alla byggbara filer i projektet (eller de öppna flikarna) till en `.prg` bredvid dess källkod — se [Bygg projekt](#build-project)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| **Kör (delknapp)**                                                                               | Huvudknappen **▶ Kör** kör det aktuella läget; klicka på pilen **▾** för att växla mellan: **Kör som PRG** (kompilera och starta VICE direkt), **Kör via D64** (paketera till en .d64-diskavbildning och starta VICE), **Kör på hårdvara** (skicka PRG till en C64 Ultimate / 1541 Ultimate-enhet), **D64 på hårdvara** (skicka en D64 till samma enhet) eller **Kung Fu Flash 2** (ladda upp PRG via USB till en riktig C64/C128 med en Kung Fu Flash 2-pickup). Se [Avsnitt 12](#12-d64-export--run) och [Avsnitt 13](#13-settings).                                                                                                                                                                                                                                                                                                                                                          |
+| **Kör (delknapp)**                                                                               | Huvudknappen **▶ Kör** kör det aktuella läget; klicka på pilen **▾** för att växla mellan: **Kör som PRG** (kompilera och starta VICE direkt), **Kör via D64** (paketera till en .d64-diskavbildning och starta VICE), **Kör på hårdvara** (skicka PRG till en C64 Ultimate / 1541 Ultimate-enhet), **D64 på hårdvara** (skicka en D64 till samma enhet) eller **Kung Fu Flash 2** (ladda upp PRG via USB till en riktig C64/C128 med en Kung Fu Flash 2-pickup). Se [Avsnitt 12](#12-d64-export--run) och [Avsnitt 13](#13-settings). **Inbyggd C64** kör programmet på C64 inuti appen, se [Inbyggd C64 och felsökare](#built-in-c64-and-debugger).                                                                                                                                                                                                                                           |
 | **Felsök (RetroDebugger)**                                                                       | Kompilera och starta i RetroDebugger med brytpunkter, symboler och autostartflaggor (se [Avsnitt 10](#10-debugger-integration))                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | **Kör med Exomizer**                                                                             | Kryssruta i **Inställningar → Allmänt → Program** — när den är aktiverad, kör alla Kör- och Bygg-åtgärder PRG genom `exomizer sfx` innan de startas eller sparas (`sfx basic` för en PRG som börjar med en BASIC-rad, så RUN fungerar igen efter att programmet returnerar; `sfx $<ladda adress>` annars). Fungerar med Kör som PRG, Kör via D64, Kör på hårdvara, Bygg PRG och Bygg D64. Konfigurera Exomizer-körbarheten i **Inställningar → Filer och sökvägar** först.                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | **Automatiskt sparade poster**                                                                   | Kryssruta i **Inställningar → Allmänt → Versionshantering**. När den är aktiverad lägger appen till en automatisk sparningspost i versionshistoriken cirka 2,5 sekunder efter att du slutat redigera en flik (för en flik i ett projekt även i projekthistoriken). Stäng av den om du bara vill ha dina egna commits. Se [Versionshantering](#version-control).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
@@ -1299,7 +1363,8 @@ Varje flik har sin egen versionshistorik, som ett litet git-arkiv; en flik som
 tillhör ett öppet `.proj`-projekt kan också versioneras som ett helt projekt (se
 [Projektläge](#project-mode)). **Meny → Versionshantering → Versionskontroll…**
 (eller **Commit…**) öppnar dialogrutan; **Ignorera ändringar (tillbaka till
-HEAD)** återställer den senaste commit direkt.
+HEAD)** återställer den senaste commiten efter en bekräftelse (i Git-läge även
+filerna på disken).
 
 Vanligt arbetsflöde: skriv ett **commit-meddelande** och tryck på **Commit**
 (eller Ctrl+Enter) → fortsätt redigera → tryck på **Diff** för att se vad som
@@ -1311,12 +1376,16 @@ Vanligt arbetsflöde: skriv ett **commit-meddelande** och tryck på **Commit**
 - **Statusrad** — *Inget att committa, fungerar med trädrensning* eller
   *Ocommitterade ändringar sedan `<hash>`*.
 - **Diff** — ändringarna sedan HEAD; knappen **Diff** i en loggpost jämför den
-  versionen med redigeraren. Tillagda rader är gröna, borttagna rader röda, och
+  versionen med editorn. Tillagda rader är gröna, borttagna rader röda, och
   rubriken visar **+N / −M**. Blocklägesprogram jämförs som monteringslinjer (en
   rad per block), Expertkällor rad för rad, Ultimate Basic-flikar efter sin
   källa, så ett blocklägeprojekt som sparats som JSON visar fortfarande läsbara
-  ändringar. En källfil (`.asm`, `.s`, `.inc` …) lagras som sin text, så en
-  version förblir en källfil.
+  ändringar. Varje fil är ett hopfällbart kort med dess status (**M** / **A** /
+  **D** / **R**) och antal, raderna har sina gamla och nya nummer och editorns
+  syntaxfärger, och i en ändrad rad markeras den del som skiljer sig. **Dela**
+  visar den gamla och nya versionen sida vid sida (kommer ihåg), ⤢ ger
+  skillnaden mer utrymme. En källfil (`.asm`, `.s`, `.inc` …) lagras som text,
+  så en version förblir en källfil.
 - **Utcheckning** — laddar den versionen i editorn. Filen på disken ändras bara
   när du sparar; **Ignorera ändringar** går tillbaka till HEAD.
 - **Autospara poster** — med **Inställningar → Allmänt → Versionshantering →
@@ -1374,10 +1443,37 @@ Om `git` är installerat kan samma dialogruta fungera med ett riktigt git-arkiv.
   **Använd Git när projektet finns i ett arkiv** (på som standard) växlar
   dialogrutan till Git-läge automatiskt för filer i ett arkiv. Växeln **Inbyggd
   / Git** i dialogrutans rubrik ändrar läget manuellt.
-- Rubriken visar grenen med **↑** (commit till push) och **↓** (commit till
-  pull), följt av de ändrade filerna från arkivet.
+- Rubriken visar grenen med **↑** (commits to push) och **↓** (commits to pull).
+  Under statusraden finns ett verktygsfält (ikonknappar, namnen visas när man
+  håller muspekaren över den) som innehåller **grenlistan**, grenverktygen,
+  **Stash** och **Pull / Push / Refresh**.
+- **Grenar** — välj en annan gren i listan för att växla till den (`git
+  switch`); **Ny gren** skapar en från HEAD och växlar till den, **Byt namn**
+  byter namn på den aktuella grenen, **Ta bort gren** tar bort en annan (en gren
+  som inte är sammanfogad än tas bara bort efter en andra bekräftelse). Växling
+  kräver sparade flikar: spara eller ignorera redigeringsändringarna först.
+  Efter ett växling laddas de öppna flikarna i arkivet om från disken.
+- **Sammanfoga…** sammanfogar en vald gren med den nuvarande (`git merge
+  --no-edit`). Vid en konflikt listas de konflikterande filerna och visas i
+  rött, och statusraden säger *Sammanfogning pågår*: lös dem i editorn, spara,
+  markera var och en **Löst** och genomför — eller tryck på **Avbryt
+  sammanfogning** (`git merge --abort`) för att gå tillbaka.
+- **Ändringslistan** visar varje ändrad fil i arkivet med dess `git-status`-kod.
+  Klicka på ett namn för dess diff (HEAD mot filen på disken); knapparna bredvid
+  **Stage** (`git add`), **Unstage** (`git restore --staged`) och **Discard**
+  den (tillbaka till HEAD på disken, efter en bekräftelse) — en ospårad fil kan
+  **tas bort** istället.
+- **Stash** lägger de obekräftade ändringarna åt sidan med ett valfritt
+  meddelande (`git stash push`); **stash-listan** under ändringarna
+  **tillämpar**, **visar** eller **tar bort** en post.
+- **Discar changes** frågar först, återställer sedan de ändrade filerna på
+  disken till HEAD (`git restore --staged --worktree`) och laddar om deras
+  flikar — för ett projekt hela projektmappen, annars flikens fil; ospårade
+  filer behålls.
 - **Commit** sparar filen först, stagar endast denna fil (eller varje ändring
-  med **Stage alla ändringar (git add -A)**) och kör `git commit`.
+  med **Stage all changes (git add -A)**) och kör `git commit`. I ett projekt är
+  **Stage all changes** aktiverat som standard; avstängt tar commit-funktionen
+  endast de filer du stagade i ändringslistan.
 - Loggen listar commits för den här filen med deras grenar och taggar. **Diff**
   på en post jämför commiten med dess överordnade; knappen **Diff** jämför HEAD
   med editorn, inklusive osparade ändringar. Projektfiler jämförs på samma sätt
@@ -1763,6 +1859,12 @@ båda skiljer sig åt genom sin form:
 | `.if DEBUG` … `.else` … `.endif`                 | `.if (uttryck) { … } else { … }`                                                                                  |
 | `.makronamn(p)` … `.endm`, anropad med `.invoke` | `.makro Namn(p) { … }`, anropad som `Namn(arg)`                                                                   |
 | `.var namn = värde` (en runtime-variabel)        | `.var name = value` (en skriptvariabel) — i ett Kick-kompatibelt projekt är `.var` alltid KickAssembler-variabeln |
+
+**Live check:** Medan du skriver kommer felmeddelanden, cykelrännan och
+titthålshintarna från trädet som den öppna filen tillhör — startfilens träd,
+eller, för en fil den inte importerar (t.ex. `main.asm` bredvid en `boot.asm`
+startfil), trädet för projektkällan som importerar den. Run och Build bygger
+alltid startfilen.
 
 Projektet bygger med VA-assemblern, inte med KickAssembler: varje build (Run,
 Build PRG, D64, CRT, Exomizer, Debug, VICE Monitor, Build project,
@@ -3861,7 +3963,11 @@ block.
 | Parametrar | Valfria kommaseparerade parameternamn (t.ex. `färg` eller `färg, antal`) |
 
 Markerar början på en makrodefinition. Block mellan MACRO och ENDM är makrots
-brödtext — de **genererar ingen kod ** där definitionen finns. Använd
+innehåll. Ett makro med parametrar **genererar ingen kod ** där definitionen
+finns. Ett makro utan parametrar lagras också där som en subrutin, så `JSR name
+` anropar det: programflödet hoppar över det (`JMP`), och en `RTS` läggs till i
+slutet. Detsamma gäller för ett sådant makro i ett bibliotek som ingår på en
+fast adress (utan `JMP` ligger biblioteket utanför programflödet). Använd
 `{paramName}` som platshållare för argument.
 
 **Genererad ASM:**
@@ -4265,7 +4371,7 @@ genererar den korrekta `CMP` / `CPX` / `CPY` + grensekvensen åt dig.
 | Fält     | Beskrivning                                  |
 | -------- | -------------------------------------------- |
 | Register | `A`, `X` eller `Y`                           |
-| Operatör | `==`, `!=`, `<`, `<=`, `>`, `>=` |
+| Operatör | `==`, `!=`, `&lt;`, `&lt;=`, `&gt;`, `&gt;=` |
 | Värde    | Omedelbart värde i HEX- eller DEC-format     |
 
 **Expertsyntax:**
@@ -4280,6 +4386,8 @@ genererar den korrekta `CMP` / `CPX` / `CPY` + grensekvensen åt dig.
 Jämförelsen är som standard osignerad. För `<=` och `>` expanderas makrot till
 den kortaste ekvivalenta grenkedjan för det valda registret.
 
+Exempel: **Körtid IF / ELSE demo** (`samples/runtime-if-demo.asm`).
+
 ---
 
 ### MEDAN / SLUT
@@ -4290,7 +4398,7 @@ förblir sant.
 | Fält     | Beskrivning                                  |
 | -------- | -------------------------------------------- |
 | Register | `A`, `X` eller `Y`                           |
-| Operatör | `==`, `!=`, `<`, `<=`, `>`, `>=` |
+| Operatör | `==`, `!=`, `&lt;`, `&lt;=`, `&gt;`, `&gt;=` |
 | Värde    | Omedelbart värde i HEX- eller DEC-format     |
 
 **Expertsyntax:**
@@ -4315,7 +4423,7 @@ en gång, sedan avgör villkoret om den ska stoppas.
 | Fält     | Beskrivning                                  |
 | -------- | -------------------------------------------- |
 | Register | `A`, `X` eller `Y`                           |
-| Operatör | `==`, `!=`, `<`, `<=`, `>`, `>=` |
+| Operatör | `==`, `!=`, `&lt;`, `&lt;=`, `&gt;`, `&gt;=` |
 | Värde    | Omedelbart värde i HEX- eller DEC-format     |
 
 **Expertsyntax:**
@@ -5412,6 +5520,97 @@ exportera diskavbildningen för användning någon annanstans.
 
 ---
 
+### Inbyggd C64 och felsökare
+
+Appen innehåller en komplett C64: VICE 3.10 (x64sc) kompilerad till WebAssembly.
+Den kräver ingen installation och inga inställningar, och den fungerar utan en
+extern VICE.
+
+**Starta ett program:** välj **Inbyggd C64** i den delade **Kör**-menyn och
+tryck sedan på **Kör**. Programmet byggs, maskinen får en hård återställning och
+programmet startar: `KÖR` för ett program med en BASIC-rad på `$0801`, annars
+`SYS` med dess laddningsadress. Verktygsfältsknappen öppnar fönstret utan att
+köra något; den första knappen i dess verktygsfält byggs och körs igen.
+
+**Tangentbordet** går till C64 medan skärmen är i fokus (klicka på det). **Tab**
+är CTRL, **Alt** är Commodore-tangenten, och du kan klistra in text med Ctrl+V.
+Med en **Joystick**-port vald är piltangenterna och mellanslag eller höger Ctrl
+joysticken.
+
+** Arkivmenyn **
+
+| Punkt                           | Vad den gör                                                                   |
+| ------------------------------- | ----------------------------------------------------------------------------- |
+| **Ladda PRG…**                  | Startar en `.prg` med autostart                                               |
+| **Anslut D64…**                 | Kopplar avbildningen till enhet 8, återställer, sedan `LOAD"*",8,1` och `RUN` |
+| **Sätt i patronen…**            | Ansluter en `.crt` och återställer                                            |
+| **Lossa disk / Lossa kassett ** | Tar bort bilden; att ta bort en patron återställer också                      |
+
+Statusfältet visar vad som är anslutet och lysdioden för enhet 8 med huvudets
+spår. Lysdioden lyser konstant under en laddning. En blinkande lysdiod betyder
+att enheten rapporterar ett fel, till exempel en fil som den inte kan hitta
+eller läsa: lysdioden blir röd och statusfältet visar **Enhetsfel** tills
+enheten rensar den. Bifogade filer sparas inte. Om du kör ditt eget program från
+redigeraren tas en ansluten kassett bort först, annars skulle kassetten starta
+istället.
+
+**Maskininställningar** i verktygsfältet:
+
+| Miljö         | Värden             | Notera                                                                                                     |
+| ------------- | ------------------ | ---------------------------------------------------------------------------------------------------------- |
+| **Video**     | PAL, NTSC          | Hård återställning                                                                                         |
+| **SID-chip**  | 6581, 8580         | Gäller omedelbart                                                                                          |
+| **SID-motor** | reSID, FastSID     | Gäller omedelbart. VA SID Core är inte tillgänglig här: den här maskinen använder SID-motorerna från VICE. |
+| **REU**       | Av, 128 KB – 16 MB | Hård återställning                                                                                         |
+| **Joystick**  | —, Port 1, Port 2  |                                                                                                            |
+
+Verktygsfältet har även **Återställ**, **Paus**, **Förvrängning**, **Ljud**,
+**CRT-filter** och **Helskärm**. CRT-filtret använder CRT-emuleringen av VICE,
+mjuk skalning och skanningslinjer; skanningslinjerna visas när en C64-linje är
+minst 3 pixlar hög. Helskärm startar också med ett dubbelklick på skärmen, och
+Esc eller ett annat dubbelklick lämnar den. Fönstret kan flyttas med hjälp av
+rubriken och ändra storlek i det nedre högra hörnet. Dess plats, storlek,
+öppningsläge och inställningar återställs vid nästa start.
+
+**Felsökning:** tryck på **Felsökning** medan körläget är **Inbyggt C64**.
+Felsökningsknappen använder även denna felsökare när ingen RetroDebugger är
+inställd. Den fungerar med både VMA, Kick-projekt, ACME och Ultimate Basic.
+Programmet stannar vid den första brytpunkten det når, eller vid sin första
+instruktion om det inte finns några brytpunkter.
+
+CPU:n stoppar **före ** instruktionen vid brytpunkten, så registren och minnet
+visar tillståndet precis innan den körs.
+
+| Knapp         | Nyckel          | Vad den gör                                    |
+| ------------- | --------------- | ---------------------------------------------- |
+| Fortsätt      | F5              | Kör till nästa brytpunkt                       |
+| **Paus**      | F5 medan du kör | Stoppar ett program som körs                   |
+| **Kliv in i** | F11             | Kör en instruktion                             |
+| **Kliv över** | F10             | Kör en JSR till dess retur                     |
+| ** Gå ut**    | Skift+F11       | Körs till instruktionen efter rutinens RTS/RTI |
+
+Tangenterna fungerar medan fokus är i fönstret men inte på C64-skärmen, eftersom
+F5 också är en C64-tangent där.
+
+Felsökningspanelen **** visar:
+
+- **Register:** PC, A, X, Y och SP är redigerbara hexadecimala fält, och
+  flaggorna är knappar. Ändringarna träder i kraft när processorn slås på.
+- **Demontering** runt datorn, med etiketterna för ditt program. Klicka på
+  punkten i början av en rad för att ange eller ta bort en brytpunkt.
+- **Minne:** skriv en adress som `$hex`, ett decimaltal eller en etikett.
+  Läsning har inga biverkningar, så att titta på `$DC0D` bekräftar inte ett
+  avbrott.
+- **Brytpunkter:** adressen och `file:raden` för var och en.
+
+Brytpunkter kommer från redigerarens radränna (varje öppen flik i bygget), från
+brytpunkter i blockläge och från demonteringen. En ändring i redigeraren räknas
+vid nästa Fortsätt-steg eller steg. När processorn stannar öppnar redigeraren
+filen och markerar raden; i blockläge är blocket markerat.
+
+Fönstret **VICE Monitor** fortsätter att fungera endast med en extern VICE; det
+ansluter inte till den här maskinen.
+
 ## 12b. CRT-export (Magic Desk 64K-kassett)
 
 Du kan paketera ditt program (och ytterligare datafiler) till en C64
@@ -5493,7 +5692,7 @@ kompilerade PRG:n), redigerar D64-redigeraren en diskavbildning på plats via
 
 **Filer ▾ meny:**
 
-| Plattform             | Handling                                      |
+| Punkt                 | Handling                                      |
 | --------------------- | --------------------------------------------- |
 | VICE (`x64sc`, `x64`) | Fungerar via **Arkiv → Bifoga patronbild**.   |
 | C64 / C64 Mini        | Fungerar via den inbyggda patronladdaren.     |
@@ -5851,7 +6050,7 @@ flerfärgslägen. Öppna den med verktygsfältsknappen för högupplöst rediger
 | Cellpapper (högupplöst) | Hög upplösning tillåter två färger i varje 8×8-cell: bläcket (angivna pixlar, hög nibble av cellens skärm-RAM-byte) och pappret (rena pixlar, låg nibble). Verktyget **Cellpapper** ställer in pappret för varje cell du klickar eller drar över till den valda färgen; **PAPPER** ställer fortfarande in varje cell samtidigt. Radergummit rensar pixlar, så att cellens eget papper syns. Inaktiverat i flerfärg, där bakgrunden ($D021) delas.                                                                                                                                                                                               |
 | Sprutverktyg            | Airbrush-liknande målare som sprider pixlar runt markören medan du ritar.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | Sprutintensitet         | Listrutan bredvid sprutverktyget styr hur tätt varje sprutslag är.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| Färgpalett              | Förgrunds- (bläck) + pappers- (bakgrunds) väljare. Flerfärgsläget spårar automatiskt 3 extrafunktioner per cell.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| Färgpalett              | Förgrunds- (bläck) + pappers- (bakgrunds-) väljare. I flerfärg innehåller varje 4×8-cell pappret plus 3 fler färger: en fjärde avvisas med ett meddelande i statusfältet. Att ändra pappret färgar om alla bakgrundspixlar, som `$D021` gör. Celler över gränsen (till exempel från en rå 32000-byte-fil) får en röd ram, och exporten varnar för dem, eftersom deras extra färger skulle bli bakgrunden.                                                                                                                                                                                                                                       |
 | Ångra / Gör om          | Historik per penseldrag, ctrl-Z / ctrl-Y.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | Välja                   | Verktyget streckad fyrkant: dra på arbetsytan för att markera ett rektangulärt område. **Esc** rensar markeringen.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | Kopiera / Klistra in    | **Kopiera** (`Ctrl/Cmd+C`) kopierar det markerade området. **Klistra in** (`Ctrl/Cmd+V`) visar en förhandsgranskning som följer markören: klicka på arbetsytan för att placera den, **Esc** avbryter. Kopian behålls, så om du trycker på `Ctrl/Cmd+V` och klickar igen placeras den så många gånger som behövs. I högupplöst läge följer inklistrade pixlar fortfarande gränsen på två färger per cell, så justera regionen med cellrutnätet för att behålla dess färger. Kopiera, Klistra in och Genomskinlig klistra finns också i högerklicksmenyn på arbetsytan; en inklistring som startats där förhandsgranskas på den klickade platsen. |
@@ -5859,7 +6058,7 @@ flerfärgslägen. Öppna den med verktygsfältsknappen för högupplöst rediger
 | Rutnät + Raster         | **Rutnät** visar tecken-cellsrutnätet: 8×8 pixlar i hög upplösning, 4×8 pixlar med dubbel bredd i flerfärg. Från 4× zoom ritar den också en svagare linje runt varje enskild pixel, så att varje pixel kan placeras exakt. **Raster** lägger till ett rasterradlager.                                                                                                                                                                                                                                                                                                                                                                           |
 | Zoom                    | Skjutreglage från 1× till 16×, eller Ctrl+hjul över arbetsytan (punkten under markören stannar på plats).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | Importera bild          | PNG/JPEG/GIF som släpps på arbetsytan kvantiseras automatiskt till C64-paletten med 16 färger.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| Exportera block         | Lägger till BYTE/RAWBYTES-block i programmet med kodad bitmapp, skärm och färgdata.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| Exportera block         | Lägger till en laddare till programmet: den laddar filen `HIRES` från disk till `$2000`, kopierar skärm-RAM till `$0400` (och i flerfärgat färg-RAM till `$D800`), och sätter sedan på bitmappsläge. Bilden finns inte i blocken: lägg till den på disken med **Spara till D64**.                                                                                                                                                                                                                                                                                                                                                               |
 | Exportera `.bin`        | Sparar det ursprungliga flerfärgsformatet (10000 byte: 8000 bitmapp + 1000 skärm + 1000 färg) klart för LOADFILE till $2000.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 
 ### Sprite-redigeraren
