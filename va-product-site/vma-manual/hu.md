@@ -414,7 +414,7 @@ mint beépített alprogramokra.
 
 ---
 
-### LABEL
+
 
 Mint egy ** sorszám a BASIC**-ben — de névvel a szám helyett. Ugrási célpontok a
 `JMP`, `JSR`, `BNE` stb. fájlokhoz.
