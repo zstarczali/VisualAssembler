@@ -1425,7 +1425,7 @@ Like **a named GOSUB with parameters** — define a reusable chunk of code once 
 | Name | Identifier for the macro (e.g. `setColor`) |
 | Params | Optional comma-separated parameter names (e.g. `color` or `color, count`) |
 
-Marks the start of a macro definition. The lines between MACRO and ENDM are the macro's body. A macro with parameters **generates no code** where the definition sits; a macro without parameters is also assembled there as a subroutine (`JSR name` calls it). In the body a parameter is written as `{paramName}` or as its bare name; the call fills in the argument — in instruction operands and in the arguments of the library macros alike (`.set_border c`, `.sprite_pos n, x, y` …). Labels, LOOP labels and runtime `.if` / `.while` labels of the body are unique per call. A macro call inside a macro body is not expanded (an error).
+Marks the start of a macro definition. The lines between MACRO and ENDM are the macro's body. A macro with parameters **generates no code** where the definition sits; a macro without parameters is also assembled there as a subroutine (`JSR name` calls it): the program flow jumps over it, and an `RTS` is added at its end. In a library included at a fixed address such a macro gets the `RTS` too. In the body a parameter is written as `{paramName}` or as its bare name; the call fills in the argument — in instruction operands and in the arguments of the library macros alike (`.set_border c`, `.sprite_pos n, x, y` …). Labels, LOOP labels and runtime `.if` / `.while` labels of the body are unique per call. A macro call inside a macro body is not expanded (an error).
 
 **Generated code:**
 ```

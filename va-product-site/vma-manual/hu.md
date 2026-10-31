@@ -1658,7 +1658,8 @@ másolása-beillesztése helyett.
 A makródefiníció kezdetét jelzi. A MACRO és az ENDM közötti sorok a makró
 törzsét alkotják. Egy paraméterekkel rendelkező makró ** nem generál kódot**,
 ahol a definíció található; egy paraméter nélküli makró is ott áll össze
-alprogramként (`JSR name` hívja). A törzsben egy paraméter `{paramName}` formában
+alprogramként (`JSR name` hívja): a program folyása átugorja, a végére pedig `RTS`
+kerül. A fix címre include-olt könyvtárban az ilyen makró szintén `RTS`-t kap. A törzsben egy paraméter `{paramName}` formában
 vagy a saját neveként szerepel; a hívás kitölti az argumentumot – az
 utasításoperandusokban és a könyvtármakrók argumentumában egyaránt (`.set_border
 c`, `.sprite_pos n, x, y` …). A törzs címkéi, LOOP címkéi és futásidejű `.if` /

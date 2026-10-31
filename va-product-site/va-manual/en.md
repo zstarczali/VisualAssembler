@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.6.8**
+**Version 2.7.0**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -8,6 +8,8 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 
 ## Table of Contents
 
+- [Version 2.7.0 Highlights](#version-270-highlights)
+- [Version 2.6.9 Highlights](#version-269-highlights)
 - [Version 2.6.8 Highlights](#version-268-highlights)
 - [Version 2.6.7 Highlights](#version-267-highlights)
 - [Version 2.6.6 Highlights](#version-266-highlights)
@@ -192,6 +194,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
   - [Breakpoint Blocks](#breakpoint-blocks)
   - [Debugger flags](#debugger-flags)
   - [VICE Monitor (hot reload, live watch, profiler)](#vice-monitor-hot-reload-live-watch-profiler)
+  - [Built-in C64 and debugger](#built-in-c64-and-debugger)
 - [11. Knowledge Base Links](#11-knowledge-base-links)
 - [12. D64 Export & Run](#12-d64-export--run)
   - [Split Run button](#split-run-button)
@@ -228,6 +231,25 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
   - [Number Converter](#number-converter)
 
 ---
+
+## Version 2.7.0 Highlights
+
+- **Built-in C64** — VICE 3.10 (x64sc, compiled to WebAssembly) now runs inside the app, nothing to install. Choose **Built-in C64** in the Run menu, or open it with its toolbar button. See [Built-in C64 and debugger](#built-in-c64-and-debugger).
+- **Debugger** — it stops before the instruction at a breakpoint; **Continue**, **Break**, **Step into / over / out**; editable registers and flags, disassembly around PC, memory view and breakpoint list. Breakpoints come from the editor, from Block mode and from the disassembly, and the editor follows the CPU. The **Debug** button uses it in this mode, and whenever no RetroDebugger is set.
+- **Machine settings** — PAL or NTSC, SID 6581 or 8580, reSID or FastSID, REU up to 16 MB, joystick port, warp and sound.
+- **Your own files** — the **Files** menu loads a PRG and attaches a D64 or a cartridge (`.crt`). The status bar shows the drive LED and track, and a blinking LED shows as a drive error, for example when a file cannot be found.
+- **Display** — a CRT filter with scanlines, full screen and a resizable window. The window and its settings come back on the next start.
+- **Hi-Res Editor** — multicolor cells are limited to the paper plus 3 colours, cells over the limit are marked in red, and drawing past the edge of the picture with the pixel grid on no longer raises errors. See [Hi-Res / Multicolor Editor](#hi-res--multicolor-editor).
+- **Editor right-click menu** — in the Expert and Ultimate Basic editors: Cut, Copy, Paste, Select all, and UPPERCASE / lowercase for the selected text.
+
+## Version 2.6.9 Highlights
+
+- **Git branches** — the Version control window switches branches (the branch list), creates, renames and deletes them and merges one into the current branch. A merge conflict lists the files, marks them red, and **Abort merge** goes back to the state before the merge; the open tabs reload from disk after a switch, merge or stash. See [Git](#git).
+- **File by file and stash** — every changed file has its own **Stage / Unstage / Discard** buttons (an untracked file can be deleted), and a click on its name opens its diff. **Stash** puts the changes aside; the stash list applies, pops or drops them. Without **Stage all changes** a project commit takes only the staged files.
+- **A better diff** — a card per file with its status and +/− counts, old and new line numbers, assembly / Ultimate Basic syntax colours and the changed part of a line highlighted; **Split** shows the old and new text side by side and ⤢ gives the diff more room.
+- **Discard changes really discards** — in Git mode it asks first, then resets the files on disk to HEAD (`git restore`) and reloads the tabs, so a branch switch works afterwards. Started from the menu, its result appears as a message.
+- **Kick projects** — cycle counts, errors and hints also work in a file the startup file does not import: they come from the tree the file belongs to (for example `main.asm` next to a `boot.asm` startup file). A forward branch inside `.pseudopc` (`bne !+`) is relative to the logical address, and a char literal equals a one-character string (`s.charAt(i) == '1'`), as in KickAssembler.
+- **Fixes and looks** — **Save project** saves an opened Expert project in place, with its unsaved file tabs, instead of asking for a file name; the Version control window stays within the screen and has icon tool buttons like the editors; shorter number fields in the Table Generator.
 
 ## Version 2.6.8 Highlights
 
@@ -704,7 +726,7 @@ The line under the bar names the step that is running, with the file — for exa
 | **Build D64** (`Menu → Build`) | Package the program and extra files into a `.d64` disk image — see [Export to D64 dialog](#export-to-d64-dialog) |
 | **Build CRT** | Export the program as a 64K Magic Desk (`.crt`, cartridge type 19) file. See [Section 12b](#12b-crt-export-magic-desk-64k-cartridge). |
 | **Build project** (`Menu → Build`) | Compile every buildable file of the project (or of the open tabs) to a `.prg` next to its source — see [Build project](#build-project) |
-| **Run (split button)** | The main **▶ Run** button runs the current mode; click the **▾** arrow to switch between: **Run as PRG** (compile and launch VICE directly), **Run via D64** (package into a .d64 disk image and launch VICE), **Run on hardware** (send PRG to a C64 Ultimate / 1541 Ultimate device), **D64 on hardware** (send a D64 to the same device), or **Kung Fu Flash 2** (upload the PRG over USB to a real C64/C128 with a Kung Fu Flash 2 cartridge). See [Section 12](#12-d64-export--run) and [Section 13](#13-settings). |
+| **Run (split button)** | The main **▶ Run** button runs the current mode; click the **▾** arrow to switch between: **Run as PRG** (compile and launch VICE directly), **Run via D64** (package into a .d64 disk image and launch VICE), **Run on hardware** (send PRG to a C64 Ultimate / 1541 Ultimate device), **D64 on hardware** (send a D64 to the same device), or **Kung Fu Flash 2** (upload the PRG over USB to a real C64/C128 with a Kung Fu Flash 2 cartridge). See [Section 12](#12-d64-export--run) and [Section 13](#13-settings). **Built-in C64** runs the program on the C64 inside the app, see [Built-in C64 and debugger](#built-in-c64-and-debugger). |
 | **Debug (RetroDebugger)** | Compile and launch in RetroDebugger with breakpoints, symbols, and autostart flags (see [Section 10](#10-debugger-integration)) |
 | **Run with Exomizer** | Checkbox in **Settings → General → Program** — when enabled, all Run and Build operations crunch the PRG through `exomizer sfx` before launching or saving (`sfx basic` for a PRG that starts with a BASIC line, so RUN works again after the program returns; `sfx $<load address>` otherwise). Works with Run as PRG, Run via D64, Run on Hardware, Build PRG, and Build D64. Configure the Exomizer executable in **Settings → Files and paths** first. |
 | **Automatic autosave entries** | Checkbox in **Settings → General → Version control**. When enabled, the app adds an autosave entry to the version history about 2.5 seconds after you stop editing a tab (for a tab of a project also to the project history). Turn it off if you only want your own commits. See [Version control](#version-control). |
@@ -719,13 +741,13 @@ The line under the bar names the step that is running, with the file — for exa
 
 ### Version control
 
-Every tab has its own version history, like a small git repository; a tab that belongs to an open `.proj` project can also be versioned as a whole project (see [Project mode](#project-mode)). **Menu → Versioning → Version control…** (or **Commit…**) opens the dialog; **Discard changes (back to HEAD)** restores the last commit directly.
+Every tab has its own version history, like a small git repository; a tab that belongs to an open `.proj` project can also be versioned as a whole project (see [Project mode](#project-mode)). **Menu → Versioning → Version control…** (or **Commit…**) opens the dialog; **Discard changes (back to HEAD)** restores the last commit after a confirmation (in Git mode the files on disk too).
 
 The usual workflow: write a **commit message** and press **Commit** (or Ctrl+Enter) → keep editing → press **Diff** to see what changed → commit again.
 
 - **Commit** — saves the current state of the tab with your message. Every commit gets a short hash (for example `1bd55ba`); the newest one is **HEAD**. A commit with no changes since HEAD is not created.
 - **Status line** — *Nothing to commit, working tree clean* or *Uncommitted changes since `<hash>`*.
-- **Diff** — the changes since HEAD; the **Diff** button of a log entry compares that version with the editor. Added lines are green, removed lines red, and the header shows **+N / −M**. Block-mode programs are compared as assembly lines (one line per block), Expert sources line by line, Ultimate Basic tabs by their source, so a Block-mode project saved as JSON still shows readable changes. A source file (`.asm`, `.s`, `.inc` …) is stored as its text, so a version stays a source file.
+- **Diff** — the changes since HEAD; the **Diff** button of a log entry compares that version with the editor. Added lines are green, removed lines red, and the header shows **+N / −M**. Block-mode programs are compared as assembly lines (one line per block), Expert sources line by line, Ultimate Basic tabs by their source, so a Block-mode project saved as JSON still shows readable changes. Every file is a collapsible card with its status (**M** / **A** / **D** / **R**) and counts, the lines carry their old and new numbers and the syntax colours of the editor, and in a changed line the part that differs is highlighted. **Split** shows the old and new version side by side (remembered), ⤢ gives the diff more room. A source file (`.asm`, `.s`, `.inc` …) is stored as its text, so a version stays a source file.
 - **Checkout** — loads that version into the editor. The file on disk only changes when you save; **Discard changes** goes back to HEAD.
 - **Autosave entries** — with **Settings → General → Version control → Automatic autosave entries in version control** the app adds an entry about 2.5 seconds after you stop editing. They are marked *autosave*; the last 20 are kept, next to up to 100 commits.
 - The dialog can be moved by its header; it reopens at the same place and closes with **Esc** or its close button (a click outside does not close it).
@@ -749,8 +771,13 @@ When the tab belongs to an open `.proj` project (Expert or Ultimate Basic projec
 If `git` is installed, the same dialog can work with a real git repository.
 
 - **Settings → Files and paths → git** / **Settings → General → Version control:** **Choose git.exe…** or **Auto-detect** (searches the PATH and the usual install folders); the line below shows the git version. **Use Git when the project is in a repository** (on by default) switches the dialog to Git mode automatically for files inside a repository. The **Built-in / Git** switch in the dialog header changes the mode by hand.
-- The header shows the branch with **↑** (commits to push) and **↓** (commits to pull), followed by the changed files of the repository.
-- **Commit** saves the file first, stages only this file (or every change with **Stage all changes (git add -A)**) and runs `git commit`.
+- The header shows the branch with **↑** (commits to push) and **↓** (commits to pull). Below the status line a toolbar (icon buttons, the names show on hover) holds the **branch list**, the branch tools, **Stash**, and **Pull / Push / Refresh**.
+- **Branches** — pick another branch in the list to switch to it (`git switch`); **New branch** creates one from HEAD and switches to it, **Rename** renames the current branch, **Delete branch** deletes another one (a branch that is not merged yet is deleted only after a second confirmation). Switching needs saved tabs: save or discard the editor changes first. After a switch the open tabs of the repository reload from disk.
+- **Merge…** merges a chosen branch into the current one (`git merge --no-edit`). On a conflict the conflicting files are listed and shown red, and the status line says *Merge in progress*: resolve them in the editor, save, mark each one **Resolved** and commit — or press **Abort merge** (`git merge --abort`) to go back.
+- **The change list** shows every changed file of the repository with its `git status` code. Click a name for its diff (HEAD against the file on disk); the buttons next to it **Stage** (`git add`), **Unstage** (`git restore --staged`) and **Discard** it (back to HEAD on disk, after a confirmation) — an untracked file can be **deleted** instead.
+- **Stash** puts the uncommitted changes aside with an optional message (`git stash push`); the **stash list** below the changes **applies**, **pops** or **drops** an entry.
+- **Discard changes** asks first, then resets the changed files on disk to HEAD (`git restore --staged --worktree`) and reloads their tabs — for a project the whole project folder, otherwise the file of the tab; untracked files are kept.
+- **Commit** saves the file first, stages only this file (or every change with **Stage all changes (git add -A)**) and runs `git commit`. In a project **Stage all changes** is on by default; switched off, the commit takes only the files you staged in the change list.
 - The log lists the commits of this file with their branches and tags. **Diff** on an entry compares the commit with its parent; the **Diff** button compares HEAD with the editor, unsaved changes included. Project files are compared the same way as in the built-in mode; **RAW** shows the plain `git diff`.
 - **Checkout** loads the file of that commit into the editor (`git show`) without touching the disk.
 - **Pull** (`--ff-only`), **Push** (the first push sets the upstream with `-u origin <branch>`) and **Create repository (git init)** when the folder is not a repository yet.
@@ -934,6 +961,8 @@ In a Kick-compatible project the VA macros and directives keep working next to t
 | `.if DEBUG` … `.else` … `.endif` | `.if (expression) { … } else { … }` |
 | `.macro name(p)` … `.endm`, called with `.invoke` | `.macro Name(p) { … }`, called as `Name(arg)` |
 | `.var name = value` (a runtime variable) | `.var name = value` (a script variable) — in a Kick-compatible project `.var` is always the KickAssembler one |
+
+**Live check:** while you type, errors, the cycle gutter and the peephole hints come from the tree the open file belongs to — the startup file's tree, or, for a file it does not import (say `main.asm` next to a `boot.asm` startup file), the tree of the project source that imports it. Run and Build always build the startup file.
 
 The project builds with the VA assembler, not with KickAssembler: every build (Run, Build PRG, D64, CRT, Exomizer, Debug, VICE Monitor, Build project, the Build button) first runs the startup file through a KickAssembler preprocessor, with the editor text of open tabs, saved or not. The result is the same PRG as KickAssembler's. Supported:
 
@@ -2613,7 +2642,7 @@ Like **a named GOSUB with parameters** — define a reusable chunk of code once 
 | Name | Identifier for the macro (e.g. `setColor`) |
 | Params | Optional comma-separated parameter names (e.g. `color` or `color, count`) |
 
-Marks the start of a macro definition. Blocks between MACRO and ENDM are the macro's body — they **don’t generate any code** where the definition sits. Use `{paramName}` as a placeholder for arguments.
+Marks the start of a macro definition. Blocks between MACRO and ENDM are the macro's body. A macro with parameters **generates no code** where the definition sits. A macro without parameters is also stored there as a subroutine, so `JSR name` calls it: the program flow jumps over it (`JMP`), and an `RTS` is added at its end. The same goes for such a macro in a library included at a fixed address (without the `JMP`, the library is outside the program flow). Use `{paramName}` as a placeholder for arguments.
 
 **Generated ASM:**
 ```
@@ -2979,6 +3008,8 @@ Like **a real branch template** — this version works at runtime, not compile t
 **Size:** Depends on the chosen branches and compare form.
 
 The comparison is unsigned by default. For `<=` and `>` the macro expands to the shortest equivalent branch chain for the selected register.
+
+Sample: **Runtime IF / ELSE demo** (`samples/runtime-if-demo.asm`).
 
 ---
 
@@ -4068,6 +4099,62 @@ Quick reference links available in the app under **Knowledge Base**:
 
 ---
 
+### Built-in C64 and debugger
+
+The app contains a complete C64: VICE 3.10 (x64sc) compiled to WebAssembly. It needs no installation and no settings, and it works without an external VICE.
+
+**Starting a program:** choose **Built-in C64** in the split **Run** menu, then press **Run**. The program is built, the machine gets a hard reset and the program starts: `RUN` for a program with a BASIC line at `$0801`, otherwise `SYS` with its load address. The toolbar button opens the window without running anything; the first button of its toolbar builds and runs again.
+
+**The keyboard** goes to the C64 while the screen has the focus (click it). **Tab** is CTRL, **Alt** is the Commodore key, and you can paste text with Ctrl+V. With a **Joystick** port selected the arrow keys and Space or right Ctrl are the joystick.
+
+**The Files menu**
+
+| Item | What it does |
+|---|---|
+| **Load PRG…** | Starts a `.prg` with autostart |
+| **Attach D64…** | Attaches the image to drive 8, resets, then `LOAD"*",8,1` and `RUN` |
+| **Attach cartridge…** | Attaches a `.crt` and resets |
+| **Detach disk / Detach cartridge** | Removes the image; detaching a cartridge also resets |
+
+The status bar shows what is attached and the LED of drive 8 with the track of the head. The LED stays lit during a load. A blinking LED means the drive reports an error, such as a file it cannot find or read: the LED turns red and the status bar says **Drive error** until the drive clears it. Attached files are not remembered. Running your own program from the editor removes an attached cartridge first, otherwise the cartridge would start instead.
+
+**Machine settings** on the toolbar:
+
+| Setting | Values | Note |
+|---|---|---|
+| **Video** | PAL, NTSC | Hard reset |
+| **SID chip** | 6581, 8580 | Applies at once |
+| **SID engine** | reSID, FastSID | Applies at once. The VA SID Core is not available here: this machine uses the SID engines of VICE |
+| **REU** | Off, 128 KB – 16 MB | Hard reset |
+| **Joystick** | —, Port 1, Port 2 | |
+
+The toolbar also has **Reset**, **Pause**, **Warp**, **Sound**, **CRT filter** and **Full screen**. The CRT filter uses the CRT emulation of VICE, smooth scaling and scanlines; the scanlines appear once a C64 line is at least 3 pixels high. Full screen also starts with a double click on the screen, and Esc or another double click leaves it. The window can be moved by its header and resized at its bottom right corner. Its place, size, open state and settings come back on the next start.
+
+**Debugging:** press **Debug** while the run mode is **Built-in C64**. The Debug button also uses this debugger whenever no RetroDebugger is set. It works with VMA, Kick projects, ACME and Ultimate Basic alike. The program stops at the first breakpoint it reaches, or at its first instruction if there are no breakpoints.
+
+The CPU stops **before** the instruction at the breakpoint, so the registers and memory show the state just before it runs.
+
+| Button | Key | What it does |
+|---|---|---|
+| **Continue** | F5 | Runs to the next breakpoint |
+| **Break** | F5 while running | Stops a running program |
+| **Step into** | F11 | Runs one instruction |
+| **Step over** | F10 | Runs a JSR to its return |
+| **Step out** | Shift+F11 | Runs to the instruction after the RTS / RTI of the routine |
+
+The keys work while the focus is in the window but not on the C64 screen, because F5 is also a C64 key there.
+
+The **Debugger panel** shows:
+
+- **Registers:** PC, A, X, Y and SP are editable hex fields, and the flags are buttons. Changes take effect when the CPU goes on.
+- **Disassembly** around PC, with the labels of your program. Click the dot at the start of a line to set or remove a breakpoint.
+- **Memory:** type an address as `$hex`, a decimal number or a label. Reading has no side effects, so looking at `$DC0D` does not acknowledge an interrupt.
+- **Breakpoints:** the address and the `file:line` of each one.
+
+Breakpoints come from the line gutter of the editor (every open tab of the build), from Block-mode breakpoints and from the disassembly. A change in the editor counts at the next Continue or step. When the CPU stops, the editor opens the file and marks the line; in Block mode the block is selected.
+
+The **VICE Monitor** window keeps working with an external VICE only; it does not connect to this machine.
+
 ## 12. D64 Export & Run
 
 You can package your program (and additional data files) into a C64 D64 disk image and launch it in VICE — or export the disk image for use elsewhere.
@@ -4345,7 +4432,7 @@ Pixel-level bitmap editor with both 320×200 hi-res and 160×200 multicolor mode
 | Cell paper (hi-res) | Hi-res allows two colours in every 8×8 cell: the ink (set pixels, high nibble of the cell's screen RAM byte) and the paper (clear pixels, low nibble). The **Cell paper** tool sets the paper of each cell you click or drag over to the selected colour; **PAPER** still sets every cell at once. The eraser clears pixels, so the cell's own paper shows. Disabled in multicolor, where the background ($D021) is shared. |
 | Spray tool | Airbrush-style painter that scatters pixels around the cursor while drawing. |
 | Spray intensity | Dropdown next to the spray tool controls how dense each spray stroke is. |
-| Color palette | Foreground (ink) + paper (background) pickers. Multicolor mode tracks 3 per-cell extras automatically. |
+| Color palette | Foreground (ink) + paper (background) pickers. In multicolor every 4×8 cell holds the paper plus 3 more colours: a 4th is refused with a message in the status bar. Changing the paper recolours all background pixels, as `$D021` does. Cells over the limit (for example from a raw 32000-byte file) get a red frame, and the export warns about them, because their extra colours would turn into the background. |
 | Undo / Redo | Per-stroke history, ctrl-Z / ctrl-Y. |
 | Select | The dashed-square tool: drag on the canvas to mark a rectangular region. **Esc** clears the selection. |
 | Copy / Paste | **Copy** (`Ctrl/Cmd+C`) copies the selected region. **Paste** (`Ctrl/Cmd+V`) shows a preview that follows the cursor: click on the canvas to place it, **Esc** cancels. The copy is kept, so pressing `Ctrl/Cmd+V` and clicking again places it as many times as needed. In hi-res mode pasted pixels still follow the two-colours-per-cell limit, so line the region up with the cell grid to keep its colours. Copy, Paste and Transparent paste are also in the right-click menu of the canvas; a paste started there previews at the clicked spot. |
@@ -4353,7 +4440,7 @@ Pixel-level bitmap editor with both 320×200 hi-res and 160×200 multicolor mode
 | Grid + Raster | **Grid** shows the character-cell grid: 8×8 pixels in hi-res, 4×8 double-wide pixels in multicolor. From 4× zoom it also draws a fainter line around every single pixel, so each pixel can be placed exactly. **Raster** adds a raster row overlay. |
 | Zoom | Slider from 1× to 16×, or Ctrl+wheel over the canvas (the point under the cursor stays in place). |
 | Import image | PNG/JPEG/GIF dropped into the canvas auto-quantizes to the 16-color C64 palette. |
-| Export blocks | Appends BYTE/RAWBYTES blocks to the program with the encoded bitmap, screen, and color data. |
+| Export blocks | Appends a loader to the program: it loads the file `HIRES` from disk to `$2000`, copies screen RAM to `$0400` (and in multicolor color RAM to `$D800`), then switches on the bitmap mode. The picture is not in the blocks: add it to the disk with **Save to D64**. |
 | Export `.bin` | Saves the native multicolor format (10000 bytes: 8000 bitmap + 1000 screen + 1000 color) ready for LOADFILE to $2000. |
 
 ### Sprite Editor
