@@ -4390,7 +4390,7 @@
       const saved = document.cookie.split('; ').find(row => row.startsWith('va_docs_lang='))?.split('=')[1];
       const savedManual = document.cookie.split('; ').find(row => row.startsWith('va_docs_manual='))?.split('=')[1];
       const language = languages.includes(saved) ? saved : 'en';
-      const manual = ['va', 'ub'].includes(savedManual) ? savedManual : 'va';
+      const manual = ['va', 'ub', 'vma'].includes(savedManual) ? savedManual : 'va';
       const url = new URL('docs.html', location.href);
       url.searchParams.set('doc', language);
       url.searchParams.set('manual', manual);
@@ -4457,7 +4457,7 @@
       setTimeout(sparkle, 2500);
     })();
   </script>
-  <script src="assets/consent.js?v=1"></script>
+  <script src="assets/consent.js?v=2"></script>
 </body>
 
 </html>

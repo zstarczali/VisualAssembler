@@ -29,6 +29,7 @@ button,input{font:inherit}
 .toc a.h3{padding-left:20px;font-size:13px}
 .toc a.search-muted{opacity:.24}
 .toc a.search-match{color:#eef58f;background:#202044}
+.toc a.current{color:#eef58f;background:#171738;box-shadow:inset 2px 0 0 var(--yellow)}
 .content{overflow-y:auto;overflow-x:hidden;padding:44px clamp(28px,5vw,72px);scroll-behavior:smooth;color:#c9c9e2;font-size:16px;line-height:1.72}
 .content>*{max-width:850px;margin-left:auto;margin-right:auto}
 .content h1,.content h2,.content h3,.content h4,.content h5,.content h6{color:#ededff;line-height:1.3;scroll-margin-top:24px}
@@ -80,7 +81,7 @@ button,input{font:inherit}
     <main class="content"><p>Loading documentation...</p></main>
   </div>
 </div>
-<script src="assets/consent.js?v=1"></script>
+<script src="assets/consent.js?v=2"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked@15.0.12/marked.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js"></script>
 <script>
@@ -101,9 +102,41 @@ let searchHits=[];
 let searchIndex=-1;
 let navigationHistory=[];
 let sizeSaveTimer=null;
+// the h2/h3 being read, per manual: an index, because every translation has the same headings
+const currentArticles={};
+for(const manual of Object.keys(manuals))currentArticles[manual]=parseInt(document.cookie.split('; ').find(row=>row.startsWith('va_docs_article_'+manual+'='))?.split('=')[1],10);
+let articleHeadings=[];
+let articleLinks=[];
+let articleIndex=-1;
+let articlePinned=false;
+let articleTimer=null;
+let openToken=0;
 // beállítás-sütik csak hozzájárulással (assets/consent.js)
 function setPrefCookie(name,value){if(window.vaConsent?.get('prefs'))document.cookie=name+'='+value+'; Max-Age=31536000; Path=/; SameSite=Lax'}
 
+function savePrefs(){
+  setPrefCookie('va_docs_lang',currentLanguage);setPrefCookie('va_docs_manual',currentManual);
+  for(const manual of Object.keys(manuals))if(Number.isFinite(currentArticles[manual]))setPrefCookie('va_docs_article_'+manual,currentArticles[manual]);
+}
+function selectArticle(index){
+  if(index===articleIndex)return;
+  articleLinks[articleIndex]?.classList.remove('current');
+  articleIndex=index;
+  articleLinks[index]?.classList.add('current');
+  articleLinks[index]?.scrollIntoView({block:'nearest'});
+  currentArticles[currentManual]=index;
+  setPrefCookie('va_docs_article_'+currentManual,index);
+}
+// the last heading at the top of the view; a short last section never gets there, so a chosen one stays
+function trackArticle(){
+  clearTimeout(articleTimer);articleTimer=null;
+  if(articlePinned){articlePinned=false;return}
+  if(!articleHeadings.length)return;
+  const limit=content.getBoundingClientRect().top+32;
+  let index=-1;
+  for(let i=0;i<articleHeadings.length&&articleHeadings[i].getBoundingClientRect().top<=limit;i++)index=i;
+  selectArticle(index);
+}
 function saveWindowSize(){
   if(window.outerWidth<320||window.outerHeight<320)return;
   setPrefCookie('va_docs_width',Math.round(window.outerWidth));
@@ -131,11 +164,14 @@ function sourceTocAnchors(markdown){
   }).filter(link=>link.index>=0);
 }
 function slug(text,index){return text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'section-'+index}
-function scrollToHeading(heading,remember=true){
+function scrollToHeading(heading,remember=true,behavior='smooth'){
   if(!heading)return;
   if(remember){navigationHistory.push(content.scrollTop);backButton.disabled=false}
   const top=content.scrollTop+heading.getBoundingClientRect().top-content.getBoundingClientRect().top-24;
-  content.scrollTo({top:Math.max(0,top),behavior:'smooth'});
+  const target=Math.min(Math.max(0,top),content.scrollHeight-content.clientHeight);
+  const index=articleHeadings.indexOf(heading);
+  if(index>=0){selectArticle(index);articlePinned=Math.abs(target-content.scrollTop)>1}
+  content.scrollTo({top:target,behavior});
 }
 function clearSearch(){
   content.querySelectorAll('mark.hit').forEach(mark=>mark.replaceWith(document.createTextNode(mark.textContent)));
@@ -172,6 +208,8 @@ function updateSearch(){
   searchCount.textContent=hasHits?'1 / '+searchHits.length:'0 / 0';if(hasHits)showHit(0);
 }
 async function openDocument(language){
+  const token=++openToken;
+  clearTimeout(articleTimer);articleTimer=null;articlePinned=false;articleHeadings=[];articleLinks=[];articleIndex=-1;
   if(!languages.includes(language))language=currentLanguage;
   currentLanguage=language;setPrefCookie('va_docs_lang',language);setPrefCookie('va_docs_manual',currentManual);
   const url=new URL(location.href);url.searchParams.set('doc',language);url.searchParams.set('manual',currentManual);history.replaceState(null,'',url);
@@ -183,6 +221,7 @@ async function openDocument(language){
     const response=await fetch(manuals[currentManual].path+language+'.md');if(!response.ok)throw new Error('HTTP '+response.status);
     const markdown=(await response.text()).replace(/^(\*\*[^*\r\n]*\S)[ \t]+\*\*[ \t]*$/gm,'$1**');
     const sourceMarkdown=language==='en'?markdown:await (await fetch(manuals[currentManual].path+'en.md')).text();
+    if(token!==openToken)return;
     if(!window.marked||!window.DOMPurify)throw new Error('Markdown renderer unavailable');
     content.innerHTML=DOMPurify.sanitize(marked.parse(markdown,{gfm:true,breaks:false}));
     const allHeadings=[...content.querySelectorAll('h1,h2,h3,h4,h5,h6')],byText=new Map();
@@ -196,11 +235,14 @@ async function openDocument(language){
       if(anchor&&heading)heading.dataset.linkedId=decodeURIComponent(anchor);
     });
     const used=new Set();allHeadings.forEach((heading,index)=>{const base=heading.dataset.linkedId||slug(heading.textContent,index);let id=base,suffix=2;while(used.has(id))id=base+'-'+suffix++;used.add(id);heading.id=id});
-    allHeadings.filter(heading=>heading.matches('h2,h3')).forEach(heading=>{const link=document.createElement('a');link.href='#'+heading.id;link.textContent=heading.textContent;if(heading.tagName==='H3')link.className='h3';toc.appendChild(link)});
-    content.scrollTop=0;
-  }catch(error){content.innerHTML='<p class="error">The documentation could not be loaded. Please try again.</p>';console.error(error)}
+    articleHeadings=allHeadings.filter(heading=>heading.matches('h2,h3'));
+    articleLinks=articleHeadings.map(heading=>{const link=document.createElement('a');link.href='#'+heading.id;link.textContent=heading.textContent;if(heading.tagName==='H3')link.className='h3';toc.appendChild(link);return link});
+    const saved=articleHeadings[currentArticles[currentManual]];
+    if(saved)scrollToHeading(saved,false,'instant');else content.scrollTo({top:0,behavior:'instant'});
+  }catch(error){if(token!==openToken)return;content.innerHTML='<p class="error">The documentation could not be loaded. Please try again.</p>';console.error(error)}
 }
 function handleAnchor(event){const link=event.target.closest('a[href^="#"]');if(!link)return;const id=decodeURIComponent(link.getAttribute('href').slice(1));const heading=[...content.querySelectorAll('h1,h2,h3,h4,h5,h6')].find(item=>item.id===id);if(!heading)return;event.preventDefault();scrollToHeading(heading)}
+content.addEventListener('scroll',()=>{clearTimeout(articleTimer);articleTimer=setTimeout(trackArticle,150)},{passive:true});
 content.addEventListener('click',handleAnchor);toc.addEventListener('click',handleAnchor);
 document.querySelectorAll('.lang').forEach(button=>button.addEventListener('click',()=>openDocument(button.dataset.doc)));
 document.querySelectorAll('.manual').forEach(button=>button.addEventListener('click',()=>{
@@ -213,7 +255,8 @@ searchPrev.addEventListener('click',()=>showHit(searchIndex-1));searchNext.addEv
 backButton.addEventListener('click',()=>{if(!navigationHistory.length)return;content.scrollTo({top:navigationHistory.pop(),behavior:'smooth'});backButton.disabled=navigationHistory.length===0});
 document.querySelector('.close').addEventListener('click',()=>window.close());
 document.addEventListener('keydown',event=>{if(event.key==='Escape')window.close()});
-window.addEventListener('beforeunload',()=>setPrefCookie('va_docs_lang',currentLanguage));
+window.addEventListener('beforeunload',()=>{if(articleTimer)trackArticle();savePrefs()});
+document.addEventListener('va-consent',event=>{if(event.detail.prefs)savePrefs()});
 if(window.vaConsent?.get('stats'))fetch('visitor-counter.php?count=1',{cache:'no-store',credentials:'same-origin'}).catch(()=>{});
 const requestedUrl=new URL(location.href);
 const requested=requestedUrl.searchParams.get('doc');

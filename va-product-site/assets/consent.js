@@ -4,7 +4,7 @@
 (function () {
   var NAME = 'va_consent';
   var MAX_AGE = 180 * 86400;
-  var PREF_COOKIES = ['va_docs_lang', 'va_docs_manual', 'va_docs_width', 'va_docs_height'];
+  var PREF_COOKIES = ['va_docs_lang', 'va_docs_manual', 'va_docs_article_va', 'va_docs_article_ub', 'va_docs_article_vma', 'va_docs_width', 'va_docs_height'];
 
   function readCookie(name) {
     var row = document.cookie.split('; ').find(function (r) { return r.indexOf(name + '=') === 0; });
@@ -74,7 +74,7 @@
       (showSettings ?
         '<ul class="vac-opts">' +
         '<li><input type="checkbox" checked disabled id="vac-nec"><label for="vac-nec"><b>NECESSARY</b><span>Your cookie choice (<code>va_consent</code>). Always on.</span></label></li>' +
-        '<li><input type="checkbox" id="vac-prefs"' + (cur.prefs ? ' checked' : '') + '><label for="vac-prefs"><b>PREFERENCES</b><span>Documentation language, manual and window size (<code>va_docs_*</code>), 1 year.</span></label></li>' +
+        '<li><input type="checkbox" id="vac-prefs"' + (cur.prefs ? ' checked' : '') + '><label for="vac-prefs"><b>PREFERENCES</b><span>Documentation language, manual, last read section and window size (<code>va_docs_*</code>), 1 year.</span></label></li>' +
         '<li><input type="checkbox" id="vac-stats"' + (cur.stats ? ' checked' : '') + '><label for="vac-stats"><b>STATISTICS</b><span>Unique visitor counter (<code>c64va_visitor_seen</code>), 1 year. Only a total number is stored, no personal data.</span></label></li>' +
         '</ul>' +
         '<div class="vac-btns"><button type="button" class="pri" data-vac="save">SAVE CHOICES</button>' +
