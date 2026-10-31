@@ -41,18 +41,18 @@ loop: dex                ; a label and an instruction on one line
     rts
 ```
 
--**Kommentarer**börjar med `;` eller `//` och fortsätter till slutet av raden
+-**Kommentarer** börjar med `;` eller `//` och fortsätter till slutet av raden
   (inte inom en citationsteckensträng).
--**Etiketter**skrivs som `namn:` — bokstäver, siffror och `_`, som inte börjar
+-**Etiketter** skrivs som `namn:` — bokstäver, siffror och `_`, som inte börjar
   med en siffra. En etikett kan stå på en egen rad eller framför en instruktion.
-  Ett namn som börjar med en punkt (`.loop:`) är en**lokal etikett**(se
+  Ett namn som börjar med en punkt (`.loop:`) är en** lokal etikett**(se
   [Lokala (punktade) etiketter](#lokala-prickade-etiketter)); `-` och `+` är i sig
-  själva**anonyma etiketter**, refererade av `bne -` / `beq +` (närmaste före /
+  själva** anonyma etiketter**, refererade av `bne -` / `beq +` (närmaste före /
   efter).
 -**Instruktioner**är en mnemonisk metod och en operand; indenteringen är fri.
--**Direktiv**börjar med en punkt (`.byte`, `.macro`, `.if` …); `* = $xxxx`
+-**Direktiv** börjar med en punkt (`.byte`, `.macro`, `.if` …); `* = $xxxx`
   (eller `.pc = $xxxx`) anger adressen.
--**Användarmakron**anropas som `:namn(args)`, `.anropnamn(args)`,
+-**Användarmakron** anropas som `:namn(args)`, `.anropnamn(args)`,
   `.anropnamn(args)` eller `namn(args)`.
 
 ## 2. Tal och uttryck
@@ -87,17 +87,17 @@ liknande känner också till `lo()`, `hi()`, `sin()`, `cos()`, `round()`, `min()
 
 ## 3. Utdata: PRG, BASIC-stub och ingångspunkt
 
-VMA skriver en C64**PRG**: en tvåbyte lång laddningsadress följt av
+VMA skriver en C64** PRG**: en tvåbyte lång laddningsadress följt av
 minnesavbildningen. Varje ORG-sektion och varje direktiv som placerar data på en
 egen adress (`.rawbytes`, `.incbin`, `.sid` …) hamnar i en avbildning;
 mellanrummen mellan dem är nollor.
 
-- Utan en ORG**börjar programmet vid `$0801`, där BASIC börjar.
+- Utan en ORG** börjar programmet vid `$0801`, där BASIC börjar.
 -**BASIC SYS stub**(standard): en `10 SYS nnnn`-rad placeras vid `$0801`, så
   programmet startar med `RUN`. Ett program vars första ORG är `$0801` startar
   sedan vid `$080D`. Stäng av stubben med `--no-basic-stub`; utan den monteras
   ett program vid `$0801` till `$C000`, alla andra stannar vid sin första ORG.
--**Ingångspunkt:**SYS-raden hoppar till början av koden, eller till adressen
+-**Ingångspunkt:** SYS-raden hoppar till början av koden, eller till adressen
   som anges i en kommentar på första raden `; Ingångspunkt: $1234`.
 -**Kod under BASIC-raden**(en ORG lägre än `$0801` tillsammans med stubben):
   en liten laddare startar programmet och flyttar det på plats, så det startar
@@ -105,7 +105,7 @@ mellanrummen mellan dem är nollor.
 - En källa som börjar med sin egen BASIC SYS-rad (`.byte $0B, $08, $0A, $00,
   $9E, …` vid `$0801`) genereras som den är, utan en andra stub.
 
-Från PRG skapar kommandoraden även en**kassett**och en**diskavbildning**
+Från PRG skapar kommandoraden även en** kassett** och en** diskavbildning**
 (nytt i 2.1.0, se [8. Kommandorad](#8-kommandorad)):
 
 - `--crt FIL` — en Magic Desk-kassett (CRT-typ 19, 8 × 8K banker, högst 65 408
@@ -142,7 +142,7 @@ läget utifrån hur operanden är skriven.
 ### Konstanter på nollsidan
 
 En operand som endast består av konstanter (`.const`, `name = value`, a `.var`)
-som får plats i en byte tar instruktionens**zero-page**-läge, precis som talet
+som får plats i en byte tar instruktionens** zero-page**-läge, precis som talet
 skulle göra: efter `.const zp = $FB`, assembleras `lda zp` till `A5 FB` (2 byte,
 3 cykler) och `lda zp,x` till `B5 FB`. Ett läge där instruktionen inte har någon
 sidnollfönster förblir absolut (`lda zp,y` → `B9 FB 00`). En etikett är inte
@@ -153,8 +153,8 @@ sidnollfönster, `$00FB` absolut. *(Nytt i 2.1.)*
 ### Märk uttryck som operander
 
 Alla operander som accepterar en adress eller ett omedelbart värde accepterar
-också en**konstant name**(en `.const` eller en label) direkt. Dessutom kan du
-använda uttrycken**label+offset**eller**label−offset**för att referera till
+också en** konstant name**(en `.const` eller en label) direkt. Dessutom kan du
+använda uttrycken** label+offset** eller** label−offset** för att referera till
 en adress relativt till en namngiven konstant:
 
 | Syntax            | Exempel                           | Beskrivning                                                                                                       |
@@ -202,7 +202,7 @@ operator, `(`, `,`, `<`, `>` eller blanksteg. En `*` som följer ett tal, `)`
 eller en identifierare är vanlig multiplikation, så `LDA-tabellen*2` och
 `CONST_A*4` är oförändrade.
 
-**Där det fungerar.**Alla operander som redan accepterar ett uttryck: branch
+**Där det fungerar.** Alla operander som redan accepterar ett uttryck: branch
 targets, `JMP` / `JSR`, `LDA`/`STA`/… absoluta och indexerade, omedelbara
 operatorer för låg/hög byte och uttrycket `.assert`. `*` ändrar aldrig en
 instruktions storlek, så den är säker i alla adresseringslägen.
@@ -210,7 +210,7 @@ instruktions storlek, så den är säker i alla adresseringslägen.
 ### Lokala (prickade) etiketter
 
 En etikett vars namn börjar med en punkt — `.loop`, `.skip`, `.done` — är en
-**lokal etikett**. Den tillhör omfånget för den närmaste föregående**globala**
+**lokal etikett**. Den tillhör omfånget för den närmaste föregående** globala**
 (icke-punktade) etiketten och blir internt `<global>.<namn>`. Två lokala
 etiketter med samma korta namn under olika globala etiketter kolliderar
 **inte**.
@@ -244,7 +244,7 @@ ClearScreen:
 ### Operandetiketter för självmodifierande kod
 
 Lägg prefixet `label:` till en instruktions operand för att placera en etikett
-på**operandbyte**snarare än opkoden. Instruktionen assembleras från det som
+på** operandbyte** snarare än opkoden. Instruktionen assembleras från det som
 följer efter kolon.
 
 ```
@@ -315,7 +315,7 @@ adresseringsläge. Detta ersätter den äldre `STA-instruktionen+1` /
 
 #### LBNE / LBEQ / … (Långa grenar)
 
-Åtta pseudo-operationer beter sig som villkorliga grenar men når**valfri
+Åtta pseudo-operationer beter sig som villkorliga grenar men når** valfri
 adress**, inte bara −128…+127. Var och en samlas till en inverterad gren som
 hoppar över en 3-byte `JMP` — alltid**5 byte**:
 
@@ -412,7 +412,7 @@ Tänk på dem som inbyggda subrutiner.
 
 ### LABEL
 
-Som ett**radnummer i BASIC**— men med ett namn istället för ett nummer.
+Som ett** radnummer i BASIC**— men med ett namn istället för ett nummer.
 Hoppmål för `JMP`, `JSR`, `BNE`, etc.
 
 | Argument    | Beskrivning                                          |
@@ -436,7 +436,7 @@ byte**.
 
 ### COMMENT
 
-Liksom**REM i BASIC**— en anmärkning till dig själv som assemblern ignorerar
+Liksom** REM i BASIC**— en anmärkning till dig själv som assemblern ignorerar
 helt.
 
 **Syntax:**
@@ -453,7 +453,7 @@ helt.
 
 ### BYTE
 
-Liksom**DATA i BASIC**— lagrar en lista med råa bytevärden inbäddade i
+Liksom** DATA i BASIC**— lagrar en lista med råa bytevärden inbäddade i
 programmet.
 
 | Argument | Beskrivning                                                          |
@@ -470,7 +470,7 @@ programmet.
     .byte $01, $02, $FF
 ```
 
-**Referenser för låg/hög byte-etiketter:**BYTE accepterar tokens av
+**Referenser för låg/hög byte-etiketter:** BYTE accepterar tokens av
 KickAssembler / ca65-stilen `<label` (låg byte) och `>label` (hög byte)
 tillsammans med numeriska värden. Assemblern löser etikettadressen vid
 kompileringstillfället och infogar lämplig byte. Exempel:
@@ -483,13 +483,13 @@ Detta lagrar den låga byten för `frame_0`s adress, sedan den höga byten, och
 sedan samma sak för `frame_1`. Användbart för att bygga hopptabeller och
 adresslistor.
 
-**Storlek:**Antal byte i listan.
+**Storlek:** Antal byte i listan.
 
 ---
 
 ### WORD
 
-Liksom**DATA i BASIC men för 16-bitars tal**. Varje värde lagras som två byte
+Liksom** DATA i BASIC men för 16-bitars tal**. Varje värde lagras som två byte
 (låg byte först, sedan hög byte — 6502 little-endian-ordning).
 
 | Argument | Beskrivning                                            |
@@ -529,7 +529,7 @@ samma byte, på en rad. Utmärkt för att rensa områden eller förfylla tabelle
     .fill 256, $00
 ```
 
-**Uttryckssyntax:**Både `count` och `value` accepterar aritmetiska uttryck. Du
+**Uttryckssyntax:** Både `count` och `value` accepterar aritmetiska uttryck. Du
 kan referera till CONST-namn, använda hexadecimala/binära litteraler och anropa
 inbyggda matematiska funktioner:
 
@@ -545,7 +545,7 @@ inbyggda matematiska funktioner:
 Operatorer: `+ - * /` Literaler: `$FF` (hex), `%10110000` (binär) Låg/hög byte:
 `lo(expr)`, `hi(expr)`
 
-**Storlek:**Antalet värde i byte.
+**Storlek:** Antalet värde i byte.
 
 ---
 
@@ -570,16 +570,16 @@ noll-utfyllnadsbyte. C64 kräver att sprite-data börjar på en 64-byte-gräns �
     ; ALIGN 64 → $0840 (12 bytes padding)
 ```
 
-**Storlek:**Dynamisk — beror på den aktuella programräknarpositionen.
+**Storlek:** Dynamisk — beror på den aktuella programräknarpositionen.
 
->**Tips:**Använd `ALIGN 64` före spritedata, `ALIGN 256` för att säkerställa
+>**Tips:** Använd `ALIGN 64` före spritedata, `ALIGN 256` för att säkerställa
 > sidjusterade tabeller.
 
 ---
 
 ### TEXT
 
-Liksom**PRINT AT**— skriver text direkt till C64-skärmen vid en given kolumn
+Liksom** PRINT AT**— skriver text direkt till C64-skärmen vid en given kolumn
 och rad, utan att använda KERNAL. Den genererar ett LDA/STA-par per tecken, med
 skärm-RAM som mål på `$0400`.
 
@@ -600,9 +600,9 @@ C64 har två teckenuppsättningar som kan väljas vid körning:
 |**Versala bokstäver/grafik**(standard)      | 0           | `A`–`Z` → skärmkoder $01–$1A ✓ | behandlas också som versaler  |
 |**Gemener/versaler**(efter CHARSET gemener) | 1           | `A`–`Z` → $01–$1A (versaler)   | `a`–`z` → $41–$5A (gemener) ✓ |
 
--**Versala tecken (standard):**Skriv det du vill se med versaler. `"HEJ"`
+-**Versala tecken (standard):** Skriv det du vill se med versaler. `"HEJ"`
   visas som `HEJ`. Gemener mappas till skärmkoder med versaler.
--**Gemener teckenuppsättning (`gemener`):**Skriv exakt det gemener/versaler du
+-**Gemener teckenuppsättning (`gemener`):** Skriv exakt det gemener/versaler du
   vill se. `"hej"` → gemener, `"HEJ"` → versaler. Kräver en
   teckenuppsättningsväxel för körning innan skärmen skrivs (använd makrot
 **CHARSET gemener**).
@@ -622,20 +622,20 @@ C64 har två teckenuppsättningar som kan väljas vid körning:
 .text 0, 2, "hello", lower    ; lowercase charset
 ```
 
-Tecken kodas som**skärmkoder**(inte PETSCII).**Storlek:**`text.length × 5`
+Tecken kodas som** skärmkoder**(inte PETSCII).** Storlek:**`text.length × 5`
 byte (LDA + STA per tecken).
 
 ---
 
 ### STRING
 
-Som att**POKEa en sträng**till valfri minnesadress vid körning. Genererar
+Som att** POKEa en sträng** till valfri minnesadress vid körning. Genererar
 LDA/STA-par som kopierar varje teckens skärmkod till efterföljande adresser.
 
 | Argument           | Beskrivning                                                                 |
 | ------------------ | --------------------------------------------------------------------------- |
 | Text               | Strängen att skriva                                                         |
-| Adress             | Målminnesadress — `$C000` hexagon eller ett**etikettnamn**|
+| Adress             | Målminnesadress — `$C000` hexagon eller ett** etikettnamn**|
 | Etikett (valfritt) | Tilldelar en etikett som pekar mot måladressen                              |
 | Flytta             | Hexvärde (00–FF) läggs till varje skärmkodbyte (t.ex. `$80` = omvänd video) |
 | ` lägre `          | Valfri flagga — samma semantik som TEXT (se avsnittet TEXT)                 |
@@ -658,20 +658,20 @@ LDA/STA-par som kopierar varje teckens skärmkod till efterföljande adresser.
     ...
 ```
 
-Tecken kodas som**skärmkoder**(inte PETSCII). Det valfria värdet**Shift**läggs till varje byte, t.ex. `$80` för omvänd video.**Storlek:**`text.length ×
+Tecken kodas som** skärmkoder**(inte PETSCII). Det valfria värdet** Shift** läggs till varje byte, t.ex. `$80` för omvänd video.** Storlek:**`text.length ×
 5` byte (en LDA + en STA per tecken).
 
 ---
 
 ### DATA
 
-Som en**POKE-loop**— skriver en lista med råa byte till en minnesadress vid
+Som en** POKE-loop**— skriver en lista med råa byte till en minnesadress vid
 körning, ett LDA/STA-par per byte.
 
 | Argument           | Beskrivning                                                 |
 | ------------------ | ----------------------------------------------------------- |
 | Byte               | Kommaavgränsade bytevärden                                  |
-| Adress             | Målminnesadress — `$C000` hexagon eller ett**etikettnamn**|
+| Adress             | Målminnesadress — `$C000` hexagon eller ett** etikettnamn**|
 | Etikett (valfritt) | Tilldelar en etikett som pekar mot måladressen              |
 
 **Syntax:**
@@ -692,7 +692,7 @@ körning, ett LDA/STA-par per byte.
 
 **Storlek:**`antal_byte × 5` byte (en LDA + en STA per byte).
 
->**2.1:**byten kan namnge etiketter: `.data $2010, <mål, >mål` skriver
+>**2.1:** byten kan namnge etiketter: `.data $2010, <mål, >mål` skriver
 > adressen till `mål`, också till en etikett som definieras senare. Makrots
 > etikett `:namn` kan peka på en måladress som i sig är en etikett.
 
@@ -700,7 +700,7 @@ körning, ett LDA/STA-par per byte.
 
 ### RAWBYTES
 
-Liksom**DATA som laddas direkt i minnet**— ingen runtime-kod alls. Bytena
+Liksom** DATA som laddas direkt i minnet**— ingen runtime-kod alls. Bytena
 finns från det ögonblick då PRG laddas, innan din kod ens startar. Använd detta
 för sprite-data, nivåkartor, uppslagstabeller, allt som bara behöver vara på en
 specifik adress.
@@ -708,7 +708,7 @@ specifik adress.
 | Argument           | Beskrivning                                                 |
 | ------------------ | ----------------------------------------------------------- |
 | Byte               | Kommaavgränsade bytevärden                                  |
-| Adress             | Målminnesadress — `$C000` hexagon eller ett**etikettnamn**|
+| Adress             | Målminnesadress — `$C000` hexagon eller ett** etikettnamn**|
 | Etikett (valfritt) | Tilldelar en etikett som pekar mot måladressen              |
 
 **Syntax:**
@@ -720,11 +720,11 @@ specifik adress.
 
 **Storlek i kod:**0 byte. Data placeras på den angivna adressen i utdata.
 
->**DATA vs RAWBYTES:**DATA genererar LDA/STA-kod som kopierar byte vid körning
+>**DATA vs RAWBYTES:** DATA genererar LDA/STA-kod som kopierar byte vid körning
 > (långsammare, men fungerar om data behöver vara dynamiska). RAWBYTES placerar
 > bara bytena direkt — ingen kod, omedelbart, ingen kostnad.
 
->**2.1:**bytarna kan namnge etiketter (`.rawbytes $2000, <mål, >mål` — en
+>**2.1:** bytarna kan namnge etiketter (`.rawbytes $2000, <mål, >mål` — en
 > pektabel); etiketten `:namn` kan peka på en etikett som måladress, även en som
 > definieras senare. Som ett makros buffertargument tar bytarna sitt eget
 > utrymme i buffertarna efter programmet.
@@ -734,12 +734,12 @@ specifik adress.
 ### RAWTEXT
 
 Som RAWBYTES men för text — kodar strängen som skärmkoder och placerar bytena på
-en fast adress utan**körningskod**. Texten är klar i minnet så fort PRG laddas.
+en fast adress utan** körningskod**. Texten är klar i minnet så fort PRG laddas.
 
 | Argument           | Beskrivning                                                                 |
 | ------------------ | --------------------------------------------------------------------------- |
 | Text               | Sträng att koda                                                             |
-| Adress             | Målminnesadress — `$C000` hexagon eller ett**etikettnamn**|
+| Adress             | Målminnesadress — `$C000` hexagon eller ett** etikettnamn**|
 | Etikett (valfritt) | Tilldelar en etikett som pekar mot måladressen                              |
 | Flytta             | Hexvärde (00–FF) läggs till varje skärmkodbyte (t.ex. `$80` = omvänd video) |
 | ` lägre `          | Valfri flagga — samma semantik som TEXT (se avsnittet TEXT)                 |
@@ -766,7 +766,7 @@ en fast adress utan**körningskod**. Texten är klar i minnet så fort PRG ladda
 
 **Storlek i kod:**0 byte. Data placeras på den angivna adressen i utdata.
 
->**STRING vs RAWTEXT:**STRING genererar LDA/STA-kod som kopierar texten vid
+>**STRING vs RAWTEXT:** STRING genererar LDA/STA-kod som kopierar texten vid
 > körning. RAWTEXT bakar in byten i PRG vid laddningstid — ingen kod, ingen
 > väntetid.
 
@@ -774,12 +774,12 @@ en fast adress utan**körningskod**. Texten är klar i minnet så fort PRG ladda
 
 ### PETSCII
 
-Liksom**RAWBYTES men för KERNAL-utdata**— kodar strängen som PETSCII-byte
+Liksom** RAWBYTES men för KERNAL-utdata**— kodar strängen som PETSCII-byte
 (kompatibel med CHROUT vid `$FFD2`) och placerar dem på en fast adress utan
 runtime-kod. Använd detta när du vill skriva ut tecken via `JSR $FFD2` i en
 loop, och observera att `.print` använder samma kodare och `lower`-flagga.
 
->**PETSCII vs skärmkoder:**PETSCII och skärmkoder är två olika kodningar.
+>**PETSCII vs skärmkoder:** PETSCII och skärmkoder är två olika kodningar.
 > Skärmkod `$01` = bokstav A; PETSCII `$41` = bokstav A (via CHROUT). Använd
 > endast PETSCII vid utskrift via KERNAL; använd TEXT/STRING/RAWTEXT för att
 > skriva direkt till skärm-RAM.
@@ -787,7 +787,7 @@ loop, och observera att `.print` använder samma kodare och `lower`-flagga.
 | Argument           | Beskrivning                                                 |
 | ------------------ | ----------------------------------------------------------- |
 | Text               | Sträng att koda som PETSCII-byte                            |
-| Adress             | Målminnesadress — `$C000` hexagon eller ett**etikettnamn**|
+| Adress             | Målminnesadress — `$C000` hexagon eller ett** etikettnamn**|
 | Etikett (valfritt) | Tilldelar en etikett som pekar mot måladressen              |
 | ` lägre `          | Valfri flagga — se nedan                                    |
 
@@ -814,7 +814,7 @@ loop, och observera att `.print` använder samma kodare och `lower`-flagga.
 **Storlek i kod:**0 byte. Data placeras på måladressen som en uppskjuten
 datasektion (som RAWBYTES).
 
-**Nullterminator:**lägg till flaggan `null` för att lägga till en `$00` byte
+**Nullterminator:** lägg till flaggan `null` för att lägga till en `$00` byte
 efter texten. Idealiskt för loopar med nollterminering:
 
 ```
@@ -839,7 +839,7 @@ done:
 | Ny rad                                      | `$0D` (RETUR)                      | `$0D`                   |
 | Andra                                       | `20 dollar ` (mellanslag)          | `20 dollar`             |
 
->**Tips:**Använd PETSCII för data som ska matas ut via CHROUT (`$FFD2`). För
+>**Tips:** Använd PETSCII för data som ska matas ut via CHROUT (`$FFD2`). För
 > att skriva direkt till skärmens RAM, använd STRING eller RAWTEXT istället.
 
 ---
@@ -851,7 +851,7 @@ gemener/versaler-läge genom att modifiera bit 1 av `$D018` vid körning.
 
 | Argument | Beskrivning                                                                                                                                  |
 | -------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| Läge     |**Gemener**— aktiverar teckenuppsättningen för gemener/versaler;**Versaler**— återställer standardteckenuppsättningen för versaler/grafik |**Syntax:**
+| Läge     |**Gemener**— aktiverar teckenuppsättningen för gemener/versaler;** Versaler**— återställer standardteckenuppsättningen för versaler/grafik |**Syntax:**
 ```
 .charset lower    ; switch to lowercase charset
 .charset upper    ; switch back to uppercase/graphics charset
@@ -873,7 +873,7 @@ Versalläge:
     STA $D018
 ```
 
-**Storlek:**8 byte (LDA abs + ORA/AND imm + STA abs).**Varför ORA/AND istället för direktskrivning?**`$D018` styr även skärmens
+**Storlek:**8 byte (LDA abs + ORA/AND imm + STA abs).** Varför ORA/AND istället för direktskrivning?**`$D018` styr även skärmens
 RAM-plats (bitar 7–4). Om endast bit 1 aktiveras bevaras resten av registret.
 
 **Typiskt arbetsflöde:**
@@ -884,7 +884,7 @@ RAM-plats (bitar 7–4). Om endast bit 1 aktiveras bevaras resten av registret.
 .charset upper
 ```
 
->**Obs:**Makrot CHARSET ändrar bara VIC-tecken-ROM-pekaren. Det anropar inte
+>**Obs:** Makrot CHARSET ändrar bara VIC-tecken-ROM-pekaren. Det anropar inte
 > `$E544` (KERNAL-teckenuppsättningsinit). I de flesta fall är detta
 > tillräckligt; anropa först `JSR $E544` endast om du behöver att KERNAL:s egna
 > utskriftsrutiner respekterar ändringen.
@@ -931,7 +931,7 @@ körningstillfället — inget behov av en föregående etikett eller `ORG`.
 **Måladress:**`$3800 + 65 * 8 = $3A08`. Beräknad vid kompileringstillfället och
 hårdkodad i STA-operanderna.
 
-**Storlek:**40 byte per tecken (8 × 5).**Typiskt arbetsflöde:**
+**Storlek:**40 byte per tecken (8 × 5).** Typiskt arbetsflöde:**
 ```
     ; Point VIC-II at RAM charset at $3800
     LDA $D018
@@ -953,7 +953,7 @@ hårdkodad i STA-operanderna.
 |**INCBIN "charset.bin" @ 3800 USD**| Extern teckenuppsättningsfil (byggd av teckenredigeraren). Renaste alternativet.                   |
 |**Teckenuppsättning Canvas + INCBIN**| Fullständig bitmapp med 256 tecken målad som en 128×128-bild.                                      |
 
->**Påminnelse om justering:**VIC-II förväntar sig att teckenuppsättningsbasen
+>**Påminnelse om justering:** VIC-II förväntar sig att teckenuppsättningsbasen
 > är en multipel av `$0800`. Giltiga banker: `$0000`, `$0800`, `$1000`, ... ,
 > `$3800` (inom den nuvarande 16 KB VIC-banken). RAM-teckenuppsättningar ligger
 > vanligtvis på `$2000`, `$2800`, `$3000` eller `$3800`.
@@ -963,7 +963,7 @@ hårdkodad i STA-operanderna.
 ### BOX_HIT
 
 Axis-aligned bounding-box (AABB) kollisionstest mellan två rektanglar beskrivna
-av 4-byte nollsidiga strukturer. Returnerar resultatet i ackumulatorn:**A = 1**vid överlappning,**A = 0**annars. Ren inline-assembling, inget subrutinanrop.
+av 4-byte nollsidiga strukturer. Returnerar resultatet i ackumulatorn:** A = 1** vid överlappning,** A = 0** annars. Ren inline-assembling, inget subrutinanrop.
 
 | Argument                 | Beskrivning                                                          |
 | ------------------------ | -------------------------------------------------------------------- |
@@ -1005,7 +1005,7 @@ no: LDA #$00
 done:
 ```
 
-**Storlek:**30 byte.**Typiskt arbetsflöde:**
+**Storlek:**30 byte.** Typiskt arbetsflöde:**
 
 ```
     ; Player sprite box at $FB..$FE
@@ -1035,17 +1035,17 @@ no_collision:
 **Begränsningar:**
 - Båda nollsidiga adresserna måste vara `≤ $FC` (varje ruta behöver 4 på
   varandra följande byte: `zp`, `zp+1`, `zp+2`, `zp+3`).
-- Koordinater behandlas som**unsigned 8-bit**(0–255). För signerade
+- Koordinater behandlas som** unsigned 8-bit**(0–255). För signerade
   sprite-koordinater utanför detta intervall, normalisera innan lagring.
 - De två rutorna kan överlappa varandra i ZP-utrymmet om så önskas, men
   vanligtvis vill man ha 8 distinkta byte.
 
-**Varför inte en subrutin?**Inline-generering undviker JSR/RTS-overhead (14+
+**Varför inte en subrutin?** Inline-generering undviker JSR/RTS-overhead (14+
 cykler) och håller testet aktivt i cachen för snäva spelloopar. Om du behöver
 testa många par, placera din egen `JSR box_hit_sub` runt en enda BOX_HIT-rad
 manuellt.
 
-**Jämförelse med UB:s `box_hit()`-funktion:**Ultimate Basic använder samma
+**Jämförelse med UB:s `box_hit()`-funktion:** Ultimate Basic använder samma
 6502-logik som en runtime-funktion som returnerar till en variabel. I VA
 placerar du BOX_HIT inline där du behöver testet; resultatet är i `A`.
 
@@ -1053,7 +1053,7 @@ placerar du BOX_HIT inline där du behöver testet; resultatet är i `A`.
 
 ### INCBIN
 
-Liksom**BLOAD i BASIC**— hämtar en extern binärfil (`.bin`, `.prg`, `.sid`,
+Liksom** BLOAD i BASIC**— hämtar en extern binärfil (`.bin`, `.prg`, `.sid`,
 `.raw`) och bäddar in den direkt i den sammansatta PRG:n på den adress du anger.
 
 | Argument | Beskrivning                                                      |
@@ -1079,7 +1079,7 @@ den angivna adressen.
 
 ### KOALA
 
-Laddar en**Koala Painter**-bild (`.koa` / `.kla`, 160×200 flerfärgad) och visar
+Laddar en** Koala Painter**-bild (`.koa` / `.kla`, 160×200 flerfärgad) och visar
 den. Bilddatan är inbäddad på en fast adress som `INCBIN` (filens 2-byte `$6000`
 laddningsadress tas bort), och själva direktivet kompileras till en 86-byte
 visningsrutin som körs där den befinner sig.
@@ -1118,7 +1118,7 @@ kompatibel fil.
 
 ### LEVEL / LEVEL_ROW
 
-Lägger in ett**Level Editor**-projekt i ditt program och kopierar nivårader
+Lägger in ett** Level Editor**-projekt i ditt program och kopierar nivårader
 till en skärmbuffert — byggstenarna i ett rullande spel.
 `level-demo.asm`-exemplet av C64 Visual Assembler är en komplett joystick-rullad
 nivå.
@@ -1159,7 +1159,7 @@ Typisk skydd: `.assert LEVEL_END <= $9200, "nivådata körs in i koden"`.
 
 #### LEVEL_ROW
 
-Kopierar en 40-teckensrad av nivån till en buffert: nivåraden i**X**, med
+Kopierar en 40-teckensrad av nivån till en buffert: nivåraden i** X**, med
 början vid nivåkolumnen som finns i variabeln `col`, till adressen som finns i
 pekaren `dst` (`dst` / `dst+1`, låg/hög). Med det tredje argumentet `color`
 kopieras färgerna istället för skärmkoderna (för färg-RAM). Ett
@@ -1180,7 +1180,7 @@ förstörs. Behöver ett `.level`-block i programmet.
 
 ### SID
 
-Liksom**BLOAD för musik**— laddar en `.sid`-fil i din PRG och läser
+Liksom** BLOAD för musik**— laddar en `.sid`-fil i din PRG och läser
 automatiskt dess Init- och Play-adresser från headern. Anropa Init en gång vid
 uppstart, anropa sedan Play från din IRQ-hanterare varje bildruta.
 
@@ -1211,17 +1211,17 @@ SID-rubriken ger:
 **Storlek i kod:**0 byte inline. SID-binärfilen placeras på den angivna
 adressen som en uppskjuten del i PRG.
 
->**Viktigt:**De flesta SID-filer innehåller hårdkodade interna absoluta
+>**Viktigt:** De flesta SID-filer innehåller hårdkodade interna absoluta
 > adresser. De kan bara flyttas om hela binärfilen förskjuts med samma offset.
 > Om ett SID har interna hopp till `$10xx` måste det stå kvar på `$1000` — att
 > flytta det till en annan adress kommer att bryta dessa interna referenser.
 
->**Typisk användning:**Ge SID:t en egen adress (`.sid "tune.sid", $1000`) när
+>**Typisk användning:** Ge SID:t en egen adress (`.sid "tune.sid", $1000`) när
 > dess ursprungliga adress kolliderar med din kod. Anropa Init en gång vid
 > start, anropa sedan Play every frame från en raster IRQ-hanterare — eller låt
 > [SID_PLAYER](#sid_player) göra båda.
 
-**Etiketter:**SID-direktivet definierar `SID_LOAD` (där data placeras),
+**Etiketter:** SID-direktivet definierar `SID_LOAD` (där data placeras),
 `SID_INIT` och `SID_PLAY` (init- och play-adresserna, flyttade tillsammans med
 en anpassad adress). `SID_PLAY` saknas när låten inte har någon play-adress (ett
 RSID som installerar sin egen IRQ). Använd dem i din egen kod, t.ex. `JSR
@@ -1231,7 +1231,7 @@ SID_PLAY` i en IRQ-hanterare.
 
 ### SID_PLAYER
 
-Spelar melodin från**SID**-direktivet med en rad: den initierar melodin och
+Spelar melodin från** SID**-direktivet med en rad: den initierar melodin och
 fortsätter att anropa sin uppspelningsrutin från ett rasteravbrott, så att ditt
 program kan fortsätta med sitt eget arbete.
 
@@ -1256,7 +1256,7 @@ skannar tangentbordet).
 
 **Storlek i kod:**58 byte.
 
->**Obs:**den behöver en `.sid`-rad i programmet (`SID_INIT` och `SID_PLAY`);
+>**Obs:** den behöver en `.sid`-rad i programmet (`SID_INIT` och `SID_PLAY`);
 > annars stoppas bygget med ett fel. Med CIA1-timerns IRQ avstängd körs KERNAL
 > en gång per bildruta från raster-IRQ:n — tangentbordet och `GETIN` fortsätter
 > att fungera.
@@ -1265,7 +1265,7 @@ skannar tangentbordet).
 
 ### INCLUDE
 
-Liksom**MERGE i BASIC**— hämtar en annan fil och expanderar den inline på
+Liksom** MERGE i BASIC**— hämtar en annan fil och expanderar den inline på
 denna position. Perfekt för återanvändbara subrutinbibliotek.
 
 Två filtyper stöds:
@@ -1307,14 +1307,14 @@ Två filtyper stöds:
     ... (the included code follows)
 ```
 
->**Tips:**Använd INCLUDE för att bygga återanvändbara subrutinbibliotek som du
+>**Tips:** Använd INCLUDE för att bygga återanvändbara subrutinbibliotek som du
 > kan dela mellan projekt. `.inc`/`.asm`/`.s`-filer är bäst när du vill redigera
 > biblioteket i en vanlig textredigerare eller dela det med andra
 > 6502-assemblerare; `.json` när biblioteket är ett Visual
 > Assembler-blockprogram. Ange en laddningsadress när biblioteket inte har någon
 > egen ORG, eller när du vill åsidosätta dess standardplacering.
 
->**2.1:**En include som inte hittas är ett fel, och detsamma gäller en fil som
+>**2.1:** En include som inte hittas är ett fel, och detsamma gäller en fil som
 > inkluderar sig själv (direkt eller längre ner). En inkluderad fils egna rader
 > `.include`, `.incbin` och `.sid` laddas också, relativt till dess egen mapp,
 > och dess makroanrop expanderas – upp till 16 nivåer djupt.
@@ -1323,7 +1323,7 @@ Två filtyper stöds:
 
 ### TABLE
 
-Liksom**DIM vid en specifik adress**— namnger en uppslagstabell och anger var
+Liksom** DIM vid en specifik adress**— namnger en uppslagstabell och anger var
 den finns i minnet. Skriv in rader som `.byte`, `.word` eller `.fill` efter den
 för att definiera tabellens innehåll.
 
@@ -1393,7 +1393,7 @@ loop:
     .byte $01, $02, $03, ...
 ```
 
->**Tips:**Utan en ORG börjar programmet vid `$0801` (2049 decimaler), början
+>**Tips:** Utan en ORG börjar programmet vid `$0801` (2049 decimaler), början
 > av BASIC. Med BASIC SYS-stubben (standard) lägger assemblern in en kort `10
 > SYS…`-rad vid `$0801` och din kod börjar vid `$080D`. Se [Utdata: PRG,
 > BASIC-stub och startpunkt](#3-utdata-prg-basic-stub-och-ingangspunkt).
@@ -1445,7 +1445,7 @@ loop0:
     BNE loop0
 ```
 
-**Storlek:**3 byte (DEX + BNE + förgreningsförskjutning).**Exempel — rensa 10 skärmceller:**
+**Storlek:**3 byte (DEX + BNE + förgreningsförskjutning).** Exempel — rensa 10 skärmceller:**
 ```
     LDX #$0A
 loop0:
@@ -1504,7 +1504,7 @@ for0:
     BNE for0
 ```
 
-**Storlek:**5 byte (IN_ + CP_ #imm + BNE-offset).**Exempel — skriv ut en null-avslutad sträng:**
+**Storlek:**5 byte (IN_ + CP_ #imm + BNE-offset).** Exempel — skriv ut en null-avslutad sträng:**
 ```
     LDX #$00
 for0:
@@ -1518,7 +1518,7 @@ done:
     RTS
 ```
 
->**LOOP vs FOR:**LOOP räknar ner (N→1) — bra för fördröjningar, fyllningar,
+>**LOOP vs FOR:** LOOP räknar ner (N→1) — bra för fördröjningar, fyllningar,
 > pixelloopar. FOR räknar upp (0→N) — bra för sträng-/arrayåtkomst. Båda kan
 > använda X eller Y.
 
@@ -1526,7 +1526,7 @@ done:
 
 ### PUSH / PULL
 
-Som att**spara variabler före en GOSUB och återställa dem efter**— men
+Som att** spara variabler före en GOSUB och återställa dem efter**— men
 använder 6502-hårdvarustacken. Om en subrutin använder A, X eller Y, omslut den
 med PUSH och PULL så att den anropande kodens register bevaras.
 
@@ -1555,7 +1555,7 @@ Skjuter ett eller flera register till stacken. Ordningen är alltid A → X → 
 
 #### PULL
 
-Återställer register från stacken i**omvänd ordning**(Y → X → A).
+Återställer register från stacken i** omvänd ordning**(Y → X → A).
 
 | Argument | Beskrivning                                    |
 | -------- | ---------------------------------------------- |
@@ -1573,7 +1573,7 @@ Skjuter ett eller flera register till stacken. Ordningen är alltid A → X → 
     PLA
 ```
 
->**Regel:**PUSH och PULL måste alltid använda**samma registeruppsättning**.
+>**Regel:** PUSH och PULL måste alltid använda** samma registeruppsättning**.
 > `PUSH AX` → `PULL AX` (återställer internt i omvänd ordning: X först, sedan
 > A).
 
@@ -1581,7 +1581,7 @@ Skjuter ett eller flera register till stacken. Ordningen är alltid A → X → 
 
 ### END / RTS alias
 
-Liksom**RTS med ett vänligare makronamn**— `.end` avger en enda `RTS` byte,
+Liksom** RTS med ett vänligare makronamn**— `.end` avger en enda `RTS` byte,
 en kort subrutinterminator.
 
 **Syntax:**
@@ -1603,7 +1603,7 @@ makro mer än en rå instruktion.
 
 ### MACRO / ENDM / INVOKE
 
-Liksom**en namngiven GOSUB med parametrarna**— definiera en återanvändbar
+Liksom** en namngiven GOSUB med parametrarna**— definiera en återanvändbar
 kodbit en gång (MACRO…ENDM), och anropa den sedan var som helst med INVOKE.
 Skicka olika argumentvärden varje gång istället för att kopiera och klistra in
 kod.
@@ -1616,7 +1616,7 @@ kod.
 | Parametrar | Valfria kommaseparerade parameternamn (t.ex. `färg` eller `färg, antal`) |
 
 Markerar början på en makrodefinition. Linjerna mellan MAKRO och ENDM är makrots
-brödtext. Ett makro med parametrar**genererar ingen kod**där definitionen
+brödtext. Ett makro med parametrar** genererar ingen kod** där definitionen
 finns; ett makro utan parametrar sätts också ihop där som en subrutin
 (`JSR-namn` kallar det): programflödet hoppar över det, och en `RTS` läggs till
 i slutet. I ett bibliotek som ingår på en fast adress får ett sådant makro också
@@ -1693,11 +1693,11 @@ accepteras också.
   (`$41`)
 -**Blandat**: `#$07, "hej", $20` — valfri kombination
 
->**Tips:**Definiera makron högst upp (eller längst ner) i ditt program och
+>**Tips:** Definiera makron högst upp (eller längst ner) i ditt program och
 > ANROPA dem sedan där det behövs. Makron kan anropas flera gånger med olika
 > argument.
 
->**2.1:**ett makro kan anropa ett annat makro (`both(a, b)` anropa `etc(a)`);
+>**2.1:** ett makro kan anropa ett annat makro (`both(a, b)` anropa `etc(a)`);
 > det inre anropet får det yttre anropets argument och sina egna unika lokala
 > etiketter. Ett makro som anropar sig självt stoppar med ett fel efter 16
 > nivåer istället för att hänga sig.
@@ -1731,7 +1731,7 @@ på den sammansatta koden.
 
 **Storlek:**0 byte för både REGION och ENDREGION.
 
->**Obs:**Regioner kan**kapslas**inuti varandra. Varje ENDREGION stänger
+>**Obs:** Regioner kan** kapslas** inuti varandra. Varje ENDREGION stänger
 > närmaste öppna REGION. Ingen effekt på den sammanställda utdata.
 
 ---
@@ -1783,7 +1783,7 @@ Raderna mellan `IF` och `ENDIF` (eller `ELSE`) är assemblerade eller hoppade
 över av villkoret. Ett rent namn är sant när det är `.define`d eller ett
 nollskilt `.const`, falskt när det är vardera; alla andra villkor måste vara ett
 konstant uttryck — ett som inte kan utvärderas vid assemblern är ett fel.
-Överhoppade rader visas som `; [IF skipped] …` kommentarer och genererar**noll
+Överhoppade rader visas som `; [IF skipped] …` kommentarer och genererar** noll
 byte**.
 
 #### ELSE
@@ -1844,13 +1844,13 @@ räknas.
 
 Kapslade `IF` stöds. Om en yttre del hoppas över, hoppas även de inre över.
 
->**Obs:**Detta är hantering av villkor vid kompilering. För
-> jämförelse/förgreningssockrar vid körning, se**Runtime IF / ELSE / ENDIF**
+>**Obs:** Detta är hantering av villkor vid kompilering. För
+> jämförelse/förgreningssockrar vid körning, se** Runtime IF / ELSE / ENDIF**
 > nedan.
 
 ### .ASSERT
 
-En**sanity check vid kompileringstid**. `.assert` utvärderar ett uttryck under
+En** sanity check vid kompileringstid**. `.assert` utvärderar ett uttryck under
 assemblering; om det är falskt (`0`) stoppas bygget med ett tydligt fel som
 inkluderar det faktiska värdet. Om det är sant (inte noll) genererar det
 ingenting.
@@ -1890,7 +1890,7 @@ sprite_data_end:
 
 ### CONST
 
-Liksom**en namngiven variabel som aldrig ändras**— `SCREEN = $0400`. Använd
+Liksom** en namngiven variabel som aldrig ändras**— `SCREEN = $0400`. Använd
 namnet istället för att skriva råa adresser överallt, vilket gör koden lättare
 att läsa och ändra senare.
 
@@ -1953,7 +1953,7 @@ Operatorer: `+ - * /` Literaler: `$FF` (hex), `%10110000` (binär) Låg/hög byt
 
 ### VAR
 
-Liksom**CONST, men automatiskt allokerad**— `VAR` reserverar nollsidig lagring
+Liksom** CONST, men automatiskt allokerad**— `VAR` reserverar nollsidig lagring
 för en etikett utan att du behöver skriva in adressen. Använd den för räknare,
 pekare och kortlivade tillstånd som hör hemma i ZP.
 
@@ -1995,7 +1995,7 @@ etikett, avger kompilatorn en varning.
 
 ### Runtime IF / ELSE / ENDIF
 
-Precis som**en riktig grenmall**— den här versionen fungerar vid körning, inte
+Precis som** en riktig grenmall**— den här versionen fungerar vid körning, inte
 kompileringstid. Den jämför `A`, `X` eller `Y` mot ett omedelbart värde och
 genererar den korrekta `CMP` / `CPX` / `CPY` + grensekvensen åt dig.
 
@@ -2014,7 +2014,7 @@ genererar den korrekta `CMP` / `CPX` / `CPY` + grensekvensen åt dig.
 .endif
 ```
 
-**Storlek:**Beror på de valda grenarna och jämförelseformuläret.
+**Storlek:** Beror på de valda grenarna och jämförelseformuläret.
 
 Jämförelsen är som standard osignerad. För `<=` och `>` expanderas makrot till
 den kortaste ekvivalenta grenkedjan för det valda registret.
@@ -2023,7 +2023,7 @@ den kortaste ekvivalenta grenkedjan för det valda registret.
 
 ### WHILE / ENDW
 
-Liksom**en runtime-loop med ett test högst upp**— kroppen körs medan villkoret
+Liksom** en runtime-loop med ett test högst upp**— kroppen körs medan villkoret
 förblir sant.
 
 | Argument | Beskrivning                              |
@@ -2039,7 +2039,7 @@ förblir sant.
 .endw
 ```
 
-**Storlek:**Beror på loopens kropp och jämförelseform.
+**Storlek:** Beror på loopens kropp och jämförelseform.
 
 Använd `WHILE` när loopen kan sluta innan den första iterationen är klar. Det är
 motsvarigheten vid körning till den räknarbaserade `LOOP / NEXT`-hjälpen.
@@ -2048,7 +2048,7 @@ motsvarigheten vid körning till den räknarbaserade `LOOP / NEXT`-hjälpen.
 
 ### REPEAT / UNTIL
 
-Liksom**en runtime-loop med ett test längst ner**— kroppen körs alltid minst
+Liksom** en runtime-loop med ett test längst ner**— kroppen körs alltid minst
 en gång, sedan avgör villkoret om den ska stoppas.
 
 | Argument | Beskrivning                              |
@@ -2064,7 +2064,7 @@ en gång, sedan avgör villkoret om den ska stoppas.
 .until A == #$00
 ```
 
-**Storlek:**Beror på loopens kropp och jämförelseform.
+**Storlek:** Beror på loopens kropp och jämförelseform.
 
 Använd `REPEAT / UNTIL` när du vill att kroppen ska utföras minst en gång före
 utgångskontrollen.
@@ -2073,7 +2073,7 @@ utgångskontrollen.
 
 ### MEMCPY / MEMSET
 
-Precis som**små minnesrutiner du ständigt söker efter**— `MEMCPY` kopierar
+Precis som** små minnesrutiner du ständigt söker efter**— `MEMCPY` kopierar
 ett sammanhängande block, `MEMSET` fyller ett område med en byte.
 
 | Makro    | Argument                     |
@@ -2087,13 +2087,13 @@ ett sammanhängande block, `MEMSET` fyller ett område med en byte.
 .memset addr=$0400, value=#$20, size=$03E8
 ```
 
-**Genererad kod:**inline kopiera/fyll loopar, valda för att matcha den begärda
+**Genererad kod:** inline kopiera/fyll loopar, valda för att matcha den begärda
 storleken.
 
 Storlekar upp till 256 byte använder en kort 8-bitarsloop. Större storlekar
 växlar automatiskt till en 16-bitarsräknare.
 
->**2.1:**Storleken måste vara känd när koden läggs ut — ett tal eller en
+>**2.1:** Storleken måste vara känd när koden läggs ut — ett tal eller en
 > konstant. En etikett som definieras senare (vars värde layouten ännu inte
 > känner till) är ett fel istället för kod som inte passar på sin plats.
 
@@ -2103,7 +2103,7 @@ växlar automatiskt till en 16-bitarsräknare.
 
 #### PRINT
 
-Liksom**PETSCII-utdata utan standardtexten**— skriver ut en sträng genom
+Liksom** PETSCII-utdata utan standardtexten**— skriver ut en sträng genom
 `CHROUT` med samma hantering av versaler/gemener (`lower`) som `.petscii`.
 
 **Syntax:**
@@ -2181,7 +2181,7 @@ eller en namngiven konstant som upplöses till 0–15.
 .set_bg color
 ```
 
-**Storlek:**Varje hjälpare expanderar till en liten registerskrivningssekvens
+**Storlek:** Varje hjälpare expanderar till en liten registerskrivningssekvens
 eller ett kort KERNAL-anrop.
 
 ---
@@ -2202,7 +2202,7 @@ IRQ-källorna och återgår till normal körning med `CLI`.
 .irq_setup handler=my_irq, raster=$FA
 ```
 
-**Storlek:**En liten installationssekvens; den exakta längden beror på den
+**Storlek:** En liten installationssekvens; den exakta längden beror på den
 valda rasterlinjen.
 
 Använd detta när du vill ha den vanliga standardbeskrivningen "SEI / install
@@ -2212,7 +2212,7 @@ handler / enable IRQ / CLI" utan att sprida den i programmet.
 
 ### RAND
 
-Liksom**returnerar en liten inbyggd PRNG**ett 8-bitars pseudoslumpmässigt
+Liksom** returnerar en liten inbyggd PRNG** ett 8-bitars pseudoslumpmässigt
 värde från ett kompakt nollsidigt seed-värde.
 
 | Argument | Beskrivning                                              |
@@ -2224,7 +2224,7 @@ värde från ett kompakt nollsidigt seed-värde.
 .rand
 ```
 
-**Storlek:**Ett antal byte, beroende på vald implementeringsväg.
+**Storlek:** Ett antal byte, beroende på vald implementeringsväg.
 
 Generatorn är avsedd för spelupplägg, effektvariationer och snabb testdata. Den
 är avsiktligt liten snarare än kryptografiskt avancerad.
@@ -2340,7 +2340,7 @@ wait:
 **Storlek:**7 byte (`BNE`-offsetet `$F9` = −7 pekar alltid tillbaka till
 `LDA`).
 
->**Tips:**Placera `WAIT_RASTER` högst upp i din spelloop för att synkronisera
+>**Tips:** Placera `WAIT_RASTER` högst upp i din spelloop för att synkronisera
 > med skärmen och förhindra sprite-tearing.
 
 ---
@@ -2395,7 +2395,7 @@ skip_right:
 **Storlek:**27 byte. `BCS`-offsetet är alltid `+3` (hoppar över följande 3-byte
 `DEC`/`INC abs`-instruktion).
 
-**Variabelläge — `.joystickport, vx, vy[, fire]`:**istället för att flytta en
+**Variabelläge — `.joystickport, vx, vy[, fire]`:** istället för att flytta en
 sprite skrivs riktningen in i variabler: `vx` / `vy` = `-1` / `0` / `+1` (`$FF`
 / `$00` / `$01`), och det valfria `fire` = `1` medan knappen hålls nedtryckt,
 `0` annars. Använd den för en rullande kamera, en spelare med egen fysik eller
@@ -2407,7 +2407,7 @@ $DC01`), så båda portarna fungerar.
 .joystick 3, vx, vy, fire    ; both ports + fire: 45 bytes
 ```
 
->**Typisk användning:**Placera inuti en `gameloop`-etikett med `WAIT_RASTER`
+>**Typisk användning:** Placera inuti en `gameloop`-etikett med `WAIT_RASTER`
 > först:
 > ```
 > spelloop: WAIT_RASTER ($FF) JOYSTICK (port=2, sprite=0) JMP spelloop
@@ -2417,12 +2417,12 @@ $DC01`), så båda portarna fungerar.
 
 <a id="mouse"></a>
 
->**2.1:**Porten måste vara känd när koden läggs ut (ett tal eller en
+>**2.1:** Porten måste vara känd när koden läggs ut (ett tal eller en
 > konstant), eftersom port 3 gör koden 3 byte längre; en etikett som definieras
 > senare är ett fel.
 ### MOUSE
 
-Läser en Commodore 1351 proportionell mus och flyttar en sprite. Helt**inline**
+Läser en Commodore 1351 proportionell mus och flyttar en sprite. Helt** inline**
 — ingen JSR eller etikett behövs. Makrot väljer CIA-porten, väntar på att
 SID-paddelns ingångar ska stabiliseras, avkodar sedan deltarörelsen med hjälp av
 standard 1351-drivrutinsmönstret och tillämpar det på spriteregistren.
@@ -2520,14 +2520,14 @@ yneg:
 ydone:
 ```
 
-**Storlek:**142 byte.**Syntax:**
+**Storlek:**142 byte.** Syntax:**
 ```
 .mouse port, spriteNum, zpX, zpY
 ; example:
 .mouse 2, 0, FD, FE
 ```
 
->**Viktigt:**Innan det första anropet, initiera noll-sidesbyten med de
+>**Viktigt:** Innan det första anropet, initiera noll-sidesbyten med de
 > aktuella POTX/POTY-värdena för att undvika ett hopp på den första ramen:
 > ```
 > ; port 1: LDA $DC00 : OCH #$3F : ORA #$40 : STA $DC00
@@ -2536,7 +2536,7 @@ ydone:
 > LDA $D41A : LSR A : OCH #$3F : STA $FE
 > ```
 
->**Tips:**Polla musen en gång per bildruta — placera `WAIT_RASTER` i
+>**Tips:** Polla musen en gång per bildruta — placera `WAIT_RASTER` i
 > spelloopen före `MOUSE`.
 
 ---
@@ -2568,7 +2568,7 @@ sprite eller bakgrunden. Helt inline, ingen JSR behövs.
 
 **Storlek:**5 byte.
 
->**Viktigt:**Avläsning av `$D01E`/`$D01F`**rensar registret**. Läs det en
+>**Viktigt:** Avläsning av `$D01E`/`$D01F`**rensar registret**. Läs det en
 > gång per bildruta och agera omedelbart på resultatet med `BEQ`/`BNE`.
 
 **Typisk användning:**
@@ -2633,12 +2633,12 @@ skip_filename:
 **Storlek:**`3 + filnamnslängd + 9 (SETNAM) + 9 (SETLFS) + (4 om åsidosättning)
 + 5 (LADDA) + (2 om feletikett)` byte. Minst 27 byte.
 
->**Viktigt:**Filnamnet lagras inbäddat i maskinkoden direkt efter en `JMP
+>**Viktigt:** Filnamnet lagras inbäddat i maskinkoden direkt efter en `JMP
 > skip_filename`. Filnamnet på disken måste vara PETSCII i versaler — vilket
 > matchar vanliga ASCII-versaler (`A`–`Z`). Makrot framtvingar detta
 > automatiskt.
 
->**Använd alltid en feletikett**för produktionsprogram — om filen inte hittas
+>**Använd alltid en feletikett** för produktionsprogram — om filen inte hittas
 > sätter KERNAL flaggan "carry" och körningen går vidare till nästa steg.
 
 >**Se även:**`loadfile-demo` exempel — demonstrerar laddning av
@@ -2648,7 +2648,7 @@ skip_filename:
 
 ### EXODECRUNCH
 
-Inbyggd**Exomizer-dekomprimering**. Använd detta makro direkt efter en
+Inbyggd** Exomizer-dekomprimering**. Använd detta makro direkt efter en
 `LOADFILE` som laddade en komprimerad ström i Exomizer-läge `mem` — EXODECRUNCH
 packar upp den bakåt till adressen som är inbäddad i strömmen.
 
@@ -2683,17 +2683,17 @@ packar upp den bakåt till adressen som är inbäddad i strömmen.
 2. Avpackaren placeras vanligtvis vid `$B000` (inom den mappade regionen för
    BASIC ROM). Makrot växlar mellan `$01 och $36` så att processorn ser
    RAM-minnet där under JSR och sedan återställer `$01 och $37` efteråt.
-3. Dekomprimeringsmåladressen**kodas in i själva den komprimerade strömmen**
+3. Dekomprimeringsmåladressen** kodas in i själva den komprimerade strömmen**
    när du komprimerar med `exomizer mem -l <load> file,<target>` — depackern
    läser den från strömmens första byte.
 
-**Depacker binärfil:**Den förbyggda bakåtriktade depackaren är
+**Depacker binärfil:** Den förbyggda bakåtriktade depackaren är
 `exo-decrunch.bin` (i mappen `samples/` i C64 Visual Assembler) (477 byte, ORG
 $B000). Det är en Kick Assembler-wrap av den officiella `exodecrunch.asm` med
 `INC $D020` tillagd till varje läsning för en synlig kantblixteffekt under
 dekomprimering. Placera den i ditt program med `.incbin` på depackaradressen.
 
-**Rå indata:**extravärdet skickas till Exomizer som en råfil som laddas på
+**Rå indata:** extravärdet skickas till Exomizer som en råfil som laddas på
 Dst-adressen (`fil@<Dst>`), så avpackaren skriver varje byte, med början från
 den första, exakt på den adress du skrev in.
 
@@ -2743,7 +2743,7 @@ done:
 ```
 
 **Resultat i flaggor:**-**Z = 0**(resultat ≠ 0) → REU finns → använd `BNE`
--**Z = 1**(resultat = 0) → ingen REU → använd `BEQ`**Inga argument**— makrot genererar samma kod varje gång.**Typisk användning:**
+-**Z = 1**(resultat = 0) → ingen REU → använd `BEQ`**Inga argument**— makrot genererar samma kod varje gång.** Typisk användning:**
 ```assembly
 .reu_check
 BEQ no_reu        ; skip if REU not present
@@ -2803,7 +2803,7 @@ LDA #cmd      STA $DF01    ; execute DMA ($90/$91/$92 = stash/fetch/swap, immedi
 
 ### TURBO_SET
 
-Ställer in CPU-hastigheten**Ultimate-64 (U64)**via register `$D031`. Ingen
+Ställer in CPU-hastigheten** Ultimate-64 (U64)** via register `$D031`. Ingen
 effekt på en riktig C64 eller andra emulatorer.
 
 **Argument:**
@@ -2828,7 +2828,7 @@ A9 xx   LDA #speed_byte
 .turbo_set 15,1   ; speed=15 (~48 MHz), badline disabled
 ```
 
->**Obs:**Detta makro påverkar endast U64-hårdvara. På en riktig C64 eller
+>**Obs:** Detta makro påverkar endast U64-hårdvara. På en riktig C64 eller
 > andra emulatorer skriver detta till `$D031` vilket kan påverka CIA eller
 > ignoreras.
 
@@ -2836,7 +2836,7 @@ A9 xx   LDA #speed_byte
 
 ### SUPERCPU_DETECT
 
-Kontrollerar om en**CMD SuperCPU**-accelerator är installerad — som
+Kontrollerar om en** CMD SuperCPU**-accelerator är installerad — som
 `PEEK($D0B8)` för att se om den returnerar något annat än `$FF`.
 
 **Genererad kod (5 byte):**
@@ -2865,7 +2865,7 @@ no_scpu:
 
 ### TURBO_ENABLE
 
-Slår på eller av**CMD SuperCPU turboläge**. Anropa `SUPERCPU_DETECT` först och
+Slår på eller av** CMD SuperCPU turboläge**. Anropa `SUPERCPU_DETECT` först och
 hoppa över detta om SuperCPU inte finns.
 
 | Läge       | Register | Effekt                                        |
@@ -2885,7 +2885,7 @@ A9 00         LDA #$00
 .turbo_enable off
 ```
 
->**Obs:**Anropa `SUPERCPU_DETECT` först och förgrena dig runt detta makro om
+>**Obs:** Anropa `SUPERCPU_DETECT` först och förgrena dig runt detta makro om
 > SuperCPU:n inte finns.
 
 ---
@@ -3038,7 +3038,7 @@ den en gång per spelbildruta — ingen JSR behövs.
     STA $07F8       ; update sprite 0 pointer ($07F8 + sprite#)
 ```
 
-**Storlek:**19 byte.**Typisk användning:**
+**Storlek:**19 byte.** Typisk användning:**
 ```
 frameTable:
     .byte $21, $22, $23, $24   ; 4 frames at $0840, $0880, $08C0, $0900
@@ -3056,7 +3056,7 @@ gameloop:
 .sprite_anim 0, C100, 4, FB
 ```
 
->**Tips:**Placera ramtabellen med `.rawbytes` på en fast adress. Räknarens
+>**Tips:** Placera ramtabellen med `.rawbytes` på en fast adress. Räknarens
 > ZP-byte (`$FB`) måste initieras till `$00` före det första anropet. Om din kod
 > använder `$FB` till något annat, välj en ledig ZP-plats.
 
@@ -3125,7 +3125,7 @@ BCD-byte för ADC + displayloop).
 .score_bcd $C200, 4, 100, $0400
 ```
 
->**Tips:**Initiera poängbyten till `$00` vid start. Poängadressen ska vara i
+>**Tips:** Initiera poängbyten till `$00` vid start. Poängadressen ska vara i
 > noll-sid- eller absolut-RAM — inte ROM. Skärmadressen ska peka på siffercellen
 > längst till vänster; siffror skrivs från vänster till höger (mest signifikanta
 > byte först).

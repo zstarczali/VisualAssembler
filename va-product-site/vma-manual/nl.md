@@ -41,18 +41,18 @@ loop: dex                ; a label and an instruction on one line
     rts
 ```
 
--**Opmerkingen**beginnen met `;` of `//` en lopen door tot het einde van de
+-**Opmerkingen** beginnen met `;` of `//` en lopen door tot het einde van de
   regel (niet binnen een geciteerde tekenreeks).
--**Labels**worden geschreven als `naam:` — letters, cijfers en `_`, die niet
+-**Labels** worden geschreven als `naam:` — letters, cijfers en `_`, die niet
   met een cijfer beginnen. Een label kan op een eigen regel staan of voor een
-  instructie. Een naam die met een punt begint (`.loop:`) is een**lokaal
+  instructie. Een naam die met een punt begint (`.loop:`) is een** lokaal
   label**(zie [Lokale (punt)labels](#lokale-gestippelde-labels)); `-` en `+` op
-  zichzelf zijn**anonieme labels**, waarnaar wordt verwezen door `bne -` / `beq
+  zichzelf zijn** anonieme labels**, waarnaar wordt verwezen door `bne -` / `beq
   +` (de dichtstbijzijnde ervoor/erna).
--**Instructies**zijn een mnemonic en een operand; inspringen is vrij.
--**Directives**beginnen met een punt (`.byte`, `.macro`, `.if` …); `* = $xxxx`
+-**Instructies** zijn een mnemonic en een operand; inspringen is vrij.
+-**Directives** beginnen met een punt (`.byte`, `.macro`, `.if` …); `* = $xxxx`
   (of `.pc = $xxxx`) stelt het adres in.
--**Gebruikersmacro's**worden aangeroepen als `:naam(args)`, `.roep naam(args)`
+-**Gebruikersmacro's** worden aangeroepen als `:naam(args)`, `.roep naam(args)`
   aan, `.roep naam(args)` of `naam(args)`.
 
 ## 2. Getallen en uitdrukkingen
@@ -87,18 +87,18 @@ dergelijke staan ook bekend als `lo()`, `hi()`, `sin()`, `cos()`, `round()`,
 
 ## 3. Uitvoer: PRG, BASIC-stub en ingangspunt
 
-VMA schrijft een C64**PRG**: een laadadres van twee bytes, gevolgd door de
+VMA schrijft een C64** PRG**: een laadadres van twee bytes, gevolgd door de
 geheugenafbeelding. Elke ORG-sectie en elke instructie die gegevens op een eigen
 adres plaatst (`.rawbytes`, `.incbin`, `.sid` …) wordt in één afbeelding
 opgenomen; de tussenruimtes worden opgevuld met nullen.
 
--**Zonder een ORG**begint het programma bij `$0801`, waar BASIC begint.
+-**Zonder een ORG** begint het programma bij `$0801`, waar BASIC begint.
 -**BASIC SYS stub**(de standaard): een `10 SYS nnnn`-regel wordt geplaatst op
   `$0801`, zodat het programma begint met `RUN`. Een programma waarvan de eerste
   ORG `$0801` is, begint dan op `$080D`. Schakel de stub uit met
   `--no-basic-stub`; zonder deze wordt een programma op `$0801` geassembleerd
   naar `$C000`, elk ander programma blijft op zijn eerste ORG.
--**Ingangspunt:**de SYS-regel springt naar het begin van de code, of naar het
+-**Ingangspunt:** de SYS-regel springt naar het begin van de code, of naar het
   adres genoemd door een commentaar op de eerste regel `; Ingangspunt: $1234 `.
 -**Code onder de BASIC-lijn**(een ORG lager dan `$0801` samen met de stub):
   een kleine loader start het programma en verplaatst het naar de juiste plaats,
@@ -106,7 +106,7 @@ opgenomen; de tussenruimtes worden opgevuld met nullen.
 - Een bron die begint met zijn eigen BASIC SYS-regel (`.byte $0B, $08, $0A, $00,
   $9E, …` at `$0801`) wordt als zodanig uitgezonden, zonder een tweede stub.
 
-Vanuit de PRG maakt de opdrachtregel ook een**cartridge**en een**schijfimage**(nieuw in 2.1.0, zie [8. Opdrachtregel](#8-opdrachtregel)):
+Vanuit de PRG maakt de opdrachtregel ook een** cartridge** en een** schijfimage**(nieuw in 2.1.0, zie [8. Opdrachtregel](#8-opdrachtregel)):
 
 - `--crt FILE` — een Magic Desk-cartridge (CRT-type 19, 8 × 8K-banken, maximaal
   65.408 bytes programma). Een loader in bank 0 initialiseert de KERNAL, voert
@@ -144,7 +144,7 @@ op basis van de manier waarop de operand is geschreven.
 ### Constanten op de nulpagina
 
 Een operand die alleen uit constanten bestaat (`.const`, `name = value`, a
-`.var`) die in een byte past, neemt de**zero-page**-modus van de instructie
+`.var`) die in een byte past, neemt de** zero-page**-modus van de instructie
 aan, precies zoals het getal dat zou doen: na `.const zp = $FB`, wordt `lda zp`
 geassembleerd tot `A5 FB` (2 bytes, 3 cycli) en `lda zp,x` tot `B5 FB`. Een
 modus waarin de instructie geen nulpagina-vorm heeft, blijft absoluut (`lda
@@ -156,8 +156,8 @@ absoluut. *(Nieuw in 2.1.)*
 ### Label expressies als operanden
 
 Elke operand die een adres of directe waarde accepteert, accepteert ook
-rechtstreeks een**constante naam**(een `.const` of een label). Daarnaast kunt
-u**label+offset**of**label−offset**expressies gebruiken om te verwijzen naar
+rechtstreeks een** constante naam**(een `.const` of een label). Daarnaast kunt
+u** label+offset** of** label−offset** expressies gebruiken om te verwijzen naar
 een adres ten opzichte van een benoemde constante:
 
 | Syntaxis         | Voorbeeld                         | Beschrijving                                                                                                                 |
@@ -185,8 +185,8 @@ clear:
 
 ### De `*` programmateller in expressies
 
-`*` is niet langer beperkt tot de volledige operand — het kan**overal binnen
-een operandexpressie voorkomen**en staat voor het adres van de instructie
+`*` is niet langer beperkt tot de volledige operand — het kan** overal binnen
+een operandexpressie voorkomen** en staat voor het adres van de instructie
 waarop het is geschreven. Het wordt tijdens de assembleertijd opgelost ten
 opzichte van het werkelijke adres van die instructie, dus er is geen label nodig
 voor korte relatieve sprongen of PC-relatieve gegevenslezingen.
@@ -205,7 +205,7 @@ of direct na een operator, `(`, `,`, `<`, `>` of witruimte. Een `*` die volgt op
 een getal, `)` of een identifier is gewone vermenigvuldiging, dus `LDA-tabel*2`
 en `CONST_A*4` blijven ongewijzigd.
 
-**Waar het werkt.**Elke operand die al een expressie accepteert:
+**Waar het werkt.** Elke operand die al een expressie accepteert:
 vertakkingsdoelen, `JMP` / `JSR`, `LDA`/`STA`/… absolute en geïndexeerde,
 directe lage/hoge byte-operatoren, en de `.assert`-expressie. `*` verandert
 nooit de grootte van een instructie, dus het is veilig in elke adresseermodus.
@@ -213,8 +213,8 @@ nooit de grootte van een instructie, dus het is veilig in elke adresseermodus.
 ### Lokale (gestippelde) labels
 
 Een label waarvan de naam begint met een punt — `.loop`, `.skip`, `.done` — is
-een**lokaal label**. Het behoort tot het bereik van het dichtstbijzijnde
-voorafgaande**globale**(niet-puntige) label en wordt intern `<global>.<name>`.
+een** lokaal label**. Het behoort tot het bereik van het dichtstbijzijnde
+voorafgaande** globale**(niet-puntige) label en wordt intern `<global>.<name>`.
 Twee lokale labels met dezelfde korte naam onder verschillende globale labels
 **botsen niet**.
 
@@ -247,7 +247,7 @@ ClearScreen:
 ### Operandlabels voor zelfmodificerende code
 
 Voeg `label:` toe aan het voorvoegsel van de operand van een instructie om een
-label op de**operandbyte**te plaatsen in plaats van op de opcode. De
+label op de** operandbyte** te plaatsen in plaats van op de opcode. De
 instructie wordt samengesteld uit alles wat na de dubbele punt komt.
 
 ```
@@ -417,7 +417,7 @@ subroutines.
 
 ### LABEL
 
-Net als een**regelnummer in BASIC**— maar dan met een naam in plaats van een
+Net als een** regelnummer in BASIC**— maar dan met een naam in plaats van een
 nummer. Springdoelen voor `JMP`, `JSR`, `BNE`, enz.
 
 | Argument  | Beschrijving                                            |
@@ -441,7 +441,7 @@ van**0 bytes**.
 
 ### COMMENT
 
-Net als**REM in BASIC**— een notitie voor jezelf die de assembler volledig
+Net als** REM in BASIC**— een notitie voor jezelf die de assembler volledig
 negeert.
 
 **Syntaxis:**
@@ -458,7 +458,7 @@ negeert.
 
 ### BYTE
 
-Net als**DATA in BASIC**— slaat een lijst met onbewerkte byte-waarden direct
+Net als** DATA in BASIC**— slaat een lijst met onbewerkte byte-waarden direct
 in het programma op.
 
 | Argument | Beschrijving                                                                |
@@ -475,7 +475,7 @@ in het programma op.
     .byte $01, $02, $FF
 ```
 
-**Referenties naar lage/hoge byte-labels:**BYTE accepteert tokens in
+**Referenties naar lage/hoge byte-labels:** BYTE accepteert tokens in
 KickAssembler/ca65-stijl `<label` (lage byte) en `>label` (hoge byte) naast
 numerieke waarden. De assembler lost het labeladres op tijdens het compileren en
 voegt de juiste byte in. Voorbeeld:
@@ -488,13 +488,13 @@ Hierin wordt de lage byte van het adres van `frame_0` opgeslagen, vervolgens de
 hoge byte, en daarna hetzelfde voor `frame_1`. Handig voor het maken van
 sprongtabellen en adreslijsten.
 
-**Grootte:**Aantal bytes in de lijst.
+**Grootte:** Aantal bytes in de lijst.
 
 ---
 
 ### WORD
 
-Net als**DATA in BASIC, maar dan voor 16-bits getallen**. Elke waarde wordt
+Net als** DATA in BASIC, maar dan voor 16-bits getallen**. Elke waarde wordt
 opgeslagen als twee bytes (eerst de lage byte, dan de hoge byte — 6502
 little-endian volgorde).
 
@@ -536,7 +536,7 @@ vullen van tabellen.
     .fill 256, $00
 ```
 
-**Expressiesyntaxis:**Zowel `count` als `value` accepteren rekenkundige
+**Expressiesyntaxis:** Zowel `count` als `value` accepteren rekenkundige
 expressies. Je kunt verwijzen naar CONST-namen, hexadecimale/binaire letterlijke
 waarden gebruiken en ingebouwde wiskundige functies aanroepen:
 
@@ -552,7 +552,7 @@ waarden gebruiken en ingebouwde wiskundige functies aanroepen:
 Operatoren: `+ - * /` Literalen: `$FF` (hex), `%10110000` (binair)
 Laagste/hoogste byte: `lo(expr)`, `hi(expr)`
 
-**Grootte:**De telwaarde in bytes.
+**Grootte:** De telwaarde in bytes.
 
 ---
 
@@ -577,16 +577,16 @@ een grens van 64 bytes — `ALIGN 64` regelt dat automatisch.
     ; ALIGN 64 → $0840 (12 bytes padding)
 ```
 
-**Grootte:**Dynamisch — afhankelijk van de huidige programmatellerpositie.
+**Grootte:** Dynamisch — afhankelijk van de huidige programmatellerpositie.
 
->**Tip:**Gebruik `ALIGN 64` vóór spritegegevens, `ALIGN 256` om ervoor te
+>**Tip:** Gebruik `ALIGN 64` vóór spritegegevens, `ALIGN 256` om ervoor te
 > zorgen dat tabellen pagina-uitgelijnd zijn.
 
 ---
 
 ### TEXT
 
-Net als**PRINT AT**— schrijft tekst rechtstreeks naar het C64-scherm op een
+Net als** PRINT AT**— schrijft tekst rechtstreeks naar het C64-scherm op een
 bepaalde kolom en rij, zonder de kernel te gebruiken. Het genereert één
 LDA/STA-paar per teken, gericht op het scherm-RAM op `$0400`.
 
@@ -608,10 +608,10 @@ geselecteerd:
 |**Hoofdletters/afbeeldingen**(standaard)          | 0           | `A`–`Z` → schermcodes $01–$1A ✓  | ook als hoofdletter behandeld        |
 |**Kleine letters/hoofdletters**(na CHARSET lower) | 1           | `A`–`Z` → $01–$1A (hoofdletters) | `a`–`z` → $41–$5A (kleine letters) ✓ |
 
--**Hoofdlettertekenset (standaard):**Typ wat u in hoofdletters wilt zien.
+-**Hoofdlettertekenset (standaard):** Typ wat u in hoofdletters wilt zien.
   `"HALLO"` wordt weergegeven als `HALLO`. Invoer in kleine letters wordt
   toegewezen aan hoofdlettercodes op het scherm.
--**Tekenset voor kleine letters (`lower`):**Typ de exacte
+-**Tekenset voor kleine letters (`lower`):** Typ de exacte
   hoofdlettergevoeligheid die u wilt zien. `"hello"` → weergave in kleine
   letters, `"HELLO"` → weergave in hoofdletters. Vereist een
   runtime-tekensetwissel voordat het scherm wordt beschreven (gebruik de macro
@@ -632,21 +632,21 @@ geselecteerd:
 .text 0, 2, "hello", lower    ; lowercase charset
 ```
 
-Tekens worden gecodeerd als**schermcodes**(niet PETSCII).**Grootte:**
+Tekens worden gecodeerd als** schermcodes**(niet PETSCII).** Grootte:**
 `tekstlengte × 5` bytes (LDA + STA per teken).
 
 ---
 
 ### STRING
 
-Net zoals**POKE een string**in een willekeurig geheugenadres tijdens runtime.
+Net zoals** POKE een string** in een willekeurig geheugenadres tijdens runtime.
 Genereert LDA/STA-paren die de schermcode van elk teken naar opeenvolgende
 adressen kopiëren.
 
 | Argument          | Beschrijving                                                                                            |
 | ----------------- | ------------------------------------------------------------------------------------------------------- |
 | Tekst             | De te schrijven tekenreeks                                                                              |
-| Adres             | Doelgeheugenadres — `$C000` hex of een**labelnaam**|
+| Adres             | Doelgeheugenadres — `$C000` hex of een** labelnaam**|
 | Label (optioneel) | Kent een label toe dat verwijst naar het doeladres.                                                     |
 | Verschuiving      | Hexadecimale waarde (00–FF) toegevoegd aan elke byte van de schermcode (bijv. `$80` = omgekeerde video) |
 | `onder`           | Optionele vlag — dezelfde betekenis als TEXT (zie het gedeelte TEXT)                                    |
@@ -669,21 +669,21 @@ adressen kopiëren.
     ...
 ```
 
-Tekens worden gecodeerd als**schermcodes**(niet PETSCII). De optionele**Shift**-waarde wordt aan elke byte toegevoegd, bijvoorbeeld `$80` voor
-omgekeerde video.**Grootte:**`tekstlengte × 5` bytes (één LDA + één STA per
+Tekens worden gecodeerd als** schermcodes**(niet PETSCII). De optionele** Shift**-waarde wordt aan elke byte toegevoegd, bijvoorbeeld `$80` voor
+omgekeerde video.** Grootte:**`tekstlengte × 5` bytes (één LDA + één STA per
 teken).
 
 ---
 
 ### DATA
 
-Net als een**POKE-lus**— schrijft een lijst met ruwe bytes naar een
+Net als een** POKE-lus**— schrijft een lijst met ruwe bytes naar een
 geheugenadres tijdens de uitvoering, één LDA/STA-paar per byte.
 
 | Argument          | Beschrijving                                         |
 | ----------------- | ---------------------------------------------------- |
 | Bytes             | Door komma's gescheiden byte-waarden                 |
-| Adres             | Doelgeheugenadres — `$C000` hex of een**labelnaam**|
+| Adres             | Doelgeheugenadres — `$C000` hex of een** labelnaam**|
 | Label (optioneel) | Kent een label toe dat verwijst naar het doeladres.  |
 
 **Syntaxis:**
@@ -704,7 +704,7 @@ geheugenadres tijdens de uitvoering, één LDA/STA-paar per byte.
 
 **Grootte:**`byte_count × 5` bytes (één LDA + één STA per byte).
 
->**2.1:**de bytes kunnen labels benoemen: `.data $2010, <target, >target`
+>**2.1:** de bytes kunnen labels benoemen: `.data $2010, <target, >target`
 > schrijft het adres van `target`, ook van een later gedefinieerd label. Het
 > `:name` label van de macro kan verwijzen naar een doeladres dat zelf een label
 > is.
@@ -713,7 +713,7 @@ geheugenadres tijdens de uitvoering, één LDA/STA-paar per byte.
 
 ### RAWBYTES
 
-Net als**DATA die direct in het geheugen wordt geladen**— helemaal geen
+Net als** DATA die direct in het geheugen wordt geladen**— helemaal geen
 runtime-code. De bytes zijn aanwezig vanaf het moment dat de PRG wordt geladen,
 nog voordat je code begint. Gebruik dit voor sprite-data, level-maps,
 opzoektabellen, alles wat gewoon op een specifiek adres moet staan.
@@ -721,7 +721,7 @@ opzoektabellen, alles wat gewoon op een specifiek adres moet staan.
 | Argument          | Beschrijving                                         |
 | ----------------- | ---------------------------------------------------- |
 | Bytes             | Door komma's gescheiden byte-waarden                 |
-| Adres             | Doelgeheugenadres — `$C000` hex of een**labelnaam**|
+| Adres             | Doelgeheugenadres — `$C000` hex of een** labelnaam**|
 | Label (optioneel) | Kent een label toe dat verwijst naar het doeladres.  |
 
 **Syntaxis:**
@@ -734,11 +734,11 @@ opzoektabellen, alles wat gewoon op een specifiek adres moet staan.
 **Grootte in code:**0 bytes. De gegevens worden op het opgegeven adres in de
 uitvoer geplaatst.
 
->**DATA vs RAWBYTES:**DATA genereert LDA/STA-code die bytes tijdens runtime
+>**DATA vs RAWBYTES:** DATA genereert LDA/STA-code die bytes tijdens runtime
 > kopieert (langzamer, maar werkt als de data dynamisch moet zijn). RAWBYTES
 > plaatst de bytes direct — geen code, direct, geen kosten.
 
->**2.1:**De bytes kunnen labels benoemen (`.rawbytes $2000, <target, >target`
+>**2.1:** De bytes kunnen labels benoemen (`.rawbytes $2000, <target, >target`
 > — een pointertabel); het label `:name` kan naar een label wijzen als het
 > doeladres, ook een label dat later wordt gedefinieerd. Als bufferargument van
 > een macro nemen de bytes hun eigen ruimte in de buffers in na het programma.
@@ -748,14 +748,14 @@ uitvoer geplaatst.
 ### RAWTEXT
 
 Net als RAWBYTES, maar dan voor tekst: de tekenreeks wordt gecodeerd als
-schermcodes en de bytes worden op een vast adres geplaatst met**geen
+schermcodes en de bytes worden op een vast adres geplaatst met** geen
 runtimecode**. De tekst is direct in het geheugen beschikbaar zodra de PRG wordt
 geladen.
 
 | Argument          | Beschrijving                                                                                            |
 | ----------------- | ------------------------------------------------------------------------------------------------------- |
 | Tekst             | Te coderen tekenreeks                                                                                   |
-| Adres             | Doelgeheugenadres — `$C000` hex of een**labelnaam**|
+| Adres             | Doelgeheugenadres — `$C000` hex of een** labelnaam**|
 | Label (optioneel) | Kent een label toe dat verwijst naar het doeladres.                                                     |
 | Verschuiving      | Hexadecimale waarde (00–FF) toegevoegd aan elke byte van de schermcode (bijv. `$80` = omgekeerde video) |
 | `onder`           | Optionele vlag — dezelfde betekenis als TEXT (zie het gedeelte TEXT)                                    |
@@ -783,7 +783,7 @@ geladen.
 **Grootte in code:**0 bytes. De gegevens worden op het opgegeven adres in de
 uitvoer geplaatst.
 
->**STRING vs RAWTEXT:**STRING genereert LDA/STA-code die de tekst tijdens
+>**STRING vs RAWTEXT:** STRING genereert LDA/STA-code die de tekst tijdens
 > runtime kopieert. RAWTEXT bakt de bytes in de PRG tijdens het laden — geen
 > code, geen wachttijd.
 
@@ -791,13 +791,13 @@ uitvoer geplaatst.
 
 ### PETSCII
 
-Net als**RAWBYTES maar voor KERNAL-uitvoer**— codeert de tekenreeks als
+Net als** RAWBYTES maar voor KERNAL-uitvoer**— codeert de tekenreeks als
 PETSCII-bytes (compatibel met CHROUT op `$FFD2`) en plaatst deze op een vast
 adres zonder runtime-code. Gebruik dit wanneer u tekens wilt afdrukken via `JSR
 $FFD2` in een lus, en merk op dat `.print` dezelfde encoder en `lower`-vlag
 gebruikt.
 
->**PETSCII versus schermcodes:**PETSCII en schermcodes zijn twee verschillende
+>**PETSCII versus schermcodes:** PETSCII en schermcodes zijn twee verschillende
 > coderingen. Schermcode `$01` = letter A; PETSCII `$41` = letter A (via
 > CHROUT). Gebruik PETSCII alleen bij het afdrukken via de KERNAL; gebruik
 > TEXT/STRING/RAWTEXT om direct naar het scherm-RAM te schrijven.
@@ -805,7 +805,7 @@ gebruikt.
 | Argument          | Beschrijving                                         |
 | ----------------- | ---------------------------------------------------- |
 | Tekst             | Tekst die als PETSCII-bytes moet worden gecodeerd.   |
-| Adres             | Doelgeheugenadres — `$C000` hex of een**labelnaam**|
+| Adres             | Doelgeheugenadres — `$C000` hex of een** labelnaam**|
 | Label (optioneel) | Kent een label toe dat verwijst naar het doeladres.  |
 | `onder`           | Optionele vlag — zie hieronder                       |
 
@@ -832,7 +832,7 @@ gebruikt.
 **Grootte in code:**0 bytes. De gegevens worden op het doeladres geplaatst als
 een uitgestelde gegevenssectie (zoals RAWBYTES).
 
-**Null-terminator:**voeg de `null`-vlag toe om een `$00`-byte na de tekst toe
+**Null-terminator:** voeg de `null`-vlag toe om een `$00`-byte na de tekst toe
 te voegen. Ideaal voor null-terminated lussen:
 
 ```
@@ -857,7 +857,7 @@ done:
 | Nieuwe regel                         | `$0D` (RETURN)                       | `$0D`              |
 | Ander                                | `$20` (spatie)                       | `$20`              |
 
->**Tip:**Gebruik PETSCII voor gegevens die via CHROUT worden uitgevoerd
+>**Tip:** Gebruik PETSCII voor gegevens die via CHROUT worden uitgevoerd
 > (`$FFD2`). Gebruik STRING of RAWTEXT in plaats daarvan om rechtstreeks naar
 > het scherm-RAM te schrijven.
 
@@ -871,7 +871,7 @@ te wijzigen.
 
 | Argument | Beschrijving                                                                                                                                            |
 | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Modus    |**Kleine letters**— schakelt de tekenset voor kleine/hoofdletters in;**Hoofdletters**— herstelt de standaard tekenset voor hoofdletters/afbeeldingen |**Syntaxis:**
+| Modus    |**Kleine letters**— schakelt de tekenset voor kleine/hoofdletters in;** Hoofdletters**— herstelt de standaard tekenset voor hoofdletters/afbeeldingen |**Syntaxis:**
 ```
 .charset lower    ; switch to lowercase charset
 .charset upper    ; switch back to uppercase/graphics charset
@@ -893,7 +893,7 @@ Hoofdlettermodus:
     STA $D018
 ```
 
-**Grootte:**8 bytes (LDA abs + ORA/AND imm + STA abs).**Waarom ORA/AND in plaats van een directe schrijfbewerking?**`$D018` regelt
+**Grootte:**8 bytes (LDA abs + ORA/AND imm + STA abs).** Waarom ORA/AND in plaats van een directe schrijfbewerking?**`$D018` regelt
 ook de locatie van het scherm-RAM (bits 7-4). Door alleen bit 1 te schakelen,
 blijft de rest van het register behouden.
 
@@ -905,7 +905,7 @@ blijft de rest van het register behouden.
 .charset upper
 ```
 
->**Opmerking:**De CHARSET-macro wijzigt alleen de pointer naar het
+>**Opmerking:** De CHARSET-macro wijzigt alleen de pointer naar het
 > VIC-teken-ROM. Deze roept `$E544` (KERNAL-tekensetinitialisatie) niet aan. In
 > de meeste gevallen is dit voldoende; roep `JSR $E544` alleen eerst aan als u
 > wilt dat de printroutines van de KERNAL de wijziging respecteren.
@@ -952,7 +952,7 @@ tijdens de uitvoering — er is geen voorafgaand label of `ORG` nodig.
 **Doeladres:**`$3800 + 65 * 8 = $3A08`. Berekend tijdens het compileren en
 vastgelegd in de STA-operanden.
 
-**Grootte:**40 bytes per teken (8 × 5).**Typische workflow:**
+**Grootte:**40 bytes per teken (8 × 5).** Typische workflow:**
 ```
     ; Point VIC-II at RAM charset at $3800
     LDA $D018
@@ -974,7 +974,7 @@ vastgelegd in de STA-operanden.
 |**INCBIN "charset.bin" @ $3800**| Extern tekensetbestand (gemaakt door de tekeneditor). De meest overzichtelijke optie.                           |
 |**Tekenset Canvas + INCBIN**| Een volledige bitmap van 256 tekens, weergegeven als één afbeelding van 128×128 pixels.                         |
 
->**Uitlijningsherinnering:**VIC-II verwacht de basis van de tekenset op een
+>**Uitlijningsherinnering:** VIC-II verwacht de basis van de tekenset op een
 > veelvoud van `$0800`. Geldige banken: `$0000`, `$0800`, `$1000`, ... , `$3800`
 > (binnen de huidige 16 KB VIC-bank). RAM-tekensets bevinden zich doorgaans op
 > `$2000`, `$2800`, `$3000` of `$3800`.
@@ -985,7 +985,7 @@ vastgelegd in de STA-operanden.
 
 Botsingstest met as-uitgelijnde begrenzingskaders (AABB) tussen twee rechthoeken
 beschreven door 4-byte zero-page structuren. Retourneert het resultaat in de
-accumulator:**A = 1**bij overlapping,**A = 0**anders. Pure inline assembly,
+accumulator:** A = 1** bij overlapping,** A = 0** anders. Pure inline assembly,
 geen subroutine-aanroep.
 
 | Argument           | Beschrijving                                                                    |
@@ -1028,7 +1028,7 @@ no: LDA #$00
 done:
 ```
 
-**Grootte:**30 bytes.**Typische workflow:**
+**Grootte:**30 bytes.** Typische workflow:**
 
 ```
     ; Player sprite box at $FB..$FE
@@ -1058,17 +1058,17 @@ no_collision:
 **Beperkingen:**
 - Beide zero-page-adressen moeten `≤ $FC` zijn (elk vakje heeft 4 opeenvolgende
   bytes nodig: `zp`, `zp+1`, `zp+2`, `zp+3`).
-- Coördinaten worden behandeld als**unsigned 8-bit**(0–255). Voor getekende
+- Coördinaten worden behandeld als** unsigned 8-bit**(0–255). Voor getekende
   spritecoördinaten buiten dit bereik moet u normaliseren voordat u ze opslaat.
 - De twee vakjes kunnen elkaar in de ZP-ruimte overlappen, indien gewenst, maar
   meestal wilt u 8 afzonderlijke bytes.
 
-**Waarom geen subroutine?**Inline-generatie vermijdt de overhead van JSR/RTS
+**Waarom geen subroutine?** Inline-generatie vermijdt de overhead van JSR/RTS
 (14+ cycli) en houdt de test actief in de cache voor strakke game-loops. Als je
 veel paren moet testen, plaats dan handmatig je eigen `JSR box_hit_sub` rond een
 enkele BOX_HIT-regel.
 
-**Vergelijking met UB's `box_hit()` functie:**Ultimate Basic verpakt dezelfde
+**Vergelijking met UB's `box_hit()` functie:** Ultimate Basic verpakt dezelfde
 6502-logica als een runtimefunctie die een variabele retourneert. In VA plaats
 je BOX_HIT inline waar je de test nodig hebt; het resultaat bevindt zich in `A`.
 
@@ -1076,7 +1076,7 @@ je BOX_HIT inline waar je de test nodig hebt; het resultaat bevindt zich in `A`.
 
 ### INCBIN
 
-Net als**BLOAD in BASIC**— pakt een extern binair bestand (`.bin`, `.prg`,
+Net als** BLOAD in BASIC**— pakt een extern binair bestand (`.bin`, `.prg`,
 `.sid`, `.raw`) en voegt het direct in de geassembleerde PRG in op het adres dat
 u opgeeft.
 
@@ -1103,7 +1103,7 @@ ingebed op het opgegeven adres.
 
 ### KOALA
 
-Laadt een**Koala Painter**-afbeelding (`.koa` / `.kla`, 160×200 meerkleurig) en
+Laadt een** Koala Painter**-afbeelding (`.koa` / `.kla`, 160×200 meerkleurig) en
 toont deze. De afbeeldingsgegevens worden ingesloten op een vast adres zoals
 `INCBIN` (het 2-byte `$6000` laadadres van het bestand wordt verwijderd), en de
 instructie zelf compileert naar een 86-byte weergaveroutine die wordt uitgevoerd
@@ -1144,14 +1144,14 @@ Assembler exporteert een compatibel bestand.
 
 ### LEVEL / LEVEL_ROW
 
-Hiermee wordt een**Level Editor**-project in je programma geplaatst en worden
+Hiermee wordt een** Level Editor**-project in je programma geplaatst en worden
 levelrijen naar een schermbuffer gekopieerd — de bouwstenen van een scrollend
 spel. Het `level-demo.asm`-voorbeeld van C64 Visual Assembler is een compleet
 level dat met een joystick wordt gescrolld.
 
 #### LEVEL
 
-Een INCBIN-achtige instructie die**0 bytes code**genereert. Alleen de**geplaatste**schermen van het Level Editor-project (de `.bin` die de Level
+Een INCBIN-achtige instructie die**0 bytes code** genereert. Alleen de** geplaatste** schermen van het Level Editor-project (de `.bin` die de Level
 Editor van C64 Visual Assembler opslaat) worden in het geheugen geladen vanaf
 het opgegeven adres (standaard `$2000`), in volgorde van de slots, 2000 bytes
 per scherm (1000 schermcodes + 1000 kleuren). Identieke schermen worden één keer
@@ -1208,7 +1208,7 @@ eroverheen moet gaan.
 
 ### SID
 
-Net als**BLOAD voor muziek**— laadt een `.sid`-bestand in je PRG en leest
+Net als** BLOAD voor muziek**— laadt een `.sid`-bestand in je PRG en leest
 automatisch de Init- en Play-adressen uit de header. Roep Init eenmaal aan bij
 het opstarten en roep vervolgens Play aan vanuit je IRQ-handler in elk frame.
 
@@ -1239,18 +1239,18 @@ De SID-header geeft het volgende weer:
 **Grootte in code:**0 bytes inline. Het SID-binair bestand wordt op het
 opgegeven adres geplaatst als een uitgesteld blok in de PRG.
 
->**Belangrijk:**De meeste SID-bestanden bevatten hardgecodeerde interne
+>**Belangrijk:** De meeste SID-bestanden bevatten hardgecodeerde interne
 > absolute adressen. Deze kunnen alleen worden verplaatst als het hele binaire
 > bestand met dezelfde offset wordt verschoven. Als een SID interne sprongen
 > naar `$10xx` bevat, moet deze op `$1000` blijven staan — het verplaatsen naar
 > een ander adres zal deze interne verwijzingen verbreken.
 
->**Typisch gebruik:**Geef de SID een eigen adres (`.sid "tune.sid", $1000`)
+>**Typisch gebruik:** Geef de SID een eigen adres (`.sid "tune.sid", $1000`)
 > wanneer het native adres conflicteert met uw code. Roep Init eenmaal aan bij
 > het opstarten en roep vervolgens Play elke frame aan vanuit een raster
 > IRQ-handler — of laat [SID_PLAYER](#sid_player) beide doen.
 
-**Labels:**De SID-richtlijn definieert `SID_LOAD` (waar de data wordt
+**Labels:** De SID-richtlijn definieert `SID_LOAD` (waar de data wordt
 geplaatst), `SID_INIT` en `SID_PLAY` (de init- en play-adressen, verplaatst
 samen met een aangepast adres). `SID_PLAY` ontbreekt wanneer de tune geen
 play-adres heeft (een RSID die zijn eigen IRQ installeert). Gebruik ze in je
@@ -1260,7 +1260,7 @@ eigen code, bijvoorbeeld `JSR SID_PLAY` in een IRQ-handler.
 
 ### SID_PLAYER
 
-Speelt de melodie van de**SID**-richtlijn af met één regel: het initialiseert
+Speelt de melodie van de** SID**-richtlijn af met één regel: het initialiseert
 de melodie en blijft de afspeelroutine aanroepen vanuit een rasteronderbreking,
 zodat uw programma verder kan gaan met zijn eigen werk.
 
@@ -1285,7 +1285,7 @@ interrupt (`ASL $D019`), roept `JSR SID_PLAY` aan en gaat verder naar de KERNAL
 
 **Grootte in code:**58 bytes.
 
->**Opmerking:**er is een `.sid` regel nodig in het programma (`SID_INIT` en
+>**Opmerking:** er is een `.sid` regel nodig in het programma (`SID_INIT` en
 > `SID_PLAY`); anders stopt de build met een fout. Met de CIA1 timer IRQ
 > uitgeschakeld, draait de KERNAL één keer per frame vanaf de raster IRQ —
 > toetsenbord en `GETIN` blijven werken.
@@ -1294,7 +1294,7 @@ interrupt (`ASL $D019`), roept `JSR SID_PLAY` aan en gaat verder naar de KERNAL
 
 ### INCLUDE
 
-Net als**MERGE in BASIC**— haalt een ander bestand binnen en breidt het inline
+Net als** MERGE in BASIC**— haalt een ander bestand binnen en breidt het inline
 uit op deze positie. Perfect voor herbruikbare subroutinebibliotheken.
 
 Er worden twee bestandstypen ondersteund:
@@ -1336,7 +1336,7 @@ Er worden twee bestandstypen ondersteund:
     ... (the included code follows)
 ```
 
->**Tip:**Gebruik INCLUDE om herbruikbare subroutinebibliotheken te maken die u
+>**Tip:** Gebruik INCLUDE om herbruikbare subroutinebibliotheken te maken die u
 > in verschillende projecten kunt delen. `.inc`/`.asm`/`.s`-bestanden zijn het
 > meest geschikt wanneer u de bibliotheek wilt bewerken in een eenvoudige
 > teksteditor of deze wilt delen met andere 6502-assemblers; `.json` wanneer de
@@ -1344,7 +1344,7 @@ Er worden twee bestandstypen ondersteund:
 > wanneer de bibliotheek geen eigen ORG heeft, of wanneer u de
 > standaardplaatsing wilt overschrijven.
 
->**2.1:**Een include die niet gevonden wordt, is een fout, net als een bestand
+>**2.1:** Een include die niet gevonden wordt, is een fout, net als een bestand
 > dat zichzelf includeert (direct of verderop). De eigen `.include`, `.incbin`
 > en `.sid` regels van een geïncludeerd bestand worden ook geladen, relatief ten
 > opzichte van de eigen map, en de macro-aanroepen worden uitgebreid — tot wel
@@ -1354,7 +1354,7 @@ Er worden twee bestandstypen ondersteund:
 
 ### TABLE
 
-Net als**DIM op een specifiek adres**— hiermee wordt een opzoektabel benoemd
+Net als** DIM op een specifiek adres**— hiermee wordt een opzoektabel benoemd
 en de locatie ervan in het geheugen bepaald. Plaats de regels `.byte`, `.word`
 of `.fill` erna om de inhoud van de tabel te definiëren.
 
@@ -1425,7 +1425,7 @@ loop:
     .byte $01, $02, $03, ...
 ```
 
->**Tip:**Zonder een ORG begint het programma bij `$0801` (2049 decimaal), het
+>**Tip:** Zonder een ORG begint het programma bij `$0801` (2049 decimaal), het
 > begin van BASIC. Met de BASIC SYS-stub (de standaard) plaatst de assembler een
 > korte `10 SYS…` regel bij `$0801` en begint uw code bij `$080D`. Zie [Output:
 > PRG, BASIC-stub en entry point](#3-uitvoer-prg-basic-stub-en-ingangspunt).
@@ -1477,7 +1477,7 @@ loop0:
     BNE loop0
 ```
 
-**Grootte:**3 bytes (DEX + BNE + vertakkingsoffset).**Voorbeeld — wis 10 schermcellen:**
+**Grootte:**3 bytes (DEX + BNE + vertakkingsoffset).** Voorbeeld — wis 10 schermcellen:**
 ```
     LDX #$0A
 loop0:
@@ -1536,7 +1536,7 @@ for0:
     BNE for0
 ```
 
-**Grootte:**5 bytes (IN_ + CP_ #imm + BNE-offset).**Voorbeeld — print een null-terminated string:**
+**Grootte:**5 bytes (IN_ + CP_ #imm + BNE-offset).** Voorbeeld — print een null-terminated string:**
 ```
     LDX #$00
 for0:
@@ -1550,7 +1550,7 @@ done:
     RTS
 ```
 
->**LOOP vs FOR:**LOOP telt af (N→1) — goed voor vertragingen, opvullingen,
+>**LOOP vs FOR:** LOOP telt af (N→1) — goed voor vertragingen, opvullingen,
 > pixellussen. FOR telt op (0→N) — goed voor toegang tot strings/arrays. Beide
 > kunnen X of Y gebruiken.
 
@@ -1558,7 +1558,7 @@ done:
 
 ### PUSH / PULL
 
-Net als**waarbij variabelen worden opgeslagen vóór een GOSUB en hersteld na**
+Net als** waarbij variabelen worden opgeslagen vóór een GOSUB en hersteld na**
 — maar dan met gebruik van de 6502 hardwarestack. Als een subroutine A, X of Y
 gebruikt, moet deze worden omwikkeld met PUSH en PULL, zodat de registers van de
 aanroepende code behouden blijven.
@@ -1588,7 +1588,7 @@ Plaatst een of meer registers op de stack. De volgorde is altijd A → X → Y
 
 #### PULL
 
-Herstelt registers van de stack in**omgekeerde volgorde**(Y → X → A).
+Herstelt registers van de stack in** omgekeerde volgorde**(Y → X → A).
 
 | Argument  | Beschrijving                                                        |
 | --------- | ------------------------------------------------------------------- |
@@ -1606,7 +1606,7 @@ Herstelt registers van de stack in**omgekeerde volgorde**(Y → X → A).
     PLA
 ```
 
->**Regel:**PUSH en PULL moeten altijd dezelfde registerset gebruiken****.
+>**Regel:** PUSH en PULL moeten altijd dezelfde registerset gebruiken****.
 > `PUSH AX` → `PULL AX` (intern herstelt in omgekeerde volgorde: eerst X, dan
 > A).
 
@@ -1614,7 +1614,7 @@ Herstelt registers van de stack in**omgekeerde volgorde**(Y → X → A).
 
 ### END / RTS alias
 
-Net als**RTS met een vriendelijkere macronaam**— `.end` zendt één enkele
+Net als** RTS met een vriendelijkere macronaam**— `.end` zendt één enkele
 `RTS` byte uit, een korte subroutine-terminator.
 
 **Syntaxis:**
@@ -1636,7 +1636,7 @@ meer op een macro lijkt dan op een gewone instructie.
 
 ### MACRO / ENDM / INVOKE
 
-Net als**een benoemde GOSUB met parameters**— definieer een herbruikbaar stuk
+Net als** een benoemde GOSUB met parameters**— definieer een herbruikbaar stuk
 code eenmalig (MACRO…ENDM) en roep het vervolgens overal aan met INVOKE. Geef
 elke keer andere argumentwaarden door in plaats van code te kopiëren en te
 plakken.
@@ -1649,7 +1649,7 @@ plakken.
 | Parameters | Optionele parameternamen, gescheiden door komma's (bijv. `color` of `color, count`) |
 
 Markeer het begin van een macrodefinitie. De regels tussen MACRO en ENDM vormen
-de body van de macro. Een macro met parameters**genereert geen code**waar de
+de body van de macro. Een macro met parameters** genereert geen code** waar de
 definitie zich bevindt; een macro zonder parameters wordt daar ook geassembleerd
 als een subroutine (`JSR-naam ` roept deze aan): de programmastroom springt
 eroverheen en er wordt een `RTS ` aan het einde toegevoegd. In een bibliotheek
@@ -1727,11 +1727,11 @@ de daadwerkelijke argumenten. De door spaties gescheiden vorm (`.invoke setColor
   code (`$41`)
 -**Gemengd**: `#$07, "hallo", $20` — elke combinatie
 
->**Tip:**Definieer macro's bovenaan (of onderaan) je programma en roep ze
+>**Tip:** Definieer macro's bovenaan (of onderaan) je programma en roep ze
 > vervolgens aan waar nodig. Macro's kunnen meerdere keren met verschillende
 > argumenten worden aangeroepen.
 
->**2.1:**Een macro kan een andere macro aanroepen (`both(a, b)` roept
+>**2.1:** Een macro kan een andere macro aanroepen (`both(a, b)` roept
 > `setc(a)` aan); de binnenste aanroep krijgt de argumenten van de buitenste
 > aanroep en zijn eigen unieke lokale labels. Een macro die zichzelf aanroept,
 > stopt na 16 niveaus met een foutmelding in plaats van vast te lopen.
@@ -1765,14 +1765,14 @@ geassembleerde code.
 
 **Grootte:**0 bytes voor zowel REGION als ENDREGION.
 
->**Opmerking:**Regio's kunnen**genest**in elkaar zijn. Elke ENDREGION sluit
+>**Opmerking:** Regio's kunnen** genest** in elkaar zijn. Elke ENDREGION sluit
 > de dichtstbijzijnde open REGION. Geen effect op de geassembleerde uitvoer.
 
 ---
 
 ### DEFINE / IF / ELSE / ENDIF
 
-Net als**een schakelaar leest de assembler**— `DEFINE DEBUG` zet een symbool
+Net als** een schakelaar leest de assembler**— `DEFINE DEBUG` zet een symbool
 aan, waarna de regels van elke `IF DEBUG` worden geassembleerd en de `ELSE`-tak
 wordt overgeslagen. Verwijder de DEFINE en het IF-gedeelte verdwijnt uit de
 uitvoer. Het is niet nodig om code te verwijderen voor release-builds.
@@ -1818,7 +1818,7 @@ overgeslagen door de voorwaarde. Een kale naam is waar wanneer deze `.define`d
 is of een niet-nul `.const`, onwaar wanneer deze geen van beide is; elke andere
 voorwaarde moet een constante expressie zijn — een die niet tijdens het
 assembleren kan worden geëvalueerd, is een fout. Overgeslagen regels verschijnen
-als `; [IF skipped] …` commentaar en genereren**nul bytes**.
+als `; [IF skipped] …` commentaar en genereren** nul bytes**.
 
 #### ELSE
 
@@ -1879,13 +1879,13 @@ hen telt.
 Geneste `IF`-structuren worden ondersteund. Als een buitenste deel wordt
 overgeslagen, worden de binnenste delen ook overgeslagen.
 
->**Opmerking:**Dit is een voorwaarde die tijdens het compileren wordt
-> afgehandeld. Voor runtime vergelijkings-/vertakkingssyntax, zie**Runtime IF /
-> ELSE / ENDIF**hieronder.
+>**Opmerking:** Dit is een voorwaarde die tijdens het compileren wordt
+> afgehandeld. Voor runtime vergelijkings-/vertakkingssyntax, zie** Runtime IF /
+> ELSE / ENDIF** hieronder.
 
 ### .ASSERT
 
-Een**compile-time sanity check**. `.assert` evalueert een expressie tijdens het
+Een** compile-time sanity check**. `.assert` evalueert een expressie tijdens het
 assembleren; als deze onwaar is (`0`), stopt de build met een duidelijke
 foutmelding die de werkelijke waarde bevat. Als deze waar is (niet nul), wordt
 er niets weergegeven.
@@ -1926,7 +1926,7 @@ sprite_data_end:
 
 ### CONST
 
-Zoals**een benoemde variabele die nooit verandert**— `SCREEN = $0400`. Gebruik
+Zoals** een benoemde variabele die nooit verandert**— `SCREEN = $0400`. Gebruik
 de naam in plaats van overal ruwe adressen te typen, waardoor de code later
 gemakkelijker te lezen en te wijzigen is.
 
@@ -1990,7 +1990,7 @@ Laagste/hoogste byte: `lo(expr)`, `hi(expr)`
 
 ### VAR
 
-Net als**CONST, maar automatisch toegewezen**— `VAR` reserveert
+Net als** CONST, maar automatisch toegewezen**— `VAR` reserveert
 zero-page-geheugen voor een label zonder dat u het adres hoeft in te typen.
 Gebruik het voor tellers, pointers en kortstondige statusinformatie die in ZP
 thuishoort.
@@ -2033,7 +2033,7 @@ gebruikt label overlapt, geeft de compiler een waarschuwing.
 
 ### Runtime IF / ELSE / ENDIF
 
-Net als**een echte branch template**— werkt deze versie tijdens runtime, niet
+Net als** een echte branch template**— werkt deze versie tijdens runtime, niet
 tijdens compilatie. Het vergelijkt `A`, `X` of `Y` met een directe waarde en
 genereert de juiste `CMP` / `CPX` / `CPY` + branchsequentie voor u.
 
@@ -2052,7 +2052,7 @@ genereert de juiste `CMP` / `CPX` / `CPY` + branchsequentie voor u.
 .endif
 ```
 
-**Grootte:**Afhankelijk van de gekozen takken en vergelijkingsvorm.
+**Grootte:** Afhankelijk van de gekozen takken en vergelijkingsvorm.
 
 De vergelijking is standaard zonder teken. Voor `<=` en `>` wordt de macro
 uitgebreid naar de kortste equivalente vertakkingsketen voor het geselecteerde
@@ -2062,7 +2062,7 @@ register.
 
 ### WHILE / ENDW
 
-Zoals**een runtime-lus met een test bovenaan**— de body wordt uitgevoerd
+Zoals** een runtime-lus met een test bovenaan**— de body wordt uitgevoerd
 zolang de voorwaarde waar blijft.
 
 | Argument | Beschrijving                          |
@@ -2078,7 +2078,7 @@ zolang de voorwaarde waar blijft.
 .endw
 ```
 
-**Grootte:**Afhankelijk van de lusbody en de vergelijkingsvorm.
+**Grootte:** Afhankelijk van de lusbody en de vergelijkingsvorm.
 
 Gebruik `WHILE` wanneer de lus mogelijk eindigt voordat de eerste iteratie is
 voltooid. Dit is de runtime-tegenhanger van de op telling gebaseerde `LOOP /
@@ -2088,7 +2088,7 @@ NEXT` helper.
 
 ### REPEAT / UNTIL
 
-Zoals**een runtime-lus met een test onderaan**— de body wordt altijd minstens
+Zoals** een runtime-lus met een test onderaan**— de body wordt altijd minstens
 één keer uitgevoerd, waarna de voorwaarde bepaalt of er gestopt moet worden.
 
 | Argument | Beschrijving                          |
@@ -2104,7 +2104,7 @@ Zoals**een runtime-lus met een test onderaan**— de body wordt altijd minstens
 .until A == #$00
 ```
 
-**Grootte:**Afhankelijk van de lusbody en de vergelijkingsvorm.
+**Grootte:** Afhankelijk van de lusbody en de vergelijkingsvorm.
 
 Gebruik `REPEAT / UNTIL` als je wilt dat de body minstens één keer wordt
 uitgevoerd voordat de exit-controle plaatsvindt.
@@ -2113,7 +2113,7 @@ uitgevoerd voordat de exit-controle plaatsvindt.
 
 ### MEMCPY / MEMSET
 
-Net als**kleine geheugenroutines waar je constant naar grijpt**— `MEMCPY`
+Net als** kleine geheugenroutines waar je constant naar grijpt**— `MEMCPY`
 kopieert een aaneengesloten blok, `MEMSET` vult een bereik met één byte.
 
 | Macro    | Argumenten              |
@@ -2127,13 +2127,13 @@ kopieert een aaneengesloten blok, `MEMSET` vult een bereik met één byte.
 .memset addr=$0400, value=#$20, size=$03E8
 ```
 
-**Gegenereerde code:**inline kopieer-/vullussen, gekozen om te voldoen aan de
+**Gegenereerde code:** inline kopieer-/vullussen, gekozen om te voldoen aan de
 gevraagde grootte.
 
 Groottes tot 256 bytes gebruiken een korte 8-bits lus. Grotere groottes
 schakelen automatisch over naar een 16-bits teller.
 
->**2.1:**De grootte moet bekend zijn wanneer de code wordt opgemaakt — een
+>**2.1:** De grootte moet bekend zijn wanneer de code wordt opgemaakt — een
 > getal of een constante. Een later gedefinieerd label (waarvan de waarde nog
 > niet bekend is bij de lay-out) is een fout in plaats van code die niet op de
 > juiste plaats past.
@@ -2144,7 +2144,7 @@ schakelen automatisch over naar een 16-bits teller.
 
 #### PRINT
 
-Net als**PETSCII-uitvoer zonder de boilerplate**— print een tekenreeks via
+Net als** PETSCII-uitvoer zonder de boilerplate**— print een tekenreeks via
 `CHROUT` met dezelfde behandeling van hoofdletters/kleine letters (`lower`) als
 `.petscii`.
 
@@ -2223,7 +2223,7 @@ zijn of een benoemde constante die wordt opgelost naar 0–15.
 .set_bg color
 ```
 
-**Grootte:**Elke helper wordt uitgebreid tot een kleine
+**Grootte:** Elke helper wordt uitgebreid tot een kleine
 registerschrijfsequentie of een korte KERNAL-aanroep.
 
 ---
@@ -2244,7 +2244,7 @@ CIA-IRQ-bronnen uit en keert terug naar de normale uitvoering met `CLI`.
 .irq_setup handler=my_irq, raster=$FA
 ```
 
-**Grootte:**Een korte instelreeks; de exacte lengte is afhankelijk van de
+**Grootte:** Een korte instelreeks; de exacte lengte is afhankelijk van de
 geselecteerde rasterlijn.
 
 Gebruik dit wanneer u de standaard "SEI / install handler / enable IRQ /
@@ -2254,7 +2254,7 @@ CLI"-opdracht wilt uitvoeren zonder deze door het hele programma te verspreiden.
 
 ### RAND
 
-Net als**een kleine ingebouwde PRNG**— retourneert een 8-bits
+Net als** een kleine ingebouwde PRNG**— retourneert een 8-bits
 pseudo-willekeurige waarde uit een compacte seed van nul pagina's.
 
 | Argument | Beschrijving                                                     |
@@ -2266,7 +2266,7 @@ pseudo-willekeurige waarde uit een compacte seed van nul pagina's.
 .rand
 ```
 
-**Grootte:**Een handvol bytes, afhankelijk van het gekozen implementatiepad.
+**Grootte:** Een handvol bytes, afhankelijk van het gekozen implementatiepad.
 
 De generator is bedoeld voor gameplay, effectvariatie en snelle testdata. Hij is
 bewust klein gehouden in plaats van cryptografisch geavanceerd.
@@ -2384,7 +2384,7 @@ wait:
 **Grootte:**7 bytes (de `BNE` offset `$F9` = −7 wijst altijd terug naar de
 `LDA`).
 
->**Tip:**Plaats `WAIT_RASTER` bovenaan je gameloop om te synchroniseren met
+>**Tip:** Plaats `WAIT_RASTER` bovenaan je gameloop om te synchroniseren met
 > het scherm en sprite tearing te voorkomen.
 
 ---
@@ -2439,7 +2439,7 @@ skip_right:
 **Grootte:**27 bytes. De `BCS`-offset is altijd `+3` (slaat de volgende 3-byte
 `DEC`/`INC abs`-instructie over).
 
-**Variabele modus — `.joystickpoort, vx, vy[, vuur]`:**In plaats van een sprite
+**Variabele modus — `.joystickpoort, vx, vy[, vuur]`:** In plaats van een sprite
 te bewegen, wordt de richting in variabelen geschreven: `vx` / `vy` = `-1` / `0`
 / `+1` (`$FF` / `$00` / `$01`), en de optionele `vuur` = `1` terwijl de knop
 wordt ingedrukt, `0` anders. Gebruik het voor een scrollende camera, een speler
@@ -2451,7 +2451,7 @@ $DC00` / `AND $DC01`), dus beide poorten werken.
 .joystick 3, vx, vy, fire    ; both ports + fire: 45 bytes
 ```
 
->**Typisch gebruik:**Plaats binnen een `gameloop` label met `WAIT_RASTER`
+>**Typisch gebruik:** Plaats binnen een `gameloop` label met `WAIT_RASTER`
 > eerst:
 > ```
 > gameloop:
@@ -2467,13 +2467,13 @@ $DC00` / `AND $DC01`), dus beide poorten werken.
 
 <a id="mouse"></a>
 
->**2.1:**De poort moet bekend zijn wanneer de code wordt opgesteld (een getal
+>**2.1:** De poort moet bekend zijn wanneer de code wordt opgesteld (een getal
 > of een constante), omdat poort 3 de code 3 bytes langer maakt; een later
 > gedefinieerd label is een fout.
 ### MOUSE
 
 Leest een proportionele muis van een Commodore 1351 en beweegt een sprite.
-Volledig**inline**— geen JSR of label nodig. De macro selecteert de CIA-poort,
+Volledig** inline**— geen JSR of label nodig. De macro selecteert de CIA-poort,
 wacht tot de SID-paddle-inputs stabiel zijn, decodeert vervolgens de
 delta-beweging met behulp van het standaard 1351-driverpatroon en past deze toe
 op de sprite-registers.
@@ -2571,14 +2571,14 @@ yneg:
 ydone:
 ```
 
-**Grootte:**142 bytes.**Syntaxis:**
+**Grootte:**142 bytes.** Syntaxis:**
 ```
 .mouse port, spriteNum, zpX, zpY
 ; example:
 .mouse 2, 0, FD, FE
 ```
 
->**Belangrijk:**Initialiseer vóór de eerste aanroep de nulpagina-bytes met de
+>**Belangrijk:** Initialiseer vóór de eerste aanroep de nulpagina-bytes met de
 > huidige POTX/POTY-waarden om een sprong in het eerste frame te voorkomen:
 > ```
 > ; poort 1: LDA $DC00 : AND #$3F : ORA #$40 : STA $DC00
@@ -2590,7 +2590,7 @@ ydone:
 > LDA $D41A : LSR A : AND #$3F : STA $FE
 > ```
 
->**Tip:**Controleer de muis één keer per frame — plaats `WAIT_RASTER` in de
+>**Tip:** Controleer de muis één keer per frame — plaats `WAIT_RASTER` in de
 > gameloop vóór `MOUSE`.
 
 ---
@@ -2622,7 +2622,7 @@ achtergrond heeft geraakt. Volledig inline, geen JSR nodig.
 
 **Grootte:**5 bytes.
 
->**Belangrijk:**Het lezen van `$D01E`/`$D01F`**wist het register**. Lees het
+>**Belangrijk:** Het lezen van `$D01E`/`$D01F`**wist het register**. Lees het
 > eenmaal per frame en verwerk het resultaat onmiddellijk met `BEQ`/`BNE`.
 
 **Typisch gebruik:**
@@ -2688,12 +2688,12 @@ skip_filename:
 **Grootte:**`3 + bestandsnaam_lengte + 9 (SETNAM) + 9 (SETLFS) + (4 indien
 overschrijven) + 5 (LOAD) + (2 indien foutlabel)` bytes. Minimum 27 bytes.
 
->**Belangrijk:**De bestandsnaam wordt direct in de machinecode opgeslagen na
+>**Belangrijk:** De bestandsnaam wordt direct in de machinecode opgeslagen na
 > een `JMP skip_filename`. De bestandsnaam op de schijf moet in hoofdletters
 > PETSCII zijn — wat overeenkomt met gewone ASCII-hoofdletters (`A`–`Z`). De
 > macro zorgt hier automatisch voor.
 
->**Gebruik altijd een foutlabel**voor productieprogramma's — als het bestand
+>**Gebruik altijd een foutlabel** voor productieprogramma's — als het bestand
 > niet wordt gevonden, stelt KERNAL de carry-vlag in en gaat de uitvoering
 > verder met wat er daarna komt.
 
@@ -2704,7 +2704,7 @@ overschrijven) + 5 (LOAD) + (2 indien foutlabel)` bytes. Minimum 27 bytes.
 
 ### EXODECRUNCH
 
-In-programma**Exomizer-decompressie**. Gebruik deze macro direct na een
+In-programma** Exomizer-decompressie**. Gebruik deze macro direct na een
 `LOADFILE` die een Exomizer `mem`-modus gecomprimeerde stream heeft geladen —
 EXODECRUNCH pakt deze achterwaarts uit naar het adres dat in de stream is
 ingebed.
@@ -2740,22 +2740,22 @@ ingebed.
 2. De depacker wordt doorgaans geplaatst op `$B000` (binnen het BASIC
    ROM-toegewezen gebied). De macro schakelt `$01 = $36` om, zodat de CPU daar
    RAM ziet tijdens de JSR, en herstelt vervolgens `$01 = $37`.
-3. Het decompressiedoeladres is**gecodeerd in de gecomprimeerde stream zelf**
+3. Het decompressiedoeladres is** gecodeerd in de gecomprimeerde stream zelf**
    wanneer je comprimeert met `exomizer mem -l <load> file,<target> ` — de
    depacker leest het uit de eerste bytes van de stream.
 
-**Depacker-binair bestand:**De vooraf gecompileerde achterwaartse depacker is
+**Depacker-binair bestand:** De vooraf gecompileerde achterwaartse depacker is
 `exo-decrunch.bin` (in de `samples/` map van C64 Visual Assembler) (477 bytes,
 ORG $B000). Het is een Kick Assembler-wrapper van de officiële `exodecrunch.asm`
 met `INC $D020` toegevoegd aan elke leesbewerking voor een zichtbaar
 randflits-effect tijdens de decompressie. Plaats het in uw programma met
 `.incbin` op het adres van de depacker.
 
-**Ruwe invoer:**het extra wordt aan Exomizer doorgegeven als een ruw bestand
+**Ruwe invoer:** het extra wordt aan Exomizer doorgegeven als een ruw bestand
 dat wordt geladen op het Dst-adres (`bestand@<Dst>`), zodat de depacker elke
 byte, beginnend met de eerste, precies op het door u ingevoerde adres schrijft.
 
->**Zie ook:**het `exo-multicolor-demo` voorbeeld — volledig end-to-end
+>**Zie ook:** het `exo-multicolor-demo` voorbeeld — volledig end-to-end
 > voorbeeld: LOADFILE een gecomprimeerde meerkleurige bitmap naar $C000,
 > EXODECRUNCH pakt deze uit naar $2000, kopieer vervolgens scherm → $0400 en
 > kleur → $D800, en schakel VIC-II over naar meerkleurige bitmapmodus.
@@ -2802,7 +2802,7 @@ done:
 ```
 
 **Resultaat in vlaggen:**-**Z = 0**(resultaat ≠ 0) → REU aanwezig → gebruik `BNE`
--**Z = 1**(resultaat = 0) → geen REU → gebruik `BEQ`**Geen argumenten**— de macro genereert elke keer dezelfde code.**Typisch gebruik:**
+-**Z = 1**(resultaat = 0) → geen REU → gebruik `BEQ`**Geen argumenten**— de macro genereert elke keer dezelfde code.** Typisch gebruik:**
 ```assembly
 .reu_check
 BEQ no_reu        ; skip if REU not present
@@ -2855,7 +2855,7 @@ LDA #$00      STA $DF0A    ; interrupt mask (fixed)
 LDA #cmd      STA $DF01    ; execute DMA ($90/$91/$92 = stash/fetch/swap, immediate)
 ```
 
->**Opmerking:**Commando's gebruiken `$90/$91/$92` (bit 4 ingesteld = directe
+>**Opmerking:** Commando's gebruiken `$90/$91/$92` (bit 4 ingesteld = directe
 > DMA-modus). Schrijven naar `$DF01` start de overdracht; de CPU hervat wanneer
 > deze is voltooid.
 
@@ -2863,7 +2863,7 @@ LDA #cmd      STA $DF01    ; execute DMA ($90/$91/$92 = stash/fetch/swap, immedi
 
 ### TURBO_SET
 
-Stelt de CPU-snelheid van de**Ultimate-64 (U64)**in via register `$D031`.
+Stelt de CPU-snelheid van de** Ultimate-64 (U64)** in via register `$D031`.
 Heeft geen effect op een echte C64 of andere emulators.
 
 **Argumenten:**
@@ -2888,7 +2888,7 @@ A9 xx   LDA #speed_byte
 .turbo_set 15,1   ; speed=15 (~48 MHz), badline disabled
 ```
 
->**Opmerking:**Deze macro is alleen van invloed op U64-hardware. Op een echte
+>**Opmerking:** Deze macro is alleen van invloed op U64-hardware. Op een echte
 > C64 of andere emulators schrijft dit naar `$D031`, wat de CIA kan beïnvloeden
 > of genegeerd kan worden.
 
@@ -2896,7 +2896,7 @@ A9 xx   LDA #speed_byte
 
 ### SUPERCPU_DETECT
 
-Controleert of een**CMD SuperCPU**-accelerator is geïnstalleerd — zoals
+Controleert of een** CMD SuperCPU**-accelerator is geïnstalleerd — zoals
 `PEEK($D0B8)` om te zien of deze iets anders dan `$FF` retourneert.
 
 **Gegenereerde code (5 bytes):**
@@ -2925,7 +2925,7 @@ no_scpu:
 
 ### TURBO_ENABLE
 
-Schakelt de**CMD SuperCPU-turbomodus**in of uit. Roep eerst `SUPERCPU_DETECT`
+Schakelt de** CMD SuperCPU-turbomodus** in of uit. Roep eerst `SUPERCPU_DETECT`
 aan en sla dit over als de SuperCPU niet aanwezig is.
 
 | Modus       | Register | Effect                                             |
@@ -2945,7 +2945,7 @@ A9 00         LDA #$00
 .turbo_enable off
 ```
 
->**Opmerking:**Roep eerst `SUPERCPU_DETECT` aan en spring om deze macro heen
+>**Opmerking:** Roep eerst `SUPERCPU_DETECT` aan en spring om deze macro heen
 > als de SuperCPU niet aanwezig is.
 
 ---
@@ -3101,7 +3101,7 @@ ernaar en roep deze functie één keer per gameframe aan — geen JSR nodig.
     STA $07F8       ; update sprite 0 pointer ($07F8 + sprite#)
 ```
 
-**Grootte:**19 bytes.**Typisch gebruik:**
+**Grootte:**19 bytes.** Typisch gebruik:**
 ```
 frameTable:
     .byte $21, $22, $23, $24   ; 4 frames at $0840, $0880, $08C0, $0900
@@ -3119,7 +3119,7 @@ gameloop:
 .sprite_anim 0, C100, 4, FB
 ```
 
->**Tip:**Plaats de frametabel met `.rawbytes` op een vast adres. De teller
+>**Tip:** Plaats de frametabel met `.rawbytes` op een vast adres. De teller
 > ZP-byte (`$FB`) moet worden geïnitialiseerd naar `$00` vóór de eerste aanroep.
 > Als uw code `$FB` voor iets anders gebruikt, kies dan een vrije ZP-locatie.
 
@@ -3189,7 +3189,7 @@ byte voor ADC + display loop).
 .score_bcd $C200, 4, 100, $0400
 ```
 
->**Tip:**Initialiseer de scorebytes bij het opstarten naar `$00`. Het
+>**Tip:** Initialiseer de scorebytes bij het opstarten naar `$00`. Het
 > scoreadres moet zich in de nulpagina of het absolute RAM-geheugen bevinden —
 > niet in het ROM-geheugen. Het schermadres moet naar de meest linkse cijfercel
 > wijzen; cijfers worden van links naar rechts geschreven (meest significante
