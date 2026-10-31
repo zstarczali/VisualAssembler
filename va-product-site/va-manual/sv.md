@@ -1,6 +1,6 @@
 # C64 Visuell Assembler — Användarmanual
 
-**Version 2.6.8**
+**Version 2.7.0**
 
 En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom att
 dra och släppa instruktionsblock och se den genererade assemblern och

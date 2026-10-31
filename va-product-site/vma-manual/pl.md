@@ -10,16 +10,16 @@ znajdują się w podręczniku C64 Visual Assembler.
 
 ## Zawartość
 
-1. [Format źródłowy](#1-format-zrod-owy)
-2. [Liczby i wyrażenia](#2-liczby-i-wyrazenia)
+1. [Format źródłowy](#1-source-format)
+2. [Liczby i wyrażenia](#2-numbers-and-expressions)
 3. [Wyjście: PRG, szczątkowy moduł BASIC i punkt
-   wejścia](#3-wyjscie-prg-szczatkowy-modu-basic-i-punkt-wejscia)
-4. [Tryby adresowania](#4-tryby-adresowania)
-5. [instrukcje 6502](#5-instrukcje-6502)
-6. [Dyrektywy i makra — odniesienie](#6-dyrektywy-i-makra-odniesienie)
-7. [Składnia w stylu KickAssembler](#7-sk-adnia-w-stylu-kickassembler)
-8. [Wiersz poleceń](#8-wiersz-polecen)
-9. [Znane ograniczenia](#9-znane-ograniczenia)
+   wejścia](#3-output-prg-basic-stub-and-entry-point)
+4. [Tryby adresowania](#4-addressing-modes)
+5. [instrukcje 6502](#5-6502-instructions)
+6. [Dyrektywy i makra — odniesienie](#6-directives-and-macros--reference)
+7. [Składnia w stylu KickAssembler](#7-kickassembler-style-syntax)
+8. [Wiersz poleceń](#8-command-line)
+9. [Znane ograniczenia](#9-known-limitations)
 
 ---
 
@@ -30,23 +30,23 @@ znaczenia w przypadku mnemoników i dyrektyw (`lda`, `LDA`, `.BYTE`, `.byte`);
 nazwy etykiet uwzględniają wielkość liter.
 
 ```
-; a comment — so is // a comment
-* = $1000                ; ORG: assemble from $1000
-start:                   ; a label (the colon is required)
-    lda #$06             ; an instruction: mnemonic and operand
-    sta $D020
-    .byte $01, $02, $FF  ; a directive starts with a dot
-loop: dex                ; a label and an instruction on one line
-    bne loop
-    rts
+; komentarz — podobnie jak // komentarz
+* = $1000 ; ORG: asemblacja z $1000
+start: ; etykieta (dwukropek jest wymagany)
+lda #$06 ; instrukcja: mnemonik i operand
+sta $D020
+.byte $01, $02, $FF ; dyrektywa zaczyna się od kropki
+loop: dex ; etykieta i instrukcja w jednym wierszu
+bne loop
+rts
 ```
 
 - **Komentarze** zaczynają się od `;` lub `//` i biegną do końca wiersza (nie do
   wewnątrz cudzysłowu).
-- **Etykiety** zapisuje się jako `name:` — litery, cyfry i `_`, nie zaczynając
+- **Etykiety** zapisuje się jako `nazwa:` — litery, cyfry i `_`, nie zaczynając
   od cyfry. Etykieta może znajdować się w osobnym wierszu lub przed instrukcją.
   Nazwa zaczynająca się kropką (`.loop:`) jest **etykietą lokalną** (patrz
-  [Etykiety lokalne (kropkowane)](#etykiety-lokalne-kropkowane)); `-` i `+` same w sobie
+  [Etykiety lokalne (kropkowane)](#local-dotted-labels)); `-` i `+` same w sobie
   są **anonimowymi etykietami**, do których odwołuje się `bne -` / `beq +`
   (najbliższa przed / po).
 - **Instrukcje** są mnemonikiem i operandem; wcięcia są dowolne.
@@ -63,7 +63,7 @@ loop: dex                ; a label and an instruction on one line
 | Dwójkowy       | `%00001111`    | Prefiks `%`                                                                      |
 | Dziesiętny     | `255`, `40*25` | bez prefiksu                                                                     |
 | Charakter      | `'A'`          | jego kod (`$41`)                                                                 |
-| Aktualny adres | `*`            | adres linii (patrz [Licznik programu `*`](#licznik-programu-w-wyrazeniach)) |
+| Aktualny adres | `*`            | adres linii (patrz [Licznik programu `*`](#the--program-counter-in-expressions)) |
 
 W operandach instrukcji należy zapisywać liczby szesnastkowe za pomocą `$`. W
 argumentach adresowych makr bibliotecznych (`.rawbytes C000, …`, `.sprite_init
@@ -78,12 +78,12 @@ podobne znają również `lo()`, `hi()`, `sin()`, `cos()`, `round()`, `min()`,
 
 ```
 .const B = 7
-    lda #(B+1)*2
-    lda #B & 3 | 8
-    lda #~B & $FF
-    ldx #'A'
-    lda #<screen        ; low byte of a label
-    lda #>(*+63)        ; high byte of a PC-relative address
+lda #(B+1)*2
+lda #B & 3 | 8
+lda #~B & $FF
+ldx #'A'
+lda #<screen ; młodszy bajt etykiety
+lda #>(*+63) ; starszy bajt adresu względnego względem komputera
 ```
 
 ## 3. Wyjście: PRG, szczątkowy moduł BASIC i punkt wejścia
@@ -100,7 +100,7 @@ między nimi są zerami.
   `--no-basic-stub`; bez niego program pod adresem `$0801` jest asemblowany do
   `$C000`, a każdy inny pozostaje w swoim pierwszym ORG.
 - **Punkt wejścia:** wiersz SYS przeskakuje na początek kodu lub na adres
-  określony w komentarzu pierwszego wiersza `; Entry point: $1234`.
+  określony w komentarzu pierwszego wiersza `; Punkt wejścia: $1234`.
 - **Kod poniżej linii BASIC** (ORG niższy niż `$0801` wraz ze stubem): mały
   moduł ładujący uruchamia program i przenosi go na właściwe miejsce, dzięki
   czemu nadal rozpoczyna się od `RUN`.
@@ -109,7 +109,7 @@ między nimi są zerami.
   szczątkowego elementu.
 
 Z poziomu PRG wiersz poleceń tworzy także kasetę **** i obraz dysku **** (nowość
-w wersji 2.1.0, patrz [8. Wiersz poleceń](#8-wiersz-polecen)):
+w wersji 2.1.0, patrz [8. Wiersz poleceń](#8-command-line)):
 
 - `--crt FILE` — kartridż Magic Desk (typ CRT 19, 8 banków × 8 KB, maksymalnie
   65 408 bajtów programu). Ładowarka w banku 0 inicjuje jądro (KERNAL),
@@ -118,7 +118,7 @@ w wersji 2.1.0, patrz [8. Wiersz poleceń](#8-wiersz-polecen)):
   wyłącza kartridż i przechodzi do punktu wejścia. Program należy trzymać poza
   adresem `$0100–$013B` i bajtami strony zerowej `$02–$04` / `$FB–$FE` używanymi
   przez ładowarkę.
-- `--d64 [FILE]` — obraz dysku 1541 (35 ścieżek) z nazwanym na jego cześć
+- `--d64 [PLIK]` — obraz dysku 1541 (35 ścieżek) z nazwanym na jego cześć
   programem PRG, plus pliki `--add`, ułożone w taki sposób, w jaki zapisuje je
   system DOS 1541; nie jest wymagany program c1541.
 
@@ -131,23 +131,23 @@ tryb na podstawie sposobu zapisu operandu.
 
 | Tryb              | Etykieta          | Przykład           | Opis                                                                                  |
 | ----------------- | ----------------- | ------------------ | ------------------------------------------------------------------------------------- |
-| **dorozumiane**   | Ukryty            | `NOP`              | Brak operandu; instrukcja jest samodzielna                                            |
+| **dorozumiane**   | Ukryty            | `NIE`              | Brak operandu; instrukcja jest samodzielna                                            |
 | **natychmiast**   | Natychmiastowy    | `LDA #$FF`         | Stała wbudowana; asembler automatycznie dodaje `#`                                    |
-| **Strona zerowa** | Strona zerowa     | `LDA $10`   | Adres jednobajtowy na stronie zerowej (0–255)                                         |
-| **zeroPageX**     | Strona zerowa, X  | `LDA $10,X` | Adres strony zerowej + przesunięcie rejestru X (wynik zawija się na stronie 0)        |
+| **Strona zerowa** | Strona zerowa     | `LDA 10 dolarów`   | Adres jednobajtowy na stronie zerowej (0–255)                                         |
+| **zeroPageX**     | Strona zerowa, X  | `LDA 10 dolarów,X` | Adres strony zerowej + przesunięcie rejestru X (wynik zawija się na stronie 0)        |
 | **zeroPageY**     | Strona zerowa, Y  | `LDX $FB,Y`        | Adres strony zerowej + przesunięcie rejestru Y                                        |
 | **absolutny**     | Absolutny         | `LDA $0400`        | Pełny 16-bitowy adres pamięci                                                         |
 | **absolutnyX**    | Absolute,X        | `LDA $0400,X`      | 16-bitowy adres + przesunięcie rejestru X                                             |
 | **absolutnyY**    | Absolute,Y        | `LDA $0400,Y`      | 16-bitowy adres + przesunięcie rejestru Y                                             |
-| **względny**      | Względny/Etykieta | `BNE loop`        | Aby uzyskać instrukcje dotyczące oddziału, wprowadź nazwę etykiety lub adres docelowy |
+| **względny**      | Względny/Etykieta | `Pętla BNE`        | Aby uzyskać instrukcje dotyczące oddziału, wprowadź nazwę etykiety lub adres docelowy |
 | **pośredniX**     | Pośrednie,X       | `LDA ($FB,X)`      | Strona zerowa indeksowana pośrednio (operand = adres strony zerowej, 1 bajt)          |
 | **pośredniY**     | Pośrednie, Y      | `LDA ($FB),Y`      | Strona zerowa indeksowana pośrednio (operand = adres strony zerowej, 1 bajt)          |
 | **pośredni**      | Pośredni          | `JMP ($0100)`      | Pośredni; można go używać tylko z JMP                                                 |
 
 ### Stałe na stronie zerowej
 
-Operand składający się wyłącznie ze stałych (`.const`, `name = value`, a
-`.var`), który mieści się w bajcie, przyjmuje tryb **strony zerowej**
+Operand składający się wyłącznie ze stałych (`.const`, `nazwa = wartość`, a
+`.zmienna`), który mieści się w bajcie, przyjmuje tryb **strony zerowej**
 instrukcji, dokładnie tak jak liczba: po `.const zp = $FB`, `lda zp` składa się
 do `A5 FB` (2 bajty, 3 cykle), a `lda zp,x` do `B5 FB`. Tryb, w którym
 instrukcja nie ma formy strony zerowej, pozostaje bezwzględny (`lda zp,y` → `B9
@@ -165,25 +165,25 @@ do adresu względnego do nazwanej stałej:
 
 | Składnia              | Przykład                          | Opis                                                                                                                             |
 | --------------------- | --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| `label`            | `STA screen_ram,X`                | Rozwiązuje się do etykiety/wartości stałej                                                                                       |
-| `label+$hex`       | `STA screen_ram+$0100,X`          | Adres etykiety plus przesunięcie szesnastkowe                                                                                    |
-| `label+decimal` | `STA screen_ram+256,X`            | Adres etykiety plus przesunięcie dziesiętne                                                                                      |
-| `label-$hex`       | `LDA table-$10`                  | Adres etykiety pomniejszony o przesunięcie szesnastkowe                                                                          |
-| `$hex+expr`      | `LDA $1234+1`, `STA $0400+40*2,X` | Dowolne wyrażenie liczb, etykiet i stałych *(2.1)*                                                                               |
-| `(label)`          | `JMP (vector)`, `JMP (table+2)`  | Pośredni skok przez etykietę lub wyrażenie *(2.1)*                                                                               |
-| `#<label`          | `LDA #<screen_ram`             | Niski bajt adresu etykiety                                                                                                       |
-| `#>label`       | `LDA #>screen_ram`      | Wysoki bajt adresu etykiety                                                                                                      |
+| `etykieta`            | `RAM ekranu STA,X`                | Rozwiązuje się do etykiety/wartości stałej                                                                                       |
+| `etykieta+$hex`       | `STA screen_ram+$0100,X`          | Adres etykiety plus przesunięcie szesnastkowe                                                                                    |
+| `etykieta+dziesiętne` | `STA screen_ram+256,X`            | Adres etykiety plus przesunięcie dziesiętne                                                                                      |
+| `etykieta-$hex`       | `Tabela LDA-$10`                  | Adres etykiety pomniejszony o przesunięcie szesnastkowe                                                                          |
+| `$hex+wyrażenie`      | `LDA $1234+1`, `STA $0400+40*2,X` | Dowolne wyrażenie liczb, etykiet i stałych *(2.1)*                                                                               |
+| `(etykieta)`          | `JMP (wektor)`, `JMP (tabela+2)`  | Pośredni skok przez etykietę lub wyrażenie *(2.1)*                                                                               |
+| `#<etykieta`          | `LDA #<pamięć_ekranu`             | Niski bajt adresu etykiety                                                                                                       |
+| `#>etykieta`          | `LDA #>pamięć_ram_ekranu`         | Wysoki bajt adresu etykiety                                                                                                      |
 | `*`                   | `BNE *`                           | Aktualny licznik programu (adres własny instrukcji); rozgałęzienia z `*` generują nieskończoną pętlę własną (przesunięcie `$FE`) |
 
 **Przykład — wyczyść dwie strony ekranowe za pomocą stałej:**
 ```
 ; .CONST screen_ram = $0400
-    LDX #$00
-clear:
-    STA screen_ram,X
-    STA screen_ram+$0100,X
-    DEX
-    BNE clear
+LDX #$00
+wyczyść:
+STA screen_ram,X
+STA screen_ram+$0100,X
+DEX
+BNE wyczyść
 ```
 
 ### Licznik programu `*` w wyrażeniach
@@ -194,18 +194,18 @@ Jest on rozwiązywany w momencie asemblacji na podstawie rzeczywistego adresu te
 instrukcji, więc etykieta nie jest potrzebna w przypadku krótkich skoków
 względnych lub odczytów danych względnych względem PC.
 
-| Składnia            | Przykład                   | Oznaczający                                                      |
-| ------------------- | -------------------------- | ---------------------------------------------------------------- |
-| `*`                 | `BNE *`                    | Rozgałęzienie do siebie (pętla nieskończona, przesunięcie `$FE`) |
-| `*-n` / `*+n`       | `BNE *-5`, `BEQ *+4`       | Rozgałęzienie względem bieżącego komputera o *n* bajtów          |
-| `JMP *+n`         | `JMP *+20`                | Skok absolutny obliczony na podstawie bieżącego komputera        |
+| Składnia      | Przykład             | Oznaczający                                                      |
+| ------------- | -------------------- | ---------------------------------------------------------------- |
+| `*`           | `BNE *`              | Rozgałęzienie do siebie (pętla nieskończona, przesunięcie `$FE`) |
+| `*-n` / `*+n` | `BNE *-5`, `BEQ *+4` | Rozgałęzienie względem bieżącego komputera o *n* bajtów          |
+| `SKOCZ *+n`   | `SKOK *+20`          | Skok absolutny obliczony na podstawie bieżącego komputera        |
 | `#<*` / `#>*` | `LDA #<*`, `LDA #>*` | Niski/wysoki bajt bieżącego komputera                            |
-| `#>(*+n)`        | `LDA #>(*+63)`          | Niski/wysoki bajt adresu względnego komputera                    |
+| `#>(*+n)`     | `LDA #>(*+63)`       | Niski/wysoki bajt adresu względnego komputera                    |
 
 **PC kontra mnożenie. ** `*` jest traktowany jako licznik programu tylko wtedy,
 gdy znajduje się w *pozycji wartości* — na początku wyrażenia lub zaraz po
-operatorze, `(`, `,`, `<`, `>` lub spacji. Operator `*` następujący po
-liczbie, `)` lub identyfikatorze jest zwykłym mnożeniem, więc `LDA table*2` i
+operatorze, `(`, `,`, `<`, `>` lub spacji. Operator `*` następujący po liczbie,
+`)` lub identyfikatorze jest zwykłym mnożeniem, więc `tabela LDA*2` i
 `CONST_A*4` pozostają niezmienione.
 
 **Gdzie to działa.** Dowolny operand, który akceptuje już wyrażenie: cele
@@ -224,25 +224,25 @@ etykietami globalnymi **nie** kolidują.
 
 ```
 DrawSprite:
-    LDX #0
-.loop:                 ; == DrawSprite.loop
-    LDA SpriteData,X
-    STA $2000,X
-    INX
-    CPX #63
-    BNE .loop          ; resolves within DrawSprite
-    RTS
+LDX #0
+.loop: ; == DrawSprite.loop
+LDA SpriteData,X
+STA $2000,X
+INX
+CPX #63
+BNE .loop ; rozwiązuje się w DrawSprite
+RTS
 
 ClearScreen:
-    LDX #0
-.loop:                 ; == ClearScreen.loop — no clash
-    STA $0400,X
-    INX
-    BNE .loop
-    RTS
+LDX #0
+.loop: ; == ClearScreen.loop — brak kolizji
+STA $0400,X
+INX
+BNE .loop
+RTS
 ```
 
-- W zakresie odwołaj się do lokalnej etykiety jako `.name`.
+- W zakresie odwołaj się do lokalnej etykiety jako `.nazwa`.
 - Z innego zakresu odwołaj się do niego jawnie jako `Global.name` (np. `JMP
   ClearScreen.loop`).
 - `.name` zapisane przed jakąkolwiek etykietą globalną pozostaje zwykłym `.name`
@@ -255,12 +255,12 @@ operandu ****, a nie na kodzie operacji. Instrukcja składa się z tego, co
 następuje po dwukropku.
 
 ```
-setup:
-    LDA value:#$00     ; 'value' -> address of the #$00 operand byte
-    ...
-patch:
-    LDA #new
-    STA value          ; writes the operand byte directly — classic SMC
+konfiguracja:
+Wartość LDA: #$00 ; 'wartość' -> adres bajtu operandu #$00
+...
+poprawka:
+LDA #new
+Wartość STA ; zapisuje bajt operandu bezpośrednio — klasyczny SMC
 ```
 
 Wartość `` wskazuje na `<adres instrukcji> + 1` (pierwszy bajt operandu) dla
@@ -288,8 +288,8 @@ każdego trybu adresowania. Zastępuje to starszy wzorzec `instrukcja STA+1` /
 | ----------- | ---------------------------- | ---------------------------------------------------------- |
 | `ADC`       | Dodaj z przeniesieniem       | W większości przypadków przed użyciem należy ustawić `SEC` |
 | `SBC`       | Odejmowanie z przeniesieniem | Ustaw przeniesienie z `SEC` przed odjęciem                 |
-| `INC`       | Zwiększ pamięć               | —                                                          |
-| `DEC`       | Zmniejsz pamięć              | —                                                          |
+| `INK`       | Zwiększ pamięć               | —                                                          |
+| `GRU`       | Zmniejsz pamięć              | —                                                          |
 | `CMP`       | Porównaj z A                 | Ustawia flagi; nie modyfikuje A                            |
 | `CPX`       | Porównaj z X                 | —                                                          |
 | `CPY`       | Porównaj z Y                 | —                                                          |
@@ -298,7 +298,7 @@ każdego trybu adresowania. Zastępuje to starszy wzorzec `instrukcja STA+1` /
 
 | Mnemoniczny | Opis                                                            |
 | ----------- | --------------------------------------------------------------- |
-| `AND`         | Logiczne AND z akumulatorem                                     |
+| `I`         | Logiczne AND z akumulatorem                                     |
 | `ORA`       | Logiczne OR z akumulatorem                                      |
 | `EOR`       | Ekskluzywny OR z akumulatorem                                   |
 | `BIT`       | Testowanie bitów w pamięci względem A (ustawianie flag N, V, Z) |
@@ -307,13 +307,13 @@ każdego trybu adresowania. Zastępuje to starszy wzorzec `instrukcja STA+1` /
 
 | Mnemoniczny | Opis                                                   |
 | ----------- | ------------------------------------------------------ |
-| `JMP`      | Skok bezwarunkowy (absolutny lub pośredni)             |
+| `SKOK`      | Skok bezwarunkowy (absolutny lub pośredni)             |
 | `JSR`       | Skok do podprogramu (zapisuje adres powrotu na stosie) |
 | `RTS`       | Powrót z podprogramu                                   |
 | `RTI`       | Powrót z przerwania                                    |
 | `BNE`       | Rozgałęzienie, jeśli nie jest równe (Z=0)              |
 | `BEQ`       | Gałąź, jeśli równe (Z=1)                               |
-| `BCC`       | Rozgałęzienie, jeśli Carry Clear (C=0)                 |
+| `UDW`       | Rozgałęzienie, jeśli Carry Clear (C=0)                 |
 | `BCS`       | Rozgałęzienie, jeśli zestaw Carry (C=1)                |
 | `BMI`       | Gałąź jeśli minus (N=1)                                |
 | `BPL`       | Rozgałęzienie jeśli Plus (N=0)                         |
@@ -327,20 +327,20 @@ Osiem pseudooperacji zachowuje się jak gałęzie warunkowe, ale dociera do
 odwróconej, która pomija 3-bajtowy `JMP` — zawsze **5 bajtów**:
 
 ```
-LBEQ done      ; assembles to:   BNE *+3   ($D0 $03)
-               ;                 JMP done  ($4C lo hi)
+LBEQ gotowe; montaż do: BNE *+3 ($D0 $03)
+; JMP gotowe ($4C lo hi)
 ```
 
 | Długa op | Stan                     | Wyemitowano jako    |
 | -------- | ------------------------ | ------------------- |
-| `LBNE`   | nierówne (Z=0)           | `BEQ *+3 / JMP target` |
-| `LBEQ`   | równy (Z=1)              | `BNE *+3 / JMP target` |
-| `LBCC`   | przenieść czysto (C=0)   | `BCS *+3 / JMP target` |
-| `LBCS`   | zestaw przeniesień (C=1) | `BCC *+3 / JMP target` |
-| `LBMI`   | minus (N=1)              | `BPL *+3 / JMP target` |
-| `LBPL`   | plus (N=0)               | `BMI *+3 / JMP target` |
-| `LBVC`   | wyczyść nadmiar (V=0)    | `BVS *+3 / JMP target` |
-| `LBVS`   | zestaw przelewowy (V=1)  | `BVC *+3 / JMP target` |
+| `LBNE`   | nierówne (Z=0)           | `BEQ *+3 / Cel JMP` |
+| `LBEQ`   | równy (Z=1)              | `BNE *+3 / cel JMP` |
+| `LBCC`   | przenieść czysto (C=0)   | `BCS *+3 / cel JMP` |
+| `LBCS`   | zestaw przeniesień (C=1) | `BCC *+3 / cel JMP` |
+| `LBMI`   | minus (N=1)              | `BPL *+3 / cel JMP` |
+| `LBPL`   | plus (N=0)               | `BMI *+3 / cel JMP` |
+| `LBVC`   | wyczyść nadmiar (V=0)    | `BVS *+3 / cel JMP` |
+| `LBVS`   | zestaw przelewowy (V=1)  | `BVC *+3 / cel JMP` |
 
 - Operand: etykieta, wyrażenie `*` lub adres literowy — taki sam jak normalny
   cel rozgałęzienia.
@@ -354,14 +354,14 @@ LBEQ done      ; assembles to:   BNE *+3   ($D0 $03)
 
 | Mnemoniczny | Opis                         |
 | ----------- | ---------------------------- |
-| `TAX`   | Przelew A → X                |
+| `PODATEK`   | Przelew A → X                |
 | `TAY`       | Przelew A → Y                |
 | `TXA`       | Przenieś X → A               |
 | `TYA`       | Przenieś Y → A               |
 | `TSX`       | Wskaźnik stosu transferu → X |
 | `TXS`       | Przenieś X → Wskaźnik stosu  |
 | `INX`       | Zwiększ X                    |
-| `DEX` | Zmniejsz X                   |
+| `ZRĘCZNOŚĆ` | Zmniejsz X                   |
 | `INY`       | Zwiększ Y                    |
 | `DEY`       | Zmniejszenie Y               |
 
@@ -391,10 +391,10 @@ LBEQ done      ; assembles to:   BNE *+3   ($D0 $03)
 | `CLD`       | Wyczyść tryb dziesiętny               |
 | `CLI`       | Wyczyść Wyłącz przerwanie             |
 | `CLV`       | Wyczyść flagę przepełnienia           |
-| `SEC`       | Ustaw flagę przenoszenia              |
+| `SEK`       | Ustaw flagę przenoszenia              |
 | `SED`       | Ustaw tryb dziesiętny                 |
 | `SEI`       | Ustaw wyłączenie przerwania           |
-| `NOP`       | Brak operacji                         |
+| `NIE`       | Brak operacji                         |
 | `BRK`       | Wymuś przerwę / przerwanie programowe |
 
 ### Nielegalne/nieudokumentowane instrukcje
@@ -417,7 +417,7 @@ generuje kod. Pomyśl o nich jak o wbudowanych podprogramach.
 
 ---
 
-### LABEL
+### ETYKIETA
 
 Podobnie jak numer wiersza ** w BASIC** — ale z nazwą zamiast numeru. Cele skoku
 dla `JMP`, `JSR`, `BNE` itd.
@@ -428,12 +428,12 @@ dla `JMP`, `JSR`, `BNE` itd.
 
 **Składnia:**
 ```
-loop:
+pętla:
 ```
 
 **Wygenerowany kod: **
 ```
-loop:  ; $0820
+pętla: ; $0820
 ```
 
 Aktualny adres jest wyświetlany jako komentarz. Etykiety mają rozmiar **0
@@ -441,24 +441,24 @@ bajtów**.
 
 ---
 
-### COMMENT
+### KOMENTARZ
 
 Podobnie jak **REM w BASIC-u** — uwaga dla Ciebie, którą asembler całkowicie
 ignoruje.
 
 **Składnia:**
 ```
-; Your comment text here
+; Tutaj wpisz tekst swojego komentarza
 ```
 
 **Wygenerowany kod: **
 ```
-; Your comment text here
+; Tutaj wpisz tekst swojego komentarza
 ```
 
 ---
 
-### BYTE
+### BAJT
 
 Podobnie jak **DATA w BASIC** — przechowuje listę surowych wartości bajtów w
 tekście programu.
@@ -469,12 +469,12 @@ tekście programu.
 
 **Składnia:**
 ```
-.byte $01, $02, $FF
+.bajt $01, $02, $FF
 ```
 
 **Wygenerowany kod: **
 ```
-    .byte $01, $02, $FF
+.bajt $01, $02, $FF
 ```
 
 **Odwołania do etykiet bajtów niskich/wysokich: ** BYTE akceptuje tokeny
@@ -483,7 +483,7 @@ wraz z wartościami numerycznymi. Asembler rozwiązuje adres etykiety w czasie
 kompilacji i wstawia odpowiedni bajt. Przykład:
 
 ```
-    .byte <frame_0, >frame_0, <frame_1, >frame_1
+.bajt <ramka_0, >ramka_0, <ramka_1, >ramka_1
 ```
 
 Przechowuje najpierw bajt młodszy adresu ramki `frame_0`, następnie bajt
@@ -494,7 +494,7 @@ skoków i list adresowych.
 
 ---
 
-### WORD
+### SŁOWO
 
 Podobnie jak **DATA w BASIC-u, ale dla liczb 16-bitowych **. Każda wartość jest
 przechowywana jako dwa bajty (najpierw bajt młodszy, potem bajt starszy —
@@ -506,19 +506,19 @@ kolejność little-endian 6502).
 
 **Składnia:**
 ```
-.word $0400, $C000
+.słowo $0400, $C000
 ```
 
 **Wygenerowany kod: **
 ```
-    .word $0400, $C000
+.słowo $0400, $C000
 ```
 
 **Rozmiar:** 2 bajty na słowo.
 
 ---
 
-### FILL
+### WYPEŁNIĆ
 
 Podobnie jak `FOR I=1 TO N : POKE addr+I, val : NEXT` — wypełnia blok pamięci
 tym samym bajtem w jednym wierszu. Świetnie nadaje się do czyszczenia obszarów
@@ -526,39 +526,39 @@ lub wstępnego wypełniania tabel.
 
 | Argument | Opis                                                     |
 | -------- | -------------------------------------------------------- |
-| Operand  | `count,value` — np. `256,0` wypełnia 256 bajtów zerem |
+| Operand  | `liczba,wartość` — np. `256,0` wypełnia 256 bajtów zerem |
 
 **Składnia:**
 ```
-.fill 256, $00
+.fill 256, 00 zł
 ```
 
 **Wygenerowany kod: **
 ```
-    .fill 256, $00
+.fill 256, 00 zł
 ```
 
-**Składnia wyrażenia: ** Zarówno `count`, jak i `value` akceptują wyrażenia
+**Składnia wyrażenia: ** Zarówno `liczba`, jak i `wartość` akceptują wyrażenia
 arytmetyczne. Można odwoływać się do nazw stałych, używać literałów
 szesnastkowych/binarnych i wywoływać wbudowane funkcje matematyczne:
 
 | Wyrażenie                     | Oznaczający                                      |
 | ----------------------------- | ------------------------------------------------ |
-| `TILE_COUNT, $00`         | liczenie z CONST, literał wartości szesnastkowej |
+| `LICZBA_KAFELEK, $00`         | liczenie z CONST, literał wartości szesnastkowej |
 | `40*25, 0`                    | mnożenie liniowe                                 |
-| `round(sin(PI/4)*255), $80` | trygonometria                                    |
+| `okrągły(sin(PI/4)*255), 80$` | trygonometria                                    |
 
 **Funkcje wbudowane: ** `sin()`, `cos()`, `round()`, `max(a,b)`, `min(a,b)`,
 `abs()`, constant `PI`
 
-Operatorzy: `+  -  *  /` Literały: `$FF` (szesnastkowy), `%10110000` (binarny) Bajt
-młodszy/starszy: `lo(expr)`, `hi(expr)`
+Operatorzy: `+ - * /` Literały: `$FF` (szesnastkowy), `%10110000` (binarny) Bajt
+młodszy/starszy: `lo(wyrażenie)`, `hi(wyrażenie)`
 
 **Rozmiar:** Wartość liczbowa w bajtach.
 
 ---
 
-### ALIGN
+### WYRÓWNYWAĆ
 
 Przesuwa bieżący adres do przodu do następnej czystej granicy, wstawiając bajty
 uzupełniające zerami. C64 wymaga, aby dane sprite'a zaczynały się od granicy 64
@@ -571,12 +571,12 @@ bajtów — `ALIGN 64` obsługuje to automatycznie.
 **Składnia:**
 ```
 .align 64
-.align $2000
+.align 2000 dolarów
 ```
 
 **Wygenerowany kod: **
 ```
-    ; ALIGN 64 → $0840 (12 bytes padding)
+; ALIGN 64 → $0840 (12 bajtów wypełnienia)
 ```
 
 **Rozmiar:** Dynamiczny — zależy od aktualnej pozycji licznika programu.
@@ -586,7 +586,7 @@ bajtów — `ALIGN 64` obsługuje to automatycznie.
 
 ---
 
-### TEXT
+### TEKST
 
 Podobnie jak **PRINT AT** — zapisuje tekst bezpośrednio na ekranie C64 w podanej
 kolumnie i wierszu, bez użycia KERNAL-a. Generuje jedną parę LDA/STA na znak,
@@ -598,7 +598,7 @@ wykorzystując pamięć RAM ekranu pod adresem `$0400`.
 | X                      | Kolumna (0–39)                                           |
 | Y                      | Wiersz (0–24)                                            |
 | Etykieta (opcjonalnie) | Przypisuje etykietę wskazującą na obliczony adres ekranu |
-| `lower`               | Opcjonalna flaga — patrz poniżej                         |
+| `niższy`               | Opcjonalna flaga — patrz poniżej                         |
 
 **Tryby zestawów znaków:**
 
@@ -621,17 +621,17 @@ znaków:
 
 **Wygenerowany kod (tryb wielkich liter, `"HELLO"`):**
 ```
-    LDA #$08      ; 'H' screen code $08
-    STA $0400
-    LDA #$05      ; 'E' screen code $05
-    STA $0401
-    ...
+LDA #$08; kod ekranu „H” $08
+STA $0400
+LDA #$05; kod ekranu „E” $05
+STA $0401
+...
 ```
 
 **Składnia:**
 ```
-.text 0, 2, "HELLO"           ; uppercase charset (default)
-.text 0, 2, "hello", lower    ; lowercase charset
+.text 0, 2, „HELLO”; zestaw znaków wielkich liter (domyślny)
+.text 0, 2, „hello”, lower; zestaw znaków małych liter
 ```
 
 Znaki są kodowane jako **kody ekranowe** (nie PETSCII). **Rozmiar: ** `długość
@@ -639,7 +639,7 @@ tekstu × 5` bajtów (LDA + STA na znak).
 
 ---
 
-### STRING
+### SMYCZKOWY
 
 Podobnie jak **Wprowadzanie ciągu ** do dowolnego adresu pamięci w czasie
 wykonywania. Generuje pary LDA/STA, które kopiują kod ekranu każdego znaku do
@@ -651,33 +651,33 @@ kolejnych adresów.
 | Adres                  | Adres pamięci docelowej — `$C000` hex lub **nazwa etykiety**                                    |
 | Etykieta (opcjonalnie) | Przypisuje etykietę wskazującą na adres docelowy                                                |
 | Zmiana                 | Wartość szesnastkowa (00–FF) dodawana do każdego bajtu kodu ekranu (np. `$80` = odwrotne wideo) |
-| `lower`               | Opcjonalna flaga — ta sama semantyka co w przypadku TEKST (patrz sekcja TEKST)                  |
+| `niższy`               | Opcjonalna flaga — ta sama semantyka co w przypadku TEKST (patrz sekcja TEKST)                  |
 
 **Składnia:**
 ```
-.string $C000, "HELLO"                  ; uppercase charset (default)
-.string $C000, "hello", lower           ; lowercase charset
-.string $C000, "HELLO", 80             ; with shift (reverse video)
-.string $C000, "hello", 80, lower      ; shift + lowercase
-.string $C000, "HELLO" :my_string      ; with macroLabel
+.string $C000, "HELLO" ; zestaw znaków wielkich liter (domyślny)
+.string $C000, "hello", lower ; zestaw znaków małych liter
+.string $C000, "HELLO", 80 ; z shiftem (odwrócenie obrazu)
+.string $C000, "hello", 80, lower ; shift + małe litery
+.string $C000, "HELLO" :my_string ; z macroLabel
 ```
 
 **Wygenerowany kod: **
 ```
-    LDA #$08      ; 'H' screen code
-    STA $C000
-    LDA #$05      ; 'E' screen code
-    STA $C001
-    ...
+LDA #$08; kod ekranu „H”
+STA $C000
+LDA #$05; kod ekranu „E”
+STA $C001
+...
 ```
 
 Znaki są kodowane jako **kody ekranowe** (nie PETSCII). Do każdego bajtu
 dodawana jest opcjonalna wartość **Shift**, np. `$80` dla odwróconego obrazu.
-**Rozmiar:** `text.length × 5` bajtów (jeden LDA + jeden STA na znak).
+**Rozmiar:** `długość tekstu × 5` bajtów (jeden LDA + jeden STA na znak).
 
 ---
 
-### DATA
+### DANE
 
 Podobnie jak pętla **POKE** — zapisuje listę surowych bajtów do adresu pamięci w
 czasie wykonywania, jedną parę LDA/STA na bajt.
@@ -690,21 +690,21 @@ czasie wykonywania, jedną parę LDA/STA na bajt.
 
 **Składnia:**
 ```
-.data $C000, $01, $02, $03          ; hex address
-.data my_buf, $01, $02, $03         ; label address
-.data $C000, $01, $02, $03 :mydata  ; with macroLabel
+.data $C000, $01, $02, $03; adres szesnastkowy
+.data my_buf, $01, $02, $03; adres etykiety
+.data $C000, $01, $02, $03 :mydata; z makroLabel
 ```
 
 **Wygenerowany kod: **
 ```
-    LDA #$01
-    STA $C000
-    LDA #$02
-    STA $C001
+LDA #01 USD
+    STA $000
+    LDA nr 02
+    STA$C001
     ...
 ```
 
-**Rozmiar:** `byte_count × 5` bajtów (jeden LDA + jeden STA na bajt).
+**Rozmiar:** `liczba bajtów × 5` bajtów (jeden LDA + jeden STA na bajt).
 
 > **2.1:** bajty mogą nazywać etykiety: `.data $2010, <target, >target` zapisuje
 > adres `target`, również etykiety zdefiniowanej później. Etykieta `:name` makra
@@ -727,9 +727,9 @@ wyszukiwania i wszystkiego, co musi znajdować się pod określonym adresem.
 
 **Składnia:**
 ```
-.rawbytes $C000, $00, $00, $00      ; hex address
-.rawbytes sprite_data, $00, $00     ; label address
-.rawbytes $0C50, $00, $00 :nev      ; with macroLabel — other code can use LDA nev,X
+.rawbytes $C000, $00, $00, $00; adres szesnastkowy
+.rawbytes sprite_data, $00, $00; adres etykiety
+.rawbytes $0C50, $00, $00 :nev; z makroLabel — inny kod może używać LDA nev,X
 ```
 
 **Rozmiar w kodzie: ** 0 bajtów. Dane są umieszczane pod podanym adresem na
@@ -759,26 +759,26 @@ w pamięci w momencie załadowania PRG.
 | Adres                  | Adres pamięci docelowej — `$C000` hex lub **nazwa etykiety**                                    |
 | Etykieta (opcjonalnie) | Przypisuje etykietę wskazującą na adres docelowy                                                |
 | Zmiana                 | Wartość szesnastkowa (00–FF) dodawana do każdego bajtu kodu ekranu (np. `$80` = odwrotne wideo) |
-| `lower`               | Opcjonalna flaga — ta sama semantyka co w przypadku TEKST (patrz sekcja TEKST)                  |
+| `niższy`               | Opcjonalna flaga — ta sama semantyka co w przypadku TEKST (patrz sekcja TEKST)                  |
 
 **Składnia:**
 ```
-.rawtext $C000, "HELLO"                 ; uppercase charset (default)
-.rawtext $C000, "hello", lower          ; lowercase charset
-.rawtext $C000, "HELLO", 80            ; with shift (reverse video)
-.rawtext $C000, "hello", 80, lower     ; shift + lowercase
-.rawtext $0400, "HELLO" :my_text       ; with macroLabel
+.rawtext $C000, "HELLO" ; zestaw znaków wielkich liter (domyślny)
+.rawtext $C000, "hello", lower ; zestaw znaków małych liter
+.rawtext $C000, "HELLO", 80 ; z przesunięciem (odwrócenie obrazu)
+.rawtext $C000, "hello", 80, lower ; przesunięcie + małe litery
+.rawtext $0400, "HELLO" :my_text ; z makroLabelą
 ```
 
 **Wygenerowany kod: **
 ```
 ; .rawtext "HELLO" -> $C000
 ; $C000
-    .byte $08, $05, $0C, $0C, $0F   ; H E L L O (uppercase screen codes)
+.byte $08, $05, $0C, $0C, $0F ; H E L L O (kody ekranowe pisane wielkimi literami)
 
-; .rawtext "hello", lower -> $C000
+; .rawtext "hello", pisane małymi literami -> $C000
 ; $C000
-    .byte $48, $45, $4C, $4C, $4F   ; h e l l o (lowercase screen codes $41–$5A range)
+.byte $48, $45, $4C, $4C, $4F ; h e l l o (kody ekranowe pisane małymi literami z zakresu $41–$5A)
 ```
 
 **Rozmiar w kodzie: ** 0 bajtów. Dane są umieszczane pod podanym adresem na
@@ -807,28 +807,28 @@ pętli, i zwróć uwagę, że `.print` używa tego samego kodera i flagi `lower`
 | Tekst                  | Ciąg do zakodowania jako bajty PETSCII                       |
 | Adres                  | Adres pamięci docelowej — `$C000` hex lub **nazwa etykiety** |
 | Etykieta (opcjonalnie) | Przypisuje etykietę wskazującą na adres docelowy             |
-| `lower`               | Opcjonalna flaga — patrz poniżej                             |
+| `niższy`               | Opcjonalna flaga — patrz poniżej                             |
 
 **Tryby zestawów znaków:**
 
 | Tryb                          | Wprowadzanie wielkich liter (`A`–`Z`)                                                                      | Wprowadzanie małymi literami (`a`–`z`) |
 | ----------------------------- | ---------------------------------------------------------------------------------------------------------- | -------------------------------------- |
 | **Wielkie litery (domyślne)** | `$41`–`$5A` (PETSCII wielkie litery przez CHROUT)                                                          | mapowane również na `$41`–`$5A`        |
-| **Małe litery (`lower`)**  | Litery alfabetu są mapowane tak, aby widoczna wielkość liter była spójna w zestawie znaków małych/wielkich | Ta sama zasada                         |
+| **Małe litery (`mniejsze`)**  | Litery alfabetu są mapowane tak, aby widoczna wielkość liter była spójna w zestawie znaków małych/wielkich | Ta sama zasada                         |
 
 **Składnia:**
 ```
-.petscii $C000, "HELLO"              ; uppercase PETSCII (default)
-.petscii $C000, "hello", lower       ; lowercase PETSCII ($61–$7A)
-.petscii $C000, "HELLO", null        ; with null terminator
-.petscii $C000, "hello", lower, null ; lowercase + null terminator
-.petscii $C000, "HELLO" :my_msg      ; with macroLabel
+.petscii $C000, "HELLO"; PETSCII z wielką literą (domyślnie)
+.petscii $C000, "hello", lower; PETSCII z małą literą ($61–$7A)
+.petscii $C000, "HELLO", null; z terminatorem null
+.petscii $C000, "hello", lower, null; z terminatorem null
+.petscii $C000, "HELLO" :my_msg; z makroLabelą
 ```
 
-**Wygenerowane bajty (wielkie litery, `"HELLO"`):**
+**Wygenerowane bajty (wielkie litery, `"CZEŚĆ"`):**
 ```
 ; $C000
-    .byte $48, $45, $4C, $4C, $4F   ; H E L L O (PETSCII $41–$5A range)
+.byte $48, $45, $4C, $4C, $4F ; H E L L O (zakres PETSCII $41–$5A)
 ```
 
 **Rozmiar w kodzie: ** 0 bajtów. Dane są umieszczane pod adresem docelowym jako
@@ -838,26 +838,26 @@ odroczona sekcja danych (jak RAWBYTES).
 Idealne dla pętli zakończonych zerem:
 
 ```
-    LDX #$00
-loop:
-    LDA msg,X
-    BEQ done        ; $00 stops the loop
-    JSR $FFD2
-    INX
-    BNE loop
-done:
-    RTS
+LDX #$00
+pętla:
+LDA msg,X
+BEQ zakończone; $00 zatrzymuje pętlę
+JSR $FFD2
+INX
+Pętla BNE
+wykonane:
+RTS
 ```
 
 **Zasady kodowania:**
 
 | Wejście                                      | Tryb wielkich liter                    | Tryb małych liter |
 | -------------------------------------------- | -------------------------------------- | ----------------- |
-| `A`–`Z`                                      | `$41`–`$5A`                             | `$61`–`$7A`        |
-| `a`–`z`                                      | `$41`–`$5A` (wymuszone wielkie litery) | `$41`–`$5A`        |
+| `A`–`Z`                                      | `41$`–`5$`                             | `61$`–`7$`        |
+| `a`–`z`                                      | `$41`–`$5A` (wymuszone wielkie litery) | `41$`–`5$`        |
 | Spacja, cyfry, znaki interpunkcyjne (32–126) | tak jak jest                           | tak jak jest      |
 | Nowa linia                                   | `$0D` (ZWROT)                          | `$0D`             |
-| Inny                                         | `$20` (spacja)                         | `$20`      |
+| Inny                                         | `20$` (spacja)                         | `20 dolarów`      |
 
 > **Wskazówka: ** Użyj PETSCII do danych, które będą wyprowadzane przez CHROUT
 > (`$FFD2`). Aby zapisać dane bezpośrednio do pamięci RAM ekranu, użyj zamiast
@@ -865,7 +865,7 @@ done:
 
 ---
 
-### CHARSET
+### ZESTAW ZNAKÓW
 
 Przełącza pamięć ROM znaków VIC-II pomiędzy trybem wielkich liter/grafiki
 (domyślnie w C64) a trybem małych liter/wielkich liter, poprzez modyfikację bitu
@@ -877,24 +877,24 @@ Przełącza pamięć ROM znaków VIC-II pomiędzy trybem wielkich liter/grafiki
 
 **Składnia:**
 ```
-.charset lower    ; switch to lowercase charset
-.charset upper    ; switch back to uppercase/graphics charset
+.charset lower; przełącz na zestaw znaków małych liter
+.charset upper; przełącz z powrotem na zestaw znaków wielkich liter/grafiki
 ```
 
 **Wygenerowany kod: **
 
 Tryb małych liter:
 ```
-    LDA $D018
-    ORA #$02      ; set bit 1 → lowercase/uppercase ROM at $1800
-    STA $D018
+LDA $D018
+ORA #$02; ustaw bit 1 → małe/wielkie litery w pamięci ROM na $1800
+STA $D018
 ```
 
 Tryb wielkich liter:
 ```
-    LDA $D018
-    AND #$FD      ; clear bit 1 → uppercase/graphics ROM at $1000
-    STA $D018
+LDA $D018
+AND #$FD ; wyczyść bit 1 → ROM wielkich liter/grafiki przy $1000
+STA $D018
 ```
 
 **Rozmiar:** 8 bajtów (LDA abs + ORA/AND imm + STA abs).
@@ -907,7 +907,7 @@ resztę rejestru.
 
 ```
 .charset lower
-.text 0, 0, "hello world", lower
+.text 0, 0, "witaj świecie", lower
 .charset upper
 ```
 
@@ -933,26 +933,26 @@ lub `ORG`.
 
 **Składnia:**
 ```
-.chardef $3800, 65, $18,$3C,$66,$7E,$66,$66,$66,$00
+.chardef 3800 dolarów, 65, 18 dolarów, 3C dolarów, 66 dolarów, 7E dolarów, 66 dolarów, 66 dolarów, 66 dolarów, 00 dolarów
 ```
 
-**Wygenerowany kod (8 × `LDA #b` / `STA target+n`, łącznie 40 bajtów):**
+**Wygenerowany kod (8 × `LDA #b` / `Cel STA+n`, łącznie 40 bajtów):**
 ```
-    LDA #$18
+LDA #18 dolarów
     STA $3A08
-    LDA #$3C
+    LDA #3C
     STA $3A09
-    LDA #$66
+    LDA #66 dolarów
     STA $3A0A
-    LDA #$7E
+    LDA #7E
     STA $3A0B
-    LDA #$66
+    LDA #66 dolarów
     STA $3A0C
-    LDA #$66
+    LDA #66 dolarów
     STA $3A0D
-    LDA #$66
+    LDA #66 dolarów
     STA $3A0E
-    LDA #$00
+    LDA#00 dolarów
     STA $3A0F
 ```
 
@@ -963,15 +963,15 @@ zakodowany na stałe w operandach STA.
 
 **Typowy przepływ pracy:**
 ```
-    ; Point VIC-II at RAM charset at $3800
-    LDA $D018
-    AND #$F1
-    ORA #$0E       ; bits 3-1 = %111 → charset at bank+$3800
-    STA $D018
+; Wskaż VIC-II na zestaw znaków RAM o wartości $3800
+LDA $D018
+AND #$F1
+ORA #$0E ; bity 3-1 = %111 → zestaw znaków o wartości bank+$3800
+STA $D018
 
-    .chardef $3800, 65, $18,$3C,$66,$7E,$66,$66,$66,$00   ; redefine 'A'
-    .chardef $3800, 66, $7C,$66,$66,$7C,$66,$66,$7C,$00   ; redefine 'B'
-    ; ... more .chardef lines for each custom char
+.chardef $3800, 65, $18,$3C,$66,$7E,$66,$66,$66,$00 ; zdefiniuj ponownie 'A'
+.chardef $3800, 66, $7C,$66,$66,$7C,$66,$66,$7C,$00 ; zdefiniuj ponownie 'B'
+; ... więcej wierszy .chardef dla każdego niestandardowego znaku
 ```
 
 **Kiedy używać CHARDEF a kiedy alternatyw:**
@@ -1019,22 +1019,22 @@ razie. Czysty asembler inline, bez wywołania podprogramu.
 **Wygenerowany kod (30 bajtów, w pełni względny dla PC — bez podprogramów, bez
 skoków bezwzględnych):**
 ```
-    LDA $FD        ; b1 right
-    CMP $F7        ; b2 left
-    BCC no         ; R1 < L2 → miss
-    LDA $F9        ; b2 right
-    CMP $FB        ; b1 left
-    BCC no
-    LDA $FE        ; b1 bottom
-    CMP $F8        ; b2 top
-    BCC no
-    LDA $FA        ; b2 bottom
-    CMP $FC        ; b1 top
-    BCC no
-    LDA #$01       ; hit
-    BNE done       ; unconditional (A ≠ 0)
-no: LDA #$00
-done:
+LDA $FD ; b1 prawy
+CMP $F7 ; b2 lewy
+BCC nie ; R1 < L2 → chybiony
+LDA $F9 ; b2 prawy
+CMP $FB ; b1 lewy
+BCC nie
+LDA $FE ; b1 dolny
+CMP $F8 ; b2 górny
+BCC nie
+LDA $FA ; b2 dolny
+CMP $FC ; b1 górny
+BCC nie
+LDA #$01 ; trafiony
+BNE wykonany; bezwarunkowy (A ≠ 0)
+nie: LDA #$00
+wykonane:
 ```
 
 **Rozmiar:** 30 bajtów.
@@ -1042,27 +1042,27 @@ done:
 **Typowy przepływ pracy:**
 
 ```
-    ; Player sprite box at $FB..$FE
-    LDA sprite_x            ; L
-    STA $FB
-    LDA sprite_y            ; T
-    STA $FC
-    CLC
-    ADC #23                 ; +23 → B (24-pixel tall sprite)
-    STA $FE
-    LDA $FB
-    CLC
-    ADC #23                 ; R
-    STA $FD
+; Pole sprite'a gracza w $FB..$FE
+LDA sprite_x ; L
+STA $FB
+LDA sprite_y ; T
+STA $FC
+CLC
+ADC #23 ; +23 → B (sprite o wysokości 24 pikseli)
+STA $FE
+LDA $FB
+CLC
+ADC #23 ; R
+STA $FD
 
-    ; Enemy box at $F7..$FA (populated similarly)
-    ; ...
+; Pole wroga w $F7..$FA (wypełnione w podobny sposób)
+; ...
 
-    .box_hit $FB, $F7        ; test player vs enemy → A = 0 or 1
+.box_hit $FB, $F7 ; test gracz kontra wróg → A = 0 lub 1
 
-    CMP #$01
-    BNE no_collision
-    JSR handle_hit
+CMP #$01
+BNE no_collision
+JSR handle_hit
 no_collision:
 ```
 
@@ -1099,13 +1099,13 @@ określonym adresem.
 
 **Składnia:**
 ```
-.incbin "music.bin", $C000
+.incbin "muzyka.bin", $C000
 ```
 
 **Wygenerowany komentarz kodu: **
 ```
-    ; INCBIN "music.bin" @ $C000 (2048 bytes)
-    .byte $01, $02, ...
+; INCBIN "music.bin" @ $C000 (2048 bajtów)
+.bajt $01, $02, ...
 ```
 
 **Rozmiar w kodzie: ** 0 bajtów (sekcja danych odroczonych). Plik binarny jest
@@ -1135,16 +1135,16 @@ kopiowania odczytałaby pamięć ROM) lub nakładają się na cień pamięci ROM
 
 **Składnia:**
 ```
-.koala "picture.koa"
-.koala "picture.koa", $2000
+.koala „obrazek.koa”
+.koala „picture.koa”, 2000 dolarów
 ```
 
 **Przykład — pokaż obrazek i poczekaj:**
 ```
 * = $0801
 .koala "picture.koa"
-wait:
-    JMP wait
+czekaj:
+JMP czekaj
 ```
 
 **Rozmiar w kodzie: ** 86 bajtów (program wyświetlania); 10001 bajtów danych
@@ -1153,14 +1153,14 @@ kompatybilny plik.
 
 ---
 
-### LEVEL / LEVEL_ROW
+### POZIOM / RZĄD_POZIOMU
 
 Umieszcza projekt **Edytora poziomów** w programie i kopiuje wiersze poziomów do
 bufora ekranu – podstawowych elementów gry z przewijaniem. Przykład
 `level-demo.asm` w C64 Visual Assembler to kompletny poziom przewijany
 joystickiem.
 
-#### LEVEL
+#### POZIOM
 
 Dyrektywa w stylu INCBIN, która emituje **0 bajtów kodu**. Tylko **umieszczone**
 ekrany projektu Level Editor (`.bin` zapisywane przez Level Editor w C64 Visual
@@ -1172,31 +1172,30 @@ pusty ekran. Tabele wskaźników odpowiadają ekranom. Poziom może mieć maksym
 
 **Składnia:**
 ```
-.level "level.bin"
-.level "level.bin", $4000
+.level „level.bin”
+.level „level.bin”, 4000 USD
 ```
 
 | Zdefiniowany                                                                         | Oznaczający                                                                                                                                                            |
 | ------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `LEVEL_SLOT_LO` / `LEVEL_SLOT_HI`                                         | Adres ekranu w każdym slocie (główny wiersz, `LEVEL_W` slotów na wiersz)                                                                                               |
-| `LEVEL_ROW_SLOT`                                                                | Rząd postaci poziomu → pierwszy slot rzędu ekranu                                                                                                                      |
-| `LEVEL_ROW_LO/HI`, `LEVEL_CROW_LO/HI`                           | Wiersz znaku poziomu → przesunięcie wiersza kodu ekranu/wiersza koloru wewnątrz ekranu                                                                                 |
-| `LEVEL_COL_SLOT`, `LEVEL_COL_OFS`                                     | Widok kolumny początkowej → kolumna ekranu i kolumna wewnątrz ekranu                                                                                                   |
-| `LEVEL_W`, `LEVEL_H`                                                               | Rozmiar poziomu na ekranach                                                                                                                                            |
-| `LEVEL_COLS`, `LEVEL_ROWS`                                                 | Rozmiar poziomu w znakach                                                                                                                                              |
-| `LEVEL_MAX_X`, `LEVEL_MAX_Y`                                                       | Największa pozycja przewijania pikseli w widoku 40×25                                                                                                                  |
-| `LEVEL_BG`, `LEVEL_MC1`, `LEVEL_MC2`, `LEVEL_MULTICOLOR`                      | Tło / kolory wielokolorowe i tryb poziomu                                                                                                                              |
-| `LEVEL_DATA`, `LEVEL_SIZE`, `LEVEL_END`                                  | Początek, rozmiar i pierwszy wolny adres po danych poziomu                                                                                                             |
-| `LEVEL_OBJ_X_LO/HI`, `LEVEL_OBJ_Y_LO/HI`, `LEVEL_OBJ_TYPE`, `LEVEL_OBJ_PARAM`   | Tabela obiektów (warstwa obiektów edytora poziomów): pozycja w pikselach poziomu, typ i bajt parametru, w kolejności przewijania — wpisy `LEVEL_OBJ_COUNT` (maks. 255) |
-| `LEVEL_OBJ_T_START` … `LEVEL_OBJ_T_TRIGGER`                       | Numery typów obiektów: START 0, WRÓG 1, PRZEDMIOT 2, DRZWI 3, WYJŚCIE 4, WYZWALACZ 5                                                                                   |
-| `LEVEL_START_X`, `LEVEL_START_Y`                                                   | Pozycja pierwszego obiektu startowego (zdefiniowana tylko wtedy, gdy poziom go posiada)                                                                                |
-| `LEVEL_ATTR`, `LEVEL_ATTR_SOLID` … `LEVEL_ATTR_COLLECT`                      | Tabela atrybutów znaku (jeden bajt flagi na kod ekranu; tylko gdy poziom ma atrybuty) i jej bity: 1, 2, 4, 8                                                           |
-| `LEVEL_BORDER`, `LEVEL_SCR_COLORS`, `LEVEL_SCR_BG/BORDER/MC1/MC2` | Obramowanie poziomu; tabele kolorów dla każdego slotu (rzędowe, np. `LEVEL_SLOT_*`), gdy ekran ma własne kolory (`LEVEL_SCR_COLORS` = 1)                               |
+| `POZIOM_SLOTU_NISKI` / `POZIOM_SLOTU_WYSOKI`                                         | Adres ekranu w każdym slocie (główny wiersz, `LEVEL_W` slotów na wiersz)                                                                                               |
+| `SLOT_WIELU_POZIOMÓW`                                                                | Rząd postaci poziomu → pierwszy slot rzędu ekranu                                                                                                                      |
+| `POZIOM_RZĘDU_NIŻSZY/WYŻSZY`, `POZIOM_RZĘDU_NIŻSZY/WYŻSZY`                           | Wiersz znaku poziomu → przesunięcie wiersza kodu ekranu/wiersza koloru wewnątrz ekranu                                                                                 |
+| `GNIAZDO_KOLEK_POZIOMU`, `GNIAZDO_KOLEK_POZIOMU`                                     | Widok kolumny początkowej → kolumna ekranu i kolumna wewnątrz ekranu                                                                                                   |
+| `POZIOM_W`, `POZIOM_W`                                                               | Rozmiar poziomu na ekranach                                                                                                                                            |
+| `KOLUMBIA_POZIOMU`, `WIERZE_POZIOMU`                                                 | Rozmiar poziomu w znakach                                                                                                                                              |
+| `POZIOM_MAX_X`, `POZIOM_MAX_Y`                                                       | Największa pozycja przewijania pikseli w widoku 40×25                                                                                                                  |
+| `POZIOM_BG`, `POZIOM_MC1`, `POZIOM_MC2`, `POZIOM_WIELOKOLOROWY`                      | Tło / kolory wielokolorowe i tryb poziomu                                                                                                                              |
+| `DANE_POZIOMU`, `ROZMIAR_POZIOMU`, `KONIEC_POZIOMU`                                  | Początek, rozmiar i pierwszy wolny adres po danych poziomu                                                                                                             |
+| `POZIOM_OBJ_X_LO/HI`, `POZIOM_OBJ_Y_LO/HI`, `TYP_OBJ_POZIOMU`, `PARAM_OBJ_POZIOMU`   | Tabela obiektów (warstwa obiektów edytora poziomów): pozycja w pikselach poziomu, typ i bajt parametru, w kolejności przewijania — wpisy `LEVEL_OBJ_COUNT` (maks. 255) |
+| `POCZĄTEK_OBIEKTÓW_T_POZIOMU` … `WYZWALACZ_OBIEKTÓW_T_POZIOMU`                       | Numery typów obiektów: START 0, WRÓG 1, PRZEDMIOT 2, DRZWI 3, WYJŚCIE 4, WYZWALACZ 5                                                                                   |
+| `POZIOM_START_X`, `POZIOM_START_Y`                                                   | Pozycja pierwszego obiektu startowego (zdefiniowana tylko wtedy, gdy poziom go posiada)                                                                                |
+| `ATRYB_POZIOMU`, `ATRYB_POZIOMU_SOLID` … `ZBIERZ_ATRYB_POZIOMU`                      | Tabela atrybutów znaku (jeden bajt flagi na kod ekranu; tylko gdy poziom ma atrybuty) i jej bity: 1, 2, 4, 8                                                           |
+| `GRANICA_POZIOMU`, `KOLORY_SCR_POZIOMU`, `GRANICA_POZIOMU_SCR_BLASK/GRANICA/MC1/MC2` | Obramowanie poziomu; tabele kolorów dla każdego slotu (rzędowe, np. `LEVEL_SLOT_*`), gdy ekran ma własne kolory (`LEVEL_SCR_COLORS` = 1)                               |
 
-Typowy strażnik: `.assert LEVEL_END <= $9200, „dane poziomu trafiają do
-kodu”`.
+Typowy strażnik: `.assert LEVEL_END <= $9200, „dane poziomu trafiają do kodu”`.
 
-#### LEVEL_ROW
+#### POZIOM_WIERZA
 
 Kopiuje jeden 40-znakowy wiersz poziomu do bufora: wiersz poziomu w **X**,
 zaczynając od kolumny poziomu przechowywanej w zmiennej `col`, do adresu
@@ -1239,12 +1238,12 @@ Nagłówek SID zawiera:
 **Składnia:**
 ```
 .sid "Ikari_Warriors.sid"
-.sid "Ikari_Warriors.sid", $1000
+.sid "Ikari_Warriors.sid", 1000 dolarów
 ```
 
 **Wygenerowany komentarz kodu: **
 ```
-    ; SID "Ikari_Warriors.sid" @ $1000  Init:$1000  Play:$1006  (4096 bytes)
+; SID "Ikari_Warriors.sid" @ 1000 $ Init: 1000 $ Odtwórz: 1006 $ (4096 bajtów)
 ```
 
 **Rozmiar w kodzie: ** 0 bajtów w linii. Plik binarny SID jest umieszczany pod
@@ -1260,7 +1259,7 @@ określonym adresem jako odroczony fragment w PRG.
 > "tune.sid", $1000`), gdy jego natywny adres koliduje z Twoim kodem. Wywołaj
 > funkcję Init raz podczas uruchamiania, a następnie wywołaj funkcję Play co
 > klatkę z rastrowego programu obsługi przerwań IRQ — lub pozwól, aby funkcja
-> [SID_PLAYER](#sid-player) wykonała obie te czynności.
+> [SID_PLAYER](#sid_player) wykonała obie te czynności.
 
 **Etykiety: ** dyrektywa SID definiuje `SID_LOAD` (miejsce, w którym umieszczane
 są dane), `SID_INIT` i `SID_PLAY` (adresy init i play, przenoszone razem z
@@ -1290,9 +1289,9 @@ KERNAL (`JMP $EA31`, który skanuje również klawiaturę).
 
 **Składnia:**
 ```
-.sid "Ikari_Warriors.sid"
+.sid „Ikari_Warriors.sid”
 .sid_player
-.sid_player 1, $80
+.sid_player 1, 80 USD
 ```
 
 **Rozmiar w kodzie:** 58 bajtów.
@@ -1304,7 +1303,7 @@ KERNAL (`JMP $EA31`, który skanuje również klawiaturę).
 
 ---
 
-### INCLUDE
+### WŁĄCZAĆ
 
 Podobnie jak **MERGE w BASIC** — wciąga inny plik i rozwija go w linii w tym
 miejscu. Idealne dla bibliotek podprogramów wielokrotnego użytku.
@@ -1324,7 +1323,7 @@ Obsługiwane są dwa rodzaje plików:
 **Składnia:**
 ```
 .include "library.json"
-.include "macros.inc", $1500
+.include "macros.inc", 1500 USD
 .include "sprites.asm"
 ```
 
@@ -1337,15 +1336,15 @@ Obsługiwane są dwa rodzaje plików:
 
 **Wygenerowany kod (bez nadpisywania adresu):**
 ```
-    ; .include "library.json"
-    ... (the included code follows)
+; .include "library.json"
+... (poniżej znajduje się dołączony kod)
 ```
 
 **Wygenerowany kod (z adresem ładowania `C000`):**
 ```
-    ; .include "library.json" @ $C000
-    *=$C000
-    ... (the included code follows)
+; .include "library.json" @ $C000
+*=$C000
+... (poniżej znajduje się dołączony kod)
 ```
 
 > **Wskazówka: ** Użyj polecenia INCLUDE, aby tworzyć biblioteki podprogramów
@@ -1363,7 +1362,7 @@ Obsługiwane są dwa rodzaje plików:
 
 ---
 
-### TABLE
+### TABELA
 
 Podobnie jak **DIM pod określonym adresem ** — nadaje nazwę tabeli odnośników i
 określa jej miejsce w pamięci. Umieść po niej wiersze `.byte`, `.word` lub
@@ -1377,12 +1376,12 @@ określa jej miejsce w pamięci. Umieść po niej wiersze `.byte`, `.word` lub
 **Składnia:**
 ```
 .table color_table $C000
-.table lookup              ; at the current address
+.table lookup ; pod bieżącym adresem
 ```
 
 **Wygenerowany kod: **
 ```
-color_table:
+tabela_kolorów:
 ```
 
 Po podaniu adresu licznik programu przeskakuje do niego; bez niego tabela
@@ -1424,33 +1423,33 @@ między sekcjami są wypełniane zerami.
 **Przykład — kod w `$0801`, tabela danych w `$C000`:**
 ```
 * = $0801
-    LDX #$00
-loop:
-    LDA $C000,X
-    STA $D800,X
-    INX
-    BNE loop
-    RTS
+LDX #$00
+pętla:
+LDA $C000,X
+STA $D800,X
+INX
+pętla BNE
+RTS
 
 * = $C000
-    .byte $01, $02, $03, ...
+.bajt $01, $02, $03, ...
 ```
 
 > **Wskazówka: ** Bez ORG program rozpoczyna się od `$0801` (2049 w systemie
 > dziesiętnym), czyli od początku języka BASIC. Z plikiem BASIC SYS (domyślnym)
 > asembler umieszcza krótką linię `10 SYS…` w punkcie `$0801`, a kod rozpoczyna
 > się od `$080D`. Zobacz [Wyjście: PRG, plik BASIC i punkt
-> wejścia](#3-wyjscie-prg-szczatkowy-modu-basic-i-punkt-wejscia).
+> wejścia](#3-output-prg-basic-stub-and-entry-point).
 
 ---
 
-### LOOP / NEXT
+### PĘTLA / NASTĘPNY
 
 Podobnie jak **`FOR X=N TO 1 STEP -1 : ... : NEXT X`** w języku BASIC — odlicza
 od N do 1 przy użyciu rejestru X lub Y. Umieść instrukcje pomiędzy LOOP i NEXT,
 a pętla automatycznie wykona odpowiednią liczbę razy.
 
-#### LOOP
+#### PĘTLA
 
 | Argument | Opis                                                               |
 | -------- | ------------------------------------------------------------------ |
@@ -1460,18 +1459,18 @@ a pętla automatycznie wykona odpowiednią liczbę razy.
 
 **Składnia:**
 ```
-.loop X, 10, loop0
+.pętla X, 10, pętla 0
 ```
 
 **Wygenerowany kod: **
 ```
-    LDX #$0A
-loop0:
+LDX #$0A
+pętla0:
 ```
 
 **Rozmiar:** 2 bajty (kod operacji LD_ + bezpośredni operand).
 
-#### NEXT
+#### NASTĘPNY
 
 | Argument | Opis                                      |
 | -------- | ----------------------------------------- |
@@ -1480,52 +1479,52 @@ loop0:
 
 **Składnia:**
 ```
-.next loop0
+.następna pętla 0
 ```
 
 **Wygenerowany kod: **
 ```
-    DEX
-    BNE loop0
+DEX
+Pętla BNE 0
 ```
 
 **Rozmiar:** 3 bajty (DEX + BNE + przesunięcie gałęzi).
 
 **Przykład — wyczyść 10 komórek ekranu:**
 ```
-    LDX #$0A
-loop0:
-    LDA #$20        ; space character
-    STA $0400,X
-    DEX
-    BNE loop0
+LDX #$0A
+pętla 0:
+LDA #$20 ; znak spacji
+STA $0400,X
+DEX
+pętla BNE 0
 ```
 
 ---
 
-### FOR / ENDF
+### DLA / ZAKOŃCZENIE
 
 Podobnie jak **`FOR X=0 TO N-1 : ... : NEXT X`** w języku BASIC — zlicza *w
 górę* od 0. Idealne, gdy potrzebujesz indeksu do przodu, np. podczas
 przechodzenia przez ciąg lub tablicę.
 
-#### FOR
+#### DLA
 
 | Argument | Opis                                                                                   |
 | -------- | -------------------------------------------------------------------------------------- |
 | Rejestr  | `X` lub `Y` — rejestr licznika                                                         |
 | Liczyć   | Limit pętli (szesnastkowy lub dziesiętny, np. `$12` = 18). X/Y działa od 0 do limit-1. |
-| Etykieta | Automatycznie wygenerowana etykieta pętli (np. `for0`)                                 |
+| Etykieta | Automatycznie wygenerowana etykieta pętli (np. `dla0`)                                 |
 
 **Składnia:**
 ```
-.for X, $12, for0
+.dla X, 12$, dla 0
 ```
 
 **Wygenerowany kod: **
 ```
-    LDX #$00
-for0:
+LDX #$00
+dla0:
 ```
 
 **Rozmiar:** 2 bajty (kod operacji LD_ + `#$00`).
@@ -1540,30 +1539,30 @@ for0:
 
 **Składnia:**
 ```
-.endf for0
+.endf dla 0
 ```
 
 **Wygenerowany kod: **
 ```
-    INX
-    CPX #$12
-    BNE for0
+INX
+CPX #$12
+BNE za 0
 ```
 
 **Rozmiar:** 5 bajtów (IN_ + CP_ #imm + przesunięcie BNE).
 
 **Przykład — wydrukuj ciąg zakończony zerem: **
 ```
-    LDX #$00
+LDX #$00
 for0:
-    LDA msg,X       ; msg = PETSCII string at fixed address
-    BEQ done        ; null terminator → exit
-    JSR $FFD2       ; CHROUT
-    INX
-    CPX #$12        ; 18 characters max
-    BNE for0
+LDA msg,X ; msg = ciąg PETSCII pod ustalonym adresem
+BEQ done ; terminator null → wyjście
+JSR $FFD2 ; CHROUT
+INX
+CPX #$12 ; maks. 18 znaków
+BNE for0
 done:
-    RTS
+RTS
 ```
 
 > **LOOP vs FOR: ** LOOP odlicza w dół (N→1) — dobre do opóźnień, wypełnień i
@@ -1572,13 +1571,13 @@ done:
 
 ---
 
-### PUSH / PULL
+### PCHNIJ / POCIĄGNIJ
 
 Podobnie jak **zapisywanie zmiennych przed GOSUB i przywracanie ich po ** — ale
 wykorzystuje stos sprzętowy 6502. Jeśli podprogram używa A, X lub Y, należy go
 opakować za pomocą PUSH i PULL, aby zachować rejestry kodu wywołującego.
 
-#### PUSH
+#### NACISKAĆ
 
 Umieszcza jeden lub więcej rejestrów na stosie. Kolejność jest zawsze
 następująca: A → X → Y (najpierw najbardziej wewnętrzny).
@@ -1594,14 +1593,14 @@ następująca: A → X → Y (najpierw najbardziej wewnętrzny).
 
 **Wygenerowany kod (przykład: `AX`):**
 ```
-    PHA
-    TXA
-    PHA
+PHA
+TXA
+PHA
 ```
 
 **Rozmiar:** 1 bajt dla A (`PHA`), 2 bajty dla X lub Y (transfer + push).
 
-#### PULL
+#### CIĄGNĄĆ
 
 Przywraca rejestry ze stosu w **odwrotnej kolejności** (Y → X → A).
 
@@ -1611,14 +1610,14 @@ Przywraca rejestry ze stosu w **odwrotnej kolejności** (Y → X → A).
 
 **Składnia:**
 ```
-.pull AXY
+.pociągnij AXY
 ```
 
 **Wygenerowany kod (przykład: `AX`):**
 ```
-    PLA
-    TAX
-    PLA
+PLA
+PODATEK
+PLA
 ```
 
 > **Zasada: ** Funkcje PUSH i PULL muszą zawsze używać **tego samego zestawu
@@ -1627,19 +1626,19 @@ Przywraca rejestry ze stosu w **odwrotnej kolejności** (Y → X → A).
 
 ---
 
-### END / RTS alias
+### END / alias RTS
 
 Podobnie jak **RTS z przyjaźniejszą nazwą makra ** — `.end` emituje pojedynczy
 bajt `RTS`, krótki terminator podprogramu.
 
 **Składnia:**
 ```
-.end
+.koniec
 ```
 
 **Wygenerowany kod: **
 ```
-    RTS
+RTS
 ```
 
 **Rozmiar:** 1 bajt.
@@ -1649,50 +1648,52 @@ bardziej jak makro niż surowa instrukcja.
 
 ---
 
-### MACRO / ENDM / INVOKE
+### MAKRO / ENDM / WYWOŁAJ
 
 Podobnie jak **nazwany GOSUB z parametrami ** — zdefiniuj fragment kodu
 wielokrotnego użytku raz (MACRO…ENDM), a następnie wywołaj go w dowolnym miejscu
 za pomocą INVOKE. Przekazuj za każdym razem różne wartości argumentów zamiast
 kopiować i wklejać kod.
 
-#### MACRO (definition start)
+#### MAKRO (początek definicji)
 
 | Argument  | Opis                                                                                  |
 | --------- | ------------------------------------------------------------------------------------- |
 | Nazwa     | Identyfikator makra (np. `setColor`)                                                  |
-| Parametry | Opcjonalne nazwy parametrów rozdzielone przecinkami (np. `color` lub `color, count`) |
+| Parametry | Opcjonalne nazwy parametrów rozdzielone przecinkami (np. `kolor` lub `kolor, liczba`) |
 
-Oznacza początek definicji makra. Linie między MACRO i ENDM stanowią treść
+Oznacza początek definicji makra. Linie między MACRO i ENDM stanowią ciało
 makra. Makro z parametrami **nie generuje kodu ** w miejscu, w którym znajduje
-się definicja; makro bez parametrów jest również tam asemblowane jako podprogram
-(wywołuje je `JSR name`). W treści parametr jest zapisywany jako
-`{paramName}` lub jako jego nazwa własna; wywołanie wypełnia argument —
-zarówno w operandach instrukcji, jak i w argumentach makr bibliotecznych
-(`.set_border c`, `.sprite_pos n, x, y` …). Etykiety, etykiety LOOP i etykiety
-środowiska wykonawczego `.if` / `.while` treści są unikalne dla każdego
-wywołania. Wywołanie makra w treści makra nie jest rozwijane (błąd).
+się definicja; makro bez parametrów jest również tam montowane jako podprogram
+(wywołuje je `nazwa JSR `): przebieg programu przeskakuje nad nim, a na jego
+końcu dodawany jest `RTS`. W bibliotece zawartej pod stałym adresem takie makro
+otrzymuje również `RTS`. W ciele parametr jest zapisywany jako `{paramName}` lub
+jako jego goła nazwa; Wywołanie wypełnia argument — zarówno w operandach
+instrukcji, jak i argumentach makr bibliotecznych (`.set_border c`, `.sprite_pos
+n, x, y` …). Etykiety, etykiety LOOP i etykiety środowiska wykonawczego `.if` /
+`.while` ciała są unikalne dla każdego wywołania. Wywołanie makra wewnątrz ciała
+makra nie jest rozwijane (błąd).
 
 **Wygenerowany kod: **
 ```
-; .MACRO setColor (color)
-    ... (body)
+; .MACRO setColor (kolor)
+... (treść)
 ; .ENDM
 ```
 
 **Składnia:**
 ```
-.macro setColor color
-    LDA {color}
-    STA $D020
+.macro setColor kolor
+LDA {kolor}
+STA $D020
 .endm
 ```
 
-#### ENDM (definition end)
+#### ENDM (koniec definicji)
 
 Zamyka bieżącą definicję makra. Brak argumentów.
 
-#### INVOKE
+#### ODWOŁAĆ SIĘ
 
 Wywołuje zdefiniowaną makroinstrukcję w tym miejscu i podstawia podane wartości
 argumentów w miejsce symboli zastępczych `{paramName}` w treści.
@@ -1705,25 +1706,25 @@ argumentów w miejsce symboli zastępczych `{paramName}` w treści.
 **Wygenerowany kod: **
 ```
 ; .invoke setColor(#$07)
-    LDA #$07
+    LDA #07 dolarów
     STA $D020
 ```
 
 **Składnia:**
 ```
-; single argument:
+; pojedynczy argument:
 .invoke setColor(#$07)
 
-; multiple arguments:
+; wiele argumentów:
 .invoke drawPixel($10, $20)
 
-; no arguments:
+; brak argumentów:
 .invoke clearScreen
 
-; text / string arguments (quoted):
-.invoke printText("Hello, World!")
+; argumenty tekstowe/ciąg znaków (w cudzysłowie):
+.invoke printText("Witaj, świecie!")
 
-; .call alias (synonym for .invoke):
+; .call alias (synonim .invoke):
 .call setColor(#$07)
 ```
 
@@ -1733,12 +1734,12 @@ rzeczywistymi argumentami. Akceptowana jest również forma rozdzielona spacjami
 
 **Typy argumentów:**
 - **Numeryczne**: `#$07`, `$10`, `255` — wartości szesnastkowe lub dziesiętne
-- **Ciągi tekstowe**: `"Hello, World!"` — ciągi w cudzysłowie (cudzysłów
+- **Ciągi tekstowe**: `„Witaj, świecie!”` — ciągi w cudzysłowie (cudzysłów
   został usunięty); przecinki w cudzysłowie są traktowane jako część tekstu, a
   nie jako separatory argumentów
 - **Dosłowny znak**: `'A'` — pozostaje dosłownym znakiem, więc treść otrzymuje
   swój kod (`$41`)
-- **Mieszane**: `#$07, "hello", $20` — dowolna kombinacja
+- **Mieszane**: `#$07, „cześć”, $20` — dowolna kombinacja
 
 > **Wskazówka: ** Zdefiniuj makra na górze (lub na dole) programu, a następnie
 > WYWOŁUJ je w razie potrzeby. Makra można wywoływać wielokrotnie z różnymi
@@ -1763,17 +1764,17 @@ zmontowany kod.
 **Składnia:**
 ```
 .region init
-    ; code...
+; kod...
 .endregion
 ```
 
 **Wygenerowany kod: **
 ```
-; region init
+; inicjacja regionu
     SEI
-    LDA #$00
+    LDA#00 dolarów
     STA $D020
-; endregion init
+; inicjacja regionu końcowego
 ```
 
 **Rozmiar:** 0 bajtów dla regionu REGION i ENDREGION.
@@ -1783,14 +1784,14 @@ zmontowany kod.
 
 ---
 
-### DEFINE / IF / ELSE / ENDIF
+### DEFINIUJ / JEŻELI / W PRZECIWNYM RAZIE / ENDIF
 
 Podobnie jak **przełącznik, który asembler odczytuje** — `DEFINE DEBUG` włącza
 symbol, a następnie wiersze dowolnej gałęzi `IF DEBUG` są asemblowane, a jej
 gałąź `ELSE` jest pomijana. Usunięcie DEFINE powoduje zniknięcie części IF z
 wyniku. Nie ma potrzeby usuwania kodu w kompilacjach wersji.
 
-#### DEFINE
+#### OKREŚLIĆ
 
 | Argument | Opis                                                                                                   |
 | -------- | ------------------------------------------------------------------------------------------------------ |
@@ -1810,11 +1811,11 @@ wyniku. Nie ma potrzeby usuwania kodu w kompilacjach wersji.
 `DEFINE` może aktywować wiele symboli jednocześnie (rozdzielonych przecinkami).
 Umieść DEFINE na początku programu.
 
-#### IF
+#### JEŚLI
 
 | Argument | Opis                                                                                                                          |
 | -------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| Stan     | Symbol `.define`d (aktywny), nazwa `.const` (aktywna, gdy nie jest równa zero) lub wyrażenie stałe (`LEVEL == 2`, `MODE & 1`) |
+| Stan     | Symbol `.define`d (aktywny), nazwa `.const` (aktywna, gdy nie jest równa zero) lub wyrażenie stałe (`LEVEL == 2`, `MODE i 1`) |
 
 **Składnia:**
 ```
@@ -1833,19 +1834,19 @@ musi być wyrażeniem stałym — taki, którego nie można ocenić w trakcie
 asemblacji, jest błędem. Pominięte wiersze są wyświetlane jako komentarze `; [IF
 skipped] …` i generują **zerowe bajty**.
 
-#### ELSE
+#### W PRZECIWNYM RAZIE
 
 Brak argumentów. Oznacza gałąź alternatywną — montowaną, gdy warunek `JEŻELI`
 jest *nie* aktywny.
 
 **Składnia:**
 ```
-.else
+.w przeciwnym razie
 ```
 
 **Wygenerowany kod: **
 ```
-; .ELSE
+; .W PRZECIWNYM RAZIE
 ```
 
 #### ENDIF
@@ -1870,11 +1871,11 @@ zawartość *pomiędzy*.
 ; .DEFINE DEBUG
 
 ; .IF DEBUG
-    LDA #$02        ; red border
-    STA $D020
+LDA #$02 ; czerwona ramka
+STA $D020
 ; .ELSE
-    LDA #$00        ; black (release)
-    STA $D020
+LDA #$00 ; czarna (zwolnienie)
+STA $D020
 ; .ENDIF
 ```
 
@@ -1883,9 +1884,9 @@ zawartość *pomiędzy*.
 ; .DEFINE DEBUG, PAL
 
 ; .IF PAL
-    LDA #$xx        ; PAL timing constant
+LDA #$xx ; Stała czasowa PAL
 ; .ELSE
-    LDA #$xx        ; NTSC timing constant
+LDA #$xx ; Stała czasowa NTSC
 ; .ENDIF
 ```
 
@@ -1896,30 +1897,30 @@ części wewnętrzne również zostaną pominięte.
 > porównywania/rozgałęziania w czasie wykonania można znaleźć poniżej w sekcji
 > **Instrukcje IF / ELSE / ENDIF w czasie wykonania **.
 
-### .ASSERT
+### .ZAPEWNIAĆ
 
 **Kontrola poprawności w czasie kompilacji**. `.assert` ocenia wyrażenie podczas
 asemblacji; jeśli jest ono fałszywe (`0`), kompilacja zatrzymuje się z wyraźnym
 błędem zawierającym rzeczywistą wartość. Jeśli jest ono prawdziwe (różne od
 zera), nie jest emitowane.
 
-| Argument  | Opis                                                                                                                                             |
-| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Argument  | Opis                                                                                                                                 |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------ |
 | Wyrażenie | Dowolne wyrażenie asemblera: etykiety, `CONST`s, `*` (licznik programów), arytmetyka i porównania (`<`, `<=`, `>`, `>=`, `==`, `!=`) |
-| Wiadomość | Opcjonalny tekst dołączony do komunikatu o błędzie                                                                                               |
+| Wiadomość | Opcjonalny tekst dołączony do komunikatu o błędzie                                                                                   |
 
 **Składnia:**
 ```
 .assert spriteData < $C000
 .assert * < $A000
-.assert end - start <= 256, "sprite table overflowed one page"
+.assert end - start <= 256, "tabela sprite'ów przepełniła się o jedną stronę"
 ```
 
 **Zachowanie:**
 
 - **Rozmiar:** 0 bajtów.
-- Fałszywe potwierdzenie przerywa montaż: `` `.assert end - start <= 256`
-  jest fałszywe (wartość: 0). Tabela sprite'ów przepełniła się o jedną stronę ``
+- Fałszywe potwierdzenie przerywa montaż: `` `.assert end - start <= 256` jest
+  fałszywe (wartość: 0). Tabela sprite'ów przepełniła się o jedną stronę ``
 - Twierdzenie, którego nie można ocenić (niezdefiniowana etykieta itp.) również
   kończy się niepowodzeniem, z komunikatem *„nie można ocenić w momencie
   montażu”*.
@@ -1929,17 +1930,17 @@ zera), nie jest emitowane.
 
 **Przykład — ochrona danych sprite'ów przed przekroczeniem strony:**
 ```
-* = $3000
+* = 3000 $
 sprite_data:
-    .byte $00, $00, $00        ; … 63 bytes …
+.byte $00, $00, $00 ; … 63 bajty …
 sprite_data_end:
-    .assert sprite_data_end - sprite_data == 63, "sprite must be exactly 63 bytes"
-    .assert (sprite_data % 64) == 0, "sprite must be 64-byte aligned"
+.assert sprite_data_end - sprite_data == 63, "Sprite musi mieć dokładnie 63 bajty"
+.assert (sprite_data % 64) == 0, "Sprite musi być wyrównany do 64 bajtów"
 ```
 
 ---
 
-### CONST
+### STAŁA
 
 Podobnie jak **zmienna o nazwie, która nigdy się nie zmienia** — `SCREEN =
 $0400`. Użyj nazwy zamiast wpisywać wszędzie surowe adresy, dzięki czemu kod
@@ -1953,8 +1954,8 @@ będzie łatwiejszy do odczytania i późniejszej modyfikacji.
 
 **Składnia:**
 ```
-.const SCREEN = $0400
-.const FRAMES_1S = 60
+.const EKRAN = $0400
+.const RAMKI_1S = 60
 ```
 
 **Wygenerowany kod: **
@@ -1969,10 +1970,10 @@ Służy to do utworzenia nazwanego aliasu dla bajtu w pobliskiej instrukcji —
 klasyczny wzorzec kodu samomodyfikującego:
 
 ```
-.const op = *+1      ; op → address of the immediate operand of the next LDA
-LDA #$00            ; $00 will be patched at runtime
+.const op = *+1 ; op → adres bezpośredniego operandu następnego LDA
+LDA #$00 ; $00 zostanie załatane w czasie wykonywania
 ...
-STA op              ; overwrites the #$00 byte → LDA reads the new value next time
+STA op ; nadpisuje bajt #$00 → LDA odczytuje nową wartość następnym razem
 ```
 
 CONST emituje 0 bajtów, etykieta w momencie kompilacji zmienia się na
@@ -1985,18 +1986,18 @@ nazw CONST, literałów szesnastkowych/binarnych i wbudowanych funkcji
 matematycznych:
 
 ```
-.const SCREEN      = $0400
-.const SCREEN_END  = SCREEN + 40*25   ; 1000 bytes later
-.const COLOR_RAM   = $D800
-.const MID_X       = 160
-.const SIN_TABLE   = round(sin(PI/8) * 127)   ; pre-computed sine value
+.const SCREEN = $0400
+.const SCREEN_END = SCREEN + 40*25 ; 1000 bajtów później
+.const COLOR_RAM = $D800
+.const MID_X = 160
+.const SIN_TABLE = round(sin(PI/8) * 127) ; wstępnie obliczona wartość sinusoidalna
 ```
 
 **Funkcje wbudowane: ** `sin()`, `cos()`, `round()`, `max(a,b)`, `min(a,b)`,
 `abs()`, constant `PI`
 
-Operatorzy: `+  -  *  /` Literały: `$FF` (szesnastkowy), `%10110000` (binarny) Bajt
-młodszy/starszy: `lo(expr)`, `hi(expr)`
+Operatorzy: `+ - * /` Literały: `$FF` (szesnastkowy), `%10110000` (binarny) Bajt
+młodszy/starszy: `lo(wyrażenie)`, `hi(wyrażenie)`
 
 **Rozmiar:** 0 bajtów.
 
@@ -2015,25 +2016,25 @@ Używaj go do liczników, wskaźników i krótkotrwałych stanów, które należ
 
 **Składnia:**
 ```
-.var counter
-.var timer, 2
-.var lives
+licznik .var
+.var licznik czasu, 2
+.var żyje
 ```
 
 **Przykład praktyczny: **
 ```
 .region Vars
-.var counter
-.var timer, 2
-.endregion
+licznik .var
+.var licznik czasu, 2
+.koniecregionu
 
-LDA #$00
-STA counter
+LDA#00 dolarów
+Licznik STA
 ```
 
 **Wygenerowany kod: **
 ```
-; .var counter
+; .var licznik
 ```
 
 **Rozmiar: ** domyślnie 1 bajt lub `N` bajtów, gdy określono rozmiar.
@@ -2044,7 +2045,7 @@ etykietę, kompilator generuje ostrzeżenie.
 
 ---
 
-### Runtime IF / ELSE / ENDIF
+### Czas wykonania IF / ELSE / ENDIF
 
 Podobnie jak **prawdziwy szablon gałęzi** — ta wersja działa w czasie
 wykonywania, a nie kompilacji. Porównuje `A`, `X` lub `Y` z wartością
@@ -2054,23 +2055,22 @@ Ciebie.
 | Argument | Opis                                          |
 | -------- | --------------------------------------------- |
 | Rejestr  | `A`, `X` lub `Y`                              |
-| Operator | `==`, `!=`, `<`, `<=`, `>`, `>=`  |
+| Operator | `==`, `!=`, `<`, `<=`, `>`, `>=`              |
 | Wartość  | Wartość natychmiastowa w formacie HEX lub DEC |
 
 **Składnia:**
 ```
 .if A == #$10
-    LDA #$07
+LDA #$07
 .else
-    LDA #$0F
+LDA #$0F
 .endif
 ```
 
 **Rozmiar: ** Zależy od wybranych gałęzi i formy porównania.
 
-Porównanie jest domyślnie bez znaku. W przypadku `<=` i `>` makro
-rozszerza się do najkrótszego równoważnego łańcucha rozgałęzień dla wybranego
-rejestru.
+Porównanie jest domyślnie bez znaku. W przypadku `<=` i `>` makro rozszerza się
+do najkrótszego równoważnego łańcucha rozgałęzień dla wybranego rejestru.
 
 ---
 
@@ -2082,13 +2082,13 @@ tak długo, jak długo warunek pozostaje prawdziwy.
 | Argument | Opis                                          |
 | -------- | --------------------------------------------- |
 | Rejestr  | `A`, `X` lub `Y`                              |
-| Operator | `==`, `!=`, `<`, `<=`, `>`, `>=`  |
+| Operator | `==`, `!=`, `<`, `<=`, `>`, `>=`              |
 | Wartość  | Wartość natychmiastowa w formacie HEX lub DEC |
 
 **Składnia:**
 ```
 .while A != #$00
-    JSR getchar
+JSR getchar
 .endw
 ```
 
@@ -2096,11 +2096,11 @@ tak długo, jak długo warunek pozostaje prawdziwy.
 
 Użyj `WHILE`, jeśli pętla może zakończyć się przed zakończeniem pierwszej
 iteracji. Jest to odpowiednik w czasie wykonywania funkcji pomocniczej
-`LOOP / NEXT` opartej na zliczaniu.
+`LOOP/NEXT` opartej na zliczaniu.
 
 ---
 
-### REPEAT / UNTIL
+### POWTARZAJ / DO
 
 Podobnie jak **pętla czasu wykonania z testem na dole** — treść zawsze jest
 uruchamiana co najmniej raz, a następnie warunek decyduje, czy się zatrzymać.
@@ -2108,13 +2108,13 @@ uruchamiana co najmniej raz, a następnie warunek decyduje, czy się zatrzymać.
 | Argument | Opis                                          |
 | -------- | --------------------------------------------- |
 | Rejestr  | `A`, `X` lub `Y`                              |
-| Operator | `==`, `!=`, `<`, `<=`, `>`, `>=`  |
+| Operator | `==`, `!=`, `<`, `<=`, `>`, `>=`              |
 | Wartość  | Wartość natychmiastowa w formacie HEX lub DEC |
 
 **Składnia:**
 ```
 .repeat
-    JSR getchar
+JSR getchar
 .until A == #$00
 ```
 
@@ -2132,8 +2132,8 @@ kopiuje ciągły blok, `MEMSET` wypełnia zakres jednym bajtem.
 
 | Makro            | Argumenty                     |
 | ---------------- | ----------------------------- |
-| `MEMCPY`         | `src`, `dst`, `size`    |
-| `MEMSET` | `addr`, `value`, `size` |
+| `MEMCPY`         | `źródło`, `dst`, `rozmiar`    |
+| `ZESTAW PAMIĘCI` | `adres`, `wartość`, `rozmiar` |
 
 **Składnia:**
 ```
@@ -2153,20 +2153,20 @@ automatycznie przełączają się na licznik 16-bitowy.
 
 ---
 
-### PRINT / PRINT_CHAR / PRINT_HEX / CLEAR_SCREEN / WAIT_KEY / DELAY / SET_BORDER / SET_BG
+### DRUKUJ / DRUKUJ_ZNAK / DRUKUJ_SZESNASTKOWY / WYCZYŚĆ_EKRAN / KLUCZ_CZEKAJĄCY / OPÓŹNIJ / USTAW_OBRAMOWANIE / USTAW_BG
 
-#### PRINT
+#### WYDRUKOWAĆ
 
 Podobnie jak wyjście **PETSCII bez szablonu ** — drukuje ciąg przez `CHROUT` z
-takim samym traktowaniem wielkich/małych liter (`lower`) jak `.petscii`.
+takim samym traktowaniem wielkich/małych liter (`mniejsze`) jak `.petscii`.
 
 **Składnia:**
 ```
-.print "HELLO"
-.print "hello", lower
+.print "CZEŚĆ"
+.print "cześć", dolna część
 ```
 
-#### PRINT_CHAR
+#### DRUKUJ_ZNAK
 
 Drukuje jeden bajt PETSCII według kodu numerycznego i wysyła go przez `CHROUT`.
 Wartość może być również nazwaną stałą lub etykietą, która w momencie montażu
@@ -2176,10 +2176,10 @@ jest przekształcana na bajt.
 ```
 .print_char 65
 .print_char $41
-.print_char color
+.print_char kolor
 ```
 
-#### PRINT_HEX
+#### DRUKUJ_SZESNASTKO
 
 Drukuje 8-bitową wartość jako tekst szesnastkowy poprzez normalną ścieżkę
 wyjściową KERNAL.
@@ -2189,13 +2189,13 @@ wyjściową KERNAL.
 .print_hex A
 ```
 
-#### CLEAR_SCREEN
+#### WYCZYŚĆ_EKRAN
 
 Skrót do standardowego kodu sterującego czystym ekranem w C64.
 
 **Składnia:**
 ```
-.clear_screen
+.wyczyść_ekran
 ```
 
 #### WAIT_KEY
@@ -2208,7 +2208,7 @@ pętli `GETIN` za każdym razem.
 .wait_key
 ```
 
-#### DELAY
+#### OPÓŹNIENIE
 
 Oczekuje żądaną liczbę klatek w ramach współdzielonej procedury pomocniczej.
 Używaj tego w przypadku krótkich przerw i przerw w synchronizacji, gdy pełna
@@ -2222,7 +2222,7 @@ lub stałą o określonej nazwie, a `.wait` to po prostu alias `.delay`.
 .delay frames=FRAMES_1S
 ```
 
-#### SET_BORDER / SET_BG
+#### USTAW_GRANICĘ / USTAW_BG
 
 Wygodne opakowania dla rejestrów kolorów VIC-II. Wartość koloru może być liczbą
 całkowitą lub nazwaną stałą z zakresu 0–15.
@@ -2231,8 +2231,8 @@ całkowitą lub nazwaną stałą z zakresu 0–15.
 ```
 .set_border 6
 .set_bg 0
-.set_border color
-.set_bg color
+.set_border kolor
+.set_bg kolor
 ```
 
 **Rozmiar:** Każdy pomocnik rozszerza się do małej sekwencji zapisu do rejestru
@@ -2264,7 +2264,7 @@ Użyj tego, jeśli chcesz mieć standardowy kod „SEI / install handler / enabl
 
 ---
 
-### RAND
+### SKRAJ
 
 Podobnie jak **niewielki wbudowany PRNG** — zwraca 8-bitową pseudolosową wartość
 z kompaktowego ziarna zerowej strony.
@@ -2275,7 +2275,7 @@ z kompaktowego ziarna zerowej strony.
 
 **Składnia:**
 ```
-.rand
+.skraj
 ```
 
 **Rozmiar:** Kilka bajtów, w zależności od wybranej ścieżki implementacji.
@@ -2301,28 +2301,28 @@ wielokolorowy i ustawia jego kolor.
 
 **Składnia:**
 ```
-.sprite_init 0, 7, $21
-.sprite_init 0, 7, $21, multicolor
-.sprite_init 0, 7, $21, mono
+.sprite_init 0, 7, 21 USD
+.sprite_init 0, 7, 21 USD, wielokolorowy
+.sprite_init 0, 7, 21 USD, monochromatyczny
 ```
 
 **Wygenerowany kod: **
 ```
-    LDA #$21
-    STA $07F8       ; sprite pointer register ($07F8 + N)
-    LDA $D015
-    ORA #$01        ; set enable bit for sprite 0
-    STA $D015
-    LDA $D01C
-    AND #$FE        ; clear multicolor bit for sprite 0
-    STA $D01C
-    LDA #$07
-    STA $D027       ; sprite 0 colour register
+LDA #$21
+STA $07F8 ; rejestr wskaźnika sprite'a ($07F8 + N)
+LDA $D015
+ORA #$01 ; ustaw bit włączenia dla sprite'a 0
+STA $D015
+LDA $D01C
+AND #$FE ; wyczyść bit wielokolorowy dla sprite'a 0
+STA $D01C
+LDA #$07
+STA $D027 ; rejestr koloru sprite'a 0
 ```
 
 **Rozmiar:** 26 bajtów.
 
-> **Strona danych sprite'a: ** `data_address ÷ 64`. Z domyślnym stubem BASIC
+> **Strona danych sprite'a: ** `adres_danych ÷ 64`. Z domyślnym stubem BASIC
 > SYS, `ALIGN 64` po `JMP main` umieszcza dane sprite'a w `$0840` → strona =
 > `$21`.
 
@@ -2348,13 +2348,13 @@ stałe; do animacji użyj `INC`/`DEC` bezpośrednio w rejestrze sprite'a.
 
 **Wygenerowany kod (przykład: sprite 0, X=152, Y=100):**
 ```
-    LDA #$98        ; X low byte
-    STA $D000       ; sprite 0 X register
-    LDA $D010
-    AND #$FE        ; clear X MSB for sprite 0 (X ≤ 255)
-    STA $D010
-    LDA #$64        ; Y = 100
-    STA $D001       ; sprite 0 Y register
+LDA #$98; X niższy bajt
+STA $D000; sprite 0 rejestr X
+LDA $D010
+AND #$FE; wyczyść X najstarszego bajta dla sprite'a 0 (X ≤ 255)
+STA $D010
+LDA #$64; Y = 100
+STA $D001; sprite 0 rejestr Y
 ```
 
 W przypadku X > 255 makro ustawia odpowiedni bit w `$D010` zamiast go czyścić.
@@ -2368,7 +2368,7 @@ W przypadku X > 255 makro ustawia odpowiedni bit w `$D010` zamiast go czyścić.
 ---
 
 <a id="wait_raster"></a>
-### WAIT_RASTER
+### CZEKAJ_RASTER
 
 Czeka, aż wiązka elektronów VIC-II dotrze do określonej linii skanowania – jak
 synchronizacja z ramką telewizora. Umieść to na początku pętli gry, aby zapobiec
@@ -2385,10 +2385,10 @@ rozrywaniu sprite'ów. Bez JSR, bez etykiety.
 
 **Wygenerowany kod: **
 ```
-wait:
-    LDA $D012       ; current raster line
-    CMP #$FF        ; target line
-    BNE wait        ; loop back (-7 bytes)
+czekaj:
+LDA $D012 ; bieżąca linia rastrowa
+CMP #$FF ; linia docelowa
+BNE czekaj ; pętla powrotna (-7 bajtów)
 ```
 
 **Rozmiar: ** 7 bajtów (przesunięcie `BNE` `$F9` = −7 zawsze wskazuje z powrotem
@@ -2399,7 +2399,7 @@ na `LDA`).
 
 ---
 
-### JOYSTICK
+### DRĄŻEK STEROWY
 
 Jak odczytanie **`PEEK($DC00)`**, a następnie POKE-owanie pozycji sprite'a — ale
 w jednym wierszu. Odczytuje jeden port joysticka CIA i odpowiednio dostosowuje
@@ -2417,22 +2417,22 @@ rejestry X/Y sprite'a. Całkowicie inline, bez potrzeby JSR.
 
 **Wygenerowany kod (port 2, sprite 0):**
 ```
-    LDA $DC00       ; read CIA port 2
-    LSR             ; bit 0 → carry (Up)
-    BCS skip_up     ; carry set = NOT pressed
-    DEC $D001       ; Y−1 (move up)
+LDA $DC00; odczyt portu CIA 2
+LSR; bit 0 → przeniesienie (w górę)
+BCS skip_up; przeniesienie ustawione = NIEnaciśnięte
+DEC $D001; Y−1 (przesuń w górę)
 skip_up:
-    LSR             ; bit 1 → carry (Down)
-    BCS skip_down
-    INC $D001       ; Y+1 (move down)
+LSR; bit 1 → przeniesienie (w dół)
+BCS skip_down
+INC $D001; Y+1 (przesuń w dół)
 skip_down:
-    LSR             ; bit 2 → carry (Left)
-    BCS skip_left
-    DEC $D000       ; X−1 (move left)
+LSR; bit 2 → przeniesienie (w lewo)
+BCS skip_left
+DEC $D000; X−1 (przesuń w lewo)
 skip_left:
-    LSR             ; bit 3 → carry (Right)
-    BCS skip_right
-    INC $D000       ; X+1 (move right)
+LSR; bit 3 → przeniesienie (w prawo)
+BCS skip_right
+INC $D000; X+1 (przesuń w prawo)
 skip_right:
 ```
 
@@ -2449,7 +2449,7 @@ skip_right:
 **Rozmiar: ** 27 bajtów. Przesunięcie `BCS` zawsze wynosi `+3` (pomija
 następującą 3-bajtową instrukcję `DEC`/`INC abs`).
 
-**Tryb zmienny — `.joystick port, vx, vy[, fire]`:** zamiast przesuwać duszka,
+**Tryb zmienny — `.port joysticka, vx, vy[, fire]`:** zamiast przesuwać duszka,
 kierunek zapisywany jest w zmiennych: `vx` / `vy` = `-1` / `0` / `+1` (`$FF` /
 `$00` / `$01`), a opcjonalnie `fire` = `1` podczas naciskania przycisku, W
 przeciwnym razie użyj `0`. Użyj go do przewijania kamery, odtwarzacza z własną
@@ -2457,8 +2457,8 @@ fizyką lub menu. Port `3` odczytuje oba porty joysticka jednocześnie (`LDA
 $DC00` / `AND $DC01`), więc oba porty działają.
 
 ```
-.joystick 2, vx, vy          ; 35 bytes
-.joystick 3, vx, vy, fire    ; both ports + fire: 45 bytes
+.joystick 2, vx, vy; 35 bajtów
+.joystick 3, vx, vy, fire; oba porty + fire: 45 bajtów
 ```
 
 > **Typowe zastosowanie:** Umieść w etykiecie `gameloop` najpierw `WAIT_RASTER`:
@@ -2476,7 +2476,7 @@ $DC00` / `AND $DC01`), więc oba porty działają.
 > **2.1:** port musi być znany podczas tworzenia kodu (liczba lub stała),
 > ponieważ port 3 wydłuża kod o 3 bajty; etykieta zdefiniowana później jest
 > błędem.
-### MOUSE
+### MYSZ
 
 Odczytuje dane z myszy proporcjonalnej Commodore 1351 i przesuwa sprite'a.
 Całkowicie **inline** — bez JSR ani etykiety. Makro wybiera port CIA, czeka na
@@ -2494,86 +2494,86 @@ rejestrów sprite'a.
 **Wygenerowany kształt kodu (port 1, sprite 0, ZP `$FD`/`$FE`):**
 
 ```
-    ; CIA port select + settle
-    LDA $DC00
-    AND #$3F
-    ORA #$40
-    STA $DC00
-    LDX #$67
-wait:
-    DEX
-    BNE wait
+; Wybór portu CIA + rozliczenie
+LDA $DC00
+AND #$3F
+ORA #$40
+STA $DC00
+LDX #$67
+czekaj:
+DEX
+BNE czekaj
 
-    ; X axis — standard 1351-style 7-bit delta decode
-    LDA $D419
-    TAY
-    SEC
-    SBC $FD
-    AND #$7F
-    LDX #$00
-    CMP #$40
-    BCS xneg
-    LSR A
-    BEQ xdone
-    STY $FD
-    CLC
-    ADC $D000
-    STA $D000
-    TXA
-    ADC #$00
-    AND #$01
-    BEQ xdone
-    LDA $D010
-    EOR #$01
-    STA $D010
-    JMP xdone
+; Oś X — standardowe 7-bitowe dekodowanie delta w stylu 1351
+LDA $D419
+TAY
+SEC
+SBC $FD
+AND #$7F
+LDX #$00
+CMP #$40
+BCS xneg
+LSR A
+BEQ xdone
+STY $FD
+CLC
+ADC $D000
+STA $D000
+TXA
+ADC #$00
+AND #$01
+BEQ xdone
+LDA $D010
+EOR #$01
+STA $D010
+JMP xdone
 xneg:
-    ORA #$C0
-    CMP #$FF
-    BEQ xdone
-    SEC
-    ROR
-    DEX
-    STY $FD
-    CLC
-    ADC $D000
-    STA $D000
-    TXA
-    ADC #$00
-    AND #$01
-    BEQ xdone
-    LDA $D010
-    EOR #$01
-    STA $D010
+ORA #$C0
+CMP #$FF
+BEQ xdone
+SEC
+ROR
+DEX
+STY $FD
+CLC
+ADC $D000
+STA $D000
+TXA
+ADC #$00
+AND #$01
+BEQ xdone
+LDA $D010
+EOR #$01
+STA $D010
 xdone:
 
-    ; Y axis — same decode, then inverted before apply
-    LDA $D41A
-    TAX
-    SEC
-    SBC $FE
-    AND #$7F
-    CMP #$40
-    BCS yneg
-    LSR A
-    BEQ ydone
-    STX $FE
-    EOR #$FF
-    SEC
-    ADC $D001
-    STA $D001
-    JMP ydone
+; Oś Y — to samo dekodowanie, następnie odwrócone przed zastosowaniem
+LDA $D41A
+TAX
+SEC
+SBC $FE
+AND #$7F
+CMP #$40
+BCS yneg
+LSR A
+BEQ ydone
+STX $FE
+EOR #$FF
+SEC
+ADC $D001
+STA $D001
+JMP ydone
 yneg:
-    ORA #$C0
-    CMP #$FF
-    BEQ ydone
-    SEC
-    ROR
-    STX $FE
-    EOR #$FF
-    SEC
-    ADC $D001
-    STA $D001
+ORA #$C0
+CMP #$FF
+BEQ ydone
+SEC
+ROR
+STX $FE
+EOR #$FF
+SEC
+ADC $D001
+STA $D001
 ydone:
 ```
 
@@ -2581,8 +2581,8 @@ ydone:
 
 **Składnia:**
 ```
-.mouse port, spriteNum, zpX, zpY
-; example:
+.mouse port, numer sprite'a, zpX, zpY
+; przykład:
 .mouse 2, 0, FD, FE
 ```
 
@@ -2610,19 +2610,19 @@ bez potrzeby JSR.
 | Argument    | Opis                                                                                              |
 | ----------- | ------------------------------------------------------------------------------------------------- |
 | Sprite #    | Numer duszka 0–7 (bit, który duszek należy sprawdzić)                                             |
-| Typ kolizji | `Sprite-Sprite ($D01E)` — kolizja z innym sprite'em; `Sprite-Background ($D01F)` — kolizja z grafiką tła |
+| Typ kolizji | `Sprite-Sprite ($D01E)` — kolizja z innym sprite'em; `Sprite-Tło ($D01F)` — kolizja z grafiką tła |
 
 **Składnia:**
 ```
 .sprite_col 0, sprite
-.sprite_col 0, background
+.sprite_col 0, tło
 ```
 
 **Wygenerowany kod (sprite 0, sprite–sprite):**
 ```
-    LDA $D01E       ; read sprite-sprite collision register (clears it!)
-    AND #$01        ; isolate bit 0 (sprite 0)
-                    ; A ≠ 0 → collision occurred
+LDA $D01E ; odczyt rejestru kolizji sprite-sprite (czyszczenie!)
+AND #$01 ; izolowanie bitu 0 (sprite 0)
+; A ≠ 0 → wystąpiła kolizja
 ```
 
 **Rozmiar:** 5 bajtów.
@@ -2632,34 +2632,34 @@ bez potrzeby JSR.
 
 **Typowe zastosowanie:**
 ```
-gameloop:
-    .wait_raster $FF
-    .joystick 2, 0
-    .sprite_col 0, sprite
-    BEQ no_hit          ; A = 0 → no collision
-    LDA #$02
-    STA $D020           ; red border = hit!
-    JMP gameloop
+Pętla gry:
+.wait_raster $FF
+.joystick 2, 0
+.sprite_col 0, sprite
+BEQ no_hit ; A = 0 → brak kolizji
+LDA #$02
+STA $D020 ; czerwona ramka = trafienie!
+Pętla gry JMP
 no_hit:
-    LDA #$0E
-    STA $D020           ; light blue border = clear
-    JMP gameloop
+LDA #$0E
+STA $D020 ; jasnoniebieska ramka = wyczyść
+Pętla gry JMP
 ```
 
-> **Zobacz także:** `collision-demo` — zielona kula (sprite #0) kontra
+> **Zobacz także:** `przykład kolizji` — zielona kula (sprite #0) kontra
 > czerwony krzyż (sprite #1).
 
 ---
 
-### LOADFILE
+### WCZYTAJ PLIK
 
-Podobnie jak **`LOAD "file",8`** w BASIC-u — ładuje plik z dysku D64 w czasie
+Podobnie jak **`LOAD „plik”, 8`** w BASIC-u — ładuje plik z dysku D64 w czasie
 wykonywania za pomocą procedury KERNAL LOAD. Użyj tej funkcji, aby załadować
 dane, muzykę lub dodatkowy kod z dysku podczas działania programu.
 
 | Argument                     | Opis                                                                                                                                                                                                          |
 | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Nazwa pliku                  | Nazwa pliku na dysku (maks. 16 znaków, automatycznie wielkie litery; filtrowane są znaki `,`, `"`, `/`, `\`, `:`, `*`, `?`, `<`, `>`, `\|`)                                                              |
+| Nazwa pliku                  | Nazwa pliku na dysku (maks. 16 znaków, automatycznie wielkie litery; filtrowane są znaki `,`, `"`, `/`, `\`, `:`, `*`, `?`, `<`, `>`, `|`)                                                                    |
 | Urządzenie                   | Numer urządzenia 8–30 (domyślnie `8`)                                                                                                                                                                         |
 | Zastąp adres (opcjonalnie)   | Adres ładowania szesnastkowego (np. `C000`). Jeśli ustawiony, plik jest ładowany pod ten adres (`sec=0`, ignorując nagłówek PRG). Pozostaw puste, aby użyć własnego 2-bajtowego nagłówka PRG pliku (`sec=1`). |
 | Etykieta błędu (opcjonalnie) | Jeśli ustawione, instrukcja `BCS` jest generowana po JSR LOAD. Jeśli KERNAL zwróci wartość z ustawionym przeniesieniem (błąd), wykonanie zostanie przeskoczone do tej etykiety.                               |
@@ -2668,25 +2668,25 @@ dane, muzykę lub dodatkowy kod z dysku podczas działania programu.
 ```
 .loadfile "DEMO-COLORS", 8
 .loadfile "DEMO-COLORS", 8, $C000
-.loadfile "DEMO-COLORS", 8, $C000, error_label
+.loadfile "DEMO-COLORS", 8, $C000, etykieta_błędu
 ```
 
 **Wygenerowana struktura kodu: **
 ```
-    JMP skip_filename      ; jump over the inline filename
-    .byte "DEMO-COLORS"    ; filename bytes (PETSCII, 11 chars)
+JMP skip_filename; przeskocz nazwę pliku
+.byte "DEMO-COLORS" ; bajty nazwy pliku (PETSCII, 11 znaków)
 skip_filename:
-    LDA #11                ; filename length
-    LDX #<fname            ; pointer lo
-    LDY #>fname            ; pointer hi
-    JSR $FFBD              ; SETNAM
-    LDA #1                 ; logical file #1
-    LDX #8                 ; device 8
-    LDY #0                 ; sec=0 (override addr) or #1 (file's own addr)
-    JSR $FFBA              ; SETLFS
-    LDA #0                 ; LOAD command (not VERIFY)
-    JSR $FFD5              ; LOAD
-    BCS fail               ; (only if error label set)
+LDA #11 ; długość nazwy pliku
+LDX #<fname ; wskaźnik lo
+LDY #>fname ; wskaźnik hi
+JSR $FFBD ; SETNAM
+LDA #1 ; plik logiczny #1
+LDX #8 ; urządzenie 8
+LDY #0 ; s=0 (nadpisz adres) lub #1 (własny adres pliku)
+JSR $FFBA ; SETLFS
+LDA #0 ; polecenie LOAD (nie VERIFY)
+JSR $FFD5 ; LOAD
+BCS fail ; (tylko jeśli ustawiono etykietę błędu)
 ```
 
 **Rozmiar: ** `3 + długość_nazwy_pliku + 9 (SETNAM) + 9 (SETLFS) + (4 w
@@ -2702,7 +2702,7 @@ Minimum 27 bajtów.
 > zostanie znaleziony, KERNAL ustawia flagę przeniesienia, a wykonywanie zostaje
 > przerwane i przechodzi do następnego kroku.
 
-> **Zobacz także:** `loadfile-demo` — demonstruje ładowanie
+> **Zobacz także:** `przykład loadfile-demo` — demonstruje ładowanie
 > `DEMO-COLORS.PRG` z D64 z gałęzią błędu BCS i wizualnym ekranem błędu.
 
 ---
@@ -2725,15 +2725,15 @@ EXODECRUNCH rozpakuje ją wstecz do adresu osadzonego w strumieniu.
 
 **Wygenerowany kod (19 bajtów):**
 ```
-    LDA $AE           ; KERNAL load-end lo (set by previous LOAD)
-    STA $04           ; depacker src-end pointer lo
-    LDA $AF           ; KERNAL load-end hi
-    STA $05           ; depacker src-end pointer hi
-    LDA #$36          ; BASIC ROM off ($A000-$BFFF becomes RAM)
-    STA $01
-    JSR depacker      ; depacker reads back-to-front via $04/$05
-    LDA #$37          ; restore default mapping (BASIC + KERNAL + I/O)
-    STA $01
+LDA $AE; koniec ładowania jądra (ustawiony przez poprzednie LOAD)
+STA $04; wskaźnik końca źródła depakera (src-end) (lo)
+LDA $AF; koniec ładowania jądra (hi)
+STA $05; wskaźnik końca źródła depakera (src-end) (hi)
+LDA #$36; ROM BASIC wyłączony ($A000-$BFFF staje się RAM)
+STA $01
+Depaker JSR; depaker odczytuje od tyłu przez $04/$05
+LDA #$37; przywraca domyślne mapowanie (BASIC + KERNAL + I/O)
+STA $01
 ```
 
 **Jak to działa:**
@@ -2756,7 +2756,7 @@ podczas dekompresji. Umieść go w swoim programie z `.incbin` pod adresem
 depakera.
 
 **Surowe dane wejściowe:** dodatkowy plik jest przekazywany do Exomizera jako
-surowy plik ładowany pod adresem Dst (`file@<Dst>`), więc depacker zapisuje
+surowy plik ładowany pod adresem Dst (`plik@<Dst>`), więc depacker zapisuje
 każdy bajt, zaczynając od pierwszego, dokładnie pod wpisanym adresem.
 
 > **Zobacz także:** przykład `exo-multicolor-demo` — pełny przykład od początku
@@ -2778,23 +2778,23 @@ na zapisie i odczycie dwóch wzorców do rejestru REU `$DF04`.
 
 **Wygenerowany kod (34 bajty):**
 ```
-LDA #$55
-STA $DF04
-LDA $DF04
-CMP #$55
-BNE fail
-LDA #$AA
-STA $DF04
-LDA $DF04
-CMP #$AA
-BNE fail
-LDA #$00
-CMP #$FF   ; Z=0 => REU present
-BNE done
-fail:
-LDA #$FF
-CMP #$FF   ; Z=1 => no REU
-done:
+LDA #55 dolarów
+STA$DF04
+LDA$DF04
+CMP #55 dolarów
+BNE porażka
+LDA#$AA
+STA$DF04
+LDA$DF04
+CMP#$AA
+BNE porażka
+LDA#00 dolarów
+CMP #$FF ; Z=0 => REU obecne
+BNE zrobione
+ponieść porażkę:
+LDA#$FF
+CMP #$FF ; Z=1 => brak REU
+zrobione:
 ```
 > Makro normalizuje wynik, więc poniższa gałąź pozostaje prosta: `BNE` oznacza
 > obecność REU, `BEQ` oznacza brak REU.
@@ -2813,9 +2813,9 @@ done:
 **Typowe zastosowanie:**
 ```assembly
 .reu_check
-BEQ no_reu        ; skip if REU not present
-; ... REU code here ...
-no_reu:
+BEQ no_reu ; pominąć, jeżeli nie ma REU
+; ...tutaj kod REU...
+nie_reu:
 ```
 
 ---
@@ -2829,9 +2829,9 @@ praktycznie natychmiastowy.
 
 | Makro              | Kierunek             | Polecenie `$DF01` |
 | ------------------ | -------------------- | ----------------- |
-| `REU_STASH`        | Pamięć RAM C64 → REU | `$90`      |
-| `REU_FETCH` | REU → Pamięć RAM C64 | `$91`      |
-| `REU_SWAP`         | Pamięć RAM C64 ↔ REU | `$92`       |
+| `REU_STASH`        | Pamięć RAM C64 → REU | `90 dolarów`      |
+| `POBIERZ_PONOWNIE` | REU → Pamięć RAM C64 | `91 dolarów`      |
+| `REU_SWAP`         | Pamięć RAM C64 ↔ REU | `92 dolary`       |
 
 **Argumenty:**
 
@@ -2851,16 +2851,16 @@ praktycznie natychmiastowy.
 
 **Wygenerowany kod (40 bajtów):**
 ```
-LDA #c64lo    STA $DF02    ; C64 address LO
-LDA #c64hi    STA $DF03    ; C64 address HI
-LDA #reuLo    STA $DF04    ; REU address LO
-LDA #reuHi    STA $DF05    ; REU address HI
-LDA #bank     STA $DF06    ; REU bank
-LDA #lenLo    STA $DF07    ; length LO
-LDA #lenHi    STA $DF08    ; length HI
-LDA #$00      STA $DF09    ; address control (fixed)
-LDA #$00      STA $DF0A    ; interrupt mask (fixed)
-LDA #cmd      STA $DF01    ; execute DMA ($90/$91/$92 = stash/fetch/swap, immediate)
+LDA #c64lo STA $DF02; adres C64 LO
+LDA #c64hi STA $DF03; adres C64 HI
+LDA #reuLo STA $DF04; adres REU LO
+LDA #reuHi STA $DF05; adres REU HI
+LDA #bank STA $DF06; bank REU
+LDA #lenLo STA $DF07; długość LO
+LDA #lenHi STA $DF08; długość HI
+LDA #$00 STA $DF09; kontrola adresu (stała)
+LDA #$00 STA $DF0A; maska przerwania (stała)
+LDA #cmd STA $DF01; wykonanie DMA ($90/$91/$92 = przechowywanie/pobieranie/wymiana, natychmiast)
 ```
 
 > **Uwaga: polecenia ** używają `$90/$91/$92` (ustawiony bit 4 = natychmiastowy
@@ -2886,14 +2886,14 @@ Bajt prędkości obliczany jest w następujący sposób: `(speedIndex & 0x0F) |
 
 **Wygenerowany kod (5 bajtów):**
 ```
-A9 xx   LDA #speed_byte
-8D 31 D0   STA $D031
+A9 xx LDA #speed_byte
+8D 31 D0 STA $D031
 ```
 
 **Składnia:**
 ```
-.turbo_set 7,0    ; speed=7 (~10 MHz), badline enabled
-.turbo_set 15,1   ; speed=15 (~48 MHz), badline disabled
+.turbo_set 7,0; prędkość=7 (~10 MHz), linia uszkodzona włączona
+.turbo_set 15,1; prędkość=15 (~48 MHz), linia uszkodzona wyłączona
 ```
 
 > **Uwaga: ** Ta makroinstrukcja dotyczy tylko sprzętu U64. Na prawdziwym C64
@@ -2902,15 +2902,15 @@ A9 xx   LDA #speed_byte
 
 ---
 
-### SUPERCPU_DETECT
+### WYKRYWANIE SUPERCPU
 
 Sprawdza, czy zainstalowany jest akcelerator **CMD SuperCPU** — na przykład
 `PEEK($D0B8)`, aby sprawdzić, czy zwraca on coś innego niż `$FF`.
 
 **Wygenerowany kod (5 bajtów):**
 ```
-AD B8 D0   LDA $D0B8
-C9 FF      CMP #$FF
+AD B8 D0 LDA $D0B8
+C9 FF CMP #$FF
 ```
 
 **Wynik we flagach: **
@@ -2927,8 +2927,8 @@ C9 FF      CMP #$FF
 **Typowe zastosowanie:**
 ```assembly
 .supercpu_detect
-BEQ no_scpu       ; skip if SuperCPU not present
-; ... SuperCPU turbo code here ...
+BEQ no_scpu; pomiń, jeśli nie ma SuperCPU
+; ... Tutaj kod turbo SuperCPU ...
 no_scpu:
 ```
 
@@ -2946,14 +2946,14 @@ Włącza lub wyłącza tryb turbo **CMD SuperCPU**. Najpierw wywołaj
 
 **Wygenerowany kod (5 bajtów):**
 ```
-A9 00         LDA #$00
-8D 7A D0      STA $D07A    ; (or $D07B for disable)
+A9 00 LDA #00 dolarów
+8D 7A D0 STA $D07A ; (lub $D07B za wyłączenie)
 ```
 
 **Składnia:**
 ```
-.turbo_enable on
-.turbo_enable off
+.turbo_enable włączony
+.turbo_enable wyłączony
 ```
 
 > **Uwaga:** Najpierw wywołaj `SUPERCPU_DETECT` i rozgałęzij się wokół tej
@@ -2975,34 +2975,33 @@ jest generowany inline.
 | Adres źródłowy (ekran) | Adres szesnastkowy, pod którym znajdują się dane mapy po załadowaniu (np. `C000`)                                                                                                                                                                                  |
 | Pamięć RAM ekranu dest | Gdzie kopiować kody ekranowe (np. `0400`)                                                                                                                                                                                                                          |
 | Rozmiar (bajty)        | Łączna liczba bajtów do skopiowania — typowo `$03E8` = 1000 (40×25 znaków)                                                                                                                                                                                         |
-| Źródło koloru          | `auto`: dane koloru podążają za kodami ekranowymi (`source + size`); lub jawnym adresem źródłowym koloru. Dane koloru są kopiowane do pamięci RAM kolorów w drugim przebiegu. Pomiń ten element (i miejsce docelowe koloru), aby skopiować tylko kody ekranowe. |
+| Źródło koloru          | `auto`: dane koloru podążają za kodami ekranowymi (`źródło + rozmiar`); lub jawnym adresem źródłowym koloru. Dane koloru są kopiowane do pamięci RAM kolorów w drugim przebiegu. Pomiń ten element (i miejsce docelowe koloru), aby skopiować tylko kody ekranowe. |
 | Pamięć RAM koloru      | Miejsce docelowe dla danych o kolorze — domyślne `D800` (pamięć RAM kolorów C64)                                                                                                                                                                                   |
 
 **Wygenerowany kod (mapa 1000-bajtowa, tylko ekran):**
 ```
-    LDX #$00
-    LDA $C000,X   ; page 0
-    STA $0400,X
-    INX
-    BNE *-9       ; loops until X wraps to 0 (256 iters)
-    LDA $C100,X   ; page 1
-    STA $0500,X
-    INX
-    BNE *-9
-    LDA $C200,X   ; page 2
-    STA $0600,X
-    INX
-    BNE *-9
-    LDA $C300,X   ; remainder — 232 bytes
-    STA $0700,X
-    INX
-    CPX #$E8
-    BNE *-11
+LDX #$00
+LDA $C000,X ; strona 0
+STA $0400,X
+INX
+BNE *-9 ; pętla, aż X przejdzie do 0 (256 iteracji)
+LDA $C100,X ; strona 1
+STA $0500,X
+INX
+BNE *-9
+LDA $C200,X ; strona 2
+STA $0600,X
+INX
+BNE *-9
+LDA $C300,X ; reszta — 232 bajty
+STA $0700,X
+INX
+CPX #$E8
+BNE *-11
 ```
 
-**Rozmiar: ** `2 (LDX) + fullPages×9 + (rem > 0 ? 11 : 0)` bajtów na
-sekcję. Tryb łączony podwaja tę liczbę (sekcja ekranu + sekcja identycznego
-koloru).
+**Rozmiar: ** `2 (LDX) + pełne strony×9 + (rem > 0 ? 11 : 0)` bajtów na sekcję.
+Tryb łączony podwaja tę liczbę (sekcja ekranu + sekcja identycznego koloru).
 
 **Parowanie z edytorem map:**
 
@@ -3013,22 +3012,22 @@ z `auto` jako źródłem koloru i adresem źródłowym, pod którym załadowany 
 plik (np. z `.incbin` w `$C000`):
 
 ```
-    .incbin "map-color.bin", $C000   ; screen codes $C000–$C3E7, color $C3E8–$C7CF
-    ; ...
-    .map_copy $C000, $0400, 1000, auto, $D800
+.incbin "map-color.bin", $C000; kody ekranowe $C000–$C3E7, kolor $C3E8–$C7CF
+; ...
+.map_copy $C000, $0400, 1000, auto, $D800
 ```
 
 **Składnia:**
 ```
-.map_copy $C000, $0400, 1000               ; screen only
-.map_copy $C000, $0400, 1000, auto, $D800  ; combined (color at src+size)
-.map_copy $C000, $0400, 1000, $C3E8, $D800 ; explicit color source address
+.map_copy $C000, $0400, 1000; tylko ekran
+.map_copy $C000, $0400, 1000, auto, $D800; połączone (kolor w źródle i rozmiarze)
+.map_copy $C000, $0400, 1000, $C3E8, $D800; jawny adres źródłowy koloru
 ```
 
 ---
 
 <a id="map_copy16x16"></a>
-### MAP_COPY16X16
+### MAPA_KOPIA16X16
 
 Kopiuje obszar znaków o wymiarach 16×16 z kompaktowego, 256-bajtowego bloku kodu
 ekranowego oraz pasującego do niego 256-bajtowego bloku pamięci RAM kolorów.
@@ -3040,15 +3039,15 @@ uciążliwy.
 
 | Dane                                | Domyślny adres                |
 | ----------------------------------- | ----------------------------- |
-| Kody ekranowe 16×16                 | Adres źródłowy (`src`)     |
-| 16×16 wartości kolorów              | `src + 256`                |
-| Miejsce docelowe pamięci RAM ekranu | `$0400 + row×40 + col` |
-| Miejsce docelowe pamięci RAM koloru | `$D800 + row×40 + col` |
+| Kody ekranowe 16×16                 | Adres źródłowy (`źródło`)     |
+| 16×16 wartości kolorów              | `źródło + 256`                |
+| Miejsce docelowe pamięci RAM ekranu | `$0400 + wiersz×40 + kolumna` |
+| Miejsce docelowe pamięci RAM koloru | `$D800 + wiersz×40 + kolumna` |
 
 **Składnia:**
 ```
-.map_copy16x16 $3000, 12, 4
-.map_copy16x16 $3000, 12, 4, $0400, $3100, $D800
+.map_copy16x16 3000 USD, 12, 4
+.map_copy16x16 3000 USD, 12, 4, 0400 USD, 3100 USD, 800 USD
 ```
 
 Krótsza wersja kopiuje bajty ekranu z `$3000`, bajty koloru z `$3100` i
@@ -3067,20 +3066,20 @@ ekranie tekstowym C64 o wymiarach 40×25.
 Typowe parowanie z Charset Canvas:
 
 ```
-* = $0801
+* = 0801 USD
     SEI
-    LDA #$00
+    LDA#00 dolarów
     STA $D021
-    LDA #$05
+    LDA #05 dolarów
     STA $D022
     LDA #$0D
     STA $D023
-    .map_copy16x16 $3000, 12, 4
-loop:
-    JMP loop
+    .map_copy16x16 3000 $, 12, 4
+pętla:
+    Pętla JMP
 
-.incbin "16x16+ram+color.bin", $3000
-.incbin "16x16+charset.bin", $2000
+.incbin „16x16+ram+kolor.bin”, 3000 USD
+.incbin „16x16+charset.bin”, 2000 USD
 ```
 
 ---
@@ -3102,34 +3101,34 @@ go raz na klatkę gry — bez potrzeby JSR.
 
 **Wygenerowany kod (sprite 0, 4 klatki, ZP `$FB`, lista w `$C100`):**
 ```
-    INC $FB         ; advance frame counter
-    LDA $FB
-    CMP #$04        ; frame count
-    BCC *+6         ; if counter < count, skip reset
-    LDA #$00
-    STA $FB
-    TAX             ; X = current frame index
-    LDA $C100,X     ; load sprite data page for this frame
-    STA $07F8       ; update sprite 0 pointer ($07F8 + sprite#)
+INC $FB ; przesuń licznik klatek
+LDA $FB
+CMP #$04 ; liczba klatek
+BCC *+6 ; jeśli licznik < liczba, pomiń resetowanie
+LDA #$00
+STA $FB
+TAX ; X = bieżący indeks klatki
+LDA $C100,X ; wczytaj stronę danych sprite'a dla tej klatki
+STA $07F8 ; zaktualizuj wskaźnik sprite'a 0 ($07F8 + numer sprite'a)
 ```
 
 **Rozmiar:** 19 bajtów.
 
 **Typowe zastosowanie:**
 ```
-frameTable:
-    .byte $21, $22, $23, $24   ; 4 frames at $0840, $0880, $08C0, $0900
+Tabela klatek:
+.byte $21, $22, $23, $24 ; 4 klatki o wartościach $0840, $0880, $08C0, $0900
 
-gameloop:
-    .wait_raster $FF
-    .sprite_anim 0, $C100, 4, $FB
-    JMP gameloop
+pętla gry:
+.wait_raster $FF
+.sprite_anim 0, $C100, 4, $FB
+pętla gry JMP
 ```
 
 **Składnia:**
 ```
-.sprite_anim spriteNum, frameListAddr, frameCount, zpByte
-; example:
+.sprite_anim numer_spretu, adres_listy_ramek, liczba_ramek, bajt_zp
+; przykład:
 .sprite_anim 0, C100, 4, FB
 ```
 
@@ -3141,7 +3140,7 @@ gameloop:
 ---
 
 <a id="score_bcd"></a>
-### SCORE_BCD
+### WYNIK_BCD
 
 Dodaje wartość stałego punktu do wielobajtowego wyniku BCD przechowywanego w
 pamięci, a następnie renderuje każdą cyfrę do pamięci RAM ekranu jako znak kodu
@@ -3164,40 +3163,40 @@ przeniesieniami.
 **Wygenerowany kod (4 bajty, +100 punktów, wynik na poziomie `$C200`, ekran na
 poziomie `$0400`):**
 ```
-    SED              ; enable BCD / decimal mode
-    CLC
-    LDA $C200        ; byte 0 (digits 1–2)
-    ADC #$00         ; low byte of 100 in BCD = $00
-    STA $C200
-    LDA $C201        ; byte 1 (digits 3–4)
-    ADC #$01         ; mid byte of 100 in BCD = $01 (carry propagates)
-    STA $C201
-    LDA $C202
-    ADC #$00
-    STA $C202
-    LDA $C203
-    ADC #$00
-    STA $C203
-    CLD              ; back to binary mode
+SED; włącz tryb BCD/dziesiętny
+CLC
+LDA $C200; bajt 0 (cyfry 1–2)
+ADC #$00; młodszy bajt 100 w BCD = $00
+STA $C200
+LDA $C201; bajt 1 (cyfry 3–4)
+ADC #$01; środkowy bajt 100 w BCD = $01 (przeniesienie propaguje)
+STA $C201
+LDA $C202
+ADC #$00
+STA $C202
+LDA $C203
+ADC #$00
+STA $C203
+CLD; powrót do trybu binarnego
 
-    ; render digits
-    LDX #$00
+; renderowanie cyfr
+LDX #$00
 digit_loop:
-    LDA $C200,X
-    PHA
-    LSR : LSR : LSR : LSR  ; high nibble → low nibble
-    ORA #$30         ; + '0' screen code
-    STA $0406,X      ; right-justified: screen_addr + (digits*2 - 2) - X*2
-    PLA
-    AND #$0F         ; low nibble
-    ORA #$30
-    STA $0407,X
-    INX
-    CPX #$04
-    BNE digit_loop
+LDA $C200,X
+PHA
+LSR : LSR : LSR : LSR ; wysoki nibble → niski nibble
+ORA #$30 ; + kod ekranu „0”
+STA $0406,X ; wyrównanie do prawej: screen_addr + (digits*2 - 2) - X*2
+PLA
+AND #$0F ; niski nibble
+ORA #$30
+STA $0407,X
+INX
+CPX #$04
+BNE digit_loop
 ```
 
-**Rozmiar:** `3 + digits×8` bajtów (narzut SED + CLC + CLD + 8 bajtów na bajt BCD
+**Rozmiar:** `3 + cyfry×8` bajtów (narzut SED + CLC + CLD + 8 bajtów na bajt BCD
 dla ADC + pętla wyświetlania).
 
 **Składnia:**
@@ -3211,7 +3210,7 @@ dla ADC + pętla wyświetlania).
 > komórkę cyfrową; cyfry są zapisywane od lewej do prawej (najbardziej znaczący
 > bajt na początku).
 
-> Zakres **BCD: ** `digits=4` bajtów → 8 cyfr dziesiętnych → maks. wynik 99 999
+> Zakres **BCD: ** `cyfry = 4` bajtów → 8 cyfr dziesiętnych → maks. wynik 99 999
 > 999. Każdy bajt koduje dwie cyfry BCD: `$00`–`$99`.
 
 ---
@@ -3228,13 +3227,13 @@ KickAssembler często kompiluje się w takiej postaci:
   (lub w jego pobliżu).
 - `.macro name(p1, p2) { … }` — ciało makra w nawiasach klamrowych, oprócz
   `.macro … .endm`; `:name(args)` i `name(args)` wywołują to.
-- `name: { … }`: etykiety wewnątrz są lokalne dla `name`
-  (`name.label` z zewnątrz).
+- `nazwa: { … }Zakresy `: etykiety wewnątrz są lokalne dla `nazwa`
+  (`nazwa.label` z zewnątrz).
 - Etykiety `@label` zachowują swoje `@`.
-- Tekst `.text "…"` bez współrzędnych ekranowych przechowuje zakodowane bajty,
-  takie jak `.byte`. Kilka elementów można połączyć za pomocą `,` lub `+`:
-  `"…"`, `@"…"` za pomocą sekwencji ucieczki `\n` `\r` `\t` `\$NN` i `$NN` /
-  bajtów dziesiętnych. `.encoding "name"` wybiera kodowanie następujących
+- Tekst `.tekst „…”` bez współrzędnych ekranowych przechowuje zakodowane bajty,
+  takie jak `.bajt`. Kilka elementów można połączyć za pomocą `,` lub `+`:
+  `”…”`, `@”…”` za pomocą sekwencji ucieczki `\n` `\r` `\t` `\$NN` i `$NN` /
+  bajtów dziesiętnych. `.encoding „nazwa”` wybiera kodowanie następujących
   wierszy `.text`: `screencode_mixed` (domyślne), `screencode_upper`,
   `petscii_mixed`, `petscii_upper`, `ascii`; znak, dla którego kodowanie nie ma
   kodu, jest błędem.
@@ -3253,39 +3252,39 @@ Nowości w wersji 2.1.0: `--crt` / `--crt-name` (kartridż) i `--d64` / `--add` 
 `--disk-name` (obraz dysku).
 
 ```
-vma build <input.asm> [options]
+vma build <input.asm> [opcje]
 vma --help
 vma --version
 ```
 
 | Opcja                      | Oznaczający                                                                                                                                                                                                                              |
 | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `-o FILE`                  | PRG do zapisu (domyślnie: dane wejściowe z rozszerzeniem `.prg`)                                                                                                                                                                         |
-| `--base-dir DIR`     | Gdzie najpierw wyszukiwane są pliki `.incbin` / `.koala` / `.level` / `.sid` / `.include` (domyślnie: folder wejściowy)                                                                                                                  |
-| `--search DIR`             | Kolejny folder do przeglądania po katalogu bazowym (można go powtarzać w kolejności); ścieżka zapisana na innym komputerze sprowadza się do jego podstawowej nazwy pliku                                                                 |
-| `--no-basic-stub`  | Brak wiersza `10 SYS…` BASIC przed kodem                                                                                                                                                                                                 |
-| `--raw`                 | Sam obraz w jego pierwszym ORG: brak szczątkowego, brak przeniesienia do `$C000`                                                                                                                                                         |
-| `--crt FILE`               | Kaseta Magic Desk (CRT typu 19, 8 banków × 8 KB, maksymalnie 65 408 bajtów): moduł ładujący kopiuje program na adres ładowania i uruchamia go pod adresem SYS — CRT kompilacji Visual Assembler. Bez `-o` nie jest zapisywany żaden PRG. |
-| `--crt-name NAME`         | Nazwa wkładu w nagłówku CRT (domyślnie: `VA CART`)                                                                                                                                                                                       |
-| `--d64 [FILE]`             | Obraz dysku 1541 z plikiem PRG, nazwanym na jego podstawie (domyślny PLIK: PRG z rozszerzeniem `.d64`); nie jest wymagany c1541. Bez `-o` żaden plik PRG nie zostanie zapisany.                                                          |
-| `--add FILE`             | Kolejny plik na dysku w obecnej postaci (PRG z adresem ładowania), nazwany na cześć pliku (można powtarzać w kolejności)                                                                                                                 |
-| `--disk-name NAME`      | Nazwa dysku (domyślnie: nazwa pliku D64; ID `01`)                                                                                                                                                                                        |
-| `--sym FILE`               | Plik etykiet KickAssembler (`.label NAME=$xxxx`)                                                                                                                                                                                         |
-| `--vs FILE` | Plik etykiety monitora VICE (`al C:xxxx .NAME`; `x64sc -moncommands FILE`)                                                                                                                                                               |
-| `--dbg FILE`               | Mapa źródłowa RetroDebugger / C64 Debugger (XML)                                                                                                                                                                                         |
-| `--debug`            | Wszystkie trzy obok PRG (`out.sym`, `out.vs`, `out.dbg`)                                                                                                                                                                                 |
-| `--json FILE`              | Kompilacja w formacie JSON: PRG, adres SYS, symbole, linie rozłożone, segmenty pisane, widok pamięci — czyli każdy błąd z jego linią                                                                                                     |
-| `--source-path NAME` | Główne źródło nazw `.dbg` (domyślnie: dane wejściowe)                                                                                                                                                                                    |
-| `--line-map FILE`        | Tablica JSON: wiersz wejściowy → wiersz nazw `.dbg`                                                                                                                                                                                      |
+| `-o PLIK`                  | PRG do zapisu (domyślnie: dane wejściowe z rozszerzeniem `.prg`)                                                                                                                                                                         |
+| `--katalog bazowy DIR`     | Gdzie najpierw wyszukiwane są pliki `.incbin` / `.koala` / `.level` / `.sid` / `.include` (domyślnie: folder wejściowy)                                                                                                                  |
+| `--szukaj DIR`             | Kolejny folder do przeglądania po katalogu bazowym (można go powtarzać w kolejności); ścieżka zapisana na innym komputerze sprowadza się do jego podstawowej nazwy pliku                                                                 |
+| `--bez-podstawowego-stub`  | Brak wiersza `10 SYS…` BASIC przed kodem                                                                                                                                                                                                 |
+| `--surowy`                 | Sam obraz w jego pierwszym ORG: brak szczątkowego, brak przeniesienia do `$C000`                                                                                                                                                         |
+| `--crt PLIK`               | Kaseta Magic Desk (CRT typu 19, 8 banków × 8 KB, maksymalnie 65 408 bajtów): moduł ładujący kopiuje program na adres ładowania i uruchamia go pod adresem SYS — CRT kompilacji Visual Assembler. Bez `-o` nie jest zapisywany żaden PRG. |
+| `--crt-name NAZWA`         | Nazwa wkładu w nagłówku CRT (domyślnie: `VA CART`)                                                                                                                                                                                       |
+| `--d64 [PLIK]`             | Obraz dysku 1541 z plikiem PRG, nazwanym na jego podstawie (domyślny PLIK: PRG z rozszerzeniem `.d64`); nie jest wymagany c1541. Bez `-o` żaden plik PRG nie zostanie zapisany.                                                          |
+| `--dodaj PLIK`             | Kolejny plik na dysku w obecnej postaci (PRG z adresem ładowania), nazwany na cześć pliku (można powtarzać w kolejności)                                                                                                                 |
+| `--nazwa-dysku NAZWA`      | Nazwa dysku (domyślnie: nazwa pliku D64; ID `01`)                                                                                                                                                                                        |
+| `--sym PLIK`               | Plik etykiet KickAssembler (`.label NAME=$xxxx`)                                                                                                                                                                                         |
+| `--w porównaniu z PLIKIEM` | Plik etykiety monitora VICE (`al C:xxxx .NAME`; `x64sc -moncommands FILE`)                                                                                                                                                               |
+| `--dbg PLIK`               | Mapa źródłowa RetroDebugger / C64 Debugger (XML)                                                                                                                                                                                         |
+| `--debugowanie`            | Wszystkie trzy obok PRG (`out.sym`, `out.vs`, `out.dbg`)                                                                                                                                                                                 |
+| `--PLIK json`              | Kompilacja w formacie JSON: PRG, adres SYS, symbole, linie rozłożone, segmenty pisane, widok pamięci — czyli każdy błąd z jego linią                                                                                                     |
+| `--ścieżka-źródłowa NAZWA` | Główne źródło nazw `.dbg` (domyślnie: dane wejściowe)                                                                                                                                                                                    |
+| `--mapa linii PLIK`        | Tablica JSON: wiersz wejściowy → wiersz nazw `.dbg`                                                                                                                                                                                      |
 
-Status wyjścia: skompilowano `0`, błąd kompilacji `1` (`FILE:LINE: message`
+Status wyjścia: skompilowano `0`, błąd kompilacji `1` (`PLIK:LINIA: komunikat`
 na standardowym wyjściu błędów, jedna linia na błąd), `2` nieprawidłowe użycie.
 
 ```
 vma build game.asm -o game.prg --debug
 vma build game.asm --no-basic-stub --search ../assets
-vma build game.asm --crt game.crt                    # the cartridge only
-vma build game.asm --d64 --add music.prg             # game.d64 with GAME and MUSIC
+vma build game.asm --crt game.crt # tylko kartridż
+vma build game.asm --d64 --add music.prg # game.d64 z GRĄ i MUZYKĄ
 ```
 
 ## 9. Znane ograniczenia
@@ -3306,7 +3305,7 @@ uwzględniając jego niedoskonałości:
   danych — nawet w przypadku pominiętego (`.if 0`) DELAY.
 
 Naprawiono w wersji 2.1 (podano błędny kod lub wcześniej wystąpił błąd): operand
-`.const` / `.var` na stronie zerowej, `JMP (label)`, `lda $1234+1`, wywołanie
+`.const` / `.var` na stronie zerowej, `JMP (etykieta)`, `lda $1234+1`, wywołanie
 makra wewnątrz makra, nierozwiązana wartość TURBO_SET / SPRITE_ANIM (teraz
 błąd), etykiety w bajtach `.data` / `.rawbytes`, etykieta `:name`, której celem
 jest etykieta, rozmiar JOYSTICK / MEMCPY / MEMSET z późniejszej etykiety (teraz

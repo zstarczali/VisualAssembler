@@ -2876,14 +2876,33 @@ function _edShowCtxMenu(e, host, items) {
 // ── Tab bar right-click menu ────────────────────────────────────────────────
 // Expert / UB editor right-click menu. It replaces the WebView's own menu, so the
 // clipboard commands are here too.
-function _editorInsertText(editor, text, keepSelected) {
-  const start = editor.selectionStart;
+// The app reads the clipboard in the backend: navigator.clipboard.readText asks for a permission
+// in WebView2, and the window loses the focus while that is open.
+function _editorReadClipboard() {
+  return window.electronAPI?.readClipboardText ? window.electronAPI.readClipboardText() : navigator.clipboard.readText();
+}
+// One edit as the editors see a Ctrl+V: a single beforeinput and input. execCommand alone sends no
+// beforeinput and one input per line, and the Expert source mirror needs the edit as a whole.
+function _editorEdit(editor, inputType, data, command) {
+  const mute = (e) => e.stopImmediatePropagation();
   editor.focus();
-  // Like typing: keeps Ctrl+Z and the Expert source mirror (beforeinput / input) working.
-  if (!document.execCommand("insertText", false, text)) {
+  editor.dispatchEvent(new InputEvent("beforeinput", { bubbles: true, cancelable: true, inputType, data }));
+  editor.addEventListener("input", mute, true);
+  let done = false;
+  try { done = command(); } finally { editor.removeEventListener("input", mute, true); }
+  editor.dispatchEvent(new InputEvent("input", { bubbles: true, inputType, data }));
+  return done;
+}
+function _editorInsertText(editor, rawText, keepSelected, inputType) {
+  // a textarea holds \n only: a Windows clipboard's \r\n would shift the offsets and the Expert source
+  const text = String(rawText).replace(/\r\n?/g, "\n");
+  const start = editor.selectionStart;
+  _editorEdit(editor, inputType, text, () => {
+    // insertText keeps Ctrl+Z working; setRangeText is only the fallback
+    if (document.execCommand("insertText", false, text)) return true;
     editor.setRangeText(text, start, editor.selectionEnd, "end");
-    editor.dispatchEvent(new Event("input", { bubbles: true }));
-  }
+    return false;
+  });
   const end = start + text.length;
   editor.setSelectionRange(keepSelected ? start : end, end);
 }
@@ -2891,16 +2910,19 @@ function _editorCtxItems(editor, hideCompletion) {
   const hasSelection = editor.selectionEnd > editor.selectionStart;
   const selected = () => editor.value.slice(editor.selectionStart, editor.selectionEnd);
   const setCase = (convert) => {
-    _editorInsertText(editor, convert(selected()), true);
+    _editorInsertText(editor, convert(selected()), true, "insertText");
     hideCompletion();
   };
   return [
-    { label: t("sidContextCut"), disabled: !hasSelection, run: () => { editor.focus(); document.execCommand("cut"); } },
+    { label: t("sidContextCut"), disabled: !hasSelection, run: () => {
+      _editorEdit(editor, "deleteByCut", null, () => document.execCommand("cut"));
+      hideCompletion();
+    } },
     { label: t("sidContextCopy"), disabled: !hasSelection, run: () => { editor.focus(); document.execCommand("copy"); } },
     { label: t("sidContextPaste"), run: () => {
-      navigator.clipboard.readText().then((text) => {
+      _editorReadClipboard().then((text) => {
         if (!text) return;
-        _editorInsertText(editor, text, false);
+        _editorInsertText(editor, text, false, "insertFromPaste");
         hideCompletion();
       }).catch(() => showViceToast(t("edCtxPasteFailed"), true));
     } },

@@ -5,6 +5,7 @@
   "windows": ["main", "about"],
   "permissions": [
     "core:default",
+    "clipboard-manager:allow-read-text",
     "core:window:allow-show",
     "core:window:allow-set-focus",
     "core:window:allow-set-fullscreen",
