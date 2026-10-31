@@ -169,7 +169,7 @@ elnevezett konstanshoz viszonyított címre való hivatkozáshoz:
 | `$hex+kifejezés`  | `LDA $1234+1`, `STA $0400+40*2,X` | Számok, címkék és konstansok bármilyen kifejezése *(2.1)*                                                          |
 | `(címke)`         | `JMP (vektor)`, `JMP (tábla+2)`   | Közvetett ugrás címkén vagy kifejezésen keresztül *(2.1)*                                                          |
 | `#<címke`         | `LDA #<képernyő_RAM`              | A címke címének alsó bájtja                                                                                        |
-| `#>címke`         | `LDA #>képernyő_RAM`              | A címke címének felső bájtja                                                                                       |
+| `#&gt;címke`      | `LDA #&gt;képernyő_RAM`           | A címke címének felső bájtja                                                                                       |
 | `*`               | `BNE *`                           | Aktuális programszámláló (az utasítás saját címe); az `*` elágazások végtelen önhurkot generálnak (eltolás: `$FE`) |
 
 **Példa — két képernyőoldal törlése CONST használatával:**
@@ -190,18 +190,18 @@ operanduskifejezésen belül, és annak az utasításnak a címét jelöli, amel
 írták. Assembly időben feloldódik az utasítás valódi címe alapján, így nincs
 szükség címkére a rövid relatív ugrásokhoz vagy a PC-relatív adatolvasásokhoz.
 
-| Szintaxis     | Példa                | Jelentés                                            |
-| ------------- | -------------------- | --------------------------------------------------- |
-| `*`           | `BNE *`              | Elágazás önmagához (végtelen ciklus, eltolás `$FE`) |
-| `*-n` / `*+n` | `BNE *-5`, `BEQ *+4` | Elágazás az aktuális PC-hez képest *n* bájttal      |
-| `JMP *+n`     | `JMP *+20`           | Az aktuális PC-ből számított abszolút ugrás         |
-| `#<*` / `#>*` | `LDA #<*`, `LDA #>*` | Az aktuális PC alacsony/magas bájtja                |
-| `#>(*+n)`     | `LDA #>(*+63)`       | PC-hez viszonyított cím alsó/felső bájtja           |
+| Szintaxis           | Példa                      | Jelentés                                            |
+| ------------------- | -------------------------- | --------------------------------------------------- |
+| `*`                 | `BNE *`                    | Elágazás önmagához (végtelen ciklus, eltolás `$FE`) |
+| `*-n` / `*+n`       | `BNE *-5`, `BEQ *+4`       | Elágazás az aktuális PC-hez képest *n* bájttal      |
+| `JMP *+n`           | `JMP *+20`                 | Az aktuális PC-ből számított abszolút ugrás         |
+| `#&lt;*` / `#&gt;*` | `LDA #&lt;*`, `LDA #&gt;*` | Az aktuális PC alacsony/magas bájtja                |
+| `#&gt;(*+n)`        | `LDA #&gt;(*+63)`          | PC-hez viszonyított cím alsó/felső bájtja           |
 
 **PC vs. szorzás.** Az `*` csak akkor kezeli a programszámlálót, ha az
 *értékpozícióban* található — a kifejezés elején, vagy közvetlenül egy operátor,
-`(`, `,`, `<`, `>` vagy szóköz után. Egy `*`, amely egy számot, `)` vagy egy
-azonosítót követ, közönséges szorzásnak minősül, tehát az `LDA table*2` és a
+`(`, `,`, `&lt;`, `&gt;` vagy szóköz után. Egy `*`, amely egy számot, `)` vagy
+egy azonosítót követ, közönséges szorzásnak minősül, tehát az `LDA table*2` és a
 `CONST_A*4` változatlanok maradnak.
 
 **Hol működik.** Bármely operandus, amely már elfogad egy kifejezést: elágazási
@@ -1185,7 +1185,7 @@ képernyőn osztozik. A pointer táblák a képernyőket követik. Egy szint leg
 | `SZINT_ATTR`, `SZINT_ATTR_SZILÁRD` … `SZINT_ATTR_GYŰJTÉS`                            | Karakter attribútumtáblázat (képernyőkódonként egy jelzőbájt; csak akkor, ha a szint rendelkezik attribútumokkal) és bitjei: 1, 2, 4, 8                              |
 | `SZINT_SZEGÉLY`, `SZINT_SZÍNEK`, `SZINT_SZEGÉLY/SZEGÉLY/MC1/MC2`                     | Szintszegély; slotonkénti színtáblázatok (soronkénti főbb értékek, mint például `LEVEL_SLOT_*`), ha a képernyőnek saját színei vannak (`LEVEL_SCR_COLORS` = 1)       |
 
-Tipikus őr: `.assert LEVEL_END <= $9200, "szintadatok futnak a kódba"`.
+Tipikus őr: `.assert LEVEL_END &lt;= $9200, "szintadatok futnak a kódba"`.
 
 #### LEVEL_ROW
 
@@ -1806,9 +1806,9 @@ Egy `DEFINE` egyszerre több szimbólumot is aktiválhat (vesszővel elválasztv
 
 #### IF
 
-| Érv     | Leírás                                                                                                                          |
-| ------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| Állapot | Egy `.define`d szimbólum (aktív), egy `.const` név (aktív, ha nem nulla) vagy egy konstans kifejezés (`LEVEL == 2`, `MODE & 1`) |
+| Érv     | Leírás                                                                                                                              |
+| ------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Állapot | Egy `.define`d szimbólum (aktív), egy `.const` név (aktív, ha nem nulla) vagy egy konstans kifejezés (`LEVEL == 2`, `MODE &amp; 1`) |
 
 **Szintaxis:**
 ```
@@ -1897,10 +1897,10 @@ Egy **fordítási idejű épségellenőrzés**.`.assert` kiértékel egy kifejez
 amely tartalmazza a tényleges értéket. Ha igaz (nem nulla), akkor semmit nem
 bocsát ki.
 
-| Érv       | Leírás                                                                                                                                              |
-| --------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Kifejezés | Bármely assembler kifejezés: címkék, `CONST`s, `*` (programszámláló), aritmetikai műveletek és összehasonlítások (`<`, `<=`, `>`, `>=`, `==`, `!=`) |
-| Üzenet    | A hibaüzenethez hozzáfűzött opcionális szöveg                                                                                                       |
+| Érv       | Leírás                                                                                                                                                          |
+| --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Kifejezés | Bármely assembler kifejezés: címkék, `CONST`s, `*` (programszámláló), aritmetikai műveletek és összehasonlítások (`&lt;`, `&lt;=`, `&gt;`, `&gt;=`, `==`, `!=`) |
+| Üzenet    | A hibaüzenethez hozzáfűzött opcionális szöveg                                                                                                                   |
 
 **Szintaxis:**
 ```
@@ -1912,14 +1912,14 @@ bocsát ki.
 **Viselkedés:**
 
 - **Méret:** 0 bájt.
-- Egy hamis állítás megszakítja az összeszerelést: `` `.assert end - start <=
+- Egy hamis állítás megszakítja az összeszerelést: `` `.assert end - start &lt;=
   256` is false (value: 0). sprite tábla túlcsordult egy oldalon.``
 - Egy olyan állítás, amely nem értékelhető ki (nincs definiált címke stb.),
   szintén sikertelen, a következő hibakóddal: *"nem értékelhető ki assembly
   időben"*.
 - Az összehasonlítások eredményeként `1` / `0` címet kapunk; az `.assert` címet
   a programfolyamat bármely pontjára helyezzük el — a program a rajta lévő címen
-  ellenőrzi, tehát az `.assert * < $D000` az aktuális kimeneti pozíciót
+  ellenőrzi, tehát az `.assert * &lt; $D000` az aktuális kimeneti pozíciót
   teszteli.
 
 **Példa – sprite adatok védelme az oldal átlépése ellen:**
@@ -2046,11 +2046,11 @@ Mint egy **egy igazi elágazási sablon** — ez a verzió futásidőben működ
 fordítási időben. Összehasonlítja az `A`, `X` vagy `Y` értékeket egy azonnali
 értékkel, és kiadja a helyes `CMP` / `CPX` / `CPY` + elágazási szekvenciát.
 
-| Érv           | Leírás                                  |
-| ------------- | --------------------------------------- |
-| Nyilvántartás | `A`, `X` vagy `Y`                       |
-| Operátor      | `==`, `!=`, `<`, `<=`, `>`, `>=`        |
-| Érték         | Azonnali érték HEX vagy DEC formátumban |
+| Érv           | Leírás                                       |
+| ------------- | -------------------------------------------- |
+| Nyilvántartás | `A`, `X` vagy `Y`                            |
+| Operátor      | `==`, `!=`, `&lt;`, `&lt;=`, `&gt;`, `&gt;=` |
+| Érték         | Azonnali érték HEX vagy DEC formátumban      |
 
 **Szintaxis:**
 ```
@@ -2063,8 +2063,8 @@ fordítási időben. Összehasonlítja az `A`, `X` vagy `Y` értékeket egy azon
 
 **Méret:** A kiválasztott ágaktól és az összehasonlítási űrlaptól függ.
 
-Az összehasonlítás alapértelmezés szerint előjel nélküli. Az `<=` és az `>`
-esetén a makró a kiválasztott regiszterhez tartozó legrövidebb ekvivalens
+Az összehasonlítás alapértelmezés szerint előjel nélküli. Az `&lt;=` és az
+`&gt;` esetén a makró a kiválasztott regiszterhez tartozó legrövidebb ekvivalens
 elágazási láncra bővül.
 
 ---
@@ -2074,11 +2074,11 @@ elágazási láncra bővül.
 Mint egy **futásidejű ciklus tetején egy teszttel** — a törzs addig fut, amíg a
 feltétel igaz marad.
 
-| Érv           | Leírás                                  |
-| ------------- | --------------------------------------- |
-| Nyilvántartás | `A`, `X` vagy `Y`                       |
-| Operátor      | `==`, `!=`, `<`, `<=`, `>`, `>=`        |
-| Érték         | Azonnali érték HEX vagy DEC formátumban |
+| Érv           | Leírás                                       |
+| ------------- | -------------------------------------------- |
+| Nyilvántartás | `A`, `X` vagy `Y`                            |
+| Operátor      | `==`, `!=`, `&lt;`, `&lt;=`, `&gt;`, `&gt;=` |
+| Érték         | Azonnali érték HEX vagy DEC formátumban      |
 
 **Szintaxis:**
 ```
@@ -2100,11 +2100,11 @@ megfelelője.
 Mint egy **futásidejű ciklus alul egy teszttel** — a törzs mindig lefut legalább
 egyszer, majd a feltétel eldönti, hogy leálljon-e.
 
-| Érv           | Leírás                                  |
-| ------------- | --------------------------------------- |
-| Nyilvántartás | `A`, `X` vagy `Y`                       |
-| Operátor      | `==`, `!=`, `<`, `<=`, `>`, `>=`        |
-| Érték         | Azonnali érték HEX vagy DEC formátumban |
+| Érv           | Leírás                                       |
+| ------------- | -------------------------------------------- |
+| Nyilvántartás | `A`, `X` vagy `Y`                            |
+| Operátor      | `==`, `!=`, `&lt;`, `&lt;=`, `&gt;`, `&gt;=` |
+| Érték         | Azonnali érték HEX vagy DEC formátumban      |
 
 **Szintaxis:**
 ```
@@ -2662,7 +2662,7 @@ kódot tölthet be lemezről a program futása közben.
 
 | Érv                         | Leírás                                                                                                                                                                                                                  |
 | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Fájlnév                     | Fájlnév a lemezen (maximum 16 karakter, automatikus nagybetűs írásmód; a következő karakterek szűrve: `,`, `"`, `/`, `\`, `:`, `*`, `?`, `<`, `>`, `|`)                                                                 |
+| Fájlnév                     | Fájlnév a lemezen (maximum 16 karakter, automatikus nagybetűs írásmód; a következő karakterek szűrve: `,`, `"`, `/`, `\`, `:`, `*`, `?`, `&lt;`, `&gt;`, `|`)                                                           |
 | Eszköz                      | Eszközszám 8–30 (alapértelmezett: `8`)                                                                                                                                                                                  |
 | Cím felülírása (opcionális) | Hex betöltési cím (pl. `C000`). Ha be van állítva, a fájl erre a címre töltődik be (`sec=0`, figyelmen kívül hagyva a PRG fejlécet). Hagyja üresen, ha a fájl saját 2 bájtos PRG fejlécét szeretné használni (`sec=1`). |
 | Hibacímke (opcionális)      | Ha be van állítva, a JSR LOAD után egy `BCS` utasítás generálódik. Ha a KERNAL carry set (hiba) értékkel tér vissza, a végrehajtás erre a címkére ugrik.                                                                |
@@ -2885,8 +2885,8 @@ keresztül. Nincs hatással egy valódi C64-re vagy más emulátorokra.
 | Sebesség    | CPU sebességindex    | 0 = 1 MHz … 7 ≈ 10 MHz … 15 ≈ 48 MHz                 |
 | Rossz vonal | Rossz vonal emuláció | Engedélyezett (C64 kompatibilis) / Letiltott (turbó) |
 
-A sebességbájt kiszámítása a következőképpen történik: `(speedIndex & 0x0F) |
-(badline_disabled ? 0x80 : 0x00)`.
+A sebességbájt kiszámítása a következőképpen történik: `(speedIndex &amp; 0x0F)
+| (badline_disabled ? 0x80 : 0x00)`.
 
 **Generált kód (5 bájt):**
 ```
@@ -3003,8 +3003,9 @@ paranccsal állítja le. Nincs szükség JSR-re — az összes kód inline gener
     BNE *-11
 ```
 
-**Méret:** `2 (LDX) + teljesOldalak×9 + (rem > 0 ? 11 : 0)` bájt szakaszonként.
-Kombinált módban ez megduplázódik (képernyőszakasz + azonos színű szakasz).
+**Méret:** `2 (LDX) + teljesOldalak×9 + (rem &gt; 0 ? 11 : 0)` bájt
+szakaszonként. Kombinált módban ez megduplázódik (képernyőszakasz + azonos színű
+szakasz).
 
 **Párosítás a Térképszerkesztővel:**
 
@@ -3144,24 +3145,24 @@ gameloop:
 <a id="score_bcd"></a>
 ### SCORE_BCD
 
-Adds a fixed point value to a multi-byte BCD score stored in memory, then
-renders each digit to screen RAM as a screen-code character. Uses the 6502
-decimal mode (`SED`/`CLD`) for carry-safe BCD arithmetic — no manual carry
-juggling needed.
+Hozzáad egy fixpontos értéket egy memóriában tárolt többbájtos BCD-pontszámhoz,
+majd minden számjegyet képernyőkód karakterként jelenít meg a képernyő RAM-ban.
+A 6502-es decimális módot (`SED`/`CLD`) használja a hordozható BCD-aritmetikához
+– nincs szükség kézi hordozás-zsonglőrködésre.
 
-| Érv            | Leírás                                                                                       |
-| -------------- | -------------------------------------------------------------------------------------------- |
-| Score address  | Hex address of the BCD score bytes (e.g. `C200`). Low byte first.                            |
-| Digits         | Number of BCD bytes (each byte holds two digits: `$99` = "99"). `4` bytes = up to 99999999.  |
-| Add points     | Decimal value to add per call (e.g. `100`).                                                  |
-| Screen address | Where to write the digit screen codes (e.g. `0400`). One byte per digit (high nibble first). |
+| Érv               | Leírás                                                                                                       |
+| ----------------- | ------------------------------------------------------------------------------------------------------------ |
+| Pontszám címe     | A BCD pontszámbájtok hexadecimális címe (pl. `C200`). Az alsó bájttól kezdődik.                              |
+| Számjegyek        | BCD bájtok száma (mindegyik bájt két számjegyet tartalmaz: `$99` = "99"). `4` bájt = legfeljebb 99999999.    |
+| Pontok hozzáadása | Hívásonként hozzáadandó decimális érték (pl. `100`).                                                         |
+| Képernyőcím       | Hová kell írni a számjegy képernyőkódokat (pl. `0400`). Számjegyenként egy bájt (a magasabb nibble először). |
 
 **Szintaxis:**
 ```
 .score_bcd $C200, 4, 100, $0400
 ```
 
-**Generated code (4 bytes, +100 pts, score at `$C200`, screen at `$0400`):**
+**Generált kód (4 bájt, +100 pont, pontszám `$C200`, képernyőméret `$0400`):**
 ```
     SED              ; enable BCD / decimal mode
     CLC
@@ -3196,21 +3197,21 @@ digit_loop:
     BNE digit_loop
 ```
 
-**Size:** `3 + digits×8` bytes (SED + CLC + CLD overhead + 8 bytes per BCD byte
-for ADC + display loop).
+**Méret:** `3 + számjegy×8` bájt (SED + CLC + CLD többletterhelés + 8 bájt BCD
+bájtonként az ADC + kijelzőhurok számára).
 
 **Szintaxis:**
 ```
 .score_bcd $C200, 4, 100, $0400
 ```
 
-> **Tip:** Initialize the score bytes to `$00` at startup. The score address
-> should be in zero page or absolute RAM — not ROM. The screen address should
-> point to the leftmost digit cell; digits are written left-to-right
-> (most-significant byte first).
+> **Tipp:** Indításkor inicializálja a pontszámbájtokat `$00` értékre. A
+> pontszámcímnek a nulla oldalas vagy abszolút RAM-ban kell lennie – nem
+> ROM-ban. A képernyőcímnek a bal szélső számjegy cellára kell mutatnia; a
+> számjegyeket balról jobbra kell írni (a leghelyesebb bájttal kezdve).
 
-> **BCD range:** `digits=4` bytes → 8 decimal digits → max score 99,999,999.
-> Each byte encodes two BCD digits: `$00`–`$99`.
+> **BCD tartomány:** `számjegyek=4` bájt → 8 decimális számjegy → maximális
+> pontszám 99 999 999. Minden bájt két BCD számjegyet kódol: `$00`–`$99`.
 
 ---
 
