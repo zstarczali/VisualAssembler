@@ -16,7 +16,7 @@ altri strumenti dell'applicazione sono nel manuale di C64 Visual Assembler.
    ingresso](#3-output-prg-stub-basic-e-punto-di-ingresso)
 4. [Modalità di indirizzamento](#4-modalita-di-indirizzamento)
 5. [6502 istruzioni](#5-istruzioni-6502)
-6. [Direttive e macro — riferimento](#6-directives-and-macros--reference)
+6. [Direttive e macro — riferimento](#6-direttive-e-macro-riferimento)
 7. [Sintassi in stile KickAssembly](#7-sintassi-in-stile-kickassembly)
 8. [Riga di comando](#8-riga-di-comando)
 9. [Limitazioni note](#9-limitazioni-note)

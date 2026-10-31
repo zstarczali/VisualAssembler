@@ -16,7 +16,7 @@ znajdują się w podręczniku C64 Visual Assembler.
    wejścia](#3-wyjscie-prg-szczatkowy-modu-basic-i-punkt-wejscia)
 4. [Tryby adresowania](#4-tryby-adresowania)
 5. [instrukcje 6502](#5-instrukcje-6502)
-6. [Dyrektywy i makra — odniesienie](#6-directives-and-macros--reference)
+6. [Dyrektywy i makra — odniesienie](#6-dyrektywy-i-makra-odniesienie)
 7. [Składnia w stylu KickAssembler](#7-sk-adnia-w-stylu-kickassembler)
 8. [Wiersz poleceń](#8-wiersz-polecen)
 9. [Znane ograniczenia](#9-znane-ograniczenia)

@@ -16,7 +16,7 @@ manualen för C64 Visual Assembler.
    startpunkt](#3-utdata-prg-basic-stub-och-ingangspunkt)
 4. [Adresseringslägen](#4-adresseringslagen)
 5. [6502 instruktioner](#5-6502-instruktioner)
-6. [Direktiv och makron — referens](#6-directives-and-macros--reference)
+6. [Direktiv och makron — referens](#6-direktiv-och-makron-referens)
 7. [Syntax i KickAssembler-stil](#7-syntax-i-kickassembler-stil)
 8. [Kommandoraden](#8-kommandorad)
 9. [Kända begränsningar](#9-kanda-begransningar)

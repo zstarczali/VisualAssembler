@@ -16,7 +16,7 @@ Werkzeuge der Anwendung sind im Handbuch zu C64 Visual Assembler beschrieben.
    Einstiegspunkt](#3-ausgabe-prg-basic-stub-und-einstiegspunkt)
 4. [Adressierungsmodi](#4-adressierungsmodi)
 5. [6502 Anweisungen](#5-6502-anweisungen)
-6. [Direktiven und Makros – Referenz](#6-directives-and-macros--reference)
+6. [Direktiven und Makros – Referenz](#6-direktiven-und-makros-referenz)
 7. [KickAssembler-ähnliche Syntax](#7-kickassembler-ahnliche-syntax)
 8. [Befehlszeile](#8-befehlszeile)
 9. [Bekannte Einschränkungen](#9-bekannte-einschrankungen)

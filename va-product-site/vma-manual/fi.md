@@ -15,7 +15,7 @@ sovelluksen työkalut löytyvät C64 Visual Assembler -käyttöoppaasta.
    aloituskohta](#3-lahto-prg-basic-tynka-ja-aloituspiste)
 4. [Osoitetilat](#4-osoitustavat)
 5. [6502 ohjeet](#5-6502-ohjeet)
-6. [Direktiivit ja makrot — viite](#6-directives-and-macros--reference)
+6. [Direktiivit ja makrot — viite](#6-direktiivit-ja-makrot-viite)
 7. [KickAssembler-tyylinen syntaksi](#7-kickassembler-tyylinen-syntaksi)
 8. [Komentorivi](#8-komentorivi)
 9. [Tunnetut rajoitukset](#9-tunnetut-rajoitukset)

@@ -15,7 +15,7 @@ alkalmazás egyéb eszközei a C64 Visual Assembler kézikönyvében található
    pont](#3-kimenet-prg-basic-stub-es-belepesi-pont)
 4. [Címzési módok](#4-cimzesi-modok)
 5. [6502 utasítások](#5-6502-utasitasok)
-6. [Utasítások és makrók — hivatkozás](#6-directives-and-macros--reference)
+6. [Utasítások és makrók — hivatkozás](#6-iranyelvek-es-makrok-hivatkozas)
 7. [KickAssembler-stílusú szintaxis](#7-kickassembler-stilusu-szintaxis)
 8. [Parancssor](#8-parancssor)
 9. [Ismert korlátok](#9-ismert-korlatok)

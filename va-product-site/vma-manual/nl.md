@@ -16,7 +16,7 @@ van de app staan in de handleiding van C64 Visual Assembler.
    ingangspunt](#3-uitvoer-prg-basic-stub-en-ingangspunt)
 4. [Adresmodi](#4-adresseringsmodi)
 5. [6502 instructies](#5-6502-instructies)
-6. [Richtlijnen en macro's — referentie](#6-directives-and-macros--reference)
+6. [Richtlijnen en macro's — referentie](#6-richtlijnen-en-macro-s-referentie)
 7. [KickAssembler-achtige syntaxis](#7-syntaxis-in-kickassembler-stijl)
 8. [Opdrachtregel](#8-opdrachtregel)
 9. [Bekende beperkingen](#9-bekende-beperkingen)

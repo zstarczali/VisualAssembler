@@ -16,7 +16,7 @@ l'application sont décrits dans le manuel de C64 Visual Assembler.
    d'entrée](#3-sortie-prg-stub-basic-et-point-d-entree)
 4. [Modes d'adressage](#4-modes-d-adressage)
 5. [6502 instructions](#5-instructions-6502)
-6. [Directives et macros — référence](#6-directives-and-macros--reference)
+6. [Directives et macros — référence](#6-directives-et-macros-reference)
 7. [Syntaxe de style KickAssembler](#7-syntaxe-de-type-kickassembler)
 8. [Ligne de commande](#8-ligne-de-commande)
 9. [Limitations connues](#9-limitations-connues)
