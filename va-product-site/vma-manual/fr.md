@@ -1,4 +1,8 @@
-# VMA — Assembleur de macros visuel**Manuel de langue · version 2.1.0**VMA est l'assembleur 6502/6510 de [C64 Visual
+# VMA — Assembleur de macros visuel
+
+**Manuel de langue · version 2.1.0**
+
+VMA est l'assembleur 6502/6510 de [C64 Visual
 Assembler](https://github.com/zstarczali/VisualAssembler) — le langage de son
 mode Expert et celui utilisé pour écrire ses programmes par blocs. Ce manuel
 décrit le langage ; l'éditeur, la palette de blocs et les autres outils de
@@ -37,7 +41,7 @@ loop: dex                ; a label and an instruction on one line
     rts
 ```
 
--**Les commentaires**commencent par `;` ou `//` et se poursuivent jusqu'à la
+- **Les commentaires** commencent par `;` ou `//` et se poursuivent jusqu'à la
   fin de la ligne (pas à l'intérieur d'une chaîne entre guillemets).
 - Les étiquettes sont écrites sous la forme nom: — lettres, chiffres et _, ne
   commençant pas par un chiffre. Une étiquette peut figurer sur sa propre ligne
@@ -45,10 +49,10 @@ loop: dex                ; a label and an instruction on one line
   étiquette locale (voir Étiquettes locales (pointées) (#local-dotted-labels)).
   Les étiquettes - et + sont des étiquettes anonymes, référencées par bne - /
   beq + (l'étiquette la plus proche avant/après).
--**Instructions**sont un mnémonique et un opérande ; l'indentation est libre.
--**Directives**commencent par un point (`.byte`, `.macro`, `.if` …); `* =
+- **Instructions** sont un mnémonique et un opérande ; l'indentation est libre.
+- **Directives** commencent par un point (`.byte`, `.macro`, `.if` …); `* =
   $xxxx` (ou `.pc = $xxxx`) définit l'adresse.
--**Les macros utilisateur**sont appelées comme `:name(args)`, `.invoke
+- **Les macros utilisateur** sont appelées comme `:name(args)`, `.invoke
   name(args)`, `.call name(args)` ou `name(args)`.
 
 ## 2. Nombres et expressions
@@ -64,7 +68,9 @@ loop: dex                ; a label and an instruction on one line
 Dans les opérandes des instructions, écrivez les nombres hexadécimaux avec `$`.
 Dans les arguments d'adresse des macros de bibliothèque (`.rawbytes C000, …`,
 `.sprite_init 0, 1, 80`), un nombre simple de un à quatre chiffres est lu en
-hexadécimal.**Opérateurs**(dans les opérandes, `.const`, `.fill`, `.assert`, `.if`) : `+ -
+hexadécimal.
+
+**Opérateurs** (dans les opérandes, `.const`, `.fill`, `.assert`, `.if`) : `+ -
 * / %`, `& | ^ ~`, `<< >>`, parenthèses, `<expr` (octet de poids faible) et
 `>expr` (octet de poids fort), et dans les conditions `== != < > <= >=` (vrai =
 1, faux = 0). `.fill`, `.const` et autres connaissent également `lo()`, `hi()`,
@@ -82,26 +88,26 @@ hexadécimal.**Opérateurs**(dans les opérandes, `.const`, `.fill`, `.assert`, 
 
 ## 3. Sortie : PRG, stub BASIC et point d’entrée
 
-VMA écrit un PRG****C64 : une adresse de chargement de deux octets suivie de
+VMA écrit un PRG ** ** C64 : une adresse de chargement de deux octets suivie de
 l’image mémoire. Chaque section ORG et chaque directive qui place des données à
 une adresse spécifique (`.rawbytes `, `.incbin `, `.sid `…) est intégrée dans
 une seule image ; les espaces entre elles sont des zéros.
 
--**Sans un ORG**le programme démarre à `$0801`, où BASIC démarre.
--**Basic SYS stub**(par défaut) : une ligne `10 SYS nnnn` est placée à
+- **Sans un ORG** le programme démarre à `$0801`, où BASIC démarre.
+- **Basic SYS stub** (par défaut) : une ligne `10 SYS nnnn` est placée à
   `$0801`, de sorte que le programme démarre par `RUN`. Un programme dont le
   premier ORG est `$0801` démarre alors à `$080D`. Désactivez le stub avec
   `--no-basic-stub` ; sans lui, un programme situé à `$0801` est assemblé à
   `$C000`, tout autre reste à son premier ORG.
--**Point d'entrée :**la ligne SYS saute au début du code, ou à l'adresse
+- **Point d'entrée :** la ligne SYS saute au début du code, ou à l'adresse
   nommée par un commentaire de première ligne ` ; Point d'entrée : $1234`.
--**Code sous la ligne BASIC**(un ORG inférieur à `$0801` avec le stub) : un
+- **Code sous la ligne BASIC** (un ORG inférieur à `$0801` avec le stub) : un
   petit chargeur démarre le programme et le déplace en place, de sorte qu'il
   démarre toujours avec `RUN`.
 - Une source qui commence par sa propre ligne BASIC SYS (`.byte $0B, $08, $0A,
   $00, $9E, …` à `$0801`) est émise telle quelle, sans deuxième stub.
 
-À partir du PRG, la ligne de commande crée également une**cartouche**et une**image disque**(nouveauté de la version 2.1.0, voir [8. Ligne de
+À partir du PRG, la ligne de commande crée également une **cartouche**et une**image disque** (nouveauté de la version 2.1.0, voir [8. Ligne de
 commande](#8-ligne-de-commande)) :
 
 - `--crt FILE` — une cartouche Magic Desk (CRT type 19, 8 banques de 8 Ko,
@@ -124,23 +130,23 @@ VMA sélectionne le mode en fonction de la façon dont l'opérande est écrit.
 
 | Mode          | Étiquette         | Exemple       | Description                                                                                   |
 | ------------- | ----------------- | ------------- | --------------------------------------------------------------------------------------------- |
-|**implied**| Implicite         | `NOP`         | Aucun opérande ; l’instruction est autonome.                                                  |
-|**immediate**| Immédiat          | `LDA #$FF`    | Constante en ligne ; l’assembleur ajoute automatiquement `#`.                                 |
-|**zeroPage**| Page zéro         | `LDA $10`     | Adresse mono-octet en page zéro (0–255)                                                       |
-|**zeroPageX**| Page zéro,X       | `LDA $10,X`   | Adresse de page zéro + décalage du registre X (le résultat est renvoyé à la page 0)           |
-|**zeroPageY**| Page zéro,Y       | `LDX $FB,Y`   | Adresse de page zéro + décalage du registre Y                                                 |
-|**absolute**| Absolu            | `LDA $0400`   | Adresse mémoire complète sur 16 bits                                                          |
-|**absoluteX**| Absolu,X          | `LDA $0400,X` | Adresse 16 bits + décalage du registre X                                                      |
-|**absoluteY**| Absolu,Y          | `LDA $0400,Y` | Adresse 16 bits + décalage du registre Y                                                      |
-|**relative**| Relatif/Étiquette | `Boucle BNE`  | Pour les instructions de succursale, veuillez saisir un nom d'étiquette ou une adresse cible. |
-|**indirectX**| Indirect,X        | `LDA ($FB,X)` | Indexation indirecte de la page zéro (opérande = adresse de la page zéro, 1 octet)            |
-|**indirectY**| Indirect,Y        | `LDA ($FB),Y` | Indexation indirecte de la page zéro (opérande = adresse de la page zéro, 1 octet)            |
-|**indirect**| Indirect          | `JMP ($0100)` | Indirect ; utilisable uniquement avec JMP                                                     |
+| **implied** | Implicite         | `NOP`         | Aucun opérande ; l’instruction est autonome.                                                  |
+| **immediate** | Immédiat          | `LDA #$FF`    | Constante en ligne ; l’assembleur ajoute automatiquement `#`.                                 |
+| **zeroPage** | Page zéro         | `LDA $10`     | Adresse mono-octet en page zéro (0–255)                                                       |
+| **zeroPageX** | Page zéro,X       | `LDA $10,X`   | Adresse de page zéro + décalage du registre X (le résultat est renvoyé à la page 0)           |
+| **zeroPageY** | Page zéro,Y       | `LDX $FB,Y`   | Adresse de page zéro + décalage du registre Y                                                 |
+| **absolute** | Absolu            | `LDA $0400`   | Adresse mémoire complète sur 16 bits                                                          |
+| **absoluteX** | Absolu,X          | `LDA $0400,X` | Adresse 16 bits + décalage du registre X                                                      |
+| **absoluteY** | Absolu,Y          | `LDA $0400,Y` | Adresse 16 bits + décalage du registre Y                                                      |
+| **relative** | Relatif/Étiquette | `Boucle BNE`  | Pour les instructions de succursale, veuillez saisir un nom d'étiquette ou une adresse cible. |
+| **indirectX** | Indirect,X        | `LDA ($FB,X)` | Indexation indirecte de la page zéro (opérande = adresse de la page zéro, 1 octet)            |
+| **indirectY** | Indirect,Y        | `LDA ($FB),Y` | Indexation indirecte de la page zéro (opérande = adresse de la page zéro, 1 octet)            |
+| **indirect** | Indirect          | `JMP ($0100)` | Indirect ; utilisable uniquement avec JMP                                                     |
 
 ### Constantes de la page zéro
 
 Un opérande composé uniquement de constantes (`.const`, `name = value`, a
-`.var`) qui tient dans un octet prend le mode**page zéro**de l'instruction,
+`.var`) qui tient dans un octet prend le mode **page zéro** de l'instruction,
 exactement comme le ferait le nombre : après `.const zp = $FB`, `lda zp`
 s'assemble en `A5 FB` (2 octets, 3 cycles) et `lda zp,x` en `B5 FB`. Un mode
 pour lequel l'instruction n'a pas de forme de page zéro reste absolu (`lda zp,y`
@@ -166,7 +172,10 @@ référencer une adresse relative à une constante nommée.
 | `(étiquette)`       | `JMP (vecteur)`, `JMP (tableau+2)` | Saut indirect à travers une étiquette ou une expression *(2.1)*                                                                                        |
 | `#<label`           | `LDA #<screen_ram`                 | Octet de poids faible de l'adresse de l'étiquette                                                                                                      |
 | `#>étiquette`       | `LDA #>screen_ram`                 | Octet de poids fort de l'adresse de l'étiquette                                                                                                        |
-| `*`                 | `BNE *`                            | Compteur de programme actuel (l'adresse propre à l'instruction) ; les branchements avec `*` génèrent une boucle infinie sur elle-même (décalage `$FE`) |**Exemple — effacer deux pages d'écran à l'aide d'une CONST :**```
+| `*`                 | `BNE *`                            | Compteur de programme actuel (l'adresse propre à l'instruction) ; les branchements avec `*` génèrent une boucle infinie sur elle-même (décalage `$FE`) |
+
+**Exemple — effacer deux pages d'écran à l'aide d'une CONST : **
+```
 ; .CONST screen_ram = $0400
     LDX #$00
 clear:
@@ -178,8 +187,8 @@ clear:
 
 ### Le compteur de programme `*` dans les expressions
 
-`*` ne se limite plus à l'opérande entier ; il peut apparaître**n'importe où
-dans une expression d'opérande**et représente l'adresse de l'instruction sur
+`*` ne se limite plus à l'opérande entier ; il peut apparaître ** n'importe où
+dans une expression d'opérande ** et représente l'adresse de l'instruction sur
 laquelle il est écrit. Il est résolu lors de l'assemblage par rapport à
 l'adresse réelle de cette instruction ; aucune étiquette n'est donc nécessaire
 pour les sauts relatifs courts ou les lectures de données relatives au compteur
@@ -191,11 +200,15 @@ ordinal.
 | `*-n` / `*+n` | `BNE *-5`, `BEQ *+4` | Branchement relatif au PC actuel de *n* octets                                   |
 | `JMP *+n`     | `JMP *+20`           | Saut absolu calculé à partir du PC actuel                                        |
 | `#<*` / `#>*` | `LDA #<*`, `LDA #>*` | Octet de poids faible / de poids fort du PC actuel                               |
-| `#>(*+n)`     | `LDA #>(*+63)`       | Octet de poids faible / de poids fort d'une adresse relative au compteur ordinal |**PC vs. multiplication.**`*` est traité comme le compteur de programme
-uniquement lorsqu'il se trouve en position de valeur**— au début de
+| `#>(*+n)`     | `LDA #>(*+63)`       | Octet de poids faible / de poids fort d'une adresse relative au compteur ordinal |
+
+**PC vs. multiplication.** `*` est traité comme le compteur de programme
+uniquement lorsqu'il se trouve en position de valeur ** — au début de
 l'expression, ou juste après un opérateur, `(`, `,`, `<`, `>` ou un espace. Un
 `*` qui suit un nombre, `)` ou un identificateur est une multiplication
-ordinaire, donc `LDA table*2` et `CONST_A*4` restent inchangés.**Où cela fonctionne.**Tout opérande acceptant déjà une expression : cibles de
+ordinaire, donc `LDA table*2` et `CONST_A*4` restent inchangés.
+
+**Où cela fonctionne.** Tout opérande acceptant déjà une expression : cibles de
 branchement, `JMP` / `JSR`, `LDA`/`STA`/… opérateurs absolus et indexés,
 immédiats (octets de poids faible/fort) et l’expression `.assert`. `*` ne
 modifie jamais la taille d’une instruction ; son utilisation est donc sûre dans
@@ -238,7 +251,7 @@ ClearScreen:
 ### Étiquettes d'opérandes à code auto-modifiable
 
 Préfixez l'opérande d'une instruction par `label:` pour placer une étiquette sur
-l'octet d'opérande****plutôt que sur le code opération. L'instruction est
+l'octet d'opérande **** plutôt que sur le code opération. L'instruction est
 assemblée à partir de ce qui suit les deux-points.
 
 ```
@@ -409,27 +422,40 @@ code. On peut les considérer comme des sous-programmes intégrés.
 
 ### LABEL
 
-Comme un numéro de ligne**en BASIC**— mais avec un nom au lieu d'un numéro.
+Comme un numéro de ligne ** en BASIC** — mais avec un nom au lieu d'un numéro.
 Cibles de saut pour `JMP`, `JSR`, `BNE`, etc.
 
 | Argument           | Description                                        |
 | ------------------ | -------------------------------------------------- |
-| Nom de l'étiquette | Identifiant utilisé dans `JMP`, `JSR`, `BNE`, etc. |**Syntaxe :**```
+| Nom de l'étiquette | Identifiant utilisé dans `JMP`, `JSR`, `BNE`, etc. |
+
+**Syntaxe : **
+```
 loop:
-```**Code généré :**```
+```
+
+**Code généré : **
+```
 loop:  ; $0820
 ```
 
-L'adresse actuelle est affichée en commentaire. Les étiquettes ont une taille de**0 octets**.
+L'adresse actuelle est affichée en commentaire. Les étiquettes ont une taille de
+**0 octets**.
 
 ---
 
 ### COMMENT
 
-Comme**REM en BASIC**— une note pour vous-même que l'assembleur ignore
-complètement.**Syntaxe :**```
+Comme **REM en BASIC** — une note pour vous-même que l'assembleur ignore
+complètement.
+
+**Syntaxe : **
+```
 ; Your comment text here
-```**Code généré :**```
+```
+
+**Code généré : **
+```
 ; Your comment text here
 ```
 
@@ -437,16 +463,24 @@ complètement.**Syntaxe :**```
 
 ### BYTE
 
-Comme**DATA en BASIC**— stocke une liste de valeurs d'octets bruts directement
+Comme **DATA en BASIC** — stocke une liste de valeurs d'octets bruts directement
 dans le programme.
 
 | Argument | Description                                                                             |
 | -------- | --------------------------------------------------------------------------------------- |
-| Opérande | Valeurs d'octets séparées par des virgules (par exemple `$01, $02, $FF` ou `1, 2, 255`) |**Syntaxe :**```
+| Opérande | Valeurs d'octets séparées par des virgules (par exemple `$01, $02, $FF` ou `1, 2, 255`) |
+
+**Syntaxe : **
+```
 .byte $01, $02, $FF
-```**Code généré :**```
+```
+
+**Code généré : **
+```
     .byte $01, $02, $FF
-```**Références d'étiquettes d'octets de poids faible/haut :**BYTE accepte les
+```
+
+**Références d'étiquettes d'octets de poids faible/haut :** BYTE accepte les
 jetons `<étiquette` (octet de poids faible) et `>étiquette` (octet de poids
 fort) de style KickAssembler/ca65, ainsi que des valeurs numériques.
 L'assembleur résout l'adresse de l'étiquette lors de la compilation et insère
@@ -458,23 +492,33 @@ l'octet approprié. Exemple :
 
 Ce bloc stocke l'octet de poids faible de l'adresse de la trame 0 ` `, puis
 l'octet de poids fort, et ainsi de suite pour la trame 1 ` `. Utile pour la
-construction de tables de branchement et de listes d'adresses.**Taille :**Nombre d’octets dans la liste.
+construction de tables de branchement et de listes d'adresses.
+
+**Taille :** Nombre d’octets dans la liste.
 
 ---
 
 ### WORD
 
-Comme**DATA en BASIC mais pour les nombres de 16 bits**. Chaque valeur est
+Comme **DATA en BASIC mais pour les nombres de 16 bits **. Chaque valeur est
 stockée sur deux octets (octet de poids faible en premier, puis octet de poids
 fort — ordre little-endian 6502).
 
 | Argument | Description                                                                |
 | -------- | -------------------------------------------------------------------------- |
-| Opérande | Valeurs de 16 bits séparées par des virgules (par exemple, `$0400, $C000`) |**Syntaxe :**```
+| Opérande | Valeurs de 16 bits séparées par des virgules (par exemple, `$0400, $C000`) |
+
+**Syntaxe : **
+```
 .word $0400, $C000
-```**Code généré :**```
+```
+
+**Code généré : **
+```
     .word $0400, $C000
-```**Taille :**2 octets par mot.
+```
+
+**Taille : ** 2 octets par mot.
 
 ---
 
@@ -486,9 +530,15 @@ des tables.
 
 | Argument | Description                                                            |
 | -------- | ---------------------------------------------------------------------- |
-| Opérande | `count,value` — par exemple, `256,0` remplit 256 octets avec des zéros |**Syntaxe :**```
+| Opérande | `count,value` — par exemple, `256,0` remplit 256 octets avec des zéros |
+
+**Syntaxe : **
+```
 .fill 256, $00
-```**Code généré :**```
+```
+
+**Code généré : **
+```
     .fill 256, $00
 ```
 
@@ -501,11 +551,15 @@ mathématiques intégrées.
 | ----------------------------- | ----------------------------------------------------------- |
 | `TILE_COUNT, $00`             | compter à partir d'une CONST, valeur littérale hexadécimale |
 | `40*25, 0`                    | multiplication en ligne                                     |
-| `arrondi(sin(PI/4)*255), $80` | trigonométrie                                               |**Fonctions intégrées :**`sin() `, `cos() `, `round() `, `max(a,b) `,
+| `arrondi(sin(PI/4)*255), $80` | trigonométrie                                               |
+
+**Fonctions intégrées : ** `sin() `, `cos() `, `round() `, `max(a,b) `,
 `min(a,b) `, `abs() `, constante `PI `
 
 Opérateurs : `+ - * /` Littéraux : `$FF` (hexadécimal), `%10110000` (binaire)
-Octet de poids faible/de poids fort : `lo(expr)`, `hi(expr)`**Taille :**La valeur du nombre en octets.
+Octet de poids faible/de poids fort : `lo(expr)`, `hi(expr)`
+
+**Taille : ** La valeur du nombre en octets.
 
 ---
 
@@ -517,22 +571,30 @@ sur une limite de 64 octets ; `ALIGN 64` gère cela automatiquement.
 
 | Argument | Description                                                                               |
 | -------- | ----------------------------------------------------------------------------------------- |
-| Limite   | Valeur d'alignement — par exemple `64` (limite du sprite), `256` (page), `$2000` (bitmap) |**Syntaxe :**```
+| Limite   | Valeur d'alignement — par exemple `64` (limite du sprite), `256` (page), `$2000` (bitmap) |
+
+**Syntaxe : **
+```
 .align 64
 .align $2000
-```**Code généré :**```
+```
+
+**Code généré : **
+```
     ; ALIGN 64 → $0840 (12 bytes padding)
-```**Taille :**Dynamique — dépend de la position actuelle du compteur de
+```
+
+**Taille : ** Dynamique — dépend de la position actuelle du compteur de
 programme.
 
->**Conseil :**Utilisez `ALIGN 64` avant les données de sprite, `ALIGN 256`
+> **Conseil :** Utilisez `ALIGN 64` avant les données de sprite, `ALIGN 256`
 > pour garantir des tableaux alignés sur la page.
 
 ---
 
 ### TEXT
 
-Comme**PRINT AT**— écrit du texte directement sur l'écran du C64 à une colonne
+Comme **PRINT AT** — écrit du texte directement sur l'écran du C64 à une colonne
 et une ligne données, sans utiliser le KERNAL. Il génère une paire LDA/STA par
 caractère, ciblant la RAM d'écran à `$0400`.
 
@@ -542,26 +604,36 @@ caractère, ciblant la RAM d'écran à `$0400`.
 | X                      | Colonne (0–39)                                                  |
 | Y                      | Ligne (0–24)                                                    |
 | Étiquette (facultatif) | Attribue une étiquette pointant vers l'adresse d'écran calculée |
-| `inférieur`            | Drapeau facultatif — voir ci-dessous                            |**Modes de jeu de caractères :**Le C64 possède deux jeux de caractères sélectionnables lors de l'exécution :
+| `inférieur`            | Drapeau facultatif — voir ci-dessous                            |
+
+**Modes de jeu de caractères : **
+
+Le C64 possède deux jeux de caractères sélectionnables lors de l'exécution :
 
 | Mode                                              | $D018 bit 1 | Entrée en majuscules              | Entrée en minuscules                 |
 | ------------------------------------------------- | ----------- | --------------------------------- | ------------------------------------ |
-|**Majuscules/graphismes**(par défaut)            | 0           | `A`–`Z` → codes d'écran $01–$1A ✓ | traité également comme une majuscule |
-|**Minuscules/majuscules**(après CHARSET lower) | 1           | `A`–`Z` → $01–$1A (majuscules)    | `a`–`z` → $41–$5A (minuscules) ✓     |
+| **Majuscules/graphismes** (par défaut)            | 0           | `A`–`Z` → codes d'écran $01–$1A ✓ | traité également comme une majuscule |
+| **Minuscules/majuscules** (après CHARSET lower) | 1           | `A`–`Z` → $01–$1A (majuscules)    | `a`–`z` → $41–$5A (minuscules) ✓     |
 
--**Jeu de caractères majuscules (par défaut) :**Saisissez ce que vous
+- **Jeu de caractères majuscules (par défaut) :** Saisissez ce que vous
   souhaitez voir en majuscules. `« HELLO »` s’affiche comme `HELLO`. Les
   caractères minuscules sont convertis en majuscules à l’écran.
--**Jeu de caractères minuscules (`lower`) :**Saisissez la casse exacte
+- **Jeu de caractères minuscules (`lower`) : ** Saisissez la casse exacte
   souhaitée. `"hello"` → affichage en minuscules, `"HELLO"` → affichage en
   majuscules. Nécessite une modification du jeu de caractères avant l'écriture à
-  l'écran (utilisez la macro**CHARSET lower**).**Code généré (mode majuscules, `"HELLO"`):**```
+  l'écran (utilisez la macro **CHARSET lower**).
+
+**Code généré (mode majuscules, `"HELLO"`):**
+```
     LDA #$08      ; 'H' screen code $08
     STA $0400
     LDA #$05      ; 'E' screen code $05
     STA $0401
     ...
-```**Syntaxe :**```
+```
+
+**Syntaxe : **
+```
 .text 0, 2, "HELLO"           ; uppercase charset (default)
 .text 0, 2, "hello", lower    ; lowercase charset
 ```
@@ -573,23 +645,29 @@ longueur du texte × 5 octets (LDA + STA par caractère).
 
 ### STRING
 
-Comme**POKEing une chaîne**dans n'importe quelle adresse mémoire à
+Comme **POKEing une chaîne ** dans n'importe quelle adresse mémoire à
 l'exécution. Génère des paires LDA/STA qui copient le code d'écran de chaque
 caractère dans des adresses consécutives.
 
 | Argument               | Description                                                                                             |
 | ---------------------- | ------------------------------------------------------------------------------------------------------- |
 | Texte                  | La chaîne à écrire                                                                                      |
-| Adresse                | Adresse mémoire cible — `$C000` hexadécimal ou un**nom d'étiquette**|
+| Adresse                | Adresse mémoire cible — `$C000` hexadécimal ou un **nom d'étiquette**                                   |
 | Étiquette (facultatif) | Attribue une étiquette pointant vers l'adresse cible                                                    |
 | Changement             | Valeur hexadécimale (00–FF) ajoutée à chaque octet de code d'écran (par exemple `$80` = vidéo inversée) |
-| `inférieur`            | Indicateur optionnel — même sémantique que TEXT (voir la section TEXT)                                  |**Syntaxe :**```
+| `inférieur`            | Indicateur optionnel — même sémantique que TEXT (voir la section TEXT)                                  |
+
+**Syntaxe : **
+```
 .string $C000, "HELLO"                  ; uppercase charset (default)
 .string $C000, "hello", lower           ; lowercase charset
 .string $C000, "HELLO", 80             ; with shift (reverse video)
 .string $C000, "hello", 80, lower      ; shift + lowercase
 .string $C000, "HELLO" :my_string      ; with macroLabel
-```**Code généré :**```
+```
+
+**Code généré : **
+```
     LDA #$08      ; 'H' screen code
     STA $C000
     LDA #$05      ; 'E' screen code
@@ -605,26 +683,34 @@ inversée. Taille : longueur du texte × 5 octets (un LDA + un STA par caractèr
 
 ### DATA
 
-Comme une boucle**POKE**— écrit une liste d'octets bruts à une adresse mémoire
+Comme une boucle **POKE** — écrit une liste d'octets bruts à une adresse mémoire
 au moment de l'exécution, une paire LDA/STA par octet.
 
 | Argument               | Description                                                           |
 | ---------------------- | --------------------------------------------------------------------- |
 | Octets                 | valeurs d'octets séparées par des virgules                            |
-| Adresse                | Adresse mémoire cible — `$C000` hexadécimal ou un**nom d'étiquette**|
-| Étiquette (facultatif) | Attribue une étiquette pointant vers l'adresse cible                  |**Syntaxe :**```
+| Adresse                | Adresse mémoire cible — `$C000` hexadécimal ou un **nom d'étiquette** |
+| Étiquette (facultatif) | Attribue une étiquette pointant vers l'adresse cible                  |
+
+**Syntaxe : **
+```
 .data $C000, $01, $02, $03          ; hex address
 .data my_buf, $01, $02, $03         ; label address
 .data $C000, $01, $02, $03 :mydata  ; with macroLabel
-```**Code généré :**```
+```
+
+**Code généré : **
+```
     LDA #$01
     STA $C000
     LDA #$02
     STA $C001
     ...
-```**Taille :**`byte_count × 5 ` octets (un LDA + un STA par octet).
+```
 
->**2.1:**Les octets peuvent nommer des étiquettes : `.data $2010, <target,
+**Taille : ** `byte_count × 5 ` octets (un LDA + un STA par octet).
+
+> **2.1:** Les octets peuvent nommer des étiquettes : `.data $2010, <target,
 > >target` écrit l’adresse de `target`, qui est également une étiquette définie
 > ultérieurement. L’étiquette `:name` de la macro peut pointer vers une adresse
 > cible qui est elle-même une étiquette.
@@ -633,7 +719,7 @@ au moment de l'exécution, une paire LDA/STA par octet.
 
 ### RAWBYTES
 
-Comme les données**qui se chargent directement en mémoire**— aucun code
+Comme les données **qui se chargent directement en mémoire** — aucun code
 d'exécution n'est nécessaire. Les octets sont présents dès le chargement du PRG,
 avant même le début de votre code. Utilisez cette méthode pour les données de
 sprites, les cartes de niveaux, les tables de correspondance, bref, tout ce qui
@@ -642,20 +728,25 @@ doit se trouver à une adresse spécifique.
 | Argument               | Description                                                           |
 | ---------------------- | --------------------------------------------------------------------- |
 | Octets                 | valeurs d'octets séparées par des virgules                            |
-| Adresse                | Adresse mémoire cible — `$C000` hexadécimal ou un**nom d'étiquette**|
-| Étiquette (facultatif) | Attribue une étiquette pointant vers l'adresse cible                  |**Syntaxe :**```
+| Adresse                | Adresse mémoire cible — `$C000` hexadécimal ou un **nom d'étiquette** |
+| Étiquette (facultatif) | Attribue une étiquette pointant vers l'adresse cible                  |
+
+**Syntaxe : **
+```
 .rawbytes $C000, $00, $00, $00      ; hex address
 .rawbytes sprite_data, $00, $00     ; label address
 .rawbytes $0C50, $00, $00 :nev      ; with macroLabel — other code can use LDA nev,X
-```**Taille en code :**0 octets. Les données sont placées à l’adresse indiquée
+```
+
+**Taille en code : ** 0 octets. Les données sont placées à l’adresse indiquée
 dans la sortie.
 
->**DATA vs RAWBYTES :**DATA génère du code LDA/STA qui copie les octets à
+> **DATA vs RAWBYTES : ** DATA génère du code LDA/STA qui copie les octets à
 > l’exécution (plus lent, mais fonctionne si les données doivent être
 > dynamiques). RAWBYTES place directement les octets : sans code, instantané et
 > sans coût.
 
->**2.1:**Les octets peuvent nommer des étiquettes (`.rawbytes $2000, <target,
+> **2.1:** Les octets peuvent nommer des étiquettes (`.rawbytes $2000, <target,
 > >target` — une table de pointeurs) ; l’étiquette `:name` peut pointer vers une
 > étiquette comme adresse cible, y compris une étiquette définie ultérieurement.
 > En tant qu’argument de tampon d’une macro, les octets occupent leur propre
@@ -672,16 +763,22 @@ disponible en mémoire dès le chargement du PRG.
 | Argument               | Description                                                                                             |
 | ---------------------- | ------------------------------------------------------------------------------------------------------- |
 | Texte                  | Chaîne à encoder                                                                                        |
-| Adresse                | Adresse mémoire cible — `$C000` hexadécimal ou un**nom d'étiquette**|
+| Adresse                | Adresse mémoire cible — `$C000` hexadécimal ou un **nom d'étiquette**                                   |
 | Étiquette (facultatif) | Attribue une étiquette pointant vers l'adresse cible                                                    |
 | Changement             | Valeur hexadécimale (00–FF) ajoutée à chaque octet de code d'écran (par exemple `$80` = vidéo inversée) |
-| `inférieur`            | Indicateur optionnel — même sémantique que TEXT (voir la section TEXT)                                  |**Syntaxe :**```
+| `inférieur`            | Indicateur optionnel — même sémantique que TEXT (voir la section TEXT)                                  |
+
+**Syntaxe : **
+```
 .rawtext $C000, "HELLO"                 ; uppercase charset (default)
 .rawtext $C000, "hello", lower          ; lowercase charset
 .rawtext $C000, "HELLO", 80            ; with shift (reverse video)
 .rawtext $C000, "hello", 80, lower     ; shift + lowercase
 .rawtext $0400, "HELLO" :my_text       ; with macroLabel
-```**Code généré :**```
+```
+
+**Code généré : **
+```
 ; .rawtext "HELLO" -> $C000
 ; $C000
     .byte $08, $05, $0C, $0C, $0F   ; H E L L O (uppercase screen codes)
@@ -689,10 +786,12 @@ disponible en mémoire dès le chargement du PRG.
 ; .rawtext "hello", lower -> $C000
 ; $C000
     .byte $48, $45, $4C, $4C, $4F   ; h e l l o (lowercase screen codes $41–$5A range)
-```**Taille en code :**0 octets. Les données sont placées à l’adresse indiquée
+```
+
+**Taille en code : ** 0 octets. Les données sont placées à l’adresse indiquée
 dans la sortie.
 
->**STRING vs RAWTEXT :**STRING génère du code LDA/STA qui copie le texte à
+> **STRING vs RAWTEXT : ** STRING génère du code LDA/STA qui copie le texte à
 > l’exécution. RAWTEXT intègre les octets dans le PRG au moment du chargement —
 > sans code, sans attente.
 
@@ -700,13 +799,13 @@ dans la sortie.
 
 ### PETSCII
 
-Comme**RAWBYTES mais pour la sortie KERNAL**— encode la chaîne en octets
+Comme **RAWBYTES mais pour la sortie KERNAL** — encode la chaîne en octets
 PETSCII (compatible avec CHROUT à `$FFD2`) et les place à une adresse fixe sans
 code d'exécution. Utilisez cette fonction lorsque vous souhaitez afficher des
 caractères via `JSR $FFD2` dans une boucle, et notez que `.print` utilise le
 même encodeur et le même indicateur `lower`.
 
->**PETSCII vs codes écran :**Les codes PETSCII et les codes écran sont deux
+> **PETSCII vs codes écran : ** Les codes PETSCII et les codes écran sont deux
 > encodages différents. Code écran `$01` = lettre A ; PETSCII `$41` = lettre A
 > (via CHROUT). Utilisez PETSCII uniquement pour l’impression via le KERNAL ;
 > utilisez TEXT/STRING/RAWTEXT pour écrire directement dans la RAM d’écran.
@@ -714,21 +813,31 @@ même encodeur et le même indicateur `lower`.
 | Argument               | Description                                                           |
 | ---------------------- | --------------------------------------------------------------------- |
 | Texte                  | Chaîne à encoder en octets PETSCII                                    |
-| Adresse                | Adresse mémoire cible — `$C000` hexadécimal ou un**nom d'étiquette**|
+| Adresse                | Adresse mémoire cible — `$C000` hexadécimal ou un **nom d'étiquette** |
 | Étiquette (facultatif) | Attribue une étiquette pointant vers l'adresse cible                  |
-| `inférieur`            | Drapeau facultatif — voir ci-dessous                                  |**Modes de jeu de caractères :**| Mode                         | Entrée en majuscules (`A`–`Z`)                                                                                                            | Entrée en minuscules (`a`–`z`) |
+| `inférieur`            | Drapeau facultatif — voir ci-dessous                                  |
+
+**Modes de jeu de caractères : **
+
+| Mode                         | Entrée en majuscules (`A`–`Z`)                                                                                                            | Entrée en minuscules (`a`–`z`) |
 | ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------ |
-|**Majuscules (par défaut)**| `$41`–`$5A` (PETSCII majuscules via CHROUT)                                                                                               | également mappé à `$41`–`$5A`  |
-|**Minutieux (`minuscules`)**| Les lettres alphabétiques sont réattribuées afin que la casse visible reste cohérente sur l'ensemble de caractères minuscules/majuscules. | Même règle                     |**Syntaxe :**```
+| **Majuscules (par défaut)**  | `$41`–`$5A` (PETSCII majuscules via CHROUT)                                                                                               | également mappé à `$41`–`$5A`  |
+| **Minutieux (`minuscules`)**| Les lettres alphabétiques sont réattribuées afin que la casse visible reste cohérente sur l'ensemble de caractères minuscules/majuscules. | Même règle                     |**Syntaxe : **
+```
 .petscii $C000, "HELLO"              ; uppercase PETSCII (default)
 .petscii $C000, "hello", lower       ; lowercase PETSCII ($61–$7A)
 .petscii $C000, "HELLO", null        ; with null terminator
 .petscii $C000, "hello", lower, null ; lowercase + null terminator
 .petscii $C000, "HELLO" :my_msg      ; with macroLabel
-```**Octets générés (majuscules, `"HELLO"`):**```
+```
+
+**Octets générés (majuscules, `"HELLO"`):**
+```
 ; $C000
     .byte $48, $45, $4C, $4C, $4F   ; H E L L O (PETSCII $41–$5A range)
-```**Taille en code :**0 octets. Les données sont placées à l’adresse cible sous
+```
+
+**Taille en code : ** 0 octets. Les données sont placées à l’adresse cible sous
 forme de section de données différées (comme RAWBYTES).
 
 Terminateur nul : ajoute l’indicateur null pour ajouter un octet $00 après le
@@ -744,7 +853,11 @@ loop:
     BNE loop
 done:
     RTS
-```**Règles d'encodage :**| Saisir                                 | Mode majuscules                  | Mode minuscule |
+```
+
+**Règles d'encodage : **
+
+| Saisir                                 | Mode majuscules                  | Mode minuscule |
 | -------------------------------------- | -------------------------------- | -------------- |
 | `A`–`Z`                                | `$41`–`$5A`                      | `$61`–`$7A`    |
 | `a`–`z`                                | `$41`–`$5A` (majuscules forcées) | `$41`–`$5A`    |
@@ -752,7 +865,7 @@ done:
 | Nouvelle ligne                         | `$0D` (RETOUR)                   | `$0D`          |
 | Autre                                  | `$20` (espace)                   | `$20`          |
 
->**Conseil :**Utilisez PETSCII pour les données qui seront affichées via
+> **Conseil :** Utilisez PETSCII pour les données qui seront affichées via
 > CHROUT (`$FFD2`). Pour écrire directement dans la mémoire RAM de l'écran,
 > utilisez plutôt STRING ou RAWTEXT.
 
@@ -766,10 +879,15 @@ au moment de l'exécution.
 
 | Argument | Description                                                                                                                                            |
 | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Mode     |**Minuscules**— active le jeu de caractères minuscules/majuscules ;**Majuscules**— rétablit le jeu de caractères majuscules/graphiques par défaut |**Syntaxe :**```
+| Mode     | ** Minuscules**— active le jeu de caractères minuscules/majuscules ;** Majuscules**— rétablit le jeu de caractères majuscules/graphiques par défaut |**Syntaxe : **
+```
 .charset lower    ; switch to lowercase charset
 .charset upper    ; switch back to uppercase/graphics charset
-```**Code généré :**Mode minuscules :
+```
+
+**Code généré : **
+
+Mode minuscules :
 ```
     LDA $D018
     ORA #$02      ; set bit 1 → lowercase/uppercase ROM at $1800
@@ -781,15 +899,21 @@ Mode majuscules :
     LDA $D018
     AND #$FD      ; clear bit 1 → uppercase/graphics ROM at $1000
     STA $D018
-```**Taille :**8 octets (LDA abs + ORA/AND imm + STA abs).**Pourquoi utiliser ORA/AND plutôt qu'une écriture directe ?**`$D018` contrôle
+```
+
+**Taille : **8 octets (LDA abs + ORA/AND imm + STA abs).**Pourquoi utiliser ORA/AND plutôt qu'une écriture directe ?** `$D018` contrôle
 également l'emplacement de la RAM écran (bits 7 à 4). Basculer uniquement le bit
-1 préserve le reste du registre.**Flux de travail typique :**```
+1 préserve le reste du registre.
+
+**Flux de travail typique :**
+
+```
 .charset lower
 .text 0, 0, "hello world", lower
 .charset upper
 ```
 
->**Remarque :**La macro CHARSET modifie uniquement le pointeur ROM de
+> **Remarque : ** La macro CHARSET modifie uniquement le pointeur ROM de
 > caractères VIC. Elle n'appelle pas `$E544` (initialisation du jeu de
 > caractères du noyau). Dans la plupart des cas, cela suffit ; appelez `JSR
 > $E544` en premier uniquement si vous avez besoin que les routines d'impression
@@ -807,9 +931,15 @@ RAM. Émet du code d'exécution en ligne qui copie 8 octets dans `base + index *
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
 | Base de caractères   | Adresse de base du jeu de caractères RAM (par défaut `$3800`). Doit être alignée pour que le VIC-II puisse la voir (voir ci-dessous). |
 | Index des caractères | Quel emplacement de caractère redéfinir, 0–255. `65` = 'A' dans la disposition de code d'écran par défaut.                            |
-| 8 octets             | Lignes d'image bitmap séparées par des virgules, de haut en bas. Le bit 7 de chaque octet correspond au pixel le plus à gauche.       |**Syntaxe :**```
+| 8 octets             | Lignes d'image bitmap séparées par des virgules, de haut en bas. Le bit 7 de chaque octet correspond au pixel le plus à gauche.       |
+
+**Syntaxe : **
+```
 .chardef $3800, 65, $18,$3C,$66,$7E,$66,$66,$66,$00
-```**Code généré (8 × `LDA #b` / `STA cible+n`, 40 octets au total):**```
+```
+
+**Code généré (8 × `LDA #b` / `STA cible+n`, 40 octets au total):**
+```
     LDA #$18
     STA $3A08
     LDA #$3C
@@ -826,8 +956,13 @@ RAM. Émet du code d'exécution en ligne qui copie 8 octets dans `base + index *
     STA $3A0E
     LDA #$00
     STA $3A0F
-```**Adresse cible :**`$3800 + 65 * 8 = $3A08`. Calculé à la compilation et
-intégré en dur dans les opérandes STA.**Taille :**40 octets par caractère (8 × 5).**Flux de travail typique :**```
+```
+
+**Adresse cible : ** `$3800 + 65 * 8 = $3A08`. Calculé à la compilation et
+intégré en dur dans les opérandes STA.
+
+**Taille : **40 octets par caractère (8 × 5).**Flux de travail typique :**
+```
     ; Point VIC-II at RAM charset at $3800
     LDA $D018
     AND #$F1
@@ -837,12 +972,16 @@ intégré en dur dans les opérandes STA.**Taille :**40 octets par caractère (8
     .chardef $3800, 65, $18,$3C,$66,$7E,$66,$66,$66,$00   ; redefine 'A'
     .chardef $3800, 66, $7C,$66,$66,$7C,$66,$66,$7C,$00   ; redefine 'B'
     ; ... more .chardef lines for each custom char
-```**Quand utiliser CHARDEF plutôt que des alternatives :**| Approche                         | À utiliser lorsque                                                                                                                    |
+```
+
+**Quand utiliser CHARDEF plutôt que des alternatives : **
+
+| Approche                         | À utiliser lorsque                                                                                                                    |
 | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-|**CHARDEF**| Vous avez besoin de quelques caractères personnalisés (par exemple, de 1 à 20). Le coût d'exécution est de 40 octets par caractère.   |
-|**RAWBYTES à 3800 $**| Vous disposez d'un jeu de caractères entièrement personnalisé (256 caractères). Total de 2 Ko de données, aucune copie à l'exécution. |
-|**INCBIN "charset.bin" @ $3800**| Fichier de jeu de caractères externe (généré par l'éditeur de caractères). Option la plus propre.                                     |
-|**Caractères Canvas + INCBIN**| Image bitmap complète de 256 caractères, peinte en une seule image de 128×128 pixels.                                                 |
+| **CHARDEF** | Vous avez besoin de quelques caractères personnalisés (par exemple, de 1 à 20). Le coût d'exécution est de 40 octets par caractère.   |
+| **RAWBYTES à 3800 $**            | Vous disposez d'un jeu de caractères entièrement personnalisé (256 caractères). Total de 2 Ko de données, aucune copie à l'exécution. |
+| **INCBIN "charset.bin" @ $3800** | Fichier de jeu de caractères externe (généré par l'éditeur de caractères). Option la plus propre.                                     |
+| **Caractères Canvas + INCBIN**   | Image bitmap complète de 256 caractères, peinte en une seule image de 128×128 pixels.                                                 |
 
 > Rappel d'alignement : VIC-II attend que la base du jeu de caractères soit un
 > multiple de 0800. Banques valides : 0000, 0800, 1000, 1000, ..., 3800 (dans la
@@ -855,12 +994,15 @@ intégré en dur dans les opérandes STA.**Taille :**40 octets par caractère (8
 
 Test de collision de boîtes englobantes alignées sur les axes (AABB) entre deux
 rectangles décrits par des structures de page zéro de 4 octets. Renvoie le
-résultat dans l'accumulateur :**A = 1**en cas de chevauchement,**A = 0**sinon. Code assembleur en ligne pur, sans appel de sous-programme.
+résultat dans l'accumulateur : **A = 1**en cas de chevauchement,**A = 0**
+sinon. Code assembleur en ligne pur, sans appel de sous-programme.
 
 | Argument             | Description                                                                            |
 | -------------------- | -------------------------------------------------------------------------------------- |
 | Adresse postale Box1 | Base de page zéro de la structure de 4 octets de la première boîte (par défaut `$FB`). |
-| Adresse postale Box2 | Base de page zéro de la structure de 4 octets de la deuxième boîte (par défaut `$F7`). |**Disposition de la structure**(4 octets par case, coordonnées non signées sur
+| Adresse postale Box2 | Base de page zéro de la structure de 4 octets de la deuxième boîte (par défaut `$F7`). |
+
+**Disposition de la structure** (4 octets par case, coordonnées non signées sur
 8 bits) :
 
 | Compenser | Champ  |
@@ -868,10 +1010,16 @@ résultat dans l'accumulateur :**A = 1**en cas de chevauchement,**A = 0**sinon. 
 | `+0`      | Gauche |
 | `+1`      | Haut   |
 | `+2`      | Droite |
-| `+3`      | Bas    |**Syntaxe :**```
+| `+3`      | Bas    |
+
+**Syntaxe : **
+```
 .box_hit $FB, $F7
-```**Code généré (30 octets, entièrement relatif au PC — pas de sous-routine, pas
-de sauts absolus) :**```
+```
+
+**Code généré (30 octets, entièrement relatif au PC — pas de sous-routine, pas
+de sauts absolus) :**
+```
     LDA $FD        ; b1 right
     CMP $F7        ; b2 left
     BCC no         ; R1 < L2 → miss
@@ -888,7 +1036,11 @@ de sauts absolus) :**```
     BNE done       ; unconditional (A ≠ 0)
 no: LDA #$00
 done:
-```**Taille :**30 octets.**Flux de travail typique :**```
+```
+
+**Taille : **30 octets.**Flux de travail typique :**
+
+```
     ; Player sprite box at $FB..$FE
     LDA sprite_x            ; L
     STA $FB
@@ -911,7 +1063,10 @@ done:
     BNE no_collision
     JSR handle_hit
 no_collision:
-```**Contraintes:**- Les deux adresses de page zéro doivent être `≤ $FC` (chaque boîte a besoin de
+```
+
+**Contraintes:**
+- Les deux adresses de page zéro doivent être `≤ $FC` (chaque boîte a besoin de
   4 octets consécutifs : `zp`, `zp+1`, `zp+2`, `zp+3`).
 - Les coordonnées sont traitées comme des entiers non signés 8 bits (0–255).
   Pour les coordonnées de sprites signées en dehors de cette plage,
@@ -934,19 +1089,27 @@ besoin du test ; le résultat se trouve dans `A`.
 
 ### INCBIN
 
-Comme**BLOAD en BASIC**— récupère un fichier binaire externe (`.bin`, `.prg`,
+Comme **BLOAD en BASIC** — récupère un fichier binaire externe (`.bin`, `.prg`,
 `.sid`, `.raw`) et l'intègre directement dans le PRG assemblé à l'adresse que
 vous spécifiez.
 
 | Argument | Description                                               |
 | -------- | --------------------------------------------------------- |
 | Déposer  | Sélectionnez un fichier `.bin`, `.prg`, `.sid` ou `.raw`. |
-| Adresse  | Adresse de chargement cible (par exemple `$C000`)         |**Syntaxe :**```
+| Adresse  | Adresse de chargement cible (par exemple `$C000`)         |
+
+**Syntaxe : **
+```
 .incbin "music.bin", $C000
-```**Commentaire de code généré :**```
+```
+
+**Commentaire de code généré : **
+```
     ; INCBIN "music.bin" @ $C000 (2048 bytes)
     .byte $01, $02, ...
-```**Taille en code :**0 octets (section de données différées). Le binaire est
+```
+
+**Taille en code : ** 0 octets (section de données différées). Le binaire est
 intégré à l’adresse indiquée.
 
 ---
@@ -970,15 +1133,23 @@ banque VIC dans `$DD00` (en conservant les autres bits de port) et active le
 mode bitmap multicolore (`$D011 = $3B`, `$D016 = $18`, `$D018 = $18`). Les
 autres adresses sont rejetées : les 8 Ko restants se trouvent sous la ROM
 BASIC/KERNAL (la boucle de copie lirait la ROM) ou chevauchent l'ombre de la ROM
-de caractères.**Syntaxe :**```
+de caractères.
+
+**Syntaxe : **
+```
 .koala "picture.koa"
 .koala "picture.koa", $2000
-```**Exemple — afficher une image et attendre :**```
+```
+
+**Exemple — afficher une image et attendre :**
+```
 * = $0801
 .koala "picture.koa"
 wait:
     JMP wait
-```**Taille en code :**86 octets (routine d'affichage) ; les 10 001 octets de
+```
+
+**Taille en code : ** 86 octets (routine d'affichage) ; les 10 001 octets de
 données d'image sont envoyés à l'adresse indiquée. L'éditeur haute résolution de
 l'assembleur visuel C64 exporte un fichier compatible.
 
@@ -986,7 +1157,7 @@ l'assembleur visuel C64 exporte un fichier compatible.
 
 ### LEVEL / LEVEL_ROW
 
-Intègre un projet**Level Editor**dans votre programme et copie les lignes du
+Intègre un projet **Level Editor** dans votre programme et copie les lignes du
 niveau dans une mémoire tampon d'écran — les éléments de base d'un jeu à
 défilement. L'exemple `level-demo.asm` de l'assembleur visuel C64 est un niveau
 complet à défilement au joystick.
@@ -999,7 +1170,10 @@ Assembler) sont chargés en mémoire à l'adresse spécifiée (par défaut 2000)
 l'ordre des emplacements, à raison de 2000 octets par écran (1000 codes d'écran
 + 1000 couleurs). Les écrans identiques sont stockés une seule fois, et tous les
 emplacements vides partagent un écran vierge. Les tables de pointeurs suivent
-les écrans. Un niveau peut comporter jusqu'à 7 × 10 écrans.**Syntaxe :**```
+les écrans. Un niveau peut comporter jusqu'à 7 × 10 écrans.
+
+**Syntaxe : **
+```
 .level "level.bin"
 .level "level.bin", $4000
 ```
@@ -1027,23 +1201,28 @@ le code"`.
 #### LEVEL_ROW
 
 Copie une ligne de 40 caractères du niveau dans un tampon : la ligne de niveau
-dans**X**, commençant à la colonne de niveau stockée dans la variable `col`,
+dans **X**, commençant à la colonne de niveau stockée dans la variable `col`,
 jusqu'à l'adresse contenue dans le pointeur `dst` (`dst` / `dst+1`, lo/hi). Avec
 le troisième argument `color`, copie les couleurs au lieu des codes d'écran
 (pour la RAM couleur). Une fenêtre de 40 caractères s'étendant sur deux écrans
 est gérée par une boucle de copie auto-modificatrice (environ 14 cycles par
 octet). X est conservé, A et Y sont détruits. Nécessite un bloc `.level` dans le
-programme.**Syntaxe :**```
+programme.
+
+**Syntaxe : **
+```
 .level_row dst_lo, view_x
 .level_row dst_lo, view_x, color
-```**Taille en code :**132 octets — utilisez `LBEQ` / `LBNE` lorsqu’une branche
+```
+
+**Taille en code :** 132 octets — utilisez `LBEQ` / `LBNE` lorsqu’une branche
 doit sauter par-dessus.
 
 ---
 
 ### SID
 
-Comme**BLOAD pour la musique**— charge un fichier `.sid` dans votre PRG et lit
+Comme **BLOAD pour la musique** — charge un fichier `.sid` dans votre PRG et lit
 automatiquement ses adresses Init et Play dans l'en-tête. Appelez Init une fois
 au démarrage, puis appelez Play depuis votre gestionnaire d'interruption à
 chaque image.
@@ -1054,17 +1233,25 @@ chaque image.
 | Adresse personnalisée (facultatif) | Remplacez l'adresse de chargement native du SID (par exemple, `$1000`). Laissez ce champ vide pour utiliser l'adresse de l'en-tête du SID. |
 
 L'en-tête SID indique :
--**Adresse de chargement**— où les données sont placées en mémoire (l'adresse
+- **Adresse de chargement** — où les données sont placées en mémoire (l'adresse
   personnalisée lorsqu'elle est fournie)
--**Adresse d'initialisation**— appelez ceci avec JSR pour initialiser la
+- **Adresse d'initialisation** — appelez ceci avec JSR pour initialiser la
   musique (déplacée avec une adresse personnalisée)
--**Adresse de lecture**— appelez ceci avec JSR sur chaque trame dans un
-  gestionnaire d'IRQ (déplacé avec une adresse personnalisée)**Syntaxe :**```
+- **Adresse de lecture** — appelez ceci avec JSR sur chaque trame dans un
+  gestionnaire d'IRQ (déplacé avec une adresse personnalisée)
+
+**Syntaxe : **
+```
 .sid "Ikari_Warriors.sid"
 .sid "Ikari_Warriors.sid", $1000
-```**Commentaire de code généré :**```
+```
+
+**Commentaire de code généré : **
+```
     ; SID "Ikari_Warriors.sid" @ $1000  Init:$1000  Play:$1006  (4096 bytes)
-```**Taille en code :**0 octets en ligne. Le binaire SID est placé à l’adresse
+```
+
+**Taille en code : ** 0 octets en ligne. Le binaire SID est placé à l’adresse
 spécifiée en tant que bloc différé dans le PRG.
 
 > Important : La plupart des fichiers SID contiennent des adresses absolues
@@ -1073,7 +1260,7 @@ spécifiée en tant que bloc différé dans le PRG.
 > `$10xx`, il doit rester à `$1000` ; le déplacer vers une autre adresse rompra
 > ces références internes.
 
->**Utilisation typique :**Attribuez au SID une adresse spécifique (`.sid
+> **Utilisation typique :** Attribuez au SID une adresse spécifique (`.sid
 > "tune.sid", $1000`) lorsque son adresse native entre en conflit avec votre
 > code. Appelez Init une fois au démarrage, puis Play à chaque image depuis un
 > gestionnaire d'interruption raster — ou laissez [SID_PLAYER](#sid_player)
@@ -1089,7 +1276,7 @@ votre code, par exemple : JSR SID_PLAY dans un gestionnaire d'interruption.
 
 ### SID_PLAYER
 
-Joue la mélodie de la directive**SID**avec une seule ligne : elle initialise
+Joue la mélodie de la directive **SID** avec une seule ligne : elle initialise
 la mélodie et continue d'appeler sa routine de lecture à partir d'une
 interruption raster, afin que votre programme puisse continuer son propre
 travail.
@@ -1104,13 +1291,18 @@ CIA1 (`$DC0D`), définit le vecteur IRQ (`$0314/$0315`) sur son gestionnaire
 intégré, la ligne raster (`$D012`, bit 8 de `$D011` effacé) et l'IRQ raster
 (`$D01A`), `CLI`, puis saute au-dessus du gestionnaire. Le gestionnaire accuse
 réception de l'interruption (`ASL $D019`), appelle `JSR SID_PLAY` et passe au
-KERNAL (`JMP $EA31`, qui analyse également le clavier).**Syntaxe :**```
+KERNAL (`JMP $EA31`, qui analyse également le clavier).
+
+**Syntaxe : **
+```
 .sid "Ikari_Warriors.sid"
 .sid_player
 .sid_player 1, $80
-```**Taille en code :**58 octets.
+```
 
->**Remarque :**une ligne `.sid` est nécessaire dans le programme (`SID_INIT`
+**Taille en code : ** 58 octets.
+
+> **Remarque : ** une ligne `.sid` est nécessaire dans le programme (`SID_INIT`
 > et `SID_PLAY`) ; sinon, la compilation s’arrête avec une erreur. Lorsque
 > l’interruption du minuteur CIA1 est désactivée, le noyau s’exécute une fois
 > par image à partir de l’interruption raster ; le clavier et `GETIN` restent
@@ -1124,31 +1316,40 @@ Comme la fonction MERGE en BASIC, elle importe un autre fichier et l'étend à c
 emplacement. Idéal pour les bibliothèques de sous-programmes réutilisables.
 
 Deux types de fichiers sont pris en charge :
--**Source assembleur simple**(`.inc`, `.asm`, `.s`) — le fichier est lu comme
+- **Source assembleur simple** (`.inc`, `.asm`, `.s`) — le fichier est lu comme
   source VMA. Il est relu à chaque compilation, vous pouvez donc le modifier
   avec n'importe quel éditeur.
--**Visual Assembler project**(`.json`) — les blocs d'un programme bloc C64
+- **Visual Assembler project** (`.json`) — les blocs d'un programme bloc C64
   Visual Assembler.
 
 | Argument                           | Description                                                                                                                                                                                                                                                                                                                |
 | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Déposer                            | Un fichier source `.inc` / `.asm` / `.s` ou un projet Visual Assembler `.json`.                                                                                                                                                                                                                                            |
-| Adresse de chargement (facultatif) | Si cette option est activée (en hexadécimal, par exemple `C000`), le code inclus est placé à cette adresse ; un `ORG` est ajouté devant, et les instructions ORG propres au fichier inclus sont ignorées. Sans cette option, ce sont les instructions ORG propres au fichier inclus qui déterminent l'emplacement du code. |**Syntaxe :**```
+| Adresse de chargement (facultatif) | Si cette option est activée (en hexadécimal, par exemple `C000`), le code inclus est placé à cette adresse ; un `ORG` est ajouté devant, et les instructions ORG propres au fichier inclus sont ignorées. Sans cette option, ce sont les instructions ORG propres au fichier inclus qui déterminent l'emplacement du code. |
+
+**Syntaxe : **
+```
 .include "library.json"
 .include "macros.inc", $1500
 .include "sprites.asm"
 ```
 
-- Donnez l'extension de fichier****— un nom nu comme `.include "macros"` est
+- Donnez l'extension de fichier **** — un nom nu comme `.include "macros"` est
   traité comme `.include "macros.json"`.
 - Résolution des chemins : d’abord à côté du répertoire source, puis dans chaque
   dossier de recherche (l’option `--base-dir` / `--search` de l’interface de
   ligne de commande) ; un chemin défini sur une autre machine est remplacé par
   le nom du fichier seul. L’absence d’un fichier d’en-tête n’est pas une erreur
-  : la compilation se poursuit.**Code généré (pas de remplacement d'adresse) :**```
+  : la compilation se poursuit.
+
+**Code généré (pas de remplacement d'adresse) :**
+```
     ; .include "library.json"
     ... (the included code follows)
-```**Code généré (avec adresse de chargement `C000`):**```
+```
+
+**Code généré (avec adresse de chargement `C000`):**
+```
     ; .include "library.json" @ $C000
     *=$C000
     ... (the included code follows)
@@ -1162,7 +1363,7 @@ Deux types de fichiers sont pris en charge :
 > Spécifiez une adresse de chargement si la bibliothèque n'a pas de répertoire
 > ORG dédié ou si vous souhaitez modifier son emplacement par défaut.
 
->**2.1:**Une inclusion introuvable constitue une erreur, de même qu'un fichier
+> **2.1:** Une inclusion introuvable constitue une erreur, de même qu'un fichier
 > qui s'inclut lui-même (directement ou plus bas dans l'arborescence). Les
 > lignes `.include`, `.incbin` et `.sid` propres au fichier inclus sont
 > également chargées, par rapport à son propre dossier, et ses appels de macros
@@ -1172,23 +1373,31 @@ Deux types de fichiers sont pris en charge :
 
 ### TABLE
 
-Comme**DIM à une adresse spécifique**— nomme une table de consultation et
+Comme **DIM à une adresse spécifique** — nomme une table de consultation et
 indique son emplacement en mémoire. Ajoutez ensuite les lignes `.byte`, `.word`
 ou `.fill` pour définir le contenu de la table.
 
 | Argument | Description                                                        |
 | -------- | ------------------------------------------------------------------ |
 | Nom      | Identifiant de l'étiquette du tableau (par exemple, `color_table`) |
-| Adresse  | Adresse fixe où commence le tableau (par exemple `$C000`)          |**Syntaxe :**```
+| Adresse  | Adresse fixe où commence le tableau (par exemple `$C000`)          |
+
+**Syntaxe : **
+```
 .table color_table $C000
 .table lookup              ; at the current address
-```**Code généré :**```
+```
+
+**Code généré : **
+```
 color_table:
 ```
 
 Avec une adresse, le compteur de programme y saute ; sans adresse, le tableau
 commence à l’adresse actuelle. Ajoutez les lignes `.byte` / `.word` / `.fill`
-après pour remplir le contenu.**Taille :**0 octets.
+après pour remplir le contenu.
+
+**Taille : ** 0 octets.
 
 ---
 
@@ -1202,15 +1411,26 @@ pour le BASIC C64 est `$0801`.
 | Argument  | Description                                                                   |
 | --------- | ----------------------------------------------------------------------------- |
 | Adresse   | La nouvelle adresse d'origine (par exemple `0801` en HEX, ou `2049` en DEC)   |
-| HEX / DEC | Basculer l'affichage de la saisie d'adresse entre l'hexadécimal et le décimal |**Syntaxe :**```
+| HEX / DEC | Basculer l'affichage de la saisie d'adresse entre l'hexadécimal et le décimal |
+
+**Syntaxe : **
+```
 * = $C000
-```**Code généré :**```
+```
+
+**Code généré : **
+```
 * = $C000
-```**Taille :**0 octets. ORG lui-même ne génère aucun code machine.
+```
+
+**Taille : ** 0 octets. ORG lui-même ne génère aucun code machine.
 
 Chaque ORG marque le début d'une nouvelle section. Les lignes suivantes sont
 assemblées à partir de cette adresse. Le PRG regroupe toutes les sections dans
-un seul fichier ; les espaces entre les sections sont remplis de zéros.**Exemple — code à `$0801`, table de données à `$C000`:**```
+un seul fichier ; les espaces entre les sections sont remplis de zéros.
+
+**Exemple — code à `$0801`, table de données à `$C000`:**
+```
 * = $0801
     LDX #$00
 loop:
@@ -1224,7 +1444,7 @@ loop:
     .byte $01, $02, $03, ...
 ```
 
->**Conseil :**Sans ORG, le programme démarre à `$0801` (2049 en décimal), le
+> **Conseil : ** Sans ORG, le programme démarre à `$0801` (2049 en décimal), le
 > début du BASIC. Avec le stub SYS BASIC (par défaut), l’assembleur insère une
 > courte ligne `10 SYS…` à `$0801` et votre code commence à `$080D`. Voir
 > [Sortie : PRG, stub BASIC et point
@@ -1234,7 +1454,7 @@ loop:
 
 ### LOOP / NEXT
 
-Comme**`FOR X=N TO 1 STEP -1 : ... : NEXT X`**en BASIC — effectue un décompte
+Comme **`FOR X=N TO 1 STEP -1 : ... : NEXT X`** en BASIC — effectue un décompte
 de N à 1 en utilisant le registre X ou Y. Placez vos instructions entre LOOP et
 NEXT, et la boucle s'exécutera automatiquement le nombre de fois nécessaire.
 
@@ -1244,24 +1464,41 @@ NEXT, et la boucle s'exécutera automatiquement le nombre de fois nécessaire.
 | --------- | -------------------------------------------------------------------------------- |
 | Registre  | `X` ou `Y` — le registre compteur                                                |
 | Compter   | Nombre d'itérations de la boucle (hexadécimal ou décimal, par exemple `0A` = 10) |
-| Étiquette | Étiquette de boucle générée automatiquement (par exemple, `boucle0`)             |**Syntaxe :**```
+| Étiquette | Étiquette de boucle générée automatiquement (par exemple, `boucle0`)             |
+
+**Syntaxe : **
+```
 .loop X, 10, loop0
-```**Code généré :**```
+```
+
+**Code généré : **
+```
     LDX #$0A
 loop0:
-```**Taille :**2 octets (code d’opération LD + opérande immédiat).
+```
+
+**Taille : ** 2 octets (code d’opération LD + opérande immédiat).
 
 #### NEXT
 
 | Argument  | Description                                      |
 | --------- | ------------------------------------------------ |
 | Registre  | Correspondance automatique avec le registre LOOP |
-| Étiquette | Lié automatiquement à l'étiquette LOOP           |**Syntaxe :**```
+| Étiquette | Lié automatiquement à l'étiquette LOOP           |
+
+**Syntaxe : **
+```
 .next loop0
-```**Code généré :**```
+```
+
+**Code généré : **
+```
     DEX
     BNE loop0
-```**Taille :**3 octets (DEX + BNE + décalage de branche).**Exemple — effacer 10 cellules d'écran :**```
+```
+
+**Taille : **3 octets (DEX + BNE + décalage de branche).**Exemple — effacer 10 cellules d'écran : **
+```
     LDX #$0A
 loop0:
     LDA #$20        ; space character
@@ -1274,7 +1511,7 @@ loop0:
 
 ### FOR / ENDF
 
-Comme**`FOR X=0 TO N-1 : ... : NEXT X`**en BASIC — compte *up* à partir de 0.
+Comme **`FOR X=0 TO N-1 : ... : NEXT X`** en BASIC — compte *up* à partir de 0.
 Idéal lorsque vous avez besoin d'un index avant, par exemple pour parcourir une
 chaîne ou un tableau.
 
@@ -1284,12 +1521,20 @@ chaîne ou un tableau.
 | --------- | ------------------------------------------------------------------------------------------------ |
 | Registre  | `X` ou `Y` — le registre compteur                                                                |
 | Compter   | Limite de boucle (hexadécimal ou décimal, par exemple `$12` = 18). X/Y varie de 0 à la limite-1. |
-| Étiquette | Étiquette de boucle générée automatiquement (par exemple, `pour0`)                               |**Syntaxe :**```
+| Étiquette | Étiquette de boucle générée automatiquement (par exemple, `pour0`)                               |
+
+**Syntaxe : **
+```
 .for X, $12, for0
-```**Code généré :**```
+```
+
+**Code généré : **
+```
     LDX #$00
 for0:
-```**Taille :**2 octets (code d’opération LD_ + `#$00`).
+```
+
+**Taille : ** 2 octets (code d’opération LD_ + `#$00`).
 
 #### ENDF
 
@@ -1297,13 +1542,22 @@ for0:
 | --------- | ----------------------------------------------- |
 | Registre  | Correspondance automatique avec le registre FOR |
 | Étiquette | Lié automatiquement à l'étiquette POUR          |
-| Compter   | Copie automatique à partir du FOR apparié       |**Syntaxe :**```
+| Compter   | Copie automatique à partir du FOR apparié       |
+
+**Syntaxe : **
+```
 .endf for0
-```**Code généré :**```
+```
+
+**Code généré : **
+```
     INX
     CPX #$12
     BNE for0
-```**Taille :**5 octets (IN_ + CP_ #imm + décalage BNE).**Exemple — imprimer une chaîne terminée par un caractère nul :**```
+```
+
+**Taille : **5 octets (IN_ + CP_ #imm + décalage BNE).**Exemple — imprimer une chaîne terminée par un caractère nul : **
+```
     LDX #$00
 for0:
     LDA msg,X       ; msg = PETSCII string at fixed address
@@ -1316,7 +1570,7 @@ done:
     RTS
 ```
 
-> Boucle**vs FOR :**: La boucle décrémente (N→1) et est idéale pour les
+> Boucle **vs FOR :** : La boucle décrémente (N→1) et est idéale pour les
 > délais, les remplissages et les boucles de pixels. La boucle FOR incrémente
 > (0→N) et est idéale pour accéder aux chaînes de caractères et aux tableaux.
 > Les deux peuvent utiliser X ou Y.
@@ -1325,7 +1579,7 @@ done:
 
 ### PUSH / PULL
 
-Comme**la sauvegarde des variables avant un GOSUB et leur restauration après**— mais utilise la pile matérielle du 6502. Si une sous-routine utilise A, X
+Comme **la sauvegarde des variables avant un GOSUB et leur restauration après** — mais utilise la pile matérielle du 6502. Si une sous-routine utilise A, X
 ou Y, encapsulez-la dans des instructions PUSH et PULL afin de préserver les
 registres du code appelant.
 
@@ -1336,29 +1590,43 @@ interne au plus externe).
 
 | Argument  | Description                                                |
 | --------- | ---------------------------------------------------------- |
-| Registres | Toute combinaison : `A`, `X`, `Y`, `AX`, `AY`, `XY`, `AXY` |**Syntaxe :**```
+| Registres | Toute combinaison : `A`, `X`, `Y`, `AX`, `AY`, `XY`, `AXY` |
+
+**Syntaxe : **
+```
 .push AXY
-```**Code généré (exemple : `AX`) :**```
+```
+
+**Code généré (exemple : `AX`) :**
+```
     PHA
     TXA
     PHA
-```**Taille :**1 octet pour A (`PHA`), 2 octets pour X ou Y (transfert + push).
+```
+
+**Taille : ** 1 octet pour A (`PHA`), 2 octets pour X ou Y (transfert + push).
 
 #### PULL
 
-Restaure les registres de la pile dans l'ordre inverse****(Y → X → A).
+Restaure les registres de la pile dans l'ordre inverse **** (Y → X → A).
 
 | Argument  | Description                                                |
 | --------- | ---------------------------------------------------------- |
-| Registres | Identique à PUSH — doit correspondre au PUSH correspondant |**Syntaxe :**```
+| Registres | Identique à PUSH — doit correspondre au PUSH correspondant |
+
+**Syntaxe : **
+```
 .pull AXY
-```**Code généré (exemple : `AX`) :**```
+```
+
+**Code généré (exemple : `AX`) :**
+```
     PLA
     TAX
     PLA
 ```
 
->**Règle :**Les commandes PUSH et PULL doivent toujours utiliser le**même
+> **Règle : **Les commandes PUSH et PULL doivent toujours utiliser le**même
 > jeu de registres**. `PUSH AX` → `PULL AX` (restaure en interne dans l’ordre
 > inverse : X d’abord, puis A).
 
@@ -1366,12 +1634,20 @@ Restaure les registres de la pile dans l'ordre inverse****(Y → X → A).
 
 ### END / RTS alias
 
-Comme**RTS avec un nom de macro plus convivial**— `.end` émet un seul octet
-`RTS`, un court terminateur de sous-routine.**Syntaxe :**```
+Comme **RTS avec un nom de macro plus convivial** — `.end` émet un seul octet
+`RTS`, un court terminateur de sous-routine.
+
+**Syntaxe : **
+```
 .end
-```**Code généré :**```
+```
+
+**Code généré : **
+```
     RTS
-```**Taille :**1 octet.
+```
+
+**Taille : ** 1 octet.
 
 Utilisez ceci lorsque vous souhaitez un marqueur de fin de sous-routine qui
 ressemble davantage à une macro qu'à une instruction brute.
@@ -1380,7 +1656,7 @@ ressemble davantage à une macro qu'à une instruction brute.
 
 ### MACRO / ENDM / INVOKE
 
-Comme**une GOSUB nommée avec des paramètres**— définissez un bloc de code
+Comme **une GOSUB nommée avec des paramètres** — définissez un bloc de code
 réutilisable une seule fois (MACRO…ENDM), puis appelez-le n'importe où avec
 INVOKE. Transmettez des valeurs d'arguments différentes à chaque fois au lieu de
 copier-coller du code.
@@ -1393,8 +1669,8 @@ copier-coller du code.
 | Paramètres | Noms de paramètres optionnels séparés par des virgules (par exemple `couleur` ou `couleur, nombre`) |
 
 Marque le début de la définition d'une macro. Les lignes entre MACRO et ENDM
-constituent le corps de la macro. Une macro avec paramètres**ne génère aucun
-code**à l'endroit où se trouve sa définition ; une macro sans paramètres y est
+constituent le corps de la macro. Une macro avec paramètres **ne génère aucun
+code** à l'endroit où se trouve sa définition ; une macro sans paramètres y est
 également assemblée comme une sous-routine (appelée `nom JSR`) : le flux
 d'exécution la contourne et un `RTS` est ajouté à sa fin. Dans une bibliothèque
 incluse à une adresse fixe, une telle macro reçoit également le `RTS`. Dans le
@@ -1404,11 +1680,17 @@ instructions que dans les arguments des macros de la bibliothèque (`.set_border
 c`, `.sprite_pos n, x, y`…). Les étiquettes, les étiquettes de boucle et les
 étiquettes d'exécution `.if` / `.while` du corps sont uniques pour chaque appel.
 Un appel de macro à l'intérieur d'un corps de macro n'est pas développé (une
-erreur se produit).**Code généré :**```
+erreur se produit).
+
+**Code généré : **
+```
 ; .MACRO setColor (color)
     ... (body)
 ; .ENDM
-```**Syntaxe :**```
+```
+
+**Syntaxe : **
+```
 .macro setColor color
     LDA {color}
     STA $D020
@@ -1427,11 +1709,17 @@ fournies par les espaces réservés `{paramName}` dans le corps.
 | Argument        | Description                                                                                                               |
 | --------------- | ------------------------------------------------------------------------------------------------------------------------- |
 | Nom de la macro | Une macro définie dans le programme ou dans un fichier inclus                                                             |
-| Arguments       | Valeurs des arguments séparées par des virgules correspondant à la liste des paramètres de la macro (par exemple, `#$07`) |**Code généré :**```
+| Arguments       | Valeurs des arguments séparées par des virgules correspondant à la liste des paramètres de la macro (par exemple, `#$07`) |
+
+**Code généré : **
+```
 ; .invoke setColor(#$07)
     LDA #$07
     STA $D020
-```**Syntaxe :**```
+```
+
+**Syntaxe : **
+```
 ; single argument:
 .invoke setColor(#$07)
 
@@ -1450,20 +1738,22 @@ fournies par les espaces réservés `{paramName}` dans le corps.
 
 Le corps de la macro est développé en ligne, `{paramName}` étant remplacé par
 les arguments réels. La forme séparée par des espaces (`.invoke setColor #$07`)
-est également acceptée.**Types d'arguments :**-**Numérique**: `#$07`, `$10`, `255` — valeurs hexadécimales ou décimales
--**Chaînes de texte**: `« Bonjour, monde ! »` — chaînes entre guillemets (les
+est également acceptée.
+
+**Types d'arguments :**-**Numérique** : `#$07`, `$10`, `255` — valeurs hexadécimales ou décimales
+- **Chaînes de texte** : `« Bonjour, monde ! »` — chaînes entre guillemets (les
   guillemets sont supprimés) ; les virgules à l’intérieur des guillemets sont
   traitées comme faisant partie du texte, et non comme des séparateurs
   d’arguments
--**Caractère littéral**: `'A'` — reste un caractère littéral, donc le corps
+- **Caractère littéral** : `'A'` — reste un caractère littéral, donc le corps
   reçoit son code (`$41`)
--**Mixte**: `#$07, "bonjour", $20` — toute combinaison
+- **Mixte** : `#$07, "bonjour", $20` — toute combinaison
 
->**Conseil :**Définissez les macros en haut (ou en bas) de votre programme,
+> **Conseil :** Définissez les macros en haut (ou en bas) de votre programme,
 > puis invoquez-les là où c’est nécessaire. Les macros peuvent être invoquées
 > plusieurs fois avec différents arguments.
 
->**2.1:**Une macro peut appeler une autre macro (`both(a, b)` appelant
+> **2.1:** Une macro peut appeler une autre macro (`both(a, b)` appelant
 > `setc(a)`) ; l’appel interne reçoit les arguments de l’appel externe ainsi que
 > ses propres étiquettes locales uniques. Une macro qui s’appelle elle-même
 > s’arrête avec une erreur après 16 niveaux au lieu de se bloquer.
@@ -1472,24 +1762,32 @@ est également acceptée.**Types d'arguments :**-**Numérique**: `#$07`, `$10`, 
 
 ### REGION / ENDREGION
 
-Un regroupement purement destiné aux éditeurs et aux listes —**zéro octet**,
+Un regroupement purement destiné aux éditeurs et aux listes — **zéro octet**,
 aucun effet sur le code assemblé.
 
 | Argument         | Description                                                                                 |
 | ---------------- | ------------------------------------------------------------------------------------------- |
-| Nom de la région | Étiquette en texte libre pour la section (par exemple, `init`, `game_loop`, `sprite_setup`) |**Syntaxe :**```
+| Nom de la région | Étiquette en texte libre pour la section (par exemple, `init`, `game_loop`, `sprite_setup`) |
+
+**Syntaxe : **
+```
 .region init
     ; code...
 .endregion
-```**Code généré :**```
+```
+
+**Code généré : **
+```
 ; region init
     SEI
     LDA #$00
     STA $D020
 ; endregion init
-```**Taille :**0 octets pour REGION et ENDREGION.
+```
 
->**Remarque :**Les régions peuvent être**imbriquées**les unes dans les
+**Taille : ** 0 octets pour REGION et ENDREGION.
+
+> **Remarque : **Les régions peuvent être **imbriquées** les unes dans les
 > autres. Chaque région fermée bloque la région ouverte la plus proche. Aucun
 > effet sur le résultat assemblé.
 
@@ -1506,9 +1804,15 @@ n'est pas nécessaire de supprimer le code pour les versions de production.
 
 | Argument | Description                                                                                           |
 | -------- | ----------------------------------------------------------------------------------------------------- |
-| Symbole  | Un ou plusieurs identifiants séparés par des virgules à activer (par exemple `DEBUG` ou `DEBUG, PAL`) |**Syntaxe :**```
+| Symbole  | Un ou plusieurs identifiants séparés par des virgules à activer (par exemple `DEBUG` ou `DEBUG, PAL`) |
+
+**Syntaxe : **
+```
 .define DEBUG, PAL
-```**Code généré :**```
+```
+
+**Code généré : **
+```
 ; .DEFINE DEBUG
 ; .DEFINE DEBUG, PAL
 ```
@@ -1520,9 +1824,15 @@ par des virgules). Placez les directives DEFINE en haut de votre programme.
 
 | Argument  | Description                                                                                                                           |
 | --------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| Condition | Un symbole `.define`d (actif), un nom `.const` (actif lorsqu'il n'est pas nul) ou une expression constante (`LEVEL == 2`, `MODE & 1`) |**Syntaxe :**```
+| Condition | Un symbole `.define`d (actif), un nom `.const` (actif lorsqu'il n'est pas nul) ou une expression constante (`LEVEL == 2`, `MODE & 1`) |
+
+**Syntaxe : **
+```
 .if DEBUG
-```**Code généré :**```
+```
+
+**Code généré : **
+```
 ; .IF DEBUG
 ```
 
@@ -1531,25 +1841,42 @@ la condition. Un nom seul est vrai s'il est `.define` ou une constante `.const`
 non nulle, faux dans le cas contraire ; toute autre condition doit être une
 expression constante — une expression qui ne peut être évaluée lors de
 l'assemblage constitue une erreur. Les lignes ignorées apparaissent sous forme
-de commentaires `; [IF skipped] …` et génèrent**zéro octet**.
+de commentaires `; [IF skipped] …` et génèrent **zéro octet**.
 
 #### ELSE
 
 Aucun argument. Marque la branche alternative — assemblée lorsque la condition
-`IF` n'est *pas* active.**Syntaxe :**```
+`IF` n'est *pas* active.
+
+**Syntaxe : **
+```
 .else
-```**Code généré :**```
+```
+
+**Code généré : **
+```
 ; .ELSE
 ```
 
 #### ENDIF
 
-Aucun argument. Clôture la partie conditionnelle.**Syntaxe :**```
+Aucun argument. Clôture la partie conditionnelle.
+
+**Syntaxe : **
+```
 .endif
-```**Code généré :**```
+```
+
+**Code généré : **
+```
 ; .ENDIF
-```**Taille :**0 octet pour les quatre directives. Seul le contenu *entre elles*
-est pris en compte.**Exemple — flash de bordure de débogage, la version finale l'ignore :**```
+```
+
+**Taille : ** 0 octet pour les quatre directives. Seul le contenu *entre elles*
+est pris en compte.
+
+**Exemple — flash de bordure de débogage, la version finale l'ignore : **
+```
 ; .DEFINE DEBUG
 
 ; .IF DEBUG
@@ -1559,7 +1886,10 @@ est pris en compte.**Exemple — flash de bordure de débogage, la version final
     LDA #$00        ; black (release)
     STA $D020
 ; .ENDIF
-```**Exemple — plusieurs symboles dans une seule DÉFINITION :**```
+```
+
+**Exemple — plusieurs symboles dans une seule DÉFINITION : **
+```
 ; .DEFINE DEBUG, PAL
 
 ; .IF PAL
@@ -1572,13 +1902,13 @@ est pris en compte.**Exemple — flash de bordure de débogage, la version final
 Les instructions `IF` imbriquées sont prises en charge. Si une partie externe
 est ignorée, les parties internes le sont également.
 
->**Remarque :**Il s’agit d’une gestion des conditions à la compilation. Pour
-> une syntaxe simplifiée de comparaison/branchement à l’exécution, voir**IF /
-> ELSE / ENDIF à l’exécution**ci-dessous.
+> **Remarque :** Il s’agit d’une gestion des conditions à la compilation. Pour
+> une syntaxe simplifiée de comparaison/branchement à l’exécution, voir **IF /
+> ELSE / ENDIF à l’exécution** ci-dessous.
 
 ### .ASSERT
 
-Une vérification de cohérence à la compilation (**) est effectuée.**`.assert`
+Une vérification de cohérence à la compilation (**) est effectuée. **`.assert`
 évalue une expression lors de l'assemblage ; si elle est fausse (`0`), la
 compilation s'arrête et une erreur claire est affichée, incluant la valeur
 réelle. Si elle est vraie (non nulle), aucun message n'est émis.
@@ -1586,18 +1916,26 @@ réelle. Si elle est vraie (non nulle), aucun message n'est émis.
 | Argument   | Description                                                                                                                                     |
 | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
 | Expression | Toute expression assembleur : étiquettes, `CONST`, `*` (compteur de programme), arithmétique et comparaisons (`<`, `<=`, `>`, `>=`, `==`, `!=`) |
-| Message    | Texte facultatif ajouté à l'erreur d'échec                                                                                                      |**Syntaxe :**```
+| Message    | Texte facultatif ajouté à l'erreur d'échec                                                                                                      |
+
+**Syntaxe : **
+```
 .assert spriteData < $C000
 .assert * < $A000
 .assert end - start <= 256, "sprite table overflowed one page"
-```**Comportement :**-**Taille :**0 octets.
+```
+
+**Comportement : **-**Taille : ** 0 octets.
 - Une assertion fausse interrompt l'assemblage : `` `.assert end - start <= 256`
   est faux (valeur : 0). La table des sprites a dépassé d'une page ``.
 - Une assertion qui ne peut pas être évaluée (étiquette non définie, etc.)
   échoue également, avec *"ne peut pas être évaluée au moment de l'assemblage"*.
 - Les comparaisons donnent `1` / `0`; placez `.assert` n'importe où dans le flux
   du programme — il est vérifié à l'adresse sur laquelle il se trouve, donc
-  `.assert * < $D000` teste la position de sortie actuelle.**Exemple — protéger les données de sprite contre un changement de page :**```
+  `.assert * < $D000` teste la position de sortie actuelle.
+
+**Exemple — protéger les données de sprite contre un changement de page : **
+```
 * = $3000
 sprite_data:
     .byte $00, $00, $00        ; … 63 bytes …
@@ -1618,12 +1956,22 @@ facile à lire et à modifier ultérieurement.
 | -------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
 | Nom      | Identifiant de la constante (par exemple, `SCREEN`)                                                                                        |
 | Valeur   | Valeur numérique dans la base sélectionnée (par exemple `0400` en HEX = adresse $0400), ou une expression relative au PC (voir ci-dessous) |
-| Format   | HEX ou DEC — détermine la façon dont la valeur est saisie et affichée                                                                      |**Syntaxe :**```
+| Format   | HEX ou DEC — détermine la façon dont la valeur est saisie et affichée                                                                      |
+
+**Syntaxe : **
+```
 .const SCREEN = $0400
 .const FRAMES_1S = 60
-```**Code généré :**```
+```
+
+**Code généré : **
+```
 ; .CONST SCREEN = $0400
-```**Expressions relatives au PC (`*+N` / `*-N`):**La valeur accepte également `*+N` ou `*-N`, où `*` correspond à l'adresse de la
+```
+
+**Expressions relatives au PC (`*+N` / `*-N`):**
+
+La valeur accepte également `*+N` ou `*-N`, où `*` correspond à l'adresse de la
 ligne `.const` elle-même. Ceci permet de créer un alias nommé pour un octet au
 sein d'une instruction voisine — le modèle classique de code automodificateur :
 
@@ -1635,7 +1983,11 @@ STA op              ; overwrites the #$00 byte → LDA reads the new value next 
 ```
 
 La CONST émet 0 octets ; l'étiquette se résout au moment de la compilation à
-`adresse_actuelle + 1`.**Expressions arithmétiques :**La valeur accepte les opérations arithmétiques générales, y compris les
+`adresse_actuelle + 1`.
+
+**Expressions arithmétiques :**
+
+La valeur accepte les opérations arithmétiques générales, y compris les
 références à des noms CONST précédemment définis, des littéraux
 hexadécimaux/binaires et des fonctions mathématiques intégrées :
 
@@ -1645,17 +1997,21 @@ hexadécimaux/binaires et des fonctions mathématiques intégrées :
 .const COLOR_RAM   = $D800
 .const MID_X       = 160
 .const SIN_TABLE   = round(sin(PI/8) * 127)   ; pre-computed sine value
-```**Fonctions intégrées :**`sin() `, `cos() `, `round() `, `max(a,b) `,
+```
+
+**Fonctions intégrées : ** `sin() `, `cos() `, `round() `, `max(a,b) `,
 `min(a,b) `, `abs() `, constante `PI `
 
 Opérateurs : `+ - * /` Littéraux : `$FF` (hexadécimal), `%10110000` (binaire)
-Octet de poids faible/de poids fort : `lo(expr)`, `hi(expr)`**Taille :**0 octets.
+Octet de poids faible/de poids fort : `lo(expr)`, `hi(expr)`
+
+**Taille : ** 0 octets.
 
 ---
 
 ### VAR
 
-Comme**CONST, mais à allocation automatique**— `VAR` réserve de l'espace
+Comme **CONST, mais à allocation automatique** — `VAR` réserve de l'espace
 mémoire de page zéro pour une étiquette sans que vous ayez à saisir l'adresse.
 Utilisez-le pour les compteurs, les pointeurs et les états éphémères qui doivent
 être stockés dans la page zéro.
@@ -1663,11 +2019,17 @@ Utilisez-le pour les compteurs, les pointeurs et les états éphémères qui doi
 | Argument            | Description                                             |
 | ------------------- | ------------------------------------------------------- |
 | Nom                 | Nom/étiquette de la variable                            |
-| Taille (facultatif) | Nombre d'octets à réserver. Omettre pour un seul octet. |**Syntaxe :**```
+| Taille (facultatif) | Nombre d'octets à réserver. Omettre pour un seul octet. |
+
+**Syntaxe : **
+```
 .var counter
 .var timer, 2
 .var lives
-```**Exemple pratique :**```
+```
+
+**Exemple pratique :**
+```
 .region Vars
 .var counter
 .var timer, 2
@@ -1675,9 +2037,14 @@ Utilisez-le pour les compteurs, les pointeurs et les états éphémères qui doi
 
 LDA #$00
 STA counter
-```**Code généré :**```
+```
+
+**Code généré : **
+```
 ; .var counter
-```**Taille :**1 octet par défaut, ou `N` octets lorsque la taille est spécifiée.
+```
+
+**Taille : ** 1 octet par défaut, ou `N` octets lorsque la taille est spécifiée.
 
 L'allocateur parcourt un curseur de page zéro configurable (de `$02` à `$FE`) et
 attribue le prochain emplacement libre. Si la région demandée chevauche une
@@ -1695,13 +2062,18 @@ immédiate et génère la séquence de branchement CMP / CPX / CPY appropriée.
 | --------- | ------------------------------------- |
 | Registre  | `A`, `X` ou `Y`                       |
 | Opérateur | `==`, `!=`, `<`, `<=`, `>`, `>=`      |
-| Valeur    | Valeur immédiate au format HEX ou DEC |**Syntaxe :**```
+| Valeur    | Valeur immédiate au format HEX ou DEC |
+
+**Syntaxe : **
+```
 .if A == #$10
     LDA #$07
 .else
     LDA #$0F
 .endif
-```**Taille :**Dépend des branches choisies et du formulaire de comparaison.
+```
+
+**Taille : ** Dépend des branches choisies et du formulaire de comparaison.
 
 La comparaison est non signée par défaut. Pour `<=` et `>`, la macro s'étend à
 la chaîne de branchement équivalente la plus courte pour le registre
@@ -1711,18 +2083,23 @@ sélectionné.
 
 ### WHILE / ENDW
 
-Comme**une boucle d'exécution avec un test au sommet**— le corps s'exécute
+Comme **une boucle d'exécution avec un test au sommet** — le corps s'exécute
 tant que la condition reste vraie.
 
 | Argument  | Description                           |
 | --------- | ------------------------------------- |
 | Registre  | `A`, `X` ou `Y`                       |
 | Opérateur | `==`, `!=`, `<`, `<=`, `>`, `>=`      |
-| Valeur    | Valeur immédiate au format HEX ou DEC |**Syntaxe :**```
+| Valeur    | Valeur immédiate au format HEX ou DEC |
+
+**Syntaxe : **
+```
 .while A != #$00
     JSR getchar
 .endw
-```**Taille :**Dépend du corps de la boucle et de la forme de comparaison.
+```
+
+**Taille : ** Dépend du corps de la boucle et de la forme de comparaison.
 
 Utilisez `WHILE` lorsque la boucle risque de se terminer avant la fin de la
 première itération. Il s'agit de l'équivalent, en termes d'exécution, de
@@ -1732,18 +2109,23 @@ l'utilitaire `LOOP / NEXT` basé sur le comptage.
 
 ### REPEAT / UNTIL
 
-Comme**une boucle d'exécution avec un test à la fin**— le corps s'exécute
+Comme **une boucle d'exécution avec un test à la fin** — le corps s'exécute
 toujours au moins une fois, puis la condition décide s'il faut s'arrêter.
 
 | Argument  | Description                           |
 | --------- | ------------------------------------- |
 | Registre  | `A`, `X` ou `Y`                       |
 | Opérateur | `==`, `!=`, `<`, `<=`, `>`, `>=`      |
-| Valeur    | Valeur immédiate au format HEX ou DEC |**Syntaxe :**```
+| Valeur    | Valeur immédiate au format HEX ou DEC |
+
+**Syntaxe : **
+```
 .repeat
     JSR getchar
 .until A == #$00
-```**Taille :**Dépend du corps de la boucle et de la forme de comparaison.
+```
+
+**Taille : ** Dépend du corps de la boucle et de la forme de comparaison.
 
 Utilisez `REPEAT / UNTIL` lorsque vous souhaitez que le corps s'exécute au moins
 une fois avant la vérification de sortie.
@@ -1752,22 +2134,27 @@ une fois avant la vérification de sortie.
 
 ### MEMCPY / MEMSET
 
-Comme les petites routines de mémoire que vous utilisez constamment,**—
+Comme les petites routines de mémoire que vous utilisez constamment, ** —
 `MEMCPY` copie un bloc contigu, `MEMSET` remplit une plage avec un octet.
 
 | Macro    | Arguments               |
 | -------- | ----------------------- |
 | `MEMCPY` | `src`, `dst`, `size`    |
-| `MEMSET` | `addr`, `value`, `size` |**Syntaxe :**```
+| `MEMSET` | `addr`, `value`, `size` |
+
+**Syntaxe : **
+```
 .memcpy src=$C000, dst=$D000, size=$0100
 .memset addr=$0400, value=#$20, size=$03E8
-```**Code généré :**boucles de copie/remplissage en ligne, choisies pour
+```
+
+**Code généré : ** boucles de copie/remplissage en ligne, choisies pour
 correspondre à la taille demandée.
 
 Les données jusqu'à 256 octets utilisent une boucle courte de 8 bits. Au-delà,
 un compteur 16 bits est automatiquement utilisé.
 
->**2.1:**La taille doit être connue lors de la mise en page du code : il doit
+> **2.1:** La taille doit être connue lors de la mise en page du code : il doit
 > s’agir d’un nombre ou d’une constante. Une étiquette définie ultérieurement
 > (dont la valeur est encore inconnue de la mise en page) est considérée comme
 > une erreur et non comme un code mal positionné.
@@ -1778,9 +2165,12 @@ un compteur 16 bits est automatiquement utilisé.
 
 #### PRINT
 
-Comme la sortie**PETSCII sans le texte standard**— imprime une chaîne via
+Comme la sortie **PETSCII sans le texte standard** — imprime une chaîne via
 `CHROUT` avec la même gestion des majuscules/minuscules (`minuscules`) que
-`.petscii`.**Syntaxe :**```
+`.petscii`.
+
+**Syntaxe : **
+```
 .print "HELLO"
 .print "hello", lower
 ```
@@ -1789,7 +2179,10 @@ Comme la sortie**PETSCII sans le texte standard**— imprime une chaîne via
 
 Imprime un octet PETSCII sous forme de code numérique et l'envoie via `CHROUT`.
 La valeur peut également être une constante nommée ou une étiquette qui sera
-résolue en un octet lors de l'assemblage.**Syntaxe :**```
+résolue en un octet lors de l'assemblage.
+
+**Syntaxe : **
+```
 .print_char 65
 .print_char $41
 .print_char color
@@ -1798,20 +2191,29 @@ résolue en un octet lors de l'assemblage.**Syntaxe :**```
 #### PRINT_HEX
 
 Imprime une valeur 8 bits sous forme de texte hexadécimal via le chemin de
-sortie normal du KERNAL.**Syntaxe :**```
+sortie normal du KERNAL.
+
+**Syntaxe : **
+```
 .print_hex A
 ```
 
 #### CLEAR_SCREEN
 
-Raccourci pour le code de contrôle standard de l'écran transparent du C64.**Syntaxe :**```
+Raccourci pour le code de contrôle standard de l'écran transparent du C64.
+
+**Syntaxe : **
+```
 .clear_screen
 ```
 
 #### WAIT_KEY
 
 Attend qu'une touche soit pressée, vous n'avez donc pas à parcourir manuellement
-la boucle `GETIN` à chaque fois.**Syntaxe :**```
+la boucle `GETIN` à chaque fois.
+
+**Syntaxe : **
+```
 .wait_key
 ```
 
@@ -1821,7 +2223,10 @@ Attend le nombre d'images demandé via une routine auxiliaire partagée. Utilise
 cette fonction pour les pauses courtes et les intervalles de temps lorsqu'une
 boucle personnalisée complète serait excessive. Le nombre d'images peut être un
 nombre brut ou une constante nommée, et `.wait` est simplement un alias de
-`.delay`.**Syntaxe :**```
+`.delay`.
+
+**Syntaxe : **
+```
 .delay 29
 .wait 29
 .delay frames=FRAMES_1S
@@ -1831,12 +2236,17 @@ nombre brut ou une constante nommée, et `.wait` est simplement un alias de
 
 Fonctions d'encapsulation simplifiées pour les registres de couleur VIC-II. La
 valeur de couleur peut être un nombre brut ou une constante nommée comprise
-entre 0 et 15.**Syntaxe :**```
+entre 0 et 15.
+
+**Syntaxe : **
+```
 .set_border 6
 .set_bg 0
 .set_border color
 .set_bg color
-```**Taille :**Chaque auxiliaire se développe en une minuscule séquence d’écriture
+```
+
+**Taille :** Chaque auxiliaire se développe en une minuscule séquence d’écriture
 de registre ou en un court appel KERNAL.
 
 ---
@@ -1850,9 +2260,14 @@ d'IRQ CIA communes et revient à l'exécution normale avec `CLI`.
 | Argument     | Description                                                   |
 | ------------ | ------------------------------------------------------------- |
 | Gestionnaire | Étiquette de routine IRQ (par exemple `my_irq`)               |
-| Raster       | Ligne raster en hexadécimal ou en décimal (par exemple `$FA`) |**Syntaxe :**```
+| Raster       | Ligne raster en hexadécimal ou en décimal (par exemple `$FA`) |
+
+**Syntaxe : **
+```
 .irq_setup handler=my_irq, raster=$FA
-```**Taille :**Une petite séquence de configuration ; la longueur exacte dépend
+```
+
+**Taille : ** Une petite séquence de configuration ; la longueur exacte dépend
 de la ligne raster sélectionnée.
 
 Utilisez ceci lorsque vous souhaitez le code standard commun « SEI / installer
@@ -1863,14 +2278,19 @@ programme.
 
 ### RAND
 
-Comme**un minuscule PRNG intégré**— renvoie une valeur pseudo-aléatoire de 8
+Comme **un minuscule PRNG intégré** — renvoie une valeur pseudo-aléatoire de 8
 bits à partir d'une graine de page zéro compacte.
 
 | Argument | Description                                                                   |
 | -------- | ----------------------------------------------------------------------------- |
-| Graine   | Octet ou étiquette d'initialisation de page zéro optionnel (par défaut `$FB`) |**Syntaxe :**```
+| Graine   | Octet ou étiquette d'initialisation de page zéro optionnel (par défaut `$FB`) |
+
+**Syntaxe : **
+```
 .rand
-```**Taille :**Quelques octets, en fonction du chemin d’implémentation choisi.
+```
+
+**Taille : ** Quelques octets, en fonction du chemin d’implémentation choisi.
 
 Ce générateur est conçu pour le gameplay, la variation des effets et la
 production rapide de données de test. Il est volontairement simple plutôt que
@@ -1890,11 +2310,17 @@ active éventuellement le mode multicolore et définit sa couleur.
 | Sprite #        | Sprite numéro 0 à 7                                                                      |
 | Couleur         | Indice de couleur 0–15 (palette C64)                                                     |
 | page de données | Adresse des données Sprite / 64 (par exemple `$21` si les données se trouvent à `$0840`) |
-| Multicolore     | Active ou désactive le bit multicolore du sprite (`$D01C`)                               |**Syntaxe :**```
+| Multicolore     | Active ou désactive le bit multicolore du sprite (`$D01C`)                               |
+
+**Syntaxe : **
+```
 .sprite_init 0, 7, $21
 .sprite_init 0, 7, $21, multicolor
 .sprite_init 0, 7, $21, mono
-```**Code généré :**```
+```
+
+**Code généré : **
+```
     LDA #$21
     STA $07F8       ; sprite pointer register ($07F8 + N)
     LDA $D015
@@ -1905,9 +2331,11 @@ active éventuellement le mode multicolore et définit sa couleur.
     STA $D01C
     LDA #$07
     STA $D027       ; sprite 0 colour register
-```**Taille :**26 octets.
+```
 
->**Page de données du sprite :**`adresse_données ÷ 64 `. Avec le stub BASIC
+**Taille : ** 26 octets.
+
+> **Page de données du sprite : ** `adresse_données ÷ 64 `. Avec le stub BASIC
 > SYS par défaut, `ALIGN 64 ` après `JMP main ` place les données du sprite à
 > `$0840 ` → page = `$21 `.
 
@@ -1916,7 +2344,7 @@ active éventuellement le mode multicolore et définit sa couleur.
 <a id="sprite_pos"></a>
 ### SPRITE_POS
 
-Comme**`POKE 53248, x : POKE 53249, y`**en BASIC — définit la position
+Comme **`POKE 53248, x : POKE 53249, y`** en BASIC — définit la position
 initiale d'un sprite. Les coordonnées sont intégrées lors de l'assemblage et
 acceptent des constantes ; pour l'animation, utilisez `INC`/`DEC` directement
 sur le registre du sprite.
@@ -1925,9 +2353,15 @@ sur le registre du sprite.
 | -------- | -------------------------- |
 | Sprite # | Sprite numéro 0 à 7        |
 | X        | Position horizontale 0–319 |
-| Y        | Position verticale 0–255   |**Syntaxe :**```
+| Y        | Position verticale 0–255   |
+
+**Syntaxe : **
+```
 .sprite_pos 0, 152, 100
-```**Code généré (exemple : sprite 0, X=152, Y=100) :**```
+```
+
+**Code généré (exemple : sprite 0, X=152, Y=100) : **
+```
     LDA #$98        ; X low byte
     STA $D000       ; sprite 0 X register
     LDA $D010
@@ -1938,9 +2372,11 @@ sur le registre du sprite.
 ```
 
 Pour X > 255, la macro définit le bit correspondant dans `$D010` au lieu de
-l'effacer.**Taille :**18 octets.
+l'effacer.
 
->**Remarque :**`SPRITE_POS` intègre les coordonnées X/Y dans le code (`LDA
+**Taille : ** 18 octets.
+
+> **Remarque : ** `SPRITE_POS` intègre les coordonnées X/Y dans le code (`LDA
 > #$xx`). Pour animer un sprite à l’exécution, utilisez `INC $D000` / `DEC
 > $D000` — voir l’exemple `sprite-macro-demo`.
 
@@ -1956,33 +2392,47 @@ en début de boucle de jeu pour éviter les déchirures d'image. Aucun JSR ni
 
 | Argument     | Description                                                      |
 | ------------ | ---------------------------------------------------------------- |
-| Ligne raster | Ligne raster cible en hexadécimal (par exemple `FF` = ligne 255) |**Syntaxe :**```
+| Ligne raster | Ligne raster cible en hexadécimal (par exemple `FF` = ligne 255) |
+
+**Syntaxe : **
+```
 .wait_raster $FF
-```**Code généré :**```
+```
+
+**Code généré : **
+```
 wait:
     LDA $D012       ; current raster line
     CMP #$FF        ; target line
     BNE wait        ; loop back (-7 bytes)
-```**Taille :**7 octets (le décalage `BNE` `$F9` = −7 pointe toujours vers le
+```
+
+**Taille : ** 7 octets (le décalage `BNE` `$F9` = −7 pointe toujours vers le
 `LDA`).
 
->**Conseil :**Placez `WAIT_RASTER` en haut de votre boucle de jeu pour
+> **Conseil :** Placez `WAIT_RASTER` en haut de votre boucle de jeu pour
 > synchroniser avec l’affichage et éviter le déchirement des sprites.
 
 ---
 
 ### JOYSTICK
 
-Comme lire**`PEEK($DC00)`**puis modifier la position du sprite — mais en une
+Comme lire **`PEEK($DC00)`** puis modifier la position du sprite — mais en une
 seule ligne. Lit un port joystick CIA et ajuste les coordonnées X/Y du sprite en
 conséquence. Entièrement intégré, sans JSR.
 
 | Argument | Description                                                                |
 | -------- | -------------------------------------------------------------------------- |
 | Port     | `1` = port 1 (`$DC01`) ou `2` = port 2 (`$DC00`)                           |
-| Sprite # | Sprite numéro 0–7 (contrôle quelle paire de registres X/Y est mise à jour) |**Syntaxe :**```
+| Sprite # | Sprite numéro 0–7 (contrôle quelle paire de registres X/Y est mise à jour) |
+
+**Syntaxe : **
+```
 .joystick 2, 0
-```**Code généré (port 2, sprite 0):**```
+```
+
+**Code généré (port 2, sprite 0):**
+```
     LDA $DC00       ; read CIA port 2
     LSR             ; bit 0 → carry (Up)
     BCS skip_up     ; carry set = NOT pressed
@@ -2000,14 +2450,22 @@ skip_left:
     BCS skip_right
     INC $D000       ; X+1 (move right)
 skip_right:
-```**Tableau des bits du joystick (actif-BAS — bit = 0 signifie enfoncé) :**| Peu | Direction   | registre de la CIA              |
+```
+
+**Tableau des bits du joystick (actif-BAS — bit = 0 signifie enfoncé) :**
+
+| Peu | Direction   | registre de la CIA              |
 | --- | ----------- | ------------------------------- |
 | 0   | En haut     | $DC00 (port 2) / $DC01 (port 1) |
 | 1   | Vers le bas |                                 |
 | 2   | Gauche      |                                 |
 | 3   | Droite      |                                 |
-| 4   | Feu         | (non géré par cette macro)      |**Taille :**27 octets. Le décalage `BCS` est toujours `+3` (ignore
-l’instruction `DEC`/`INC abs` de 3 octets suivante).**Mode variable — `.joystick port, vx, vy[, fire]`:**Au lieu de déplacer un
+| 4   | Feu         | (non géré par cette macro)      |
+
+**Taille : ** 27 octets. Le décalage `BCS` est toujours `+3` (ignore
+l’instruction `DEC`/`INC abs` de 3 octets suivante).
+
+**Mode variable — `.joystick port, vx, vy[, fire]`:** Au lieu de déplacer un
 sprite, la direction est écrite dans des variables : `vx` / `vy` = `-1` / `0` /
 `+1` (`$FF` / `$00` / `$01`), et le `fire` = `1` optionnel lorsque le bouton est
 enfoncé, `0` sinon. Utilisez-le pour une caméra à défilement, un joueur avec sa
@@ -2019,7 +2477,7 @@ simultanément (`LDA $DC00` / `AND $DC01`), donc les deux ports fonctionnent.
 .joystick 3, vx, vy, fire    ; both ports + fire: 45 bytes
 ```
 
->**Utilisation typique :**Placer à l’intérieur d’une étiquette `gameloop` avec
+> **Utilisation typique :** Placer à l’intérieur d’une étiquette `gameloop` avec
 > `WAIT_RASTER` en premier :
 > ```
 > boucle de jeu :
@@ -2035,7 +2493,7 @@ simultanément (`LDA $DC00` / `AND $DC01`), donc les deux ports fonctionnent.
 
 <a id="mouse"></a>
 
->**2.1:**le port doit être connu lors de la mise en page du code (un nombre ou
+> **2.1:** le port doit être connu lors de la mise en page du code (un nombre ou
 > une constante), car le port 3 allonge le code de 3 octets ; une étiquette
 > définie ultérieurement est une erreur.
 ### MOUSE
@@ -2051,7 +2509,11 @@ et l'applique aux registres du sprite.
 | Port       | `1` = CIA `$DC00` bits `7:6` = `%01`; `2` = `%10`                                                  |
 | Sprite #   | Sprite numéro 0 à 7                                                                                |
 | Octet ZP X | Adresse de la page zéro (hexadécimal) pour stocker l'échantillon POTX précédent (par exemple `FD`) |
-| Octet ZP Y | Adresse de la page zéro (hexadécimal) pour stocker l'échantillon POTY précédent (par exemple `FE`) |**Forme de code générée (port 1, sprite 0, ZP `$FD`/`$FE`):**```
+| Octet ZP Y | Adresse de la page zéro (hexadécimal) pour stocker l'échantillon POTY précédent (par exemple `FE`) |
+
+**Forme de code générée (port 1, sprite 0, ZP `$FD`/`$FE`):**
+
+```
     ; CIA port select + settle
     LDA $DC00
     AND #$3F
@@ -2133,13 +2595,16 @@ yneg:
     ADC $D001
     STA $D001
 ydone:
-```**Taille :**142 octets.**Syntaxe :**```
+```
+
+**Taille : **142 octets.**Syntaxe : **
+```
 .mouse port, spriteNum, zpX, zpY
 ; example:
 .mouse 2, 0, FD, FE
 ```
 
->**Important :**Avant le premier appel, initialisez les octets de la page zéro
+> **Important :** Avant le premier appel, initialisez les octets de la page zéro
 > avec les valeurs POTX/POTY actuelles pour éviter un saut sur la première trame
 > :
 > ```
@@ -2152,7 +2617,7 @@ ydone:
 > LDA $D41A : LSR A : ET #$3F : STA $FE
 > ```
 
->**Conseil :**Interrogez la souris une fois par image — placez `WAIT_RASTER`
+> **Conseil :** Interrogez la souris une fois par image — placez `WAIT_RASTER`
 > dans la boucle de jeu avant `MOUSE`.
 
 ---
@@ -2160,25 +2625,36 @@ ydone:
 <a id="sprite_col"></a>
 ### SPRITE_COL
 
-Comme**`PEEK($D01E)`**en BASIC — vérifie les registres de collision matériels
+Comme **`PEEK($D01E)`** en BASIC — vérifie les registres de collision matériels
 du VIC-II et indique si un sprite a heurté un autre sprite ou le fond. Fonction
 entièrement intégrée, sans JSR.
 
 | Argument          | Description                                                                                                                                   |
 | ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | Sprite #          | Sprite numéro 0–7 (quel sprite vérifier)                                                                                                      |
-| Type de collision | `Sprite-Sprite ($D01E)` — collision avec un autre sprite ; `Sprite-Arrière-plan ($D01F)` — collision avec un élément graphique d'arrière-plan |**Syntaxe :**```
+| Type de collision | `Sprite-Sprite ($D01E)` — collision avec un autre sprite ; `Sprite-Arrière-plan ($D01F)` — collision avec un élément graphique d'arrière-plan |
+
+**Syntaxe : **
+```
 .sprite_col 0, sprite
 .sprite_col 0, background
-```**Code généré (sprite 0, sprite–sprite):**```
+```
+
+**Code généré (sprite 0, sprite–sprite):**
+```
     LDA $D01E       ; read sprite-sprite collision register (clears it!)
     AND #$01        ; isolate bit 0 (sprite 0)
                     ; A ≠ 0 → collision occurred
-```**Taille :**5 octets.
+```
 
->**Important :**La lecture de `$D01E`/`$D01F`**efface le registre**.
+**Taille : ** 5 octets.
+
+> **Important : **La lecture de `$D01E`/`$D01F`** efface le registre **.
 > Lisez-le une fois par image et agissez immédiatement sur le résultat avec
-> `BEQ`/`BNE`.**Utilisation typique :**```
+> `BEQ`/`BNE`.
+
+**Utilisation typique :**
+```
 gameloop:
     .wait_raster $FF
     .joystick 2, 0
@@ -2193,14 +2669,14 @@ no_hit:
     JMP gameloop
 ```
 
->**Voir aussi :**`collision-demo` exemple — boule verte (sprite n° 0) contre
+> **Voir aussi :** `collision-demo` exemple — boule verte (sprite n° 0) contre
 > croix rouge (sprite n° 1).
 
 ---
 
 ### LOADFILE
 
-Comme**`LOAD "fichier",8`**en BASIC, cette commande charge un fichier depuis
+Comme **`LOAD "fichier",8`** en BASIC, cette commande charge un fichier depuis
 une disquette D64 à l'exécution, en utilisant la routine KERNAL LOAD.
 Utilisez-la pour charger des données, de la musique ou du code supplémentaire
 depuis le disque pendant l'exécution de votre programme.
@@ -2210,11 +2686,17 @@ depuis le disque pendant l'exécution de votre programme.
 | Nom de fichier                       | Nom du fichier sur le disque (16 caractères maximum, majuscules automatiques ; les caractères `,`, `"`, `/`, `\`, `:`, `*`, `?`, `<`, `>`, `|` sont filtrés)                                                                                                   |
 | Appareil                             | Numéro de périphérique 8–30 (par défaut `8`)                                                                                                                                                                                                                   |
 | Adresse de remplacement (facultatif) | Adresse de chargement hexadécimale (par exemple, `C000`). Si cette option est définie, le fichier est chargé à cette adresse (`sec=0`, l'en-tête PRG étant ignoré). Laissez ce champ vide pour utiliser l'en-tête PRG de 2 octets propre au fichier (`sec=1`). |
-| Étiquette d'erreur (facultatif)      | Si cette option est activée, une instruction `BCS` est générée après JSR LOAD. Si le KERNAL renvoie une retenue (erreur), l'exécution saute à cette étiquette.                                                                                                 |**Syntaxe :**```
+| Étiquette d'erreur (facultatif)      | Si cette option est activée, une instruction `BCS` est générée après JSR LOAD. Si le KERNAL renvoie une retenue (erreur), l'exécution saute à cette étiquette.                                                                                                 |
+
+**Syntaxe : **
+```
 .loadfile "DEMO-COLORS", 8
 .loadfile "DEMO-COLORS", 8, $C000
 .loadfile "DEMO-COLORS", 8, $C000, error_label
-```**Structure du code généré :**```
+```
+
+**Structure du code généré : **
+```
     JMP skip_filename      ; jump over the inline filename
     .byte "DEMO-COLORS"    ; filename bytes (PETSCII, 11 chars)
 skip_filename:
@@ -2229,7 +2711,9 @@ skip_filename:
     LDA #0                 ; LOAD command (not VERIFY)
     JSR $FFD5              ; LOAD
     BCS fail               ; (only if error label set)
-```**Taille :**`3 + longueur_nom_de_fichier + 9 (SETNAM) + 9 (SETLFS) + (4 si
+```
+
+**Taille : ** `3 + longueur_nom_de_fichier + 9 (SETNAM) + 9 (SETLFS) + (4 si
 remplacement) + 5 (LOAD) + (2 si étiquette d'erreur) ` octets. Minimum 27
 octets.
 
@@ -2238,11 +2722,11 @@ octets.
 > PETSCII majuscules, ce qui correspond aux lettres majuscules ASCII (A à Z). La
 > macro applique cette contrainte automatiquement.
 
->**Utilisez toujours une étiquette d'erreur**pour les programmes de production
+> **Utilisez toujours une étiquette d'erreur** pour les programmes de production
 > — si le fichier n'est pas trouvé, KERNAL définit l'indicateur de retenue et
 > l'exécution passe à la suite.
 
->**Voir aussi :**`loadfile-demo` exemple — démontre le chargement de
+> **Voir aussi :** `loadfile-demo` exemple — démontre le chargement de
 > `DEMO-COLORS.PRG` à partir d'un D64 avec une branche d'erreur BCS et un écran
 > d'erreur visuel.
 
@@ -2250,16 +2734,22 @@ octets.
 
 ### EXODECRUNCH
 
-Décompression Exomizer en cours de programme****. Utilisez cette macro juste
+Décompression Exomizer en cours de programme ****. Utilisez cette macro juste
 après un `LOADFILE` qui a chargé un flux compressé en mode mémoire Exomizer `` —
 EXODECRUNCH le décompresse à l'adresse intégrée dans le flux.
 
 | Argument             | Description                                                                                                           |
 | -------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| Adresse du déballeur | Emplacement en mémoire du code de décompression (par défaut : `B000`). Doit être une adresse hexadécimale de 16 bits. |**Syntaxe :**```
+| Adresse du déballeur | Emplacement en mémoire du code de décompression (par défaut : `B000`). Doit être une adresse hexadécimale de 16 bits. |
+
+**Syntaxe : **
+```
 .exodecrunch
 .exodecrunch depacker=$B000
-```**Code généré (19 octets) :**```
+```
+
+**Code généré (19 octets) : **
+```
     LDA $AE           ; KERNAL load-end lo (set by previous LOAD)
     STA $04           ; depacker src-end pointer lo
     LDA $AF           ; KERNAL load-end hi
@@ -2269,27 +2759,35 @@ EXODECRUNCH le décompresse à l'adresse intégrée dans le flux.
     JSR depacker      ; depacker reads back-to-front via $04/$05
     LDA #$37          ; restore default mapping (BASIC + KERNAL + I/O)
     STA $01
-```**Comment ça marche :**1. KERNAL `LOAD` ($FFD5) met à jour ZP `$AE/$AF` pour pointer un octet après le
+```
+
+**Comment ça marche :**
+
+1. KERNAL `LOAD` ($FFD5) met à jour ZP `$AE/$AF` pour pointer un octet après le
    dernier octet chargé. EXODECRUNCH copie cette valeur dans ZP `$04/$05`,
    conformément à la convention officielle Exomizer pour l'écriture en amont.
 2. Le décompresseur est généralement placé à `$B000` (dans la région mappée de
    la ROM BASIC). La macro inverse `$01 = $36` afin que le processeur voie la
    RAM à cet emplacement pendant l'exécution du JSR, puis rétablit `$01 = $37`
    par la suite.
-3. L'adresse cible de décompression est**encodée dans le flux compressé
-   lui-même**lorsque vous compressez avec `exomizer mem -l <load>
+3. L'adresse cible de décompression est **encodée dans le flux compressé
+   lui-même** lorsque vous compressez avec `exomizer mem -l <load>
    fichier,<cible>` — le décompresseur la lit à partir des premiers octets du
-   flux.**Décompresseur binaire :**le décompresseur rétrocompatible précompilé est
+   flux.
+
+**Décompresseur binaire : ** le décompresseur rétrocompatible précompilé est
 `exo-decrunch.bin ` (dans le dossier `samples/ ` de l'assembleur visuel C64)
 (477 octets, ORG $B000). Il s'agit d'une interface Kick Assembler pour le
 fichier officiel `exodecrunch.asm ` avec `INC $D020 ` ajouté à chaque lecture
 pour un effet de clignotement visible des bordures pendant la décompression.
-Placez-le dans votre programme avec `.incbin ` à l'adresse du décompresseur.**Entrée brute :**l'extra est transmis à Exomizer en tant que fichier brut
+Placez-le dans votre programme avec `.incbin ` à l'adresse du décompresseur.
+
+**Entrée brute : ** l'extra est transmis à Exomizer en tant que fichier brut
 chargé à l'adresse Dst (`file@<Dst>`), de sorte que le dépackeur écrit chaque
 octet, en commençant par le premier, exactement à l'adresse que vous avez
 saisie.
 
->**Voir aussi :**l’exemple `exo-multicolor-demo` — exemple complet de bout en
+> **Voir aussi :** l’exemple `exo-multicolor-demo` — exemple complet de bout en
 > bout : LOADFILE un bitmap multicolore compressé dans $C000, EXODECRUNCH le
 > décompresse dans $2000, puis copie l’écran → $0400 et la couleur → $D800, et
 > bascule VIC-II en mode bitmap multicolore.
@@ -2304,7 +2802,10 @@ et en relisant deux motifs dans le registre REU `$DF04`.
 
 | Argument | Description    |
 | -------- | -------------- |
-| Aucun    | Aucun opérande |**Code généré (34 octets) :**```
+| Aucun    | Aucun opérande |
+
+**Code généré (34 octets) :**
+```
 LDA #$55
 STA $DF04
 LDA $DF04
@@ -2324,10 +2825,16 @@ CMP #$FF   ; Z=1 => no REU
 done:
 ```
 > La macro normalise le résultat afin que la branche suivante reste simple :
-> `BNE` signifie REU présent, `BEQ` signifie REU manquant.**Syntaxe :**```
+> `BNE` signifie REU présent, `BEQ` signifie REU manquant.
+
+**Syntaxe : **
+```
 .reu_check
-```**Résultat dans les drapeaux :**-**Z = 0**(résultat ≠ 0) → REU présent → utiliser `BNE`
--**Z = 1**(résultat = 0) → pas de REU → utiliser `BEQ`**Aucun argument**— la macro génère le même code à chaque fois.**Utilisation typique :**```assembly
+```
+
+**Résultat dans les drapeaux : **-**Z = 0** (résultat ≠ 0) → REU présent → utiliser `BNE`
+- **Z = 1**(résultat = 0) → pas de REU → utiliser `BEQ`**Aucun argument**— la macro génère le même code à chaque fois.**Utilisation typique :**
+```assembly
 .reu_check
 BEQ no_reu        ; skip if REU not present
 ; ... REU code here ...
@@ -2347,16 +2854,26 @@ transfert de 1 000 octets est quasi instantané.
 | ----------- | ------------- | ---------------- |
 | `REU_STASH` | RAM C64 → REU | `$90`            |
 | `REU_FETCH` | REU → RAM C64 | `$91`            |
-| `REU_SWAP`  | RAM C64 ↔ REU | `$92`            |**Arguments :**| Argument    | Description                                         | Exemple |
+| `REU_SWAP`  | RAM C64 ↔ REU | `$92`            |
+
+**Arguments :**
+
+| Argument    | Description                                         | Exemple |
 | ----------- | --------------------------------------------------- | ------- |
 | Adresse C64 | Source/destination dans la RAM du C64 (hexadécimal) | `C000`  |
 | Adresse REU | Source/destination en REU (hexadécimal, 16 bits)    | `0000`  |
 | Banque REU  | banque de mémoire REU (0–7)                         | `0`     |
-| Longueur    | Nombre d'octets à transférer (hexadécimal, 16 bits) | `1000`  |**Syntaxe :**```
+| Longueur    | Nombre d'octets à transférer (hexadécimal, 16 bits) | `1000`  |
+
+**Syntaxe : **
+```
 .reu_stash $C000, $0000, 0, $1000
 .reu_fetch $C000, $0000, 0, $1000
 .reu_swap $C000, $0000, 0, $1000
-```**Code généré (40 octets) :**```
+```
+
+**Code généré (40 octets) : **
+```
 LDA #c64lo    STA $DF02    ; C64 address LO
 LDA #c64hi    STA $DF03    ; C64 address HI
 LDA #reuLo    STA $DF04    ; REU address LO
@@ -2369,7 +2886,7 @@ LDA #$00      STA $DF0A    ; interrupt mask (fixed)
 LDA #cmd      STA $DF01    ; execute DMA ($90/$91/$92 = stash/fetch/swap, immediate)
 ```
 
->**Remarque :**Les commandes utilisent `$90/$91/$92` (bit 4 activé = mode DMA
+> **Remarque : ** Les commandes utilisent `$90/$91/$92` (bit 4 activé = mode DMA
 > immédiat). L’écriture dans `$DF01` lance le transfert ; le processeur reprend
 > son exécution une fois celui-ci terminé.
 
@@ -2377,22 +2894,32 @@ LDA #cmd      STA $DF01    ; execute DMA ($90/$91/$92 = stash/fetch/swap, immedi
 
 ### TURBO_SET
 
-Configure la vitesse du processeur**Ultimate-64 (U64)**via le registre
-`$D031`. Sans effet sur un véritable C64 ou d'autres émulateurs.**Arguments :**| Argument | Description                     | Gamme                                       |
+Configure la vitesse du processeur **Ultimate-64 (U64)** via le registre
+`$D031`. Sans effet sur un véritable C64 ou d'autres émulateurs.
+
+**Arguments :**
+
+| Argument | Description                     | Gamme                                       |
 | -------- | ------------------------------- | ------------------------------------------- |
 | Vitesse  | Indice de vitesse du processeur | 0 = 1 MHz … 7 ≈ 10 MHz … 15 ≈ 48 MHz        |
 | Badline  | Émulation de Badline            | Activé (compatible C64) / Désactivé (turbo) |
 
 L'octet de vitesse est calculé comme suit : `(speedIndex & 0x0F) |
-(badline_disabled ? 0x80 : 0x00)`.**Code généré (5 octets) :**```
+(badline_disabled ? 0x80 : 0x00)`.
+
+**Code généré (5 octets) : **
+```
 A9 xx   LDA #speed_byte
 8D 31 D0   STA $D031
-```**Syntaxe :**```
+```
+
+**Syntaxe : **
+```
 .turbo_set 7,0    ; speed=7 (~10 MHz), badline enabled
 .turbo_set 15,1   ; speed=15 (~48 MHz), badline disabled
 ```
 
->**Remarque :**Cette macro affecte uniquement le matériel U64. Sur un
+> **Remarque : ** Cette macro affecte uniquement le matériel U64. Sur un
 > véritable C64 ou d’autres émulateurs, elle écrit dans `$D031`, ce qui peut
 > affecter le CIA ou être ignoré.
 
@@ -2400,14 +2927,25 @@ A9 xx   LDA #speed_byte
 
 ### SUPERCPU_DETECT
 
-Vérifie si un accélérateur**CMD SuperCPU**est installé — comme `PEEK($D0B8)`
-pour voir s'il renvoie quelque chose d'autre que `$FF`.**Code généré (5 octets) :**```
+Vérifie si un accélérateur **CMD SuperCPU** est installé — comme `PEEK($D0B8)`
+pour voir s'il renvoie quelque chose d'autre que `$FF`.
+
+**Code généré (5 octets) : **
+```
 AD B8 D0   LDA $D0B8
 C9 FF      CMP #$FF
-```**Résultat dans les drapeaux :**-**Z = 0**→ SuperCPU présent → utiliser `BNE`
--**Z = 1**→ SuperCPU introuvable → utiliser `BEQ`**Aucun argument.****Syntaxe :**```
+```
+
+**Résultat dans les drapeaux : **-**Z = 0** → SuperCPU présent → utiliser `BNE`
+- **Z = 1**→ SuperCPU introuvable → utiliser `BEQ`**Aucun argument.**
+
+**Syntaxe : **
+```
 .supercpu_detect
-```**Utilisation typique :**```assembly
+```
+
+**Utilisation typique :**
+```assembly
 .supercpu_detect
 BEQ no_scpu       ; skip if SuperCPU not present
 ; ... SuperCPU turbo code here ...
@@ -2418,21 +2956,27 @@ no_scpu:
 
 ### TURBO_ENABLE
 
-Active ou désactive le mode turbo SuperCPU**CMD**. Appelez d'abord
+Active ou désactive le mode turbo SuperCPU **CMD **. Appelez d'abord
 `SUPERCPU_DETECT ` et ignorez cette étape si le SuperCPU n'est pas présent.
 
 | Mode       | Registre | Effet                                                |
 | ---------- | -------- | ---------------------------------------------------- |
 | Activer    | `$D07A`  | Activer le mode turbo (jusqu'à 20 MHz avec SuperCPU) |
-| Désactiver | `$D07B`  | Retour au mode de compatibilité 1 MHz                |**Code généré (5 octets) :**```
+| Désactiver | `$D07B`  | Retour au mode de compatibilité 1 MHz                |
+
+**Code généré (5 octets) : **
+```
 A9 00         LDA #$00
 8D 7A D0      STA $D07A    ; (or $D07B for disable)
-```**Syntaxe :**```
+```
+
+**Syntaxe : **
+```
 .turbo_enable on
 .turbo_enable off
 ```
 
->**Remarque :**Appelez d’abord `SUPERCPU_DETECT` et contournez cette macro si
+> **Remarque : ** Appelez d’abord `SUPERCPU_DETECT` et contournez cette macro si
 > le SuperCPU n’est pas présent.
 
 ---
@@ -2452,7 +2996,10 @@ Aucun JSR n'est nécessaire : tout le code est généré directement dans le cod
 | Écran RAM dest                | Où copier les codes d'écran (par exemple `0400`)                                                                                                                                                                                                                                                                         |
 | Taille (octets)               | Nombre total d'octets à copier — généralement `$03E8` = 1000 (40×25 caractères)                                                                                                                                                                                                                                          |
 | Source de couleur             | `auto` : les données de couleur suivent les codes d'écran (`source + taille`) ou une adresse source de couleur explicite. Les données de couleur sont copiées dans la mémoire RAM couleur lors d'une seconde passe. Omettez cette option (ainsi que la destination de couleur) pour copier uniquement les codes d'écran. |
-| destination de la RAM couleur | Destination des données de couleur — par défaut `D800` (RAM couleur C64)                                                                                                                                                                                                                                                 |**Code généré (carte de 1000 octets, écran uniquement) :**```
+| destination de la RAM couleur | Destination des données de couleur — par défaut `D800` (RAM couleur C64)                                                                                                                                                                                                                                                 |
+
+**Code généré (carte de 1000 octets, écran uniquement) :**
+```
     LDX #$00
     LDA $C000,X   ; page 0
     STA $0400,X
@@ -2471,9 +3018,15 @@ Aucun JSR n'est nécessaire : tout le code est généré directement dans le cod
     INX
     CPX #$E8
     BNE *-11
-```**Taille :**`2 (LDX) + pages complètes×9 + (rem > 0 ? 11 : 0)` octets par
+```
+
+**Taille : ** `2 (LDX) + pages complètes×9 + (rem > 0 ? 11 : 0)` octets par
 section. Le mode combiné double cette valeur (section écran + section couleur
-identique).**Appairage avec l'éditeur de cartes :**L'éditeur de cartes de l'assembleur visuel C64 (**Sauvegarder la carte + RAM
+identique).
+
+**Appairage avec l'éditeur de cartes : **
+
+L'éditeur de cartes de l'assembleur visuel C64 (**Sauvegarder la carte + RAM
 couleur**) exporte un seul fichier binaire dont les `premiers octets sont des
 codes d'écran et les `octets suivants sont des valeurs de RAM couleur. Utilisez
 `.map_copy` avec `auto` comme source de couleur et l'adresse source où ce
@@ -2483,7 +3036,10 @@ fichier est chargé (par exemple, avec `.incbin` à `$C000`).
     .incbin "map-color.bin", $C000   ; screen codes $C000–$C3E7, color $C3E8–$C7CF
     ; ...
     .map_copy $C000, $0400, 1000, auto, $D800
-```**Syntaxe :**```
+```
+
+**Syntaxe : **
+```
 .map_copy $C000, $0400, 1000               ; screen only
 .map_copy $C000, $0400, 1000, auto, $D800  ; combined (color at src+size)
 .map_copy $C000, $0400, 1000, $C3E8, $D800 ; explicit color source address
@@ -2498,12 +3054,19 @@ Copie une zone de caractères de 16×16 à partir d'un bloc de code écran compa
 de 256 octets et d'un bloc de mémoire RAM couleur correspondant de 256 octets.
 Cette fonction est conçue pour les exportations de canevas de jeu de caractères
 et les petits fragments de tuiles/images, où l'écriture de seize lignes MAP_COPY
-distinctes serait fastidieuse.**Disposition par défaut :**| Données                          | Adresse par défaut       |
+distinctes serait fastidieuse.
+
+**Disposition par défaut : **
+
+| Données                          | Adresse par défaut       |
 | -------------------------------- | ------------------------ |
 | Codes d'écran 16×16              | Adresse source (`src`)   |
 | Valeurs de couleur 16×16         | `src + 256`              |
 | destination de la RAM de l'écran | `$0400 + ligne×40 + col` |
-| destination de la RAM couleur    | `$D800 + ligne×40 + col` |**Syntaxe :**```
+| destination de la RAM couleur    | `$D800 + ligne×40 + col` |
+
+**Syntaxe : **
+```
 .map_copy16x16 $3000, 12, 4
 .map_copy16x16 $3000, 12, 4, $0400, $3100, $D800
 ```
@@ -2511,7 +3074,11 @@ distinctes serait fastidieuse.**Disposition par défaut :**| Données           
 La forme abrégée copie les octets d'écran de `$3000`, les octets de couleur de
 `$3100` et place le bloc 16×16 à la colonne 12, ligne 4. Les positions valides
 en haut à gauche sont `col = 0..24` et `row = 0..9`, de sorte que la zone
-complète de 16×16 reste sur l'écran de texte 40×25 du C64.**Comportement généré :**- Génère seize copies de lignes en ligne.
+complète de 16×16 reste sur l'écran de texte 40×25 du C64.
+
+**Comportement généré : **
+
+- Génère seize copies de lignes en ligne.
 - Chaque ligne copie 16 octets d'écran et 16 octets de couleur.
 - Aucune JSR n'est nécessaire ; le code est émis directement à l'emplacement de
   la macro.
@@ -2554,7 +3121,10 @@ fois par image de jeu ; aucun JSR n'est nécessaire.
 | Sprite #                       | Sprite numéro 0 à 7                                                                                                |
 | Adresse de la liste des cadres | Adresse hexadécimale de la table des trames — un octet par trame, chaque octet = page de sprite (`data_addr / 64`) |
 | Nombre d'images                | Nombre total d'images (1–255)                                                                                      |
-| Cadre ZP                       | Octet de page zéro utilisé comme compteur de trame (par exemple `FB`)                                              |**Code généré (sprite 0, 4 images, ZP `$FB`, liste à `$C100`):**```
+| Cadre ZP                       | Octet de page zéro utilisé comme compteur de trame (par exemple `FB`)                                              |
+
+**Code généré (sprite 0, 4 images, ZP `$FB`, liste à `$C100`):**
+```
     INC $FB         ; advance frame counter
     LDA $FB
     CMP #$04        ; frame count
@@ -2564,7 +3134,10 @@ fois par image de jeu ; aucun JSR n'est nécessaire.
     TAX             ; X = current frame index
     LDA $C100,X     ; load sprite data page for this frame
     STA $07F8       ; update sprite 0 pointer ($07F8 + sprite#)
-```**Taille :**19 octets.**Utilisation typique :**```
+```
+
+**Taille : **19 octets.**Utilisation typique :**
+```
 frameTable:
     .byte $21, $22, $23, $24   ; 4 frames at $0840, $0880, $08C0, $0900
 
@@ -2572,7 +3145,10 @@ gameloop:
     .wait_raster $FF
     .sprite_anim 0, $C100, 4, $FB
     JMP gameloop
-```**Syntaxe :**```
+```
+
+**Syntaxe : **
+```
 .sprite_anim spriteNum, frameListAddr, frameCount, zpByte
 ; example:
 .sprite_anim 0, C100, 4, FB
@@ -2599,9 +3175,15 @@ nécessaire.
 | Adresse du score   | Adresse hexadécimale des octets de score BCD (par exemple `C200`). Octet de poids faible en premier.                   |
 | Chiffres           | Nombre d'octets BCD (chaque octet contient deux chiffres : `$99` = "99"). `4` octets = jusqu'à 99999999.               |
 | Ajouter des points | Valeur décimale à ajouter par appel (par exemple `100`).                                                               |
-| Adresse de l'écran | Où écrire les codes numériques de l'écran (par exemple `0400`). Un octet par chiffre (octet de poids fort en premier). |**Syntaxe :**```
+| Adresse de l'écran | Où écrire les codes numériques de l'écran (par exemple `0400`). Un octet par chiffre (octet de poids fort en premier). |
+
+**Syntaxe : **
+```
 .score_bcd $C200, 4, 100, $0400
-```**Code généré (4 octets, +100 pts, score à `$C200`, écran à `$0400`):**```
+```
+
+**Code généré (4 octets, +100 pts, score à `$C200`, écran à `$0400`):**
+```
     SED              ; enable BCD / decimal mode
     CLC
     LDA $C200        ; byte 0 (digits 1–2)
@@ -2633,8 +3215,13 @@ digit_loop:
     INX
     CPX #$04
     BNE digit_loop
-```**Taille :**`3 + chiffres×8` octets (SED + CLC + surcharge CLD + 8 octets par
-octet BCD pour ADC + boucle d’affichage).**Syntaxe :**```
+```
+
+**Taille : ** `3 + chiffres×8` octets (SED + CLC + surcharge CLD + 8 octets par
+octet BCD pour ADC + boucle d’affichage).
+
+**Syntaxe : **
+```
 .score_bcd $C200, 4, 100, $0400
 ```
 
@@ -2644,7 +3231,7 @@ octet BCD pour ADC + boucle d’affichage).**Syntaxe :**```
 > gauche ; les chiffres sont écrits de gauche à droite (octet de poids fort en
 > premier).
 
->**Plage BCD :**`chiffres=4` octets → 8 chiffres décimaux → score maximum 99
+> **Plage BCD : ** `chiffres=4` octets → 8 chiffres décimaux → score maximum 99
 > 999 999. Chaque octet encode deux chiffres BCD : `$00`–`$99`.
 
 ---
