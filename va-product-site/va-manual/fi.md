@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Käyttöopas
 
-**Versio 2.6.8**
+**Versio 2.7.0**
 
 Visuaalinen, lohkopohjainen 6502-assembler Commodore 64:lle. Voit luoda ohjelmia
 vetämällä ja pudottamalla käskylohkoja ja nähdä luodun assemblerin ja konekoodin

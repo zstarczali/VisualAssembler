@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**2.6.8-as verzió**
+**2.7.0-as verzió**
 
 Vizuális, blokk alapú 6502 assembler a Commodore 64-hez. Programokat hozhat
 létre húzással és elengedéssel (fogd és vidd) utasításblokkokkal, és valós

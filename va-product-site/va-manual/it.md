@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Manuale utente
 
-**Versione 2.6.8**
+**Versione 2.7.0**
 
 Un assembler visuale a blocchi per il Commodore 64, basato sul processore 6502.
 Crea programmi trascinando e rilasciando blocchi di istruzioni e visualizza in

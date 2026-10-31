@@ -1,6 +1,6 @@
 # Manuel d'utilisation de l'assembleur visuel C64
 
-**Version 2.6.8**
+**Version 2.7.0**
 
 Un assembleur 6502 visuel et basé sur des blocs pour le Commodore 64. Créez des
 programmes en faisant glisser et en déposant des blocs d'instructions, et
