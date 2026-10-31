@@ -3121,6 +3121,70 @@ bájtonként az ADC + kijelzőhurok számára).
 
 ---
 
+### SCORE_BCD
+
+Adds a fixed point value to a multi-byte BCD score stored in memory, then renders each digit to screen RAM as a screen-code character. Uses the 6502 decimal mode (`SED`/`CLD`) for carry-safe BCD arithmetic — no manual carry juggling needed.
+
+| Argument | Description |
+|---|---|
+| Score address | Hex address of the BCD score bytes (e.g. `C200`). Low byte first. |
+| Digits | Number of BCD bytes (each byte holds two digits: `$99` = "99"). `4` bytes = up to 99999999. |
+| Add points | Decimal value to add per call (e.g. `100`). |
+| Screen address | Where to write the digit screen codes (e.g. `0400`). One byte per digit (high nibble first). |
+
+**Syntax:**
+```
+.score_bcd $C200, 4, 100, $0400
+```
+
+**Generated code (4 bytes, +100 pts, score at `$C200`, screen at `$0400`):**
+```
+    SED              ; enable BCD / decimal mode
+    CLC
+    LDA $C200        ; byte 0 (digits 1–2)
+    ADC #$00         ; low byte of 100 in BCD = $00
+    STA $C200
+    LDA $C201        ; byte 1 (digits 3–4)
+    ADC #$01         ; mid byte of 100 in BCD = $01 (carry propagates)
+    STA $C201
+    LDA $C202
+    ADC #$00
+    STA $C202
+    LDA $C203
+    ADC #$00
+    STA $C203
+    CLD              ; back to binary mode
+
+    ; render digits
+    LDX #$00
+digit_loop:
+    LDA $C200,X
+    PHA
+    LSR : LSR : LSR : LSR  ; high nibble → low nibble
+    ORA #$30         ; + '0' screen code
+    STA $0406,X      ; right-justified: screen_addr + (digits*2 - 2) - X*2
+    PLA
+    AND #$0F         ; low nibble
+    ORA #$30
+    STA $0407,X
+    INX
+    CPX #$04
+    BNE digit_loop
+```
+
+**Size:** `3 + digits×8` bytes (SED + CLC + CLD overhead + 8 bytes per BCD byte for ADC + display loop).
+
+**Syntax:**
+```
+.score_bcd $C200, 4, 100, $0400
+```
+
+> **Tip:** Initialize the score bytes to `$00` at startup. The score address should be in zero page or absolute RAM — not ROM. The screen address should point to the leftmost digit cell; digits are written left-to-right (most-significant byte first).
+
+> **BCD range:** `digits=4` bytes → 8 decimal digits → max score 99,999,999. Each byte encodes two BCD digits: `$00`–`$99`.
+
+---
+
 ## 7. KickAssembler-stílusú szintaxis
 
 A VMA a szokásos KickAssembler űrlapokat is olvassa, így egy KickAssembler
