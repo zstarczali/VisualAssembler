@@ -9,16 +9,16 @@ alkalmazás egyéb eszközei a C64 Visual Assembler kézikönyvében található
 
 ## Tartalomjegyzék
 
-1. [Forrásformátum](#1-forrasformatum)
-2. [Számok és kifejezések](#2-szamok-es-kifejezesek)
+1. [Forrásformátum](#1-source-format)
+2. [Számok és kifejezések](#2-numbers-and-expressions)
 3. [Kimenet: PRG, BASIC stub és belépési
-   pont](#3-kimenet-prg-basic-stub-es-belepesi-pont)
-4. [Címzési módok](#4-cimzesi-modok)
-5. [6502 utasítások](#5-6502-utasitasok)
-6. [Utasítások és makrók — hivatkozás](#6-iranyelvek-es-makrok-hivatkozas)
-7. [KickAssembler-stílusú szintaxis](#7-kickassembler-stilusu-szintaxis)
-8. [Parancssor](#8-parancssor)
-9. [Ismert korlátok](#9-ismert-korlatok)
+   pont](#3-output-prg-basic-stub-and-entry-point)
+4. [Címzési módok](#4-addressing-modes)
+5. [6502 utasítások](#5-6502-instructions)
+6. [Utasítások és makrók — hivatkozás](#6-directives-and-macros--reference)
+7. [KickAssembler-stílusú szintaxis](#7-kickassembler-style-syntax)
+8. [Parancssor](#8-command-line)
+9. [Ismert korlátok](#9-known-limitations)
 
 ---
 
@@ -42,10 +42,10 @@ loop: dex                ; a label and an instruction on one line
 
 - Az **Megjegyzések** `;` vagy `//` karakterekkel kezdődnek, és a sor végéig
   futnak (nem idézőjelek közé tett karakterláncon belül).
-- Az **címkék** írásmódja `name:` — betűk, számjegyek és `_`, nem számjeggyel
+- Az **címkék** írásmódja `név:` — betűk, számjegyek és `_`, nem számjeggyel
   kezdődnek. A címke önálló sorban vagy egy utasítás előtt is állhat. A ponttal
   kezdődő név (`.loop:`) egy **lokális címke** (lásd [Local (dotted)
-  labels](#helyi-pontozott-cimkek)); Az `-` és az `+` önmagukban **anonim címkék**,
+  labels](#local-dotted-labels)); Az `-` és az `+` önmagukban **anonim címkék**,
   amelyekre az `bne -` / `beq +` hivatkozik (a legközelebbi előtte / utána).
 - Az **utasítások** egy emlékeztető és egy operandus; a behúzás szabad.
 - Az **** direktívák ponttal kezdődnek (`.byte`, `.macro`, `.if` …); az `* =
@@ -61,7 +61,7 @@ loop: dex                ; a label and an instruction on one line
 | Bináris       | `%00001111`    | `%` előtag                                                                          |
 | Decimális     | `255`, `40*25` | nincs előtag                                                                        |
 | Karakter      | `'A'`          | a kódja (`$41`)                                                                     |
-| Jelenlegi cím | `*`            | a vonal címe (lásd: [Az `*` programszámláló](#az-programszamlalo-kifejezesekben)) |
+| Jelenlegi cím | `*`            | a vonal címe (lásd: [Az `*` programszámláló](#the--program-counter-in-expressions)) |
 
 Az utasításoperandusokban a `$` paranccsal hexadecimális számokat írunk. A
 könyvtármakrók címargumentumában (`.rawbytes C000, …`, `.sprite_init 0, 1, 80`)
@@ -97,7 +97,7 @@ kerül; a köztük lévő hézagok nullák.
   `--no-basic-stub` paranccsal; enélkül a `$0801` címen található program a
   `$C000` címre áll össze, minden más az első ORG-ján marad.
 - **Belépési pont:** a SYS sor a kód elejére, vagy az első soros megjegyzésben
-  megadott címre ugrik `; Entry point: $1234`.
+  megadott címre ugrik `; Belépési pont: $1234`.
 - **A BASIC sor alatti kód** (egy ORG, amely alacsonyabb, mint `$0801`, a
   csonkkal együtt): egy kis betöltő elindítja a programot és a helyére helyezi,
   így továbbra is `RUN`-szel kezdődik.
@@ -106,7 +106,7 @@ kerül; a köztük lévő hézagok nullák.
   csonk nélkül.
 
 A PRG-ből a parancssor létrehoz egy **patront** és egy **lemezképet** is
-(újdonság a 2.1.0 verzióban, lásd [8. Parancssor](#8-parancssor)):
+(újdonság a 2.1.0 verzióban, lásd [8. Parancssor](#8-command-line)):
 
 - `--crt FÁJL` — egy Magic Desk hangszedő (CRT 19-es típus, 8 × 8K bank,
   legfeljebb 65 408 bájt program). A 0. bankban lévő betöltő inicializálja a
@@ -115,7 +115,7 @@ A PRG-ből a parancssor létrehoz egy **patront** és egy **lemezképet** is
   keresztül), kikapcsolja a hangszedőt és a belépési pontra ugrik. Tartsa a
   programot távol az `$0100–$013B` címektől és a betöltő által használt
   `$02–$04` / `$FB–$FE` nulla oldalbájtoktól.
-- `--d64 [FILE]` — egy 1541-es lemezkép (35 sáv), amelyről a PRG-t nevezték el,
+- `--d64 [FÁJL]` — egy 1541-es lemezkép (35 sáv), amelyről a PRG-t nevezték el,
   valamint az `--add` fájlok, úgy elrendezve, ahogyan a 1541-es DOS írta őket;
   nincs szükség c1541-re.
 
@@ -128,7 +128,7 @@ felírási módja alapján választja ki a módot.
 
 | Mód             | Címke          | Példa               | Leírás                                                                         |
 | --------------- | -------------- | ------------------- | ------------------------------------------------------------------------------ |
-| **implicitált** | Hallgatólagos  | `NOP`              | Nincs operandus; az utasítás önálló                                            |
+| **implicitált** | Hallgatólagos  | `NEM `              | Nincs operandus; az utasítás önálló                                            |
 | **azonnali**    | Azonnali       | `LDA #$FF`          | Beágyazott állandó; az assembler automatikusan hozzáadja az `#` értékeket      |
 | **nullaOldal**  | Nulla oldal    | `LDA $10`           | Egybájtos cím a nulladik oldalon (0–255)                                       |
 | **nullaOldalX** | Nulla oldal, X | `LDA $10,X`         | Nulla oldalcím + X regiszter eltolás (az eredmény a 0. oldalon tördelődik)     |
@@ -136,10 +136,10 @@ felírási módja alapján választja ki a módot.
 | **abszolút**    | Abszolút       | `LDA $0400`         | Teljes 16 bites memóriacím                                                     |
 | **abszolútX**   | Abszolút,X     | `LDA $0400,X`       | 16 bites cím + X regiszter eltolás                                             |
 | **abszolútY**   | Abszolút,Y     | `LDA $0400,Y`       | 16 bites cím + Y regiszter eltolás                                             |
-| **relatív**     | Rokon/Címke    | `BNE loop`         | Fióktelepre vonatkozó utasításokhoz adjon meg egy címkenevet vagy egy célcímet |
+| **relatív**     | Rokon/Címke    | `BNE hurok`         | Fióktelepre vonatkozó utasításokhoz adjon meg egy címkenevet vagy egy célcímet |
 | **indirectX**   | Közvetett, X   | `LDA ($FB,X)`       | Nulla oldal indexelése közvetett módon (operandus = nulla oldal címe, 1 bájt)  |
 | **indirektY**   | Közvetett, Y   | `LDA ($FB),Y`       | Nulla oldalas indirekt indexelés (operandus = nulla oldalcím, 1 bájt)          |
-| **közvetett**   | Közvetett      | `JMP ($0100)` | Közvetett; csak JMP-vel használható                                            |
+| **közvetett**   | Közvetett      | `JMP (0100 dollár)` | Közvetett; csak JMP-vel használható                                            |
 
 ### Konstansok a nulladik oldalon
 
@@ -162,14 +162,14 @@ elnevezett konstanshoz viszonyított címre való hivatkozáshoz:
 
 | Szintaxis         | Példa                             | Leírás                                                                                                             |
 | ----------------- | --------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `label`           | `STA screen_ram,X`              | Feloldódik a címke/állandó értékére                                                                                |
-| `label+$hex`      | `STA screen_ram+$0100,X`        | Címkecím plusz egy hexadecimális eltolás                                                                           |
-| `label+decimal` | `STA screen_ram+256,X`          | Címkecím plusz egy tizedes eltolás                                                                                 |
-| `label-$hex`      | `LDA table-$10`          | Címkecím hexadecimális eltolás nélkül                                                                              |
-| `$hex+expr`  | `LDA $1234+1`, `STA $0400+40*2,X` | Számok, címkék és konstansok bármilyen kifejezése *(2.1)*                                                          |
-| `(label)`         | `JMP (vector)`, `JMP (table+2)`   | Közvetett ugrás címkén vagy kifejezésen keresztül *(2.1)*                                                          |
-| `#<label`         | `LDA #<screen_ram`              | A címke címének alsó bájtja                                                                                        |
-| `#>label`      | `LDA #>screen_ram`           | A címke címének felső bájtja                                                                                       |
+| `címke`           | `STA képernyő_RAM,X`              | Feloldódik a címke/állandó értékére                                                                                |
+| `címke+$hex`      | `STA képernyő_RAM+$0100,X`        | Címkecím plusz egy hexadecimális eltolás                                                                           |
+| `címke+decimális` | `STA képernyő_RAM+256,X`          | Címkecím plusz egy tizedes eltolás                                                                                 |
+| `címke-$hex`      | `LDA asztal - 10 dollár`          | Címkecím hexadecimális eltolás nélkül                                                                              |
+| `$hex+kifejezés`  | `LDA $1234+1`, `STA $0400+40*2,X` | Számok, címkék és konstansok bármilyen kifejezése *(2.1)*                                                          |
+| `(címke)`         | `JMP (vektor)`, `JMP (tábla+2)`   | Közvetett ugrás címkén vagy kifejezésen keresztül *(2.1)*                                                          |
+| `#<címke`         | `LDA #<képernyő_RAM`              | A címke címének alsó bájtja                                                                                        |
+| `#>címke`         | `LDA #>képernyő_RAM`              | A címke címének felső bájtja                                                                                       |
 | `*`               | `BNE *`                           | Aktuális programszámláló (az utasítás saját címe); az `*` elágazások végtelen önhurkot generálnak (eltolás: `$FE`) |
 
 **Példa — két képernyőoldal törlése CONST használatával:**
@@ -190,18 +190,18 @@ operanduskifejezésen belül, és annak az utasításnak a címét jelöli, amel
 írták. Assembly időben feloldódik az utasítás valódi címe alapján, így nincs
 szükség címkére a rövid relatív ugrásokhoz vagy a PC-relatív adatolvasásokhoz.
 
-| Szintaxis           | Példa                      | Jelentés                                            |
-| ------------------- | -------------------------- | --------------------------------------------------- |
-| `*`                 | `BNE *`                    | Elágazás önmagához (végtelen ciklus, eltolás `$FE`) |
-| `*-n` / `*+n`       | `BNE *-5`, `BEQ *+4`       | Elágazás az aktuális PC-hez képest *n* bájttal      |
-| `JMP *+n`           | `JMP *+20`                 | Az aktuális PC-ből számított abszolút ugrás         |
+| Szintaxis     | Példa                | Jelentés                                            |
+| ------------- | -------------------- | --------------------------------------------------- |
+| `*`           | `BNE *`              | Elágazás önmagához (végtelen ciklus, eltolás `$FE`) |
+| `*-n` / `*+n` | `BNE *-5`, `BEQ *+4` | Elágazás az aktuális PC-hez képest *n* bájttal      |
+| `JMP *+n`     | `JMP *+20`           | Az aktuális PC-ből számított abszolút ugrás         |
 | `#<*` / `#>*` | `LDA #<*`, `LDA #>*` | Az aktuális PC alacsony/magas bájtja                |
-| `#>(*+n)`        | `LDA #>(*+63)`          | PC-hez viszonyított cím alsó/felső bájtja           |
+| `#>(*+n)`     | `LDA #>(*+63)`       | PC-hez viszonyított cím alsó/felső bájtja           |
 
 **PC vs. szorzás.** Az `*` csak akkor kezeli a programszámlálót, ha az
 *értékpozícióban* található — a kifejezés elején, vagy közvetlenül egy operátor,
-`(`, `,`, `<`, `>` vagy szóköz után. Egy `*`, amely egy számot, `)` vagy
-egy azonosítót követ, közönséges szorzásnak minősül, tehát az `LDA table*2` és a
+`(`, `,`, `<`, `>` vagy szóköz után. Egy `*`, amely egy számot, `)` vagy egy
+azonosítót követ, közönséges szorzásnak minősül, tehát az `LDA table*2` és a
 `CONST_A*4` változatlanok maradnak.
 
 **Hol működik.** Bármely operandus, amely már elfogad egy kifejezést: elágazási
@@ -292,7 +292,7 @@ címzési mód esetén. Ez felváltja a régebbi `STA utasítás+1` / ` utasít�
 
 | Emlékezeterősítő | Leírás                                                                         |
 | ---------------- | ------------------------------------------------------------------------------ |
-| `AND`             | Logikai ÉS akkumulátorral                                                      |
+| `ÉS`             | Logikai ÉS akkumulátorral                                                      |
 | `ORA`            | Logikai VAGY akkumulátorral                                                    |
 | `EOR`            | Exkluzív VAGY akkumulátorral                                                   |
 | `BIT`            | A memória bitjeinek tesztelése A-val szemben (beállítja az N, V és Z jelzőket) |
@@ -327,14 +327,14 @@ LBEQ done      ; assembles to:   BNE *+3   ($D0 $03)
 
 | Hosszú op | Állapot                     | Kibocsátva mint          |
 | --------- | --------------------------- | ------------------------ |
-| `LBNE`    | nem egyenlő (Z=0)           | `BEQ *+3 / JMP target`      |
-| `LBEQ`    | egyenlő (Z=1)               | `BNE *+3 / JMP target`  |
-| `LBCC`    | tiszta átvitel (C=0)        | `BCS *+3 / JMP target`  |
-| `LBCS`    | hordozókészlet (C=1)        | `BCC *+3 / JMP target`      |
-| `LBMI`    | mínusz (N=1)                | `BPL *+3 / JMP target`  |
-| `LBPL`    | plusz (N=0)                 | `BMI *+3 / JMP target` |
-| `LBVC`    | túlcsordulásmentes (V=0)    | `BVS *+3 / JMP target`  |
-| `LBVS`    | túlcsordulási készlet (V=1) | `BVC *+3 / JMP target`  |
+| `LBNE`    | nem egyenlő (Z=0)           | `BEQ *+3 / JMP cél`      |
+| `LBEQ`    | egyenlő (Z=1)               | `BNE *+3 / JMP célpont`  |
+| `LBCC`    | tiszta átvitel (C=0)        | `BCS *+3 / JMP célpont`  |
+| `LBCS`    | hordozókészlet (C=1)        | `BCC *+3 / JMP cél`      |
+| `LBMI`    | mínusz (N=1)                | `BPL *+3 / JMP célpont`  |
+| `LBPL`    | plusz (N=0)                 | `BMI *+3 / JMP célérték` |
+| `LBVC`    | túlcsordulásmentes (V=0)    | `BVS *+3 / JMP célpont`  |
+| `LBVS`    | túlcsordulási készlet (V=1) | `BVC *+3 / JMP célpont`  |
 
 - Operandus: egy címke, egy `*`-kifejezés, vagy egy literál cím – ugyanaz, mint
   egy normál ágcélpontnál.
@@ -349,7 +349,7 @@ LBEQ done      ; assembles to:   BNE *+3   ($D0 $03)
 
 | Emlékezeterősítő | Leírás                    |
 | ---------------- | ------------------------- |
-| `TAX`            | A → X átvitel             |
+| `ADÓ`            | A → X átvitel             |
 | `TAY`            | Átvitel A → Y             |
 | `TXA`            | X → A átvitel             |
 | `TYA`            | Y → A átvitel             |
@@ -364,7 +364,7 @@ LBEQ done      ; assembles to:   BNE *+3   ($D0 $03)
 
 | Emlékezeterősítő    | Leírás                            |
 | ------------------- | --------------------------------- |
-| `ASL` | Számtani eltolás balra            |
+| `Amerikai jelnyelv` | Számtani eltolás balra            |
 | `LSR`               | Logikai eltolás jobbra            |
 | `ROL`               | Balra forgatás átvitellel         |
 | `ROR`               | Jobbra forgatás Carry-n keresztül |
@@ -389,7 +389,7 @@ LBEQ done      ; assembles to:   BNE *+3   ($D0 $03)
 | `SEC`            | Carry zászló beállítása                      |
 | `SED`            | Decimális mód beállítása                     |
 | `SEI`            | Megszakítás letiltásának beállítása          |
-| `NOP`           | Nincs művelet                                |
+| `NEM `           | Nincs művelet                                |
 | `BRK`            | Kényszermegszakítás / szoftveres megszakítás |
 
 ### Illegális / Nem dokumentált utasítások
@@ -414,7 +414,7 @@ mint beépített alprogramokra.
 
 ---
 
-
+### LABEL
 
 Mint egy ** sorszám a BASIC**-ben — de névvel a szám helyett. Ugrási célpontok a
 `JMP`, `JSR`, `BNE` stb. fájlokhoz.
@@ -437,7 +437,7 @@ Az aktuális cím megjegyzésként jelenik meg. A címkék mérete **0 bájt **.
 
 ---
 
-### LABEL
+### COMMENT
 
 Mint a BASIC**-ben szereplő **REM — egy megjegyzés magadnak, amit az assembler
 teljesen figyelmen kívül hagy.
@@ -454,7 +454,7 @@ teljesen figyelmen kívül hagy.
 
 ---
 
-### COMMENT
+### BYTE
 
 Mint az **DATA a BASIC**-ben — nyers bájtértékek listáját tárolja a programban.
 
@@ -488,7 +488,7 @@ ugyanezt a(z) `frame_1` címét. Hasznos ugrótáblák és címlisták létrehoz
 
 ---
 
-### BYTE
+### WORD
 
 Mint a BASIC **DATA függvénye, de 16 bites számokhoz **. Minden érték két
 bájtként tárolódik (először az alacsony bájt, majd a magasabb – 6502 kis-endián
@@ -512,7 +512,7 @@ sorrend).
 
 ---
 
-### WORD
+### FILL
 
 Mint például a `FOR I=1 TO N : POKE addr+I, val : NEXT` — egy memóriablokkot
 tölt ki ugyanazzal a bájttal, egyetlen sorban. Nagyszerű területek törlésére
@@ -538,21 +538,21 @@ literálokat, és meghívhatsz beépített matematikai függvényeket:
 
 | Kifejezés                   | Jelentés                               |
 | --------------------------- | -------------------------------------- |
-| `TILE_COUNT, $00`         | számlálás CONST-ból, hex literál érték |
+| `CSEMPE_SZÁMA, $00`         | számlálás CONST-ból, hex literál érték |
 | `40*25, 0`                  | soron belüli szorzás                   |
 | `round(sin(PI/4)*255), $80` | trigonometria                          |
 
 **Beépített függvények:** `sin()`, `cos()`, `round()`, `max(a,b)`, `min(a,b)`,
 `abs()`, konstans `PI`
 
-Operátorok: `+  -  *  /` Literálok: `$FF` (hex), `%10110000` (bináris)
-Alacsony/magas bájt: `lo(expr)`, `hi(expr)`
+Operátorok: `+ - * /` Literálok: `$FF` (hex), `%10110000` (bináris)
+Alacsony/magas bájt: `lo(kifejezés)`, `hi(kifejezés)`
 
 **Méret:** A számláló értéke bájtban.
 
 ---
 
-### FILL
+### ALIGN
 
 Nullákkal kiegészített bájtok beszúrásával az aktuális címet előrecsúsztatja a
 következő tiszta határra. A C64 megköveteli, hogy a sprite adatok 64 bájtos
@@ -580,7 +580,7 @@ határon kezdődjenek — az `ALIGN 64` ezt automatikusan kezeli.
 
 ---
 
-### ALIGN
+### TEXT
 
 A **PRINT AT** parancshoz hasonlóan — közvetlenül a C64 képernyőjére írja a
 szöveget egy adott oszlopba és sorba, a KERNAL használata nélkül. Karakterenként
@@ -592,7 +592,7 @@ egy LDA/STA párt generál, a képernyő RAM-ját a `$0400` tárolóhelyre célo
 | X                  | Oszlop (0–39)                                                   |
 | Y                  | Sor (0–24)                                                      |
 | Címke (opcionális) | Hozzárendel egy címkét, amely a kiszámított képernyőcímre mutat |
-| `lower`             | Opcionális jelző – lásd alább                                   |
+| `alsó`             | Opcionális jelző – lásd alább                                   |
 
 **Karakterkészlet módok:**
 
@@ -611,7 +611,7 @@ A C64 két karakterkészlettel rendelkezik, amelyek futásidőben választhatók
   megjelenítés. Futásidejű karakterkészlet-váltást igényel a képernyőre írás
   előtt (használd a **CHARSET lower** makrót).
 
-**Generált kód (nagybetűs mód, `"HELLO"`):**
+**Generált kód (nagybetűs mód, `"SZIA"`):**
 ```
     LDA #$08      ; 'H' screen code $08
     STA $0400
@@ -627,11 +627,11 @@ A C64 két karakterkészlettel rendelkezik, amelyek futásidőben választhatók
 ```
 
 A karakterek **képernyőkódként** vannak kódolva (nem PETSCII). **Méret:**
-`text.length × 5` bájt (LDA + STA karakterenként).
+`szöveghossz × 5` bájt (LDA + STA karakterenként).
 
 ---
 
-### TEXT
+### STRING
 
 Mint például egy ** karakterlánc beszúrása ** bármely memóriacímre futásidőben.
 LDA/STA párokat generál, amelyek minden karakter képernyőkódját egymást követő
@@ -643,7 +643,7 @@ címekre másolják.
 | Cím                | Cél memóriacím — `$C000` hex vagy egy **címkenév**                                   |
 | Címke (opcionális) | Hozzárendel egy címkét, amely a célcímre mutat                                       |
 | Váltás             | Hex érték (00–FF) hozzáadva minden képernyőkód bájthoz (pl. `$80` = fordított videó) |
-| `lower`             | Opcionális jelző – ugyanaz a szemantika, mint a TEXT-nél (lásd a TEXT részt)         |
+| `alsó`             | Opcionális jelző – ugyanaz a szemantika, mint a TEXT-nél (lásd a TEXT részt)         |
 
 **Szintaxis:**
 ```
@@ -669,7 +669,7 @@ A karaktereket **képernyőkódként** kódoljuk (nem PETSCII). Az opcionális
 
 ---
 
-### STRING
+### DATA
 
 Mint egy **POKE ciklus** — futásidőben egy nyers bájtok listáját írja ki egy
 memóriacímre, bájtonként egy LDA/STA párt.
@@ -696,15 +696,15 @@ memóriacímre, bájtonként egy LDA/STA párt.
     ...
 ```
 
-**Méret:** `byte_count × 5` bájt (egy LDA + egy STA bájtonként).
+**Méret:** `bájt_szám × 5` bájt (egy LDA + egy STA bájtonként).
 
-> **2.1:** a bájtok címkéket nevezhetnek el: `.data $2010, <target, >target` kiírja az
-> `target` címét, amely egy később definiált címke is. A makró `:name` címkéje
+> **2.1:** a bájtok címkéket nevezhetnek el: `.data $2010, <cél, >cél` kiírja az
+> `cél` címét, amely egy később definiált címke is. A makró `:név` címkéje
 > mutathat egy olyan célcímre, amely maga is egy címke.
 
 ---
 
-### DATA
+### RAWBYTES
 
 Mint az **DATA, ami közvetlenül a memóriába töltődik** – egyáltalán nincs
 futásidejű kód. A bájtok a PRG betöltésének pillanatától kezdve jelen vannak,
@@ -731,14 +731,14 @@ keresőtáblákhoz, bármihez, aminek csak egy adott címen kell lennie.
 > RAWBYTES közvetlenül elhelyezi a bájtokat – nincs kód, azonnal, nulla
 > költséggel.
 
-> **2.1:** a bájtok címkéket adhatnak meg (`.rawbytes $2000, <target, >target` —
+> **2.1:** a bájtok címkéket adhatnak meg (`.rawbytes $2000, <cél, >target` —
 > egy mutatótábla); az `:name` címke egy címkére, mint célcímre mutathat,
 > amelyet szintén később definiálunk. Makró puffer argumentumaként a bájtok a
 > program utáni pufferekben foglalják el a saját helyüket.
 
 ---
 
-### RAWBYTES
+### RAWTEXT
 
 Mint a RAWBYTES, de szöveg esetén — képernyőkódként kódolja a karakterláncot, és
 a bájtokat egy fix címre helyezi **futásidejű kód nélkül **. A szöveg a PRG
@@ -750,7 +750,7 @@ betöltése után azonnal készen áll a memóriában.
 | Cím                | Cél memóriacím — `$C000` hex vagy egy **címkenév**                                   |
 | Címke (opcionális) | Hozzárendel egy címkét, amely a célcímre mutat                                       |
 | Váltás             | Hex érték (00–FF) hozzáadva minden képernyőkód bájthoz (pl. `$80` = fordított videó) |
-| `lower`             | Opcionális jelző – ugyanaz a szemantika, mint a TEXT-nél (lásd a TEXT részt)         |
+| `alsó`             | Opcionális jelző – ugyanaz a szemantika, mint a TEXT-nél (lásd a TEXT részt)         |
 
 **Szintaxis:**
 ```
@@ -780,7 +780,7 @@ betöltése után azonnal készen áll a memóriában.
 
 ---
 
-### RAWTEXT
+### PETSCII
 
 Mint az **RAWBYTES, de a KERNAL kimenet esetében ** — PETSCII bájtként kódolja a
 karakterláncot (kompatibilis a CHROUT-tal a `$FFD2` címen), és fix címre helyezi
@@ -799,14 +799,14 @@ hogy az `.print` ugyanazt a kódolót és az `lower` flaget használja.
 | Szöveg             | PETSCII bájtként kódolandó karakterlánc            |
 | Cím                | Cél memóriacím — `$C000` hex vagy egy **címkenév** |
 | Címke (opcionális) | Hozzárendel egy címkét, amely a célcímre mutat     |
-| `lower`             | Opcionális jelző – lásd alább                      |
+| `alsó`             | Opcionális jelző – lásd alább                      |
 
 **Karakterkészlet módok:**
 
 | Mód                            | Nagybetűs bevitel (`A`–`Z`)                                                                                                      | Kisbetűs bevitel (`a`–`z`)         |
 | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
 | **Nagybetű (alapértelmezett)** | `$41`–`$5A` (PETSCII nagybetűs CHROUT-on keresztül)                                                                              | szintén leképezve a `$41`–`$5A`-re |
-| **Kisbetű (`lower`)**        | Az ábécé betűi át lettek képezve, így a látható kis- és nagybetűs karakterkészletben a kis- és nagybetűk változatlanok maradnak. | Ugyanaz a szabály                  |
+| **Kisbetű (`kisbetű`)**        | Az ábécé betűi át lettek képezve, így a látható kis- és nagybetűs karakterkészletben a kis- és nagybetűk változatlanok maradnak. | Ugyanaz a szabály                  |
 
 **Szintaxis:**
 ```
@@ -817,7 +817,7 @@ hogy az `.print` ugyanazt a kódolót és az `lower` flaget használja.
 .petscii $C000, "HELLO" :my_msg      ; with macroLabel
 ```
 
-**Generált bájtok (nagybetűvel, `"HELLO"`):**
+**Generált bájtok (nagybetűvel, `"SZIA"`):**
 ```
 ; $C000
     .byte $48, $45, $4C, $4C, $4F   ; H E L L O (PETSCII $41–$5A range)
@@ -857,7 +857,7 @@ done:
 
 ---
 
-### PETSCII
+### CHARSET
 
 Futásidőben a `$D018` 1. bitjének módosításával átkapcsolja a VIC-II karakter
 ROM-ot nagybetűs/grafikus mód (C64 alapértelmezett) és kisbetűs/nagybetűs mód
@@ -911,7 +911,7 @@ részét.
 
 ---
 
-### CHARSET
+### CHARDEF
 
 Egyetlen 8×8-as egyéni karaktert definiál egy RAM-alapú karakterkészletben.
 Beágyazott futásidejű kódot bocsát ki, amely végrehajtáskor 8 bájtot másol a
@@ -928,7 +928,7 @@ Beágyazott futásidejű kódot bocsát ki, amely végrehajtáskor 8 bájtot má
 .chardef $3800, 65, $18,$3C,$66,$7E,$66,$66,$66,$00
 ```
 
-**Generált kód (8 × `LDA #b` / `STA target+n`, összesen 40 bájt):**
+**Generált kód (8 × `LDA #b` / `STA célpont+n`, összesen 40 bájt):**
 ```
     LDA #$18
     STA $3A08
@@ -982,7 +982,7 @@ beépítve az STA operandusokba.
 
 ---
 
-### CHARDEF
+### BOX_HIT
 
 Tengelyhez igazított határolókeret (AABB) ütközési teszt két, 4 bájtos nulla
 oldalas struktúrákkal leírt téglalap között. Az eredményt az akkumulátorban adja
@@ -1080,7 +1080,7 @@ szükség van; az eredmény az `A` mappában található.
 
 ---
 
-### BOX_HIT
+### INCBIN
 
 Mint a BASIC**-ben található **BLOAD — kiválaszt egy külső bináris fájlt
 (`.bin`, `.prg`, `.sid`, `.raw`) és közvetlenül beágyazza az összeállított
@@ -1107,7 +1107,7 @@ címre van beágyazva.
 
 ---
 
-### INCBIN
+### KOALA
 
 Betölt egy **Koala Painter** képet (`.koa` / `.kla`, 160×200 többszínű) és
 megjeleníti. A képadatok egy fix címen vannak beágyazva, például `INCBIN` (a
@@ -1146,13 +1146,13 @@ fájlt exportál.
 
 ---
 
-### KOALA
+### LEVEL / LEVEL_ROW
 
 Egy **Level Editor** projektet helyez a programodba, és a pálya sorait egy
 képernyőpufferbe másolja – egy görgetős játék építőelemeit. A C64 Visual
 Assembler `level-demo.asm` példája egy komplett joystick-os görgetős pálya.
 
-### LEVEL / LEVEL_ROW
+#### LEVEL
 
 Egy INCBIN stílusú direktíva, amely **0 bájtnyi kódot bocsát ki**. Csak a Level
 Editor projekt **elt** képernyői (a C64 Visual Assembler Level Editorja által
@@ -1170,24 +1170,24 @@ képernyőn osztozik. A pointer táblák a képernyőket követik. Egy szint leg
 
 | Meghatározott                                                                        | Jelentés                                                                                                                                                             |
 | ------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `LEVEL_SLOT_LO` / `LEVEL_SLOT_HI`                                                     | A képernyő címe minden slotban (sor-fő, `LEVEL_W` slot soronként)                                                                                                    |
-| `LEVEL_ROW_SLOT`                                                                     | Szint karakter sor → a képernyő sorának első helye                                                                                                                   |
-| `LEVEL_ROW_LO/HI`, `LEVEL_CROW_LO/HI`                            | Szint karaktersor → a képernyőkód sorának / színsorának eltolása a képernyőn belül                                                                                   |
-| `LEVEL_COL_SLOT`, `LEVEL_COL_OFS`                                              | Nézet kezdő oszlopa → képernyő oszlop és a képernyőn belüli oszlop                                                                                                   |
-| `LEVEL_W`, `LEVEL_H`                                                             | Szintméret a képernyőkön                                                                                                                                             |
-| `LEVEL_COLS`, `LEVEL_ROWS`                                                        | Szintméret karakterekben                                                                                                                                             |
-| `LEVEL_MAX_X`, `LEVEL_MAX_Y`                                                         | 40×25-ös nézet legnagyobb görgetési pozíciója pixelenként                                                                                                            |
-| `LEVEL_BG`, `LEVEL_MC1`, `LEVEL_MC2`, `LEVEL_MULTICOLOR`                             | Háttér / többszínű színek és a szint módja                                                                                                                           |
-| `LEVEL_DATA`, `LEVEL_SIZE`, `LEVEL_END`                                          | Kezdő, méret és az első szabad cím a szintadatok után                                                                                                                |
-| `LEVEL_OBJ_X_LO/HI`, `LEVEL_OBJ_Y_LO/HI`, `LEVEL_OBJ_TYPE`, `LEVEL_OBJ_PARAM` | Objektumtábla (Level Editor objektumréteg): pozíció a szint pixeleiben, típusa és paraméter bájtja, görgetési sorrendben — `LEVEL_OBJ_COUNT` bejegyzés (maximum 255) |
+| `ALACSONY_SZINT` / `MAGAS_SZINT`                                                     | A képernyő címe minden slotban (sor-fő, `LEVEL_W` slot soronként)                                                                                                    |
+| `SZINT_SOR_HELY`                                                                     | Szint karakter sor → a képernyő sorának első helye                                                                                                                   |
+| `SZINT_SOR_ALACSONY/MAGAS`, `SZINT_VARÁZS_ALACSONY/MAGAS`                            | Szint karaktersor → a képernyőkód sorának / színsorának eltolása a képernyőn belül                                                                                   |
+| `SZINT_SZÍN_RÉSZ`, `SZINT_SZÍN_FELÜLET`                                              | Nézet kezdő oszlopa → képernyő oszlop és a képernyőn belüli oszlop                                                                                                   |
+| `SZINT_SZINT`, `SZINT_M`                                                             | Szintméret a képernyőkön                                                                                                                                             |
+| `SZINT_SZÉLEK`, `SZINT_SOROK`                                                        | Szintméret karakterekben                                                                                                                                             |
+| `SZINT_MAX_X`, `SZINT_MAX_Y`                                                         | 40×25-ös nézet legnagyobb görgetési pozíciója pixelenként                                                                                                            |
+| `SZINT_BG`, `SZINT_MC1`, `SZINT_MC2`, `SZINT_MULTICOLOR`                             | Háttér / többszínű színek és a szint módja                                                                                                                           |
+| `SZINT_ADATOK`, `SZINT_MÉRET`, `SZINT_VÉGE`                                          | Kezdő, méret és az első szabad cím a szintadatok után                                                                                                                |
+| `SZINT_OBJ_X_LO/MAGAS`, `SZINT_OBJ_Y_LO/MAGAS`, `SZINT_OBJ_TÍPUS`, `SZINT_OBJ_PARAM` | Objektumtábla (Level Editor objektumréteg): pozíció a szint pixeleiben, típusa és paraméter bájtja, görgetési sorrendben — `LEVEL_OBJ_COUNT` bejegyzés (maximum 255) |
 | `LEVEL_OBJ_T_START` … `LEVEL_OBJ_T_TRIGGER`                                          | Tárgytípus számok: START 0, ELLENSÉG 1, TÁRGY 2, AJTÓ 3, KIJÁRAT 4, RIASZTÓ 5                                                                                        |
 | `LEVEL_START_X`, `LEVEL_START_Y`                                                     | Az első Start objektum pozíciója (csak akkor van megadva, ha a szint rendelkezik ilyennel)                                                                           |
-| `LEVEL_ATTR`, `LEVEL_ATTR_SOLID` … `LEVEL_ATTR_COLLECT`                            | Karakter attribútumtáblázat (képernyőkódonként egy jelzőbájt; csak akkor, ha a szint rendelkezik attribútumokkal) és bitjei: 1, 2, 4, 8                              |
-| `LEVEL_BORDER`, `LEVEL_SCR_COLORS`, `LEVEL_SCR_BG/BORDER/MC1/MC2`                     | Szintszegély; slotonkénti színtáblázatok (soronkénti főbb értékek, mint például `LEVEL_SLOT_*`), ha a képernyőnek saját színei vannak (`LEVEL_SCR_COLORS` = 1)       |
+| `SZINT_ATTR`, `SZINT_ATTR_SZILÁRD` … `SZINT_ATTR_GYŰJTÉS`                            | Karakter attribútumtáblázat (képernyőkódonként egy jelzőbájt; csak akkor, ha a szint rendelkezik attribútumokkal) és bitjei: 1, 2, 4, 8                              |
+| `SZINT_SZEGÉLY`, `SZINT_SZÍNEK`, `SZINT_SZEGÉLY/SZEGÉLY/MC1/MC2`                     | Szintszegély; slotonkénti színtáblázatok (soronkénti főbb értékek, mint például `LEVEL_SLOT_*`), ha a képernyőnek saját színei vannak (`LEVEL_SCR_COLORS` = 1)       |
 
-Tipikus őr: `.assert LEVEL_END <= $9200, "level data runs into the code"`.
+Tipikus őr: `.assert LEVEL_END <= $9200, "szintadatok futnak a kódba"`.
 
-#### LEVEL
+#### LEVEL_ROW
 
 A szint egy 40 karakteres sorát egy pufferbe másolja: az **X** változóban lévő
 szint sorát, a `col` változóban lévő szint oszloptól kezdve, a `dst` mutatóban
@@ -1208,7 +1208,7 @@ ugrania rajta.
 
 ---
 
-#### LEVEL_ROW
+### SID
 
 Mint a **BLOAD a zenéhez** — betölt egy `.sid` fájlt a PRG-be, és automatikusan
 beolvassa az Init és Play címeket a fejlécből. Indításkor egyszer hívja meg az
@@ -1251,7 +1251,7 @@ késleltetett chunkként kerül a PRG-be.
 > **Tipikus használat:** Adj a SID-nek egy saját címet (`.sid "tune.sid",
 > $1000`), ha a natív címe ütközik a kódoddal. Indításkor hívd meg egyszer az
 > Init függvényt, majd hívd meg a Play minden képkockát egy raszteres IRQ
-> kezelőből — vagy hagyd, hogy a [SID_PLAYER](#sid-player) mindkettőt megtegye.
+> kezelőből — vagy hagyd, hogy a [SID_PLAYER](#sid_player) mindkettőt megtegye.
 
 **Címkék:** az SID direktíva definiálja az `SID_LOAD` (ahová az adatok
 kerülnek), az `SID_INIT` és az `SID_PLAY` címeket (az init és play címek, egy
@@ -1261,7 +1261,7 @@ pl. `JSR SID_PLAY` egy IRQ kezelőben.
 
 ---
 
-### SID
+### SID_PLAYER
 
 Egyetlen sorral játssza le az **SID** direktíva dallamát: inicializálja a
 dallamot és folyamatosan meghívja a lejátszási rutinját egy raszteres
@@ -1272,7 +1272,7 @@ megszakításból, így a program folytathatja a saját munkáját.
 | Dal     | Az A-ban lévő init rutinnak átadott alhangolási szám (alapértelmezett: `0`) |
 | Raszter | A megszakítás raszteres vonala, `$00`–`$FF` (alapértelmezett: `$FA`)        |
 
-Mit csinál: `SEI`, `LDA #song` / `JSR SID_INIT`, kikapcsolja a CIA1 időzítő
+Mit csinál: `SEI`, `LDA #dal` / `JSR SID_INIT`, kikapcsolja a CIA1 időzítő
 IRQ-ját (`$DC0D`), beállítja az IRQ vektort (`$0314/$0315`) a beépített
 kezelőjére, a raszter vonalat (`$D012`, a `$D011` 8. bitje törölve) és a raszter
 IRQ-t (`$D01A`), `CLI`, majd átugrik a kezelőn. A kezelő nyugtázza a
@@ -1295,7 +1295,7 @@ a KERNAL-hoz (`JMP $EA31`), amely szintén beolvassa a billentyűzetet.
 
 ---
 
-### SID_PLAYER
+### INCLUDE
 
 Mint a BASIC** **MERGE függvénye — behúz egy másik fájlt, és kibontja azt ezen a
 pozíción. Tökéletes az újrafelhasználható alprogramkönyvtárakhoz.
@@ -1354,7 +1354,7 @@ Két fájltípus támogatott:
 
 ---
 
-### INCLUDE
+### TABLE
 
 Mint az **DIM egy adott címen** — elnevezi a keresőtáblát, és meghatározza, hogy
 hol található a memóriában. Írjon utána `.byte`, `.word` vagy `.fill` sorokat a
@@ -1362,7 +1362,7 @@ tábla tartalmának meghatározásához.
 
 | Érv | Leírás                                           |
 | --- | ------------------------------------------------ |
-| Név | A tábla címkéjének azonosítója (pl. `color_table`) |
+| Név | A tábla címkéjének azonosítója (pl. `színtábla`) |
 | Cím | Fix cím, ahol a tábla kezdődik (pl. `$C000`)     |
 
 **Szintaxis:**
@@ -1383,7 +1383,7 @@ kezdődik. Írj utána `.byte` / `.word` / `.fill` sorokat a tartalom kitöltés
 
 ---
 
-### TABLE
+### ORG
 
 Beállítja, hogy a program (vagy annak egy része) hova kerüljön a memóriában –
 mintha egy kezdőcímet választanánk ki a gépi kód beírása előtt. Minden
@@ -1430,23 +1430,23 @@ loop:
 > (2049 decimális). A BASIC SYS csonkkal (alapértelmezett) az assembler egy
 > rövid `10 SYS…` sort helyez el a `$0801`-nél, és a kódod a `$080D`-nél
 > kezdődik. Lásd: [Kimenet: PRG, BASIC csonk és belépési
-> pont](#3-kimenet-prg-basic-stub-es-belepesi-pont).
+> pont](#3-output-prg-basic-stub-and-entry-point).
 
 ---
 
-### ORG
+### LOOP / NEXT
 
 Mint a BASIC-ben a **`FOR X=N TO 1 STEP -1 : ... : NEXT X`** — N-től 1-ig számol
 vissza az X vagy Y regiszter használatával. Írd az utasításaidat a LOOP és a
 NEXT közé, és a program automatikusan a megfelelő számú ciklust ismétli.
 
-### LOOP / NEXT
+#### LOOP
 
 | Érv           | Leírás                                                  |
 | ------------- | ------------------------------------------------------- |
 | Nyilvántartás | `X` vagy `Y` — a számlálóregiszter                      |
 | Gróf          | Ciklus iterációszám (hex vagy decimális, pl. `0A` = 10) |
-| Címke         | Automatikusan generált cikluscímke (pl. `loop0`)      |
+| Címke         | Automatikusan generált cikluscímke (pl. `ciklus0`)      |
 
 **Szintaxis:**
 ```
@@ -1461,7 +1461,7 @@ loop0:
 
 **Méret:** 2 bájt (LD_ opkód + azonnali operandus).
 
-#### LOOP
+#### NEXT
 
 | Érv           | Leírás                                        |
 | ------------- | --------------------------------------------- |
@@ -1493,13 +1493,13 @@ loop0:
 
 ---
 
-#### NEXT
+### FOR / ENDF
 
 Mint a BASIC-ben a **`FOR X=0 TO N-1 : ... : NEXT X`** — 0-tól *felfelé* számol.
 Ideális, ha előre mutató indexre van szükség, például egy karakterláncon vagy
 tömbön való lépéshez.
 
-### FOR / ENDF
+#### FOR
 
 | Érv           | Leírás                                                                      |
 | ------------- | --------------------------------------------------------------------------- |
@@ -1520,7 +1520,7 @@ for0:
 
 **Méret:** 2 bájt (LD_ opcode + `#$00`).
 
-#### FOR
+#### ENDF
 
 | Érv           | Leírás                                       |
 | ------------- | -------------------------------------------- |
@@ -1563,14 +1563,14 @@ done:
 
 ---
 
-#### ENDF
+### PUSH / PULL
 
 Mint az **változók mentése egy GOSUB előtt és visszaállítása után ** — de a 6502
 hardververmet használja. Ha egy alprogram A, X vagy Y értékeket használ, akkor
 PUSH és PULL utasításokkal kell becsomagolni, hogy a hívó kód regiszterei
 megmaradjanak.
 
-### PUSH / PULL
+#### PUSH
 
 Egy vagy több regisztert helyez a verembe. A sorrend mindig A → X → Y (a
 legbelső először).
@@ -1593,7 +1593,7 @@ legbelső először).
 
 **Méret:** 1 bájt A-nak (`PHA`), 2 bájt X-nek vagy Y-nak (átvitel + push).
 
-#### PUSH
+#### PULL
 
 Visszaállítja a regisztereket a veremből ** fordított sorrendben ** (Y → X → A).
 
@@ -1619,7 +1619,7 @@ Visszaállítja a regisztereket a veremből ** fordított sorrendben ** (Y → X
 
 ---
 
-#### PULL
+### END / RTS alias
 
 Az **RTS-hez hasonlóan, egy barátságosabb makrónévvel ** — az `.end` egyetlen
 `RTS` bájtot bocsát ki, egy rövid alprogram terminátort.
@@ -1641,14 +1641,14 @@ makróként, mint nyers utasításként olvasható.
 
 ---
 
-### END / RTS alias
+### MACRO / ENDM / INVOKE
 
 Mint egy ** nevű GOSUB, paraméterekkel ** — definiáljon egyszer egy
 újrafelhasználható kódrészletet (MACRO…ENDM), majd hívja meg bárhol az INVOKE
 paranccsal. Minden alkalommal más argumentumértékeket adjon át a kód
 másolása-beillesztése helyett.
 
-### MACRO / ENDM / INVOKE
+#### MACRO (definition start)
 
 | Érv         | Leírás                                                                             |
 | ----------- | ---------------------------------------------------------------------------------- |
@@ -1657,14 +1657,15 @@ másolása-beillesztése helyett.
 
 A makródefiníció kezdetét jelzi. A MACRO és az ENDM közötti sorok a makró
 törzsét alkotják. Egy paraméterekkel rendelkező makró ** nem generál kódot**,
-ahol a definíció található; egy paraméter nélküli makró is ott áll össze
-alprogramként (`JSR name` hívja): a program folyása átugorja, a végére pedig `RTS`
-kerül. A fix címre include-olt könyvtárban az ilyen makró szintén `RTS`-t kap. A törzsben egy paraméter `{paramName}` formában
-vagy a saját neveként szerepel; a hívás kitölti az argumentumot – az
-utasításoperandusokban és a könyvtármakrók argumentumában egyaránt (`.set_border
+ahol a definíció található; egy paraméterek nélküli makró is oda kerül
+összeállításra alprogramként (`JSR névvel ` hívják): a programfolyamat átugrik
+rajta, és egy `RTS` kerül a végére. Egy fix címen található könyvtárban egy
+ilyen makró az `RTS` címet is megkapja. A törzsben egy paraméter `{paramName}`
+formában vagy a saját neveként szerepel; A hívás kitölti az argumentumot – mind
+az utasításoperandusokban, mind a könyvtármakrók argumentumában (`.set_border
 c`, `.sprite_pos n, x, y` …). A törzs címkéi, LOOP címkéi és futásidejű `.if` /
-`.while` címkéi hívásonként egyediek. Egy makró törzsén belüli makróhívás nem
-lesz kibontva (hiba).
+`.while` címkéi hívásonként egyediek. A makróhívás a makrótörzsön belül nem
+bővül ki (hiba).
 
 **Generált kód:**
 ```
@@ -1681,11 +1682,11 @@ lesz kibontva (hiba).
 .endm
 ```
 
-#### MACRO (definition start)
+#### ENDM (definition end)
 
 Bezárja az aktuális makródefiníciót. Nincsenek argumentumok.
 
-#### ENDM (definition end)
+#### INVOKE
 
 Meghív egy definiált makrót ezen a pozíción, és a megadott argumentumértékeket
 helyettesíti a törzsben lévő `{paramName}` helyőrzők helyére.
@@ -1744,7 +1745,7 @@ setColor #$07`) is elfogadott.
 
 ---
 
-#### INVOKE
+### REGION / ENDREGION
 
 Pusztán egy csoportosítás szerkesztők és listázások számára — **nulla bájt**,
 nulla hatás az összeállított kódra.
@@ -1776,14 +1777,14 @@ nulla hatás az összeállított kódra.
 
 ---
 
-### REGION / ENDREGION
+### DEFINE / IF / ELSE / ENDIF
 
 Mint egy ** kapcsoló, az assembler a következőt olvassa: ** — `DEFINE DEBUG`
 bekapcsol egy szimbólumot, majd bármely `IF DEBUG` sorai assemblerre kerülnek,
 és az `ELSE` ág kimarad. A DEFINE eltávolításával az IF rész eltűnik a
 kimenetből. A kiadott buildekhez nem kell kódot törölni.
 
-### DEFINE / IF / ELSE / ENDIF
+#### DEFINE
 
 | Érv       | Leírás                                                                                         |
 | --------- | ---------------------------------------------------------------------------------------------- |
@@ -1803,10 +1804,10 @@ kimenetből. A kiadott buildekhez nem kell kódot törölni.
 Egy `DEFINE` egyszerre több szimbólumot is aktiválhat (vesszővel elválasztva).
 Írd a DEFINE-okat a programod elejére.
 
-#### DEFINE
+#### IF
 
-| Érv     | Leírás                                                                                                                              |
-| ------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Érv     | Leírás                                                                                                                          |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------- |
 | Állapot | Egy `.define`d szimbólum (aktív), egy `.const` név (aktív, ha nem nulla) vagy egy konstans kifejezés (`LEVEL == 2`, `MODE & 1`) |
 
 **Szintaxis:**
@@ -1826,7 +1827,7 @@ amelyik nem értékelhető ki összeszerelési időben, hibát jelent. A kihagyo
 sorok `; [IF skipped] …` megjegyzésként jelennek meg, és **nulla bájtot**
 generálnak.
 
-#### IF
+#### ELSE
 
 Nincsenek argumentumok. Az alternatív ágat jelöli — akkor állítódik össze,
 amikor az `IF` feltétel *not* aktív.
@@ -1841,7 +1842,7 @@ amikor az `IF` feltétel *not* aktív.
 ; .ELSE
 ```
 
-#### ELSE
+#### ENDIF
 
 Nincsenek argumentumok. Lezárja a feltételes részt.
 
@@ -1889,17 +1890,17 @@ belsők is kimaradnak.
 > összehasonlításhoz/elágazáshoz lásd a **Futásidejű IF / ELSE / ENDIF** részt
 > alább.
 
-#### ENDIF
+### .ASSERT
 
 Egy **fordítási idejű épségellenőrzés**.`.assert` kiértékel egy kifejezést az
 összeszerelés során; ha az hamis (`0`), a fordítás egy tiszta hibával leáll,
 amely tartalmazza a tényleges értéket. Ha igaz (nem nulla), akkor semmit nem
 bocsát ki.
 
-| Érv       | Leírás                                                                                                                                                          |
-| --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Érv       | Leírás                                                                                                                                              |
+| --------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Kifejezés | Bármely assembler kifejezés: címkék, `CONST`s, `*` (programszámláló), aritmetikai műveletek és összehasonlítások (`<`, `<=`, `>`, `>=`, `==`, `!=`) |
-| Üzenet    | A hibaüzenethez hozzáfűzött opcionális szöveg                                                                                                                   |
+| Üzenet    | A hibaüzenethez hozzáfűzött opcionális szöveg                                                                                                       |
 
 **Szintaxis:**
 ```
@@ -1933,7 +1934,7 @@ sprite_data_end:
 
 ---
 
-### .ASSERT
+### CONST
 
 Mint egy ** nevű változó, ami sosem változik** — `SCREEN = $0400`. Használd a
 nevet a nyers címek begépelése helyett, így a kód könnyebben olvasható és később
@@ -1969,7 +1970,7 @@ LDA #$00            ; $00 will be patched at runtime
 STA op              ; overwrites the #$00 byte → LDA reads the new value next time
 ```
 
-A CONST 0 bájtot bocsát ki; a címke fordítási időben `current_address + 1`-re van
+A CONST 0 bájtot bocsát ki; a címke fordítási időben `aktuális_cím + 1`-re van
 feloldva.
 
 **Számtani kifejezések:**
@@ -1989,14 +1990,14 @@ függvényekre való hivatkozásokat is:
 **Beépített függvények:** `sin()`, `cos()`, `round()`, `max(a,b)`, `min(a,b)`,
 `abs()`, konstans `PI`
 
-Operátorok: `+  -  *  /` Literálok: `$FF` (hex), `%10110000` (bináris)
-Alacsony/magas bájt: `lo(expr)`, `hi(expr)`
+Operátorok: `+ - * /` Literálok: `$FF` (hex), `%10110000` (bináris)
+Alacsony/magas bájt: `lo(kifejezés)`, `hi(kifejezés)`
 
 **Méret:** 0 bájt.
 
 ---
 
-### CONST
+### VAR
 
 Mint az **CONST, de automatikusan lefoglalt** — Az `VAR` lefoglalja a nulla
 oldalas tárhelyet egy címkének anélkül, hogy be kellene gépelni a címet.
@@ -2039,17 +2040,17 @@ van egy már használt címkével, a fordító figyelmeztetést ad.
 
 ---
 
-### VAR
+### Runtime IF / ELSE / ENDIF
 
 Mint egy **egy igazi elágazási sablon** — ez a verzió futásidőben működik, nem
 fordítási időben. Összehasonlítja az `A`, `X` vagy `Y` értékeket egy azonnali
 értékkel, és kiadja a helyes `CMP` / `CPX` / `CPY` + elágazási szekvenciát.
 
-| Érv           | Leírás                                       |
-| ------------- | -------------------------------------------- |
-| Nyilvántartás | `A`, `X` vagy `Y`                            |
-| Operátor      | `==`, `!=`, `<`, `<=`, `>`, `>=` |
-| Érték         | Azonnali érték HEX vagy DEC formátumban      |
+| Érv           | Leírás                                  |
+| ------------- | --------------------------------------- |
+| Nyilvántartás | `A`, `X` vagy `Y`                       |
+| Operátor      | `==`, `!=`, `<`, `<=`, `>`, `>=`        |
+| Érték         | Azonnali érték HEX vagy DEC formátumban |
 
 **Szintaxis:**
 ```
@@ -2062,22 +2063,22 @@ fordítási időben. Összehasonlítja az `A`, `X` vagy `Y` értékeket egy azon
 
 **Méret:** A kiválasztott ágaktól és az összehasonlítási űrlaptól függ.
 
-Az összehasonlítás alapértelmezés szerint előjel nélküli. Az `<=` és az
-`>` esetén a makró a kiválasztott regiszterhez tartozó legrövidebb ekvivalens
+Az összehasonlítás alapértelmezés szerint előjel nélküli. Az `<=` és az `>`
+esetén a makró a kiválasztott regiszterhez tartozó legrövidebb ekvivalens
 elágazási láncra bővül.
 
 ---
 
-### Runtime IF / ELSE / ENDIF
+### WHILE / ENDW
 
 Mint egy **futásidejű ciklus tetején egy teszttel** — a törzs addig fut, amíg a
 feltétel igaz marad.
 
-| Érv           | Leírás                                       |
-| ------------- | -------------------------------------------- |
-| Nyilvántartás | `A`, `X` vagy `Y`                            |
-| Operátor      | `==`, `!=`, `<`, `<=`, `>`, `>=` |
-| Érték         | Azonnali érték HEX vagy DEC formátumban      |
+| Érv           | Leírás                                  |
+| ------------- | --------------------------------------- |
+| Nyilvántartás | `A`, `X` vagy `Y`                       |
+| Operátor      | `==`, `!=`, `<`, `<=`, `>`, `>=`        |
+| Érték         | Azonnali érték HEX vagy DEC formátumban |
 
 **Szintaxis:**
 ```
@@ -2094,16 +2095,16 @@ megfelelője.
 
 ---
 
-### WHILE / ENDW
+### REPEAT / UNTIL
 
 Mint egy **futásidejű ciklus alul egy teszttel** — a törzs mindig lefut legalább
 egyszer, majd a feltétel eldönti, hogy leálljon-e.
 
-| Érv           | Leírás                                       |
-| ------------- | -------------------------------------------- |
-| Nyilvántartás | `A`, `X` vagy `Y`                            |
-| Operátor      | `==`, `!=`, `<`, `<=`, `>`, `>=` |
-| Érték         | Azonnali érték HEX vagy DEC formátumban      |
+| Érv           | Leírás                                  |
+| ------------- | --------------------------------------- |
+| Nyilvántartás | `A`, `X` vagy `Y`                       |
+| Operátor      | `==`, `!=`, `<`, `<=`, `>`, `>=`        |
+| Érték         | Azonnali érték HEX vagy DEC formátumban |
 
 **Szintaxis:**
 ```
@@ -2119,7 +2120,7 @@ egyszer lefusson a kilépési ellenőrzés előtt.
 
 ---
 
-### REPEAT / UNTIL
+### MEMCPY / MEMSET
 
 Mint a(z) **kis memóriarutinok, amelyekhez folyamatosan nyúlsz** — a(z) `MEMCPY`
 egy összefüggő blokkot másol, a(z) `MEMSET` pedig egy tartományt tölt ki
@@ -2127,8 +2128,8 @@ egyetlen bájttal.
 
 | Makró    | érvek                    |
 | -------- | ------------------------ |
-| `MEMCPY` | `src`, `dst`, `size` |
-| `MEMSET` | `addr`, `value`, `size`  |
+| `MEMCPY` | `forrás`, `dst`, `méret` |
+| `MEMSET` | `cím`, `érték`, `méret`  |
 
 **Szintaxis:**
 ```
@@ -2148,9 +2149,9 @@ méretek esetén automatikusan 16 bites számlálóra váltanak.
 
 ---
 
-### MEMCPY / MEMSET
-
 ### PRINT / PRINT_CHAR / PRINT_HEX / CLEAR_SCREEN / WAIT_KEY / DELAY / SET_BORDER / SET_BG
+
+#### PRINT
 
 Mint a **PETSCII kimenet a sablon nélkül** — egy karakterláncot nyomtat ki a
 `CHROUT` függvénnyel ugyanazzal a nagybetűs/kisbetűs kezeléssel (`lower`), mint
@@ -2162,7 +2163,7 @@ a `.petscii`.
 .print "hello", lower
 ```
 
-#### PRINT
+#### PRINT_CHAR
 
 Kiír egy PETSCII bájtot numerikus kódként, és elküldi azt a `CHROUT` metóduson
 keresztül. Az érték lehet egy elnevezett konstans vagy címke is, amely
@@ -2175,7 +2176,7 @@ keresztül. Az érték lehet egy elnevezett konstans vagy címke is, amely
 .print_char color
 ```
 
-#### PRINT_CHAR
+#### PRINT_HEX
 
 Egy 8 bites értéket nyomtat ki hexadecimális szövegként a normál KERNAL kimeneti
 útvonalon keresztül.
@@ -2185,7 +2186,7 @@ Egy 8 bites értéket nyomtat ki hexadecimális szövegként a normál KERNAL ki
 .print_hex A
 ```
 
-#### PRINT_HEX
+#### CLEAR_SCREEN
 
 A szabványos C64 képernyős vezérlőkód gyorsbillentyűje.
 
@@ -2194,7 +2195,7 @@ A szabványos C64 képernyős vezérlőkód gyorsbillentyűje.
 .clear_screen
 ```
 
-#### CLEAR_SCREEN
+#### WAIT_KEY
 
 Megvárja, amíg lenyomnak egy billentyűt, így nem kell minden alkalommal kézzel
 futtatni a `GETIN` ciklust.
@@ -2204,7 +2205,7 @@ futtatni a `GETIN` ciklust.
 .wait_key
 ```
 
-#### WAIT_KEY
+#### DELAY
 
 Egy megosztott segítőrutinon keresztül megvárja a kért számú képkockát. Ezt
 rövid szünetekhez és időzítési hézagokhoz használjuk, amikor egy teljes egyéni
@@ -2218,7 +2219,7 @@ konstans, és az `.wait` csak az `.delay` álneve.
 .delay frames=FRAMES_1S
 ```
 
-#### DELAY
+#### SET_BORDER / SET_BG
 
 Kényelmi burkolók a VIC-II színregiszterekhez. A színérték lehet nyers szám vagy
 egy elnevezett konstans, amely 0–15-re oldódik fel.
@@ -2236,7 +2237,7 @@ KERNAL hívássá bővül.
 
 ---
 
-#### SET_BORDER / SET_BG
+### IRQ_SETUP
 
 Egyetlen lépésben beállít egy raszteres IRQ kezelőt. A makró kiírja az IRQ
 vektort, engedélyezi a raszteres IRQ-kat, beállítja a vonalat, letiltja a
@@ -2261,7 +2262,7 @@ CLI" sablont szeretnéd használni anélkül, hogy szétszórnád a programban.
 
 ---
 
-### IRQ_SETUP
+### RAND
 
 Mint egy apró, beépített PRNG, az ** — egy 8 bites pszeudovéletlenszerű értéket
 ad vissza egy kompakt nulla oldalas kezdőértékből.
@@ -2283,7 +2284,7 @@ Szándékosan kicsi, nem pedig kriptográfiailag bonyolult.
 ---
 
 <a id="sprite_init"></a>
-### RAND
+### SPRITE_INIT
 
 Beállít egy VIC-II sprite-ot egyetlen sorban — a BASIC-ben körülbelül 6 POKE
 utasítás írása helyett. Beállítja a sprite adatmutatóját, bekapcsolja azt,
@@ -2319,14 +2320,14 @@ opcionálisan engedélyezi a többszínű módot, és beállítja a színét.
 
 **Méret:** 26 bájt.
 
-> **Sprite adatlap:** `data_address ÷ 64`. Az alapértelmezett BASIC SYS csonkkal, az
+> **Sprite adatlap:** `adat_cím ÷ 64`. Az alapértelmezett BASIC SYS csonkkal, az
 > `ALIGN 64` parancs a `JMP main` után a sprite adatokat az `$0840` helyre
 > helyezi → oldal = `$21`.
 
 ---
 
 <a id="sprite_pos"></a>
-### SPRITE_INIT
+### SPRITE_POS
 
 Mint a BASIC-ben a **`POKE 53248, x : POKE 53249, y`** — beállítja egy sprite
 kezdőpozícióját. A koordináták az összeszereléskor kerülnek beillesztésre és
@@ -2367,7 +2368,7 @@ hogy törölné azt.
 ---
 
 <a id="wait_raster"></a>
-### SPRITE_POS
+### WAIT_RASTER
 
 Megvárja, amíg a VIC-II elektronnyaláb eléri a megadott pásztázási vonalat –
 mintha egy tévéképernyő képkockájához szinkronizálna. Tedd ezt a játék
@@ -2398,7 +2399,7 @@ wait:
 
 ---
 
-### WAIT_RASTER
+### JOYSTICK
 
 Mintha a **`PEEK($DC00)`** parancsot olvasná be, majd a sprite pozícióját
 POKE-olná – de egy sorban. Egy CIA joystick portot olvas be, és ennek
@@ -2454,7 +2455,7 @@ irányt változókba írjuk: `vx` / `vy` = `-1` / `0` / `+1` (`$FF` / `$00` /
 `$01`), és az opcionális `fire` = `1`, miközben a gomb le van nyomva, `0`
 egyébként. Használd görgetős kamerához, saját fizikával rendelkező lejátszóhoz
 vagy menükhöz. A `3` port egyszerre olvassa mindkét joystick portot (`LDA $DC00`
-/ `AND $DC01`), így bármelyik port működik.
+/ `ÉS $DC01`), így bármelyik port működik.
 
 ```
 .joystick 2, vx, vy          ; 35 bytes
@@ -2477,7 +2478,7 @@ vagy menükhöz. A `3` port egyszerre olvassa mindkét joystick portot (`LDA $DC
 > **2.1:** a portot ismerni kell a kód írásakor (egy szám vagy egy konstans),
 > mivel a 3-as port 3 bájttal hosszabbá teszi a kódot; egy később definiált
 > címke hibát jelent.
-### JOYSTICK
+### MOUSE
 
 Commodore 1351 proporcionális egér adatait olvassa és egy sprite-ot mozgat.
 Teljesen **inline** — nincs szükség JSR-re vagy címkére. A makró kiválasztja a
@@ -2602,7 +2603,7 @@ ydone:
 ---
 
 <a id="sprite_col"></a>
-### MOUSE
+### SPRITE_COL
 
 Mint a BASIC-ben lévő **`PEEK($D01E)`** — ellenőrzi a VIC-II hardveres ütközési
 regisztereket, és megmondja, hogy egy sprite egy másik sprite-ba vagy a háttérbe
@@ -2648,20 +2649,20 @@ no_hit:
     JMP gameloop
 ```
 
-> **Lásd még:** `collision-demo` példa — zöld golyó (sprite #0) vs. piros kereszt
+> **Lásd még:** `ütközés-demó` példa — zöld golyó (sprite #0) vs. piros kereszt
 > (sprite #1).
 
 ---
 
-### SPRITE_COL
+### LOADFILE
 
-Mint a BASIC-ben a **`LOAD "file",8`** — futásidőben betölt egy fájlt egy D64
+Mint a BASIC-ben a **`LOAD "fájl",8`** — futásidőben betölt egy fájlt egy D64
 lemezről a KERNAL LOAD rutin használatával. Ezzel adatokat, zenét vagy extra
 kódot tölthet be lemezről a program futása közben.
 
 | Érv                         | Leírás                                                                                                                                                                                                                  |
 | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Fájlnév                     | Fájlnév a lemezen (maximum 16 karakter, automatikus nagybetűs írásmód; a következő karakterek szűrve: `,`, `"`, `/`, `\`, `:`, `*`, `?`, `<`, `>`, `\|`)                                                           |
+| Fájlnév                     | Fájlnév a lemezen (maximum 16 karakter, automatikus nagybetűs írásmód; a következő karakterek szűrve: `,`, `"`, `/`, `\`, `:`, `*`, `?`, `<`, `>`, `|`)                                                                 |
 | Eszköz                      | Eszközszám 8–30 (alapértelmezett: `8`)                                                                                                                                                                                  |
 | Cím felülírása (opcionális) | Hex betöltési cím (pl. `C000`). Ha be van állítva, a fájl erre a címre töltődik be (`sec=0`, figyelmen kívül hagyva a PRG fejlécet). Hagyja üresen, ha a fájl saját 2 bájtos PRG fejlécét szeretné használni (`sec=1`). |
 | Hibacímke (opcionális)      | Ha be van állítva, a JSR LOAD után egy `BCS` utasítás generálódik. Ha a KERNAL carry set (hiba) értékkel tér vissza, a végrehajtás erre a címkére ugrik.                                                                |
@@ -2707,7 +2708,7 @@ esetén) + 5 (BETÖLTÉS) + (2 hibacímke esetén)` bájt. Minimum 27 bájt.
 
 ---
 
-### LOADFILE
+### EXODECRUNCH
 
 Programon belüli **Exomizer kicsomagolás**. Ezt a makrót közvetlenül egy
 `LOADFILE` után használjuk, amely egy Exomizer `mem` módú tömörített
@@ -2768,7 +2769,7 @@ kezdve, pontosan a beírt címre ír.
 
 ---
 
-### EXODECRUNCH
+### REU_CHECK
 
 Észleli, hogy van-e Commodore RAM bővítőegység (REU) csatlakoztatva – mintha a
 `PEEK($D010)` regisztert ellenőrizné a hardver meglétének megállapítására. Két
@@ -2823,7 +2824,7 @@ no_reu:
 
 ---
 
-### REU_CHECK
+### REU_STASH / REU_FETCH / REU_SWAP
 
 DMA blokkátvitel C64 RAM és REU bővítőmemória között – mint egy nagyon gyors
 POKE ciklus, de a CPU nem végez semmilyen munkát (a REU chip másolja az
@@ -2872,7 +2873,7 @@ LDA #cmd      STA $DF01    ; execute DMA ($90/$91/$92 = stash/fetch/swap, immedi
 
 ---
 
-### REU_STASH / REU_FETCH / REU_SWAP
+### TURBO_SET
 
 Beállítja az **Ultimate-64 (U64) CPU sebességét** a `$D031` regiszteren
 keresztül. Nincs hatással egy valódi C64-re vagy más emulátorokra.
@@ -2884,8 +2885,8 @@ keresztül. Nincs hatással egy valódi C64-re vagy más emulátorokra.
 | Sebesség    | CPU sebességindex    | 0 = 1 MHz … 7 ≈ 10 MHz … 15 ≈ 48 MHz                 |
 | Rossz vonal | Rossz vonal emuláció | Engedélyezett (C64 kompatibilis) / Letiltott (turbó) |
 
-A sebességbájt kiszámítása a következőképpen történik: `(speedIndex & 0x0F)
-| (badline_disabled ? 0x80 : 0x00)`.
+A sebességbájt kiszámítása a következőképpen történik: `(speedIndex & 0x0F) |
+(badline_disabled ? 0x80 : 0x00)`.
 
 **Generált kód (5 bájt):**
 ```
@@ -2905,7 +2906,7 @@ A9 xx   LDA #speed_byte
 
 ---
 
-### TURBO_SET
+### SUPERCPU_DETECT
 
 Ellenőrzi, hogy van-e telepítve **CMD SuperCPU** gyorsító — például
 `PEEK($D0B8)` —, hogy a `$FF`-től eltérő értéket ad-e vissza.
@@ -2937,7 +2938,7 @@ no_scpu:
 
 ---
 
-### SUPERCPU_DETECT
+### TURBO_ENABLE
 
 Be- vagy kikapcsolja a(z) **CMD SuperCPU turbó módot**. Először hívja meg a(z)
 `SUPERCPU_DETECT` függvényt, és hagyja ki ezt, ha a SuperCPU nincs jelen.
@@ -2965,7 +2966,7 @@ A9 00         LDA #$00
 ---
 
 <a id="map_copy"></a>
-### TURBO_ENABLE
+### MAP_COPY
 
 Egy forráscímről egy tilemap-et másol a képernyő RAM-ba (és opcionálisan a szín
 RAM-ba) `LDA abs,X` / `STA abs,X` ciklusok sorozatát használva. Ciklusonként egy
@@ -3002,9 +3003,8 @@ paranccsal állítja le. Nincs szükség JSR-re — az összes kód inline gener
     BNE *-11
 ```
 
-**Méret:** `2 (LDX) + fullPages×9 + (rem > 0 ? 11 : 0)` bájt
-szakaszonként. Kombinált módban ez megduplázódik (képernyőszakasz + azonos színű
-szakasz).
+**Méret:** `2 (LDX) + teljesOldalak×9 + (rem > 0 ? 11 : 0)` bájt szakaszonként.
+Kombinált módban ez megduplázódik (képernyőszakasz + azonos színű szakasz).
 
 **Párosítás a Térképszerkesztővel:**
 
@@ -3030,7 +3030,7 @@ színforrás pedig `auto`, és a forráscím, ahová ez a fájl betöltődik (pl
 ---
 
 <a id="map_copy16x16"></a>
-### MAP_COPY
+### MAP_COPY16X16
 
 Egy 16×16 karakteres területet másol ki egy kompakt, 256 bájtos
 képernyőkód-blokkból, plusz egy hozzá illő 256 bájtos színes RAM-blokkot.
@@ -3042,9 +3042,9 @@ különálló MAP_COPY sor írása zajos lenne.
 | Adat                   | Alapértelmezett cím        |
 | ---------------------- | -------------------------- |
 | 16×16-os képernyőkódok | Forráscím (`src`)          |
-| 16×16 színértékek      | `src + 256`             |
-| Képernyő RAM célhelye  | `$0400 + row×40 + col` |
-| Színes RAM célhely     | `$D800 + row×40 + col`  |
+| 16×16 színértékek      | `forrás + 256`             |
+| Képernyő RAM célhelye  | `0400 $ + sor×40 + oszlop` |
+| Színes RAM célhely     | `$D800 + sor×40 + oszlop`  |
 
 **Szintaxis:**
 ```
@@ -3087,11 +3087,11 @@ loop:
 ---
 
 <a id="sprite_anim"></a>
-### MAP_COPY16X16
+### SPRITE_ANIM
 
 Minden híváskor egy sprite animációs képkockát léptet előre, és frissíti a
 VIC-II sprite adatmutatót. Képkockánként egy bájtot tároljon egy táblázatban (a
-sprite adatlap száma = `data_address / 64`), mutasson rá a SPRITE_ANIM-mel, és
+sprite adatlap száma = `adat_cím / 64`), mutasson rá a SPRITE_ANIM-mel, és
 játékkockánként egyszer hívja meg – nincs szükség JSR-re.
 
 | Érv             | Leírás                                                                                       |
@@ -3142,7 +3142,7 @@ gameloop:
 ---
 
 <a id="score_bcd"></a>
-### SPRITE_ANIM
+### SCORE_BCD
 
 Hozzáad egy fixpontos értéket egy memóriában tárolt többbájtos BCD-pontszámhoz,
 majd minden számjegyet képernyőkód karakterként jelenít meg a képernyő RAM-ban.
@@ -3196,7 +3196,7 @@ digit_loop:
     BNE digit_loop
 ```
 
-**Méret:** `3 + digits×8` bájt (SED + CLC + CLD többletterhelés + 8 bájt BCD
+**Méret:** `3 + számjegy×8` bájt (SED + CLC + CLD többletterhelés + 8 bájt BCD
 bájtonként az ADC + kijelzőhurok számára).
 
 **Szintaxis:**
@@ -3209,7 +3209,7 @@ bájtonként az ADC + kijelzőhurok számára).
 > ROM-ban. A képernyőcímnek a bal szélső számjegy cellára kell mutatnia; a
 > számjegyeket balról jobbra kell írni (a leghelyesebb bájttal kezdve).
 
-> **BCD tartomány:** `digits=4` bájt → 8 decimális számjegy → maximális
+> **BCD tartomány:** `számjegyek=4` bájt → 8 decimális számjegy → maximális
 > pontszám 99 999 999. Minden bájt két BCD számjegyet kódol: `$00`–`$99`.
 
 ---
@@ -3226,11 +3226,11 @@ forráskód gyakran úgy fordul elő, ahogy van:
   címen (vagy annak közelében).
 - `.macro name(p1, p2) { … }` — egy makró törzs zárójelben, a `.macro … .endm`;
   `:name(args)` és `name(args)` függvények mellett.
-- `name: { … }` hatókörök: a bennük lévő címkék lokálisak a `name` számára
-  (`name.label` kívülről).
+- `név: { … }` hatókörök: a bennük lévő címkék lokálisak a `név` számára
+  (`név.label` kívülről).
 - Az `@label` címkék megtartják az `@` értéküket.
 - Az `.text "…"` képernyő-koordináták nélkül tárolja a kódolt bájtokat, például
-  `.byte`. Több elem összekapcsolható `,` vagy `+` karakterekkel: `"…"`, `@"…"`
+  `.byte`. Több elem összekapcsolható `, ` vagy `+` karakterekkel: `"…"`, `@"…"`
   escape karakterekkel `\n` `\r` `\t` `\$NN`, és `$NN` / decimális bájt. Az
   `.encoding "name"` paraméter a következő `.text` sorok kódolását választja ki:
   `screencode_mixed` (alapértelmezett), `screencode_upper`, `petscii_mixed`,
@@ -3258,25 +3258,25 @@ vma --version
 
 | Opció                  | Jelentés                                                                                                                                                                                                                          |
 | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `-o FILE`              | Az írandó PRG (alapértelmezett: a bemenet `.prg` kiterjesztéssel)                                                                                                                                                                 |
-| `--base-dir DIR`  | Ahol a `.incbin` / `.koala` / `.level` / `.sid` / `.include` fájlokat keresi ki először (alapértelmezett: a bemenet mappája)                                                                                                      |
-| `--search DIR`  | Egy további mappa, amelyben keresni kell, az alapkönyvtár után (ismétlődően, sorrendben); egy másik gépen írt elérési út a saját fájlnevére vezethető vissza.                                                                     |
+| `-o FÁJL`              | Az írandó PRG (alapértelmezett: a bemenet `.prg` kiterjesztéssel)                                                                                                                                                                 |
+| `--alap-könyvtár DIR`  | Ahol a `.incbin` / `.koala` / `.level` / `.sid` / `.include` fájlokat keresi ki először (alapértelmezett: a bemenet mappája)                                                                                                      |
+| `--keresési könyvtár`  | Egy további mappa, amelyben keresni kell, az alapkönyvtár után (ismétlődően, sorrendben); egy másik gépen írt elérési út a saját fájlnevére vezethető vissza.                                                                     |
 | `--no-basic-stub`      | Nincs `10 SYS…` BASIC sor a kód előtt                                                                                                                                                                                             |
-| `--raw`              | A kép önmagában az első ORG-ján: nincs csonk, nincs áthelyezés a(z) `$C000`-re                                                                                                                                                    |
-| `--crt FILE`           | Egy Magic Desk hangszedő (CRT 19-es típus, 8 × 8K bank, legfeljebb 65 408 bájt): a betöltő a programot a betöltési címére másolja, és a SYS címen indítja el – ez a Visual Assembler Build CRT-je. Az `-o` nélkül nem íródik PRG. |
-| `--crt-name NAME`        | A kazetta neve a CRT fejlécben (alapértelmezett: `VA CART`)                                                                                                                                                                       |
-| `--d64 [FILE]`         | Egy 1541-es lemezkép a PRG-vel, a PRG-ről elnevezve (alapértelmezett FÁJL: a PRG `.d64` kiterjesztéssel); nincs szükség c1541-re. `-o` nélkül nem kerül PRG írásra.                                                               |
-| `--add FILE`    | Egy további fájl a lemezen jelenlegi állapotában (egy PRG a betöltési címével), a fájlról elnevezve (ismételhető, sorrendben)                                                                                                     |
-| `--disk-name NAME`       | A lemez neve (alapértelmezett: a D64 fájlneve; azonosító: `01`)                                                                                                                                                                   |
-| `--sym FILE`     | KickAssembler címkefájl (`.label NAME=$xxxx`)                                                                                                                                                                                     |
-| `--vs FILE`           | VICE monitor címkefájl (`al C:xxxx .NAME`; `x64sc -moncommands FILE`)                                                                                                                                                             |
-| `--dbg FILE`           | RetroDebugger / C64 Debugger forráskód térkép (XML)                                                                                                                                                                               |
+| `--nyers`              | A kép önmagában az első ORG-ján: nincs csonk, nincs áthelyezés a(z) `$C000`-re                                                                                                                                                    |
+| `--crt FÁJL`           | Egy Magic Desk hangszedő (CRT 19-es típus, 8 × 8K bank, legfeljebb 65 408 bájt): a betöltő a programot a betöltési címére másolja, és a SYS címen indítja el – ez a Visual Assembler Build CRT-je. Az `-o` nélkül nem íródik PRG. |
+| `--crt-név NÉV`        | A kazetta neve a CRT fejlécben (alapértelmezett: `VA CART`)                                                                                                                                                                       |
+| `--d64 [FÁJL]`         | Egy 1541-es lemezkép a PRG-vel, a PRG-ről elnevezve (alapértelmezett FÁJL: a PRG `.d64` kiterjesztéssel); nincs szükség c1541-re. `-o` nélkül nem kerül PRG írásra.                                                               |
+| `--FÁJL hozzáadása`    | Egy további fájl a lemezen jelenlegi állapotában (egy PRG a betöltési címével), a fájlról elnevezve (ismételhető, sorrendben)                                                                                                     |
+| `--lemeznév NÉV`       | A lemez neve (alapértelmezett: a D64 fájlneve; azonosító: `01`)                                                                                                                                                                   |
+| `--szimbólum FÁJL`     | KickAssembler címkefájl (`.label NAME=$xxxx`)                                                                                                                                                                                     |
+| `--vs. FÁJL`           | VICE monitor címkefájl (`al C:xxxx .NAME`; `x64sc -moncommands FÁJL`)                                                                                                                                                             |
+| `--dbg FÁJL`           | RetroDebugger / C64 Debugger forráskód térkép (XML)                                                                                                                                                                               |
 | `--debug`              | Mindhárom a PRG mellett (`out.sym`, `out.vs`, `out.dbg`)                                                                                                                                                                          |
-| `--json FILE`          | A build JSON-ként: PRG, SYS cím, szimbólumok, kiosztott sorok, megírt szegmensek, memória nézet — vagy minden sorhiba                                                                                                             |
-| `--source-path NAME` | A fő forrás az `.dbg` nevek (alapértelmezett: a bemenet)                                                                                                                                                                          |
-| `--line-map FILE`   | JSON tömb: bemeneti sor → a következő sor: `.dbg` nevek                                                                                                                                                                           |
+| `--json FÁJL`          | A build JSON-ként: PRG, SYS cím, szimbólumok, kiosztott sorok, megírt szegmensek, memória nézet — vagy minden sorhiba                                                                                                             |
+| `--forrás-útvonal NÉV` | A fő forrás az `.dbg` nevek (alapértelmezett: a bemenet)                                                                                                                                                                          |
+| `--vonaltérkép FÁJL`   | JSON tömb: bemeneti sor → a következő sor: `.dbg` nevek                                                                                                                                                                           |
 
-Kilépési állapot: `0` felépítve, `1` fordítási hiba (`FILE:LINE: message`
+Kilépési állapot: `0` felépítve, `1` fordítási hiba (`FÁJL:LINE: message`
 standard hibánál, hibánként egy sor), `2` helytelen használat.
 
 ```
@@ -3304,7 +3304,7 @@ nyers éleit is:
   következik – még egy kihagyott (`.if 0`) DELAY esetén is.
 
 Javítva a 2.1-es verzióban (rossz kódot adtak vagy korábban hibát jeleztek): egy
-`.const` / `.var` operandus a nulladik oldalon, `JMP (label)`, `lda $1234+1`,
+`.const` / `.var` operandus a nulladik oldalon, `JMP (címke)`, `lda $1234+1`,
 egy makróhívás egy makrón belül, egy fel nem oldott TURBO_SET / SPRITE_ANIM
 érték (most hiba), címkék a `.data` / `.rawbytes` bájtjaiban, egy `:name` címke,
 amelynek célja egy címke, a JOYSTICK / MEMCPY / MEMSET mérete egy későbbi
