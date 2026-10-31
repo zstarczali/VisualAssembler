@@ -3993,7 +3993,7 @@ body.ub-mode .hero-copy { display: none; }
 body.ub-mode .workspace { grid-template-columns: 1fr; gap: 14px; }
 .ub-panel { display: flex; flex-direction: column; height: var(--editor-max-depth); min-height: var(--editor-max-depth); max-height: var(--editor-max-depth); background: var(--panel); border: 1px solid var(--panel-border); border-radius: 2px; box-shadow: var(--shadow); overflow: hidden; box-sizing: border-box; }
 .ub-toolbar, .ub-statusbar { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-bottom: 1px solid var(--panel-border); background: var(--ub-chrome-bg, var(--panel-strong)); color: var(--text); }
-.ub-toolbar { flex-wrap: nowrap; min-height: 48px; overflow: visible; box-sizing: border-box; position: relative; z-index: 5; }
+.ub-toolbar { flex-wrap: nowrap; min-height: 48px; overflow: visible; box-sizing: border-box; position: relative; z-index: 22; } /* above .expert-project-panel (21): its tooltips hang over the panel */
 .ub-toolbar > button, .ub-toolbar > .expert-toolbar-sep { flex: 0 0 auto; }
 .ub-toolbar .expert-hl-toggle { display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; }
 .ub-toolbar .expert-hl-toggle svg { display: block; flex: none; }

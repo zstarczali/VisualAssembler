@@ -240,6 +240,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 - **Your own files** — the **Files** menu loads a PRG and attaches a D64 or a cartridge (`.crt`). The status bar shows the drive LED and track, and a blinking LED shows as a drive error, for example when a file cannot be found.
 - **Display** — a CRT filter with scanlines, full screen and a resizable window. The window and its settings come back on the next start.
 - **Hi-Res Editor** — multicolor cells are limited to the paper plus 3 colours, cells over the limit are marked in red, and drawing past the edge of the picture with the pixel grid on no longer raises errors. See [Hi-Res / Multicolor Editor](#hi-res--multicolor-editor).
+- **Editor right-click menu** — in the Expert and Ultimate Basic editors: Cut, Copy, Paste, Select all, and UPPERCASE / lowercase for the selected text.
 
 ## Version 2.6.9 Highlights
 
@@ -2641,7 +2642,7 @@ Like **a named GOSUB with parameters** — define a reusable chunk of code once 
 | Name | Identifier for the macro (e.g. `setColor`) |
 | Params | Optional comma-separated parameter names (e.g. `color` or `color, count`) |
 
-Marks the start of a macro definition. Blocks between MACRO and ENDM are the macro's body — they **don’t generate any code** where the definition sits. Use `{paramName}` as a placeholder for arguments.
+Marks the start of a macro definition. Blocks between MACRO and ENDM are the macro's body. A macro with parameters **generates no code** where the definition sits. A macro without parameters is also stored there as a subroutine, so `JSR name` calls it: the program flow jumps over it (`JMP`), and an `RTS` is added at its end. The same goes for such a macro in a library included at a fixed address (without the `JMP`, the library is outside the program flow). Use `{paramName}` as a placeholder for arguments.
 
 **Generated ASM:**
 ```
@@ -3007,6 +3008,8 @@ Like **a real branch template** — this version works at runtime, not compile t
 **Size:** Depends on the chosen branches and compare form.
 
 The comparison is unsigned by default. For `<=` and `>` the macro expands to the shortest equivalent branch chain for the selected register.
+
+Sample: **Runtime IF / ELSE demo** (`samples/runtime-if-demo.asm`).
 
 ---
 

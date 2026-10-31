@@ -13,12 +13,14 @@ function loadHg() {
   assert.ok(start > 0 && end > start, "hires editor slice not found");
   const fakeCtx = new Proxy({}, { get: () => () => ({ data: new Uint8ClampedArray(4) }) });
   const fakeEl = { getContext: () => fakeCtx, style: {}, width: 0, height: 0, textContent: "" };
+  const fakeModeBox = { checked: true };
   const context = {
     _CE_COLORS: Array.from({ length: 16 }, (_, i) => "#" + (i * 0x111111).toString(16).padStart(6, "0")),
-    document: { getElementById: () => fakeEl, createElement: () => fakeEl },
+    document: { getElementById: (id) => (id === "hg-multicolor" ? fakeModeBox : fakeEl), createElement: () => fakeEl },
     t: (key) => key,
     setTimeout: () => 1,
     clearTimeout() {},
+    fakeModeBox,
   };
   vm.createContext(context);
   vm.runInContext(appJs.slice(start, end) +
@@ -28,7 +30,7 @@ function loadHg() {
     " stamp: _hgStampClipboard, setClip: (c) => { _hgClipboard = c; }," +
     " setRaw: (x, y, c) => { _hgPixMC[y * 160 + x] = c; }," +
     " setMulti: (m) => { _hgMulti = m; }, setZoom: (z) => { _hgZoom = z; }, setGrid: (g) => { _hgGrid = g; }," +
-    " setBuf: (c) => { _hgBufCtx = c; }, paper: () => _hgPaper };", context);
+    " setBuf: (c) => { _hgBufCtx = c; }, paper: () => _hgPaper, push: _hgPushUndo, redo: _hgRedoOp, isMulti: () => _hgMulti, modeBox: fakeModeBox };", context);
   context.api.init();
   context.api.setMulti(true);
   return context.api;
@@ -84,6 +86,24 @@ test("a paper change recolours the background pixels, so no slot is lost; undo r
   hg.undo();
   assert.equal(hg.paper(), 0);
   assert.equal(hg.get(3, 0), 0);
+});
+
+test("undo and redo also bring back the mode a picture was switched from", () => {
+  const hg = loadHg();
+  hg.set(0, 0, 5);
+  // what the Multi-Color checkbox does: snapshot, then change the mode
+  hg.push();
+  hg.setMulti(false);
+  hg.modeBox.checked = false;
+  hg.set(0, 0, 7);
+  hg.undo();
+  assert.equal(hg.isMulti(), true);
+  assert.equal(hg.modeBox.checked, true);
+  assert.equal(hg.get(0, 0), 5);
+  hg.redo();
+  assert.equal(hg.isMulti(), false);
+  assert.equal(hg.modeBox.checked, false);
+  assert.equal(hg.get(0, 0), 7);
 });
 
 test("cells over the limit from raw data are found", () => {

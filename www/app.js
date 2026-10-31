@@ -1614,6 +1614,7 @@ function initPalette() {
   document.getElementById("ub-zoom-in-btn")?.addEventListener("click", () => _ubZoom(1));
   document.getElementById("ub-zoom-out-btn")?.addEventListener("click", () => _ubZoom(-1));
   _bindCtrlWheelZoom(document.querySelector(".ub-editor-wrap"), _ubZoom);
+  ubEditor?.addEventListener("contextmenu", (e) => _edShowCtxMenu(e, document.body, _editorCtxItems(ubEditor, _ubAcHide)));
   ubEditor?.addEventListener("input", (e) => { _ubDirty = true; markTabDirty(); _bmTrackEdit("ub"); _ubRefreshEditor(); if (_isPasteInput(e.inputType)) _ubAcHide(); else _ubAcUpdate(); _ubScheduleLint(); });
   ubEditor?.addEventListener("keyup", _ubUpdateCursor);
   ubEditor?.addEventListener("click", _ubUpdateCursor);
@@ -1918,6 +1919,7 @@ function initPalette() {
   document.getElementById("expert-project-add-folder-btn")?.addEventListener("click", _expertAddProjFolder);
   setupProjectSettings();
 
+  expertEditor?.addEventListener("contextmenu", (e) => _edShowCtxMenu(e, document.body, _editorCtxItems(expertEditor, _expertAcHide)));
   expertEditor?.addEventListener("beforeinput", (e) => {
     const displaySelStart = expertEditor.selectionStart ?? 0;
     const displaySelEnd = expertEditor.selectionEnd ?? displaySelStart;
@@ -2872,6 +2874,42 @@ function _edShowCtxMenu(e, host, items) {
 }
 
 // ── Tab bar right-click menu ────────────────────────────────────────────────
+// Expert / UB editor right-click menu. It replaces the WebView's own menu, so the
+// clipboard commands are here too.
+function _editorInsertText(editor, text, keepSelected) {
+  const start = editor.selectionStart;
+  editor.focus();
+  // Like typing: keeps Ctrl+Z and the Expert source mirror (beforeinput / input) working.
+  if (!document.execCommand("insertText", false, text)) {
+    editor.setRangeText(text, start, editor.selectionEnd, "end");
+    editor.dispatchEvent(new Event("input", { bubbles: true }));
+  }
+  const end = start + text.length;
+  editor.setSelectionRange(keepSelected ? start : end, end);
+}
+function _editorCtxItems(editor, hideCompletion) {
+  const hasSelection = editor.selectionEnd > editor.selectionStart;
+  const selected = () => editor.value.slice(editor.selectionStart, editor.selectionEnd);
+  const setCase = (convert) => {
+    _editorInsertText(editor, convert(selected()), true);
+    hideCompletion();
+  };
+  return [
+    { label: t("sidContextCut"), disabled: !hasSelection, run: () => { editor.focus(); document.execCommand("cut"); } },
+    { label: t("sidContextCopy"), disabled: !hasSelection, run: () => { editor.focus(); document.execCommand("copy"); } },
+    { label: t("sidContextPaste"), run: () => {
+      navigator.clipboard.readText().then((text) => {
+        if (!text) return;
+        _editorInsertText(editor, text, false);
+        hideCompletion();
+      }).catch(() => showViceToast(t("edCtxPasteFailed"), true));
+    } },
+    { label: t("edCtxSelectAll"), run: () => { editor.focus(); editor.select(); } },
+    { label: t("edCtxUpper"), disabled: !hasSelection, run: () => setCase((s) => s.toUpperCase()) },
+    { label: t("edCtxLower"), disabled: !hasSelection, run: () => setCase((s) => s.toLowerCase()) },
+  ];
+}
+
 function _hideTabCtxMenu() {
   const menu = document.getElementById("tab-ctx-menu");
   if (menu) menu.setAttribute("hidden", "");
@@ -3934,6 +3972,7 @@ function applyTranslations() {
   if (sampleOptions[33]) sampleOptions[33].textContent = t("sampleNameInputDemo");
   if (sampleOptions[34]) sampleOptions[34].textContent = t("sampleBoxDemo");
   if (sampleOptions[35]) sampleOptions[35].textContent = t("sampleMacroShowcase");
+  if (sampleOptions[36]) sampleOptions[36].textContent = t("sampleRuntimeIfDemo");
 
   updateThemeToggleLabel();
   refreshCategoryOptions();
@@ -16485,7 +16524,7 @@ async function _templateCreateProject() {
 // ── Példaprogram-választó dialógus (a rejtett #sample-select az adatforrás) ──
 const _SAMPLE_CATEGORIES = [
   ["sampleCatBasics", ["basic-colors", "clear-screen", "label-border", "text-demo", "lowercase-text-demo", "name-input-demo", "10-print"]],
-  ["sampleCatMacros", ["macro-demo", "macro-test", "macro-showcase", "loop-demo", "hello-loop-demo", "push-pull-demo", "if-else", "user-macro-demo"]],
+  ["sampleCatMacros", ["macro-demo", "macro-test", "macro-showcase", "loop-demo", "hello-loop-demo", "push-pull-demo", "if-else", "runtime-if-demo", "user-macro-demo"]],
   ["sampleCatGraphics", ["setpixel-demo", "bitmap-demo", "rand-lines-demo", "box", "scroll-text-demo", "map-copy-demo"]],
   ["sampleCatSprites", ["sprite-demo", "sprite-macro-demo", "joystick-demo", "mouse-demo", "collision-demo"]],
   ["sampleCatFiles", ["incbin-demo", "loadfile-demo", "exo-multicolor-demo", "include-demo"]],
@@ -34780,6 +34819,22 @@ function _narrowConstZeroPage(blocks) {
   }
 }
 
+// The JMP / RTS around a parameter-less macro body that is also a subroutine (JSR name).
+function _macroSubroutineBlock(mnemonic, target = "") {
+  return {
+    id: crypto.randomUUID(),
+    category: "Ugrasok",
+    mnemonic,
+    operand: target,
+    rawOperand: target,
+    description: "",
+    addressingMode: target ? "absolute" : "implied",
+    base: "hex",
+    validationError: "",
+    _syntheticMacroLabel: true,
+  };
+}
+
 function getProgramLayout(originOverride) {
   const parsedOrigin = parseOriginValue();
   const origin = originOverride === undefined
@@ -34862,6 +34917,9 @@ function getProgramLayout(originOverride) {
             continue;
           }
           if (subBlock.isMacroDefEnd) {
+            if (block.includeAddress && !includedMacroHasParams && includedMacroName) {
+              expandedProgram.push({ ..._macroSubroutineBlock("RTS"), _srcLine: subBlock._srcLine, _fromInclude: includeTag, _includeOwner: block.id, _includeFileName: block.includeFileName });
+            }
             insideIncludedMacroDef = false;
             includedMacroName = null;
             includedMacroHasParams = false;
@@ -35033,14 +35091,17 @@ function getProgramLayout(originOverride) {
     }
   };
 
+  let macroSkipCount = 0;
   for (const block of sourceProgram) {
     if (block.isMacroDefStart) {
       insideMacroDef = true;
       currentMacroName = block.macroName || null;
       // Macros with parameters cannot be used as subroutines (placeholders can't be resolved at definition site)
       currentMacroHasParams = !!(block.macroParams && block.macroParams.trim());
-      // Emit synthetic label so JSR macroName can resolve to the definition site (param-less macros only)
+      // Emit synthetic label so JSR macroName can resolve to the definition site (param-less macros only).
+      // The body is a subroutine here: the program flow must not run into it.
       if (currentMacroName && !currentMacroHasParams) {
+        expandedProgram.push({ ..._macroSubroutineBlock("JMP", `__ml_skip_${++macroSkipCount}`), _srcLine: block._srcLine, isBreakpoint: block.isBreakpoint });
         expandedProgram.push({
           id: crypto.randomUUID(),
           isLabel: true,
@@ -35057,6 +35118,20 @@ function getProgramLayout(originOverride) {
       continue;
     }
     if (block.isMacroDefEnd) {
+      if (currentMacroName && !currentMacroHasParams) {
+        expandedProgram.push({ ..._macroSubroutineBlock("RTS"), _srcLine: block._srcLine, isBreakpoint: block.isBreakpoint });
+        expandedProgram.push({
+          id: crypto.randomUUID(),
+          isLabel: true,
+          labelName: `__ml_skip_${macroSkipCount}`,
+          mnemonic: "LABEL",
+          addressingMode: "implied",
+          base: "hex",
+          operand: `__ml_skip_${macroSkipCount}`,
+          rawOperand: `__ml_skip_${macroSkipCount}`,
+          _syntheticMacroLabel: true,
+        });
+      }
       insideMacroDef = false;
       currentMacroName = null;
       currentMacroHasParams = false;
@@ -40923,6 +40998,11 @@ function loadSelectedSample() {
 
   if (sampleSelect.value === "if-else") {
     loadIfElseDemo();
+    return;
+  }
+
+  if (sampleSelect.value === "runtime-if-demo") {
+    loadSampleFromFile("runtime-if-demo");
     return;
   }
 
@@ -48845,6 +48925,10 @@ function _hgRestore(s) {
   else { _hgBit.set(s.bit); _hgFgCell.set(s.fg); _hgBgCell.set(s.bg); }
   _hgPaper = s.paper;
   _hgUpdatePaperSwatch();
+  // The Multi-Color checkbox is undoable too: the snapshot's mode comes back with its pixels.
+  _hgMulti = s.m;
+  const mc = document.getElementById("hg-multicolor");
+  if (mc) mc.checked = _hgMulti;
 }
 function _hgPushUndo() {
   _hgUndo.push(_hgSnapshot());
@@ -60575,7 +60659,7 @@ async function _w64Show() {
   _w64S();
   _w64SavePref("open", true);
   const prefs = _w64Prefs();
-  if (prefs.debug && document.getElementById("w64-debug")?.hidden) _w64ShowDebugPanel(true);
+  if (prefs.debug !== false && document.getElementById("w64-debug")?.hidden) _w64ShowDebugPanel(true);
   try { await _w64Load(); } catch (_) { return; }
   _w64WaitBoot().catch(() => {});
   if (_w64.mod._vice_web_pause_status() && !_w64.stopped && _w64.pausedByClose) {
@@ -61149,7 +61233,7 @@ function setupWeb64() {
     const s = _w64S();
     s.session = null;
     _w64EndDebugView();
-    _w64ShowDebugPanel(!!_w64Prefs().debug);
+    _w64ShowDebugPanel(_w64Prefs().debug !== false);
     await _w64ResetToReady();
     _w64SyncButtons();
   });

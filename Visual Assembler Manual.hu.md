@@ -242,6 +242,7 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 - **Saját fájlok** — a **Files** menü PRG-t tölt be, D64-et és cartridge-et (`.crt`) csatol. A státuszsor mutatja a meghajtó LED-jét és a tracket, a villogó LED lemezhibaként jelenik meg, például ha egy fájl nem található.
 - **Kép** — CRT szűrő scanline-okkal, teljes képernyő és átméretezhető ablak. Az ablak és a beállításai a következő indításkor visszatérnek.
 - **Hi-Res szerkesztő** — a multicolor cellákban a papír mellett legfeljebb 3 szín lehet, a korlátot túllépő cellák piros keretet kapnak, és a kép szélén túlra húzás bekapcsolt pixelrácsnál már nem ad hibát.
+- **Jobb klikkes menü a szerkesztőkben** — az Expert és az Ultimate Basic szerkesztőben: Kivágás, Másolás, Beillesztés, Az összes kijelölése, valamint NAGYBETŰS / kisbetűs a kijelölt szövegre.
 
 ## A 2.6.9 verzió újdonságai
 
@@ -2630,7 +2631,7 @@ Mint **egy nevesített GOSUB paraméterekkel** — definiálj egyszer egy újrah
 | Name | A makró azonosítója (pl. `setColor`) |
 | Params | Opcionális, vesszővel elválasztott paraméternevek (pl. `color` vagy `color, count`) |
 
-Jelöli a makró-definíció elejét. A MACRO és ENDM közti blokkok a makró teste — **nem generálnak kódot** ott, ahol a definíció van. Használd a `{paramName}`-t helyőrzőként az argumentumokhoz.
+Jelöli a makró-definíció elejét. A MACRO és ENDM közti blokkok a makró teste. A paraméteres makró **nem generál kódot** ott, ahol a definíció van. A paraméter nélküli makró ott szubrutinként is tárolódik, így a `JSR név` meghívja: a program folyása átugorja (`JMP`), a végére pedig `RTS` kerül. Ugyanez érvényes a fix címre include-olt könyvtár ilyen makróira is (`JMP` nélkül, mert a könyvtár a program folyásán kívül van). Használd a `{paramName}`-t helyőrzőként az argumentumokhoz.
 
 **Generált ASM:**
 ```
@@ -2997,6 +2998,8 @@ Mint **egy valódi elágazás-sablon** — ez a változat futásidőben működi
 
 Az összehasonlítás alapból előjel nélküli. A `<=` és `>` esetén a makró a kiválasztott regiszterhez a legrövidebb ekvivalens elágazás-láncra fejt ki.
 
+
+Minta: **Futásidejű IF / ELSE demo** (`samples/runtime-if-demo.asm`).
 ---
 
 ### WHILE / ENDW

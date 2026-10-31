@@ -1,0 +1,12 @@
+{
+  "app": "c64-visual-assembler",
+  "version": 1,
+  "useExpertTextProgram": true,
+  "expertText": "* = $0801\n; ==========================================\n; Runtime IF / ELSE / ENDIF demo\n; ==========================================\n; .if A|X|Y <op> value  is decided WHILE THE PROGRAM RUNS: it compiles to\n; CMP / CPX / CPY plus the branches. Operators: == != < <= > >= (unsigned).\n; .if NAME without a register is different: conditional assembly, decided\n; when you build.\n;\n; Top:    colour bar, one nested .if on X for every column\n; Bottom: press a key, .if on A picks the border colour and the text\n; ==========================================\n\n.region Init\n.set_border $00\n.set_bg $00\n    JSR $E544\n.text 1, 1, \"runtime if / else demo\"\n.text 1, 6, \"1 = red   2 = green   other = white\"\n.text 1, 7, \"q = quit\"\n.text 1, 10, \"key type:\"\n.endregion\n\n.region Colour bar\n; X is the column: the same code gives a different colour in each part of the row\n    LDX #$00\nbar_loop:\n    LDA #$A0\n    STA $04A0,X\n.if X < #$0D\n    LDA #$02\n.else\n    .if X < #$1B\n        LDA #$07\n    .else\n        LDA #$05\n    .endif\n.endif\n    STA $D8A0,X\n    INX\n    CPX #$28\n    BNE bar_loop\n.endregion\n\n.region Key loop\nwait_key:\n    JSR $FFE4\n    BEQ wait_key\n    STA last_key\n\n; if / else if / else chain on A: CMP leaves A unchanged, so it can be tested again\n.if A == #$31\n    LDX #$02\n.else\n    .if A == #$32\n        LDX #$05\n    .else\n        LDX #$01\n    .endif\n.endif\n    STX $D020\n\n; two conditions: both must be true for the digit branch\n    LDA last_key\n.if A >= #$30\n    .if A <= #$39\n        JSR show_digit\n    .else\n        JSR show_other\n    .endif\n.else\n    JSR show_other\n.endif\n\n    LDA last_key\n.if A != #$51\n    JMP wait_key\n.endif\n    LDA #$0E\n    STA $D020\n    LDA #$06\n    STA $D021\n    JSR $E544\n    RTS\n.endregion\n\n.region Texts\nshow_digit:\n.text 11, 10, \"digit\"\n    RTS\n\nshow_other:\n.text 11, 10, \"other\"\n    RTS\n\nlast_key:\n.byte 0\n.endregion\n",
+  "d64": {
+    "diskName": "",
+    "extras": [],
+    "progName": ""
+  },
+  "program": []
+}
