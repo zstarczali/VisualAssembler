@@ -9,16 +9,16 @@ sovelluksen työkalut löytyvät C64 Visual Assembler -käyttöoppaasta.
 
 ## Sisällys
 
-1. [Lähdetiedoston muoto](#1-source-format)
-2. [Numerot ja lausekkeet](#2-numbers-and-expressions)
+1. [Lähdetiedoston muoto](#1-lahdetiedoston-muoto)
+2. [Numerot ja lausekkeet](#2-numerot-ja-lausekkeet)
 3. [Tuloste: PRG, BASIC-tynkä ja
-   aloituskohta](#3-output-prg-basic-stub-and-entry-point)
-4. [Osoitetilat](#4-addressing-modes)
-5. [6502 ohjeet](#5-6502-instructions)
+   aloituskohta](#3-lahto-prg-basic-tynka-ja-aloituspiste)
+4. [Osoitetilat](#4-osoitustavat)
+5. [6502 ohjeet](#5-6502-ohjeet)
 6. [Direktiivit ja makrot — viite](#6-directives-and-macros--reference)
-7. [KickAssembler-tyylinen syntaksi](#7-kickassembler-style-syntax)
-8. [Komentorivi](#8-command-line)
-9. [Tunnetut rajoitukset](#9-known-limitations)
+7. [KickAssembler-tyylinen syntaksi](#7-kickassembler-tyylinen-syntaksi)
+8. [Komentorivi](#8-komentorivi)
+9. [Tunnetut rajoitukset](#9-tunnetut-rajoitukset)
 
 ---
 
@@ -29,15 +29,15 @@ merkitystä muistisäännöissä ja direktiiveissä (`lda`, `LDA`, `.BYTE`, `.by
 tunnisteiden nimissä kirjainkoko on merkitsevä.
 
 ```
-; kommentti — so is // kommentti
-* = $1000 ; ORG: assemble from $1000
-start: ; otsikko (kaksoispiste on pakollinen)
-lda #$06 ; käsky: muistisääntö ja operandi
-sta $D020
-.byte $01, $02, $FF ; direktiivi alkaa pisteellä
-silmukka: dex ; otsikko ja käsky yhdellä rivillä
-bne-silmukka
-rts
+; a comment — so is // a comment
+* = $1000                ; ORG: assemble from $1000
+start:                   ; a label (the colon is required)
+    lda #$06             ; an instruction: mnemonic and operand
+    sta $D020
+    .byte $01, $02, $FF  ; a directive starts with a dot
+loop: dex                ; a label and an instruction on one line
+    bne loop
+    rts
 ```
 
 - **Kommentit** alkavat merkeillä `;` tai `//` ja jatkuvat rivin loppuun (ei
@@ -45,7 +45,7 @@ rts
 - **Labelit** kirjoitetaan muodossa `name:` — kirjaimia, numeroita ja `_`,
   eivätkä ne ala numerolla. Leima voi olla omalla rivillään tai käskyn edessä.
   Pisteellä alkava nimi (`.loop:`) on **local label** (katso [Local (dotted)
-  labels](#local-dotted-labels)); `-` ja `+` yksinään ovat **anonyymejä
+  labels](#paikalliset-pisteviivalla-tunnisteet)); `-` ja `+` yksinään ovat **anonyymejä
   leimoja**, joihin viittaa `bne -` / `beq +` (lähimpänä ennen / jälkeen oleva).
 - **Käskyt** ovat muistisääntö ja operandi; sisennys on vapaa.
 - **Direktiivit** alkavat pisteellä (`.byte`, `.macro`, `.if` …); `* = $xxxx`
@@ -75,12 +75,12 @@ Kirjastomakrojen osoiteargumenteissa (`.rawbytes C000, …`, `.sprite_init 0, 1,
 
 ```
 .const B = 7
-lda #(B+1)*2
-lda #B & 3 | 8
-lda #~B & $FF
-ldx #'A'
-lda #<näyttö ; otsikon alempi tavu
-lda #>(*+63) ; PC:hen suhteellisen osoitteen korkeampi tavu
+    lda #(B+1)*2
+    lda #B & 3 | 8
+    lda #~B & $FF
+    ldx #'A'
+    lda #<screen        ; low byte of a label
+    lda #>(*+63)        ; high byte of a PC-relative address
 ```
 
 ## 3. Lähtö: PRG, BASIC-tynkä ja aloituspiste
@@ -98,14 +98,14 @@ väliset aukot ovat nollia.
   `$C000`, kaikki muut pysyvät ensimmäisessä ORG:ssaan.
 - **Aloituskohta: ** SYS-rivi hyppää koodin alkuun tai ensimmäisen rivin
   kommentissa mainittuun osoitteeseen `; Aloituskohta: $1234`.
-- ** BASIC-rivin alapuolella oleva koodi ** (ORG, joka on alempi kuin `$0801`,
+- **BASIC-rivin alapuolella oleva koodi** (ORG, joka on alempi kuin `$0801`,
   sekä tynkä): pieni lataaja käynnistää ohjelman ja siirtää sen paikalleen,
   joten se käynnistyy silti `RUN`:llä.
 - Lähde, joka alkaa omalla BASIC SYS -rivillään (`.byte $0B, $08, $0A, $00, $9E,
   …` kohdassa `$0801`), lähetetään sellaisenaan ilman toista tynkää.
 
-PRG:stä komentorivi luo myös **kasetin** ja **levynkuvan** (uusi versiossa
-2.1.0, katso [8. Komentorivi](#8-command-line)):
+PRG:stä komentorivi luo myös **kasetin**ja**levynkuvan** (uusi versiossa
+2.1.0, katso [8. Komentorivi](#8-komentorivi)):
 
 - `--crt FILE` — Magic Desk -äänikortti (CRT-tyyppi 19, 8 × 8K pankkia, enintään
   65 408 tavua ohjelmaa). Pankissa 0 oleva latausohjelma alustaa KERNALin,
@@ -127,18 +127,18 @@ operandin kirjoitustavan perusteella.
 
 | Tila               | Tarra               | Esimerkki             | Kuvaus                                                                    |
 | ------------------ | ------------------- | --------------------- | ------------------------------------------------------------------------- |
-| **implisiittinen** | Implisiittinen      | `EI `                 | Ei operandia; käsky on itsenäinen                                         |
-| **välitön**        | Välitön             | `LDA #$FF`            | Rivinsisäinen vakio; assembler lisää `#` automaattisesti                  |
-| **nollasivu**      | Nolla sivua         | `LDA $10`             | Yksitavuinen osoite sivulla nolla (0–255)                                 |
-| **nollasivuaX**    | Nolla sivua, X      | `LDA $10,X`           | Sivun osoite nolla + X-rekisterin siirtymä (tulos rivittyy sivulle 0)     |
-| **nollasivuaY**    | Nolla sivua, Y      | `LDX $FB,Y`           | Nollasivun osoite + Y-rekisterin siirtymä                                 |
-| **absoluuttinen**  | Absoluuttinen       | `LDA 0400 $`          | Täysi 16-bittinen muistiosoite                                            |
-| **absoluuttinenX** | Absoluuttinen, X    | `LDA $0400,X`         | 16-bittinen osoite + X-rekisterin offset                                  |
-| **absoluuttinenY** | Absoluuttinen, Y    | `LDA $0400,Y`         | 16-bittinen osoite + Y-rekisterin offset                                  |
-| **suhteellinen**   | Sukulainen/Tunniste | `BNE-silmukka`        | Haarakonttorin ohjeita varten anna tunnisteen nimi tai kohdeosoite        |
-| **epäsuoraX**      | Epäsuora, X         | `LDA ($FB,X)`         | Nollasivun indeksointi epäsuorasti (operandi = nollasivun osoite, 1 tavu) |
-| **epäsuoraY**      | Epäsuora, Y         | `LDA ($FB),Y`         | Nollasivu epäsuora indeksointi (operandi = nollasivun osoite, 1 tavu)     |
-| **epäsuora**       | Epäsuora            | `JMP (0100 dollaria)` | Epäsuora; käytettävissä vain JMP:n kanssa                                 |
+| **implied** | Implisiittinen      | `EI `                 | Ei operandia; käsky on itsenäinen                                         |
+| **immediate** | Välitön             | `LDA #$FF`            | Rivinsisäinen vakio; assembler lisää `#` automaattisesti                  |
+| **zeroPage** | Nolla sivua         | `LDA $10`             | Yksitavuinen osoite sivulla nolla (0–255)                                 |
+| **zeroPageX** | Nolla sivua, X      | `LDA $10,X`           | Sivun osoite nolla + X-rekisterin siirtymä (tulos rivittyy sivulle 0)     |
+| **zeroPageY** | Nolla sivua, Y      | `LDX $FB,Y`           | Nollasivun osoite + Y-rekisterin siirtymä                                 |
+| **absolute** | Absoluuttinen       | `LDA 0400 $`          | Täysi 16-bittinen muistiosoite                                            |
+| **absoluteX** | Absoluuttinen, X    | `LDA $0400,X`         | 16-bittinen osoite + X-rekisterin offset                                  |
+| **absoluteY** | Absoluuttinen, Y    | `LDA $0400,Y`         | 16-bittinen osoite + Y-rekisterin offset                                  |
+| **relative** | Sukulainen/Tunniste | `BNE-silmukka`        | Haarakonttorin ohjeita varten anna tunnisteen nimi tai kohdeosoite        |
+| **indirectX** | Epäsuora, X         | `LDA ($FB,X)`         | Nollasivun indeksointi epäsuorasti (operandi = nollasivun osoite, 1 tavu) |
+| **indirectY** | Epäsuora, Y         | `LDA ($FB),Y`         | Nollasivu epäsuora indeksointi (operandi = nollasivun osoite, 1 tavu)     |
+| **indirect** | Epäsuora            | `JMP (0100 dollaria)` | Epäsuora; käytettävissä vain JMP:n kanssa                                 |
 
 ### Vakiot nollasivulla
 
@@ -154,8 +154,7 @@ nollasivu, `$00FB` on absoluuttinen. *(Uutta versiossa 2.1.)*
 ### Merkitse lausekkeet operandeiksi
 
 Mikä tahansa operandi, joka hyväksyy osoitteen tai välittömän arvon, hyväksyy
-myös suoraan **vakion nimen** (`.const` tai otsikon). Lisäksi voit käyttää
-**label+offset**- tai **label−offset**-lausekkeita viitataksesi osoitteeseen
+myös suoraan **vakion nimen**(`.const` tai otsikon). Lisäksi voit käyttää**label+offset**- tai **label−offset**-lausekkeita viitataksesi osoitteeseen
 suhteessa nimettyyn vakioon:
 
 | Syntaksi          | Esimerkki                           | Kuvaus                                                                                                            |
@@ -172,13 +171,13 @@ suhteessa nimettyyn vakioon:
 
 **Esimerkki — kahden näyttösivun tyhjentäminen CONST:**-muuttujalla
 ```
-; .CONST näyttömuisti = $0400
-LDX #$00
-tyhjennä:
-STA näyttömuisti,X
-STA näyttömuisti+$0100,X
-DEX
-BNE tyhjennä
+; .CONST screen_ram = $0400
+    LDX #$00
+clear:
+    STA screen_ram,X
+    STA screen_ram+$0100,X
+    DEX
+    BNE clear
 ```
 
 ### Lausekkeissa oleva `*`-ohjelmalaskuri
@@ -217,22 +216,22 @@ törmää toisiinsa **not**.
 
 ```
 DrawSprite:
-LDX #0
-.loop: ; == DrawSprite.loop
-LDA SpriteData,X
-STA $2000,X
-INX
-CPX #63
-BNE .loop ; ratkeaa DrawSpriten sisällä
-RTS
+    LDX #0
+.loop:                 ; == DrawSprite.loop
+    LDA SpriteData,X
+    STA $2000,X
+    INX
+    CPX #63
+    BNE .loop          ; resolves within DrawSprite
+    RTS
 
 ClearScreen:
-LDX #0
-.loop: ; == ClearScreen.loop — ei törmäystä
-STA $0400,X
-INX
-BNE .loop
-RTS
+    LDX #0
+.loop:                 ; == ClearScreen.loop — no clash
+    STA $0400,X
+    INX
+    BNE .loop
+    RTS
 ```
 
 - Vaikutusalueen sisällä viitataan paikalliseen otsikkoon muodossa `.name`.
@@ -248,12 +247,12 @@ tavulle ** operaatiokoodin sijaan. Käsky kootaan kaksoispistettä seuraavasta
 merkistä.
 
 ```
-asennus:
-LDA-arvo:#$00 ; 'arvo' -> operandin #$00 tavun osoite
-...
-korjaus:
-LDA #new
-STA-arvo ; kirjoittaa operandin tavun suoraan — klassinen SMC
+setup:
+    LDA value:#$00     ; 'value' -> address of the #$00 operand byte
+    ...
+patch:
+    LDA #new
+    STA value          ; writes the operand byte directly — classic SMC
 ```
 
 `arvo` osoittaa kohtaan `<käskyosoite> + 1` (ensimmäinen operanditavu) jokaista
@@ -321,8 +320,8 @@ muodostaa käänteisen haaran, joka ohittaa 3-tavuisen `JMP` - aina **5-tavuisen
 **:
 
 ```
-LBEQ valmis; kokoaa muotoon: BNE *+3 ($D0 $03)
-; JMP valmis ($4C lo hi)
+LBEQ done      ; assembles to:   BNE *+3   ($D0 $03)
+               ;                 JMP done  ($4C lo hi)
 ```
 
 | Pitkä op | Kunto                    | Lähetetty muodossa      |
@@ -411,7 +410,7 @@ assembler luo koodin. Ajattele niitä sisäänrakennettuina aliohjelmina.
 
 ---
 
-### TARRA
+### LABEL
 
 Kuten **rivinumero BASICissa** — mutta nimellä numeron sijaan. Hyppykohteet
 `JMP`, `JSR`, `BNE` jne.
@@ -422,36 +421,36 @@ Kuten **rivinumero BASICissa** — mutta nimellä numeron sijaan. Hyppykohteet
 
 **Syntaksi:**
 ```
-silmukka:
+loop:
 ```
 
 **Generoitu koodi:**
 ```
-silmukka: ; $0820
+loop:  ; $0820
 ```
 
 Nykyinen osoite näkyy kommenttina. Nimikkeiden koko on **0 tavua **.
 
 ---
 
-### KOMMENTTI
+### COMMENT
 
 Kuten **REM BASIC**:ssä — huomautus itsellesi, jonka assembler jättää täysin
 huomiotta.
 
 **Syntaksi:**
 ```
-; Kommenttisi teksti tähän
+; Your comment text here
 ```
 
 **Generoitu koodi:**
 ```
-; Kommenttisi teksti tähän
+; Your comment text here
 ```
 
 ---
 
-### TAVU
+### BYTE
 
 Kuten **DATA BASIC**-ohjelmassa — tallentaa luettelon raakatavuarvoista
 ohjelmaan.
@@ -462,12 +461,12 @@ ohjelmaan.
 
 **Syntaksi:**
 ```
-.tavu $01, $02, $FF
+.byte $01, $02, $FF
 ```
 
 **Generoitu koodi:**
 ```
-.tavu $01, $02, $FF
+    .byte $01, $02, $FF
 ```
 
 **Lo/hi-tavun tunnisteviittaukset:** BYTE hyväksyy KickAssembler / ca65-tyyliset
@@ -476,7 +475,7 @@ rinnalla. Assembler selvittää tunnisteosoitteen käännösaikana ja lisää so
 tavun. Esimerkki:
 
 ```
-.byte <kehys_0, >kehys_0, <kehys_1, >kehys_1
+    .byte <frame_0, >frame_0, <frame_1, >frame_1
 ```
 
 Tämä tallentaa `frame_0`-kehyksen osoitteen alimman tavun, sitten ylemmän tavun
@@ -487,7 +486,7 @@ osoitelistojen rakentamiseen.
 
 ---
 
-### SANA
+### WORD
 
 Kuten BASICin **DATA, mutta 16-bittisille luvuille **. Jokainen arvo
 tallennetaan kahtena tavuna (ensin pienin tavu, sitten suurin – 6502
@@ -499,19 +498,19 @@ little-endian -järjestys).
 
 **Syntaksi:**
 ```
-.sana $0400, $C000
+.word $0400, $C000
 ```
 
 **Generoitu koodi:**
 ```
-.sana $0400, $C000
+    .word $0400, $C000
 ```
 
 **Koko:** 2 tavua sanaa kohden.
 
 ---
 
-### TÄYTTÄÄ
+### FILL
 
 Kuten `FOR I=1 TO N : POKE addr+I, val : NEXT` — täyttää muistilohkon samalla
 tavulla yhdellä rivillä. Erinomainen alueiden tyhjentämiseen tai taulukoiden
@@ -523,12 +522,12 @@ esitäyttöön.
 
 **Syntaksi:**
 ```
-.täytä 256, 00 dollaria
+.fill 256, $00
 ```
 
 **Generoitu koodi:**
 ```
-.täytä 256, 00 dollaria
+    .fill 256, $00
 ```
 
 **Lausekkeen syntaksi:** Sekä `count` että `value` hyväksyvät aritmeettisia
@@ -552,7 +551,7 @@ Operaattorit: `+ - * /` Literaalit: `$FF` (heksadesimaali), `%10110000`
 
 ---
 
-### TASOITA
+### ALIGN
 
 Liu'uttaa nykyisen osoitteen eteenpäin seuraavaan puhtaaseen reunaan lisäämällä
 nollilla täytettäviä tavuja. C64 vaatii sprite-datan alkavan 64-tavuiselta
@@ -565,12 +564,12 @@ rajalta — `ALIGN 64` käsittelee tämän automaattisesti.
 **Syntaksi:**
 ```
 .align 64
-.align 2000 dollaria
+.align $2000
 ```
 
 **Generoitu koodi:**
 ```
-; ALIGN 64 → $0840 (12 tavun täyttö)
+    ; ALIGN 64 → $0840 (12 bytes padding)
 ```
 
 **Koko:** Dynaaminen — riippuu nykyisen ohjelmalaskurin sijainnista.
@@ -580,7 +579,7 @@ rajalta — `ALIGN 64` käsittelee tämän automaattisesti.
 
 ---
 
-### TEKSTI
+### TEXT
 
 Kuten **PRINT AT** — kirjoittaa tekstiä suoraan C64-näytölle tiettyyn
 sarakkeeseen ja riville käyttämättä KERNAL-kutsua. Se luo yhden LDA/STA-parin
@@ -609,24 +608,22 @@ C64:ssä on kaksi merkistöä, jotka voidaan valita ajonaikana:
 - **Pienet kirjaimet (`lower`):** Kirjoita tarkalleen haluamasi kirjainkoko.
   `"hello"` → pienten kirjainten näyttö, `"HELLO"` → isojen kirjainten näyttö.
   Vaatii ajonaikaisen merkistövalinnan ennen kuin näyttöön kirjoitetaan (käytä
-  **CHARSET lower** -makroa).
-
-**Generoitu koodi (isoilla kirjaimilla, `"HEI"`):**
+  **CHARSET lower**-makroa).**Generoitu koodi (isoilla kirjaimilla, `"HEI"`):**
 ```
-LDA #$08; 'H'-näyttökoodi $08
-STA $0400
-LDA #$05; 'E'-näyttökoodi $05
-STA $0401
-...
+    LDA #$08      ; 'H' screen code $08
+    STA $0400
+    LDA #$05      ; 'E' screen code $05
+    STA $0401
+    ...
 ```
 
 **Syntaksi:**
 ```
-.text 0, 2, "HEI"; isot kirjaimet (oletus)
-.text 0, 2, "hei", pienet kirjaimet; pienet kirjaimet
+.text 0, 2, "HELLO"           ; uppercase charset (default)
+.text 0, 2, "hello", lower    ; lowercase charset
 ```
 
-Merkit koodataan **näyttökoodeina** (ei PETSCII). **Koko:** `tekstin pituus × 5`
+Merkit koodataan **näyttökoodeina**(ei PETSCII).**Koko:** `tekstin pituus × 5`
 tavua (LDA + STA merkkiä kohden).
 
 ---
@@ -647,21 +644,23 @@ peräkkäisiin osoitteisiin.
 
 **Syntaksi:**
 ```
-.string $C000, "HEI" ; isot kirjaimet (oletus)
-.string $C000, "hei", pienet kirjaimet ; pienet kirjaimet
-.string $C000, "HEI", 80 ; shift-näppäimellä (käänteinen video)
-.string $C000, "hei", 80, pienet kirjaimet ; shift + pienet kirjaimet
-.string $C000, "HEI" :my_string ; makrotunnisteella
+.string $C000, "HELLO"                  ; uppercase charset (default)
+.string $C000, "hello", lower           ; lowercase charset
+.string $C000, "HELLO", 80             ; with shift (reverse video)
+.string $C000, "hello", 80, lower      ; shift + lowercase
+.string $C000, "HELLO" :my_string      ; with macroLabel
 ```
 
 **Generoitu koodi:**
 ```
-LDA #$08; näyttökoodi 'H' STA $C000
-LDA #$05; näyttökoodi 'E' STA $C001
-...
+    LDA #$08      ; 'H' screen code
+    STA $C000
+    LDA #$05      ; 'E' screen code
+    STA $C001
+    ...
 ```
 
-Merkit koodataan **näyttökoodeina** (ei PETSCII). Valinnainen **Shift**-arvo
+Merkit koodataan **näyttökoodeina**(ei PETSCII). Valinnainen**Shift**-arvo
 lisätään jokaiseen tavuun, esim. `$80` käänteiselle videolle. **Koko:**
 `text.length × 5` tavua (yksi LDA + yksi STA merkkiä kohden).
 
@@ -680,14 +679,14 @@ ajonaikana, yhden LDA/STA-parin tavua kohden.
 
 **Syntaksi:**
 ```
-.data $C000, $01, $02, $03; heksadesimaaliosoite
-.data my_buf, $01, $02, $03; otsikon osoite
-.data $C000, $01, $02, $03:mydata; makrotunnisteella
+.data $C000, $01, $02, $03          ; hex address
+.data my_buf, $01, $02, $03         ; label address
+.data $C000, $01, $02, $03 :mydata  ; with macroLabel
 ```
 
 **Generoitu koodi:**
 ```
-LDA #$01
+    LDA #$01
     STA $C000
     LDA #$02
     STA $C001
@@ -718,9 +717,9 @@ minkä tarvitsee vain olla tietyssä osoitteessa.
 
 **Syntaksi:**
 ```
-.rawbytes $C000, $00, $00, $00; heksadesimaaliosoite
-.rawbytes sprite_data, $00, $00; otsikkoosoite
-.rawbytes $0C50, $00, $00 :nev; macroLabel-tunnisteen kanssa — muu koodi voi käyttää LDA:ta nev,X
+.rawbytes $C000, $00, $00, $00      ; hex address
+.rawbytes sprite_data, $00, $00     ; label address
+.rawbytes $0C50, $00, $00 :nev      ; with macroLabel — other code can use LDA nev,X
 ```
 
 **Koko koodissa:** 0 tavua. Data sijoitetaan tulosteessa annettuun osoitteeseen.
@@ -736,7 +735,7 @@ minkä tarvitsee vain olla tietyssä osoitteessa.
 
 ---
 
-### RAAKATEKSTI
+### RAWTEXT
 
 Kuten RAWBYTES, mutta tekstille — koodaa merkkijonon näyttökoodeiksi ja
 sijoittaa tavut kiinteään osoitteeseen ilman ajonaikaista koodia ****. Teksti on
@@ -752,22 +751,22 @@ valmiina muistissa heti, kun PRG latautuu.
 
 **Syntaksi:**
 ```
-.rawtext $C000, "HEI" ; isot kirjaimet (oletus)
-.rawtext $C000, "hei", pienet kirjaimet ; pienet kirjaimet
-.rawtext $C000, "HEI", 80 ; shift-näppäimellä (käänteinen video)
-.rawtext $C000, "hei", 80, pienet kirjaimet ; shift + pienet kirjaimet
-.rawtext $0400, "HEI" :oma_teksti ; makrotunnisteella
+.rawtext $C000, "HELLO"                 ; uppercase charset (default)
+.rawtext $C000, "hello", lower          ; lowercase charset
+.rawtext $C000, "HELLO", 80            ; with shift (reverse video)
+.rawtext $C000, "hello", 80, lower     ; shift + lowercase
+.rawtext $0400, "HELLO" :my_text       ; with macroLabel
 ```
 
 **Generoitu koodi:**
 ```
-; .rawtext "HEI" -> $C000
+; .rawtext "HELLO" -> $C000
 ; $C000
-.byte $08, $05, $0C, $0C, $0F ; HEI (näyttökoodit isoilla kirjaimilla)
+    .byte $08, $05, $0C, $0C, $0F   ; H E L L O (uppercase screen codes)
 
-; .rawtext "hei", pienet kirjaimet -> $C000
+; .rawtext "hello", lower -> $C000
 ; $C000
-.byte $48, $45, $4C, $4C, $4F ; HEI (näyttökoodit pienellä kirjaimella $41–$5A välillä)
+    .byte $48, $45, $4C, $4C, $4F   ; h e l l o (lowercase screen codes $41–$5A range)
 ```
 
 **Koko koodissa:** 0 tavua. Data sijoitetaan tulosteessa annettuun osoitteeseen.
@@ -803,21 +802,19 @@ käyttää samaa enkooderia ja `lower` -lippua.
 | Tila                            | Isojen kirjainten syöttö (`A`–`Z`)                                                                                        | Pienten kirjainten syöttö (`a`–`z`) |
 | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | ----------------------------------- |
 | **Isot kirjaimet (oletus)**     | `$41`–`$5A` (PETSCII-isot kirjaimet CHROUTin kautta)                                                                      | myös yhdistetty `$41`–`$5A`         |
-| **Pienet kirjaimet (`pienet`)** | Aakkosten kirjaimet on uudelleenjärjestetty, jotta näkyvä kirjainkoko pysyy samana pienten/isojen kirjainten merkistössä. | Sama sääntö                         |
-
-**Syntaksi:**
+| **Pienet kirjaimet (`pienet`)**| Aakkosten kirjaimet on uudelleenjärjestetty, jotta näkyvä kirjainkoko pysyy samana pienten/isojen kirjainten merkistössä. | Sama sääntö                         |**Syntaksi:**
 ```
-.petscii $C000, "HEI" ; isot PETSCII-kirjaimet (oletus)
-.petscii $C000, "hei", pieni kirjain ; pienet PETSCII-kirjaimet ($61–$7A)
-.petscii $C000, "HEI", null ; null-terminaattorilla
-.petscii $C000, "hei", pieni kirjain, null ; pienet kirjaimet + null-terminaattori
-.petscii $C000, "HEI" :oma_viesti ; makrotunnisteella
+.petscii $C000, "HELLO"              ; uppercase PETSCII (default)
+.petscii $C000, "hello", lower       ; lowercase PETSCII ($61–$7A)
+.petscii $C000, "HELLO", null        ; with null terminator
+.petscii $C000, "hello", lower, null ; lowercase + null terminator
+.petscii $C000, "HELLO" :my_msg      ; with macroLabel
 ```
 
 **Generoidut tavut (isoilla kirjaimilla, `"HEI"`):**
 ```
 ; $C000
-.tavu $48, $45, $4C, $4C, $4F ; HEI (PETSCII $41–$5A väli)
+    .byte $48, $45, $4C, $4C, $4F   ; H E L L O (PETSCII $41–$5A range)
 ```
 
 **Koko koodissa:** 0 tavua. Data sijoitetaan kohdeosoitteeseen lykättynä
@@ -827,15 +824,15 @@ dataosana (kuten RAWBYTES).
 jälkeen. Ihanteellinen null-päätteisille silmukoille:
 
 ```
-LDX #$00
-silmukka:
-LDA-viesti,X
-BEQ valmis; $00 pysäyttää silmukan
-JSR $FFD2
-INX
-BNE-silmukka
-valmis:
-RTS
+    LDX #$00
+loop:
+    LDA msg,X
+    BEQ done        ; $00 stops the loop
+    JSR $FFD2
+    INX
+    BNE loop
+done:
+    RTS
 ```
 
 ** Koodaussäännöt:**
@@ -854,7 +851,7 @@ RTS
 
 ---
 
-### MERKKIJÄRJESTELMÄ
+### CHARSET
 
 Vaihtaa VIC-II-merkki-ROMin isojen kirjainten/grafiikkatilan (C64-oletus) ja
 pienten kirjainten/isojen kirjainten tilan välillä muokkaamalla `$D018`:n bittiä
@@ -862,33 +859,29 @@ pienten kirjainten/isojen kirjainten tilan välillä muokkaamalla `$D018`:n bitt
 
 | Argumentti | Kuvaus                                                                                                                                                         |
 | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Tila       | **Pienet kirjaimet** — ottaa käyttöön pienten/isojen kirjainten merkistöä; **Isot kirjaimet** — palauttaa oletusarvoisen isojen kirjainten/grafiikkamerkistöä. |
-
-**Syntaksi:**
+| Tila       | **Pienet kirjaimet**— ottaa käyttöön pienten/isojen kirjainten merkistöä;**Isot kirjaimet**— palauttaa oletusarvoisen isojen kirjainten/grafiikkamerkistöä. |**Syntaksi:**
 ```
-.charset lower; vaihda pieniin kirjaimiin perustuvaan merkistöön
-.charset upper; vaihda takaisin isoihin kirjaimiin/grafiikkamerkistöön
+.charset lower    ; switch to lowercase charset
+.charset upper    ; switch back to uppercase/graphics charset
 ```
 
 **Generoitu koodi:**
 
 Pienten kirjainten tila:
 ```
-LDA $D018
-ORA #$02 ; aseta bitti 1 → pienten/isojen kirjainten ROM arvoon $1800
-STA $D018
+    LDA $D018
+    ORA #$02      ; set bit 1 → lowercase/uppercase ROM at $1800
+    STA $D018
 ```
 
 Isojen kirjainten tila:
 ```
-LDA $D018
-JA #$FD ; tyhjennä bitti 1 → isojen kirjainten/grafiikka-ROM kohdassa $1000
-STA $D018
+    LDA $D018
+    AND #$FD      ; clear bit 1 → uppercase/graphics ROM at $1000
+    STA $D018
 ```
 
-**Koko:** 8 tavua (LDA abs + ORA/AND imm + STA abs).
-
-**Miksi ORA/AND suoran kirjoituksen sijaan?** `$D018` ohjaa myös näytön
+**Koko:**8 tavua (LDA abs + ORA/AND imm + STA abs).**Miksi ORA/AND suoran kirjoituksen sijaan?** `$D018` ohjaa myös näytön
 RAM-muistin sijaintia (bitit 7–4). Vain bitin 1 kytkeminen päälle/pois säilyttää
 loput rekisteristä.
 
@@ -921,24 +914,24 @@ suorituksenaikaista koodia, joka kopioi 8 tavua `base + index * 8` -merkkijonoon
 
 **Syntaksi:**
 ```
-.chardef 3800 dollaria, 65 dollaria, 18 dollaria, 3C dollaria, 66 dollaria, 7E dollaria, 66 dollaria, 66 dollaria, 66 dollaria, 00 dollaria
+.chardef $3800, 65, $18,$3C,$66,$7E,$66,$66,$66,$00
 ```
 
 **Generoitu koodi (8 × `LDA #b` / `STA target+n`, yhteensä 40 tavua):**
 ```
-LDA #$18
+    LDA #$18
     STA $3A08
     LDA #$3C
     STA $3A09
-    LDA #66 dollaria
+    LDA #$66
     STA $3A0A
     LDA #$7E
     STA $3A0B
-    LDA #66 dollaria
+    LDA #$66
     STA $3A0C
-    LDA #66 dollaria
+    LDA #$66
     STA $3A0D
-    LDA #66 dollaria
+    LDA #$66
     STA $3A0E
     LDA #$00
     STA $3A0F
@@ -947,26 +940,24 @@ LDA #$18
 **Kohdeosoite:** `$3800 + 65 * 8 = $3A08`. Lasketaan käännösaikana ja koodataan
 kiinteästi STA-operandeihin.
 
-**Koko:** 40 tavua merkkiä kohden (8 × 5).
-
-**Tyypillinen työnkulku:**
+**Koko:**40 tavua merkkiä kohden (8 × 5).**Tyypillinen työnkulku:**
 ```
-; Piste VIC-II RAM-merkistössä kohdassa $3800
-LDA $D018
-JA #$F1
-ORA #$0E ; bitit 3-1 = %111 → merkistö pankissa + $3800
-STA $D018
+    ; Point VIC-II at RAM charset at $3800
+    LDA $D018
+    AND #$F1
+    ORA #$0E       ; bits 3-1 = %111 → charset at bank+$3800
+    STA $D018
 
-.chardef $3800, 65, $18, $3C, $66, $7E, $66, $66, $66, $00 ; määrittele 'A' uudelleen
-.chardef $3800, 66, $7C, $66, $66, $7C, $66, $66, $7C, $00 ; määrittele 'B' uudelleen
-; ... lisää .chardef-rivejä jokaiselle mukautetulle merkille
+    .chardef $3800, 65, $18,$3C,$66,$7E,$66,$66,$66,$00   ; redefine 'A'
+    .chardef $3800, 66, $7C,$66,$66,$7C,$66,$66,$7C,$00   ; redefine 'B'
+    ; ... more .chardef lines for each custom char
 ```
 
 **Milloin käyttää CHARDEFia vs. vaihtoehtoja:**
 
 | Lähestyä                          | Käytä, kun                                                                                                       |
 | --------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| **CHARDEF**                       | Tarvitset muutaman mukautetun merkin (esimerkiksi 1–20). Suoritusaikakustannukset ovat 40 tavua merkkejä kohden. |
+| **CHARDEF** | Tarvitset muutaman mukautetun merkin (esimerkiksi 1–20). Suoritusaikakustannukset ovat 40 tavua merkkejä kohden. |
 | **RAWBYTES @ 3800 dollaria**      | Sinulla on täysi mukautettu merkistö (256 merkkiä). Yhteensä 2 kt dataa, ei ajonaikaista kopiota.                |
 | **INCBIN "charset.bin" @ 3800 $** | Ulkoinen merkistötiedosto (character editor -ohjelman luoma). Siistein vaihtoehto.                               |
 | ** Merkistöpohja + INCBIN**       | Täysi 256 merkin bittikarttakuva maalattu yhdeksi 128 × 128 -kuvaksi.                                            |
@@ -982,7 +973,7 @@ STA $D018
 
 Akselikohtaisesti tasatun rajaavan laatikon (AABB) törmäystesti kahden
 nelitavuisen nollasivuisen rakenteen kuvaaman suorakulmion välillä. Palauttaa
-tuloksen akkumulaattoriin: **A = 1** päällekkäisyydessä, **A = 0** muuten.
+tuloksen akkumulaattoriin: **A = 1**päällekkäisyydessä,**A = 0** muuten.
 Puhdas inline-kokoonpano, ei aliohjelmakutsuja.
 
 | Argumentti             | Kuvaus                                                                       |
@@ -1008,35 +999,48 @@ koordinaatit):
 **Generoitu koodi (30 tavua, täysin PC-relatiivinen — ei aliohjelmia, ei
 absoluuttisia hyppyjä):**
 ```
-LDA $FD; b1 oikealle CMP $F7; b2 vasemmalle BCC ei; R1 < L2 → ohi LDA $F9; b2 oikealle CMP $FB; b1 vasemmalle BCC ei LDA $FE; b1 alhaalla CMP $F8; b2 ylhäällä BCC ei LDA $FA; b2 alhaalla CMP $FC; b1 ylhäällä BCC ei LDA #$01; osuma BNE valmis; ehdoton (A ≠ 0)
-ei: LDA #$00
-valmis:
+    LDA $FD        ; b1 right
+    CMP $F7        ; b2 left
+    BCC no         ; R1 < L2 → miss
+    LDA $F9        ; b2 right
+    CMP $FB        ; b1 left
+    BCC no
+    LDA $FE        ; b1 bottom
+    CMP $F8        ; b2 top
+    BCC no
+    LDA $FA        ; b2 bottom
+    CMP $FC        ; b1 top
+    BCC no
+    LDA #$01       ; hit
+    BNE done       ; unconditional (A ≠ 0)
+no: LDA #$00
+done:
 ```
 
-**Koko:** 30 tavua.
-
-**Tyypillinen työnkulku:**
+**Koko:**30 tavua.**Tyypillinen työnkulku:**
 
 ```
-; Pelaajan sprite-laatikko kohdassa $FB..$FE
-LDA sprite_x ; L
-STA $FB
-LDA sprite_y ; T
-STA $FC
-CLC ADC #23 ; +23 → B (24 pikseliä korkea sprite)
-STA $FE
-LDA $FB
-CLC ADC #23 ; R
-STA $FD
+    ; Player sprite box at $FB..$FE
+    LDA sprite_x            ; L
+    STA $FB
+    LDA sprite_y            ; T
+    STA $FC
+    CLC
+    ADC #23                 ; +23 → B (24-pixel tall sprite)
+    STA $FE
+    LDA $FB
+    CLC
+    ADC #23                 ; R
+    STA $FD
 
-; Vihollisen laatikko kohdassa $F7..$FA (täytetty samalla tavalla)
-; ...
+    ; Enemy box at $F7..$FA (populated similarly)
+    ; ...
 
-.box_hit $FB, $F7 ; testipelaaja vs. vihollinen → A = 0 tai 1
+    .box_hit $FB, $F7        ; test player vs enemy → A = 0 or 1
 
-CMP #$01
-BNE no_collision
-JSR handle_hit
+    CMP #$01
+    BNE no_collision
+    JSR handle_hit
 no_collision:
 ```
 
@@ -1074,13 +1078,13 @@ osoitteeseen.
 
 **Syntaksi:**
 ```
-.incbin "musiikki.bin", $C000
+.incbin "music.bin", $C000
 ```
 
 **Generoidun koodin kommentti:**
 ```
-; INCBIN "musiikki.bin" @ $C000 (2048 tavua)
-.tavu $01, $02, ...
+    ; INCBIN "music.bin" @ $C000 (2048 bytes)
+    .byte $01, $02, ...
 ```
 
 **Koko koodissa:** 0 tavua (lykätty dataosa). Binääritiedosto on upotettu
@@ -1110,16 +1114,16 @@ kanssa.
 
 **Syntaksi:**
 ```
-.koala "kuva.koa"
-.koala "kuva.koa", 2000 dollaria
+.koala "picture.koa"
+.koala "picture.koa", $2000
 ```
 
 **Esimerkki — näytä kuva ja odota:**
 ```
 * = $0801
-.koala "kuva.koa"
-odota:
-JMP odota
+.koala "picture.koa"
+wait:
+    JMP wait
 ```
 
 **Koko koodissa:** 86 tavua (näyttörutiini); 10001 tavua kuvadataa menee
@@ -1128,13 +1132,13 @@ tiedoston.
 
 ---
 
-### TASO / TASO_RIVI
+### LEVEL / LEVEL_ROW
 
 Lisää **Level Editor** -projektin ohjelmaasi ja kopioi tason rivit
 näyttöpuskuriin – vierityspelin rakennuspalikoita. C64 Visual Assemblerin
 `level-demo.asm` -esimerkki on täydellinen joystick-vieritystaso.
 
-#### TASO
+#### LEVEL
 
 INCBIN-tyylinen direktiivi, joka tuottaa **0 tavua koodia**. Vain **sijoitetut**
 näytöt tasoeditoriprojektista (`.bin`, jonka C64 Visual Assemblerin tasoeditori
@@ -1146,8 +1150,8 @@ näyttöä.
 
 **Syntaksi:**
 ```
-.level "taso.bin"
-.level "taso.bin", 4000 dollaria
+.level "level.bin"
+.level "level.bin", $4000
 ```
 
 | Määritelty                                                                    | Merkitys                                                                                                                                                           |
@@ -1169,7 +1173,7 @@ näyttöä.
 
 Tyypillinen vartija: `.assert LEVEL_END <= $9200, "tasodata törmää koodiin"`.
 
-#### TASO_RIVI
+#### LEVEL_ROW
 
 Kopioi yhden 40-merkkisen rivin tasosta puskuriin: tasorivin muuttujassa **X**
 alkaen `col`-muuttujassa olevasta tasosarakkeesta, `dst`-osoittimessa olevaan
@@ -1181,8 +1185,8 @@ Ohjelmassa tarvitaan `.level`-lohko.
 
 **Syntaksi:**
 ```
-.level_row dst_lo, näkymä_x
-.level_row dst_lo, näkymä_x, väri
+.level_row dst_lo, view_x
+.level_row dst_lo, view_x, color
 ```
 
 **Koko koodissa:** 132 tavua — käytä `LBEQ` / `LBNE`, kun haaran on hypättävä
@@ -1213,12 +1217,12 @@ SID-otsikko antaa:
 **Syntaksi:**
 ```
 .sid "Ikari_Warriors.sid"
-.sid "Ikari_Warriors.sid", 1000 dollaria
+.sid "Ikari_Warriors.sid", $1000
 ```
 
 **Generoidun koodin kommentti:**
 ```
-; SID "Ikari_Warriors.sid" @ $ 1000 Alku: $ 1000 Toisto: $ 1006 (4096 tavua)
+    ; SID "Ikari_Warriors.sid" @ $1000  Init:$1000  Play:$1006  (4096 bytes)
 ```
 
 **Koko koodissa:** 0 tavua rivillä. SID-binääritiedosto sijoitetaan PRG:n
@@ -1266,7 +1270,7 @@ KERNAL-käsittelijään (`JMP $EA31`), joka myös skannaa näppäimistön.
 ```
 .sid "Ikari_Warriors.sid"
 .sid_player
-.sid_player 1, 80 dollaria
+.sid_player 1, $80
 ```
 
 **Koko koodissa:** 58 tavua.
@@ -1278,7 +1282,7 @@ KERNAL-käsittelijään (`JMP $EA31`), joka myös skannaa näppäimistön.
 
 ---
 
-### SISÄLLYTÄ
+### INCLUDE
 
 Kuten **MERGE BASIC**-komennossa — noutaa toisen tiedoston ja laajentaa sen
 rivillä tässä kohdassa. Täydellinen uudelleenkäytettäville
@@ -1299,7 +1303,7 @@ Kahta tiedostotyyppiä tuetaan:
 **Syntaksi:**
 ```
 .include "library.json"
-.include "macros.inc", 1500 dollaria
+.include "macros.inc", $1500
 .include "sprites.asm"
 ```
 
@@ -1312,15 +1316,15 @@ Kahta tiedostotyyppiä tuetaan:
 
 **Generoitu koodi (ei osoitteen ohitusta):**
 ```
-; .include "library.json"
-... (sisällytetty koodi seuraa)
+    ; .include "library.json"
+    ... (the included code follows)
 ```
 
 **Generoitu koodi (latausosoitteella `C000`):**
 ```
-; .include "library.json" @ $C000
-*=$C000
-... (sisällytetty koodi seuraa)
+    ; .include "library.json" @ $C000
+    *=$C000
+    ... (the included code follows)
 ```
 
 > **Vinkki:** Käytä INCLUDE-komentoa luodaksesi uudelleenkäytettäviä
@@ -1338,7 +1342,7 @@ Kahta tiedostotyyppiä tuetaan:
 
 ---
 
-### TAULUKKO
+### TABLE
 
 Kuten **DIM tietyssä osoitteessa** — nimeää hakutaulukon ja määrittää sen
 sijainnin muistissa. Lisää sen jälkeen rivit `.byte`, `.word` tai `.fill`
@@ -1352,12 +1356,12 @@ määrittääksesi taulukon sisällön.
 **Syntaksi:**
 ```
 .table color_table $C000
-.table-haku; nykyisessä osoitteessa
+.table lookup              ; at the current address
 ```
 
 **Generoitu koodi:**
 ```
-väritaulukko:
+color_table:
 ```
 
 Osoitteen kanssa ohjelmalaskuri hyppää siihen; ilman sitä taulukko aloittaa
@@ -1382,12 +1386,12 @@ aloitusosoite on `$0801`.
 
 **Syntaksi:**
 ```
-* = 000 dollaria
+* = $C000
 ```
 
 **Generoitu koodi:**
 ```
-* = 000 dollaria
+* = $C000
 ```
 
 **Koko:** 0 tavua. ORG itsessään ei tuota konekielistä koodia.
@@ -1399,33 +1403,34 @@ täytetään nollilla.
 **Esimerkki — koodi kohdassa `$0801`, datataulukko kohdassa `$C000`:**
 ```
 * = $0801
-LDX #$00
-silmukka:
-LDA $C000,X
-STA $D800,X
-INX BNE-silmukka
-RTS
+    LDX #$00
+loop:
+    LDA $C000,X
+    STA $D800,X
+    INX
+    BNE loop
+    RTS
 
 * = $C000
-.tavu $01, $02, $03, ...
+    .byte $01, $02, $03, ...
 ```
 
 > **Vinkki:** Ilman ORG-elementtiä ohjelma alkaa kohdasta `$0801` (2049
 > desimaalia), joka on BASIC-ohjelman alku. BASIC SYS -tynkällä (oletusarvo)
 > assembler lisää lyhyen `10 SYS…` rivin kohtaan `$0801` ja koodisi alkaa
 > kohdasta `$080D`. Katso [Tuloste: PRG, BASIC-tynkä ja
-> aloituskohta](#3-output-prg-basic-stub-and-entry-point).
+> aloituskohta](#3-lahto-prg-basic-tynka-ja-aloituspiste).
 
 ---
 
-### SILMUKKA / SEURAAVA
+### LOOP / NEXT
 
 Kuten **`FOR X=N TO 1 STEP -1 : ... : NEXT X`** BASICissa — laskee alaspäin
 N:stä 1:een käyttäen X- tai Y-rekisteriä. Aseta käskysi LOOP- ja
 NEXT-rekisterien väliin, niin se toistaa silmukan automaattisesti oikean määrän
 kertoja.
 
-#### SILMUKKA
+#### LOOP
 
 | Argumentti   | Kuvaus                                                              |
 | ------------ | ------------------------------------------------------------------- |
@@ -1435,17 +1440,18 @@ kertoja.
 
 **Syntaksi:**
 ```
-.silmukka X, 10, silmukka0
+.loop X, 10, loop0
 ```
 
 **Generoitu koodi:**
 ```
-LDX #$0A}silmukka0:
+    LDX #$0A
+loop0:
 ```
 
 **Koko:** 2 tavua (LD_-operaatiokoodi + välitön operandi).
 
-#### SEURAAVA
+#### NEXT
 
 | Argumentti   | Kuvaus                                     |
 | ------------ | ------------------------------------------ |
@@ -1454,24 +1460,23 @@ LDX #$0A}silmukka0:
 
 **Syntaksi:**
 ```
-.seuraava silmukka0
+.next loop0
 ```
 
 **Generoitu koodi:**
 ```
-DEX BNE-silmukka0
+    DEX
+    BNE loop0
 ```
 
-**Koko:** 3 tavua (DEX + BNE + haaran offset).
-
-**Esimerkki — 10 näytön solun tyhjentäminen:**
+**Koko:**3 tavua (DEX + BNE + haaran offset).**Esimerkki — 10 näytön solun tyhjentäminen:**
 ```
-LDX #$0A
-silmukka0:
-LDA #$20 ; välilyönti
-STA $0400,X
-DEX
-BNE silmukka0
+    LDX #$0A
+loop0:
+    LDA #$20        ; space character
+    STA $0400,X
+    DEX
+    BNE loop0
 ```
 
 ---
@@ -1492,12 +1497,13 @@ esimerkiksi merkkijonon tai taulukon läpi askellettaessa.
 
 **Syntaksi:**
 ```
-.X:lle, 12 dollaria, 0:lle
+.for X, $12, for0
 ```
 
 **Generoitu koodi:**
 ```
-LDX #00$0:lle:
+    LDX #$00
+for0:
 ```
 
 **Koko:** 2 tavua (LD_-operaatiokoodi + `#$00`).
@@ -1517,23 +1523,23 @@ LDX #00$0:lle:
 
 **Generoitu koodi:**
 ```
-INX CPX #12 $ BNE hintaan 0
+    INX
+    CPX #$12
+    BNE for0
 ```
 
-**Koko:** 5 tavua (IN_ + CP_ #imm + BNE-offset).
-
-**Esimerkki — tulosta tyhjään päättyvä merkkijono:**
+**Koko:**5 tavua (IN_ + CP_ #imm + BNE-offset).**Esimerkki — tulosta tyhjään päättyvä merkkijono:**
 ```
-LDX #$00
+    LDX #$00
 for0:
-LDA msg,X ; msg = PETSCII-merkkijono kiinteässä osoitteessa
-BEQ valmis ; null-terminaattori → poistuminen
-JSR $FFD2 ; CHROUT
-INX
-CPX #$12 ; enintään 18 merkkiä
-BNE for0
+    LDA msg,X       ; msg = PETSCII string at fixed address
+    BEQ done        ; null terminator → exit
+    JSR $FFD2       ; CHROUT
+    INX
+    CPX #$12        ; 18 characters max
+    BNE for0
 done:
-RTS
+    RTS
 ```
 
 > **SILMUKKA vs. FOR:** SILMUKKA laskee alaspäin (N→1) — hyvä viiveille,
@@ -1542,14 +1548,14 @@ RTS
 
 ---
 
-### TYÖNNÄ / VEDÄ
+### PUSH / PULL
 
 Kuten **muuttujien tallentaminen ennen GOSUBia ja niiden palauttaminen **:n
 jälkeen — mutta käyttää 6502-laitteistopinoa. Jos aliohjelma käyttää A:ta, X:ää
 tai Y:tä, se kiedotaan PUSH- ja PULL-käskyihin, jotta kutsuvan koodin rekisterit
 säilyvät.
 
-#### TYÖNNÄ
+#### PUSH
 
 Lisää yhden tai useamman rekisterin pinoon. Järjestys on aina A → X → Y (sisin
 ensin).
@@ -1565,12 +1571,14 @@ ensin).
 
 **Generoitu koodi (esimerkki: `AX`):**
 ```
-PHA Lähetys PHA
+    PHA
+    TXA
+    PHA
 ```
 
 **Koko:** 1 tavu A:lle (`PHA`), 2 tavua X:lle tai Y:lle (siirto + push).
 
-#### VEDÄ
+#### PULL
 
 Palauttaa rekisterit pinosta käänteisessä **järjestyksessä ** (Y → X → A).
 
@@ -1580,21 +1588,23 @@ Palauttaa rekisterit pinosta käänteisessä **järjestyksessä ** (Y → X → 
 
 **Syntaksi:**
 ```
-.vedä AXY-suuntaan
+.pull AXY
 ```
 
 **Generoitu koodi (esimerkki: `AX`):**
 ```
-PLA VERO PLA
+    PLA
+    TAX
+    PLA
 ```
 
-> **Sääntö:** PUSH- ja PULL-komentojen on aina käytettävä **samaa
+> **Sääntö:**PUSH- ja PULL-komentojen on aina käytettävä**samaa
 > rekisterijoukkoa**. `PUSH AX` → `PULL AX` (palauttaa sisäisesti käänteisessä
 > järjestyksessä: ensin X, sitten A).
 
 ---
 
-### LOPPU / RTS-alias
+### END / RTS alias
 
 Kuten **RTS, mutta ystävällisemmällä makronimellä ** — `.end` lähettää yhden
 `RTS` tavun, lyhyen aliohjelman päättäjäismerkin.
@@ -1606,7 +1616,7 @@ Kuten **RTS, mutta ystävällisemmällä makronimellä ** — `.end` lähettää
 
 **Generoitu koodi:**
 ```
-RTS
+    RTS
 ```
 
 **Koko:** 1 tavu.
@@ -1616,14 +1626,14 @@ kuin raakakäskyn kaltaisesti.
 
 ---
 
-### MAKRO / LOPPU / KUTSU
+### MACRO / ENDM / INVOKE
 
 Kuten **niminen GOSUB parametreilla ** — määrittele uudelleenkäytettävä
 koodipätkä kerran (MACRO…ENDM) ja kutsu sitä sitten missä tahansa
 INVOKE-komennolla. Anna eri argumenttiarvot joka kerta koodin kopioinnin ja
 liittämisen sijaan.
 
-#### MAKRO (määritelmän alku)
+#### MACRO (definition start)
 
 | Argumentti | Kuvaus                                                                             |
 | ---------- | ---------------------------------------------------------------------------------- |
@@ -1643,24 +1653,24 @@ kutsukohtaisesti. Makrorungon sisällä olevaa makrokutsua ei laajenneta (virhe)
 
 **Generoitu koodi:**
 ```
-; .MACRO setColor (väri)
-... (runko)
+; .MACRO setColor (color)
+    ... (body)
 ; .ENDM
 ```
 
 **Syntaksi:**
 ```
-.macro setColor väri
-LDA {väri}
-STA $D020
+.macro setColor color
+    LDA {color}
+    STA $D020
 .endm
 ```
 
-#### ENDM (määritelmän loppu)
+#### ENDM (definition end)
 
 Sulkee nykyisen makromäärityksen. Ei argumentteja.
 
-#### VEDOTA
+#### INVOKE
 
 Kutsuu tässä kohdassa määriteltyä makroa ja korvaa annetuilla argumenttiarvoilla
 `{paramName}` -paikkamerkit rungossa.
@@ -1674,24 +1684,24 @@ Kutsuu tässä kohdassa määriteltyä makroa ja korvaa annetuilla argumenttiarv
 ```
 ; .invoke setColor(#$07)
     LDA #$07
-    STA $ D020
+    STA $D020
 ```
 
 **Syntaksi:**
 ```
-; yksi argumentti:
+; single argument:
 .invoke setColor(#$07)
 
-; useita argumentteja:
+; multiple arguments:
 .invoke drawPixel($10, $20)
 
-; ei argumentteja:
+; no arguments:
 .invoke clearScreen
 
-; teksti- / merkkijonoargumentit (lainausmerkeissä):
-.invoke printText("Hei maailma!")
+; text / string arguments (quoted):
+.invoke printText("Hello, World!")
 
-; .call-alias (synonyymi .invoke-metodille):
+; .call alias (synonym for .invoke):
 .call setColor(#$07)
 ```
 
@@ -1699,8 +1709,7 @@ Makron runko laajennetaan rivillä `{paramName}` korvattuna varsinaisilla
 argumenteilla. Myös välilyönneillä erotettu muoto (`.invoke setColor #$07`) on
 sallittu.
 
-**Argumenttityypit:**
-- **Numeerinen**: `#$07`, `$10`, `255` — heksa- tai desimaaliarvot
+**Argumenttityypit:**-**Numeerinen**: `#$07`, `$10`, `255` — heksa- tai desimaaliarvot
 - **Tekstimerkkijonot**: `"Hello, World!"` — lainausmerkit (lainausmerkit on
   poistettu); lainausmerkkien sisällä olevia pilkkuja käsitellään osana tekstiä,
   ei argumenttien erottimina
@@ -1718,7 +1727,7 @@ sallittu.
 
 ---
 
-### ALUE / LOPPUALUE
+### REGION / ENDREGION
 
 Puhdas ryhmittely editoreille ja listauksille — **nolla tavua**, nolla
 vaikutusta koottuun koodiin.
@@ -1730,34 +1739,34 @@ vaikutusta koottuun koodiin.
 **Syntaksi:**
 ```
 .region init
-; koodi...
+    ; code...
 .endregion
 ```
 
 **Generoitu koodi:**
 ```
-; alueen init
+; region init
     SEI
     LDA #$00
-    STA $ D020
+    STA $D020
 ; endregion init
 ```
 
 **Koko:** 0 tavua sekä REGION- että ENDREGION-kohteille.
 
-> **Huom:** Alueet voivat olla **sisäkkäisiä** toistensa sisällä. Jokainen
+> **Huom:**Alueet voivat olla**sisäkkäisiä** toistensa sisällä. Jokainen
 > PÄÄALUE sulkee lähimmän avoimen ALUEEN. Ei vaikutusta koottuun tulosteeseen.
 
 ---
 
-### MÄÄRITTELE / JOS / MUUTEN / ENDIF
+### DEFINE / IF / ELSE / ENDIF
 
 Kuten **-kytkin, assembler lukee** — `DEFINE DEBUG` kytkee symbolin päälle,
 minkä jälkeen minkä tahansa `IF DEBUG`-haaran rivit kootaan ja sen `ELSE`-haaran
 ohitetaan. Poistamalla DEFINE-osan IF-osa katoaa tulosteesta. Julkaisuversioita
 varten ei tarvitse poistaa koodia.
 
-#### MÄÄRITELLÄ
+#### DEFINE
 
 | Argumentti | Kuvaus                                                                                      |
 | ---------- | ------------------------------------------------------------------------------------------- |
@@ -1765,7 +1774,7 @@ varten ei tarvitse poistaa koodia.
 
 **Syntaksi:**
 ```
-.define VIRHEENJÄRJESTELMÄ, PAL
+.define DEBUG, PAL
 ```
 
 **Generoitu koodi:**
@@ -1777,7 +1786,7 @@ varten ei tarvitse poistaa koodia.
 `DEFINE` voi aktivoida useita symboleja kerralla (pilkulla erotettuna). Lisää
 DEFINE-käskyt ohjelmasi alkuun.
 
-#### JOS
+#### IF
 
 | Argumentti | Kuvaus                                                                                                                       |
 | ---------- | ---------------------------------------------------------------------------------------------------------------------------- |
@@ -1785,12 +1794,12 @@ DEFINE-käskyt ohjelmasi alkuun.
 
 **Syntaksi:**
 ```
-.if VIRHEENJÄRJESTELMÄ
+.if DEBUG
 ```
 
 **Generoitu koodi:**
 ```
-; .JOS VIRHEENJÄRJESTELMÄ
+; .IF DEBUG
 ```
 
 Ehto joko kokoaa rivit `IF` ja `ENDIF` (tai `ELSE`) väliin tai ohittaa ne.
@@ -1800,14 +1809,14 @@ vakiolauseke – lauseke, jota ei voida laskea kokoamisvaiheessa, on virhe.
 Ohitetut rivit näkyvät muodossa `; [IF skipped] …` kommentteja ja luovat **zero
 bytes**.
 
-#### MUU
+#### ELSE
 
 Ei argumentteja. Merkitsee vaihtoehtoisen haaran — kootaan, kun `IF`-ehto on
 *not* aktiivinen.
 
 **Syntaksi:**
 ```
-.muu
+.else
 ```
 
 **Generoitu koodi:**
@@ -1821,7 +1830,7 @@ Ei argumentteja. Sulkee ehdollisen osan.
 
 **Syntaksi:**
 ```
-.endif-tiedosto
+.endif
 ```
 
 **Generoitu koodi:**
@@ -1837,11 +1846,11 @@ sisältö * lasketaan.*
 ; .DEFINE DEBUG
 
 ; .IF DEBUG
-LDA #$02 ; punainen reunus
-STA $D020
+    LDA #$02        ; red border
+    STA $D020
 ; .ELSE
-LDA #$00 ; musta (julkaisu)
-STA $D020
+    LDA #$00        ; black (release)
+    STA $D020
 ; .ENDIF
 ```
 
@@ -1850,9 +1859,9 @@ STA $D020
 ; .DEFINE DEBUG, PAL
 
 ; .IF PAL
-LDA #$xx ; PAL-ajoitusvakio
+    LDA #$xx        ; PAL timing constant
 ; .ELSE
-LDA #$xx ; NTSC-ajoitusvakio
+    LDA #$xx        ; NTSC timing constant
 ; .ENDIF
 ```
 
@@ -1878,12 +1887,10 @@ todellisen arvon. Jos se on tosi (ei nolla), se ei tuota mitään.
 ```
 .assert spriteData < $C000
 .assert * < $A000
-.assert end - start <= 256, "sprite-taulukko ylitti yhden sivun"
+.assert end - start <= 256, "sprite table overflowed one page"
 ```
 
-**Käyttäytyminen:**
-
-- **Koko:** 0 tavua.
+**Käyttäytyminen:**-**Koko:** 0 tavua.
 - Epätosi väittämä keskeyttää kokoamisen: `` `.assert end - start <= 256` on
   epätosi (arvo: 0). sprite-taulukko ylitti yhden sivun.``
 - Väite, jota ei voida evaluoida (määrittelemätön otsikko tms.), epäonnistuu
@@ -1894,17 +1901,17 @@ todellisen arvon. Jos se on tosi (ei nolla), se ei tuota mitään.
 
 **Esimerkki — sprite-datan suojaaminen sivun ylitykseltä:**
 ```
-* = 3000 $
+* = $3000
 sprite_data:
-.byte $00, $00, $00 ; … 63 tavua …
+    .byte $00, $00, $00        ; … 63 bytes …
 sprite_data_end:
-.assert sprite_data_end - sprite_data == 63, "spriten on oltava täsmälleen 63 tavua"
-.assert (sprite_data % 64) == 0, "spriten on oltava 64-tavuisesti tasattu"
+    .assert sprite_data_end - sprite_data == 63, "sprite must be exactly 63 bytes"
+    .assert (sprite_data % 64) == 0, "sprite must be 64-byte aligned"
 ```
 
 ---
 
-### VAKION
+### CONST
 
 Kuten **nimetty muuttuja, joka ei koskaan muutu** — `SCREEN = $0400`. Käytä
 nimeä sen sijaan, että kirjoittaisit raakaosoitteita kaikkialle, mikä helpottaa
@@ -1918,13 +1925,13 @@ koodin lukemista ja muuttamista myöhemmin.
 
 **Syntaksi:**
 ```
-.const NÄYTTÖ = $0400
-.const KEHYKSET_1S = 60
+.const SCREEN = $0400
+.const FRAMES_1S = 60
 ```
 
 **Generoitu koodi:**
 ```
-; .VAKIONÄYTTÖ = 0400 $
+; .CONST SCREEN = $0400
 ```
 
 **PC-relatiiviset lausekkeet (`*+N` / `*-N`):**
@@ -1934,10 +1941,10 @@ osoite. Tätä käytetään nimetyn aliaksen luomiseen tavulle läheisen käskyn
 sisällä – klassinen itseään muokkaava koodimalli:
 
 ```
-.const op = *+1; op → seuraavan LDA:n välittömän operandin osoite
-LDA #$00; $00 päivitetään ajonaikana
+.const op = *+1      ; op → address of the immediate operand of the next LDA
+LDA #$00            ; $00 will be patched at runtime
 ...
-STA op; ylikirjoittaa #$00-tavun → LDA lukee uuden arvon seuraavalla kerralla
+STA op              ; overwrites the #$00 byte → LDA reads the new value next time
 ```
 
 CONST-muuttuja tuottaa 0 tavua; käännöksen yhteydessä sen nimi palautuu muotoon
@@ -1950,11 +1957,11 @@ aiemmin määriteltyihin CONST-nimiin, heksadesimaali-/binääriliteraaleihin ja
 sisäänrakennettuihin matemaattisiin funktioihin:
 
 ```
-.const SCREEN = $0400
-.const SCREEN_END = SCREEN + 40*25 ; 1000 tavua myöhemmin
-.const COLOR_RAM = $D800
-.const MID_X = 160
-.const SIN_TABLE = round(sin(PI/8) * 127) ; esilaskettu siniarvo
+.const SCREEN      = $0400
+.const SCREEN_END  = SCREEN + 40*25   ; 1000 bytes later
+.const COLOR_RAM   = $D800
+.const MID_X       = 160
+.const SIN_TABLE   = round(sin(PI/8) * 127)   ; pre-computed sine value
 ```
 
 **Sisäänrakennetut funktiot:** `sin()`, `cos()`, `round()`, `max(a,b)`,
@@ -1981,25 +1988,25 @@ ZP:hen.
 
 **Syntaksi:**
 ```
-.var-laskuri
-.var ajastin, 2
-.var elää
+.var counter
+.var timer, 2
+.var lives
 ```
 
 **Käytännön esimerkki:**
 ```
 .region Vars
-.var-laskuri
-.var ajastin, 2
+.var counter
+.var timer, 2
 .endregion
 
 LDA #$00
-STA laskuri
+STA counter
 ```
 
 **Generoitu koodi:**
 ```
-; .var-laskuri
+; .var counter
 ```
 
 **Koko:** 1 tavu oletusarvoisesti tai `N` tavua, kun koko on määritetty.
@@ -2010,7 +2017,7 @@ tunnisteen kanssa, kääntäjä antaa varoituksen.
 
 ---
 
-### Suorituksenaikainen JOS / MUUTEN / ENDIF
+### Runtime IF / ELSE / ENDIF
 
 Kuten **oikea haarautumismalli** — tämä versio toimii ajonaikana, ei
 käännösaikana. Se vertaa `A`, `X` tai `Y` välittömään arvoon ja tuottaa oikean
@@ -2025,9 +2032,9 @@ käännösaikana. Se vertaa `A`, `X` tai `Y` välittömään arvoon ja tuottaa o
 **Syntaksi:**
 ```
 .if A == #$10
-LDA #$07
+    LDA #$07
 .else
-LDA #$0F
+    LDA #$0F
 .endif
 ```
 
@@ -2038,7 +2045,7 @@ laajenee valitun rekisterin lyhyimpään vastaavaan haaraketjuun.
 
 ---
 
-### SAMALLA / LOPPU
+### WHILE / ENDW
 
 Kuten **suorituksenaikainen silmukka, jonka alussa on testi** — runko
 suoritetaan niin kauan kuin ehto pysyy tosi.
@@ -2051,8 +2058,8 @@ suoritetaan niin kauan kuin ehto pysyy tosi.
 
 **Syntaksi:**
 ```
-.kun A != #$00
-JSR-hakumerkki
+.while A != #$00
+    JSR getchar
 .endw
 ```
 
@@ -2064,7 +2071,7 @@ ajonaikainen vastine.
 
 ---
 
-### TOISTA / KUNNES
+### REPEAT / UNTIL
 
 Kuten **suorituksenaikainen silmukka, jonka lopussa on testi** — runko
 suoritetaan aina ainakin kerran, minkä jälkeen ehto päättää, pysähtyykö se.
@@ -2078,7 +2085,7 @@ suoritetaan aina ainakin kerran, minkä jälkeen ehto päättää, pysähtyykö 
 **Syntaksi:**
 ```
 .repeat
-JSR getchar
+    JSR getchar
 .until A == #$00
 ```
 
@@ -2101,8 +2108,8 @@ yhtenäisen lohkon, `MEMSET` täyttää alueen yhdellä tavulla.
 
 **Syntaksi:**
 ```
-.memcpy src=$C000, dst=$D000, koko=$0100
-.memset addr=$0400, arvo=#$20, koko=$03E8
+.memcpy src=$C000, dst=$D000, size=$0100
+.memset addr=$0400, value=#$20, size=$03E8
 ```
 
 **Generoitu koodi:** sisäisiä kopiointi-/täyttösilmukoita, jotka on valittu
@@ -2117,9 +2124,9 @@ vaihtavat automaattisesti 16-bittiseen laskuriin.
 
 ---
 
-### TULOSTA / TULOSTA_MERKKI / TULOSTA_HEX / TYHJENNÄ_NÄYTTÖ / ODOTA_NÄPPÄIN / VIIVE / ASETA_REUNUS / ASETA_REUNUS
+### PRINT / PRINT_CHAR / PRINT_HEX / CLEAR_SCREEN / WAIT_KEY / DELAY / SET_BORDER / SET_BG
 
-#### PAINAA
+#### PRINT
 
 Kuten **PETSCII-tuloste ilman vakiomuotoista **-tulostetta — tulostaa
 merkkijonon `CHROUT`-funktion kautta samalla isojen/pienten kirjainten
@@ -2127,11 +2134,11 @@ käsittelyllä (`lower`) kuin `.petscii`.
 
 **Syntaksi:**
 ```
-.print "HEI"
-.print "hei", alempi
+.print "HELLO"
+.print "hello", lower
 ```
 
-#### TULOSTA_MERKKI
+#### PRINT_CHAR
 
 Tulostaa yhden PETSCII-tavun numeerisena koodina ja lähettää sen
 `CHROUT`-funktion kautta. Arvo voi olla myös nimetty vakio tai tunniste, joka
@@ -2141,10 +2148,10 @@ muunnetaan tavuksi kokoamisvaiheessa.
 ```
 .print_char 65
 .print_char $41
-.print_char väri
+.print_char color
 ```
 
-#### TULOSTA_HEX
+#### PRINT_HEX
 
 Tulostaa 8-bittisen arvon heksadesimaalimuotoisena tekstinä normaalin
 KERNAL-tulostuspolun kautta.
@@ -2154,13 +2161,13 @@ KERNAL-tulostuspolun kautta.
 .print_hex A
 ```
 
-#### TYHJENNÄ_NÄYTTÖ
+#### CLEAR_SCREEN
 
 Pikanäppäin C64:n vakiomuotoiseen selkeän näytön ohjauskoodiin.
 
 **Syntaksi:**
 ```
-.selkeä_näyttö
+.clear_screen
 ```
 
 #### WAIT_KEY
@@ -2173,7 +2180,7 @@ Odottaa, kunnes näppäintä painetaan, joten sinun ei tarvitse suorittaa
 .wait_key
 ```
 
-#### VIIV.
+#### DELAY
 
 Odottaa pyydetyn määrän kehyksiä jaetun apurutiinin kautta. Käytä tätä lyhyisiin
 taukoihin ja ajoitusaukkoihin, kun täysin mukautettu silmukka olisi liiallinen.
@@ -2187,7 +2194,7 @@ Kehysten määrä voi olla raakaluku tai nimetty vakio, ja `.wait` on vain
 .delay frames=FRAMES_1S
 ```
 
-#### ASETA_REUNUS / ASETA_REUNUS
+#### SET_BORDER / SET_BG
 
 VIC-II-värirekisterien mukavuuskääreet. Väriarvo voi olla raakaluku tai nimetty
 vakio, joka ratkaisee välillä 0–15.
@@ -2196,8 +2203,8 @@ vakio, joka ratkaisee välillä 0–15.
 ```
 .set_border 6
 .set_bg 0
-.set_borderin väri
-.set_bg väri
+.set_border color
+.set_bg color
 ```
 
 **Koko:** Jokainen apufunktio laajenee pieneksi rekisterin kirjoitussekvenssiksi
@@ -2218,7 +2225,7 @@ yleiset CIA:n IRQ-lähteet ja palaa normaaliin suoritukseen komennolla `CLI`.
 
 **Syntaksi:**
 ```
-.irq_setup-käsittelijä=my_irq, rasteri=$FA
+.irq_setup handler=my_irq, raster=$FA
 ```
 
 **Koko:** Lyhyt asennussekvenssi; tarkka pituus riippuu valitusta
@@ -2229,7 +2236,7 @@ CLI" -mallin hajottamatta sitä koko ohjelmaan.
 
 ---
 
-### SATUNNAINEN
+### RAND
 
 Kuten pieni sisäänrakennettu PRNG** — palauttaa 8-bittisen pseudo-satunnaisen
 arvon kompaktista nollasivuisesta siemenestä.
@@ -2267,22 +2274,22 @@ valinnaisesti ottaa käyttöön moniväritilan ja asettaa sen värin.
 **Syntaksi:**
 ```
 .sprite_init 0, 7, $21
-.sprite_init 0, 7, $21, monivärinen
+.sprite_init 0, 7, $21, multicolor
 .sprite_init 0, 7, $21, mono
 ```
 
 **Generoitu koodi:**
 ```
-LDA #$21
-STA $07F8 ; sprite-osoitinrekisteri ($07F8 + N)
-LDA $D015
-ORA #$01 ; aseta spritin 0 aktivointibitti
-STA $D015
-LDA $D01C
-JA #$FE ; tyhjennä spriten 0 moniväribitti
-STA $D01C
-LDA #$07
-STA $D027 ; spriten 0 värirekisteri
+    LDA #$21
+    STA $07F8       ; sprite pointer register ($07F8 + N)
+    LDA $D015
+    ORA #$01        ; set enable bit for sprite 0
+    STA $D015
+    LDA $D01C
+    AND #$FE        ; clear multicolor bit for sprite 0
+    STA $D01C
+    LDA #$07
+    STA $D027       ; sprite 0 colour register
 ```
 
 **Koko:** 26 tavua.
@@ -2313,13 +2320,13 @@ vakiot; animaatioon käytä `INC`/`DEC` suoraan spritin rekisterissä.
 
 **Generoitu koodi (esimerkki: sprite 0, X=152, Y=100):**
 ```
-LDA #$98; X matala tavu
-STA $D000; спрайт 0 X-rekisteri
-LDA $D010
-JA #$FE; tyhjennä X MSB спрайтille 0 (X ≤ 255)
-STA $D010
-LDA #$64; Y = 100
-STA $D001; спрайт 0 Y-rekisteri
+    LDA #$98        ; X low byte
+    STA $D000       ; sprite 0 X register
+    LDA $D010
+    AND #$FE        ; clear X MSB for sprite 0 (X ≤ 255)
+    STA $D010
+    LDA #$64        ; Y = 100
+    STA $D001       ; sprite 0 Y register
 ```
 
 Jos X > 255, makro asettaa vastaavan bitin kohtaan `$D010` sen tyhjentämisen
@@ -2351,10 +2358,10 @@ spritejen repeytymisen. Ei JSR:ää, ei etikettiä tarvita.
 
 **Generoitu koodi:**
 ```
-odota:
-LDA $D012 ; nykyinen rasteririvi
-CMP #$FF ; kohderivi
-BNE odota ; silmukka takaisin (-7 tavua)
+wait:
+    LDA $D012       ; current raster line
+    CMP #$FF        ; target line
+    BNE wait        ; loop back (-7 bytes)
 ```
 
 **Koko:** 7 tavua (`BNE`-offset `$F9` = −7 osoittaa aina takaisin
@@ -2365,7 +2372,7 @@ BNE odota ; silmukka takaisin (-7 tavua)
 
 ---
 
-### OHJAUSSAUVA
+### JOYSTICK
 
 Kuten lukee **`PEEK($DC00)`** ja sitten POKE-käyttää спрайtin sijaintia – mutta
 yhdellä rivillä. Lukee yhden CIA-joystick-portin ja säätää спрайtin
@@ -2378,27 +2385,27 @@ X/Y-rekistereitä vastaavasti. Täysin inline-tilassa, ei JSR:ää tarvita.
 
 **Syntaksi:**
 ```
-.ohjaussauva 2, 0
+.joystick 2, 0
 ```
 
 **Generoitu koodi (portti 2, sprite 0):**
 ```
-LDA $DC00; lue CIA-portti 2
-LSR; bitti 0 → siirto (ylös)
-BCS skip_up; siirto asetettu = EI painettu
-DEC $D001; Y−1 (siirrä ylös)
+    LDA $DC00       ; read CIA port 2
+    LSR             ; bit 0 → carry (Up)
+    BCS skip_up     ; carry set = NOT pressed
+    DEC $D001       ; Y−1 (move up)
 skip_up:
-LSR; bitti 1 → siirto (alas)
-BCS skip_down
-INC $D001; Y+1 (siirrä alas)
+    LSR             ; bit 1 → carry (Down)
+    BCS skip_down
+    INC $D001       ; Y+1 (move down)
 skip_down:
-LSR; bitti 2 → siirto (vasemmalle)
-BCS skip_left
-DEC $D000; X−1 (siirrä vasemmalle)
+    LSR             ; bit 2 → carry (Left)
+    BCS skip_left
+    DEC $D000       ; X−1 (move left)
 skip_left:
-LSR; bitti 3 → siirto (oikealle)
-BCS skip_right
-INC $D000; X+1 (siirrä oikealle)
+    LSR             ; bit 3 → carry (Right)
+    BCS skip_right
+    INC $D000       ; X+1 (move right)
 skip_right:
 ```
 
@@ -2424,8 +2431,8 @@ Portti `3` lukee molemmat joystick-portit samanaikaisesti (`LDA $DC00` / `AND
 $DC01`), joten kumpi tahansa portti toimii.
 
 ```
-.joystick 2, vx, vy; 35 tavua
-.joystick 3, vx, vy, fire; molemmat portit + fire: 45 tavua
+.joystick 2, vx, vy          ; 35 bytes
+.joystick 3, vx, vy, fire    ; both ports + fire: 45 bytes
 ```
 
 > **Tyypillinen käyttö:** Sijoita `gameloop`-otsikon sisään ensin `WAIT_RASTER`:
@@ -2441,7 +2448,7 @@ $DC01`), joten kumpi tahansa portti toimii.
 
 > **2.1:** portti on tiedettävä koodia kirjoitettaessa (numero tai vakio), koska
 > portti 3 pidentää koodia 3 tavua; myöhemmin määritelty tunniste on virhe.
-### HIIRI
+### MOUSE
 
 Lukee Commodore 1351 -suhteellisen hiiren ja liikuttaa спрайтиa. Täysin
 **inline** — ei JSR:ää tai label-koodausta tarvita. Makro valitsee CIA-portin,
@@ -2458,36 +2465,93 @@ käyttämällä 1351-vakioajurikuviota ja soveltaa sitä спрайтirekisterei
 **Generoitu koodimuoto (portti 1, sprite 0, ZP `$FD`/`$FE`):**
 
 ```
-; CIA-portin valinta + selvitys
-LDA $DC00
-JA #$3F
-ORA #$40
-STA $DC00
-LDX #$67
-odota:
-DEX BNE odota
+    ; CIA port select + settle
+    LDA $DC00
+    AND #$3F
+    ORA #$40
+    STA $DC00
+    LDX #$67
+wait:
+    DEX
+    BNE wait
 
-; X-akseli — standardi 1351-tyylinen 7-bittinen delta-dekoodaus
-LDA $D419
-TAY SEC SBC $FD JA #$7F LDX #$00 CMP #$40 BCS xneg LSR A BEQ xdone STY $FD CLC ADC $D000 STA $D000 TXA ADC #$00 JA #$01 BEQ xdone LDA $D010 EOR #$01 STA $D010 JMP xdone
-xneg: ORA #$C0 CMP #$FF BEQ xdone SEC ROR DEX STY $FD CLC ADC $D000 STA $D000 TXA ADC #$00 JA #$01 BEQ xdone LDA $D010 EOR #$01 STA $D010
+    ; X axis — standard 1351-style 7-bit delta decode
+    LDA $D419
+    TAY
+    SEC
+    SBC $FD
+    AND #$7F
+    LDX #$00
+    CMP #$40
+    BCS xneg
+    LSR A
+    BEQ xdone
+    STY $FD
+    CLC
+    ADC $D000
+    STA $D000
+    TXA
+    ADC #$00
+    AND #$01
+    BEQ xdone
+    LDA $D010
+    EOR #$01
+    STA $D010
+    JMP xdone
+xneg:
+    ORA #$C0
+    CMP #$FF
+    BEQ xdone
+    SEC
+    ROR
+    DEX
+    STY $FD
+    CLC
+    ADC $D000
+    STA $D000
+    TXA
+    ADC #$00
+    AND #$01
+    BEQ xdone
+    LDA $D010
+    EOR #$01
+    STA $D010
 xdone:
 
-; Y-akseli — sama dekoodaus, sitten käännetty päinvastaiseksi ennen käyttöönottoa
-LDA $D41A
-VERO SEC SBC $FE
-JA #$7F CMP #$40 BCS yneg LSR A BEQ ydone STX $FE EOR #$FF SEC ADC $D001 STA $D001 JMP ydone
+    ; Y axis — same decode, then inverted before apply
+    LDA $D41A
+    TAX
+    SEC
+    SBC $FE
+    AND #$7F
+    CMP #$40
+    BCS yneg
+    LSR A
+    BEQ ydone
+    STX $FE
+    EOR #$FF
+    SEC
+    ADC $D001
+    STA $D001
+    JMP ydone
 yneg:
-ORA #$C0 CMP #$FF BEQ ydone SEC ROR STX $FE EOR #$FF SEC ADC $D001 STA $D001
+    ORA #$C0
+    CMP #$FF
+    BEQ ydone
+    SEC
+    ROR
+    STX $FE
+    EOR #$FF
+    SEC
+    ADC $D001
+    STA $D001
 ydone:
 ```
 
-**Koko:** 142 tavua.
-
-**Syntaksi:**
+**Koko:**142 tavua.**Syntaksi:**
 ```
-.mouse-portti, spriteNum, zpX, zpY
-; esimerkki:
+.mouse port, spriteNum, zpX, zpY
+; example:
 .mouse 2, 0, FD, FE
 ```
 
@@ -2520,36 +2584,36 @@ inline-tilassa, ei JSR:ää tarvita.
 **Syntaksi:**
 ```
 .sprite_col 0, sprite
-.sprite_col 0, tausta
+.sprite_col 0, background
 ```
 
 **Generoitu koodi (sprite 0, sprite–sprite):**
 ```
-LDA $D01E ; lue sprite-sprite-törmäysrekisteri (tyhjentää sen!)
-JA #$01 ; eristä bitti 0 (sprite 0)
-; A ≠ 0 → törmäys tapahtui
+    LDA $D01E       ; read sprite-sprite collision register (clears it!)
+    AND #$01        ; isolate bit 0 (sprite 0)
+                    ; A ≠ 0 → collision occurred
 ```
 
 **Koko:** 5 tavua.
 
-> **Tärkeää:** Lukeminen `$D01E`/`$D01F` ** tyhjentää rekisterin**. Lue se
+> **Tärkeää:**Lukeminen `$D01E`/`$D01F`** tyhjentää rekisterin**. Lue se
 > kerran kehystä kohden ja toimi tuloksen perusteella välittömästi komennolla
 > `BEQ`/`BNE`.
 
 **Tyypillinen käyttö:**
 ```
 gameloop:
-.wait_raster $FF
-.joystick 2, 0
-.sprite_col 0, sprite
-BEQ no_hit; A = 0 → ei törmäystä
-LDA #$02
-STA $D020; punainen reunus = osuma!
-JMP gameloop
+    .wait_raster $FF
+    .joystick 2, 0
+    .sprite_col 0, sprite
+    BEQ no_hit          ; A = 0 → no collision
+    LDA #$02
+    STA $D020           ; red border = hit!
+    JMP gameloop
 no_hit:
-LDA #$0E
-STA $D020; vaaleansininen reunus = tyhjä
-JMP gameloop
+    LDA #$0E
+    STA $D020           ; light blue border = clear
+    JMP gameloop
 ```
 
 > **Katso myös:** `törmäysdemo` esimerkki — vihreä pallo (sprite #0) vs.
@@ -2557,7 +2621,7 @@ JMP gameloop
 
 ---
 
-### LATAA TIEDOSTO
+### LOADFILE
 
 Kuten BASICissa komennot **`LOAD "tiedosto",8`** — lataa tiedoston D64-levyltä
 suorituksen aikana käyttämällä KERNAL LOAD -rutiinia. Käytä tätä ladataksesi
@@ -2572,25 +2636,27 @@ tietoja, musiikkia tai muuta koodia levyltä ohjelman ollessa käynnissä.
 
 **Syntaksi:**
 ```
-.loadfile "DEMO-VÄRIT", 8
-.loadfile "DEMO-VÄRIT", 8, $C000
-.loadfile "DEMO-VÄRIT", 8, $C000, virheen_tunniste
+.loadfile "DEMO-COLORS", 8
+.loadfile "DEMO-COLORS", 8, $C000
+.loadfile "DEMO-COLORS", 8, $C000, error_label
 ```
 
 **Generoidun koodin rakenne:**
 ```
-JMP skip_filename; hyppää rivinsisäisen tiedostonimen yli
-.byte "DEMO-COLORS"; tiedostonimen tavuja (PETSCII, 11 merkkiä)
+    JMP skip_filename      ; jump over the inline filename
+    .byte "DEMO-COLORS"    ; filename bytes (PETSCII, 11 chars)
 skip_filename:
-LDA #11; tiedostonimen pituus
-LDX #<fname; osoitin lo
-LDY #>fname; osoitin hi
-JSR $FFBD; SETNAM LDA #1; looginen tiedosto #1
-LDX #8; laite 8
-LDY #0; sec=0 (ohitusosoite) tai #1 (tiedoston oma osoite)
-JSR $FFBA; SETLFS
-LDA #0; LOAD-komento (ei VERIFY)
-JSR $FFD5; LOAD BCS epäonnistui; (vain jos virheen nimi on asetettu)
+    LDA #11                ; filename length
+    LDX #<fname            ; pointer lo
+    LDY #>fname            ; pointer hi
+    JSR $FFBD              ; SETNAM
+    LDA #1                 ; logical file #1
+    LDX #8                 ; device 8
+    LDY #0                 ; sec=0 (override addr) or #1 (file's own addr)
+    JSR $FFBA              ; SETLFS
+    LDA #0                 ; LOAD command (not VERIFY)
+    JSR $FFD5              ; LOAD
+    BCS fail               ; (only if error label set)
 ```
 
 **Koko:** `3 + tiedostonimen_pituus + 9 (SETNAM) + 9 (SETLFS) + (4 jos ohitus) +
@@ -2623,20 +2689,20 @@ EXODECRUNCH purkaa sen taaksepäin virtaan upotettuun osoitteeseen.
 **Syntaksi:**
 ```
 .exodecrunch
-.exodecrunch pakkauksenpurkuohjelma=B000 dollaria
+.exodecrunch depacker=$B000
 ```
 
 **Generoitu koodi (19 tavua):**
 ```
-LDA $AE; KERNAL latauksen loppu lo (asetettu edellisen LOAD-komennon mukaan)
-STA $04; pakkauksen purkajan lähde-end-osoitin lo
-LDA $AF; KERNAL latauksen loppu hi
-STA $05; pakkauksen purkajan lähde-end-osoitin hi
-LDA #$36; BASIC ROM pois päältä ($A000-$BFFF muuttuu RAMiksi)
-STA $01
-JSR pakkauksen purkaja; pakkauksen purkaja lukee takaa eteenpäin $04/$05:n kautta
-LDA #$37; oletuskartoituksen palautus (BASIC + KERNAL + I/O)
-STA $01
+    LDA $AE           ; KERNAL load-end lo (set by previous LOAD)
+    STA $04           ; depacker src-end pointer lo
+    LDA $AF           ; KERNAL load-end hi
+    STA $05           ; depacker src-end pointer hi
+    LDA #$36          ; BASIC ROM off ($A000-$BFFF becomes RAM)
+    STA $01
+    JSR depacker      ; depacker reads back-to-front via $04/$05
+    LDA #$37          ; restore default mapping (BASIC + KERNAL + I/O)
+    STA $01
 ```
 
 **Toimintaperiaate:**
@@ -2684,23 +2750,23 @@ lukemalla kaksi kuviota REU-rekisteriin `$DF04`.
 
 **Generoitu koodi (34 tavua):**
 ```
-LDA #55 dollaria
-STA DF04 dollaria
-LDA DF04 dollaria
-CMP # 55 dollaria
-BNE epäonnistuu
+LDA #$55
+STA $DF04
+LDA $DF04
+CMP #$55
+BNE fail
 LDA #$AA
-STA DF04 dollaria
-LDA DF04 dollaria
+STA $DF04
+LDA $DF04
 CMP #$AA
-BNE epäonnistuu
+BNE fail
 LDA #$00
-CMP #$FF ; Z=0 => REU läsnä
-BNE tehty
-epäonnistua:
+CMP #$FF   ; Z=0 => REU present
+BNE done
+fail:
 LDA #$FF
-CMP #$FF ; Z=1 => ei REU:ta
-tehty:
+CMP #$FF   ; Z=1 => no REU
+done:
 ```
 > Makro normalisoi tuloksen, joten seuraava haara pysyy yksinkertaisena: `BNE`
 > tarkoittaa, että REU on läsnä, `BEQ` tarkoittaa, että REU puuttuu.
@@ -2710,17 +2776,12 @@ tehty:
 .reu_check
 ```
 
-**Tulos lipuissa:**
-- **Z = 0** (tulos ≠ 0) → REU läsnä → käytä `BNE`
-- **Z = 1** (tulos = 0) → ei REU:ta → käytä `BEQ`
-
-**Ei argumentteja** — makro luo saman koodin joka kerta.
-
-**Tyypillinen käyttö:**
+**Tulos lipuissa:**-**Z = 0** (tulos ≠ 0) → REU läsnä → käytä `BNE`
+- **Z = 1**(tulos = 0) → ei REU:ta → käytä `BEQ`**Ei argumentteja**— makro luo saman koodin joka kerta.**Tyypillinen käyttö:**
 ```assembly
 .reu_check
-BEQ no_reu ; ohita, jos REU:ta ei ole
-; ... REU koodi täällä ...
+BEQ no_reu        ; skip if REU not present
+; ... REU code here ...
 no_reu:
 ```
 
@@ -2757,16 +2818,16 @@ välitön.
 
 **Generoitu koodi (40 tavua):**
 ```
-LDA #c64lo STA $DF02; C64 osoite LO
-LDA #c64hi STA $DF03; C64 osoite HI
-LDA #reuLo STA $DF04; REU osoite LO
-LDA #reuHi STA $DF05; REU osoite HI
-LDA #bank STA $DF06; REU pankki
-LDA #lenLo STA $DF07; pituus LO
-LDA #lenHi STA $DF08; pituus HI
-LDA #$00 STA $DF09; osoitteen hallinta (kiinteä)
-LDA #$00 STA $DF0A; keskeytysmaski (kiinteä)
-LDA #cmd STA $DF01; suorita DMA ($90/$91/$92 = jemma/nouto/vaihto, välitön)
+LDA #c64lo    STA $DF02    ; C64 address LO
+LDA #c64hi    STA $DF03    ; C64 address HI
+LDA #reuLo    STA $DF04    ; REU address LO
+LDA #reuHi    STA $DF05    ; REU address HI
+LDA #bank     STA $DF06    ; REU bank
+LDA #lenLo    STA $DF07    ; length LO
+LDA #lenHi    STA $DF08    ; length HI
+LDA #$00      STA $DF09    ; address control (fixed)
+LDA #$00      STA $DF0A    ; interrupt mask (fixed)
+LDA #cmd      STA $DF01    ; execute DMA ($90/$91/$92 = stash/fetch/swap, immediate)
 ```
 
 > **Huomautus:** Komennot käyttävät `$90/$91/$92` (bitti 4 asetettu = välitön
@@ -2792,14 +2853,14 @@ Nopeustavu lasketaan seuraavasti: `(speedIndex & 0x0F) | (badline_disabled ?
 
 **Generoitu koodi (5 tavua):**
 ```
-A9 xx LDA #speed_byte
-8D 31 D0 STA D031 $
+A9 xx   LDA #speed_byte
+8D 31 D0   STA $D031
 ```
 
 **Syntaksi:**
 ```
-.turbo_set 7,0 ; nopeus=7 (~10 MHz), huono linja käytössä
-.turbo_set 15,1 ; nopeus=15 (~48 MHz), huono linja poistettu käytöstä
+.turbo_set 7,0    ; speed=7 (~10 MHz), badline enabled
+.turbo_set 15,1   ; speed=15 (~48 MHz), badline disabled
 ```
 
 > **Huom:** Tämä makro vaikuttaa vain U64-laitteistoon. Oikealla C64:llä tai
@@ -2815,15 +2876,12 @@ Tarkistaa, onko **CMD SuperCPU** -kiihdytin asennettu — esimerkiksi
 
 **Generoitu koodi (5 tavua):**
 ```
-AD B8 D0 LDA $D0B8
-C9 FF CMP #$FF
+AD B8 D0   LDA $D0B8
+C9 FF      CMP #$FF
 ```
 
-**Tulos lipuissa:**
-- **Z = 0** → SuperCPU läsnä → käytä `BNE`
-- **Z = 1** → SuperCPU:ta ei löydy → käytä `BEQ`
-
-**Ei argumentteja.**
+**Tulos lipuissa:**-**Z = 0** → SuperCPU läsnä → käytä `BNE`
+- **Z = 1**→ SuperCPU:ta ei löydy → käytä `BEQ`**Ei argumentteja.**
 
 **Syntaksi:**
 ```
@@ -2833,14 +2891,14 @@ C9 FF CMP #$FF
 **Tyypillinen käyttö:**
 ```assembly
 .supercpu_detect
-BEQ no_scpu ; ohita, jos SuperCPU:ta ei ole
-; ... SuperCPU:n turbo-koodi tähän ...
+BEQ no_scpu       ; skip if SuperCPU not present
+; ... SuperCPU turbo code here ...
 no_scpu:
 ```
 
 ---
 
-### TURBO_KÄYTÖSSÄ
+### TURBO_ENABLE
 
 Kytkee **CMD SuperCPU turbo -tilan** päälle tai pois päältä. Kutsu ensin
 `SUPERCPU_DETECT` ja ohita tämä, jos SuperCPU:ta ei ole.
@@ -2852,14 +2910,14 @@ Kytkee **CMD SuperCPU turbo -tilan** päälle tai pois päältä. Kutsu ensin
 
 **Generoitu koodi (5 tavua):**
 ```
-A9 00 LDA #$00
-8D 7A D0 STA $D07A ; (tai D07B dollaria käytöstä poistamiseksi)
+A9 00         LDA #$00
+8D 7A D0      STA $D07A    ; (or $D07B for disable)
 ```
 
 **Syntaksi:**
 ```
-.turbo_enable päällä
-.turbo_enable pois päältä
+.turbo_enable on
+.turbo_enable off
 ```
 
 > **Huomautus:** Kutsu ensin `SUPERCPU_DETECT`-makroa ja haaraudu tämän makron
@@ -2868,7 +2926,7 @@ A9 00 LDA #$00
 ---
 
 <a id="map_copy"></a>
-### KARTTAKOPIO
+### MAP_COPY
 
 Kopioi laattakartan lähdeosoitteesta näyttömuistiin (ja valinnaisesti
 värimuistiin) käyttämällä sarjaa `LDA abs,X` / `STA abs,X` silmukoita. Yksi
@@ -2886,19 +2944,24 @@ luodaan inline-tilassa.
 
 **Generoitu koodi (1000 tavun kartta, vain näyttö):**
 ```
-LDX #$00
-LDA $C000,X ; sivu 0
-STA $0400,X
-INX BNE *-9 ; toistuu, kunnes X päättyy nollaan (256 iteraatiota)
-LDA $C100,X ; sivu 1
-STA $0500,X
-INX BNE *-9
-LDA $C200,X ; sivu 2
-STA $0600,X
-INX BNE *-9
-LDA $C300,X ; loppuosa — 232 tavua
-STA $0700,X
-INX CPX #$E8 BNE *-11
+    LDX #$00
+    LDA $C000,X   ; page 0
+    STA $0400,X
+    INX
+    BNE *-9       ; loops until X wraps to 0 (256 iters)
+    LDA $C100,X   ; page 1
+    STA $0500,X
+    INX
+    BNE *-9
+    LDA $C200,X   ; page 2
+    STA $0600,X
+    INX
+    BNE *-9
+    LDA $C300,X   ; remainder — 232 bytes
+    STA $0700,X
+    INX
+    CPX #$E8
+    BNE *-11
 ```
 
 **Koko:** `2 (LDX) + fullPages×9 + (rem > 0 ? 11 : 0)` tavua osiota kohden.
@@ -2913,22 +2976,22 @@ värilähteenä ja lähdeosoite, johon tämä tiedosto ladataan (esim. `.incbin`
 kohdassa `$C000`):
 
 ```
-.incbin "map-color.bin", $C000 ; näyttökoodit $C000–$C3E7, väri $C3E8–$C7CF
-; ...
-.map_copy $C000, $0400, 1000, automaattinen, $D800
+    .incbin "map-color.bin", $C000   ; screen codes $C000–$C3E7, color $C3E8–$C7CF
+    ; ...
+    .map_copy $C000, $0400, 1000, auto, $D800
 ```
 
 **Syntaksi:**
 ```
-.map_copy $C000, $0400, 1000; vain näyttö
-.map_copy $C000, $0400, 1000, automaattinen, $D800; yhdistetty (väri lähdearvolla + koko)
-.map_copy $C000, $0400, 1000, $C3E8, $D800; eksplisiittinen värilähteen osoite
+.map_copy $C000, $0400, 1000               ; screen only
+.map_copy $C000, $0400, 1000, auto, $D800  ; combined (color at src+size)
+.map_copy $C000, $0400, 1000, $C3E8, $D800 ; explicit color source address
 ```
 
 ---
 
 <a id="map_copy16x16"></a>
-### KARTTA_KOPIO 16X16
+### MAP_COPY16X16
 
 Kopioi 16×16 merkkialueen kompaktista 256-tavuisesta näyttökoodilohkosta sekä
 vastaavan 256-tavuisen Color RAM -lohkon. Se on tarkoitettu Charset Canvas
@@ -2946,8 +3009,8 @@ MAP_COPY-rivin kirjoittaminen olisi kohinaa.
 
 **Syntaksi:**
 ```
-.map_copy16x16 3000 dollaria, 12, 4
-.map_copy16x16 3000 dollaria, 12, 4, 0400 dollaria, 3100 dollaria, 800 dollaria
+.map_copy16x16 $3000, 12, 4
+.map_copy16x16 $3000, 12, 4, $0400, $3100, $D800
 ```
 
 Lyhyt muoto kopioi näyttötavut sarakkeesta `$3000`, väritavut sarakkeesta
@@ -2966,20 +3029,20 @@ vasemman yläkulman sijainnit ovat `col = 0..24` ja `row = 0..9`, joten koko
 Tyypillinen pariliitos Charset Canvasin kanssa:
 
 ```
-* = 0801 dollaria
+* = $0801
     SEI
     LDA #$00
-    STA $ D021
+    STA $D021
     LDA #$05
-    STA $ D022
+    STA $D022
     LDA #$0D
-    STA $ D023
-    .map_copy16x16 3000 $, 12, 4
-silmukka:
-    JMP-silmukka
+    STA $D023
+    .map_copy16x16 $3000, 12, 4
+loop:
+    JMP loop
 
-.incbin "16x16+ram+color.bin", 3000 $
-.incbin "16x16+charset.bin", 2000 dollaria
+.incbin "16x16+ram+color.bin", $3000
+.incbin "16x16+charset.bin", $2000
 ```
 
 ---
@@ -3001,26 +3064,32 @@ kutsu sitä kerran pelikehystä kohden – JSR:ää ei tarvita.
 
 **Generoitu koodi (sprite 0, 4 kehystä, ZP `$FB`, lista kohdassa `$C100`):**
 ```
-INC $FB; kehyslaskurin esikatselu LDA $FB CMP #$04; kehysten määrä BCC *+6; jos laskuri < määrä, ohita nollaus LDA #$00 STA $FB TAX; X = nykyisen kehyksen indeksi LDA $C100,X; lataa sprite-tietosivu tälle kehykselle STA $07F8; päivitä sprite 0 -osoitin ($07F8 + sprite#)
+    INC $FB         ; advance frame counter
+    LDA $FB
+    CMP #$04        ; frame count
+    BCC *+6         ; if counter < count, skip reset
+    LDA #$00
+    STA $FB
+    TAX             ; X = current frame index
+    LDA $C100,X     ; load sprite data page for this frame
+    STA $07F8       ; update sprite 0 pointer ($07F8 + sprite#)
 ```
 
-**Koko:** 19 tavua.
-
-**Tyypillinen käyttö:**
+**Koko:**19 tavua.**Tyypillinen käyttö:**
 ```
 frameTable:
-.byte $21, $22, $23, $24 ; 4 kehystä arvoilla $0840, $0880, $08C0, $0900
+    .byte $21, $22, $23, $24   ; 4 frames at $0840, $0880, $08C0, $0900
 
 gameloop:
-.wait_raster $FF
-.sprite_anim 0, $C100, 4, $FB
-JMP-gameloop
+    .wait_raster $FF
+    .sprite_anim 0, $C100, 4, $FB
+    JMP gameloop
 ```
 
 **Syntaksi:**
 ```
 .sprite_anim spriteNum, frameListAddr, frameCount, zpByte
-; esimerkki:
+; example:
 .sprite_anim 0, C100, 4, FB
 ```
 
@@ -3032,7 +3101,7 @@ JMP-gameloop
 ---
 
 <a id="score_bcd"></a>
-### PISTEET_BCD
+### SCORE_BCD
 
 Lisää kiinteän pisteen arvon muistiin tallennettuun monitavuiseen
 BCD-pistemäärään ja renderöi sitten jokaisen numeron näyttö-RAM-muistiin
@@ -3054,35 +3123,37 @@ BCD-aritmetiikkaan – manuaalista kortin vaihtamista ei tarvita.
 **Generoitu koodi (4 tavua, +100 pistettä, pisteet kohdassa `$C200`, näyttö
 kohdassa `$0400`):**
 ```
-SED; ota BCD/desimaalitila käyttöön
-CLC
-LDA $C200; tavu 0 (numerot 1–2)
-ADC #$00; BCD:n 100:n alempi tavu = $00
-STA $C200
-LDA $C201; tavu 1 (numerot 3–4)
-ADC #$01; BCD:n 100:n keskimmäinen tavu = $01 (siirto etenee)
-STA $C201
-LDA $C202
-ADC #$00 STA $C202
-LDA $C203
-ADC #$00 STA $C203
-CLD; takaisin binääritilaan
+    SED              ; enable BCD / decimal mode
+    CLC
+    LDA $C200        ; byte 0 (digits 1–2)
+    ADC #$00         ; low byte of 100 in BCD = $00
+    STA $C200
+    LDA $C201        ; byte 1 (digits 3–4)
+    ADC #$01         ; mid byte of 100 in BCD = $01 (carry propagates)
+    STA $C201
+    LDA $C202
+    ADC #$00
+    STA $C202
+    LDA $C203
+    ADC #$00
+    STA $C203
+    CLD              ; back to binary mode
 
-; renderöi numerot
-LDX #$00
+    ; render digits
+    LDX #$00
 digit_loop:
-LDA $C200,X
-PHA
-LSR : LSR : LSR : LSR ; korkea napostelu → matala napostelu
-ORA #$30 ; + '0' näyttökoodi
-STA $0406,X ; oikealle tasattu: näytön_osoite + (numerot*2 - 2) - X*2
-PLA
-JA #$0F ; matala napostelu
-ORA #$30
-STA $0407,X
-INX
-CPX #$04
-BNE numerosilmukka
+    LDA $C200,X
+    PHA
+    LSR : LSR : LSR : LSR  ; high nibble → low nibble
+    ORA #$30         ; + '0' screen code
+    STA $0406,X      ; right-justified: screen_addr + (digits*2 - 2) - X*2
+    PLA
+    AND #$0F         ; low nibble
+    ORA #$30
+    STA $0407,X
+    INX
+    CPX #$04
+    BNE digit_loop
 ```
 
 **Koko:** `3 + numerot × 8` tavua (SED + CLC + CLD-lisäkuorma + 8 tavua
@@ -3140,7 +3211,7 @@ Uutta versiossa 2.1.0: `--crt` / `--crt-name` (kasetti) ja `--d64` / `--add` /
 `--disk-name` (levynkuva).
 
 ```
-vma build <input.asm> [asetukset]
+vma build <input.asm> [options]
 vma --help
 vma --version
 ```
@@ -3171,8 +3242,8 @@ vakiovirheen yhteydessä, yksi rivi virhettä kohden), `2` virheellinen käyttö
 ```
 vma build game.asm -o game.prg --debug
 vma build game.asm --no-basic-stub --search ../assets
-vma build game.asm --crt game.crt # pelkkä kasetti
-vma build game.asm --d64 --add music.prg # game.d64 GAME- ja MUSIC-tiedostojen kanssa
+vma build game.asm --crt game.crt                    # the cartridge only
+vma build game.asm --d64 --add music.prg             # game.d64 with GAME and MUSIC
 ```
 
 ## 9. Tunnetut rajoitukset

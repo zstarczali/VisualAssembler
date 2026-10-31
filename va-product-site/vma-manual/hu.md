@@ -9,16 +9,16 @@ alkalmazás egyéb eszközei a C64 Visual Assembler kézikönyvében található
 
 ## Tartalomjegyzék
 
-1. [Forrásformátum](#1-source-format)
-2. [Számok és kifejezések](#2-numbers-and-expressions)
+1. [Forrásformátum](#1-forrasformatum)
+2. [Számok és kifejezések](#2-szamok-es-kifejezesek)
 3. [Kimenet: PRG, BASIC stub és belépési
-   pont](#3-output-prg-basic-stub-and-entry-point)
-4. [Címzési módok](#4-addressing-modes)
-5. [6502 utasítások](#5-6502-instructions)
+   pont](#3-kimenet-prg-basic-stub-es-belepesi-pont)
+4. [Címzési módok](#4-cimzesi-modok)
+5. [6502 utasítások](#5-6502-utasitasok)
 6. [Utasítások és makrók — hivatkozás](#6-directives-and-macros--reference)
-7. [KickAssembler-stílusú szintaxis](#7-kickassembler-style-syntax)
-8. [Parancssor](#8-command-line)
-9. [Ismert korlátok](#9-known-limitations)
+7. [KickAssembler-stílusú szintaxis](#7-kickassembler-stilusu-szintaxis)
+8. [Parancssor](#8-parancssor)
+9. [Ismert korlátok](#9-ismert-korlatok)
 
 ---
 
@@ -45,7 +45,7 @@ loop: dex                ; a label and an instruction on one line
 - Az **címkék** írásmódja `név:` — betűk, számjegyek és `_`, nem számjeggyel
   kezdődnek. A címke önálló sorban vagy egy utasítás előtt is állhat. A ponttal
   kezdődő név (`.loop:`) egy **lokális címke** (lásd [Local (dotted)
-  labels](#local-dotted-labels)); Az `-` és az `+` önmagukban **anonim címkék**,
+  labels](#helyi-pontozott-cimkek)); Az `-` és az `+` önmagukban **anonim címkék**,
   amelyekre az `bne -` / `beq +` hivatkozik (a legközelebbi előtte / utána).
 - Az **utasítások** egy emlékeztető és egy operandus; a behúzás szabad.
 - Az **** direktívák ponttal kezdődnek (`.byte`, `.macro`, `.if` …); az `* =
@@ -105,8 +105,8 @@ kerül; a köztük lévő hézagok nullák.
   $00, $9E, …` a `$0801` címen), eredeti állapotában kerül kibocsátásra, második
   csonk nélkül.
 
-A PRG-ből a parancssor létrehoz egy **patront** és egy **lemezképet** is
-(újdonság a 2.1.0 verzióban, lásd [8. Parancssor](#8-command-line)):
+A PRG-ből a parancssor létrehoz egy **patront**és egy**lemezképet** is
+(újdonság a 2.1.0 verzióban, lásd [8. Parancssor](#8-parancssor)):
 
 - `--crt FÁJL` — egy Magic Desk hangszedő (CRT 19-es típus, 8 × 8K bank,
   legfeljebb 65 408 bájt program). A 0. bankban lévő betöltő inicializálja a
@@ -128,18 +128,18 @@ felírási módja alapján választja ki a módot.
 
 | Mód             | Címke          | Példa               | Leírás                                                                         |
 | --------------- | -------------- | ------------------- | ------------------------------------------------------------------------------ |
-| **implicitált** | Hallgatólagos  | `NEM `              | Nincs operandus; az utasítás önálló                                            |
-| **azonnali**    | Azonnali       | `LDA #$FF`          | Beágyazott állandó; az assembler automatikusan hozzáadja az `#` értékeket      |
-| **nullaOldal**  | Nulla oldal    | `LDA $10`           | Egybájtos cím a nulladik oldalon (0–255)                                       |
-| **nullaOldalX** | Nulla oldal, X | `LDA $10,X`         | Nulla oldalcím + X regiszter eltolás (az eredmény a 0. oldalon tördelődik)     |
-| **nullaOldalY** | Nulla oldal, Y | `LDX $FB,Y`         | Nulla oldalcím + Y regiszter eltolás                                           |
-| **abszolút**    | Abszolút       | `LDA $0400`         | Teljes 16 bites memóriacím                                                     |
-| **abszolútX**   | Abszolút,X     | `LDA $0400,X`       | 16 bites cím + X regiszter eltolás                                             |
-| **abszolútY**   | Abszolút,Y     | `LDA $0400,Y`       | 16 bites cím + Y regiszter eltolás                                             |
-| **relatív**     | Rokon/Címke    | `BNE hurok`         | Fióktelepre vonatkozó utasításokhoz adjon meg egy címkenevet vagy egy célcímet |
-| **indirectX**   | Közvetett, X   | `LDA ($FB,X)`       | Nulla oldal indexelése közvetett módon (operandus = nulla oldal címe, 1 bájt)  |
-| **indirektY**   | Közvetett, Y   | `LDA ($FB),Y`       | Nulla oldalas indirekt indexelés (operandus = nulla oldalcím, 1 bájt)          |
-| **közvetett**   | Közvetett      | `JMP (0100 dollár)` | Közvetett; csak JMP-vel használható                                            |
+| **implied** | Hallgatólagos  | `NEM `              | Nincs operandus; az utasítás önálló                                            |
+| **immediate** | Azonnali       | `LDA #$FF`          | Beágyazott állandó; az assembler automatikusan hozzáadja az `#` értékeket      |
+| **zeroPage** | Nulla oldal    | `LDA $10`           | Egybájtos cím a nulladik oldalon (0–255)                                       |
+| **zeroPageX** | Nulla oldal, X | `LDA $10,X`         | Nulla oldalcím + X regiszter eltolás (az eredmény a 0. oldalon tördelődik)     |
+| **zeroPageY** | Nulla oldal, Y | `LDX $FB,Y`         | Nulla oldalcím + Y regiszter eltolás                                           |
+| **absolute** | Abszolút       | `LDA $0400`         | Teljes 16 bites memóriacím                                                     |
+| **absoluteX** | Abszolút,X     | `LDA $0400,X`       | 16 bites cím + X regiszter eltolás                                             |
+| **absoluteY** | Abszolút,Y     | `LDA $0400,Y`       | 16 bites cím + Y regiszter eltolás                                             |
+| **relative** | Rokon/Címke    | `BNE hurok`         | Fióktelepre vonatkozó utasításokhoz adjon meg egy címkenevet vagy egy célcímet |
+| **indirectX** | Közvetett, X   | `LDA ($FB,X)`       | Nulla oldal indexelése közvetett módon (operandus = nulla oldal címe, 1 bájt)  |
+| **indirectY** | Közvetett, Y   | `LDA ($FB),Y`       | Nulla oldalas indirekt indexelés (operandus = nulla oldalcím, 1 bájt)          |
+| **indirect** | Közvetett      | `JMP (0100 dollár)` | Közvetett; csak JMP-vel használható                                            |
 
 ### Konstansok a nulladik oldalon
 
@@ -157,7 +157,7 @@ a 2.1-ben.)*
 
 Bármely operandus, amely címet vagy azonnali értéket fogad el, közvetlenül
 elfogad egy **névű** konstanst (egy `.const`-et vagy egy címkét). Ezenkívül
-használhatod a **label+offset** vagy az **label−offset** kifejezéseket egy
+használhatod a **label+offset**vagy az**label−offset** kifejezéseket egy
 elnevezett konstanshoz viszonyított címre való hivatkozáshoz:
 
 | Szintaxis         | Példa                             | Leírás                                                                                                             |
@@ -609,9 +609,7 @@ A C64 két karakterkészlettel rendelkezik, amelyek futásidőben választhatók
 - **Kisbetűs karakterkészlet (`lower`):** Írd be a kívánt kisbetűs/nagybetűs
   karakterkészletet. `"hello"` → kisbetűs megjelenítés, `"HELLO"` → nagybetűs
   megjelenítés. Futásidejű karakterkészlet-váltást igényel a képernyőre írás
-  előtt (használd a **CHARSET lower** makrót).
-
-**Generált kód (nagybetűs mód, `"SZIA"`):**
+  előtt (használd a **CHARSET lower**makrót).**Generált kód (nagybetűs mód, `"SZIA"`):**
 ```
     LDA #$08      ; 'H' screen code $08
     STA $0400
@@ -626,14 +624,14 @@ A C64 két karakterkészlettel rendelkezik, amelyek futásidőben választhatók
 .text 0, 2, "hello", lower    ; lowercase charset
 ```
 
-A karakterek **képernyőkódként** vannak kódolva (nem PETSCII). **Méret:**
+A karakterek **képernyőkódként**vannak kódolva (nem PETSCII).**Méret:**
 `szöveghossz × 5` bájt (LDA + STA karakterenként).
 
 ---
 
 ### STRING
 
-Mint például egy ** karakterlánc beszúrása ** bármely memóriacímre futásidőben.
+Mint például egy **karakterlánc beszúrása** bármely memóriacímre futásidőben.
 LDA/STA párokat generál, amelyek minden karakter képernyőkódját egymást követő
 címekre másolják.
 
@@ -663,9 +661,7 @@ címekre másolják.
     ...
 ```
 
-A karaktereket **képernyőkódként** kódoljuk (nem PETSCII). Az opcionális
-**Shift** érték minden bájthoz hozzáadódik, pl. `$80` fordított videó esetén.
-**Méret:** `text.length × 5` bájt (karakterenként egy LDA + egy STA).
+A karaktereket **képernyőkódként**kódoljuk (nem PETSCII). Az opcionális**Shift**érték minden bájthoz hozzáadódik, pl. `$80` fordított videó esetén.**Méret:** `text.length × 5` bájt (karakterenként egy LDA + egy STA).
 
 ---
 
@@ -806,9 +802,7 @@ hogy az `.print` ugyanazt a kódolót és az `lower` flaget használja.
 | Mód                            | Nagybetűs bevitel (`A`–`Z`)                                                                                                      | Kisbetűs bevitel (`a`–`z`)         |
 | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
 | **Nagybetű (alapértelmezett)** | `$41`–`$5A` (PETSCII nagybetűs CHROUT-on keresztül)                                                                              | szintén leképezve a `$41`–`$5A`-re |
-| **Kisbetű (`kisbetű`)**        | Az ábécé betűi át lettek képezve, így a látható kis- és nagybetűs karakterkészletben a kis- és nagybetűk változatlanok maradnak. | Ugyanaz a szabály                  |
-
-**Szintaxis:**
+| **Kisbetű (`kisbetű`)**| Az ábécé betűi át lettek képezve, így a látható kis- és nagybetűs karakterkészletben a kis- és nagybetűk változatlanok maradnak. | Ugyanaz a szabály                  |**Szintaxis:**
 ```
 .petscii $C000, "HELLO"              ; uppercase PETSCII (default)
 .petscii $C000, "hello", lower       ; lowercase PETSCII ($61–$7A)
@@ -865,9 +859,7 @@ között.
 
 | Érv | Leírás                                                                                                                                                   |
 | --- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Mód | **Kisbetűs** — engedélyezi a kisbetűs/nagybetűs karakterkészletet; **Nagybetűs** — visszaállítja az alapértelmezett nagybetűs/grafikus karakterkészletet |
-
-**Szintaxis:**
+| Mód | **Kisbetűs**— engedélyezi a kisbetűs/nagybetűs karakterkészletet;**Nagybetűs**— visszaállítja az alapértelmezett nagybetűs/grafikus karakterkészletet |**Szintaxis:**
 ```
 .charset lower    ; switch to lowercase charset
 .charset upper    ; switch back to uppercase/graphics charset
@@ -889,9 +881,7 @@ Nagybetűs mód:
     STA $D018
 ```
 
-**Méret:** 8 bájt (LDA abs + ORA/AND imm + STA abs).
-
-**Miért ORA/ÉS a közvetlen írás helyett?** `$D018` a képernyő RAM helyét is
+**Méret:**8 bájt (LDA abs + ORA/AND imm + STA abs).**Miért ORA/ÉS a közvetlen írás helyett?** `$D018` a képernyő RAM helyét is
 vezérli (7–4. bitek). Csak az 1. bit bekapcsolása őrzi meg a regiszter többi
 részét.
 
@@ -951,9 +941,7 @@ Beágyazott futásidejű kódot bocsát ki, amely végrehajtáskor 8 bájtot má
 **Cél címe:** `$3800 + 65 * 8 = $3A08`. Fordítási időben kiszámítva és fixen
 beépítve az STA operandusokba.
 
-**Méret:** 40 bájt karakterenként (8 × 5).
-
-**Tipikus munkafolyamat:**
+**Méret:**40 bájt karakterenként (8 × 5).**Tipikus munkafolyamat:**
 ```
     ; Point VIC-II at RAM charset at $3800
     LDA $D018
@@ -970,7 +958,7 @@ beépítve az STA operandusokba.
 
 | Megközelítés                             | Használja, amikor                                                                                          |
 | ---------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| **CHARDEF**                              | Szükséged lesz néhány egyéni karakterre (mondjuk 1–20). A futásidejű költség 40 bájt karakterenként.       |
+| **CHARDEF** | Szükséged lesz néhány egyéni karakterre (mondjuk 1–20). A futásidejű költség 40 bájt karakterenként.       |
 | **RAWBYTES @ $3800**                     | Teljes egyéni karakterkészlettel rendelkezik (256 karakter). Összesen 2 KB adat, nincs futásidejű másolat. |
 | **INCBIN "karakterkészlet.bin" @ $3800** | Külső karakterkészletfájl (a Karakterszerkesztő által létrehozva). A legtisztább opció.                    |
 | **Karakterkészlet vászon + INCBIN**      | Teljes 256 karakteres bitkép egyetlen 128×128-as képként festve.                                           |
@@ -986,7 +974,7 @@ beépítve az STA operandusokba.
 
 Tengelyhez igazított határolókeret (AABB) ütközési teszt két, 4 bájtos nulla
 oldalas struktúrákkal leírt téglalap között. Az eredményt az akkumulátorban adja
-vissza: **A = 1** átfedés esetén, **A = 0** egyébként. Tisztán inline assembly,
+vissza: **A = 1**átfedés esetén,**A = 0** egyébként. Tisztán inline assembly,
 nincs alprogramhívás.
 
 | Érv               | Leírás                                                                                    |
@@ -1030,9 +1018,7 @@ no: LDA #$00
 done:
 ```
 
-**Méret:** 30 bájt.
-
-**Tipikus munkafolyamat:**
+**Méret:**30 bájt.**Tipikus munkafolyamat:**
 
 ```
     ; Player sprite box at $FB..$FE
@@ -1430,7 +1416,7 @@ loop:
 > (2049 decimális). A BASIC SYS csonkkal (alapértelmezett) az assembler egy
 > rövid `10 SYS…` sort helyez el a `$0801`-nél, és a kódod a `$080D`-nél
 > kezdődik. Lásd: [Kimenet: PRG, BASIC csonk és belépési
-> pont](#3-output-prg-basic-stub-and-entry-point).
+> pont](#3-kimenet-prg-basic-stub-es-belepesi-pont).
 
 ---
 
@@ -1479,9 +1465,7 @@ loop0:
     BNE loop0
 ```
 
-**Méret:** 3 bájt (DEX + BNE + elágazási eltolás).
-
-**Példa — 10 képernyőcella törlése:**
+**Méret:**3 bájt (DEX + BNE + elágazási eltolás).**Példa — 10 képernyőcella törlése:**
 ```
     LDX #$0A
 loop0:
@@ -1540,9 +1524,7 @@ for0:
     BNE for0
 ```
 
-**Méret:** 5 bájt (IN_ + CP_ #imm + BNE eltolás).
-
-**Példa — nullával lezárt karakterlánc kiírása:**
+**Méret:**5 bájt (IN_ + CP_ #imm + BNE eltolás).**Példa — nullával lezárt karakterlánc kiírása:**
 ```
     LDX #$00
 for0:
@@ -1595,7 +1577,7 @@ legbelső először).
 
 #### PULL
 
-Visszaállítja a regisztereket a veremből ** fordított sorrendben ** (Y → X → A).
+Visszaállítja a regisztereket a veremből **fordított sorrendben** (Y → X → A).
 
 | Érv         | Leírás                                                        |
 | ----------- | ------------------------------------------------------------- |
@@ -1613,7 +1595,7 @@ Visszaállítja a regisztereket a veremből ** fordított sorrendben ** (Y → X
     PLA
 ```
 
-> **Szabály:** A PUSH és PULL utasításoknak mindig **ugyanazt a
+> **Szabály:**A PUSH és PULL utasításoknak mindig**ugyanazt a
 > regiszterkészletet kell használniuk**. `PUSH AX` → `PULL AX` (belsőleg
 > fordított sorrendben állítja vissza: először X, majd A).
 
@@ -1643,7 +1625,7 @@ makróként, mint nyers utasításként olvasható.
 
 ### MACRO / ENDM / INVOKE
 
-Mint egy ** nevű GOSUB, paraméterekkel ** — definiáljon egyszer egy
+Mint egy **nevű GOSUB, paraméterekkel** — definiáljon egyszer egy
 újrafelhasználható kódrészletet (MACRO…ENDM), majd hívja meg bárhol az INVOKE
 paranccsal. Minden alkalommal más argumentumértékeket adjon át a kód
 másolása-beillesztése helyett.
@@ -1725,8 +1707,7 @@ A makró törzse kibővül a `{paramName}` paraméterrel, amelyet a tényleges
 argumentumok helyettesítenek. A szóközzel elválasztott formátum (`.invoke
 setColor #$07`) is elfogadott.
 
-**Argumentumtípusok:**
-- **Numerikus**: `#$07`, `$10`, `255` — hexadecimális vagy decimális értékek
+**Argumentumtípusok:**-**Numerikus**: `#$07`, `$10`, `255` — hexadecimális vagy decimális értékek
 - **Szöveges karakterláncok**: `"Hello, World!"` — idézőjelek közé tett
   karakterláncok (az idézőjelek elhagyatva); az idézőjelek között lévő vesszőket
   a szöveg részeként kezeli a rendszer, nem pedig argumentum-elválasztóként.
@@ -1772,14 +1753,14 @@ nulla hatás az összeállított kódra.
 
 **Méret:** 0 bájt mind a REGION, mind az ENDREGION esetében.
 
-> **Megjegyzés:** A régiók **egymásba ágyazhatók**. Minden ENDREGION lezárja a
+> **Megjegyzés:**A régiók**egymásba ágyazhatók**. Minden ENDREGION lezárja a
 > legközelebbi nyitott REGION-t. Nincs hatással az összeállított kimenetre.
 
 ---
 
 ### DEFINE / IF / ELSE / ENDIF
 
-Mint egy ** kapcsoló, az assembler a következőt olvassa: ** — `DEFINE DEBUG`
+Mint egy **kapcsoló, az assembler a következőt olvassa:** — `DEFINE DEBUG`
 bekapcsol egy szimbólumot, majd bármely `IF DEBUG` sorai assemblerre kerülnek,
 és az `ELSE` ág kimarad. A DEFINE eltávolításával az IF rész eltűnik a
 kimenetből. A kiadott buildekhez nem kell kódot törölni.
@@ -1909,9 +1890,7 @@ bocsát ki.
 .assert end - start <= 256, "sprite table overflowed one page"
 ```
 
-**Viselkedés:**
-
-- **Méret:** 0 bájt.
+**Viselkedés:**-**Méret:** 0 bájt.
 - Egy hamis állítás megszakítja az összeszerelést: `` `.assert end - start &lt;=
   256` is false (value: 0). sprite tábla túlcsordult egy oldalon.``
 - Egy olyan állítás, amely nem értékelhető ki (nincs definiált címke stb.),
@@ -2579,9 +2558,7 @@ yneg:
 ydone:
 ```
 
-**Méret:** 142 bájt.
-
-**Szintaxis:**
+**Méret:**142 bájt.**Szintaxis:**
 ```
 .mouse port, spriteNum, zpX, zpY
 ; example:
@@ -2629,7 +2606,7 @@ regisztereket, és megmondja, hogy egy sprite egy másik sprite-ba vagy a hátt�
 
 **Méret:** 5 bájt.
 
-> **Fontos:** A(z) `$D01E`/`$D01F` ** beolvasása törli a(z)** regisztert. Olvasd
+> **Fontos:**A(z) `$D01E`/`$D01F`** beolvasása törli a(z)** regisztert. Olvasd
 > be képkockánként egyszer, és azonnal reagálj az eredményre a(z) `BEQ`/`BNE`
 > paranccsal.
 
@@ -2807,11 +2784,8 @@ done:
 .reu_check
 ```
 
-**Eredmény a jelzőkben:**
-- **Z = 0** (eredmény ≠ 0) → REU jelen → `BNE` használata
-- **Z = 1** (eredmény = 0) → nincs REU → használja az `BEQ`
-
-**Nincsenek argumentumok** — a makró minden alkalommal ugyanazt a kódot
+**Eredmény a jelzőkben:**-**Z = 0** (eredmény ≠ 0) → REU jelen → `BNE` használata
+- **Z = 1**(eredmény = 0) → nincs REU → használja az `BEQ`**Nincsenek argumentumok** — a makró minden alkalommal ugyanazt a kódot
 generálja.
 
 **Tipikus használat:**
@@ -2917,11 +2891,8 @@ AD B8 D0   LDA $D0B8
 C9 FF      CMP #$FF
 ```
 
-**Eredmény a jelzőkben:**
-- **Z = 0** → SuperCPU jelen → `BNE` használata
-- **Z = 1** → Nem található SuperCPU → használja az `BEQ` függvényt
-
-**Nincsenek argumentumok.**
+**Eredmény a jelzőkben:**-**Z = 0** → SuperCPU jelen → `BNE` használata
+- **Z = 1**→ Nem található SuperCPU → használja az `BEQ` függvényt**Nincsenek argumentumok.**
 
 **Szintaxis:**
 ```
@@ -3115,9 +3086,7 @@ játékkockánként egyszer hívja meg – nincs szükség JSR-re.
     STA $07F8       ; update sprite 0 pointer ($07F8 + sprite#)
 ```
 
-**Méret:** 19 bájt.
-
-**Tipikus használat:**
+**Méret:**19 bájt.**Tipikus használat:**
 ```
 frameTable:
     .byte $21, $22, $23, $24   ; 4 frames at $0840, $0880, $08C0, $0900

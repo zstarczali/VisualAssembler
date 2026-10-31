@@ -10,16 +10,16 @@ manualen för C64 Visual Assembler.
 
 ## Innehåll
 
-1. [Källformat](#1-source-format)
-2. [Siffror och uttryck](#2-numbers-and-expressions)
+1. [Källformat](#1-kallformat)
+2. [Siffror och uttryck](#2-tal-och-uttryck)
 3. [Utdata: PRG, BASIC-stub och
-   startpunkt](#3-output-prg-basic-stub-and-entry-point)
-4. [Adresseringslägen](#4-addressing-modes)
-5. [6502 instruktioner](#5-6502-instructions)
+   startpunkt](#3-utdata-prg-basic-stub-och-ingangspunkt)
+4. [Adresseringslägen](#4-adresseringslagen)
+5. [6502 instruktioner](#5-6502-instruktioner)
 6. [Direktiv och makron — referens](#6-directives-and-macros--reference)
-7. [Syntax i KickAssembler-stil](#7-kickassembler-style-syntax)
-8. [Kommandoraden](#8-command-line)
-9. [Kända begränsningar](#9-known-limitations)
+7. [Syntax i KickAssembler-stil](#7-syntax-i-kickassembler-stil)
+8. [Kommandoraden](#8-kommandorad)
+9. [Kända begränsningar](#9-kanda-begransningar)
 
 ---
 
@@ -30,15 +30,15 @@ roll för mnemonik och direktiv (`lda`, `LDA`, `.BYTE`, `.byte`); etikettnamn ä
 skiftlägeskänsliga.
 
 ```
-; en kommentar — så är // en kommentar
-* = $1000 ; ORG: assemble from $1000
-start: ; en etikett (kolon krävs)
-lda #$06 ; en instruktion: mnemonisk och operand
-sta $D020
-.byte $01, $02, $FF ; ett direktiv börjar med en punkt
-loop: dex ; en etikett och en instruktion på en rad
-bne loop
-rts
+; a comment — so is // a comment
+* = $1000                ; ORG: assemble from $1000
+start:                   ; a label (the colon is required)
+    lda #$06             ; an instruction: mnemonic and operand
+    sta $D020
+    .byte $01, $02, $FF  ; a directive starts with a dot
+loop: dex                ; a label and an instruction on one line
+    bne loop
+    rts
 ```
 
 - **Kommentarer** börjar med `;` eller `//` och fortsätter till slutet av raden
@@ -46,7 +46,7 @@ rts
 - **Etiketter** skrivs som `namn:` — bokstäver, siffror och `_`, som inte börjar
   med en siffra. En etikett kan stå på en egen rad eller framför en instruktion.
   Ett namn som börjar med en punkt (`.loop:`) är en **lokal etikett** (se
-  [Lokala (punktade) etiketter](#local-dotted-labels)); `-` och `+` är i sig
+  [Lokala (punktade) etiketter](#lokala-prickade-etiketter)); `-` och `+` är i sig
   själva **anonyma etiketter**, refererade av `bne -` / `beq +` (närmaste före /
   efter).
 - **Instruktioner** är en mnemonisk metod och en operand; indenteringen är fri.
@@ -76,8 +76,13 @@ liknande känner också till `lo()`, `hi()`, `sin()`, `cos()`, `round()`, `min()
 `max()`, `abs()` och `PI`.
 
 ```
-.const B = 7 lda #(B+1)*2 lda #B & 3 | 8 lda #~B & $FF ldx #'A' lda #<skärm; låg byte för en etikett
-lda #>(*+63); hög byte för en PC-relativ adress
+.const B = 7
+    lda #(B+1)*2
+    lda #B & 3 | 8
+    lda #~B & $FF
+    ldx #'A'
+    lda #<screen        ; low byte of a label
+    lda #>(*+63)        ; high byte of a PC-relative address
 ```
 
 ## 3. Utdata: PRG, BASIC-stub och ingångspunkt
@@ -100,8 +105,8 @@ mellanrummen mellan dem är nollor.
 - En källa som börjar med sin egen BASIC SYS-rad (`.byte $0B, $08, $0A, $00,
   $9E, …` vid `$0801`) genereras som den är, utan en andra stub.
 
-Från PRG skapar kommandoraden även en **kassett** och en **diskavbildning**
-(nytt i 2.1.0, se [8. Kommandorad](#8-command-line)):
+Från PRG skapar kommandoraden även en **kassett**och en**diskavbildning**
+(nytt i 2.1.0, se [8. Kommandorad](#8-kommandorad)):
 
 - `--crt FIL` — en Magic Desk-kassett (CRT-typ 19, 8 × 8K banker, högst 65 408
   byte program). En laddare i bank 0 initierar KERNAL, kör en kopieringsrutin
@@ -121,18 +126,18 @@ läget utifrån hur operanden är skriven.
 
 | Läge              | Märka           | Exempel         | Beskrivning                                                             |
 | ----------------- | --------------- | --------------- | ----------------------------------------------------------------------- |
-| **underförstått** | Underförstådd   | `NOP`           | Ingen operand; instruktionen är fristående                              |
-| **omedelbart**    | Omedelbar       | `LDA #$FF`      | Inline-konstant; assemblern lägger till `#` automatiskt                 |
-| **nollSida**      | Noll sida       | `LDA 10 dollar` | Enkelbyteadress på sidan noll (0–255)                                   |
-| **nollSidaX**     | Noll sida, X    | `LDA $10,X`     | Noll sidadress + X-registerförskjutning (resultatet omsluter sidan 0)   |
-| **nollSidaY**     | Noll sida, Y    | `LDX $FB,Y`     | Noll sidadress + Y-registerförskjutning                                 |
-| **absolut**       | Absolut         | `LDA $0400`     | Fullständig 16-bitars minnesadress                                      |
-| **absolutX**      | Absolut, X      | `LDA $0400,X`   | 16-bitars adress + X-registerförskjutning                               |
-| **absolutY**      | Absolut, Y      | `LDA $0400,Y`   | 16-bitars adress + Y-registerförskjutning                               |
-| **släkting**      | Relativ/Etikett | `BNE-slinga`    | För instruktioner för filialen; ange ett etikettnamn eller en måladress |
-| **indirektX**     | Indirekt, X     | `LDA ($FB,X)`   | Noll sidindexerad indirekt (operand = noll sidadress, 1 byte)           |
-| **indirektY**     | Indirekt, Y     | `LDA ($FB),Y`   | Noll sid indirekt indexerad (operand = noll sidadress, 1 byte)          |
-| **indirekt**      | Indirekt        | `JMP ($0100)`   | Indirekt; endast användbar med JMP                                      |
+| **implied** | Underförstådd   | `NOP`           | Ingen operand; instruktionen är fristående                              |
+| **immediate** | Omedelbar       | `LDA #$FF`      | Inline-konstant; assemblern lägger till `#` automatiskt                 |
+| **zeroPage** | Noll sida       | `LDA 10 dollar` | Enkelbyteadress på sidan noll (0–255)                                   |
+| **zeroPageX** | Noll sida, X    | `LDA $10,X`     | Noll sidadress + X-registerförskjutning (resultatet omsluter sidan 0)   |
+| **zeroPageY** | Noll sida, Y    | `LDX $FB,Y`     | Noll sidadress + Y-registerförskjutning                                 |
+| **absolute** | Absolut         | `LDA $0400`     | Fullständig 16-bitars minnesadress                                      |
+| **absoluteX** | Absolut, X      | `LDA $0400,X`   | 16-bitars adress + X-registerförskjutning                               |
+| **absoluteY** | Absolut, Y      | `LDA $0400,Y`   | 16-bitars adress + Y-registerförskjutning                               |
+| **relative** | Relativ/Etikett | `BNE-slinga`    | För instruktioner för filialen; ange ett etikettnamn eller en måladress |
+| **indirectX** | Indirekt, X     | `LDA ($FB,X)`   | Noll sidindexerad indirekt (operand = noll sidadress, 1 byte)           |
+| **indirectY** | Indirekt, Y     | `LDA ($FB),Y`   | Noll sid indirekt indexerad (operand = noll sidadress, 1 byte)          |
+| **indirect** | Indirekt        | `JMP ($0100)`   | Indirekt; endast användbar med JMP                                      |
 
 ### Konstanter på nollsidan
 
@@ -149,7 +154,7 @@ sidnollfönster, `$00FB` absolut. *(Nytt i 2.1.)*
 
 Alla operander som accepterar en adress eller ett omedelbart värde accepterar
 också en **konstant name** (en `.const` eller en label) direkt. Dessutom kan du
-använda uttrycken **label+offset** eller **label−offset** för att referera till
+använda uttrycken **label+offset**eller**label−offset** för att referera till
 en adress relativt till en namngiven konstant:
 
 | Syntax            | Exempel                           | Beskrivning                                                                                                       |
@@ -166,8 +171,13 @@ en adress relativt till en namngiven konstant:
 
 **Exempel — rensa två skärmsidor med hjälp av en CONST:**
 ```
-; .CONST screen_ram = $0400 LDX #$00
-clear: STA screen_ram,X STA screen_ram+$0100,X DEX BNE clear
+; .CONST screen_ram = $0400
+    LDX #$00
+clear:
+    STA screen_ram,X
+    STA screen_ram+$0100,X
+    DEX
+    BNE clear
 ```
 
 ### Programräknaren `*` i uttryck
@@ -207,21 +217,22 @@ etiketter med samma korta namn under olika globala etiketter kolliderar
 
 ```
 DrawSprite:
-LDX #0
-.loop: ; == DrawSprite.loop
-LDA SpriteData,X
-STA $2000,X
-INX
-CPX #63
-BNE .loop ; löses inom DrawSprite RTS
+    LDX #0
+.loop:                 ; == DrawSprite.loop
+    LDA SpriteData,X
+    STA $2000,X
+    INX
+    CPX #63
+    BNE .loop          ; resolves within DrawSprite
+    RTS
 
 ClearScreen:
-LDX #0
-.loop: ; == ClearScreen.loop — ingen kollision
-STA $0400,X
-INX
-BNE .loop
-RTS
+    LDX #0
+.loop:                 ; == ClearScreen.loop — no clash
+    STA $0400,X
+    INX
+    BNE .loop
+    RTS
 ```
 
 - Inom ett omfång, referera till en lokal etikett som `.namn`.
@@ -238,10 +249,11 @@ följer efter kolon.
 
 ```
 setup:
-LDA-värde:#$00; 'värde' -> adress för operandbyten #$00
-...
+    LDA value:#$00     ; 'value' -> address of the #$00 operand byte
+    ...
 patch:
-LDA #new STA-värde; skriver operandbyten direkt — klassisk SMC
+    LDA #new
+    STA value          ; writes the operand byte directly — classic SMC
 ```
 
 `värde` pekar på `<instruktionsadress> + 1` (den första operandbyten), för varje
@@ -308,8 +320,8 @@ adress**, inte bara −128…+127. Var och en samlas till en inverterad gren som
 hoppar över en 3-byte `JMP` — alltid **5 byte**:
 
 ```
-LBEQ klar; monteras till: BNE *+3 ($D0 $03)
-; JMP klar ($4C lågt värde)
+LBEQ done      ; assembles to:   BNE *+3   ($D0 $03)
+               ;                 JMP done  ($4C lo hi)
 ```
 
 | Lång operation | Skick                       | Utsänd som           |
@@ -398,7 +410,7 @@ Tänk på dem som inbyggda subrutiner.
 
 ---
 
-### MÄRKA
+### LABEL
 
 Som ett **radnummer i BASIC** — men med ett namn istället för ett nummer.
 Hoppmål för `JMP`, `JSR`, `BNE`, etc.
@@ -409,12 +421,12 @@ Hoppmål för `JMP`, `JSR`, `BNE`, etc.
 
 **Syntax:**
 ```
-slinga:
+loop:
 ```
 
 **Genererad kod:**
 ```
-slinga: ; $0820
+loop:  ; $0820
 ```
 
 Den aktuella adressen visas som en kommentar. Etiketter har en storlek på **0
@@ -422,19 +434,19 @@ byte**.
 
 ---
 
-### KOMMENTAR
+### COMMENT
 
 Liksom **REM i BASIC** — en anmärkning till dig själv som assemblern ignorerar
 helt.
 
 **Syntax:**
 ```
-Din kommentartext här
+; Your comment text here
 ```
 
 **Genererad kod:**
 ```
-Din kommentartext här
+; Your comment text here
 ```
 
 ---
@@ -455,7 +467,7 @@ programmet.
 
 **Genererad kod:**
 ```
-.byte $01, $02, $FF
+    .byte $01, $02, $FF
 ```
 
 **Referenser för låg/hög byte-etiketter:** BYTE accepterar tokens av
@@ -464,7 +476,7 @@ tillsammans med numeriska värden. Assemblern löser etikettadressen vid
 kompileringstillfället och infogar lämplig byte. Exempel:
 
 ```
-.byte <bildruta_0, >bildruta_0, <bildruta_1, >bildruta_1
+    .byte <frame_0, >frame_0, <frame_1, >frame_1
 ```
 
 Detta lagrar den låga byten för `frame_0`s adress, sedan den höga byten, och
@@ -475,7 +487,7 @@ adresslistor.
 
 ---
 
-### ORD
+### WORD
 
 Liksom **DATA i BASIC men för 16-bitars tal **. Varje värde lagras som två byte
 (låg byte först, sedan hög byte — 6502 little-endian-ordning).
@@ -486,19 +498,19 @@ Liksom **DATA i BASIC men för 16-bitars tal **. Varje värde lagras som två by
 
 **Syntax:**
 ```
-.ord 400 USD, 000 USD
+.word $0400, $C000
 ```
 
 **Genererad kod:**
 ```
-.ord 400 USD, 000 USD
+    .word $0400, $C000
 ```
 
 **Storlek:** 2 byte per ord.
 
 ---
 
-### FYLLA
+### FILL
 
 Liksom `FOR I=1 TO N : POKE addr+I, val : NEXT` — fyller ett minnesblock med
 samma byte, på en rad. Utmärkt för att rensa områden eller förfylla tabeller.
@@ -509,12 +521,12 @@ samma byte, på en rad. Utmärkt för att rensa områden eller förfylla tabelle
 
 **Syntax:**
 ```
-.fyll 256, 00 kr
+.fill 256, $00
 ```
 
 **Genererad kod:**
 ```
-.fyll 256, 00 kr
+    .fill 256, $00
 ```
 
 **Uttryckssyntax:** Både `count` och `value` accepterar aritmetiska uttryck. Du
@@ -537,7 +549,7 @@ Operatorer: `+ - * /` Literaler: `$FF` (hex), `%10110000` (binär) Låg/hög byt
 
 ---
 
-### JUSTERA
+### ALIGN
 
 Skjuter den aktuella adressen framåt till nästa rena gräns genom att infoga
 noll-utfyllnadsbyte. C64 kräver att sprite-data börjar på en 64-byte-gräns —
@@ -550,12 +562,12 @@ noll-utfyllnadsbyte. C64 kräver att sprite-data börjar på en 64-byte-gräns �
 **Syntax:**
 ```
 .align 64
-.align 2000 dollar
+.align $2000
 ```
 
 **Genererad kod:**
 ```
-; ALIGN 64 → $0840 (12 byte utfyllnad)
+    ; ALIGN 64 → $0840 (12 bytes padding)
 ```
 
 **Storlek:** Dynamisk — beror på den aktuella programräknarpositionen.
@@ -597,21 +609,25 @@ C64 har två teckenuppsättningar som kan väljas vid körning:
 
 **Genererad kod (versaler, `"HEJ"`):**
 ```
-LDA #$08 ; 'H' skärmkod $08 STA $0400 LDA #$05 ; 'E' skärmkod $05 STA $0401 ...
+    LDA #$08      ; 'H' screen code $08
+    STA $0400
+    LDA #$05      ; 'E' screen code $05
+    STA $0401
+    ...
 ```
 
 **Syntax:**
 ```
-.text 0, 2, "HELLO"; teckenuppsättning för versaler (standard)
-.text 0, 2, "hello", teckenuppsättning för gemener; teckenuppsättning för gemener
+.text 0, 2, "HELLO"           ; uppercase charset (default)
+.text 0, 2, "hello", lower    ; lowercase charset
 ```
 
-Tecken kodas som **skärmkoder** (inte PETSCII). **Storlek:** `text.length × 5`
+Tecken kodas som **skärmkoder**(inte PETSCII).**Storlek:** `text.length × 5`
 byte (LDA + STA per tecken).
 
 ---
 
-### STRÄNG
+### STRING
 
 Som att **POKEa en sträng** till valfri minnesadress vid körning. Genererar
 LDA/STA-par som kopierar varje teckens skärmkod till efterföljande adresser.
@@ -626,20 +642,23 @@ LDA/STA-par som kopierar varje teckens skärmkod till efterföljande adresser.
 
 **Syntax:**
 ```
-.string $C000, "HELLO" ; teckenuppsättning för versaler (standard)
-.string $C000, "hello", gemener ; teckenuppsättning för gemener
-.string $C000, "HELLO", 80 ; med shift (omvänd video)
-.string $C000, "hello", 80, gemener ; shift + gemener
-.string $C000, "HELLO" :my_string ; med macroLabel
+.string $C000, "HELLO"                  ; uppercase charset (default)
+.string $C000, "hello", lower           ; lowercase charset
+.string $C000, "HELLO", 80             ; with shift (reverse video)
+.string $C000, "hello", 80, lower      ; shift + lowercase
+.string $C000, "HELLO" :my_string      ; with macroLabel
 ```
 
 **Genererad kod:**
 ```
-LDA #$08 ; 'H'-skärmkod STA $C000 LDA #$05 ; 'E'-skärmkod STA $C001 ...
+    LDA #$08      ; 'H' screen code
+    STA $C000
+    LDA #$05      ; 'E' screen code
+    STA $C001
+    ...
 ```
 
-Tecken kodas som **skärmkoder** (inte PETSCII). Det valfria värdet **Shift**
-läggs till varje byte, t.ex. `$80` för omvänd video. **Storlek:** `text.length ×
+Tecken kodas som **skärmkoder**(inte PETSCII). Det valfria värdet**Shift**läggs till varje byte, t.ex. `$80` för omvänd video.**Storlek:** `text.length ×
 5` byte (en LDA + en STA per tecken).
 
 ---
@@ -657,14 +676,14 @@ körning, ett LDA/STA-par per byte.
 
 **Syntax:**
 ```
-.data $C000, $01, $02, $03 ; hex-adress
-.data my_buf, $01, $02, $03 ; etikett adress
-.data $C000, $01, $02, $03 :mydata ; med macroLabel
+.data $C000, $01, $02, $03          ; hex address
+.data my_buf, $01, $02, $03         ; label address
+.data $C000, $01, $02, $03 :mydata  ; with macroLabel
 ```
 
 **Genererad kod:**
 ```
-LDA #$01
+    LDA #$01
     STA $C000
     LDA #$02
     STA $C001
@@ -694,9 +713,9 @@ specifik adress.
 
 **Syntax:**
 ```
-.rawbytes $C000, $00, $00, $00; hex-adress
-.rawbytes sprite_data, $00, $00; label-adress
-.rawbytes $0C50, $00, $00: nev; med macroLabel — annan kod kan använda LDA nev,X
+.rawbytes $C000, $00, $00, $00      ; hex address
+.rawbytes sprite_data, $00, $00     ; label address
+.rawbytes $0C50, $00, $00 :nev      ; with macroLabel — other code can use LDA nev,X
 ```
 
 **Storlek i kod:** 0 byte. Data placeras på den angivna adressen i utdata.
@@ -712,7 +731,7 @@ specifik adress.
 
 ---
 
-### RÅTEXT
+### RAWTEXT
 
 Som RAWBYTES men för text — kodar strängen som skärmkoder och placerar bytena på
 en fast adress utan **körningskod**. Texten är klar i minnet så fort PRG laddas.
@@ -727,22 +746,22 @@ en fast adress utan **körningskod**. Texten är klar i minnet så fort PRG ladd
 
 **Syntax:**
 ```
-.rawtext $C000, "HELLO" ; teckenuppsättning för versaler (standard)
-.rawtext $C000, "hello", gemener ; teckenuppsättning för gemener
-.rawtext $C000, "HELLO", 80 ; med shift (omvänd video)
-.rawtext $C000, "hello", 80, gemener ; shift + gemener
-.rawtext $0400, "HELLO" :min_text ; med macroLabel
+.rawtext $C000, "HELLO"                 ; uppercase charset (default)
+.rawtext $C000, "hello", lower          ; lowercase charset
+.rawtext $C000, "HELLO", 80            ; with shift (reverse video)
+.rawtext $C000, "hello", 80, lower     ; shift + lowercase
+.rawtext $0400, "HELLO" :my_text       ; with macroLabel
 ```
 
 **Genererad kod:**
 ```
 ; .rawtext "HELLO" -> $C000
 ; $C000
-.byte $08, $05, $0C, $0C, $0F ; H E L L O (versaler)
+    .byte $08, $05, $0C, $0C, $0F   ; H E L L O (uppercase screen codes)
 
-; .rawtext "hej", gemener -> $C000
+; .rawtext "hello", lower -> $C000
 ; $C000
-.byte $48, $45, $4C, $4C, $4F ; h e l l o (gemener)
+    .byte $48, $45, $4C, $4C, $4F   ; h e l l o (lowercase screen codes $41–$5A range)
 ```
 
 **Storlek i kod:** 0 byte. Data placeras på den angivna adressen i utdata.
@@ -777,20 +796,19 @@ loop, och observera att `.print` använder samma kodare och `lower`-flagga.
 | Läge                    | Stora bokstäver (`A`–`Z`)                                                                                                    | Gemener (`a`–`z`)            |
 | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ---------------------------- |
 | **Versaler (standard)** | `$41`–`$5A` (PETSCII versaler via CHROUT)                                                                                    | även mappad till `$41`–`$5A` |
-| **Gemener (`gemener`)** | Alfabetiska bokstäver mappas om så att det synliga skiftläget förblir konsekvent på teckenuppsättningen för gemener/versaler | Samma regel                  |
-
-**Syntax:**
+| **Gemener (`gemener`)**| Alfabetiska bokstäver mappas om så att det synliga skiftläget förblir konsekvent på teckenuppsättningen för gemener/versaler | Samma regel                  |**Syntax:**
 ```
-.petscii $C000, "HALLÅ" ; versaler PETSCII (standard)
-.petscii $C000, "hallå", gemener ; gemener PETSCII ($61–$7A)
-.petscii $C000, "HALLÅ", null ; med null-terminator
-.petscii $C000, "hallå", gemener, null ; gemener + null-terminator
-.petscii $C000, "HALLÅ" :my_msg ; med macroLabel
+.petscii $C000, "HELLO"              ; uppercase PETSCII (default)
+.petscii $C000, "hello", lower       ; lowercase PETSCII ($61–$7A)
+.petscii $C000, "HELLO", null        ; with null terminator
+.petscii $C000, "hello", lower, null ; lowercase + null terminator
+.petscii $C000, "HELLO" :my_msg      ; with macroLabel
 ```
 
 **Genererade byte (versaler, `"HEJ"`):**
 ```
-; $C000 .byte $48, $45, $4C, $4C, $4F ; H E L L O (PETSCII $41–$5A-intervall)
+; $C000
+    .byte $48, $45, $4C, $4C, $4F   ; H E L L O (PETSCII $41–$5A range)
 ```
 
 **Storlek i kod:** 0 byte. Data placeras på måladressen som en uppskjuten
@@ -800,9 +818,15 @@ datasektion (som RAWBYTES).
 efter texten. Idealiskt för loopar med nollterminering:
 
 ```
-LDX #$00
-loop: LDA-meddelande,X BEQ klar; $00 stoppar loopen JSR $FFD2 INX BNE-loop
-klar: RTS
+    LDX #$00
+loop:
+    LDA msg,X
+    BEQ done        ; $00 stops the loop
+    JSR $FFD2
+    INX
+    BNE loop
+done:
+    RTS
 ```
 
 **Kodningsregler:**
@@ -820,44 +844,44 @@ klar: RTS
 
 ---
 
-### TECKENUPPSÄTTNING
+### CHARSET
 
 Växlar VIC-II-tecken-ROM:et mellan versaler/grafikläge (C64-standard) och
 gemener/versaler-läge genom att modifiera bit 1 av `$D018` vid körning.
 
 | Argument | Beskrivning                                                                                                                                  |
 | -------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| Läge     | **Gemener** — aktiverar teckenuppsättningen för gemener/versaler; **Versaler** — återställer standardteckenuppsättningen för versaler/grafik |
-
-**Syntax:**
+| Läge     | **Gemener**— aktiverar teckenuppsättningen för gemener/versaler;**Versaler**— återställer standardteckenuppsättningen för versaler/grafik |**Syntax:**
 ```
-.charset lower; växla till gemener teckenuppsättning
-.charset upper; växla tillbaka till versaler/grafik teckenuppsättning
+.charset lower    ; switch to lowercase charset
+.charset upper    ; switch back to uppercase/graphics charset
 ```
 
 **Genererad kod:**
 
 Gemenerläge:
 ```
-LDA $D018 ORA #$02; sätt bit 1 → gemener/versaler ROM till $1800 STA $D018
+    LDA $D018
+    ORA #$02      ; set bit 1 → lowercase/uppercase ROM at $1800
+    STA $D018
 ```
 
 Versalläge:
 ```
-LDA $D018 OCH #$FD ; rensa bit 1 → versaler/grafik-ROM vid $1000 STA $D018
+    LDA $D018
+    AND #$FD      ; clear bit 1 → uppercase/graphics ROM at $1000
+    STA $D018
 ```
 
-**Storlek:** 8 byte (LDA abs + ORA/AND imm + STA abs).
-
-**Varför ORA/AND istället för direktskrivning?** `$D018` styr även skärmens
+**Storlek:**8 byte (LDA abs + ORA/AND imm + STA abs).**Varför ORA/AND istället för direktskrivning?** `$D018` styr även skärmens
 RAM-plats (bitar 7–4). Om endast bit 1 aktiveras bevaras resten av registret.
 
 **Typiskt arbetsflöde:**
 
 ```
-.charset nedre
-.text 0, 0, "hej världen", nedre
-.charset övre
+.charset lower
+.text 0, 0, "hello world", lower
+.charset upper
 ```
 
 > **Obs:** Makrot CHARSET ändrar bara VIC-tecken-ROM-pekaren. Det anropar inte
@@ -881,24 +905,24 @@ körningstillfället — inget behov av en föregående etikett eller `ORG`.
 
 **Syntax:**
 ```
-.chardef $3800, 65, $18, $3C, $66, $7E, $66, $66, $66, $00
+.chardef $3800, 65, $18,$3C,$66,$7E,$66,$66,$66,$00
 ```
 
 **Genererad kod (8 × `LDA #b` / `STA-mål+n`, totalt 40 byte):**
 ```
-LDA #$18
+    LDA #$18
     STA $3A08
     LDA #$3C
     STA $3A09
-    LDA #66 USD
+    LDA #$66
     STA $3A0A
     LDA #$7E
     STA $3A0B
-    LDA #66 USD
+    LDA #$66
     STA $3A0C
-    LDA #66 USD
+    LDA #$66
     STA $3A0D
-    LDA #66 USD
+    LDA #$66
     STA $3A0E
     LDA #$00
     STA $3A0F
@@ -907,26 +931,24 @@ LDA #$18
 **Måladress:** `$3800 + 65 * 8 = $3A08`. Beräknad vid kompileringstillfället och
 hårdkodad i STA-operanderna.
 
-**Storlek:** 40 byte per tecken (8 × 5).
-
-**Typiskt arbetsflöde:**
+**Storlek:**40 byte per tecken (8 × 5).**Typiskt arbetsflöde:**
 ```
-; Punkt VIC-II vid RAM-teckenuppsättningen vid $3800
-LDA $D018
-OCH #$F1
-ORA #$0E ; bitar 3-1 = %111 → teckenuppsättning vid bank+$3800
-STA $D018
+    ; Point VIC-II at RAM charset at $3800
+    LDA $D018
+    AND #$F1
+    ORA #$0E       ; bits 3-1 = %111 → charset at bank+$3800
+    STA $D018
 
-.chardef $3800, 65, $18, $3C, $66, $7E, $66, $66, $66, $00 ; omdefiniera 'A'
-.chardef $3800, 66, $7C, $66, $66, $7C, $66, $66, $7C, $00 ; omdefiniera 'B'
-; ... fler .chardef-rader för varje anpassat tecken
+    .chardef $3800, 65, $18,$3C,$66,$7E,$66,$66,$66,$00   ; redefine 'A'
+    .chardef $3800, 66, $7C,$66,$66,$7C,$66,$66,$7C,$00   ; redefine 'B'
+    ; ... more .chardef lines for each custom char
 ```
 
 **När ska man använda CHARDEF jämfört med alternativ:**
 
 | Närma sig                             | Använd när                                                                                         |
 | ------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| **CHARDEF**                           | Du behöver några anpassade tecken (säg 1–20). Körtidskostnaden är 40 byte per tecken.              |
+| **CHARDEF** | Du behöver några anpassade tecken (säg 1–20). Körtidskostnaden är 40 byte per tecken.              |
 | **RAWBYTES @ 3800 dollar **           | Du har en komplett anpassad teckenuppsättning (256 tecken). Totalt 2 KB data, ingen runtime-kopia. |
 | **INCBIN "charset.bin" @ 3800 USD**   | Extern teckenuppsättningsfil (byggd av teckenredigeraren). Renaste alternativet.                   |
 | **Teckenuppsättning Canvas + INCBIN** | Fullständig bitmapp med 256 tecken målad som en 128×128-bild.                                      |
@@ -941,8 +963,7 @@ STA $D018
 ### BOX_HIT
 
 Axis-aligned bounding-box (AABB) kollisionstest mellan två rektanglar beskrivna
-av 4-byte nollsidiga strukturer. Returnerar resultatet i ackumulatorn: **A = 1**
-vid överlappning, **A = 0** annars. Ren inline-assembling, inget subrutinanrop.
+av 4-byte nollsidiga strukturer. Returnerar resultatet i ackumulatorn: **A = 1**vid överlappning,**A = 0** annars. Ren inline-assembling, inget subrutinanrop.
 
 | Argument                 | Beskrivning                                                          |
 | ------------------------ | -------------------------------------------------------------------- |
@@ -966,38 +987,49 @@ vid överlappning, **A = 0** annars. Ren inline-assembling, inget subrutinanrop.
 **Genererad kod (30 byte, helt PC-relativ — ingen subrutin, inga absoluta
 hopp):**
 ```
-LDA $FD; b1 höger CMP $F7; b2 vänster BCC nej; R1 < L2 → missa LDA $F9; b2 höger CMP $FB; b1 vänster BCC nej LDA $FE; b1 botten CMP $F8; b2 topp BCC nej LDA $FA; b2 botten CMP $FC; b1 topp BCC nej LDA #$01; träffad BNE klar; ovillkorlig (A ≠ 0)
-nej: LDA #$00
-klar:
+    LDA $FD        ; b1 right
+    CMP $F7        ; b2 left
+    BCC no         ; R1 < L2 → miss
+    LDA $F9        ; b2 right
+    CMP $FB        ; b1 left
+    BCC no
+    LDA $FE        ; b1 bottom
+    CMP $F8        ; b2 top
+    BCC no
+    LDA $FA        ; b2 bottom
+    CMP $FC        ; b1 top
+    BCC no
+    LDA #$01       ; hit
+    BNE done       ; unconditional (A ≠ 0)
+no: LDA #$00
+done:
 ```
 
-**Storlek:** 30 byte.
-
-**Typiskt arbetsflöde:**
+**Storlek:**30 byte.**Typiskt arbetsflöde:**
 
 ```
-; Spelarens sprite-ruta vid $FB..$FE
-LDA sprite_x ; L
-STA $FB
-LDA sprite_y ; T
-STA $FC
-CLC
-ADC #23 ; +23 → B (24 pixlar hög sprite)
-STA $FE
-LDA $FB
-CLC
-ADC #23 ; R
-STA $FD
+    ; Player sprite box at $FB..$FE
+    LDA sprite_x            ; L
+    STA $FB
+    LDA sprite_y            ; T
+    STA $FC
+    CLC
+    ADC #23                 ; +23 → B (24-pixel tall sprite)
+    STA $FE
+    LDA $FB
+    CLC
+    ADC #23                 ; R
+    STA $FD
 
-; Fiende-ruta vid $F7..$FA (ifylld på liknande sätt)
-; ...
+    ; Enemy box at $F7..$FA (populated similarly)
+    ; ...
 
-.box_hit $FB, $F7 ; testspelare mot fiende → A = 0 eller 1
+    .box_hit $FB, $F7        ; test player vs enemy → A = 0 or 1
 
-CMP #$01
-BNE ingen_kollision
-JSR handle_hit
-ingen_kollision:
+    CMP #$01
+    BNE no_collision
+    JSR handle_hit
+no_collision:
 ```
 
 **Begränsningar:**
@@ -1031,13 +1063,13 @@ Liksom **BLOAD i BASIC** — hämtar en extern binärfil (`.bin`, `.prg`, `.sid`
 
 **Syntax:**
 ```
-.incbin "musik.bin", $C000
+.incbin "music.bin", $C000
 ```
 
 **Genererad kodkommentar:**
 ```
-; INCBIN "music.bin" @ $C000 (2048 byte)
-.byte $01, $02, ...
+    ; INCBIN "music.bin" @ $C000 (2048 bytes)
+    .byte $01, $02, ...
 ```
 
 **Storlek i kod:** 0 byte (uppskjuten datasektion). Binärfilen är inbäddad på
@@ -1073,9 +1105,9 @@ eller överlappar tecken-ROM-skuggan.
 **Exempel — visa en bild och vänta:**
 ```
 * = $0801
-.koala "bild.koa"
-vänta:
-JMP vänta
+.koala "picture.koa"
+wait:
+    JMP wait
 ```
 
 **Storlek i kod:** 86 byte (visningsrutin); de 10001 byte av bilddata går till
@@ -1084,14 +1116,14 @@ kompatibel fil.
 
 ---
 
-### NIVÅ / NIVÅRAD
+### LEVEL / LEVEL_ROW
 
 Lägger in ett **Level Editor**-projekt i ditt program och kopierar nivårader
 till en skärmbuffert — byggstenarna i ett rullande spel.
 `level-demo.asm`-exemplet av C64 Visual Assembler är en komplett joystick-rullad
 nivå.
 
-#### NIVÅ
+#### LEVEL
 
 Ett INCBIN-liknande direktiv som avger **0 byte kod**. Endast de
 **placerade**-skärmarna i Level Editor-projektet (`.bin` som Level Editor i C64
@@ -1102,8 +1134,8 @@ Pektabellarna följer skärmarna. En nivå kan vara upp till 7 × 10 skärmar.
 
 **Syntax:**
 ```
-.nivå "nivå.bin"
-.nivå "nivå.bin", 4000 dollar
+.level "level.bin"
+.level "level.bin", $4000
 ```
 
 | Definierad                                                                     | Menande                                                                                                                                        |
@@ -1125,7 +1157,7 @@ Pektabellarna följer skärmarna. En nivå kan vara upp till 7 × 10 skärmar.
 
 Typisk skydd: `.assert LEVEL_END <= $9200, "nivådata körs in i koden"`.
 
-#### NIVÅ_RAD
+#### LEVEL_ROW
 
 Kopierar en 40-teckensrad av nivån till en buffert: nivåraden i **X**, med
 början vid nivåkolumnen som finns i variabeln `col`, till adressen som finns i
@@ -1137,8 +1169,8 @@ förstörs. Behöver ett `.level`-block i programmet.
 
 **Syntax:**
 ```
-.nivårad dst_lo, vy_x
-.nivårad dst_lo, vy_x, färg
+.level_row dst_lo, view_x
+.level_row dst_lo, view_x, color
 ```
 
 **Storlek i kod:** 132 byte — använd `LBEQ` / `LBNE` när en gren måste hoppa
@@ -1173,7 +1205,7 @@ SID-rubriken ger:
 
 **Genererad kodkommentar:**
 ```
-; SID "Ikari_Warriors.sid" @ $1000 Init:$1000 Play:$1006 (4096 byte)
+    ; SID "Ikari_Warriors.sid" @ $1000  Init:$1000  Play:$1006  (4096 bytes)
 ```
 
 **Storlek i kod:** 0 byte inline. SID-binärfilen placeras på den angivna
@@ -1219,7 +1251,7 @@ skannar tangentbordet).
 ```
 .sid "Ikari_Warriors.sid"
 .sid_player
-.sid_player 1, 80 dollar
+.sid_player 1, $80
 ```
 
 **Storlek i kod: ** 58 byte.
@@ -1231,7 +1263,7 @@ skannar tangentbordet).
 
 ---
 
-### OMFATTA
+### INCLUDE
 
 Liksom **MERGE i BASIC** — hämtar en annan fil och expanderar den inline på
 denna position. Perfekt för återanvändbara subrutinbibliotek.
@@ -1251,7 +1283,7 @@ Två filtyper stöds:
 **Syntax:**
 ```
 .include "library.json"
-.include "macros.inc", 1500 USD
+.include "macros.inc", $1500
 .include "sprites.asm"
 ```
 
@@ -1264,15 +1296,15 @@ Två filtyper stöds:
 
 **Genererad kod (ingen adressöverstyrning):**
 ```
-; .include "library.json"
-... (den inkluderade koden följer)
+    ; .include "library.json"
+    ... (the included code follows)
 ```
 
 **Genererad kod (med laddningsadress `C000`):**
 ```
-; .include "library.json" @ $C000
-*=$C000
-... (den inkluderade koden följer)
+    ; .include "library.json" @ $C000
+    *=$C000
+    ... (the included code follows)
 ```
 
 > **Tips:** Använd INCLUDE för att bygga återanvändbara subrutinbibliotek som du
@@ -1289,7 +1321,7 @@ Två filtyper stöds:
 
 ---
 
-### TABELL
+### TABLE
 
 Liksom **DIM vid en specifik adress** — namnger en uppslagstabell och anger var
 den finns i minnet. Skriv in rader som `.byte`, `.word` eller `.fill` efter den
@@ -1303,12 +1335,12 @@ för att definiera tabellens innehåll.
 **Syntax:**
 ```
 .table color_table $C000
-.table lookup; vid den aktuella adressen
+.table lookup              ; at the current address
 ```
 
 **Genererad kod:**
 ```
-färg_tabell:
+color_table:
 ```
 
 Med en adress hoppar programräknaren dit; utan en börjar tabellen vid den
@@ -1332,12 +1364,12 @@ Standard C64 BASIC-laddningsbar start är `$0801`.
 
 **Syntax:**
 ```
-* = 000 kr
+* = $C000
 ```
 
 **Genererad kod:**
 ```
-* = 000 kr
+* = $C000
 ```
 
 **Storlek:** 0 byte. ORG genererar ingen maskinkod i sig.
@@ -1348,26 +1380,33 @@ fylls med nollor.
 
 **Exempel — kod vid `$0801`, datatabell vid `$C000`:**
 ```
-* = $0801 LDX #$00
-loop: LDA $C000,X STA $D800,X INX BNE-loop RTS
+* = $0801
+    LDX #$00
+loop:
+    LDA $C000,X
+    STA $D800,X
+    INX
+    BNE loop
+    RTS
 
-* = $C000 .byte $01, $02, $03, ...
+* = $C000
+    .byte $01, $02, $03, ...
 ```
 
 > **Tips:** Utan en ORG börjar programmet vid `$0801` (2049 decimaler), början
 > av BASIC. Med BASIC SYS-stubben (standard) lägger assemblern in en kort `10
 > SYS…`-rad vid `$0801` och din kod börjar vid `$080D`. Se [Utdata: PRG,
-> BASIC-stub och startpunkt](#3-output-prg-basic-stub-and-entry-point).
+> BASIC-stub och startpunkt](#3-utdata-prg-basic-stub-och-ingangspunkt).
 
 ---
 
-### LOPP / NÄSTA
+### LOOP / NEXT
 
 Liksom **`FOR X=N TO 1 STEP -1 : ... : NEXT X`** i BASIC — räknar ner från N
 till 1 med hjälp av X- eller Y-registret. Placera dina instruktioner mellan LOOP
 och NEXT, så loopas rätt antal gånger automatiskt.
 
-#### SLINGA
+#### LOOP
 
 | Argument | Beskrivning                                                     |
 | -------- | --------------------------------------------------------------- |
@@ -1382,13 +1421,13 @@ och NEXT, så loopas rätt antal gånger automatiskt.
 
 **Genererad kod:**
 ```
-LDX #$0A
+    LDX #$0A
 loop0:
 ```
 
 **Storlek:** 2 byte (LD_ opcode + omedelbar operand).
 
-#### NÄSTA
+#### NEXT
 
 | Argument | Beskrivning                            |
 | -------- | -------------------------------------- |
@@ -1397,31 +1436,34 @@ loop0:
 
 **Syntax:**
 ```
-.nästa loop0
+.next loop0
 ```
 
 **Genererad kod:**
 ```
-DEX BNE-slinga 0
+    DEX
+    BNE loop0
 ```
 
-**Storlek:** 3 byte (DEX + BNE + förgreningsförskjutning).
-
-**Exempel — rensa 10 skärmceller:**
+**Storlek:**3 byte (DEX + BNE + förgreningsförskjutning).**Exempel — rensa 10 skärmceller:**
 ```
-LDX #$0A
-loop0: LDA #$20; mellanslag STA $0400,X DEX BNE loop0
+    LDX #$0A
+loop0:
+    LDA #$20        ; space character
+    STA $0400,X
+    DEX
+    BNE loop0
 ```
 
 ---
 
-### FÖR / SLUT
+### FOR / ENDF
 
 Liksom **`FOR X=0 TO N-1 : ... : NEXT X`** i BASIC — räknar *upp* från 0.
 Perfekt när du behöver ett framåtriktat index, t.ex. stega igenom en sträng
 eller en array.
 
-#### FÖR
+#### FOR
 
 | Argument | Beskrivning                                                                       |
 | -------- | --------------------------------------------------------------------------------- |
@@ -1431,17 +1473,18 @@ eller en array.
 
 **Syntax:**
 ```
-för X, 12 dollar, för 0
+.for X, $12, for0
 ```
 
 **Genererad kod:**
 ```
-LDX #00 kr för 0:
+    LDX #$00
+for0:
 ```
 
 **Storlek:** 2 byte (LD_ opcode + `#$00`).
 
-#### SLUT
+#### ENDF
 
 | Argument | Beskrivning                              |
 | -------- | ---------------------------------------- |
@@ -1451,22 +1494,28 @@ LDX #00 kr för 0:
 
 **Syntax:**
 ```
-.endf för0
+.endf for0
 ```
 
 **Genererad kod:**
 ```
-INX CPX #12 USD BNE för 0
+    INX
+    CPX #$12
+    BNE for0
 ```
 
-**Storlek:** 5 byte (IN_ + CP_ #imm + BNE-offset).
-
-**Exempel — skriv ut en null-avslutad sträng:**
+**Storlek:**5 byte (IN_ + CP_ #imm + BNE-offset).**Exempel — skriv ut en null-avslutad sträng:**
 ```
-LDX #$00
-för0:
-LDA-meddelande,X; meddelande = PETSCII-sträng vid fast adress BEQ klar; nullterminator → avsluta JSR $FFD2; CHROUT INX CPX #$12; max 18 tecken BNE för0
-klar: RTS
+    LDX #$00
+for0:
+    LDA msg,X       ; msg = PETSCII string at fixed address
+    BEQ done        ; null terminator → exit
+    JSR $FFD2       ; CHROUT
+    INX
+    CPX #$12        ; 18 characters max
+    BNE for0
+done:
+    RTS
 ```
 
 > **LOOP vs FOR:** LOOP räknar ner (N→1) — bra för fördröjningar, fyllningar,
@@ -1475,13 +1524,13 @@ klar: RTS
 
 ---
 
-### TRYCK / DRA
+### PUSH / PULL
 
-Som att ** spara variabler före en GOSUB och återställa dem efter ** — men
+Som att **spara variabler före en GOSUB och återställa dem efter** — men
 använder 6502-hårdvarustacken. Om en subrutin använder A, X eller Y, omslut den
 med PUSH och PULL så att den anropande kodens register bevaras.
 
-#### TRYCK
+#### PUSH
 
 Skjuter ett eller flera register till stacken. Ordningen är alltid A → X → Y
 (innerst först).
@@ -1492,17 +1541,19 @@ Skjuter ett eller flera register till stacken. Ordningen är alltid A → X → 
 
 **Syntax:**
 ```
-.tryck AXY
+.push AXY
 ```
 
 **Genererad kod (exempel: `AX`):**
 ```
-PHA TXA PHA
+    PHA
+    TXA
+    PHA
 ```
 
 **Storlek:** 1 byte för A (`PHA`), 2 byte för X eller Y (överföring + push).
 
-#### DRA
+#### PULL
 
 Återställer register från stacken i **omvänd ordning** (Y → X → A).
 
@@ -1512,33 +1563,35 @@ PHA TXA PHA
 
 **Syntax:**
 ```
-.dra AXY
+.pull AXY
 ```
 
 **Genererad kod (exempel: `AX`):**
 ```
-PLA MOMS PLA
+    PLA
+    TAX
+    PLA
 ```
 
-> **Regel:** PUSH och PULL måste alltid använda **samma registeruppsättning**.
+> **Regel:**PUSH och PULL måste alltid använda**samma registeruppsättning**.
 > `PUSH AX` → `PULL AX` (återställer internt i omvänd ordning: X först, sedan
 > A).
 
 ---
 
-### END / RTS-alias
+### END / RTS alias
 
 Liksom **RTS med ett vänligare makronamn ** — `.end` avger en enda `RTS` byte,
 en kort subrutinterminator.
 
 **Syntax:**
 ```
-.avsluta
+.end
 ```
 
 **Genererad kod:**
 ```
-RTS
+    RTS
 ```
 
 **Storlek:** 1 byte.
@@ -1548,14 +1601,14 @@ makro mer än en rå instruktion.
 
 ---
 
-### MAKRO / ENDM / ANROPA
+### MACRO / ENDM / INVOKE
 
 Liksom **en namngiven GOSUB med parametrarna ** — definiera en återanvändbar
 kodbit en gång (MACRO…ENDM), och anropa den sedan var som helst med INVOKE.
 Skicka olika argumentvärden varje gång istället för att kopiera och klistra in
 kod.
 
-#### MAKRO (definitionsstart)
+#### MACRO (definition start)
 
 | Argument   | Beskrivning                                                              |
 | ---------- | ------------------------------------------------------------------------ |
@@ -1576,22 +1629,24 @@ fel).
 
 **Genererad kod:**
 ```
-; .MACRO setColor (färg)
-... (kropp)
+; .MACRO setColor (color)
+    ... (body)
 ; .ENDM
 ```
 
 **Syntax:**
 ```
-.macro setColor färg LDA {färg} STA $D020
+.macro setColor color
+    LDA {color}
+    STA $D020
 .endm
 ```
 
-#### ENDM (definitionsslut)
+#### ENDM (definition end)
 
 Stänger den aktuella makrodefinitionen. Inga argument.
 
-#### ÅBEROPA
+#### INVOKE
 
 Anropar ett definierat makro på denna position och ersätter de angivna
 argumentvärdena med platshållarna `{paramName}` i brödtexten.
@@ -1610,19 +1665,19 @@ argumentvärdena med platshållarna `{paramName}` i brödtexten.
 
 **Syntax:**
 ```
-; enkelt argument:
+; single argument:
 .invoke setColor(#$07)
 
-; flera argument:
+; multiple arguments:
 .invoke drawPixel($10, $20)
 
-; inga argument:
+; no arguments:
 .invoke clearScreen
 
-; text / strängargument (citat):
-.invoke printText("Hej världen!")
+; text / string arguments (quoted):
+.invoke printText("Hello, World!")
 
-; .call alias (synonym för .invoke):
+; .call alias (synonym for .invoke):
 .call setColor(#$07)
 ```
 
@@ -1630,8 +1685,7 @@ Makrots innehåll expanderas inline med `{paramName}` ersatt av de faktiska
 argumenten. Den mellanslagsavgränsade formen (`.invoke setColor #$07`)
 accepteras också.
 
-**Argumenttyper:**
-- **Numerisk**: `#$07`, `$10`, `255` — hex- eller decimalvärden
+**Argumenttyper:**-**Numerisk**: `#$07`, `$10`, `255` — hex- eller decimalvärden
 - **Textsträngar**: `"Hej världen!"` — citatsträngar (citaten tas bort);
   kommatecken inom citattecken behandlas som en del av texten, inte som
   argumentavgränsare
@@ -1662,7 +1716,7 @@ på den sammansatta koden.
 **Syntax:**
 ```
 .region init
-; kod...
+    ; code...
 .endregion
 ```
 
@@ -1677,19 +1731,19 @@ på den sammansatta koden.
 
 **Storlek:** 0 byte för både REGION och ENDREGION.
 
-> **Obs: ** Regioner kan **kapslas** inuti varandra. Varje ENDREGION stänger
+> **Obs: **Regioner kan**kapslas** inuti varandra. Varje ENDREGION stänger
 > närmaste öppna REGION. Ingen effekt på den sammanställda utdata.
 
 ---
 
-### DEFINERA / OM / ANNARS / ENDIF
+### DEFINE / IF / ELSE / ENDIF
 
 Precis som med en **-brytare läser assemblern ** — `DEFINE DEBUG` aktiverar en
 symbol, varefter raderna i valfri `IF DEBUG` assembleras och dess `ELSE`-gren
 hoppas över. Ta bort DEFINE så försvinner IF-delen från utdata. Du behöver inte
 ta bort kod för versionsversioner.
 
-#### DEFINIERA
+#### DEFINE
 
 | Argument | Beskrivning                                                                                  |
 | -------- | -------------------------------------------------------------------------------------------- |
@@ -1709,7 +1763,7 @@ ta bort kod för versionsversioner.
 En `DEFINE` kan aktivera flera symboler samtidigt (kommaseparerade). Placera
 DEFINEs högst upp i ditt program.
 
-#### OM
+#### IF
 
 | Argument | Beskrivning                                                                                                                          |
 | -------- | ------------------------------------------------------------------------------------------------------------------------------------ |
@@ -1732,19 +1786,19 @@ konstant uttryck — ett som inte kan utvärderas vid assemblern är ett fel.
 Överhoppade rader visas som `; [IF skipped] …` kommentarer och genererar **noll
 byte**.
 
-#### ANNAN
+#### ELSE
 
 Inga argument. Markerar den alternativa grenen — monteras när villkoret `OM` är
 *inte* aktivt.
 
 **Syntax:**
 ```
-.annan
+.else
 ```
 
 **Genererad kod:**
 ```
-; .ANNARS
+; .ELSE
 ```
 
 #### ENDIF
@@ -1769,11 +1823,11 @@ räknas.
 ; .DEFINE DEBUG
 
 ; .IF DEBUG
-LDA #$02 ; röd ram
-STA $D020
+    LDA #$02        ; red border
+    STA $D020
 ; .ELSE
-LDA #$00 ; svart (utgåva)
-STA $D020
+    LDA #$00        ; black (release)
+    STA $D020
 ; .ENDIF
 ```
 
@@ -1782,11 +1836,9 @@ STA $D020
 ; .DEFINE DEBUG, PAL
 
 ; .IF PAL
-LDA #$xx ; PAL-tidskonstant
-
+    LDA #$xx        ; PAL timing constant
 ; .ELSE
-LDA #$xx ; NTSC-tidskonstant
-
+    LDA #$xx        ; NTSC timing constant
 ; .ENDIF
 ```
 
@@ -1796,7 +1848,7 @@ Kapslade `IF` stöds. Om en yttre del hoppas över, hoppas även de inre över.
 > jämförelse/förgreningssockrar vid körning, se **Runtime IF / ELSE / ENDIF**
 > nedan.
 
-### .HÄVDA
+### .ASSERT
 
 En **sanity check vid kompileringstid**. `.assert` utvärderar ett uttryck under
 assemblering; om det är falskt (`0`) stoppas bygget med ett tydligt fel som
@@ -1812,12 +1864,10 @@ ingenting.
 ```
 .assert spriteData < $C000
 .assert * < $A000
-.assert slut - början <= 256, "sprite-tabellen överflödig en sida"
+.assert end - start <= 256, "sprite table overflowed one page"
 ```
 
-**Beteende:**
-
-- **Storlek:** 0 byte.
+**Beteende:**-**Storlek:** 0 byte.
 - En falsk påstående avbryter sammansättningen: `` `.assert end - start <= 256`
   är falskt (värde: 0). sprite-tabellen översvämmades en sida``
 - En påstående som inte kan utvärderas (odefinierad etikett, etc.) misslyckas
@@ -1830,15 +1880,15 @@ ingenting.
 ```
 * = $3000
 sprite_data:
-.byte $00, $00, $00 ; … 63 byte …
+    .byte $00, $00, $00        ; … 63 bytes …
 sprite_data_end:
-.assert sprite_data_end - sprite_data == 63, "sprite måste vara exakt 63 byte"
-.assert (sprite_data % 64) == 0, "sprite måste vara 64-byte-justerad"
+    .assert sprite_data_end - sprite_data == 63, "sprite must be exactly 63 bytes"
+    .assert (sprite_data % 64) == 0, "sprite must be 64-byte aligned"
 ```
 
 ---
 
-### KONSTANT
+### CONST
 
 Liksom **en namngiven variabel som aldrig ändras** — `SCREEN = $0400`. Använd
 namnet istället för att skriva råa adresser överallt, vilket gör koden lättare
@@ -1852,13 +1902,13 @@ att läsa och ändra senare.
 
 **Syntax:**
 ```
-.konst SKÄRM = $0400
-.konst BILDAR_1S = 60
+.const SCREEN = $0400
+.const FRAMES_1S = 60
 ```
 
 **Genererad kod:**
 ```
-; .KONSTANT SKÄRM = $0400
+; .CONST SCREEN = $0400
 ```
 
 **PC-relativa uttryck (`*+N` / `*-N`):**
@@ -1868,10 +1918,10 @@ Värdet accepterar även `*+N` eller `*-N`, där `*` är adressen för själva r
 närliggande instruktion — det klassiska självmodifierande kodmönstret:
 
 ```
-.const op = *+1 ; op → adress för den omedelbara operanden för nästa LDA
-LDA #$00 ; $00 kommer att patchas vid körning
+.const op = *+1      ; op → address of the immediate operand of the next LDA
+LDA #$00            ; $00 will be patched at runtime
 ...
-STA op ; skriver över #$00 byte → LDA läser det nya värdet nästa gång
+STA op              ; overwrites the #$00 byte → LDA reads the new value next time
 ```
 
 CONST avger 0 byte; etiketten omvandlas vid kompilering till `current_address +
@@ -1884,11 +1934,11 @@ definierade CONST-namn, hexadecimala/binära litteraler och inbyggda matematiska
 funktioner:
 
 ```
-.const SCREEN = $0400
-.const SCREEN_END = SCREEN + 40*25 ; 1000 byte senare
-.const COLOR_RAM = $D800
-.const MID_X = 160
-.const SIN_TABLE = round(sin(PI/8) * 127); förberäknat sinusvärde
+.const SCREEN      = $0400
+.const SCREEN_END  = SCREEN + 40*25   ; 1000 bytes later
+.const COLOR_RAM   = $D800
+.const MID_X       = 160
+.const SIN_TABLE   = round(sin(PI/8) * 127)   ; pre-computed sine value
 ```
 
 **Inbyggda funktioner: ** `sin()`, `cos()`, `round()`, `max(a,b)`, `min(a,b)`,
@@ -1914,25 +1964,25 @@ pekare och kortlivade tillstånd som hör hemma i ZP.
 
 **Syntax:**
 ```
-.var räknare
+.var counter
 .var timer, 2
-.var lever
+.var lives
 ```
 
 **Praktiskt exempel: **
 ```
 .region Vars
-.var räknare
+.var counter
 .var timer, 2
 .endregion
 
 LDA #$00
-STA-räknare
+STA counter
 ```
 
 **Genererad kod:**
 ```
-.var-räknare
+; .var counter
 ```
 
 **Storlek: ** 1 byte som standard, eller `N` byte när storlek anges.
@@ -1943,7 +1993,7 @@ etikett, avger kompilatorn en varning.
 
 ---
 
-### Körtid IF / ELSE / ENDIF
+### Runtime IF / ELSE / ENDIF
 
 Precis som **en riktig grenmall** — den här versionen fungerar vid körning, inte
 kompileringstid. Den jämför `A`, `X` eller `Y` mot ett omedelbart värde och
@@ -1957,8 +2007,10 @@ genererar den korrekta `CMP` / `CPX` / `CPY` + grensekvensen åt dig.
 
 **Syntax:**
 ```
-.om A == #$10 LDA #$07
-.annars LDA #$0F
+.if A == #$10
+    LDA #$07
+.else
+    LDA #$0F
 .endif
 ```
 
@@ -1969,7 +2021,7 @@ den kortaste ekvivalenta grenkedjan för det valda registret.
 
 ---
 
-### MEDAN / SLUT
+### WHILE / ENDW
 
 Liksom **en runtime-loop med ett test högst upp** — kroppen körs medan villkoret
 förblir sant.
@@ -1982,8 +2034,8 @@ förblir sant.
 
 **Syntax:**
 ```
-.medan A != #$00
-JSR getchar
+.while A != #$00
+    JSR getchar
 .endw
 ```
 
@@ -1994,7 +2046,7 @@ motsvarigheten vid körning till den räknarbaserade `LOOP / NEXT`-hjälpen.
 
 ---
 
-### UPPREPA / TILLS
+### REPEAT / UNTIL
 
 Liksom **en runtime-loop med ett test längst ner** — kroppen körs alltid minst
 en gång, sedan avgör villkoret om den ska stoppas.
@@ -2008,7 +2060,7 @@ en gång, sedan avgör villkoret om den ska stoppas.
 **Syntax:**
 ```
 .repeat
-JSR getchar
+    JSR getchar
 .until A == #$00
 ```
 
@@ -2031,8 +2083,8 @@ ett sammanhängande block, `MEMSET` fyller ett område med en byte.
 
 **Syntax:**
 ```
-.memcpy src=$C000, dst=$D000, storlek=$0100
-.memset adr=$0400, värde=#$20, storlek=$03E8
+.memcpy src=$C000, dst=$D000, size=$0100
+.memset addr=$0400, value=#$20, size=$03E8
 ```
 
 **Genererad kod:** inline kopiera/fyll loopar, valda för att matcha den begärda
@@ -2047,17 +2099,17 @@ växlar automatiskt till en 16-bitarsräknare.
 
 ---
 
-### SKRIV UT / SKRIV_UT_CHAR / SKRIV_UT_HEX / CLEAR_SCREEN / VÄNTA_KEY / FÖRDRÖJNING / SET_BORDER / SET_BG
+### PRINT / PRINT_CHAR / PRINT_HEX / CLEAR_SCREEN / WAIT_KEY / DELAY / SET_BORDER / SET_BG
 
-#### SKRIVA UT
+#### PRINT
 
 Liksom **PETSCII-utdata utan standardtexten ** — skriver ut en sträng genom
 `CHROUT` med samma hantering av versaler/gemener (`lower`) som `.petscii`.
 
 **Syntax:**
 ```
-.print "HEJ"
-.print "hej", sänk
+.print "HELLO"
+.print "hello", lower
 ```
 
 #### PRINT_CHAR
@@ -2070,7 +2122,7 @@ vid monteringstillfället.
 ```
 .print_char 65
 .print_char $41
-.print_char färg
+.print_char color
 ```
 
 #### PRINT_HEX
@@ -2092,17 +2144,17 @@ Genväg för standard C64-kontrollkoden för tydlig skärm.
 .clear_screen
 ```
 
-#### VÄNTA_NYCKEL
+#### WAIT_KEY
 
 Väntar tills en tangent trycks ned, så att du inte behöver rulla `GETIN`-slingan
 för hand varje gång.
 
 **Syntax:**
 ```
-.vänta_nyckel
+.wait_key
 ```
 
-#### DRÖJSMÅL
+#### DELAY
 
 Väntar det begärda antalet bildrutiner genom en delad hjälprutin. Använd detta
 för korta pauser och tidsintervall när en fullständig anpassad loop skulle vara
@@ -2113,7 +2165,7 @@ och `.wait` är bara ett alias för `.delay`.
 ```
 .delay 29
 .wait 29
-.delay bildrutor=BILDRUTOR_1S
+.delay frames=FRAMES_1S
 ```
 
 #### SET_BORDER / SET_BG
@@ -2125,8 +2177,8 @@ eller en namngiven konstant som upplöses till 0–15.
 ```
 .set_border 6
 .set_bg 0
-.set_border färg
-.set_bg färg
+.set_border color
+.set_bg color
 ```
 
 **Storlek:** Varje hjälpare expanderar till en liten registerskrivningssekvens
@@ -2195,14 +2247,23 @@ flerfärgsläge och ställer in dess färg.
 
 **Syntax:**
 ```
-.sprite_init 0, 7, 21 USD
-.sprite_init 0, 7, 21 USD, flerfärgad
-.sprite_init 0, 7, 21 USD, mono
+.sprite_init 0, 7, $21
+.sprite_init 0, 7, $21, multicolor
+.sprite_init 0, 7, $21, mono
 ```
 
 **Genererad kod:**
 ```
-LDA #$21 STA $07F8; spritepekarregister ($07F8 + N) LDA $D015 ORA #$01; sätt aktiveringsbit för sprite 0 STA $D015 LDA $D01C OCH #$FE; rensa flerfärgsbit för sprite 0 STA $D01C LDA #$07 STA $D027; sprite 0 färgregister
+    LDA #$21
+    STA $07F8       ; sprite pointer register ($07F8 + N)
+    LDA $D015
+    ORA #$01        ; set enable bit for sprite 0
+    STA $D015
+    LDA $D01C
+    AND #$FE        ; clear multicolor bit for sprite 0
+    STA $D01C
+    LDA #$07
+    STA $D027       ; sprite 0 colour register
 ```
 
 **Storlek:** 26 byte.
@@ -2232,13 +2293,13 @@ konstanter; för animering använd `INC`/`DEC` direkt på spritregistret.
 
 **Genererad kod (exempel: sprite 0, X=152, Y=100):**
 ```
-LDA #$98; X låg byte
-STA $D000; sprite 0; X-register
-LDA $D010
-OCH #$FE; rensa X MSB för sprite 0 (X ≤ 255)
-STA $D010
-LDA #$64; Y = 100
-STA $D001; sprite 0; Y-register
+    LDA #$98        ; X low byte
+    STA $D000       ; sprite 0 X register
+    LDA $D010
+    AND #$FE        ; clear X MSB for sprite 0 (X ≤ 255)
+    STA $D010
+    LDA #$64        ; Y = 100
+    STA $D001       ; sprite 0 Y register
 ```
 
 För X > 255 sätter makrot motsvarande bit i `$D010` istället för att nollställa
@@ -2253,7 +2314,7 @@ den.
 ---
 
 <a id="wait_raster"></a>
-### VÄNTA_RASTER
+### WAIT_RASTER
 
 Väntar på att VIC-II-elektronstrålen ska nå en specifik skanningslinje – som att
 synkronisera med en TV-bildruta. Placera detta högst upp i din spelloop för att
@@ -2270,10 +2331,10 @@ förhindra sprite-tearing. Ingen JSR, ingen etikett behövs.
 
 **Genererad kod:**
 ```
-vänta:
-LDA $D012; aktuell rasterlinje
-CMP #$FF; mållinje
-BNE vänta; loopa tillbaka (-7 byte)
+wait:
+    LDA $D012       ; current raster line
+    CMP #$FF        ; target line
+    BNE wait        ; loop back (-7 bytes)
 ```
 
 **Storlek:** 7 byte (`BNE`-offsetet `$F9` = −7 pekar alltid tillbaka till
@@ -2302,18 +2363,23 @@ Helt inline, ingen JSR behövs.
 
 **Genererad kod (port 2, sprite 0):**
 ```
-LDA $DC00; läs CIA port 2 LSR; bit 0 → bär (Upp)
-BCS hoppa_upp; bär set = EJ nedtryckt DEC $D001; Y−1 (flytta upp)
-hoppa_upp:
-LSR; bit 1 → bär (Ned)
-BCS hoppa_ner INC $D001; Y+1 (flytta ned)
-hoppa_ner:
-LSR; bit 2 → bär (Vänster)
-BCS hoppa_vänster DEC $D000; X−1 (flytta vänster)
-hoppa_vänster:
-LSR; bit 3 → bär (Höger)
-BCS hoppa_höger INC $D000; X+1 (flytta höger)
-hoppa_höger:
+    LDA $DC00       ; read CIA port 2
+    LSR             ; bit 0 → carry (Up)
+    BCS skip_up     ; carry set = NOT pressed
+    DEC $D001       ; Y−1 (move up)
+skip_up:
+    LSR             ; bit 1 → carry (Down)
+    BCS skip_down
+    INC $D001       ; Y+1 (move down)
+skip_down:
+    LSR             ; bit 2 → carry (Left)
+    BCS skip_left
+    DEC $D000       ; X−1 (move left)
+skip_left:
+    LSR             ; bit 3 → carry (Right)
+    BCS skip_right
+    INC $D000       ; X+1 (move right)
+skip_right:
 ```
 
 **Joystickbitmapp (aktiv-LOW — bit = 0 betyder nedtryckt):**
@@ -2337,8 +2403,8 @@ menyer. Port `3` läser båda joystickportarna samtidigt (`LDA $DC00` / `OCH
 $DC01`), så båda portarna fungerar.
 
 ```
-.joystick 2, vx, vy; 35 byte
-.joystick 3, vx, vy, fire; båda portarna + fire: 45 byte
+.joystick 2, vx, vy          ; 35 bytes
+.joystick 3, vx, vy, fire    ; both ports + fire: 45 bytes
 ```
 
 > **Typisk användning:** Placera inuti en `gameloop`-etikett med `WAIT_RASTER`
@@ -2354,7 +2420,7 @@ $DC01`), så båda portarna fungerar.
 > **2.1:** Porten måste vara känd när koden läggs ut (ett tal eller en
 > konstant), eftersom port 3 gör koden 3 byte längre; en etikett som definieras
 > senare är ett fel.
-### MUS
+### MOUSE
 
 Läser en Commodore 1351 proportionell mus och flyttar en sprite. Helt **inline**
 — ingen JSR eller etikett behövs. Makrot väljer CIA-porten, väntar på att
@@ -2371,26 +2437,93 @@ standard 1351-drivrutinsmönstret och tillämpar det på spriteregistren.
 **Genererad kodform (port 1, sprite 0, ZP `$FD`/`$FE`):**
 
 ```
-; CIA portval + betalning LDA $DC00 OCH #$3F ORA #$40 STA $DC00 LDX #$67
-vänta: DEX BNE vänta
+    ; CIA port select + settle
+    LDA $DC00
+    AND #$3F
+    ORA #$40
+    STA $DC00
+    LDX #$67
+wait:
+    DEX
+    BNE wait
 
-; X-axel — standard 7-bitars deltaavkodning i 1351-stil LDA $D419 TAY SEC SBC $FD OCH #$7F LDX #$00 CMP #$40 BCS xneg LSR A BEQ xdone STY $FD CLC ADC $D000 STA $D000 TXA ADC #$00 OCH #$01 BEQ xdone LDA $D010 EOR #$01 STA $D010 JMP xdone
-xneg: ORA #$C0 CMP #$FF BEQ xdone SEC ROR DEX STY $FD CLC ADC $D000 STA $D000 TXA ADC #$00 OCH #$01 BEQ xdone LDA $D010 EOR #$01 STA $D010
+    ; X axis — standard 1351-style 7-bit delta decode
+    LDA $D419
+    TAY
+    SEC
+    SBC $FD
+    AND #$7F
+    LDX #$00
+    CMP #$40
+    BCS xneg
+    LSR A
+    BEQ xdone
+    STY $FD
+    CLC
+    ADC $D000
+    STA $D000
+    TXA
+    ADC #$00
+    AND #$01
+    BEQ xdone
+    LDA $D010
+    EOR #$01
+    STA $D010
+    JMP xdone
+xneg:
+    ORA #$C0
+    CMP #$FF
+    BEQ xdone
+    SEC
+    ROR
+    DEX
+    STY $FD
+    CLC
+    ADC $D000
+    STA $D000
+    TXA
+    ADC #$00
+    AND #$01
+    BEQ xdone
+    LDA $D010
+    EOR #$01
+    STA $D010
 xdone:
 
-; Y-axel — samma avkodning, sedan inverterad före tillämpning
-LDA $D41A TAX SEC SBC $FE AND #$7F CMP #$40 BCS yneg LSR A BEQ ydone STX $FE EOR #$FF SEC ADC $D001 STA $D001 JMP ydone
+    ; Y axis — same decode, then inverted before apply
+    LDA $D41A
+    TAX
+    SEC
+    SBC $FE
+    AND #$7F
+    CMP #$40
+    BCS yneg
+    LSR A
+    BEQ ydone
+    STX $FE
+    EOR #$FF
+    SEC
+    ADC $D001
+    STA $D001
+    JMP ydone
 yneg:
-ORA #$C0 CMP #$FF BEQ ydone SEC ROR STX $FE EOR #$FF SEC ADC $D001 STA $D001
+    ORA #$C0
+    CMP #$FF
+    BEQ ydone
+    SEC
+    ROR
+    STX $FE
+    EOR #$FF
+    SEC
+    ADC $D001
+    STA $D001
 ydone:
 ```
 
-**Storlek:** 142 byte.
-
-**Syntax:**
+**Storlek:**142 byte.**Syntax:**
 ```
 .mouse port, spriteNum, zpX, zpY
-; exempel:
+; example:
 .mouse 2, 0, FD, FE
 ```
 
@@ -2423,34 +2556,35 @@ sprite eller bakgrunden. Helt inline, ingen JSR behövs.
 **Syntax:**
 ```
 .sprite_col 0, sprite
-.sprite_col 0, bakgrund
+.sprite_col 0, background
 ```
 
 **Genererad kod (sprite 0, sprite–sprite):**
 ```
-LDA $D01E; läs sprite-sprite kollisionsregister (rensar det!)
-OCH #$01; isolera bit 0 (sprite 0)
-; A ≠ 0 → kollision inträffade
+    LDA $D01E       ; read sprite-sprite collision register (clears it!)
+    AND #$01        ; isolate bit 0 (sprite 0)
+                    ; A ≠ 0 → collision occurred
 ```
 
 **Storlek:** 5 byte.
 
-> **Viktigt:** Avläsning av `$D01E`/`$D01F` **rensar registret**. Läs det en
+> **Viktigt:**Avläsning av `$D01E`/`$D01F`**rensar registret**. Läs det en
 > gång per bildruta och agera omedelbart på resultatet med `BEQ`/`BNE`.
 
 **Typisk användning:**
 ```
 gameloop:
-.wait_raster $FF
-.joystick 2, 0
-.sprite_col 0, sprite
-BEQ ingen_träff; A = 0 → ingen kollision
-LDA #$02
-STA $D020; röd kant = träff!
-JMP gameloop
-ingen_träff:
-LDA #$0E
-STA $D020; ljusblå kant = klar JMP gameloop
+    .wait_raster $FF
+    .joystick 2, 0
+    .sprite_col 0, sprite
+    BEQ no_hit          ; A = 0 → no collision
+    LDA #$02
+    STA $D020           ; red border = hit!
+    JMP gameloop
+no_hit:
+    LDA #$0E
+    STA $D020           ; light blue border = clear
+    JMP gameloop
 ```
 
 > **Se även:** `kollisionsdemo` exempel — grön boll (sprite #0) vs. rött kors
@@ -2458,7 +2592,7 @@ STA $D020; ljusblå kant = klar JMP gameloop
 
 ---
 
-### LADDA IN FIL
+### LOADFILE
 
 Liksom **`LOAD "fil",8`** i BASIC — laddar en fil från en D64-disk vid körning
 med hjälp av KERNAL LOAD-rutinen. Använd detta för att ladda data, musik eller
@@ -2473,27 +2607,27 @@ extra kod från disken medan ditt program körs.
 
 **Syntax:**
 ```
-.loadfile "DEMO-FÄRGER", 8
-.loadfile "DEMO-FÄRGER", 8, $C000
-.loadfile "DEMO-FÄRGER", 8, $C000, error_label
+.loadfile "DEMO-COLORS", 8
+.loadfile "DEMO-COLORS", 8, $C000
+.loadfile "DEMO-COLORS", 8, $C000, error_label
 ```
 
 **Genererad kodstruktur:**
 ```
-JMP skip_filename ; hoppa över det inline-filnamnet
-.byte "DEMO-COLORS" ; filnamn bytes (PETSCII, 11 tecken)
+    JMP skip_filename      ; jump over the inline filename
+    .byte "DEMO-COLORS"    ; filename bytes (PETSCII, 11 chars)
 skip_filename:
-LDA #11 ; filnamnslängd
-LDX #<filnamn ; pekare låg
-LDY #>filnamn ; pekare hög
-JSR $FFBD ; SETNAM
-LDA #1 ; logisk fil #1
-LDX #8 ; enhet 8
-LDY #0 ; sek=0 (åsidosätt adress) eller #1 (filens egen adress)
-JSR $FFBA ; SETLFS
-LDA #0 ; LOAD-kommando (inte VERIFY)
-JSR $FFD5 ; LOAD
-BCS misslyckande ; (endast om feletiketten är angiven)
+    LDA #11                ; filename length
+    LDX #<fname            ; pointer lo
+    LDY #>fname            ; pointer hi
+    JSR $FFBD              ; SETNAM
+    LDA #1                 ; logical file #1
+    LDX #8                 ; device 8
+    LDY #0                 ; sec=0 (override addr) or #1 (file's own addr)
+    JSR $FFBA              ; SETLFS
+    LDA #0                 ; LOAD command (not VERIFY)
+    JSR $FFD5              ; LOAD
+    BCS fail               ; (only if error label set)
 ```
 
 **Storlek:** `3 + filnamnslängd + 9 (SETNAM) + 9 (SETLFS) + (4 om åsidosättning)
@@ -2512,7 +2646,7 @@ BCS misslyckande ; (endast om feletiketten är angiven)
 
 ---
 
-### EXODECRUNSH
+### EXODECRUNCH
 
 Inbyggd **Exomizer-dekomprimering**. Använd detta makro direkt efter en
 `LOADFILE` som laddade en komprimerad ström i Exomizer-läge `mem` — EXODECRUNCH
@@ -2525,20 +2659,20 @@ packar upp den bakåt till adressen som är inbäddad i strömmen.
 **Syntax:**
 ```
 .exodecrunch
-.exodecrunch avpackare=$B000
+.exodecrunch depacker=$B000
 ```
 
 **Genererad kod (19 byte):**
 ```
-LDA $AE ; KERNAL load-end lo (inställd av föregående LOAD)
-STA $04 ; depacker src-end pekare lo
-LDA $AF ; KERNAL load-end hi
-STA $05 ; depacker src-end pekare hi
-LDA #$36 ; BASIC ROM av ($A000-$BFFF blir RAM)
-STA $01
-JSR depacker ; depacker läser bakåt-till-framsidan via $04/$05
-LDA #$37 ; återställ standardmappning (BASIC + KERNAL + I/O)
-STA $01
+    LDA $AE           ; KERNAL load-end lo (set by previous LOAD)
+    STA $04           ; depacker src-end pointer lo
+    LDA $AF           ; KERNAL load-end hi
+    STA $05           ; depacker src-end pointer hi
+    LDA #$36          ; BASIC ROM off ($A000-$BFFF becomes RAM)
+    STA $01
+    JSR depacker      ; depacker reads back-to-front via $04/$05
+    LDA #$37          ; restore default mapping (BASIC + KERNAL + I/O)
+    STA $01
 ```
 
 **Hur det fungerar:**
@@ -2582,23 +2716,23 @@ och läsa tillbaka två mönster till REU-registret `$DF04`.
 
 **Genererad kod (34 byte):**
 ```
-LDA #55 USD
+LDA #$55
 STA $DF04
 LDA $DF04
 CMP #$55
-BNE misslyckas
+BNE fail
 LDA #$AA
 STA $DF04
 LDA $DF04
 CMP #$AA
-BNE misslyckas
+BNE fail
 LDA #$00
-CMP #$FF ; Z=0 => REU närvarande
-BNE gjort
-misslyckas:
+CMP #$FF   ; Z=0 => REU present
+BNE done
+fail:
 LDA #$FF
-CMP #$FF ; Z=1 => ingen REU
-gjort:
+CMP #$FF   ; Z=1 => no REU
+done:
 ```
 > Makrot normaliserar resultatet så att följande gren förblir enkel: `BNE`
 > betyder att REU finns, `BEQ` betyder att REU saknas.
@@ -2608,17 +2742,12 @@ gjort:
 .reu_check
 ```
 
-**Resultat i flaggor:**
-- **Z = 0** (resultat ≠ 0) → REU finns → använd `BNE`
-- **Z = 1** (resultat = 0) → ingen REU → använd `BEQ`
-
-**Inga argument** — makrot genererar samma kod varje gång.
-
-**Typisk användning:**
+**Resultat i flaggor:**-**Z = 0** (resultat ≠ 0) → REU finns → använd `BNE`
+- **Z = 1**(resultat = 0) → ingen REU → använd `BEQ`**Inga argument**— makrot genererar samma kod varje gång.**Typisk användning:**
 ```assembly
 .reu_check
-BEQ no_reu ; hoppa över om REU inte finns
-; ... REU-kod här ...
+BEQ no_reu        ; skip if REU not present
+; ... REU code here ...
 no_reu:
 ```
 
@@ -2647,23 +2776,23 @@ processorn är stoppad). En överföring på `$1000`-byte är i praktiken omedel
 
 **Syntax:**
 ```
-.reu_stash 000 kr, 0000 kr, 0, 1000 kr
-.reu_fetch 000 kr, 0000 kr, 0, 1000 kr
-.reu_swap 000 kr, 0000 kr, 0, 1000 kr
+.reu_stash $C000, $0000, 0, $1000
+.reu_fetch $C000, $0000, 0, $1000
+.reu_swap $C000, $0000, 0, $1000
 ```
 
 **Genererad kod (40 byte):**
 ```
-LDA #c64lo STA $DF02; C64-adress LO
-LDA #c64hi STA $DF03; C64-adress HIGH
-LDA #reuLo STA $DF04; REU-adress LO
-LDA #reuHi STA $DF05; REU-adress HI
-LDA #bank STA $DF06; REU bank
-LDA #lenLo STA $DF07; längd LO
-LDA #lenHi STA $DF08; längd HI
-LDA #$00 STA $DF09; adresskontroll (fast)
-LDA #$00 STA $DF0A; avbrottsmask (fast)
-LDA #cmd STA $DF01; kör DMA ($90/$91/$92 = stash/fetch/swap, omedelbart)
+LDA #c64lo    STA $DF02    ; C64 address LO
+LDA #c64hi    STA $DF03    ; C64 address HI
+LDA #reuLo    STA $DF04    ; REU address LO
+LDA #reuHi    STA $DF05    ; REU address HI
+LDA #bank     STA $DF06    ; REU bank
+LDA #lenLo    STA $DF07    ; length LO
+LDA #lenHi    STA $DF08    ; length HI
+LDA #$00      STA $DF09    ; address control (fixed)
+LDA #$00      STA $DF0A    ; interrupt mask (fixed)
+LDA #cmd      STA $DF01    ; execute DMA ($90/$91/$92 = stash/fetch/swap, immediate)
 ```
 
 > **Obs:**-kommandon använder `$90/$91/$92` (bit 4 satt = omedelbart DMA-läge).
@@ -2689,13 +2818,14 @@ Hastighetsbyten beräknas som: `(speedIndex & 0x0F) | (badline_disabled ? 0x80 :
 
 **Genererad kod (5 byte):**
 ```
-A9 xx LDA #speed_byte
-8D 31 D0 STA $D031
+A9 xx   LDA #speed_byte
+8D 31 D0   STA $D031
 ```
 
 **Syntax:**
 ```
-.turbo_set 7,0; hastighet=7 (~10 MHz), dålig linje aktiverad. .turbo_set 15,1; hastighet=15 (~48 MHz), dålig linje inaktiverad.
+.turbo_set 7,0    ; speed=7 (~10 MHz), badline enabled
+.turbo_set 15,1   ; speed=15 (~48 MHz), badline disabled
 ```
 
 > **Obs:** Detta makro påverkar endast U64-hårdvara. På en riktig C64 eller
@@ -2711,15 +2841,12 @@ Kontrollerar om en **CMD SuperCPU**-accelerator är installerad — som
 
 **Genererad kod (5 byte):**
 ```
-AD B8 D0 LDA $D0B8
-C9 FF CMP #$FF
+AD B8 D0   LDA $D0B8
+C9 FF      CMP #$FF
 ```
 
-**Resultat i flaggor:**
-- **Z = 0** → SuperCPU finns → använd `BNE`
-- **Z = 1** → SuperCPU hittades inte → använd `BEQ`
-
-**Inga argument.**
+**Resultat i flaggor:**-**Z = 0** → SuperCPU finns → använd `BNE`
+- **Z = 1**→ SuperCPU hittades inte → använd `BEQ`**Inga argument.**
 
 **Syntax:**
 ```
@@ -2729,14 +2856,14 @@ C9 FF CMP #$FF
 **Typisk användning:**
 ```assembly
 .supercpu_detect
-BEQ no_scpu ; hoppa över om SuperCPU inte finns
-; ... SuperCPU turbokod här ...
+BEQ no_scpu       ; skip if SuperCPU not present
+; ... SuperCPU turbo code here ...
 no_scpu:
 ```
 
 ---
 
-### TURBO_AKTIVERA
+### TURBO_ENABLE
 
 Slår på eller av **CMD SuperCPU turboläge**. Anropa `SUPERCPU_DETECT` först och
 hoppa över detta om SuperCPU inte finns.
@@ -2748,14 +2875,14 @@ hoppa över detta om SuperCPU inte finns.
 
 **Genererad kod (5 byte):**
 ```
-A9 00 LDA #$00
-8D 7A D0 STA $D07A ; (eller $D07B för inaktivering)
+A9 00         LDA #$00
+8D 7A D0      STA $D07A    ; (or $D07B for disable)
 ```
 
 **Syntax:**
 ```
-.turbo_enable på
-.turbo_enable av
+.turbo_enable on
+.turbo_enable off
 ```
 
 > **Obs:** Anropa `SUPERCPU_DETECT` först och förgrena dig runt detta makro om
@@ -2781,7 +2908,24 @@ byte kopieras per loopiteration; en ofullständig sida i slutet använder `CPX
 
 **Genererad kod (1000-byte-karta, endast skärm):**
 ```
-LDX #$00 LDA $C000,X; sida 0 STA $0400,X INX BNE *-9; loopar tills X blir 0 (256 iterationer) LDA $C100,X; sida 1 STA $0500,X INX BNE *-9 LDA $C200,X; sida 2 STA $0600,X INX BNE *-9 LDA $C300,X; resterande — 232 byte STA $0700,X INX CPX #$E8 BNE *-11
+    LDX #$00
+    LDA $C000,X   ; page 0
+    STA $0400,X
+    INX
+    BNE *-9       ; loops until X wraps to 0 (256 iters)
+    LDA $C100,X   ; page 1
+    STA $0500,X
+    INX
+    BNE *-9
+    LDA $C200,X   ; page 2
+    STA $0600,X
+    INX
+    BNE *-9
+    LDA $C300,X   ; remainder — 232 bytes
+    STA $0700,X
+    INX
+    CPX #$E8
+    BNE *-11
 ```
 
 **Storlek:** `2 (LDX) + hela sidor×9 + (rest > 0 ? 11 : 0)` byte per sektion.
@@ -2795,16 +2939,16 @@ bytarna är färg-RAM-värden. Använd `.map_copy` med `auto` som färgkälla oc
 källadressen där filen laddas (t.ex. med `.incbin` vid `$C000`):
 
 ```
-.incbin "map-color.bin", $C000; skärmkoder $C000–$C3E7, färg $C3E8–$C7CF
-; ...
-.map_copy $C000, $0400, 1000, auto, $D800
+    .incbin "map-color.bin", $C000   ; screen codes $C000–$C3E7, color $C3E8–$C7CF
+    ; ...
+    .map_copy $C000, $0400, 1000, auto, $D800
 ```
 
 **Syntax:**
 ```
-.map_copy $C000, $0400, 1000; endast skärm
-.map_copy $C000, $0400, 1000, auto, $D800; kombinerad (färg vid källa + storlek)
-.map_copy $C000, $0400, 1000, $C3E8, $D800; explicit färgkälladress
+.map_copy $C000, $0400, 1000               ; screen only
+.map_copy $C000, $0400, 1000, auto, $D800  ; combined (color at src+size)
+.map_copy $C000, $0400, 1000, $C3E8, $D800 ; explicit color source address
 ```
 
 ---
@@ -2828,8 +2972,8 @@ separata MAP_COPY-rader.
 
 **Syntax:**
 ```
-.map_copy16x16 3000 kr, 12, 4
-.map_copy16x16 3000 kr, 12, 4, 400 kr, 3100 kr, D800 kr
+.map_copy16x16 $3000, 12, 4
+.map_copy16x16 $3000, 12, 4, $0400, $3100, $D800
 ```
 
 Den korta formen kopierar skärmbyte från `$3000`, färgbyte från `$3100` och
@@ -2857,7 +3001,7 @@ Typisk parning med Charset Canvas:
     LDA #$0D
     STA $D023
     .map_copy16x16 $3000, 12, 4
-slinga:
+loop:
     JMP loop
 
 .incbin "16x16+ram+color.bin", $3000
@@ -2883,34 +3027,32 @@ den en gång per spelbildruta — ingen JSR behövs.
 
 **Genererad kod (sprite 0, 4 bildrutor, ZP `$FB`, lista vid `$C100`):**
 ```
-INC $FB ; öka bildräknaren
-LDA $FB
-CMP #$04 ; bildräknare
-BCC *+6 ; om räknare < antal, hoppa över återställning
-LDA #$00
-STA $FB
-TAX ; X = aktuellt bildindex
-LDA $C100,X ; ladda sprite-datasida för denna bildruta
-STA $07F8 ; uppdatera sprite 0-pekaren ($07F8 + sprite#)
+    INC $FB         ; advance frame counter
+    LDA $FB
+    CMP #$04        ; frame count
+    BCC *+6         ; if counter < count, skip reset
+    LDA #$00
+    STA $FB
+    TAX             ; X = current frame index
+    LDA $C100,X     ; load sprite data page for this frame
+    STA $07F8       ; update sprite 0 pointer ($07F8 + sprite#)
 ```
 
-**Storlek:** 19 byte.
-
-**Typisk användning:**
+**Storlek:**19 byte.**Typisk användning:**
 ```
 frameTable:
-.byte $21, $22, $23, $24 ; 4 bildrutor vid $0840, $0880, $08C0, $0900
+    .byte $21, $22, $23, $24   ; 4 frames at $0840, $0880, $08C0, $0900
 
 gameloop:
-.wait_raster $FF
-.sprite_anim 0, $C100, 4, $FB
-JMP gameloop
+    .wait_raster $FF
+    .sprite_anim 0, $C100, 4, $FB
+    JMP gameloop
 ```
 
 **Syntax:**
 ```
 .sprite_anim spriteNum, frameListAddr, frameCount, zpByte
-; exempel:
+; example:
 .sprite_anim 0, C100, 4, FB
 ```
 
@@ -2942,29 +3084,37 @@ BCD-aritmetik — ingen manuell bärjonglering behövs.
 
 **Genererad kod (4 byte, +100 poäng, poäng vid `$C200`, skärm vid `$0400`):**
 ```
-SED; aktivera BCD/decimalläge
-CLC
-LDA $C200; byte 0 (siffror 1–2)
-ADC #$00; låg byte på 100 i BCD = $00
-STA $C200
-LDA $C201; byte 1 (siffror 3–4)
-ADC #$01; mittenbyte på 100 i BCD = $01 (överföringen fortplantar sig)
-STA $C201
-LDA $C202
-ADC #$00
-STA $C202
-LDA $C203
-ADC #$00
-STA $C203
-CLD; tillbaka till binärläge
+    SED              ; enable BCD / decimal mode
+    CLC
+    LDA $C200        ; byte 0 (digits 1–2)
+    ADC #$00         ; low byte of 100 in BCD = $00
+    STA $C200
+    LDA $C201        ; byte 1 (digits 3–4)
+    ADC #$01         ; mid byte of 100 in BCD = $01 (carry propagates)
+    STA $C201
+    LDA $C202
+    ADC #$00
+    STA $C202
+    LDA $C203
+    ADC #$00
+    STA $C203
+    CLD              ; back to binary mode
 
-; rendera siffror
-LDX #$00
-siffrloop:
-LDA $C200,X
-PHA
-LSR: LSR: LSR: LSR; hög nibble → låg nibble
-ORA #$30 ; + '0' skärmkod STA $0406,X ; högerjusterad: skärmadress + (siffror*2 - 2) - X*2 PLA OCH #$0F ; låg nibble ORA #$30 STA $0407,X INX CPX #$04 BNE sifferloop
+    ; render digits
+    LDX #$00
+digit_loop:
+    LDA $C200,X
+    PHA
+    LSR : LSR : LSR : LSR  ; high nibble → low nibble
+    ORA #$30         ; + '0' screen code
+    STA $0406,X      ; right-justified: screen_addr + (digits*2 - 2) - X*2
+    PLA
+    AND #$0F         ; low nibble
+    ORA #$30
+    STA $0407,X
+    INX
+    CPX #$04
+    BNE digit_loop
 ```
 
 **Storlek:** `3 + siffror×8` byte (SED + CLC + CLD-overhead + 8 byte per
@@ -3020,7 +3170,7 @@ Nytt i 2.1.0: `--crt` / `--crt-name` (kassett) och `--d64` / `--add` /
 `--disk-name` (diskavbildning).
 
 ```
-vma build <input.asm> [alternativ]
+vma build <input.asm> [options]
 vma --help
 vma --version
 ```
@@ -3051,8 +3201,8 @@ standardfel, en rad per fel), `2` felaktig användning.
 ```
 vma build game.asm -o game.prg --debug
 vma build game.asm --no-basic-stub --search ../assets
-vma build game.asm --crt game.crt # endast kassetten
-vma build game.asm --d64 --add music.prg # game.d64 med GAME och MUSIC
+vma build game.asm --crt game.crt                    # the cartridge only
+vma build game.asm --d64 --add music.prg             # game.d64 with GAME and MUSIC
 ```
 
 ## 9. Kända begränsningar
