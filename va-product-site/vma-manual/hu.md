@@ -3050,96 +3050,28 @@ JMP gameloop
 ---
 
 <a id="score_bcd"></a>
-### PONTSZÁM_BCD
-
-Hozzáad egy fixpontos értéket egy memóriában tárolt többbájtos BCD-pontszámhoz,
-majd minden számjegyet képernyőkód karakterként jelenít meg a képernyő RAM-ban.
-A 6502-es decimális módot (`SED`/`CLD`) használja a hordozható BCD-aritmetikához
-– nincs szükség kézi hordozás-zsonglőrködésre.
-
-| Érv               | Leírás                                                                                                       |
-| ----------------- | ------------------------------------------------------------------------------------------------------------ |
-| Pontszám címe     | A BCD pontszámbájtok hexadecimális címe (pl. `C200`). Az alsó bájttól kezdődik.                              |
-| Számjegyek        | BCD bájtok száma (mindegyik bájt két számjegyet tartalmaz: `$99` = "99"). `4` bájt = legfeljebb 99999999.    |
-| Pontok hozzáadása | Hívásonként hozzáadandó decimális érték (pl. `100`).                                                         |
-| Képernyőcím       | Hová kell írni a számjegy képernyőkódokat (pl. `0400`). Számjegyenként egy bájt (a magasabb nibble először). |
-
-**Szintaxis:**
-```
-.score_bcd $C200, 4, 100, $0400
-```
-
-**Generált kód (4 bájt, +100 pont, pontszám `$C200`, képernyőméret `$0400`):**
-```
-SED ; BCD / decimális mód engedélyezése
-CLC
-LDA $C200 ; 0. bájt (1–2. számjegyek)
-ADC #$00 ; 100-as alsó bájt a BCD-ben = $00
-STA $C200
-LDA $C201 ; 1. bájt (3–4. számjegyek)
-ADC #$01 ; 100-as középső bájt a BCD-ben = $01 (átvitel terjed)
-STA $C201
-LDA $C202
-ADC #$00
-STA $C202
-LDA $C203
-ADC #$00 STA $C203
-CLD ; vissza bináris módba
-
-; számjegyek renderelése
-LDX #$00
-digit_loop:
-LDA $C200,X
-PHA
-LSR : LSR : LSR : LSR ; magas rágcsálás → alacsony rágcsálás
-ORA #$30 ; + '0' képernyőkód
-STA $0406,X ; jobbra igazított: képernyő_cím + (digits*2 - 2) - X*2
-PLA
-ÉS #$0F ; alacsony rágcsálás
-ORA #$30
-STA $0407,X
-INX
-CPX #$04
-BNE szám_ciklus
-```
-
-**Méret:** `3 + számjegy×8` bájt (SED + CLC + CLD többletterhelés + 8 bájt BCD
-bájtonként az ADC + kijelzőhurok számára).
-
-**Szintaxis:**
-```
-.score_bcd $C200, 4, 100, $0400
-```
-
-> **Tipp:** Indításkor inicializálja a pontszámbájtokat `$00` értékre. A
-> pontszámcímnek a nulla oldalas vagy abszolút RAM-ban kell lennie – nem
-> ROM-ban. A képernyőcímnek a bal szélső számjegy cellára kell mutatnia; a
-> számjegyeket balról jobbra kell írni (a leghelyesebb bájttal kezdve).
-
-> **BCD tartomány:** `számjegyek=4` bájt → 8 decimális számjegy → maximális
-> pontszám 99 999 999. Minden bájt két BCD számjegyet kódol: `$00`–`$99`.
-
----
-
 ### SCORE_BCD
 
-Adds a fixed point value to a multi-byte BCD score stored in memory, then renders each digit to screen RAM as a screen-code character. Uses the 6502 decimal mode (`SED`/`CLD`) for carry-safe BCD arithmetic — no manual carry juggling needed.
+Adds a fixed point value to a multi-byte BCD score stored in memory, then
+renders each digit to screen RAM as a screen-code character. Uses the 6502
+decimal mode (`SED`/`CLD`) for carry-safe BCD arithmetic — no manual carry
+juggling needed.
 
-| Argument | Description |
-|---|---|
-| Score address | Hex address of the BCD score bytes (e.g. `C200`). Low byte first. |
-| Digits | Number of BCD bytes (each byte holds two digits: `$99` = "99"). `4` bytes = up to 99999999. |
-| Add points | Decimal value to add per call (e.g. `100`). |
+| Érv            | Leírás                                                                                       |
+| -------------- | -------------------------------------------------------------------------------------------- |
+| Score address  | Hex address of the BCD score bytes (e.g. `C200`). Low byte first.                            |
+| Digits         | Number of BCD bytes (each byte holds two digits: `$99` = "99"). `4` bytes = up to 99999999.  |
+| Add points     | Decimal value to add per call (e.g. `100`).                                                  |
 | Screen address | Where to write the digit screen codes (e.g. `0400`). One byte per digit (high nibble first). |
 
-**Syntax:**
+**Szintaxis:**
 ```
 .score_bcd $C200, 4, 100, $0400
 ```
 
 **Generated code (4 bytes, +100 pts, score at `$C200`, screen at `$0400`):**
 ```
-    SED              ; enable BCD / decimal mode
+SED              ; enable BCD / decimal mode
     CLC
     LDA $C200        ; byte 0 (digits 1–2)
     ADC #$00         ; low byte of 100 in BCD = $00
@@ -3172,16 +3104,21 @@ digit_loop:
     BNE digit_loop
 ```
 
-**Size:** `3 + digits×8` bytes (SED + CLC + CLD overhead + 8 bytes per BCD byte for ADC + display loop).
+**Size:** `3 + digits×8` bytes (SED + CLC + CLD overhead + 8 bytes per BCD byte
+for ADC + display loop).
 
-**Syntax:**
+**Szintaxis:**
 ```
 .score_bcd $C200, 4, 100, $0400
 ```
 
-> **Tip:** Initialize the score bytes to `$00` at startup. The score address should be in zero page or absolute RAM — not ROM. The screen address should point to the leftmost digit cell; digits are written left-to-right (most-significant byte first).
+> **Tip:** Initialize the score bytes to `$00` at startup. The score address
+> should be in zero page or absolute RAM — not ROM. The screen address should
+> point to the leftmost digit cell; digits are written left-to-right
+> (most-significant byte first).
 
-> **BCD range:** `digits=4` bytes → 8 decimal digits → max score 99,999,999. Each byte encodes two BCD digits: `$00`–`$99`.
+> **BCD range:** `digits=4` bytes → 8 decimal digits → max score 99,999,999.
+> Each byte encodes two BCD digits: `$00`–`$99`.
 
 ---
 
