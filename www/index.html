@@ -1567,6 +1567,9 @@ PRINTABLE CHARACTERS
         <li>
           <strong>Display:</strong> a CRT filter with scanlines, full screen (button or double click, Esc leaves) and a resizable window. The window and its settings come back on the next start.
         </li>
+        <li>
+          <strong>Hi-Res Editor:</strong> multicolor cells are limited to the paper plus 3 colours, cells over the limit are marked in red and the export warns about them; drawing past the edge of the picture with the pixel grid on no longer raises errors.
+        </li>
       </ul>
       <p class="whats-new-previous">v2.6.9</p>
       <ul class="whats-new-list">
@@ -4060,7 +4063,7 @@ PRINTABLE CHARACTERS
   </dialog>
 
   <div id="crt-overlay" aria-hidden="true"></div>
-  <div id="vice-toast" class="vice-toast" aria-live="polite" hidden>
+  <div id="vice-toast" class="vice-toast" popover="manual" aria-live="polite" hidden>
     <span class="vice-toast-icon">▶</span>
     <span id="vice-toast-text"></span>
   </div>

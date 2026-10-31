@@ -241,6 +241,7 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 - **Gép beállításai** — PAL vagy NTSC, SID 6581 vagy 8580, reSID vagy FastSID, REU 16 MB-ig, joystick port, warp és hang.
 - **Saját fájlok** — a **Files** menü PRG-t tölt be, D64-et és cartridge-et (`.crt`) csatol. A státuszsor mutatja a meghajtó LED-jét és a tracket, a villogó LED lemezhibaként jelenik meg, például ha egy fájl nem található.
 - **Kép** — CRT szűrő scanline-okkal, teljes képernyő és átméretezhető ablak. Az ablak és a beállításai a következő indításkor visszatérnek.
+- **Hi-Res szerkesztő** — a multicolor cellákban a papír mellett legfeljebb 3 szín lehet, a korlátot túllépő cellák piros keretet kapnak, és a kép szélén túlra húzás bekapcsolt pixelrácsnál már nem ad hibát.
 
 ## A 2.6.9 verzió újdonságai
 
@@ -4416,7 +4417,7 @@ Pixel-szintű bitmap szerkesztő 320×200 hi-res és 160×200 multicolor módokk
 | Cella háttérszín (hi-res) | Hi-resben minden 8×8-as cellának két színe lehet: az ink (beállított pixelek, a cella screen RAM bájtjának felső nibble-je) és a papír (törölt pixelek, alsó nibble). A **Cella háttérszín** eszköz a kattintott vagy áthúzott cellák papírját állítja a kiválasztott színre; a **PAPER** továbbra is az összes cellát egyszerre. A radír pixelt töröl, így a cella saját papírja látszik. Multicolorban le van tiltva, ott a háttér ($D021) közös. |
 | Spray eszköz | Airbrush-stílusú festő, amely pixeleket szór a kurzor köré rajzolás közben. |
 | Spray intenzitás | A spray eszköz melletti legördülő vezérli, mennyire sűrű minden spray húzás. |
-| Színpaletta | Előtér (ink) + papír (háttér) választók. A multicolor mód automatikusan követ 3 celláként­i extrát. |
+| Színpaletta | Előtér (ink) + papír (háttér) választók. Multicolorban minden 4×8-as cellában a papír mellett 3 szín lehet: a 4. színt elutasítja, és a státuszsorban jelzi. A papír cseréje minden háttérpixelt átszínez, ahogy a `$D021` is. A korlátot túllépő cellák (pl. nyers, 32000 bájtos fájlból) piros keretet kapnak, és az export figyelmeztet rájuk, mert a többletszínek háttérszínűek lennének. |
 | Undo / Redo | Húzásonkénti előzmény, ctrl-Z / ctrl-Y. |
 | Kijelölés | A szaggatott négyzet ikonú eszköz: húzással jelölhető ki egy téglalap alakú terület a vásznon. Az **Esc** megszünteti a kijelölést. |
 | Másolás / beillesztés | A **Copy** (`Ctrl/Cmd+C`) a kijelölt területet másolja. A **Paste** (`Ctrl/Cmd+V`) után a másolat előnézete követi a kurzort: kattintás a vászonra elhelyezi, az **Esc** megszakítja. A másolat megmarad, így újabb `Ctrl/Cmd+V` és kattintás akárhányszor beilleszti. Hi-res módban a beillesztett pixelekre is érvényes a cellánkénti két szín, ezért a színek megtartásához igazítsd a területet a cellarácshoz. A Copy, a Paste és az áttetsző beillesztés a vászon jobb klikkes menüjében is megvan; az onnan indított beillesztés előnézete a kattintás helyén jelenik meg. |
@@ -4424,7 +4425,7 @@ Pixel-szintű bitmap szerkesztő 320×200 hi-res és 160×200 multicolor módokk
 | Grid + Raster | A **Grid** a karaktercellák rácsát mutatja: hi-resben 8×8 pixel, multicolorban 4×8 dupla széles pixel. 4×-es nagyítástól halványabb vonallal minden egyes pixelt is körberajzol, így a pixelek pontosan elhelyezhetők. A **Raster** raszter-sor overlay-t ad. |
 | Zoom | Csúszka 1×-től 16×-ig, vagy Ctrl+görgő a vásznon (a kurzor alatti pont a helyén marad). |
 | Kép importja | A canvas-ra dobott PNG/JPEG/GIF automatikusan a 16 színes C64 palettára kvantálódik. |
-| Export blokkok | BYTE/RAWBYTES blokkokat fűz a programhoz a kódolt bitmap, screen és color adattal. |
+| Export blokkok | Betöltőt fűz a programhoz: a `HIRES` fájlt lemezről a `$2000`-re tölti, a screen RAM-ot a `$0400`-ra (multicolorban a color RAM-ot a `$D800`-ra) másolja, majd bekapcsolja a bitmap módot. A kép nincs a blokkokban: a **Save to D64** teszi a lemezre. |
 | Export `.bin` | A natív multicolor formátumot menti (10000 byte: 8000 bitmap + 1000 screen + 1000 color), készen a $2000-re való LOADFILE-hoz. |
 
 ### Sprite Editor

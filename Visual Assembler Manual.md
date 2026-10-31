@@ -239,6 +239,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 - **Machine settings** — PAL or NTSC, SID 6581 or 8580, reSID or FastSID, REU up to 16 MB, joystick port, warp and sound.
 - **Your own files** — the **Files** menu loads a PRG and attaches a D64 or a cartridge (`.crt`). The status bar shows the drive LED and track, and a blinking LED shows as a drive error, for example when a file cannot be found.
 - **Display** — a CRT filter with scanlines, full screen and a resizable window. The window and its settings come back on the next start.
+- **Hi-Res Editor** — multicolor cells are limited to the paper plus 3 colours, cells over the limit are marked in red, and drawing past the edge of the picture with the pixel grid on no longer raises errors. See [Hi-Res / Multicolor Editor](#hi-res--multicolor-editor).
 
 ## Version 2.6.9 Highlights
 
@@ -4428,7 +4429,7 @@ Pixel-level bitmap editor with both 320×200 hi-res and 160×200 multicolor mode
 | Cell paper (hi-res) | Hi-res allows two colours in every 8×8 cell: the ink (set pixels, high nibble of the cell's screen RAM byte) and the paper (clear pixels, low nibble). The **Cell paper** tool sets the paper of each cell you click or drag over to the selected colour; **PAPER** still sets every cell at once. The eraser clears pixels, so the cell's own paper shows. Disabled in multicolor, where the background ($D021) is shared. |
 | Spray tool | Airbrush-style painter that scatters pixels around the cursor while drawing. |
 | Spray intensity | Dropdown next to the spray tool controls how dense each spray stroke is. |
-| Color palette | Foreground (ink) + paper (background) pickers. Multicolor mode tracks 3 per-cell extras automatically. |
+| Color palette | Foreground (ink) + paper (background) pickers. In multicolor every 4×8 cell holds the paper plus 3 more colours: a 4th is refused with a message in the status bar. Changing the paper recolours all background pixels, as `$D021` does. Cells over the limit (for example from a raw 32000-byte file) get a red frame, and the export warns about them, because their extra colours would turn into the background. |
 | Undo / Redo | Per-stroke history, ctrl-Z / ctrl-Y. |
 | Select | The dashed-square tool: drag on the canvas to mark a rectangular region. **Esc** clears the selection. |
 | Copy / Paste | **Copy** (`Ctrl/Cmd+C`) copies the selected region. **Paste** (`Ctrl/Cmd+V`) shows a preview that follows the cursor: click on the canvas to place it, **Esc** cancels. The copy is kept, so pressing `Ctrl/Cmd+V` and clicking again places it as many times as needed. In hi-res mode pasted pixels still follow the two-colours-per-cell limit, so line the region up with the cell grid to keep its colours. Copy, Paste and Transparent paste are also in the right-click menu of the canvas; a paste started there previews at the clicked spot. |
@@ -4436,7 +4437,7 @@ Pixel-level bitmap editor with both 320×200 hi-res and 160×200 multicolor mode
 | Grid + Raster | **Grid** shows the character-cell grid: 8×8 pixels in hi-res, 4×8 double-wide pixels in multicolor. From 4× zoom it also draws a fainter line around every single pixel, so each pixel can be placed exactly. **Raster** adds a raster row overlay. |
 | Zoom | Slider from 1× to 16×, or Ctrl+wheel over the canvas (the point under the cursor stays in place). |
 | Import image | PNG/JPEG/GIF dropped into the canvas auto-quantizes to the 16-color C64 palette. |
-| Export blocks | Appends BYTE/RAWBYTES blocks to the program with the encoded bitmap, screen, and color data. |
+| Export blocks | Appends a loader to the program: it loads the file `HIRES` from disk to `$2000`, copies screen RAM to `$0400` (and in multicolor color RAM to `$D800`), then switches on the bitmap mode. The picture is not in the blocks: add it to the disk with **Save to D64**. |
 | Export `.bin` | Saves the native multicolor format (10000 bytes: 8000 bitmap + 1000 screen + 1000 color) ready for LOADFILE to $2000. |
 
 ### Sprite Editor

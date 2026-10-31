@@ -31081,6 +31081,9 @@ function showViceToast(fileName, isError = false, plain = false) {
   text.textContent = isError || plain ? fileName : `${t("viceRunning")} — ${fileName}`;
   toast.dataset.error = isError ? "1" : "";
   toast.hidden = false;
+  // Top layer: a modal editor dialog would cover it otherwise. Reopening puts it above the newest one.
+  if (toast.matches?.(":popover-open")) toast.hidePopover();
+  toast.showPopover?.();
   if (_viceToastTimer) clearTimeout(_viceToastTimer);
   _viceToastTimer = setTimeout(() => { toast.hidden = true; }, isError ? 4000 : 3000);
 }
@@ -48540,7 +48543,11 @@ function _hgGet(x, y) {
 }
 function _hgSet(x, y, col) {
   if (x < 0 || y < 0 || x >= _hgW() || y >= _hgH()) return;
-  if (_hgMulti) { _hgPixMC[y * 160 + x] = col; return; }
+  if (_hgMulti) {
+    if (!_hgMcCanPlace(x, y, col)) { _hgStatusFlash(t("hgMcCellFull")); return; }
+    _hgPixMC[y * 160 + x] = col;
+    return;
+  }
   // Hi-res: only 2 colours per 8x8 cell. col == bg → clear bit; any other
   // colour becomes the cell's single foreground (recolouring lit pixels =
   // C64 colour clash).
@@ -48549,6 +48556,47 @@ function _hgSet(x, y, col) {
   if (col === _hgBgCell[cell]) { _hgBit[idx] = 0; return; }
   _hgFgCell[cell] = col;
   _hgBit[idx] = 1;
+}
+// Multicolor: a 4x8 cell shows $D021 plus 3 more colours (screen RAM hi / lo
+// nibble, colour RAM). The pixel being replaced does not count, so recolouring
+// the last pixel of a colour is allowed even in a full cell.
+function _hgMcCanPlace(x, y, col) {
+  if (col === _hgPaper) return true;
+  const cx = x & ~3, cy = y & ~7, self = y * 160 + x, seen = [];
+  for (let yy = cy; yy < cy + 8; yy++)
+    for (let xx = cx; xx < cx + 4; xx++) {
+      const i = yy * 160 + xx, c = _hgPixMC[i];
+      if (i === self || c === _hgPaper || seen.includes(c)) continue;
+      if (c === col) return true;
+      seen.push(c);
+    }
+  return seen.length < 3;
+}
+// Cells over the limit (raw 32000-byte files, images from older versions).
+function _hgMcOverCells() {
+  const out = [];
+  for (let cell = 0; cell < 1000; cell++) {
+    const cx = (cell % 40) * 4, cy = ((cell / 40) | 0) * 8, seen = [];
+    for (let yy = cy; yy < cy + 8; yy++)
+      for (let xx = cx; xx < cx + 4; xx++) {
+        const c = _hgPixMC[yy * 160 + xx];
+        if (c !== _hgPaper && !seen.includes(c)) seen.push(c);
+      }
+    if (seen.length > 3) out.push(cell);
+  }
+  return out;
+}
+// Paints a set of pixels (Map index -> colour) as one operation: the area being
+// overwritten must not use up the cell's colours. A pixel that still does not
+// fit keeps its colour, or gets the paper if that no longer fits either.
+function _hgMcPaint(pixels) {
+  const old = new Map();
+  pixels.forEach(function(col, i) { old.set(i, _hgPixMC[i]); _hgPixMC[i] = _hgPaper; });
+  pixels.forEach(function(col, i) {
+    const x = i % 160, y = (i / 160) | 0;
+    _hgSet(x, y, col);
+    if (_hgPixMC[i] !== col && _hgMcCanPlace(x, y, old.get(i))) _hgPixMC[i] = old.get(i);
+  });
 }
 // Eraser: hi-res clears the bit, so the cell's own background shows (not the
 // global paper, which may differ per cell).
@@ -48567,6 +48615,7 @@ function _hgSetCellBg(x, y, col) {
 function _hgDrawPixelBuf(x, y) {
   const pw = _hgPxW(), ph = _hgPxH();
   const col = _hgGet(x, y);
+  if (col < 0) return;   // a drag can leave the picture
   _hgBufCtx.fillStyle = _CE_COLORS[col];
   _hgBufCtx.fillRect(x * pw, y * ph, pw, ph);
   if (!_hgPixelGridOn()) return;
@@ -48618,6 +48667,17 @@ function _hgOverlays() {
     _hgCtx.fillStyle = "rgba(0,0,0,0.28)";
     const y1 = Math.min(H, _hgView.y + _hgView.h);
     for (let y = _hgView.y & ~1; y < y1; y += 2) _hgCtx.fillRect(_hgView.x, y, _hgView.w, 1);
+  }
+  if (_hgMulti) {
+    const over = _hgMcOverCells();
+    if (over.length) {
+      const cw = _hgCellW(), ch = _hgCellH();
+      _hgCtx.save();
+      _hgCtx.lineWidth = 2;
+      _hgCtx.strokeStyle = "#ff2040";
+      over.forEach(function(cell) { _hgCtx.strokeRect((cell % 40) * cw + 1, ((cell / 40) | 0) * ch + 1, cw - 2, ch - 2); });
+      _hgCtx.restore();
+    }
   }
   // Selection marquee — dashed outline around the current selection.
   if (_hgSelection) {
@@ -48751,13 +48811,17 @@ function _hgStartPaste(transparent = false) {
 function _hgStampClipboard(px, py, transparent = false) {
   const cb = _hgClipboard;
   if (!cb) return;
+  const batch = new Map();
   for (let dy = 0; dy < cb.h; dy++) {
     for (let dx = 0; dx < cb.w; dx++) {
       const col = cb.pixels[dy * cb.w + dx];
       if (transparent && col === cb.transparentColor) continue;
-      _hgSet(px + dx, py + dy, col);
+      const x = px + dx, y = py + dy;
+      if (!_hgMulti) _hgSet(x, y, col);
+      else if (x >= 0 && y >= 0 && x < 160 && y < 200) batch.set(y * 160 + x, col);
     }
   }
+  if (batch.size) _hgMcPaint(batch);
 }
 
 // Lightweight transient status text — uses the existing _hgStatus indicator
@@ -48773,12 +48837,14 @@ function _hgStatusFlash(msg) {
 
 /* ── Undo / redo ── */
 function _hgSnapshot() {
-  if (_hgMulti) return { m: true, mc: _hgPixMC.slice(0) };
-  return { m: false, bit: _hgBit.slice(0), fg: _hgFgCell.slice(0), bg: _hgBgCell.slice(0) };
+  if (_hgMulti) return { m: true, mc: _hgPixMC.slice(0), paper: _hgPaper };
+  return { m: false, bit: _hgBit.slice(0), fg: _hgFgCell.slice(0), bg: _hgBgCell.slice(0), paper: _hgPaper };
 }
 function _hgRestore(s) {
   if (s.m) { _hgPixMC.set(s.mc); }
   else { _hgBit.set(s.bit); _hgFgCell.set(s.fg); _hgBgCell.set(s.bg); }
+  _hgPaper = s.paper;
+  _hgUpdatePaperSwatch();
 }
 function _hgPushUndo() {
   _hgUndo.push(_hgSnapshot());
@@ -48847,6 +48913,7 @@ function _hgFloodFill(x, y, col) {
   // `seen` guard: in hi-res _hgSet recolours a whole cell, which can change a
   // neighbour's displayed colour mid-fill, so track visited pixels explicitly.
   const seen = new Uint8Array(W * H);
+  const batch = new Map();
   const stack = [[x, y]];
   while (stack.length) {
     const [cx, cy] = stack.pop();
@@ -48854,9 +48921,11 @@ function _hgFloodFill(x, y, col) {
     if (seen[cy * W + cx]) continue;
     if (_hgGet(cx, cy) !== target) continue;
     seen[cy * W + cx] = 1;
-    _hgSet(cx, cy, col);
+    if (_hgMulti) batch.set(cy * W + cx, col);
+    else _hgSet(cx, cy, col);
     stack.push([cx+1, cy], [cx-1, cy], [cx, cy+1], [cx, cy-1]);
   }
+  if (batch.size) _hgMcPaint(batch);
 }
 
 function _hgSpray(x, y, col) {
@@ -48882,6 +48951,7 @@ function _hgPixelFromEvent(e) {
   return { x, y };
 }
 function _hgStatus(x, y) {
+  if (_hgStatusTimer) return;   // keep a flashed message readable while the pointer moves
   const el = document.getElementById("hg-status");
   if (el) el.textContent = (x == null) ? "(-, -)" : "(" + x + ", " + y + ")";
 }
@@ -48913,12 +48983,14 @@ function _hgUpdatePaperSwatch() {
 }
 
 function _hgSetPaper(col) {
+  if (col !== _hgPaper && _hgBgCell) _hgPushUndo();
+  if (_hgMulti && _hgPixMC) {
+    // multicolor: $D021 colours every 00 pixel, and the old paper would take up
+    // a colour slot in each cell if it stayed behind.
+    for (let i = 0; i < _hgPixMC.length; i++) if (_hgPixMC[i] === _hgPaper) _hgPixMC[i] = col;
+  }
   _hgPaper = col;
   if (_hgBgCell) _hgBgCell.fill(col);   // hi-res: recolour every cell background
-  if (_hgMulti && _hgPixMC) {
-    // multicolor: recolour pixels currently showing the old paper is ambiguous;
-    // paper here just defines the clear/erase colour, so leave existing pixels.
-  }
   _hgUpdatePaperSwatch();
   _hgRenderAll();
 }
@@ -49641,6 +49713,11 @@ function _hgExportBlocks() {
 
 // Convert internal MC per-pixel format to C64 native multicolor bitmap (10000 bytes):
 // [0..7999] packed bitmap, [8000..8999] screen RAM, [9000..9999] color RAM
+function _hgWarnOverCells() {
+  if (!_hgMulti) return;
+  const count = _hgMcOverCells().length;
+  if (count) showViceToast(tf("hgMcOverExport", { count }), true);
+}
 function _hgExportMultiNative() {
   _hgInit();
   const out = new Uint8Array(10000);
@@ -49927,9 +50004,11 @@ function setupHiresEditor() {
 
   // Export / Save
   document.getElementById("hg-export-koala")?.addEventListener("click", function() {
+    _hgWarnOverCells();
     _saveBinFile(_hgExportKoala(), "image.koa");
   });
   document.getElementById("hg-export")?.addEventListener("click", function() {
+    _hgWarnOverCells();
     _saveBinFile(_hgMulti ? _hgExportMultiNative() : _hgExportBytes(), _hgMulti ? "image-mc-native.bin" : "image-hires.bin");
   });
   document.getElementById("hg-export-blocks")?.addEventListener("click", function() {
@@ -49949,6 +50028,7 @@ function setupHiresEditor() {
       crunch: false
     });
     showViceToast(`HIRES (${imageBytes.length} byte) hozzáadva a D64 Extra fájlokhoz`, false);
+    _hgWarnOverCells();
   });
 
   // Canvas interaction
@@ -50054,8 +50134,13 @@ function setupHiresEditor() {
     }
     if (!isFreehand() && _hgTool !== "spray" && _hgTool !== "fill") {
       const col = _hgColor;
-      const set = function(x, y) { _hgSet(x, y, col); };
+      const batch = new Map();
+      const set = function(x, y) {
+        if (!_hgMulti) _hgSet(x, y, col);
+        else if (x >= 0 && y >= 0 && x < 160 && y < 200) batch.set(y * 160 + x, col);
+      };
       _hgPreviewShape(_hgStart, p, set);
+      if (batch.size) _hgMcPaint(batch);
       _hgRenderAll();
     }
     if (e && e.pointerId != null) { try { canvas.releasePointerCapture(e.pointerId); } catch (_) {} }

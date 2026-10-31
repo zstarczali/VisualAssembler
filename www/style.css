@@ -7358,8 +7358,8 @@ html[data-theme="commodore77"] .splash-image {
 
 .vice-toast {
   position: fixed;
-  bottom: 24px;
-  left: 50%;
+  inset: auto auto 24px 50%;
+  margin: 0;
   transform: translateX(-50%);
   background: var(--panel-bg, #1e1e2e);
   color: var(--fg, #cdd6f4);
