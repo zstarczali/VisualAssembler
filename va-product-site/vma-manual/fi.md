@@ -44,13 +44,13 @@ loop: dex                ; a label and an instruction on one line
   lainausmerkeissä olevan merkkijonon sisällä).
 -**Labelit** kirjoitetaan muodossa `name:` — kirjaimia, numeroita ja `_`,
   eivätkä ne ala numerolla. Leima voi olla omalla rivillään tai käskyn edessä.
-  Pisteellä alkava nimi (`.loop:`) on** local label**(katso [Local (dotted)
+  Pisteellä alkava nimi (`.loop:`) on **local label**(katso [Local (dotted)
   labels](#paikalliset-pisteviivalla-tunnisteet)); `-` ja `+` yksinään ovat** anonyymejä
   leimoja**, joihin viittaa `bne -` / `beq +` (lähimpänä ennen / jälkeen oleva).
 -**Käskyt** ovat muistisääntö ja operandi; sisennys on vapaa.
 -**Direktiivit** alkavat pisteellä (`.byte`, `.macro`, `.if` …); `* = $xxxx`
   (tai `.pc = $xxxx`) asettaa osoitteen.
-- Käyttäjämakroja****kutsutaan seuraavasti: `:nimi(args)`,
+- Käyttäjämakroja **** kutsutaan seuraavasti: `:nimi(args)`,
   `.invokenimi(args)`, `.callnimi(args)` tai `nimi(args)`.
 
 ## 2. Numerot ja lausekkeet
@@ -85,7 +85,7 @@ Kirjastomakrojen osoiteargumenteissa (`.rawbytes C000, …`, `.sprite_init 0, 1,
 
 ## 3. Lähtö: PRG, BASIC-tynkä ja aloituspiste
 
-VMA kirjoittaa C64** PRG**: kaksitavuisen latausosoitteen, jota seuraa
+VMA kirjoittaa C64 **PRG**: kaksitavuisen latausosoitteen, jota seuraa
 muistikuva. Jokainen ORG-osio ja jokainen direktiivi, joka sijoittaa datan omaan
 osoitteeseensa (`.rawbytes`, `.incbin`, `.sid` …), menee yhteen kuvaan; niiden
 väliset aukot ovat nollia.
@@ -104,7 +104,7 @@ väliset aukot ovat nollia.
 - Lähde, joka alkaa omalla BASIC SYS -rivillään (`.byte $0B, $08, $0A, $00, $9E,
   …` kohdassa `$0801`), lähetetään sellaisenaan ilman toista tynkää.
 
-PRG:stä komentorivi luo myös** kasetin** ja** levynkuvan**(uusi versiossa
+PRG:stä komentorivi luo myös **kasetin** ja **levynkuvan**(uusi versiossa
 2.1.0, katso [8. Komentorivi](#8-komentorivi)):
 
 - `--crt FILE` — Magic Desk -äänikortti (CRT-tyyppi 19, 8 × 8K pankkia, enintään
@@ -143,7 +143,7 @@ operandin kirjoitustavan perusteella.
 ### Vakiot nollasivulla
 
 Vain vakioista (`.const`, `name = value`, a `.var`) koostuva operandi, joka
-mahtuu tavuun, ottaa käskyn** zero-page**-tilan, täsmälleen samalla tavalla
+mahtuu tavuun, ottaa käskyn **zero-page**-tilan, täsmälleen samalla tavalla
 kuin numero: `.const zp = $FB`:n jälkeen `lda zp` muodostaa `A5 FB`:n (2 tavua,
 3 sykliä) ja `lda zp,x` muodostaa `B5 FB`. Tila, jolla käskyllä ei ole
 nollasivuista muotoa, pysyy absoluuttisena (`lda zp,y` → `B9 FB 00`). Nimikettä
@@ -154,7 +154,7 @@ nollasivu, `$00FB` on absoluuttinen. *(Uutta versiossa 2.1.)*
 ### Merkitse lausekkeet operandeiksi
 
 Mikä tahansa operandi, joka hyväksyy osoitteen tai välittömän arvon, hyväksyy
-myös suoraan** vakion nimen**(`.const` tai otsikon). Lisäksi voit käyttää** label+offset**- tai** label−offset**-lausekkeita viitataksesi osoitteeseen
+myös suoraan **vakion nimen**(`.const` tai otsikon). Lisäksi voit käyttää **label+offset**- tai **label−offset**-lausekkeita viitataksesi osoitteeseen
 suhteessa nimettyyn vakioon:
 
 | Syntaksi          | Esimerkki                           | Kuvaus                                                                                                            |
@@ -209,10 +209,10 @@ koskaan muuta käskyn kokoa, joten se on turvallinen kaikissa osoitustiloissa.
 ### Paikalliset (pisteviivalla) tunnisteet
 
 Pisteellä alkava tunniste — `.loop`, `.skip`, `.done` — on** paikallinen
-tunniste**. Se kuuluu lähimmän edeltävän** global**(ei-pisteellinen) tunnisteen
+tunniste **. Se kuuluu lähimmän edeltävän** global**(ei-pisteellinen) tunnisteen
 piiriin ja siitä tulee sisäisesti `<global>.<nimi>`. Kaksi paikallista
 tunnistetta, joilla on sama lyhyt nimi eri globaalien tunnisteiden alla, eivät
-törmää toisiinsa** not**.
+törmää toisiinsa **not**.
 
 ```
 DrawSprite:
@@ -315,7 +315,7 @@ osoitustilaa varten. Tämä korvaa vanhemman `STA-käskyn + 1` / `-käskyn: LDA
 #### LBNE / LBEQ / … (Pitkät oksat)
 
 Kahdeksan pseudo-operaatiota käyttäytyvät ehdollisten haarojen tavoin, mutta ne
-saavuttavat** mikä tahansa osoitteen**, eivät vain −128…+127. Jokainen niistä
+saavuttavat **mikä tahansa osoitteen**, eivät vain −128…+127. Jokainen niistä
 muodostaa käänteisen haaran, joka ohittaa 3-tavuisen `JMP` - aina**5-tavuisen
 **:
 
@@ -412,7 +412,7 @@ assembler luo koodin. Ajattele niitä sisäänrakennettuina aliohjelmina.
 
 ### LABEL
 
-Kuten** rivinumero BASICissa**— mutta nimellä numeron sijaan. Hyppykohteet
+Kuten **rivinumero BASICissa**— mutta nimellä numeron sijaan. Hyppykohteet
 `JMP`, `JSR`, `BNE` jne.
 
 | Argumentti       | Kuvaus                                                                   |
@@ -429,13 +429,13 @@ loop:
 loop:  ; $0820
 ```
 
-Nykyinen osoite näkyy kommenttina. Nimikkeiden koko on**0 tavua**.
+Nykyinen osoite näkyy kommenttina. Nimikkeiden koko on **0 tavua**.
 
 ---
 
 ### COMMENT
 
-Kuten** REM BASIC**:ssä — huomautus itsellesi, jonka assembler jättää täysin
+Kuten **REM BASIC**:ssä — huomautus itsellesi, jonka assembler jättää täysin
 huomiotta.
 
 **Syntaksi:**
@@ -452,7 +452,7 @@ huomiotta.
 
 ### BYTE
 
-Kuten** DATA BASIC**-ohjelmassa — tallentaa luettelon raakatavuarvoista
+Kuten **DATA BASIC**-ohjelmassa — tallentaa luettelon raakatavuarvoista
 ohjelmaan.
 
 | Argumentti | Kuvaus                                                              |
@@ -488,7 +488,7 @@ osoitelistojen rakentamiseen.
 
 ### WORD
 
-Kuten BASICin** DATA, mutta 16-bittisille luvuille**. Jokainen arvo
+Kuten BASICin **DATA, mutta 16-bittisille luvuille**. Jokainen arvo
 tallennetaan kahtena tavuna (ensin pienin tavu, sitten suurin – 6502
 little-endian -järjestys).
 
@@ -506,7 +506,7 @@ little-endian -järjestys).
     .word $0400, $C000
 ```
 
-**Koko:**2 tavua sanaa kohden.
+**Koko:** 2 tavua sanaa kohden.
 
 ---
 
@@ -581,7 +581,7 @@ rajalta — `ALIGN 64` käsittelee tämän automaattisesti.
 
 ### TEXT
 
-Kuten** PRINT AT**— kirjoittaa tekstiä suoraan C64-näytölle tiettyyn
+Kuten **PRINT AT**— kirjoittaa tekstiä suoraan C64-näytölle tiettyyn
 sarakkeeseen ja riville käyttämättä KERNAL-kutsua. Se luo yhden LDA/STA-parin
 merkkiä kohden ja kohdistaa näytön RAM-muistiin kohdassa `$0400`.
 
@@ -608,7 +608,7 @@ C64:ssä on kaksi merkistöä, jotka voidaan valita ajonaikana:
 -**Pienet kirjaimet (`lower`):** Kirjoita tarkalleen haluamasi kirjainkoko.
   `"hello"` → pienten kirjainten näyttö, `"HELLO"` → isojen kirjainten näyttö.
   Vaatii ajonaikaisen merkistövalinnan ennen kuin näyttöön kirjoitetaan (käytä
-**CHARSET lower**-makroa).** Generoitu koodi (isoilla kirjaimilla, `"HEI"`):**
+**CHARSET lower**-makroa).**Generoitu koodi (isoilla kirjaimilla, `"HEI"`):**
 ```
     LDA #$08      ; 'H' screen code $08
     STA $0400
@@ -623,21 +623,21 @@ C64:ssä on kaksi merkistöä, jotka voidaan valita ajonaikana:
 .text 0, 2, "hello", lower    ; lowercase charset
 ```
 
-Merkit koodataan** näyttökoodeina**(ei PETSCII).** Koko:**`tekstin pituus × 5`
+Merkit koodataan **näyttökoodeina**(ei PETSCII).**Koko:**`tekstin pituus × 5`
 tavua (LDA + STA merkkiä kohden).
 
 ---
 
 ### STRING
 
-Kuten** Työkkäämällä merkkijonon** mihin tahansa muistiosoitteeseen suorituksen
+Kuten **Työkkäämällä merkkijonon** mihin tahansa muistiosoitteeseen suorituksen
 aikana. Luo LDA/STA-pareja, jotka kopioivat kunkin merkin näyttökoodin
 peräkkäisiin osoitteisiin.
 
 | Argumentti          | Kuvaus                                                                                    |
 | ------------------- | ----------------------------------------------------------------------------------------- |
 | Teksti              | Kirjoitettava merkkijono                                                                  |
-| Osoite              | Kohdemuistin osoite — `$C000` heksadesimaali tai** otsikkonimi**|
+| Osoite              | Kohdemuistin osoite — `$C000` heksadesimaali tai **otsikkonimi**|
 | Tarra (valinnainen) | Määrittää kohdeosoitteeseen osoittavan tunnisteen                                         |
 | Siirtää             | Heksadiarvo (00–FF) lisätään jokaiseen näyttökooditavuun (esim. `$80` = käänteinen video) |
 | `alempi`            | Valinnainen merkintä — sama semantiikka kuin TEXT (katso TEXT-osio)                       |
@@ -660,21 +660,21 @@ peräkkäisiin osoitteisiin.
     ...
 ```
 
-Merkit koodataan** näyttökoodeina**(ei PETSCII). Valinnainen** Shift**-arvo
-lisätään jokaiseen tavuun, esim. `$80` käänteiselle videolle.** Koko:**
+Merkit koodataan **näyttökoodeina**(ei PETSCII). Valinnainen **Shift**-arvo
+lisätään jokaiseen tavuun, esim. `$80` käänteiselle videolle.**Koko:**
 `text.length × 5` tavua (yksi LDA + yksi STA merkkiä kohden).
 
 ---
 
 ### DATA
 
-Kuten** POKE-silmukka**— kirjoittaa raakatavuluettelon muistiosoitteeseen
+Kuten **POKE-silmukka**— kirjoittaa raakatavuluettelon muistiosoitteeseen
 ajonaikana, yhden LDA/STA-parin tavua kohden.
 
 | Argumentti          | Kuvaus                                                           |
 | ------------------- | ---------------------------------------------------------------- |
 | Tavut               | Pilkulla erotetut tavuarvot                                      |
-| Osoite              | Kohdemuistin osoite — `$C000` heksadesimaali tai** otsikkonimi**|
+| Osoite              | Kohdemuistin osoite — `$C000` heksadesimaali tai **otsikkonimi**|
 | Tarra (valinnainen) | Määrittää kohdeosoitteeseen osoittavan tunnisteen                |
 
 **Syntaksi:**
@@ -704,7 +704,7 @@ ajonaikana, yhden LDA/STA-parin tavua kohden.
 
 ### RAWBYTES
 
-Kuten suoraan muistiin latautuva** DATA**— ei lainkaan ajonaikaista koodia.
+Kuten suoraan muistiin latautuva **DATA**— ei lainkaan ajonaikaista koodia.
 Tavut ovat läsnä PRG:n lataushetkestä lähtien, ennen kuin koodisi edes alkaa.
 Käytä tätä sprite-dataan, tasokarttoihin, hakutaulukoihin ja kaikkeen muuhun,
 minkä tarvitsee vain olla tietyssä osoitteessa.
@@ -712,7 +712,7 @@ minkä tarvitsee vain olla tietyssä osoitteessa.
 | Argumentti          | Kuvaus                                                           |
 | ------------------- | ---------------------------------------------------------------- |
 | Tavut               | Pilkulla erotetut tavuarvot                                      |
-| Osoite              | Kohdemuistin osoite — `$C000` heksadesimaali tai** otsikkonimi**|
+| Osoite              | Kohdemuistin osoite — `$C000` heksadesimaali tai **otsikkonimi**|
 | Tarra (valinnainen) | Määrittää kohdeosoitteeseen osoittavan tunnisteen                |
 
 **Syntaksi:**
@@ -722,7 +722,7 @@ minkä tarvitsee vain olla tietyssä osoitteessa.
 .rawbytes $0C50, $00, $00 :nev      ; with macroLabel — other code can use LDA nev,X
 ```
 
-**Koko koodissa:**0 tavua. Data sijoitetaan tulosteessa annettuun osoitteeseen.
+**Koko koodissa:** 0 tavua. Data sijoitetaan tulosteessa annettuun osoitteeseen.
 
 >**DATA vs. RAWBYTES:** DATA luo LDA/STA-koodia, joka kopioi tavuja suorituksen
 > aikana (hitaampaa, mutta toimii, jos datan on oltava dynaamista). RAWBYTES
@@ -738,13 +738,13 @@ minkä tarvitsee vain olla tietyssä osoitteessa.
 ### RAWTEXT
 
 Kuten RAWBYTES, mutta tekstille — koodaa merkkijonon näyttökoodeiksi ja
-sijoittaa tavut kiinteään osoitteeseen ilman ajonaikaista koodia****. Teksti on
+sijoittaa tavut kiinteään osoitteeseen ilman ajonaikaista koodia ****. Teksti on
 valmiina muistissa heti, kun PRG latautuu.
 
 | Argumentti          | Kuvaus                                                                                    |
 | ------------------- | ----------------------------------------------------------------------------------------- |
 | Teksti              | Koodattava merkkijono                                                                     |
-| Osoite              | Kohdemuistin osoite — `$C000` heksadesimaali tai** otsikkonimi**|
+| Osoite              | Kohdemuistin osoite — `$C000` heksadesimaali tai **otsikkonimi**|
 | Tarra (valinnainen) | Määrittää kohdeosoitteeseen osoittavan tunnisteen                                         |
 | Siirtää             | Heksadiarvo (00–FF) lisätään jokaiseen näyttökooditavuun (esim. `$80` = käänteinen video) |
 | `alempi`            | Valinnainen merkintä — sama semantiikka kuin TEXT (katso TEXT-osio)                       |
@@ -769,7 +769,7 @@ valmiina muistissa heti, kun PRG latautuu.
     .byte $48, $45, $4C, $4C, $4F   ; h e l l o (lowercase screen codes $41–$5A range)
 ```
 
-**Koko koodissa:**0 tavua. Data sijoitetaan tulosteessa annettuun osoitteeseen.
+**Koko koodissa:** 0 tavua. Data sijoitetaan tulosteessa annettuun osoitteeseen.
 
 >**STRING vs. RAWTEXT:** STRING luo LDA/STA-koodia, joka kopioi tekstin
 > suorituksen aikana. RAWTEXT tallentaa tavut PRG:hen latausaikana – ei koodia,
@@ -779,7 +779,7 @@ valmiina muistissa heti, kun PRG latautuu.
 
 ### PETSCII
 
-Kuten** RAWBYTES, mutta KERNAL-tulosteelle**— koodaa merkkijonon
+Kuten **RAWBYTES, mutta KERNAL-tulosteelle**— koodaa merkkijonon
 PETSCII-tavuina (yhteensopiva CHROUT:n kanssa kohdassa `$FFD2`) ja sijoittaa ne
 kiinteään osoitteeseen ilman ajonaikaista koodia. Käytä tätä, kun haluat
 tulostaa merkkejä `JSR $FFD2`:n kautta silmukassa, ja huomaa, että `.print`
@@ -793,7 +793,7 @@ käyttää samaa enkooderia ja `lower` -lippua.
 | Argumentti          | Kuvaus                                                           |
 | ------------------- | ---------------------------------------------------------------- |
 | Teksti              | PETSCII-tavuina koodattava merkkijono                            |
-| Osoite              | Kohdemuistin osoite — `$C000` heksadesimaali tai** otsikkonimi**|
+| Osoite              | Kohdemuistin osoite — `$C000` heksadesimaali tai **otsikkonimi**|
 | Tarra (valinnainen) | Määrittää kohdeosoitteeseen osoittavan tunnisteen                |
 | `alempi`            | Valinnainen lippu – katso alla                                   |
 
@@ -817,7 +817,7 @@ käyttää samaa enkooderia ja `lower` -lippua.
     .byte $48, $45, $4C, $4C, $4F   ; H E L L O (PETSCII $41–$5A range)
 ```
 
-**Koko koodissa:**0 tavua. Data sijoitetaan kohdeosoitteeseen lykättynä
+**Koko koodissa:** 0 tavua. Data sijoitetaan kohdeosoitteeseen lykättynä
 dataosana (kuten RAWBYTES).
 
 **Nollapäätteinen merkki:** lisää `null`-lipun liittääksesi `$00` tavun tekstin
@@ -859,7 +859,7 @@ pienten kirjainten/isojen kirjainten tilan välillä muokkaamalla `$D018`:n bitt
 
 | Argumentti | Kuvaus                                                                                                                                                         |
 | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Tila       |**Pienet kirjaimet**— ottaa käyttöön pienten/isojen kirjainten merkistöä;** Isot kirjaimet**— palauttaa oletusarvoisen isojen kirjainten/grafiikkamerkistöä. |**Syntaksi:**
+| Tila       |**Pienet kirjaimet**— ottaa käyttöön pienten/isojen kirjainten merkistöä;**Isot kirjaimet**— palauttaa oletusarvoisen isojen kirjainten/grafiikkamerkistöä. |**Syntaksi:**
 ```
 .charset lower    ; switch to lowercase charset
 .charset upper    ; switch back to uppercase/graphics charset
@@ -881,7 +881,7 @@ Isojen kirjainten tila:
     STA $D018
 ```
 
-**Koko:**8 tavua (LDA abs + ORA/AND imm + STA abs).** Miksi ORA/AND suoran kirjoituksen sijaan?**`$D018` ohjaa myös näytön
+**Koko:**8 tavua (LDA abs + ORA/AND imm + STA abs).**Miksi ORA/AND suoran kirjoituksen sijaan?**`$D018` ohjaa myös näytön
 RAM-muistin sijaintia (bitit 7–4). Vain bitin 1 kytkeminen päälle/pois säilyttää
 loput rekisteristä.
 
@@ -940,7 +940,7 @@ suorituksenaikaista koodia, joka kopioi 8 tavua `base + index * 8` -merkkijonoon
 **Kohdeosoite:**`$3800 + 65 * 8 = $3A08`. Lasketaan käännösaikana ja koodataan
 kiinteästi STA-operandeihin.
 
-**Koko:**40 tavua merkkiä kohden (8 × 5).** Tyypillinen työnkulku:**
+**Koko:**40 tavua merkkiä kohden (8 × 5).**Tyypillinen työnkulku:**
 ```
     ; Point VIC-II at RAM charset at $3800
     LDA $D018
@@ -973,7 +973,7 @@ kiinteästi STA-operandeihin.
 
 Akselikohtaisesti tasatun rajaavan laatikon (AABB) törmäystesti kahden
 nelitavuisen nollasivuisen rakenteen kuvaaman suorakulmion välillä. Palauttaa
-tuloksen akkumulaattoriin:** A = 1** päällekkäisyydessä,** A = 0** muuten.
+tuloksen akkumulaattoriin:**A = 1** päällekkäisyydessä,**A = 0** muuten.
 Puhdas inline-kokoonpano, ei aliohjelmakutsuja.
 
 | Argumentti             | Kuvaus                                                                       |
@@ -1017,7 +1017,7 @@ no: LDA #$00
 done:
 ```
 
-**Koko:**30 tavua.** Tyypillinen työnkulku:**
+**Koko:**30 tavua.**Tyypillinen työnkulku:**
 
 ```
     ; Player sprite box at $FB..$FE
@@ -1047,7 +1047,7 @@ no_collision:
 **Rajoitukset:**
 - Molempien nollasivuosoitteiden on oltava muotoa `≤ $FC` (jokainen laatikko
   tarvitsee 4 peräkkäistä tavua: `zp`, `zp+1`, `zp+2`, `zp+3`).
-- Koordinaatit käsitellään muodossa** merkitön 8-bittinen**(0–255). Tämän
+- Koordinaatit käsitellään muodossa **merkitön 8-bittinen**(0–255). Tämän
   alueen ulkopuolella olevat etumerkilliset sprite-koordinaatit normalisoidaan
   ennen tallennusta.
 - Kaksi laatikkoa voivat halutessaan olla päällekkäin ZP-tilassa, mutta yleensä
@@ -1067,7 +1067,7 @@ sijoitetaan riville siihen kohtaan, johon testiä tarvitaan; tulos on
 
 ### INCBIN
 
-Kuten** BLOAD BASIC**:ssä — poimii ulkoisen binääritiedoston (`.bin`, `.prg`,
+Kuten **BLOAD BASIC**:ssä — poimii ulkoisen binääritiedoston (`.bin`, `.prg`,
 `.sid`, `.raw`) ja upottaa sen suoraan koottuun PRG:hen määrittämääsi
 osoitteeseen.
 
@@ -1087,14 +1087,14 @@ osoitteeseen.
     .byte $01, $02, ...
 ```
 
-**Koko koodissa:**0 tavua (lykätty dataosa). Binääritiedosto on upotettu
+**Koko koodissa:** 0 tavua (lykätty dataosa). Binääritiedosto on upotettu
 annettuun osoitteeseen.
 
 ---
 
 ### KOALA
 
-Lataa** Koala Painter**-kuvan (`.koa` / `.kla`, 160×200 monivärinen) ja näyttää
+Lataa **Koala Painter**-kuvan (`.koa` / `.kla`, 160×200 monivärinen) ja näyttää
 sen. Kuvan tiedot upotetaan kiinteään osoitteeseen, kuten `INCBIN` (tiedoston
 2-tavuinen `$6000` latausosoite poistetaan), ja itse direktiivi kääntyy
 86-tavuiseksi näyttörutiiniksi, joka suoritetaan siinä missä se sijaitsee.
@@ -1126,7 +1126,7 @@ wait:
     JMP wait
 ```
 
-**Koko koodissa:**86 tavua (näyttörutiini); 10001 tavua kuvadataa menee
+**Koko koodissa:** 86 tavua (näyttörutiini); 10001 tavua kuvadataa menee
 annettuun osoitteeseen. C64 Visual Assemblerin Hires-editori vie yhteensopivan
 tiedoston.
 
@@ -1134,13 +1134,13 @@ tiedoston.
 
 ### LEVEL / LEVEL_ROW
 
-Lisää** Level Editor**-projektin ohjelmaasi ja kopioi tason rivit
+Lisää **Level Editor**-projektin ohjelmaasi ja kopioi tason rivit
 näyttöpuskuriin – vierityspelin rakennuspalikoita. C64 Visual Assemblerin
 `level-demo.asm` -esimerkki on täydellinen joystick-vieritystaso.
 
 #### LEVEL
 
-INCBIN-tyylinen direktiivi, joka tuottaa**0 tavua koodia**. Vain** sijoitetut**
+INCBIN-tyylinen direktiivi, joka tuottaa **0 tavua koodia**. Vain **sijoitetut**
 näytöt tasoeditoriprojektista (`.bin`, jonka C64 Visual Assemblerin tasoeditori
 tallentaa) menevät muistiin annetusta osoitteesta (oletusarvo `$2000`),
 järjestyksessä 2000 tavua näyttöä kohden (1000 näyttökoodia + 1000 väriä).
@@ -1175,7 +1175,7 @@ Tyypillinen vartija: `.assert LEVEL_END <= $9200, "tasodata törmää koodiin"`.
 
 #### LEVEL_ROW
 
-Kopioi yhden 40-merkkisen rivin tasosta puskuriin: tasorivin muuttujassa** X**
+Kopioi yhden 40-merkkisen rivin tasosta puskuriin: tasorivin muuttujassa **X**
 alkaen `col`-muuttujassa olevasta tasosarakkeesta, `dst`-osoittimessa olevaan
 osoitteeseen (`dst` / `dst+1`, lo/hi). Kolmannella argumentilla `color`
 kopioidaan värit näyttökoodien sijaan (väri-RAMia varten). Kahden näytön yli
@@ -1189,14 +1189,14 @@ Ohjelmassa tarvitaan `.level`-lohko.
 .level_row dst_lo, view_x, color
 ```
 
-**Koko koodissa:**132 tavua — käytä `LBEQ` / `LBNE`, kun haaran on hypättävä
+**Koko koodissa:** 132 tavua — käytä `LBEQ` / `LBNE`, kun haaran on hypättävä
 sen yli.
 
 ---
 
 ### SID
 
-Kuten** BLOAD musiikille**— lataa `.sid` -tiedoston PRG:hen ja lukee
+Kuten **BLOAD musiikille**— lataa `.sid` -tiedoston PRG:hen ja lukee
 automaattisesti sen Init- ja Play-osoitteet otsikosta. Kutsu Init-komentoa
 kerran käynnistyksen yhteydessä ja sitten Play-komentoa IRQ-käsittelijästäsi
 joka kehys.
@@ -1225,7 +1225,7 @@ SID-otsikko antaa:
     ; SID "Ikari_Warriors.sid" @ $1000  Init:$1000  Play:$1006  (4096 bytes)
 ```
 
-**Koko koodissa:**0 tavua rivillä. SID-binääritiedosto sijoitetaan PRG:n
+**Koko koodissa:** 0 tavua rivillä. SID-binääritiedosto sijoitetaan PRG:n
 määritettyyn osoitteeseen lykättynä osana.
 
 >**Tärkeää:** Useimmat SID-tiedostot sisältävät kovakoodattuja sisäisiä
@@ -1250,7 +1250,7 @@ esim. `JSR SID_PLAY` IRQ-käsittelijässä.
 
 ### SID_PLAYER
 
-Toistaa** SID**-direktiivin sävelmän yhdellä rivillä: se alustaa sävelmän ja
+Toistaa **SID**-direktiivin sävelmän yhdellä rivillä: se alustaa sävelmän ja
 kutsuu toistorutiiniaan jatkuvasti rasterikeskeytyksestä, jotta ohjelmasi voi
 jatkaa omaa työtään.
 
@@ -1273,7 +1273,7 @@ KERNAL-käsittelijään (`JMP $EA31`), joka myös skannaa näppäimistön.
 .sid_player 1, $80
 ```
 
-**Koko koodissa:**58 tavua.
+**Koko koodissa:** 58 tavua.
 
 >**Huom:** ohjelmassa on oltava rivi `.sid` (`SID_INIT` ja `SID_PLAY`); muuten
 > koonti pysähtyy virheeseen. Kun CIA1-ajastimen IRQ on pois päältä, KERNAL
@@ -1284,7 +1284,7 @@ KERNAL-käsittelijään (`JMP $EA31`), joka myös skannaa näppäimistön.
 
 ### INCLUDE
 
-Kuten** MERGE BASIC**-komennossa — noutaa toisen tiedoston ja laajentaa sen
+Kuten **MERGE BASIC**-komennossa — noutaa toisen tiedoston ja laajentaa sen
 rivillä tässä kohdassa. Täydellinen uudelleenkäytettäville
 aliohjelmakirjastoille.
 
@@ -1307,7 +1307,7 @@ Kahta tiedostotyyppiä tuetaan:
 .include "sprites.asm"
 ```
 
-- Anna**-tiedostolle tiedostopääte**— pelkkää nimeä, kuten `.include
+- Anna **-tiedostolle tiedostopääte**— pelkkää nimeä, kuten `.include
   "macros"`, käsitellään nimellä `.include "macros.json"`.
 - Polun tarkkuus: ensin lähteen vierestä, sitten jokaisessa hakukansiossa (CLI:n
   `--base-dir` / `--search`); toisella koneella kirjoitettu polku palaa pelkkään
@@ -1344,7 +1344,7 @@ Kahta tiedostotyyppiä tuetaan:
 
 ### TABLE
 
-Kuten** DIM tietyssä osoitteessa**— nimeää hakutaulukon ja määrittää sen
+Kuten **DIM tietyssä osoitteessa**— nimeää hakutaulukon ja määrittää sen
 sijainnin muistissa. Lisää sen jälkeen rivit `.byte`, `.word` tai `.fill`
 määrittääksesi taulukon sisällön.
 
@@ -1368,7 +1368,7 @@ Osoitteen kanssa ohjelmalaskuri hyppää siihen; ilman sitä taulukko aloittaa
 nykyisestä osoitteesta. Lisää sen jälkeen rivit `.byte` / `.word` / `.fill`
 sisällön täyttämiseksi.
 
-**Koko:**0 tavua.
+**Koko:** 0 tavua.
 
 ---
 
@@ -1394,7 +1394,7 @@ aloitusosoite on `$0801`.
 * = $C000
 ```
 
-**Koko:**0 tavua. ORG itsessään ei tuota konekielistä koodia.
+**Koko:** 0 tavua. ORG itsessään ei tuota konekielistä koodia.
 
 Jokainen ORG aloittaa uuden osion. Seuraavat rivit kootaan tästä osoitteesta
 alkaen. PRG sisältää kaikki osiot yhdessä tiedostossa – osioiden väliset aukot
@@ -1425,7 +1425,7 @@ loop:
 
 ### LOOP / NEXT
 
-Kuten**`FOR X=N TO 1 STEP -1 : ... : NEXT X`**BASICissa — laskee alaspäin
+Kuten **`FOR X=N TO 1 STEP -1 : ... : NEXT X`** BASICissa — laskee alaspäin
 N:stä 1:een käyttäen X- tai Y-rekisteriä. Aseta käskysi LOOP- ja
 NEXT-rekisterien väliin, niin se toistaa silmukan automaattisesti oikean määrän
 kertoja.
@@ -1449,7 +1449,7 @@ kertoja.
 loop0:
 ```
 
-**Koko:**2 tavua (LD_-operaatiokoodi + välitön operandi).
+**Koko:** 2 tavua (LD_-operaatiokoodi + välitön operandi).
 
 #### NEXT
 
@@ -1469,7 +1469,7 @@ loop0:
     BNE loop0
 ```
 
-**Koko:**3 tavua (DEX + BNE + haaran offset).** Esimerkki — 10 näytön solun tyhjentäminen:**
+**Koko:**3 tavua (DEX + BNE + haaran offset).**Esimerkki — 10 näytön solun tyhjentäminen:**
 ```
     LDX #$0A
 loop0:
@@ -1483,7 +1483,7 @@ loop0:
 
 ### FOR / ENDF
 
-Kuten**`FOR X=0 TO N-1 : ... : NEXT X`**BASICissa — laskee *ylöspäin*
+Kuten **`FOR X=0 TO N-1 : ... : NEXT X`** BASICissa — laskee *ylöspäin*
 nollasta. Ihanteellinen, kun tarvitset eteenpäin suuntautuvan indeksin,
 esimerkiksi merkkijonon tai taulukon läpi askellettaessa.
 
@@ -1506,7 +1506,7 @@ esimerkiksi merkkijonon tai taulukon läpi askellettaessa.
 for0:
 ```
 
-**Koko:**2 tavua (LD_-operaatiokoodi + `#$00`).
+**Koko:** 2 tavua (LD_-operaatiokoodi + `#$00`).
 
 #### ENDF
 
@@ -1528,7 +1528,7 @@ for0:
     BNE for0
 ```
 
-**Koko:**5 tavua (IN_ + CP_ #imm + BNE-offset).** Esimerkki — tulosta tyhjään päättyvä merkkijono:**
+**Koko:**5 tavua (IN_ + CP_ #imm + BNE-offset).**Esimerkki — tulosta tyhjään päättyvä merkkijono:**
 ```
     LDX #$00
 for0:
@@ -1550,7 +1550,7 @@ done:
 
 ### PUSH / PULL
 
-Kuten** muuttujien tallentaminen ennen GOSUBia ja niiden palauttaminen**:n
+Kuten **muuttujien tallentaminen ennen GOSUBia ja niiden palauttaminen**:n
 jälkeen — mutta käyttää 6502-laitteistopinoa. Jos aliohjelma käyttää A:ta, X:ää
 tai Y:tä, se kiedotaan PUSH- ja PULL-käskyihin, jotta kutsuvan koodin rekisterit
 säilyvät.
@@ -1576,11 +1576,11 @@ ensin).
     PHA
 ```
 
-**Koko:**1 tavu A:lle (`PHA`), 2 tavua X:lle tai Y:lle (siirto + push).
+**Koko:** 1 tavu A:lle (`PHA`), 2 tavua X:lle tai Y:lle (siirto + push).
 
 #### PULL
 
-Palauttaa rekisterit pinosta käänteisessä** järjestyksessä**(Y → X → A).
+Palauttaa rekisterit pinosta käänteisessä **järjestyksessä**(Y → X → A).
 
 | Argumentti | Kuvaus                                               |
 | ---------- | ---------------------------------------------------- |
@@ -1606,7 +1606,7 @@ Palauttaa rekisterit pinosta käänteisessä** järjestyksessä**(Y → X → A)
 
 ### END / RTS alias
 
-Kuten** RTS, mutta ystävällisemmällä makronimellä**— `.end` lähettää yhden
+Kuten **RTS, mutta ystävällisemmällä makronimellä**— `.end` lähettää yhden
 `RTS` tavun, lyhyen aliohjelman päättäjäismerkin.
 
 **Syntaksi:**
@@ -1619,7 +1619,7 @@ Kuten** RTS, mutta ystävällisemmällä makronimellä**— `.end` lähettää y
     RTS
 ```
 
-**Koko:**1 tavu.
+**Koko:** 1 tavu.
 
 Käytä tätä, kun haluat aliohjelman loppumerkin, joka lukee hieman enemmän makron
 kuin raakakäskyn kaltaisesti.
@@ -1628,7 +1628,7 @@ kuin raakakäskyn kaltaisesti.
 
 ### MACRO / ENDM / INVOKE
 
-Kuten** niminen GOSUB parametreilla**— määrittele uudelleenkäytettävä
+Kuten **niminen GOSUB parametreilla**— määrittele uudelleenkäytettävä
 koodipätkä kerran (MACRO…ENDM) ja kutsu sitä sitten missä tahansa
 INVOKE-komennolla. Anna eri argumenttiarvot joka kerta koodin kopioinnin ja
 liittämisen sijaan.
@@ -1641,7 +1641,7 @@ liittämisen sijaan.
 | Parametrit | Valinnaiset pilkulla erotetut parametrien nimet (esim. `color` tai `color, count`) |
 
 Merkitsee makromääritelmän alkua. MACRO- ja ENDM-merkkien väliset viivat
-muodostavat makron rungon. Parametrillinen makro** ei luo koodia**, jossa
+muodostavat makron rungon. Parametrillinen makro **ei luo koodia**, jossa
 määritelmä sijaitsee; parametriton makro kootaan myös aliohjelmana (`JSR-nimi`
 kutsuu sitä): ohjelma hyppää sen yli, ja sen loppuun lisätään `RTS`. Kiinteässä
 osoitteessa olevassa kirjastossa tällainen makro saa myös `RTS`:n. Runkoon
@@ -1752,16 +1752,16 @@ vaikutusta koottuun koodiin.
 ; endregion init
 ```
 
-**Koko:**0 tavua sekä REGION- että ENDREGION-kohteille.
+**Koko:** 0 tavua sekä REGION- että ENDREGION-kohteille.
 
->**Huom:** Alueet voivat olla** sisäkkäisiä** toistensa sisällä. Jokainen
+>**Huom:** Alueet voivat olla **sisäkkäisiä** toistensa sisällä. Jokainen
 > PÄÄALUE sulkee lähimmän avoimen ALUEEN. Ei vaikutusta koottuun tulosteeseen.
 
 ---
 
 ### DEFINE / IF / ELSE / ENDIF
 
-Kuten**-kytkin, assembler lukee**— `DEFINE DEBUG` kytkee symbolin päälle,
+Kuten **-kytkin, assembler lukee**— `DEFINE DEBUG` kytkee symbolin päälle,
 minkä jälkeen minkä tahansa `IF DEBUG`-haaran rivit kootaan ja sen `ELSE`-haaran
 ohitetaan. Poistamalla DEFINE-osan IF-osa katoaa tulosteesta. Julkaisuversioita
 varten ei tarvitse poistaa koodia.
@@ -1838,7 +1838,7 @@ Ei argumentteja. Sulkee ehdollisen osan.
 ; .ENDIF
 ```
 
-**Koko:**0 tavua kaikille neljälle direktiiville. Vain niiden välissä oleva
+**Koko:** 0 tavua kaikille neljälle direktiiville. Vain niiden välissä oleva
 sisältö * lasketaan.*
 
 **Esimerkki — debug border flash, release build ohittaa sen:**
@@ -1869,12 +1869,12 @@ Sisäkkäisiä `IF`-funktioita tuetaan. Jos ulompi osa ohitetaan, myös sisemmä
 osat ohitetaan.
 
 >**Huomautus:** Tämä on käännösaikaista ehtojen käsittelyä. Katso
-> ajonaikaisesta vertailusta/haarautumisesta** Ajonaikainen IF / ELSE / ENDIF**
+> ajonaikaisesta vertailusta/haarautumisesta **Ajonaikainen IF / ELSE / ENDIF**
 > alla.
 
 ### .ASSERT
 
-Käännösaikainen** tarkistus**. `.assert` arvioi lausekkeen kokoonpanon aikana;
+Käännösaikainen **tarkistus**. `.assert` arvioi lausekkeen kokoonpanon aikana;
 jos se on epätosi (`0`), koonti pysähtyy selkeään virheeseen, joka sisältää
 todellisen arvon. Jos se on tosi (ei nolla), se ei tuota mitään.
 
@@ -1890,7 +1890,7 @@ todellisen arvon. Jos se on tosi (ei nolla), se ei tuota mitään.
 .assert end - start <= 256, "sprite table overflowed one page"
 ```
 
-**Käyttäytyminen:**-**Koko:**0 tavua.
+**Käyttäytyminen:**-**Koko:** 0 tavua.
 - Epätosi väittämä keskeyttää kokoamisen: `` `.assert end - start <= 256` on
   epätosi (arvo: 0). sprite-taulukko ylitti yhden sivun.``
 - Väite, jota ei voida evaluoida (määrittelemätön otsikko tms.), epäonnistuu
@@ -1913,7 +1913,7 @@ sprite_data_end:
 
 ### CONST
 
-Kuten** nimetty muuttuja, joka ei koskaan muutu**— `SCREEN = $0400`. Käytä
+Kuten **nimetty muuttuja, joka ei koskaan muutu**— `SCREEN = $0400`. Käytä
 nimeä sen sijaan, että kirjoittaisit raakaosoitteita kaikkialle, mikä helpottaa
 koodin lukemista ja muuttamista myöhemmin.
 
@@ -1970,13 +1970,13 @@ sisäänrakennettuihin matemaattisiin funktioihin:
 Operaattorit: `+ - * /` Literaalit: `$FF` (heksadesimaali), `%10110000`
 (binääri) Matala/korkea tavu: `lo(lauseke)`, `hi(lauseke)`
 
-**Koko:**0 tavua.
+**Koko:** 0 tavua.
 
 ---
 
 ### VAR
 
-Kuten** CONST, mutta automaattisesti allokoitu**— `VAR` varaa nollasivuisen
+Kuten **CONST, mutta automaattisesti allokoitu**— `VAR` varaa nollasivuisen
 tallennustilan etiketille ilman, että sinun tarvitsee kirjoittaa osoitetta.
 Käytä sitä laskureille, osoittimille ja lyhytaikaisille tiloille, jotka kuuluvat
 ZP:hen.
@@ -2009,7 +2009,7 @@ STA counter
 ; .var counter
 ```
 
-**Koko:**1 tavu oletusarvoisesti tai `N` tavua, kun koko on määritetty.
+**Koko:** 1 tavu oletusarvoisesti tai `N` tavua, kun koko on määritetty.
 
 Allokaattori kävelee konfiguroitavan nollasivun kursorin (`$02` - `$FE`) yli ja
 varaa seuraavan vapaan paikan. Jos pyydetty alue on päällekkäinen jo käytetyn
@@ -2019,7 +2019,7 @@ tunnisteen kanssa, kääntäjä antaa varoituksen.
 
 ### Runtime IF / ELSE / ENDIF
 
-Kuten** oikea haarautumismalli**— tämä versio toimii ajonaikana, ei
+Kuten **oikea haarautumismalli**— tämä versio toimii ajonaikana, ei
 käännösaikana. Se vertaa `A`, `X` tai `Y` välittömään arvoon ja tuottaa oikean
 `CMP` / `CPX` / `CPY` + haarautumissekvenssin puolestasi.
 
@@ -2047,7 +2047,7 @@ laajenee valitun rekisterin lyhyimpään vastaavaan haaraketjuun.
 
 ### WHILE / ENDW
 
-Kuten** suorituksenaikainen silmukka, jonka alussa on testi**— runko
+Kuten **suorituksenaikainen silmukka, jonka alussa on testi**— runko
 suoritetaan niin kauan kuin ehto pysyy tosi.
 
 | Argumentti   | Kuvaus                                    |
@@ -2073,7 +2073,7 @@ ajonaikainen vastine.
 
 ### REPEAT / UNTIL
 
-Kuten** suorituksenaikainen silmukka, jonka lopussa on testi**— runko
+Kuten **suorituksenaikainen silmukka, jonka lopussa on testi**— runko
 suoritetaan aina ainakin kerran, minkä jälkeen ehto päättää, pysähtyykö se.
 
 | Argumentti   | Kuvaus                                    |
@@ -2098,7 +2098,7 @@ poistumistarkistusta.
 
 ### MEMCPY / MEMSET
 
-Kuten** pienet muistirutiinit, joita tavoittelet jatkuvasti**— `MEMCPY` kopioi
+Kuten **pienet muistirutiinit, joita tavoittelet jatkuvasti**— `MEMCPY` kopioi
 yhtenäisen lohkon, `MEMSET` täyttää alueen yhdellä tavulla.
 
 | Makro          | Argumentit               |
@@ -2128,7 +2128,7 @@ vaihtavat automaattisesti 16-bittiseen laskuriin.
 
 #### PRINT
 
-Kuten** PETSCII-tuloste ilman vakiomuotoista**-tulostetta — tulostaa
+Kuten **PETSCII-tuloste ilman vakiomuotoista**-tulostetta — tulostaa
 merkkijonon `CHROUT`-funktion kautta samalla isojen/pienten kirjainten
 käsittelyllä (`lower`) kuin `.petscii`.
 
@@ -2292,7 +2292,7 @@ valinnaisesti ottaa käyttöön moniväritilan ja asettaa sen värin.
     STA $D027       ; sprite 0 colour register
 ```
 
-**Koko:**26 tavua.
+**Koko:** 26 tavua.
 
 >**Sprite-tietosivu:**`tieto_osoite ÷ 64`. Oletusarvoisella BASIC SYS
 > -tynkällä `ALIGN 64` sivun `JMP main` jälkeen sijoittaa sprite-tiedot kohtaan
@@ -2303,7 +2303,7 @@ valinnaisesti ottaa käyttöön moniväritilan ja asettaa sen värin.
 <a id="sprite_pos"></a>
 ### SPRITE_POS
 
-Kuten**`POKE 53248, x : POKE 53249, y`**BASICissa — asettaa spritin
+Kuten **`POKE 53248, x : POKE 53249, y`** BASICissa — asettaa spritin
 aloituskohdan. Koordinaatit syötetään sisään kokoamisvaiheessa ja ne hyväksyvät
 vakiot; animaatioon käytä `INC`/`DEC` suoraan spritin rekisterissä.
 
@@ -2332,7 +2332,7 @@ vakiot; animaatioon käytä `INC`/`DEC` suoraan spritin rekisterissä.
 Jos X > 255, makro asettaa vastaavan bitin kohtaan `$D010` sen tyhjentämisen
 sijaan.
 
-**Koko:**18 tavua.
+**Koko:** 18 tavua.
 
 >**Huomautus:**`SPRITE_POS` lisää X/Y-matriisin koodiin (`LDA #$xx`).
 > Sprite-objektin animoimiseksi suorituksen aikana käytä `INC $D000` / `DEC
@@ -2364,7 +2364,7 @@ wait:
     BNE wait        ; loop back (-7 bytes)
 ```
 
-**Koko:**7 tavua (`BNE`-offset `$F9` = −7 osoittaa aina takaisin
+**Koko:** 7 tavua (`BNE`-offset `$F9` = −7 osoittaa aina takaisin
 `LDA`-kohtaan).
 
 >**Vinkki:** Aseta `WAIT_RASTER` pelisilmukan yläreunaan synkronoidaksesi sen
@@ -2374,7 +2374,7 @@ wait:
 
 ### JOYSTICK
 
-Kuten lukee**`PEEK($DC00)`**ja sitten POKE-käyttää спрайtin sijaintia – mutta
+Kuten lukee **`PEEK($DC00)`** ja sitten POKE-käyttää спрайtin sijaintia – mutta
 yhdellä rivillä. Lukee yhden CIA-joystick-portin ja säätää спрайtin
 X/Y-rekistereitä vastaavasti. Täysin inline-tilassa, ei JSR:ää tarvita.
 
@@ -2420,7 +2420,7 @@ painettuna):**
 | 3     | Oikea  |                                     |
 | 4     | Palo   | (tämä makro ei käsittele)           |
 
-**Koko:**27 tavua. `BCS`-offset on aina `+3` (ohittaa seuraavan 3-tavuisen
+**Koko:** 27 tavua. `BCS`-offset on aina `+3` (ohittaa seuraavan 3-tavuisen
 `DEC`/`INC abs` -käskyn).
 
 **Muuttujatila — `.joystick port, vx, vy[, fire]`:** Spriten siirtämisen sijaan
@@ -2548,7 +2548,7 @@ yneg:
 ydone:
 ```
 
-**Koko:**142 tavua.** Syntaksi:**
+**Koko:**142 tavua.**Syntaksi:**
 ```
 .mouse port, spriteNum, zpX, zpY
 ; example:
@@ -2572,7 +2572,7 @@ ydone:
 <a id="sprite_col"></a>
 ### SPRITE_COL
 
-Kuten BASICin**`PEEK($D01E)`**— tarkistaa VIC-II-laitteiston törmäysrekisterit
+Kuten BASICin **`PEEK($D01E)`**— tarkistaa VIC-II-laitteiston törmäysrekisterit
 ja kertoo, osuiko sprittiin toiseen spriteen vai taustaan. Täysin
 inline-tilassa, ei JSR:ää tarvita.
 
@@ -2594,7 +2594,7 @@ inline-tilassa, ei JSR:ää tarvita.
                     ; A ≠ 0 → collision occurred
 ```
 
-**Koko:**5 tavua.
+**Koko:** 5 tavua.
 
 >**Tärkeää:** Lukeminen `$D01E`/`$D01F`**tyhjentää rekisterin**. Lue se
 > kerran kehystä kohden ja toimi tuloksen perusteella välittömästi komennolla
@@ -2623,7 +2623,7 @@ no_hit:
 
 ### LOADFILE
 
-Kuten BASICissa komennot**`LOAD "tiedosto",8`**— lataa tiedoston D64-levyltä
+Kuten BASICissa komennot **`LOAD "tiedosto",8`**— lataa tiedoston D64-levyltä
 suorituksen aikana käyttämällä KERNAL LOAD -rutiinia. Käytä tätä ladataksesi
 tietoja, musiikkia tai muuta koodia levyltä ohjelman ollessa käynnissä.
 
@@ -2678,7 +2678,7 @@ skip_filename:
 
 ### EXODECRUNCH
 
-Ohjelman sisäinen** Exomizer-pakkauksen purku**. Käytä tätä makroa heti
+Ohjelman sisäinen **Exomizer-pakkauksen purku**. Käytä tätä makroa heti
 `LOADFILE`-komennon jälkeen, joka latasi Exomizer `mem`-tilassa pakatun virran —
 EXODECRUNCH purkaa sen taaksepäin virtaan upotettuun osoitteeseen.
 
@@ -2715,7 +2715,7 @@ EXODECRUNCH purkaa sen taaksepäin virtaan upotettuun osoitteeseen.
    -muistin määrittämän alueen sisällä). Makro vaihtaa tilaan `$01 = $36`, joten
    suoritin näkee RAM-muistin siellä JSR:n aikana ja palauttaa sitten `$01 =
    $37` -muistin sen jälkeen.
-3. Pakkauksen kohdeosoite** koodataan itse pakattuun tietovirtaan**, kun pakkaat
+3. Pakkauksen kohdeosoite **koodataan itse pakattuun tietovirtaan**, kun pakkaat
    sen komennolla `exomizer mem -l <load> file,<target>` — purkaja lukee sen
    virran ensimmäisistä tavuista.
 
@@ -2777,7 +2777,7 @@ done:
 ```
 
 **Tulos lipuissa:**-**Z = 0**(tulos ≠ 0) → REU läsnä → käytä `BNE`
--**Z = 1**(tulos = 0) → ei REU:ta → käytä `BEQ`**Ei argumentteja**— makro luo saman koodin joka kerta.** Tyypillinen käyttö:**
+-**Z = 1**(tulos = 0) → ei REU:ta → käytä `BEQ`**Ei argumentteja**— makro luo saman koodin joka kerta.**Tyypillinen käyttö:**
 ```assembly
 .reu_check
 BEQ no_reu        ; skip if REU not present
@@ -2838,7 +2838,7 @@ LDA #cmd      STA $DF01    ; execute DMA ($90/$91/$92 = stash/fetch/swap, immedi
 
 ### TURBO_SET
 
-Asettaa** Ultimate-64 (U64) -prosessorin nopeuden** rekisterin `$D031` kautta.
+Asettaa **Ultimate-64 (U64) -prosessorin nopeuden** rekisterin `$D031` kautta.
 Ei vaikutusta oikeaan C64:ään tai muihin emulaattoreihin.
 
 **Argumentit:**
@@ -2871,7 +2871,7 @@ A9 xx   LDA #speed_byte
 
 ### SUPERCPU_DETECT
 
-Tarkistaa, onko** CMD SuperCPU**-kiihdytin asennettu — esimerkiksi
+Tarkistaa, onko **CMD SuperCPU**-kiihdytin asennettu — esimerkiksi
 `PEEK($D0B8)`, ja tarkistaa, palauttaako se jonkin muun funktion kuin `$FF`.
 
 **Generoitu koodi (5 tavua):**
@@ -2900,7 +2900,7 @@ no_scpu:
 
 ### TURBO_ENABLE
 
-Kytkee** CMD SuperCPU turbo -tilan** päälle tai pois päältä. Kutsu ensin
+Kytkee **CMD SuperCPU turbo -tilan** päälle tai pois päältä. Kutsu ensin
 `SUPERCPU_DETECT` ja ohita tämä, jos SuperCPU:ta ei ole.
 
 | Tila            | Rekisteröidy | Vaikutus                                                   |
@@ -3075,7 +3075,7 @@ kutsu sitä kerran pelikehystä kohden – JSR:ää ei tarvita.
     STA $07F8       ; update sprite 0 pointer ($07F8 + sprite#)
 ```
 
-**Koko:**19 tavua.** Tyypillinen käyttö:**
+**Koko:**19 tavua.**Tyypillinen käyttö:**
 ```
 frameTable:
     .byte $21, $22, $23, $24   ; 4 frames at $0840, $0880, $08C0, $0900
