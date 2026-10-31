@@ -30,15 +30,17 @@ instructies is het hoofdlettergebruik niet van belang (`lda`, `LDA`, `.BYTE`,
 `.byte`); labelnamen zijn wel hoofdlettergevoelig.
 
 ```
-; a comment — so is // a comment
-* = $1000                ; ORG: assemble from $1000
-start:                   ; a label (the colon is required)
-    lda #$06             ; an instruction: mnemonic and operand
-    sta $D020
-    .byte $01, $02, $FF  ; a directive starts with a dot
-loop: dex                ; a label and an instruction on one line
-    bne loop
-    rts
+; een opmerking — dus // een opmerking
+* = $1000 ; ORG: assembleren vanaf $1000
+start: ; een label (de dubbele punt is vereist)
+lda #$06 ; een instructie: mnemonic en operand
+sta $D020
+
+.byte $01, $02, $FF ; een richtlijn begint met een punt
+loop: dex ; een label en een instructie op één regel
+bne loop
+
+rts
 ```
 
 - **Opmerkingen** beginnen met `;` of `//` en lopen door tot het einde van de
@@ -77,12 +79,18 @@ dergelijke staan ook bekend als `lo()`, `hi()`, `sin()`, `cos()`, `round()`,
 
 ```
 .const B = 7
-    lda #(B+1)*2
-    lda #B & 3 | 8
-    lda #~B & $FF
-    ldx #'A'
-    lda #<screen        ; low byte of a label
-    lda #>(*+63)        ; high byte of a PC-relative address
+
+lda #(B+1)*2
+
+lda #B & 3 | 8
+
+lda #~B & $FF
+
+ldx #'A'
+
+lda #<screen ; lage byte van een label
+
+lda #>(*+63) ; hoge byte van een PC-relatief adres
 ```
 
 ## 3. Uitvoer: PRG, BASIC-stub en ingangspunt
@@ -176,12 +184,17 @@ een adres ten opzichte van een benoemde constante:
 **Voorbeeld — wis twee schermpagina's met behulp van een CONST:**
 ```
 ; .CONST screen_ram = $0400
-    LDX #$00
-clear:
-    STA screen_ram,X
-    STA screen_ram+$0100,X
-    DEX
-    BNE clear
+
+LDX #$00
+wissen:
+
+STA screen_ram,X
+
+STA screen_ram+$0100,X
+
+DEX
+
+BNE wissen
 ```
 
 ### De `*` programmateller in expressies
@@ -221,22 +234,34 @@ Twee lokale labels met dezelfde korte naam onder verschillende globale labels
 
 ```
 DrawSprite:
-    LDX #0
-.loop:                 ; == DrawSprite.loop
-    LDA SpriteData,X
-    STA $2000,X
-    INX
-    CPX #63
-    BNE .loop          ; resolves within DrawSprite
-    RTS
+
+LDX #0
+.loop: ; == DrawSprite.loop
+
+LDA SpriteData,X
+
+STA $2000,X
+
+INX
+
+CPX #63
+
+BNE .loop ; wordt opgelost binnen DrawSprite
+
+RTS
 
 ClearScreen:
-    LDX #0
-.loop:                 ; == ClearScreen.loop — no clash
-    STA $0400,X
-    INX
-    BNE .loop
-    RTS
+
+LDX #0
+.loop: ; == ClearScreen.loop — geen conflict
+
+STA $0400,X
+
+INX
+
+BNE .loop
+
+RTS
 ```
 
 - Binnen een bereik kun je naar een lokaal label verwijzen als `.name`.
@@ -253,11 +278,14 @@ instructie wordt samengesteld uit alles wat na de dubbele punt komt.
 
 ```
 setup:
-    LDA value:#$00     ; 'value' -> address of the #$00 operand byte
-    ...
-patch:
-    LDA #new
-    STA value          ; writes the operand byte directly — classic SMC
+
+LDA value:#$00 ; 'value' -> adres van de #$00 operandbyte
+
+... patch:
+
+LDA #new
+
+STA value ; schrijft de operandbyte direct — klassieke SMC
 ```
 
 `value` wijst naar `<instructieadres> + 1` (de eerste operandbyte), voor elke
@@ -324,8 +352,9 @@ Acht pseudo-operaties gedragen zich als voorwaardelijke sprongen, maar bereiken
 sprong die een 3-byte `JMP` overslaat — altijd **5 bytes**:
 
 ```
-LBEQ done      ; assembles to:   BNE *+3   ($D0 $03)
-               ;                 JMP done  ($4C lo hi)
+LBEQ voltooid; assembleert naar: BNE *+3 ($D0 $03)
+
+; JMP voltooid ($4C lo hi)
 ```
 
 | Lange operatie | Voorwaarde            | Uitgestoten als        |
@@ -427,12 +456,12 @@ nummer. Springdoelen voor `JMP`, `JSR`, `BNE`, enz.
 
 **Syntaxis:**
 ```
-loop:
+lus:
 ```
 
 **Gegenereerde code:**
 ```
-loop:  ; $0820
+lus: ; $0820
 ```
 
 Het huidige adres wordt als commentaar weergegeven. Labels hebben een grootte
@@ -440,19 +469,19 @@ van **0 bytes**.
 
 ---
 
-### COMMENT
+### OPMERKING
 
 Net als **REM in BASIC** — een notitie voor jezelf die de assembler volledig
 negeert.
 
 **Syntaxis:**
 ```
-; Your comment text here
+Uw reactietekst hier
 ```
 
 **Gegenereerde code:**
 ```
-; Your comment text here
+Uw reactietekst hier
 ```
 
 ---
@@ -473,7 +502,7 @@ in het programma op.
 
 **Gegenereerde code:**
 ```
-    .byte $01, $02, $FF
+.byte $01, $02, $FF
 ```
 
 ** Referenties naar lage/hoge byte-labels: ** BYTE accepteert tokens in
@@ -482,7 +511,7 @@ numerieke waarden. De assembler lost het labeladres op tijdens het compileren en
 voegt de juiste byte in. Voorbeeld:
 
 ```
-    .byte <frame_0, >frame_0, <frame_1, >frame_1
+.byte <frame_0, >frame_0, <frame_1, >frame_1
 ```
 
 Hierin wordt de lage byte van het adres van `frame_0` opgeslagen, vervolgens de
@@ -493,7 +522,7 @@ sprongtabellen en adreslijsten.
 
 ---
 
-### WORD
+### WOORD
 
 Net als **DATA in BASIC, maar dan voor 16-bits getallen **. Elke waarde wordt
 opgeslagen als twee bytes (eerst de lage byte, dan de hoge byte — 6502
@@ -510,14 +539,14 @@ little-endian volgorde).
 
 **Gegenereerde code:**
 ```
-    .word $0400, $C000
+.word $0400, $C000
 ```
 
 **Grootte:** 2 bytes per woord.
 
 ---
 
-### FILL
+### VULLEN
 
 Zoals `FOR I=1 TO N : POKE addr+I, val : NEXT` — vult een geheugenblok met
 dezelfde byte, in één regel. Ideaal voor het wissen van gebieden of het vooraf
@@ -534,7 +563,7 @@ vullen van tabellen.
 
 **Gegenereerde code:**
 ```
-    .fill 256, $00
+.fill 256, $00
 ```
 
 **Expressiesyntaxis:** Zowel `count` als `value` accepteren rekenkundige
@@ -557,7 +586,7 @@ Laagste/hoogste byte: `lo(expr)`, `hi(expr)`
 
 ---
 
-### ALIGN
+### UITLIJNEN
 
 Schuift het huidige adres naar voren naar de volgende schone grens door
 nulopvullingsbytes in te voegen. De C64 vereist dat spritegegevens beginnen op
@@ -575,7 +604,7 @@ een grens van 64 bytes — `ALIGN 64` regelt dat automatisch.
 
 **Gegenereerde code:**
 ```
-    ; ALIGN 64 → $0840 (12 bytes padding)
+; ALIGN 64 → $0840 (12 bytes opvulling)
 ```
 
 **Grootte:** Dynamisch — afhankelijk van de huidige programmatellerpositie.
@@ -585,7 +614,7 @@ een grens van 64 bytes — `ALIGN 64` regelt dat automatisch.
 
 ---
 
-### TEXT
+### TEKST
 
 Net als **PRINT AT** — schrijft tekst rechtstreeks naar het C64-scherm op een
 bepaalde kolom en rij, zonder de kernel te gebruiken. Het genereert één
@@ -620,17 +649,21 @@ geselecteerd:
 
 **Gegenereerde code (hoofdlettermodus, `"HALLO"`):**
 ```
-    LDA #$08      ; 'H' screen code $08
-    STA $0400
-    LDA #$05      ; 'E' screen code $05
-    STA $0401
-    ...
+LDA #$08 ; 'H' schermcode $08
+
+STA $0400
+
+LDA #$05 ; 'E' schermcode $05
+
+STA $0401
+
+...
 ```
 
 **Syntaxis:**
 ```
-.text 0, 2, "HELLO"           ; uppercase charset (default)
-.text 0, 2, "hello", lower    ; lowercase charset
+.text 0, 2, "HALLO" ; hoofdletters (standaard)
+.text 0, 2, "hallo", lower ; kleine letters
 ```
 
 Tekens worden gecodeerd als **schermcodes** (niet PETSCII). **Grootte:**
@@ -638,7 +671,7 @@ Tekens worden gecodeerd als **schermcodes** (niet PETSCII). **Grootte:**
 
 ---
 
-### STRING
+### SNAAR
 
 Net zoals **POKE een string** in een willekeurig geheugenadres tijdens runtime.
 Genereert LDA/STA-paren die de schermcode van elk teken naar opeenvolgende
@@ -654,20 +687,24 @@ adressen kopiëren.
 
 **Syntaxis:**
 ```
-.string $C000, "HELLO"                  ; uppercase charset (default)
-.string $C000, "hello", lower           ; lowercase charset
-.string $C000, "HELLO", 80             ; with shift (reverse video)
-.string $C000, "hello", 80, lower      ; shift + lowercase
-.string $C000, "HELLO" :my_string      ; with macroLabel
+.string $C000, "HALLO" ; hoofdletters (standaard)
+.string $C000, "hallo", lower ; kleine letters
+.string $C000, "HALLO", 80 ; met shift (omgekeerde video)
+.string $C000, "hallo", 80, lower ; shift + kleine letters
+.string $C000, "HALLO" :my_string ; met macroLabel
 ```
 
 **Gegenereerde code:**
 ```
-    LDA #$08      ; 'H' screen code
-    STA $C000
-    LDA #$05      ; 'E' screen code
-    STA $C001
-    ...
+LDA #$08 ; 'H' schermcode
+
+STA $C000
+
+LDA #$05 ; 'E' schermcode
+
+STA $C001
+
+...
 ```
 
 Tekens worden gecodeerd als **schermcodes** (niet PETSCII). De optionele
@@ -677,7 +714,7 @@ teken).
 
 ---
 
-### DATA
+### GEGEVENS
 
 Net als een **POKE-lus** — schrijft een lijst met ruwe bytes naar een
 geheugenadres tijdens de uitvoering, één LDA/STA-paar per byte.
@@ -690,16 +727,16 @@ geheugenadres tijdens de uitvoering, één LDA/STA-paar per byte.
 
 **Syntaxis:**
 ```
-.data $C000, $01, $02, $03          ; hex address
-.data my_buf, $01, $02, $03         ; label address
-.data $C000, $01, $02, $03 :mydata  ; with macroLabel
+.data $C000, $01, $02, $03 ; hex-adres
+.data my_buf, $01, $02, $03 ; labeladres
+.data $C000, $01, $02, $03 :mydata ; met macroLabel
 ```
 
 **Gegenereerde code:**
 ```
-    LDA #$01
+LDA #$01
     STA $C000
-    LDA #$02
+    LDA#$02
     STA $C001
     ...
 ```
@@ -728,9 +765,9 @@ opzoektabellen, alles wat gewoon op een specifiek adres moet staan.
 
 **Syntaxis:**
 ```
-.rawbytes $C000, $00, $00, $00      ; hex address
-.rawbytes sprite_data, $00, $00     ; label address
-.rawbytes $0C50, $00, $00 :nev      ; with macroLabel — other code can use LDA nev,X
+.rawbytes $C000, $00, $00, $00 ; hexadecimaal adres
+.rawbytes sprite_data, $00, $00 ; labeladres
+.rawbytes $0C50, $00, $00 :nev ; met macroLabel — andere code kan LDA nev,X gebruiken
 ```
 
 **Grootte in code: ** 0 bytes. De gegevens worden op het opgegeven adres in de
@@ -764,22 +801,24 @@ geladen.
 
 **Syntaxis:**
 ```
-.rawtext $C000, "HELLO"                 ; uppercase charset (default)
-.rawtext $C000, "hello", lower          ; lowercase charset
-.rawtext $C000, "HELLO", 80            ; with shift (reverse video)
-.rawtext $C000, "hello", 80, lower     ; shift + lowercase
-.rawtext $0400, "HELLO" :my_text       ; with macroLabel
+.rawtext $C000, "HALLO" ; hoofdletters (standaard)
+.rawtext $C000, "hello", lower ; kleine letters
+.rawtext $C000, "HALLO", 80 ; met shift (omgekeerde video)
+.rawtext $C000, "hello", 80, lower ; shift + kleine letters
+.rawtext $0400, "HALLO" :my_text ; met macroLabel
 ```
 
 **Gegenereerde code:**
 ```
-; .rawtext "HELLO" -> $C000
+; .rawtext "HALLO" -> $C000
 ; $C000
-    .byte $08, $05, $0C, $0C, $0F   ; H E L L O (uppercase screen codes)
 
-; .rawtext "hello", lower -> $C000
+.byte $08, $05, $0C, $0C, $0F ; H E L L O (schermcodes in hoofdletters)
+
+; .rawtext "hello", kleine letters -> $C000
 ; $C000
-    .byte $48, $45, $4C, $4C, $4F   ; h e l l o (lowercase screen codes $41–$5A range)
+
+.byte $48, $45, $4C, $4C, $4F ; h e l l o (schermcodes in kleine letters, bereik $41–$5A)
 ```
 
 **Grootte in code: ** 0 bytes. De gegevens worden op het opgegeven adres in de
@@ -820,17 +859,18 @@ gebruikt.
 
 **Syntaxis:**
 ```
-.petscii $C000, "HELLO"              ; uppercase PETSCII (default)
-.petscii $C000, "hello", lower       ; lowercase PETSCII ($61–$7A)
-.petscii $C000, "HELLO", null        ; with null terminator
-.petscii $C000, "hello", lower, null ; lowercase + null terminator
-.petscii $C000, "HELLO" :my_msg      ; with macroLabel
+.petscii $C000, "HALLO" ; hoofdletters PETSCII (standaard)
+.petscii $C000, "hallo", lower ; kleine letters PETSCII ($61–$7A)
+.petscii $C000, "HALLO", null ; met null-terminator
+.petscii $C000, "hallo", lower, null ; kleine letters + null-terminator
+.petscii $C000, "HALLO" :my_msg ; met macroLabel
 ```
 
 **Gegenereerde bytes (hoofdletters, `"HALLO"`):**
 ```
 ; $C000
-    .byte $48, $45, $4C, $4C, $4F   ; H E L L O (PETSCII $41–$5A range)
+
+.byte $48, $45, $4C, $4C, $4F ; H E L L O (PETSCII $41–$5A bereik)
 ```
 
 **Grootte in code: ** 0 bytes. De gegevens worden op het doeladres geplaatst als
@@ -840,15 +880,21 @@ een uitgestelde gegevenssectie (zoals RAWBYTES).
 te voegen. Ideaal voor null-terminated lussen:
 
 ```
-    LDX #$00
-loop:
-    LDA msg,X
-    BEQ done        ; $00 stops the loop
-    JSR $FFD2
-    INX
-    BNE loop
-done:
-    RTS
+LDX #$00
+lus:
+
+LDA bericht,X
+
+BEQ klaar; $00 stopt de lus
+
+JSR $FFD2
+
+INX
+
+BNE-lus
+klaar:
+
+RTS
 ```
 
 **Coderingsregels:**
@@ -867,7 +913,7 @@ done:
 
 ---
 
-### CHARSET
+### TEKENSET
 
 Schakelt de VIC-II-karakter-ROM tussen hoofdletter-/grafische modus (standaard
 C64) en kleine letter-/hoofdlettermodus door bit 1 van `$D018` tijdens runtime
@@ -879,24 +925,28 @@ te wijzigen.
 
 **Syntaxis:**
 ```
-.charset lower    ; switch to lowercase charset
-.charset upper    ; switch back to uppercase/graphics charset
+.charset lower; schakel over naar de tekenset voor kleine letters
+.charset upper; schakel terug naar de tekenset voor hoofdletters/afbeeldingen
 ```
 
 **Gegenereerde code:**
 
 Kleine lettermodus:
 ```
-    LDA $D018
-    ORA #$02      ; set bit 1 → lowercase/uppercase ROM at $1800
-    STA $D018
+LDA $D018
+
+ORA #$02 ; bit 1 instellen → ROM voor kleine/hoofdletters op $1800
+
+STA $D018
 ```
 
 Hoofdlettermodus:
 ```
-    LDA $D018
-    AND #$FD      ; clear bit 1 → uppercase/graphics ROM at $1000
-    STA $D018
+LDA $D018
+
+EN #$FD ; wis bit 1 → hoofdletters/grafische ROM op $1000
+
+STA $D018
 ```
 
 **Grootte:** 8 bytes (LDA abs + ORA/AND imm + STA abs).
@@ -939,21 +989,21 @@ tijdens de uitvoering — er is geen voorafgaand label of `ORG` nodig.
 
 **Gegenereerde code (8 × `LDA #b` / `STA-doel+n`, 40 bytes totaal):**
 ```
-    LDA #$18
+LDA#$18
     STA $3A08
-    LDA #$3C
+    LDA#$3C
     STA $3A09
-    LDA #$66
+    LDA#$66
     STA $3A0A
-    LDA #$7E
+    LDA#$7E
     STA $3A0B
-    LDA #$66
+    LDA#$66
     STA $3A0C
-    LDA #$66
+    LDA#$66
     STA $3A0D
-    LDA #$66
+    LDA#$66
     STA $3A0E
-    LDA #$00
+    LDA#$00
     STA $3A0F
 ```
 
@@ -964,15 +1014,21 @@ vastgelegd in de STA-operanden.
 
 **Typische workflow:**
 ```
-    ; Point VIC-II at RAM charset at $3800
-    LDA $D018
-    AND #$F1
-    ORA #$0E       ; bits 3-1 = %111 → charset at bank+$3800
-    STA $D018
+; Point VIC-II at RAM charset at $3800
 
-    .chardef $3800, 65, $18,$3C,$66,$7E,$66,$66,$66,$00   ; redefine 'A'
-    .chardef $3800, 66, $7C,$66,$66,$7C,$66,$66,$7C,$00   ; redefine 'B'
-    ; ... more .chardef lines for each custom char
+LDA $D018
+
+AND #$F1
+
+ORA #$0E ; bits 3-1 = %111 → charset at bank+$3800
+
+STA $D018
+
+.chardef $3800, 65, $18,$3C,$66,$7E,$66,$66,$66,$00 ; redefine 'A'
+
+.chardef $3800, 66, $7C,$66,$66,$7C,$66,$66,$7C,$00 ; redefine 'B'
+
+; ... meer .chardef-regels voor elk aangepast teken
 ```
 
 **Wanneer CHARDEF gebruiken versus alternatieven:**
@@ -1020,22 +1076,35 @@ geen subroutine-aanroep.
 **Gegenereerde code (30 bytes, volledig PC-relatief — geen subroutine, geen
 absolute sprongen):**
 ```
-    LDA $FD        ; b1 right
-    CMP $F7        ; b2 left
-    BCC no         ; R1 < L2 → miss
-    LDA $F9        ; b2 right
-    CMP $FB        ; b1 left
-    BCC no
-    LDA $FE        ; b1 bottom
-    CMP $F8        ; b2 top
-    BCC no
-    LDA $FA        ; b2 bottom
-    CMP $FC        ; b1 top
-    BCC no
-    LDA #$01       ; hit
-    BNE done       ; unconditional (A ≠ 0)
-no: LDA #$00
-done:
+LDA $FD ; b1 rechts
+
+CMP $F7 ; b2 links
+
+BCC nee ; R1 < L2 → miss
+
+LDA $F9 ; b2 rechts
+
+CMP $FB ; b1 links
+
+BCC nee
+
+LDA $FE ; b1 onder
+
+CMP $F8 ; b2 boven
+
+BCC nee
+
+LDA $FA ; b2 onder
+
+CMP $FC ; b1 boven
+
+BCC nee
+
+LDA #$01 ; hit
+
+BNE klaar ; onvoorwaardelijk (A ≠ 0)
+nee: LDA #$00
+klaar:
 ```
 
 **Grootte:** 30 bytes.
@@ -1043,27 +1112,40 @@ done:
 **Typische workflow:**
 
 ```
-    ; Player sprite box at $FB..$FE
-    LDA sprite_x            ; L
-    STA $FB
-    LDA sprite_y            ; T
-    STA $FC
-    CLC
-    ADC #23                 ; +23 → B (24-pixel tall sprite)
-    STA $FE
-    LDA $FB
-    CLC
-    ADC #23                 ; R
-    STA $FD
+; Speler spritebox op $FB..$FE
 
-    ; Enemy box at $F7..$FA (populated similarly)
-    ; ...
+LDA sprite_x ; L
 
-    .box_hit $FB, $F7        ; test player vs enemy → A = 0 or 1
+STA $FB
 
-    CMP #$01
-    BNE no_collision
-    JSR handle_hit
+LDA sprite_y ; T
+
+STA $FC
+
+CLC
+ADC #23 ; +23 → B (24-pixel hoge sprite)
+
+STA $FE
+
+LDA $FB
+
+CLC
+
+ADC #23 ; R
+
+STA $FD
+
+; Vijandbox op $F7..$FA (op dezelfde manier gevuld)
+
+; ...
+
+.box_hit $FB, $F7 ; test speler vs vijand → A = 0 of 1
+
+CMP #$01
+
+BNE no_collision
+
+JSR handle_hit
 no_collision:
 ```
 
@@ -1104,8 +1186,9 @@ u opgeeft.
 
 **Gegenereerde codecommentaar:**
 ```
-    ; INCBIN "music.bin" @ $C000 (2048 bytes)
-    .byte $01, $02, ...
+; INCBIN "music.bin" @ $C000 (2048 bytes)
+
+.byte $01, $02, ...
 ```
 
 **Grootte in code: ** 0 bytes (uitgestelde datasectie). De binaire code is
@@ -1136,16 +1219,17 @@ karakter-ROM-schaduw.
 
 **Syntaxis:**
 ```
-.koala "picture.koa"
-.koala "picture.koa", $2000
+.koala "foto.koa"
+.koala "foto.koa", $ 2000
 ```
 
 **Voorbeeld — toon een afbeelding en wacht:**
 ```
 * = $0801
 .koala "picture.koa"
-wait:
-    JMP wait
+wachten:
+
+JMP wachten
 ```
 
 **Grootte in code: ** 86 bytes (weergaveroutine); de 10001 bytes aan
@@ -1154,14 +1238,14 @@ Assembler exporteert een compatibel bestand.
 
 ---
 
-### LEVEL / LEVEL_ROW
+### NIVEAU / NIVEAU_RIJ
 
 Hiermee wordt een **Level Editor**-project in je programma geplaatst en worden
 levelrijen naar een schermbuffer gekopieerd — de bouwstenen van een scrollend
 spel. Het `level-demo.asm`-voorbeeld van C64 Visual Assembler is een compleet
 level dat met een joystick wordt gescrolld.
 
-#### LEVEL
+#### NIVEAU
 
 Een INCBIN-achtige instructie die **0 bytes code** genereert. Alleen de
 **geplaatste** schermen van het Level Editor-project (de `.bin` die de Level
@@ -1197,7 +1281,7 @@ de schermen. Een level kan maximaal 7 × 10 schermen bevatten.
 Typische beveiliging: `.assert LEVEL_END <= $9200, "niveaugegevens komen in de
 code terecht"`.
 
-#### LEVEL_ROW
+#### NIVEAU_RIJ
 
 Kopieert één rij van 40 tekens van het niveau naar een buffer: de niveaurij in
 **X**, beginnend bij de niveaukolom die wordt bewaard in de variabele `col`,
@@ -1246,7 +1330,7 @@ De SID-header geeft het volgende weer:
 
 **Gegenereerde codecommentaar:**
 ```
-    ; SID "Ikari_Warriors.sid" @ $1000  Init:$1000  Play:$1006  (4096 bytes)
+; SID "Ikari_Warriors.sid" @ $1000 Init:$1000 Spelen:$1006 (4096 bytes)
 ```
 
 **Grootte in code: ** 0 bytes inline. Het SID-binair bestand wordt op het
@@ -1305,7 +1389,7 @@ interrupt (`ASL $D019`), roept `JSR SID_PLAY` aan en gaat verder naar de KERNAL
 
 ---
 
-### INCLUDE
+### ERBIJ BETREKKEN
 
 Net als **MERGE in BASIC** — haalt een ander bestand binnen en breidt het inline
 uit op deze positie. Perfect voor herbruikbare subroutinebibliotheken.
@@ -1338,15 +1422,18 @@ Er worden twee bestandstypen ondersteund:
 
 **Gegenereerde code (geen adresoverride):**
 ```
-    ; .include "library.json"
-    ... (the included code follows)
+; .include "library.json"
+
+... (de meegeleverde code volgt)
 ```
 
 **Gegenereerde code (met laadadres `C000`):**
 ```
-    ; .include "library.json" @ $C000
-    *=$C000
-    ... (the included code follows)
+; .include "library.json" @ $C000
+
+*=$C000
+
+... (de meegeleverde code volgt)
 ```
 
 > **Tip:** Gebruik INCLUDE om herbruikbare subroutinebibliotheken te maken die u
@@ -1365,7 +1452,7 @@ Er worden twee bestandstypen ondersteund:
 
 ---
 
-### TABLE
+### TAFEL
 
 Net als **DIM op een specifiek adres** — hiermee wordt een opzoektabel benoemd
 en de locatie ervan in het geheugen bepaald. Plaats de regels `.byte`, `.word`
@@ -1379,12 +1466,12 @@ of `.fill` erna om de inhoud van de tabel te definiëren.
 **Syntaxis:**
 ```
 .table color_table $C000
-.table lookup              ; at the current address
+.table lookup ; op het huidige adres
 ```
 
 **Gegenereerde code:**
 ```
-color_table:
+kleurentabel:
 ```
 
 Met een adres springt de programmateller daarheen; zonder adres begint de tabel
@@ -1426,16 +1513,23 @@ worden opgevuld met nullen.
 **Voorbeeld — code op `$0801`, gegevenstabel op `$C000`:**
 ```
 * = $0801
-    LDX #$00
-loop:
-    LDA $C000,X
-    STA $D800,X
-    INX
-    BNE loop
-    RTS
+
+LDX #$00
+lus:
+
+LDA $C000,X
+
+STA $D800,X
+
+INX
+
+BNE-lus
+
+RTS
 
 * = $C000
-    .byte $01, $02, $03, ...
+
+.byte $01, $02, $03, ...
 ```
 
 > **Tip:** Zonder een ORG begint het programma bij `$0801` (2049 decimaal), het
@@ -1445,13 +1539,13 @@ loop:
 
 ---
 
-### LOOP / NEXT
+### LUS / VOLGENDE
 
 Net zoals **`FOR X=N TO 1 STEP -1 : ... : NEXT X`** in BASIC — telt af van N
 naar 1 met behulp van het X- of Y-register. Plaats je instructies tussen LOOP en
 NEXT, en de lus wordt automatisch het juiste aantal keren herhaald.
 
-#### LOOP
+#### LUS
 
 | Argument | Beschrijving                                                            |
 | -------- | ----------------------------------------------------------------------- |
@@ -1466,13 +1560,13 @@ NEXT, en de lus wordt automatisch het juiste aantal keren herhaald.
 
 **Gegenereerde code:**
 ```
-    LDX #$0A
+LDX #$0A
 loop0:
 ```
 
 **Grootte:** 2 bytes (LD_ opcode + directe operand).
 
-#### NEXT
+#### VOLGENDE
 
 | Argument | Beschrijving                                |
 | -------- | ------------------------------------------- |
@@ -1481,36 +1575,41 @@ loop0:
 
 **Syntaxis:**
 ```
-.next loop0
+.volgende lus0
 ```
 
 **Gegenereerde code:**
 ```
-    DEX
-    BNE loop0
+DEX
+
+BNE-lus0
 ```
 
 **Grootte:** 3 bytes (DEX + BNE + vertakkingsoffset).
 
 **Voorbeeld — wis 10 schermcellen:**
 ```
-    LDX #$0A
+LDX #$0A
 loop0:
-    LDA #$20        ; space character
-    STA $0400,X
-    DEX
-    BNE loop0
+
+LDA #$20 ; spatiekarakter
+
+STA $0400,X
+
+DEX
+
+BNE loop0
 ```
 
 ---
 
-### FOR / ENDF
+### VOOR / EINDE
 
 Net als **`FOR X=0 TO N-1 : ... : NEXT X`** in BASIC — telt *up* vanaf 0. Ideaal
 wanneer je een voorwaartse index nodig hebt, bijvoorbeeld om door een tekenreeks
 of een array te stappen.
 
-#### FOR
+#### VOOR
 
 | Argument | Beschrijving                                                                          |
 | -------- | ------------------------------------------------------------------------------------- |
@@ -1520,18 +1619,18 @@ of een array te stappen.
 
 **Syntaxis:**
 ```
-.for X, $12, for0
+.voor X, $12, voor0
 ```
 
 **Gegenereerde code:**
 ```
-    LDX #$00
-for0:
+LDX #$00
+voor0:
 ```
 
 **Grootte:** 2 bytes (LD_ opcode + `#$00`).
 
-#### ENDF
+#### EINDE
 
 | Argument | Beschrijving                                 |
 | -------- | -------------------------------------------- |
@@ -1541,30 +1640,39 @@ for0:
 
 **Syntaxis:**
 ```
-.endf for0
+.endf voor0
 ```
 
 **Gegenereerde code:**
 ```
-    INX
-    CPX #$12
-    BNE for0
+INX
+
+CPX #$12
+
+BNE voor 0
 ```
 
 **Grootte:** 5 bytes (IN_ + CP_ #imm + BNE-offset).
 
 **Voorbeeld — print een null-terminated string:**
 ```
-    LDX #$00
-for0:
-    LDA msg,X       ; msg = PETSCII string at fixed address
-    BEQ done        ; null terminator → exit
-    JSR $FFD2       ; CHROUT
-    INX
-    CPX #$12        ; 18 characters max
-    BNE for0
-done:
-    RTS
+LDX #$00
+voor0:
+
+LDA msg,X ; msg = PETSCII-tekenreeks op vast adres
+
+BEQ klaar ; null-terminator → afsluiten
+
+JSR $FFD2 ; CHROUT
+
+INX
+
+CPX #$12 ; maximaal 18 tekens
+
+BNE voor0
+klaar:
+
+RTS
 ```
 
 > **LOOP vs FOR:** LOOP telt af (N→1) — goed voor vertragingen, opvullingen,
@@ -1573,14 +1681,14 @@ done:
 
 ---
 
-### PUSH / PULL
+### DUWEN / TREKKEN
 
 Net als ** waarbij variabelen worden opgeslagen vóór een GOSUB en hersteld na **
 — maar dan met gebruik van de 6502 hardwarestack. Als een subroutine A, X of Y
 gebruikt, moet deze worden omwikkeld met PUSH en PULL, zodat de registers van de
 aanroepende code behouden blijven.
 
-#### PUSH
+#### DUW
 
 Plaatst een of meer registers op de stack. De volgorde is altijd A → X → Y
 (binnenste eerst).
@@ -1596,14 +1704,16 @@ Plaatst een of meer registers op de stack. De volgorde is altijd A → X → Y
 
 **Gegenereerde code (voorbeeld: `AX`):**
 ```
-    PHA
-    TXA
-    PHA
+PHA
+
+TXA
+
+PHA
 ```
 
 **Grootte:** 1 byte voor A (`PHA`), 2 bytes voor X of Y (overdracht + push).
 
-#### PULL
+#### TREKKEN
 
 Herstelt registers van de stack in **omgekeerde volgorde** (Y → X → A).
 
@@ -1618,9 +1728,11 @@ Herstelt registers van de stack in **omgekeerde volgorde** (Y → X → A).
 
 **Gegenereerde code (voorbeeld: `AX`):**
 ```
-    PLA
-    TAX
-    PLA
+PLA
+
+BELASTING
+
+PLA
 ```
 
 > **Regel:** PUSH en PULL moeten altijd dezelfde registerset gebruiken****.
@@ -1629,19 +1741,19 @@ Herstelt registers van de stack in **omgekeerde volgorde** (Y → X → A).
 
 ---
 
-### END / RTS alias
+### EINDE / RTS-alias
 
 Net als **RTS met een vriendelijkere macronaam ** — `.end` zendt één enkele
 `RTS` byte uit, een korte subroutine-terminator.
 
 **Syntaxis:**
 ```
-.end
+.einde
 ```
 
 **Gegenereerde code:**
 ```
-    RTS
+RTS
 ```
 
 **Grootte:** 1 byte.
@@ -1651,14 +1763,14 @@ meer op een macro lijkt dan op een gewone instructie.
 
 ---
 
-### MACRO / ENDM / INVOKE
+### MACRO / EINDE / AANROEPEN
 
 Net als ** een benoemde GOSUB met parameters** — definieer een herbruikbaar stuk
 code eenmalig (MACRO…ENDM) en roep het vervolgens overal aan met INVOKE. Geef
 elke keer andere argumentwaarden door in plaats van code te kopiëren en te
 plakken.
 
-#### MACRO (definition start)
+#### MACRO (begin definitie)
 
 | Argument   | Beschrijving                                                                        |
 | ---------- | ----------------------------------------------------------------------------------- |
@@ -1680,24 +1792,27 @@ fout).
 
 **Gegenereerde code:**
 ```
-; .MACRO setColor (color)
-    ... (body)
+; .MACRO setColor (kleur)
+
+... (lichaam)
 ; .ENDM
 ```
 
 **Syntaxis:**
 ```
 .macro setColor color
-    LDA {color}
-    STA $D020
+
+LDA {color}
+
+STA $D020
 .endm
 ```
 
-#### ENDM (definition end)
+#### ENDM (einde definitie)
 
 Sluit de huidige macrodefinitie. Geen argumenten.
 
-#### INVOKE
+#### AANROEPEN
 
 Roept op deze positie een gedefinieerde macro aan en vervangt de opgegeven
 argumentwaarden door de placeholders `{paramName}` in de body.
@@ -1709,26 +1824,26 @@ argumentwaarden door de placeholders `{paramName}` in de body.
 
 **Gegenereerde code:**
 ```
-; .invoke setColor(#$07)
-    LDA #$07
+; .roep setColor aan (#$07)
+    LDA#$07
     STA $D020
 ```
 
 **Syntaxis:**
 ```
-; single argument:
+; één argument:
 .invoke setColor(#$07)
 
-; multiple arguments:
+; meerdere argumenten:
 .invoke drawPixel($10, $20)
 
-; no arguments:
+; geen argumenten:
 .invoke clearScreen
 
-; text / string arguments (quoted):
-.invoke printText("Hello, World!")
+; tekst-/stringargumenten (tussen aanhalingstekens):
+.invoke printText("Hallo, wereld!")
 
-; .call alias (synonym for .invoke):
+; alias voor .call (synoniem voor .invoke):
 .call setColor(#$07)
 ```
 
@@ -1756,7 +1871,7 @@ de daadwerkelijke argumenten. De door spaties gescheiden vorm (`.invoke setColor
 
 ---
 
-### REGION / ENDREGION
+### REGIO / ENDREGIO
 
 Puur een groepering voor editors en lijsten — **nul bytes**, geen effect op de
 geassembleerde code.
@@ -1767,18 +1882,19 @@ geassembleerde code.
 
 **Syntaxis:**
 ```
-.region init
-    ; code...
+.region initialisatie
+
+; code...
 .endregion
 ```
 
 **Gegenereerde code:**
 ```
-; region init
+; regio init
     SEI
-    LDA #$00
+    LDA#$00
     STA $D020
-; endregion init
+; eindregio init
 ```
 
 **Grootte:** 0 bytes voor zowel REGION als ENDREGION.
@@ -1788,14 +1904,14 @@ geassembleerde code.
 
 ---
 
-### DEFINE / IF / ELSE / ENDIF
+### DEFINIEER / ALS / ANDERS / EINDE ALS
 
 Net als ** een schakelaar leest de assembler ** — `DEFINE DEBUG` zet een symbool
 aan, waarna de regels van elke `IF DEBUG` worden geassembleerd en de `ELSE`-tak
 wordt overgeslagen. Verwijder de DEFINE en het IF-gedeelte verdwijnt uit de
 uitvoer. Het is niet nodig om code te verwijderen voor release-builds.
 
-#### DEFINE
+#### DEFINIËREN
 
 | Argument | Beschrijving                                                                                        |
 | -------- | --------------------------------------------------------------------------------------------------- |
@@ -1815,7 +1931,7 @@ uitvoer. Het is niet nodig om code te verwijderen voor release-builds.
 Een `DEFINE` kan meerdere symbolen tegelijk activeren (gescheiden door komma's).
 Plaats DEFINEs bovenaan je programma.
 
-#### IF
+#### ALS
 
 | Argument   | Beschrijving                                                                                                                       |
 | ---------- | ---------------------------------------------------------------------------------------------------------------------------------- |
@@ -1828,7 +1944,7 @@ Plaats DEFINEs bovenaan je programma.
 
 **Gegenereerde code:**
 ```
-; .IF DEBUG
+; .ALS DEBUG
 ```
 
 De regels tussen `IF` en `ENDIF` (of `ELSE`) worden geassembleerd of
@@ -1838,22 +1954,22 @@ voorwaarde moet een constante expressie zijn — een die niet tijdens het
 assembleren kan worden geëvalueerd, is een fout. Overgeslagen regels verschijnen
 als `; [IF skipped] …` commentaar en genereren **nul bytes**.
 
-#### ELSE
+#### ANDERS
 
 Geen argumenten. Markeer de alternatieve tak — samengesteld wanneer de
 `IF`-conditie *not* actief is.
 
 **Syntaxis:**
 ```
-.else
+.anders
 ```
 
 **Gegenereerde code:**
 ```
-; .ELSE
+; ANDERS
 ```
 
-#### ENDIF
+#### EINDE ALS
 
 Geen argumenten. Sluit het voorwaardelijke gedeelte af.
 
@@ -1875,22 +1991,28 @@ hen telt.
 ; .DEFINE DEBUG
 
 ; .IF DEBUG
-    LDA #$02        ; red border
-    STA $D020
+
+LDA #$02 ; rode rand
+
+STA $D020
 ; .ELSE
-    LDA #$00        ; black (release)
-    STA $D020
+
+LDA #$00 ; zwart (vrijgeven)
+
+STA $D020
 ; .ENDIF
 ```
 
 **Voorbeeld — meerdere symbolen in één DEFINE:**
 ```
-; .DEFINE DEBUG, PAL
+; DEFINE DEBUG, PAL
 
 ; .IF PAL
-    LDA #$xx        ; PAL timing constant
+
+LDA #$xx ; PAL-timingconstante
 ; .ELSE
-    LDA #$xx        ; NTSC timing constant
+
+LDA #$xx ; NTSC-timingconstante
 ; .ENDIF
 ```
 
@@ -1901,7 +2023,7 @@ overgeslagen, worden de binnenste delen ook overgeslagen.
 > afgehandeld. Voor runtime vergelijkings-/vertakkingssyntax, zie **Runtime IF /
 > ELSE / ENDIF** hieronder.
 
-### .ASSERT
+### .BEWEREN
 
 Een **compile-time sanity check**. `.assert` evalueert een expressie tijdens het
 assembleren; als deze onwaar is (`0`), stopt de build met een duidelijke
@@ -1917,7 +2039,7 @@ er niets weergegeven.
 ```
 .assert spriteData < $C000
 .assert * < $A000
-.assert end - start <= 256, "sprite table overflowed one page"
+.assert end - start <= 256, "spritetabel overschrijdt één pagina"
 ```
 
 **Gedrag:**
@@ -1936,10 +2058,13 @@ er niets weergegeven.
 ```
 * = $3000
 sprite_data:
-    .byte $00, $00, $00        ; … 63 bytes …
+
+.byte $00, $00, $00 ; … 63 bytes …
 sprite_data_end:
-    .assert sprite_data_end - sprite_data == 63, "sprite must be exactly 63 bytes"
-    .assert (sprite_data % 64) == 0, "sprite must be 64-byte aligned"
+
+.assert sprite_data_end - sprite_data == 63, "sprite moet precies 63 bytes zijn"
+
+.assert (sprite_data % 64) == 0, "sprite moet 64-byte uitgelijnd zijn"
 ```
 
 ---
@@ -1975,10 +2100,10 @@ binnen een nabijgelegen instructie — het klassieke patroon van zelfmodificeren
 code:
 
 ```
-.const op = *+1      ; op → address of the immediate operand of the next LDA
-LDA #$00            ; $00 will be patched at runtime
+.const op = *+1 ; op → adres van de directe operand van de volgende LDA
+LDA #$00 ; $00 wordt tijdens runtime aangepast
 ...
-STA op              ; overwrites the #$00 byte → LDA reads the new value next time
+STA op ; overschrijft de #$00 byte → LDA leest de volgende keer de nieuwe waarde
 ```
 
 De CONST zendt 0 bytes uit; het label wordt tijdens het compileren opgelost naar
@@ -1991,11 +2116,11 @@ naar eerder gedefinieerde CONST-namen, hexadecimale/binaire letterlijke waarden
 en ingebouwde wiskundige functies:
 
 ```
-.const SCREEN      = $0400
-.const SCREEN_END  = SCREEN + 40*25   ; 1000 bytes later
-.const COLOR_RAM   = $D800
-.const MID_X       = 160
-.const SIN_TABLE   = round(sin(PI/8) * 127)   ; pre-computed sine value
+.const SCREEN = $0400
+.const SCREEN_END = SCREEN + 40*25 ; 1000 bytes later
+.const COLOR_RAM = $D800
+.const MID_X = 160
+.const SIN_TABLE = round(sin(PI/8) * 127) ; vooraf berekende sinuswaarde
 ```
 
 **Ingebouwde functies:** `sin()`, `cos()`, `round()`, `max(a,b)`, `min(a,b)`,
@@ -2022,25 +2147,25 @@ thuishoort.
 
 **Syntaxis:**
 ```
-.var counter
-.var timer, 2
-.var lives
+.var-teller
+.var-timer, 2
+.var leeft
 ```
 
 **Praktisch voorbeeld:**
 ```
-.region Vars
-.var counter
-.var timer, 2
-.endregion
+.regio Vars
+.var-teller
+.var-timer, 2
+.eindregio
 
-LDA #$00
-STA counter
+LDA#$00
+STA-teller
 ```
 
 **Gegenereerde code:**
 ```
-; .var counter
+; .var teller
 ```
 
 **Grootte:** 1 byte standaard, of `N` bytes wanneer grootte is gespecificeerd.
@@ -2065,11 +2190,13 @@ genereert de juiste `CMP` / `CPX` / `CPY` + branchsequentie voor u.
 
 **Syntaxis:**
 ```
-.if A == #$10
-    LDA #$07
-.else
-    LDA #$0F
-.endif
+Als A == #$10
+
+LDA #$07
+anders
+
+LDA #$0F
+einde als
 ```
 
 **Grootte:** Afhankelijk van de gekozen takken en vergelijkingsvorm.
@@ -2080,7 +2207,7 @@ register.
 
 ---
 
-### WHILE / ENDW
+### TERWIJL / EINDE
 
 Zoals **een runtime-lus met een test bovenaan** — de body wordt uitgevoerd
 zolang de voorwaarde waar blijft.
@@ -2094,7 +2221,8 @@ zolang de voorwaarde waar blijft.
 **Syntaxis:**
 ```
 .while A != #$00
-    JSR getchar
+
+JSR getchar
 .endw
 ```
 
@@ -2106,7 +2234,7 @@ NEXT` helper.
 
 ---
 
-### REPEAT / UNTIL
+### HERHALEN / TOTDAT
 
 Zoals **een runtime-lus met een test onderaan** — de body wordt altijd minstens
 één keer uitgevoerd, waarna de voorwaarde bepaalt of er gestopt moet worden.
@@ -2119,9 +2247,10 @@ Zoals **een runtime-lus met een test onderaan** — de body wordt altijd minsten
 
 **Syntaxis:**
 ```
-.repeat
-    JSR getchar
-.until A == #$00
+.herhaal
+
+JSR getchar
+.totdat A == #$00
 ```
 
 **Grootte:** Afhankelijk van de lusbody en de vergelijkingsvorm.
@@ -2162,7 +2291,7 @@ schakelen automatisch over naar een 16-bits teller.
 
 ### PRINT / PRINT_CHAR / PRINT_HEX / CLEAR_SCREEN / WAIT_KEY / DELAY / SET_BORDER / SET_BG
 
-#### PRINT
+#### AFDRUKKEN
 
 Net als **PETSCII-uitvoer zonder de boilerplate** — print een tekenreeks via
 `CHROUT` met dezelfde behandeling van hoofdletters/kleine letters (`lower`) als
@@ -2170,8 +2299,8 @@ Net als **PETSCII-uitvoer zonder de boilerplate** — print een tekenreeks via
 
 **Syntaxis:**
 ```
-.print "HELLO"
-.print "hello", lower
+.print "HALLO"
+.print "hallo", lower
 ```
 
 #### PRINT_CHAR
@@ -2184,7 +2313,7 @@ assembleren wordt omgezet naar een byte.
 ```
 .print_char 65
 .print_char $41
-.print_char color
+.print_char kleur
 ```
 
 #### PRINT_HEX
@@ -2197,7 +2326,7 @@ KERNAL-uitvoerpad.
 .print_hex A
 ```
 
-#### CLEAR_SCREEN
+#### WIS SCHERM
 
 Sneltoets voor de standaard C64-code om het scherm te wissen.
 
@@ -2213,10 +2342,10 @@ handmatig hoeft te genereren.
 
 **Syntaxis:**
 ```
-.wait_key
+.wacht_sleutel
 ```
 
-#### DELAY
+#### VERTRAGING
 
 Wacht het gevraagde aantal frames af via een gedeelde hulpfunctie. Gebruik dit
 voor korte pauzes en timingproblemen wanneer een volledige, op maat gemaakte lus
@@ -2225,9 +2354,9 @@ constante, en `.wait` is gewoon een alias van `.delay`.
 
 **Syntaxis:**
 ```
-.delay 29
-.wait 29
-.delay frames=FRAMES_1S
+.vertraging 29
+.wacht 29
+.vertraging frames=FRAMES_1S
 ```
 
 #### SET_BORDER / SET_BG
@@ -2317,16 +2446,25 @@ geactiveerd en de kleur wordt ingesteld.
 
 **Gegenereerde code:**
 ```
-    LDA #$21
-    STA $07F8       ; sprite pointer register ($07F8 + N)
-    LDA $D015
-    ORA #$01        ; set enable bit for sprite 0
-    STA $D015
-    LDA $D01C
-    AND #$FE        ; clear multicolor bit for sprite 0
-    STA $D01C
-    LDA #$07
-    STA $D027       ; sprite 0 colour register
+LDA #$21
+
+STA $07F8 ; sprite-pointerregister ($07F8 + N)
+
+LDA $D015
+
+ORA #$01 ; schakelbit voor sprite 0 in
+
+STA $D015
+
+LDA $D01C
+
+AND #$FE ; wis meerkleurig bit voor sprite 0
+
+STA $D01C
+
+LDA #$07
+
+STA $D027 ; kleurenregister voor sprite 0
 ```
 
 **Grootte:** 26 bytes.
@@ -2357,13 +2495,19 @@ sprite-register gebruiken.
 
 **Gegenereerde code (voorbeeld: sprite 0, X=152, Y=100):**
 ```
-    LDA #$98        ; X low byte
-    STA $D000       ; sprite 0 X register
-    LDA $D010
-    AND #$FE        ; clear X MSB for sprite 0 (X ≤ 255)
-    STA $D010
-    LDA #$64        ; Y = 100
-    STA $D001       ; sprite 0 Y register
+LDA #$98 ; X lage byte
+
+STA $D000 ; sprite 0 X-register
+
+LDA $D010
+
+AND #$FE ; wis X MSB voor sprite 0 (X ≤ 255)
+
+STA $D010
+
+LDA #$64 ; Y = 100
+
+STA $D001 ; sprite 0 Y-register
 ```
 
 Voor X > 255 stelt de macro de overeenkomstige bit in `$D010` in in plaats van
@@ -2395,10 +2539,13 @@ gameloop om sprite tearing te voorkomen. Geen JSR, geen label nodig.
 
 **Gegenereerde code:**
 ```
-wait:
-    LDA $D012       ; current raster line
-    CMP #$FF        ; target line
-    BNE wait        ; loop back (-7 bytes)
+wacht:
+
+LDA $D012 ; huidige rasterlijn
+
+CMP #$FF ; doellijn
+
+BNE wacht ; terugloop (-7 bytes)
 ```
 
 **Grootte:** 7 bytes (de `BNE` offset `$F9` = −7 wijst altijd terug naar de
@@ -2427,22 +2574,34 @@ een sprite dienovereenkomstig aan. Volledig inline, geen JSR nodig.
 
 **Gegenereerde code (poort 2, sprite 0):**
 ```
-    LDA $DC00       ; read CIA port 2
-    LSR             ; bit 0 → carry (Up)
-    BCS skip_up     ; carry set = NOT pressed
-    DEC $D001       ; Y−1 (move up)
+LDA $DC00 ; lees CIA-poort 2
+
+LSR ; bit 0 → overdracht (Omhoog)
+
+BCS skip_up ; overdracht ingesteld = NIET ingedrukt
+
+DEC $D001 ; Y−1 (omhoog bewegen)
 skip_up:
-    LSR             ; bit 1 → carry (Down)
-    BCS skip_down
-    INC $D001       ; Y+1 (move down)
+
+LSR ; bit 1 → overdracht (Omlaag)
+
+BCS skip_down
+
+INC $D001 ; Y+1 (omlaag bewegen)
 skip_down:
-    LSR             ; bit 2 → carry (Left)
-    BCS skip_left
-    DEC $D000       ; X−1 (move left)
+
+LSR ; bit 2 → overdracht (Links)
+
+BCS skip_left
+
+DEC $D000 ; X−1 (links bewegen)
 skip_left:
-    LSR             ; bit 3 → carry (Right)
-    BCS skip_right
-    INC $D000       ; X+1 (move right)
+
+LSR ; bit 3 → overdracht (Rechts)
+
+BCS skip_right
+
+INC $D000 ; X+1 (rechts bewegen)
 skip_right:
 ```
 
@@ -2467,8 +2626,8 @@ met eigen fysica of menu's. Poort `3` leest beide joystickpoorten tegelijk (`LDA
 $DC00` / `AND $DC01`), dus beide poorten werken.
 
 ```
-.joystick 2, vx, vy          ; 35 bytes
-.joystick 3, vx, vy, fire    ; both ports + fire: 45 bytes
+.joystick 2, vx, vy; 35 bytes
+.joystick 3, vx, vy, fire; beide poorten + fire: 45 bytes
 ```
 
 > **Typisch gebruik:** Plaats binnen een `gameloop` label met `WAIT_RASTER`
@@ -2490,7 +2649,7 @@ $DC00` / `AND $DC01`), dus beide poorten werken.
 > **2.1:** De poort moet bekend zijn wanneer de code wordt opgesteld (een getal
 > of een constante), omdat poort 3 de code 3 bytes langer maakt; een later
 > gedefinieerd label is een fout.
-### MOUSE
+### MUIS
 
 Leest een proportionele muis van een Commodore 1351 en beweegt een sprite.
 Volledig **inline** — geen JSR of label nodig. De macro selecteert de CIA-poort,
@@ -2508,86 +2667,128 @@ op de sprite-registers.
 **Gegenereerde codevorm (poort 1, sprite 0, ZP `$FD`/`$FE`):**
 
 ```
-    ; CIA port select + settle
-    LDA $DC00
-    AND #$3F
-    ORA #$40
-    STA $DC00
-    LDX #$67
-wait:
-    DEX
-    BNE wait
+; CIA-poort selecteren + afhandelen
 
-    ; X axis — standard 1351-style 7-bit delta decode
-    LDA $D419
-    TAY
-    SEC
-    SBC $FD
-    AND #$7F
-    LDX #$00
-    CMP #$40
-    BCS xneg
-    LSR A
-    BEQ xdone
-    STY $FD
-    CLC
-    ADC $D000
-    STA $D000
-    TXA
-    ADC #$00
-    AND #$01
-    BEQ xdone
-    LDA $D010
-    EOR #$01
-    STA $D010
-    JMP xdone
+LDA $DC00
+
+EN #$3F
+
+ORA #$40
+
+STA $DC00
+
+LDX #$67
+wachten:
+
+DEX
+
+BNE wachten
+
+; X-as — standaard 1351-stijl 7-bits delta-decodering
+
+LDA $D419
+
+TAY
+
+SEC
+SBC $FD
+
+AND #$7F
+
+LDX #$00
+
+CMP #$40
+
+BCS xneg
+
+LSR A
+BEQ xdone
+STY $FD
+
+CLC
+ADC $D000
+
+STA $D000
+
+TXA
+
+ADC #$00
+
+AND #$01
+BEQ xdone
+LDA $D010
+EOR #$01
+STA $D010
+
+JMP xdone
 xneg:
-    ORA #$C0
-    CMP #$FF
-    BEQ xdone
-    SEC
-    ROR
-    DEX
-    STY $FD
-    CLC
-    ADC $D000
-    STA $D000
-    TXA
-    ADC #$00
-    AND #$01
-    BEQ xdone
-    LDA $D010
-    EOR #$01
-    STA $D010
+
+ORA #$C0
+
+CMP #$FF
+
+BEQ xdone
+
+SEC
+ROR
+
+DEX
+STY $FD
+
+CLC
+
+ADC $D000
+
+STA $D000
+
+TXA
+
+ADC #$00
+
+AND #$01
+BEQ xdone
+
+LDA $D010
+
+EOR #$01
+STA $D010
 xdone:
 
-    ; Y axis — same decode, then inverted before apply
-    LDA $D41A
-    TAX
-    SEC
-    SBC $FE
-    AND #$7F
-    CMP #$40
-    BCS yneg
-    LSR A
-    BEQ ydone
-    STX $FE
-    EOR #$FF
-    SEC
-    ADC $D001
-    STA $D001
-    JMP ydone
+; Y-as — dezelfde decodering, vervolgens omgekeerd vóór toepassing
+
+LDA $D41A
+TAX
+
+SEC
+SBC $FE
+
+AND #$7F
+CMP #$40
+
+BCS yneg
+
+LSR A
+BEQ ydone
+STX $FE
+EOR #$FF
+SEC
+ADC $D001
+STA $D001
+JMP ydone
 yneg:
-    ORA #$C0
-    CMP #$FF
-    BEQ ydone
-    SEC
-    ROR
-    STX $FE
-    EOR #$FF
-    SEC
-    ADC $D001
-    STA $D001
+
+ORA #$C0
+
+CMP #$FF
+BEQ ydone
+SEC
+
+ROR
+STX $FE
+EOR #$FF
+SEC
+ADC $D001
+STA $D001
 ydone:
 ```
 
@@ -2595,8 +2796,8 @@ ydone:
 
 **Syntaxis:**
 ```
-.mouse port, spriteNum, zpX, zpY
-; example:
+.mouse poort, spriteNum, zpX, zpY
+; voorbeeld:
 .mouse 2, 0, FD, FE
 ```
 
@@ -2632,14 +2833,16 @@ achtergrond heeft geraakt. Volledig inline, geen JSR nodig.
 **Syntaxis:**
 ```
 .sprite_col 0, sprite
-.sprite_col 0, background
+.sprite_col 0, achtergrond
 ```
 
 **Gegenereerde code (sprite 0, sprite–sprite):**
 ```
-    LDA $D01E       ; read sprite-sprite collision register (clears it!)
-    AND #$01        ; isolate bit 0 (sprite 0)
-                    ; A ≠ 0 → collision occurred
+LDA $D01E ; lees het register voor sprite-sprite-botsingen (maakt het leeg!)
+
+AND #$01 ; isoleer bit 0 (sprite 0)
+
+; A ≠ 0 → botsing heeft plaatsgevonden
 ```
 
 **Grootte:** 5 bytes.
@@ -2650,17 +2853,27 @@ achtergrond heeft geraakt. Volledig inline, geen JSR nodig.
 **Typisch gebruik:**
 ```
 gameloop:
-    .wait_raster $FF
-    .joystick 2, 0
-    .sprite_col 0, sprite
-    BEQ no_hit          ; A = 0 → no collision
-    LDA #$02
-    STA $D020           ; red border = hit!
-    JMP gameloop
+
+.wait_raster $FF
+
+.joystick 2, 0
+
+.sprite_col 0, sprite
+
+BEQ no_hit ; A = 0 → geen botsing
+
+LDA #$02
+
+STA $D020 ; rode rand = geraakt!
+
+JMP gameloop
 no_hit:
-    LDA #$0E
-    STA $D020           ; light blue border = clear
-    JMP gameloop
+
+LDA #$0E
+
+STA $D020 ; lichtblauwe rand = vrij
+
+JMP gameloop
 ```
 
 > **Zie ook:** `botsingsdemo` voorbeeld — groene bal (sprite #0) versus rood
@@ -2668,7 +2881,7 @@ no_hit:
 
 ---
 
-### LOADFILE
+### LAADBESTAND
 
 Net als **`LOAD "file",8`** in BASIC — laadt een bestand van een D64-diskette
 tijdens de uitvoering met behulp van de KERNAL LOAD-routine. Gebruik dit om
@@ -2691,20 +2904,32 @@ draait.
 
 **Gegenereerde codestructuur:**
 ```
-    JMP skip_filename      ; jump over the inline filename
-    .byte "DEMO-COLORS"    ; filename bytes (PETSCII, 11 chars)
+JMP skip_filename ; spring over de inline bestandsnaam
+
+.byte "DEMO-COLORS" ; bestandsnaam bytes (PETSCII, 11 tekens)
 skip_filename:
-    LDA #11                ; filename length
-    LDX #<fname            ; pointer lo
-    LDY #>fname            ; pointer hi
-    JSR $FFBD              ; SETNAM
-    LDA #1                 ; logical file #1
-    LDX #8                 ; device 8
-    LDY #0                 ; sec=0 (override addr) or #1 (file's own addr)
-    JSR $FFBA              ; SETLFS
-    LDA #0                 ; LOAD command (not VERIFY)
-    JSR $FFD5              ; LOAD
-    BCS fail               ; (only if error label set)
+
+LDA #11 ; lengte bestandsnaam
+
+LDX #<fname ; pointer lo
+
+LDY #>fname ; pointer hi
+
+JSR $FFBD ; SETNAM
+
+LDA #1 ; logisch bestand #1
+
+LDX #8 ; apparaat 8
+
+LDY #0 ; sec=0 (adres overschrijven) of #1 (eigen adres van het bestand)
+
+JSR $FFBA ; SETLFS
+
+LDA #0 ; LOAD-opdracht (niet VERIFY)
+
+JSR $FFD5 ; LOAD
+
+BCS fail ; (alleen als foutlabel is ingesteld)
 ```
 
 **Grootte:** `3 + bestandsnaam_lengte + 9 (SETNAM) + 9 (SETLFS) + (4 indien
@@ -2724,7 +2949,7 @@ overschrijven) + 5 (LOAD) + (2 indien foutlabel)` bytes. Minimum 27 bytes.
 
 ---
 
-### EXODECRUNCH
+### EXODECRUNCHT
 
 In-programma **Exomizer-decompressie**. Gebruik deze macro direct na een
 `LOADFILE` die een Exomizer `mem`-modus gecomprimeerde stream heeft geladen —
@@ -2743,15 +2968,23 @@ ingebed.
 
 **Gegenereerde code (19 bytes):**
 ```
-    LDA $AE           ; KERNAL load-end lo (set by previous LOAD)
-    STA $04           ; depacker src-end pointer lo
-    LDA $AF           ; KERNAL load-end hi
-    STA $05           ; depacker src-end pointer hi
-    LDA #$36          ; BASIC ROM off ($A000-$BFFF becomes RAM)
-    STA $01
-    JSR depacker      ; depacker reads back-to-front via $04/$05
-    LDA #$37          ; restore default mapping (BASIC + KERNAL + I/O)
-    STA $01
+LDA $AE ; KERNAL load-end lo (ingesteld door vorige LOAD)
+
+STA $04 ; depacker src-end pointer lo
+
+LDA $AF ; KERNAL load-end hi
+
+STA $05 ; depacker src-end pointer hi
+
+LDA #$36 ; BASIC ROM uit ($A000-$BFFF wordt RAM)
+
+STA $01
+
+JSR depacker ; depacker leest van achter naar voren via $04/$05
+
+LDA #$37 ; herstel standaardtoewijzing (BASIC + KERNAL + I/O)
+
+STA $01
 ```
 
 **Hoe het werkt:**
@@ -2797,23 +3030,23 @@ weer uit te lezen.
 
 **Gegenereerde code (34 bytes):**
 ```
-LDA #$55
+LDA#$55
 STA $DF04
-LDA $DF04
-CMP #$55
-BNE fail
-LDA #$AA
+LDA$DF04
+CMP #$ 55
+BNE faalt
+LDA#$AA
 STA $DF04
-LDA $DF04
-CMP #$AA
-BNE fail
-LDA #$00
-CMP #$FF   ; Z=0 => REU present
-BNE done
-fail:
-LDA #$FF
-CMP #$FF   ; Z=1 => no REU
-done:
+LDA$DF04
+CMP#$AA
+BNE faalt
+LDA#$00
+CMP #$FF ; Z=0 => REU aanwezig
+BNE gedaan
+mislukking:
+LDA#$FF
+CMP #$FF ; Z=1 => geen REU
+klaar:
 ```
 > De macro normaliseert het resultaat zodat de volgende tak eenvoudig blijft:
 > `BNE` betekent dat REU aanwezig is, `BEQ` betekent dat REU ontbreekt.
@@ -2832,8 +3065,8 @@ done:
 **Typisch gebruik:**
 ```assembly
 .reu_check
-BEQ no_reu        ; skip if REU not present
-; ... REU code here ...
+BEQ no_reu ; overslaan als REU niet aanwezig is
+; ... REU-code hier ...
 no_reu:
 ```
 
@@ -2870,16 +3103,16 @@ bytes is vrijwel direct.
 
 **Gegenereerde code (40 bytes):**
 ```
-LDA #c64lo    STA $DF02    ; C64 address LO
-LDA #c64hi    STA $DF03    ; C64 address HI
-LDA #reuLo    STA $DF04    ; REU address LO
-LDA #reuHi    STA $DF05    ; REU address HI
-LDA #bank     STA $DF06    ; REU bank
-LDA #lenLo    STA $DF07    ; length LO
-LDA #lenHi    STA $DF08    ; length HI
-LDA #$00      STA $DF09    ; address control (fixed)
-LDA #$00      STA $DF0A    ; interrupt mask (fixed)
-LDA #cmd      STA $DF01    ; execute DMA ($90/$91/$92 = stash/fetch/swap, immediate)
+LDA #c64lo STA $DF02 ; C64-adres LO
+LDA #c64hi STA $DF03 ; C64-adres HI
+LDA #reuLo STA $DF04 ; REU-adres LO
+LDA #reuHi STA $DF05 ; REU-adres HI
+LDA #bank STA $DF06 ; REU-bank
+LDA #lenLo STA $DF07 ; lengte LO
+LDA #lenHi STA $DF08 ; lengte HI
+LDA #$00 STA $DF09 ; adrescontrole (vast)
+LDA #$00 STA $DF0A ; interruptmasker (vast)
+LDA #cmd STA $DF01 ; DMA uitvoeren ($90/$91/$92 = stash/fetch/swap, direct)
 ```
 
 > **Opmerking:** Commando's gebruiken `$90/$91/$92` (bit 4 ingesteld = directe
@@ -2905,14 +3138,14 @@ De snelheidsbyte wordt als volgt berekend: `(speedIndex & 0x0F) |
 
 **Gegenereerde code (5 bytes):**
 ```
-A9 xx   LDA #speed_byte
-8D 31 D0   STA $D031
+A9 xx LDA #snelheid_byte
+8D 31 D0 STA$D031
 ```
 
 **Syntaxis:**
 ```
-.turbo_set 7,0    ; speed=7 (~10 MHz), badline enabled
-.turbo_set 15,1   ; speed=15 (~48 MHz), badline disabled
+.turbo_set 7,0 ; snelheid=7 (~10 MHz), badline ingeschakeld
+.turbo_set 15,1 ; snelheid=15 (~48 MHz), badline uitgeschakeld
 ```
 
 > **Opmerking:** Deze macro is alleen van invloed op U64-hardware. Op een echte
@@ -2928,8 +3161,8 @@ Controleert of een **CMD SuperCPU**-accelerator is geïnstalleerd — zoals
 
 **Gegenereerde code (5 bytes):**
 ```
-AD B8 D0   LDA $D0B8
-C9 FF      CMP #$FF
+AD B8 D0 LDA $D0B8
+C9 FF CMP #$FF
 ```
 
 **Resultaat in vlaggen:**
@@ -2946,8 +3179,8 @@ C9 FF      CMP #$FF
 **Typisch gebruik:**
 ```assembly
 .supercpu_detect
-BEQ no_scpu       ; skip if SuperCPU not present
-; ... SuperCPU turbo code here ...
+BEQ no_scpu ; overslaan als SuperCPU niet aanwezig is
+; ... SuperCPU turbo-code hier ...
 no_scpu:
 ```
 
@@ -2965,14 +3198,14 @@ aan en sla dit over als de SuperCPU niet aanwezig is.
 
 **Gegenereerde code (5 bytes):**
 ```
-A9 00         LDA #$00
-8D 7A D0      STA $D07A    ; (or $D07B for disable)
+A9 00 LDA#$00
+8D 7A D0 STA $D07A ; (of $D07B voor uitschakelen)
 ```
 
 **Syntaxis:**
 ```
-.turbo_enable on
-.turbo_enable off
+.turbo_enable aan
+.turbo_enable uit
 ```
 
 > **Opmerking:** Roep eerst `SUPERCPU_DETECT` aan en spring om deze macro heen
@@ -2999,24 +3232,41 @@ wordt inline gegenereerd.
 
 **Gegenereerde code (kaart van 1000 bytes, alleen op het scherm):**
 ```
-    LDX #$00
-    LDA $C000,X   ; page 0
-    STA $0400,X
-    INX
-    BNE *-9       ; loops until X wraps to 0 (256 iters)
-    LDA $C100,X   ; page 1
-    STA $0500,X
-    INX
-    BNE *-9
-    LDA $C200,X   ; page 2
-    STA $0600,X
-    INX
-    BNE *-9
-    LDA $C300,X   ; remainder — 232 bytes
-    STA $0700,X
-    INX
-    CPX #$E8
-    BNE *-11
+LDX #$00
+
+LDA $C000,X ; pagina 0
+
+STA $0400,X
+
+INX
+
+BNE *-9 ; herhaalt zich totdat X terugspringt naar 0 (256 iteraties)
+
+LDA $C100,X ; pagina 1
+
+STA $0500,X
+
+INX
+
+BNE *-9
+
+LDA $C200,X ; pagina 2
+
+STA $0600,X
+
+INX
+
+BNE *-9
+
+LDA $C300,X ; rest — 232 bytes
+
+STA $0700,X
+
+INX
+
+CPX #$E8
+
+BNE *-11
 ```
 
 **Grootte:** `2 (LDX) + fullPages×9 + (rem > 0 ? 11 : 0)` bytes per sectie.
@@ -3030,16 +3280,18 @@ De kaarteditor van C64 Visual Assembler (**Save map + color RAM**) exporteert
 het bronadres waar dit bestand wordt geladen (bijv. met `.incbin` op `$C000`):
 
 ```
-    .incbin "map-color.bin", $C000   ; screen codes $C000–$C3E7, color $C3E8–$C7CF
-    ; ...
-    .map_copy $C000, $0400, 1000, auto, $D800
+.incbin "map-color.bin", $C000 ; schermcodes $C000–$C3E7, kleur $C3E8–$C7CF
+
+; ...
+
+.map_copy $C000, $0400, 1000, auto, $D800
 ```
 
 **Syntaxis:**
 ```
-.map_copy $C000, $0400, 1000               ; screen only
-.map_copy $C000, $0400, 1000, auto, $D800  ; combined (color at src+size)
-.map_copy $C000, $0400, 1000, $C3E8, $D800 ; explicit color source address
+.map_copy $C000, $0400, 1000 ; alleen scherm
+.map_copy $C000, $0400, 1000, auto, $D800 ; gecombineerd (kleur op src+grootte)
+.map_copy $C000, $0400, 1000, $C3E8, $D800 ; expliciet adres van de kleurbron
 ```
 
 ---
@@ -3087,18 +3339,18 @@ Typische combinatie met Charset Canvas:
 ```
 * = $0801
     SEI
-    LDA #$00
+    LDA#$00
     STA $D021
-    LDA #$05
+    LDA#$05
     STA $D022
-    LDA #$0D
+    LDA#$0D
     STA $D023
     .map_copy16x16 $3000, 12, 4
-loop:
-    JMP loop
+lus:
+    JMP-lus
 
-.incbin "16x16+ram+color.bin", $3000
-.incbin "16x16+charset.bin", $2000
+.incbin "16x16+ram+kleur.bin", $3000
+.incbin "16x16+tekenset.bin", $2000
 ```
 
 ---
@@ -3120,15 +3372,23 @@ ernaar en roep deze functie één keer per gameframe aan — geen JSR nodig.
 
 **Gegenereerde code (sprite 0, 4 frames, ZP `$FB`, lijst op `$C100`):**
 ```
-    INC $FB         ; advance frame counter
-    LDA $FB
-    CMP #$04        ; frame count
-    BCC *+6         ; if counter < count, skip reset
-    LDA #$00
-    STA $FB
-    TAX             ; X = current frame index
-    LDA $C100,X     ; load sprite data page for this frame
-    STA $07F8       ; update sprite 0 pointer ($07F8 + sprite#)
+INC $FB ; frameteller verhogen
+
+LDA $FB
+
+CMP #$04 ; frameaantal
+
+BCC *+6 ; als teller < aantal, reset overslaan
+
+LDA #$00
+
+STA $FB
+
+TAX ; X = huidige frame-index
+
+LDA $C100,X ; sprite-gegevenspagina voor dit frame laden
+
+STA $07F8 ; sprite 0-aanwijzer bijwerken ($07F8 + sprite#)
 ```
 
 **Grootte:** 19 bytes.
@@ -3136,18 +3396,22 @@ ernaar en roep deze functie één keer per gameframe aan — geen JSR nodig.
 **Typisch gebruik:**
 ```
 frameTable:
-    .byte $21, $22, $23, $24   ; 4 frames at $0840, $0880, $08C0, $0900
+
+.byte $21, $22, $23, $24 ; 4 frames op $0840, $0880, $08C0, $0900
 
 gameloop:
-    .wait_raster $FF
-    .sprite_anim 0, $C100, 4, $FB
-    JMP gameloop
+
+.wait_raster $FF
+
+.sprite_anim 0, $C100, 4, $FB
+
+JMP gameloop
 ```
 
 **Syntaxis:**
 ```
 .sprite_anim spriteNum, frameListAddr, frameCount, zpByte
-; example:
+; voorbeeld:
 .sprite_anim 0, C100, 4, FB
 ```
 
@@ -3180,37 +3444,63 @@ carry-veilige BCD-rekenkunde — handmatig manipuleren van de carry is niet nodi
 **Gegenereerde code (4 bytes, +100 punten, score op `$C200`, scherm op
 `$0400`):**
 ```
-    SED              ; enable BCD / decimal mode
-    CLC
-    LDA $C200        ; byte 0 (digits 1–2)
-    ADC #$00         ; low byte of 100 in BCD = $00
-    STA $C200
-    LDA $C201        ; byte 1 (digits 3–4)
-    ADC #$01         ; mid byte of 100 in BCD = $01 (carry propagates)
-    STA $C201
-    LDA $C202
-    ADC #$00
-    STA $C202
-    LDA $C203
-    ADC #$00
-    STA $C203
-    CLD              ; back to binary mode
+SED ; BCD-/decimale modus inschakelen
 
-    ; render digits
-    LDX #$00
+CLC
+
+LDA $C200 ; byte 0 (cijfers 1-2)
+
+ADC #$00 ; lage byte van 100 in BCD = $00
+
+STA $C200
+
+LDA $C201 ; byte 1 (cijfers 3-4)
+
+ADC #$01 ; middelste byte van 100 in BCD = $01 (carry wordt doorgegeven)
+
+STA $C201
+
+LDA $C202
+
+ADC #$00
+
+STA $C202
+
+LDA $C203
+
+ADC #$00
+STA $C203
+
+CLD ; terug naar binaire modus
+
+; cijfers weergeven
+
+LDX #$00
 digit_loop:
-    LDA $C200,X
-    PHA
-    LSR : LSR : LSR : LSR  ; high nibble → low nibble
-    ORA #$30         ; + '0' screen code
-    STA $0406,X      ; right-justified: screen_addr + (digits*2 - 2) - X*2
-    PLA
-    AND #$0F         ; low nibble
-    ORA #$30
-    STA $0407,X
-    INX
-    CPX #$04
-    BNE digit_loop
+
+LDA $C200,X
+
+PHA
+
+LSR : LSR : LSR : LSR ; hoge nibble → lage nibble
+
+ORA #$30 ; + '0' schermcode
+
+STA $0406,X ; rechts uitgelijnd: schermadres + (digits*2 - 2) - X*2
+
+PLA
+
+AND #$0F ; lage nibble
+
+ORA #$30
+
+STA $0407,X
+
+INX
+
+CPX #$04
+
+BNE digit_loop
 ```
 
 **Grootte:** `3 + cijfers×8` bytes (SED + CLC + CLD overhead + 8 bytes per BCD
@@ -3269,7 +3559,7 @@ Nieuw in 2.1.0: `--crt` / `--crt-name` (cartridge) en `--d64` / `--add` /
 `--disk-name` (disk image).
 
 ```
-vma build <input.asm> [options]
+vma build <input.asm> [opties]
 vma --help
 vma --version
 ```
@@ -3300,8 +3590,8 @@ standaardfout, één regel per fout), `2` onjuist gebruik.
 ```
 vma build game.asm -o game.prg --debug
 vma build game.asm --no-basic-stub --search ../assets
-vma build game.asm --crt game.crt                    # the cartridge only
-vma build game.asm --d64 --add music.prg             # game.d64 with GAME and MUSIC
+vma build game.asm --crt game.crt # alleen de cartridge
+vma build game.asm --d64 --add music.prg # game.d64 met GAME en MUSIC
 ```
 
 ## 9. Bekende beperkingen
