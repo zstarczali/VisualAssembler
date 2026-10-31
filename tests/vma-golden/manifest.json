@@ -151,8 +151,8 @@
   "baseDir": "samples",
   "basicStub": true,
   "ok": true,
-  "size": 4011,
-  "sha256": "c5b56cffe5f03f7880de646a8952d8c8f9ffdbf3b742d65abcc4afe773188e2b",
+  "size": 4021,
+  "sha256": "d6142ad1e9122d9f4c116149fc53e76a4cc5579759cfe738118407f607ad1c4a",
   "error": null
  },
  {
@@ -163,8 +163,8 @@
   "baseDir": "samples",
   "basicStub": false,
   "ok": true,
-  "size": 4011,
-  "sha256": "59c62c13af0df1a0e7a68e9291c8670aea27cfcc640b1b72aaf25646b8f465fe",
+  "size": 4021,
+  "sha256": "3c220e82ccc1186b5c3a3458c5e89d2c75249cef0478e59f9916f071702eadd6",
   "error": null
  },
  {
@@ -511,8 +511,8 @@
   "baseDir": "samples",
   "basicStub": true,
   "ok": true,
-  "size": 118,
-  "sha256": "ed8eaeddac201e3fd819303d1f77fc86a5764bab5a9f4b1c90c2da4c5433a2e6",
+  "size": 122,
+  "sha256": "794faa1eb9bbb2157264604a9affcfdc97c35ff852313f6134c1c3b39b89537a",
   "error": null
  },
  {
@@ -523,8 +523,8 @@
   "baseDir": "samples",
   "basicStub": false,
   "ok": true,
-  "size": 106,
-  "sha256": "5c87c03b2375e64878e05d50b2cdaa60477f1e0559ec8ceec5afdab7aa3318a7",
+  "size": 110,
+  "sha256": "4dddbd82631fbb52b37ef2d5dd243427419fcec16608894a1bd334c9103d1bbd",
   "error": null
  },
  {
@@ -576,6 +576,30 @@
   "error": null
  },
  {
+  "id": "samples-include-demo-orig",
+  "caseId": "samples-include-demo-orig",
+  "kind": "text",
+  "file": "samples/include-demo-orig.asm",
+  "baseDir": "samples",
+  "basicStub": true,
+  "ok": true,
+  "size": 4096,
+  "sha256": "b527170ceec71343b6b4422e8697ef0c0959aee9c48fcdd35f31f8e82c526363",
+  "error": null
+ },
+ {
+  "id": "samples-include-demo-orig@nostub",
+  "caseId": "samples-include-demo-orig",
+  "kind": "text",
+  "file": "samples/include-demo-orig.asm",
+  "baseDir": "samples",
+  "basicStub": false,
+  "ok": true,
+  "size": 4096,
+  "sha256": "af95b3cf7c048348ed22a34d2d690bb7e05bbdeb228bcfb21f1b2aecf6c56490",
+  "error": null
+ },
+ {
   "id": "samples-include-demo",
   "caseId": "samples-include-demo",
   "kind": "text",
@@ -607,8 +631,8 @@
   "baseDir": "samples",
   "basicStub": true,
   "ok": true,
-  "size": 4086,
-  "sha256": "a6a37fa4de742a4244d251cddc258308580cf554a8d28197b76ddf6da3f72a5f",
+  "size": 4096,
+  "sha256": "b527170ceec71343b6b4422e8697ef0c0959aee9c48fcdd35f31f8e82c526363",
   "error": null
  },
  {
@@ -619,8 +643,8 @@
   "baseDir": "samples",
   "basicStub": false,
   "ok": true,
-  "size": 4086,
-  "sha256": "9b2c1df9389d54553991cb29f4d4250b0538feec972d21888a2cbed299c5eba3",
+  "size": 4096,
+  "sha256": "af95b3cf7c048348ed22a34d2d690bb7e05bbdeb228bcfb21f1b2aecf6c56490",
   "error": null
  },
  {
@@ -751,8 +775,8 @@
   "baseDir": "samples",
   "basicStub": true,
   "ok": true,
-  "size": 43,
-  "sha256": "67b61db2f2065e7c6347ebfed53d1e767ba04e3de3326127b5b2cec4652d3f34",
+  "size": 47,
+  "sha256": "96c26c9a9805bd6b26e8ab30e6d9a523ed19e212fee198b1a6d0998877852b79",
   "error": null
  },
  {
@@ -763,8 +787,8 @@
   "baseDir": "samples",
   "basicStub": false,
   "ok": true,
-  "size": 31,
-  "sha256": "d497142ceccf284d001aa27e6bebddef95d42526cf4e19ab25e611a9ac4903d9",
+  "size": 35,
+  "sha256": "9ea02a3aa845bc393e4eea3592d0a691fa36929f9e0ae3425d10f601d267d284",
   "error": null
  },
  {
@@ -991,8 +1015,8 @@
   "baseDir": "samples",
   "basicStub": true,
   "ok": true,
-  "size": 4011,
-  "sha256": "f658494c0a448100ec75d4f7f6fb62a212620511ff01ec846b3706c36f562af4",
+  "size": 4021,
+  "sha256": "61cad1d71596a16b4db864b8a1a14ca449baa676d0f8cb03b5f95f008553cfe5",
   "error": null
  },
  {
@@ -1003,8 +1027,8 @@
   "baseDir": "samples",
   "basicStub": false,
   "ok": true,
-  "size": 1964,
-  "sha256": "4adae97691add38192283266949eb5748b1687edd95d6e7932ab6b8b0c4fd553",
+  "size": 1974,
+  "sha256": "69283c893a82f225eb2e4fc3dc1035d0ac5375f1b62673e2c1576403e9dfaf86",
   "error": null
  },
  {
@@ -1039,8 +1063,8 @@
   "baseDir": "samples",
   "basicStub": true,
   "ok": true,
-  "size": 4086,
-  "sha256": "27e01d59b94629e2c4244c37af3507826e1bb2ad7825de1447def4fa8ed55c30",
+  "size": 4120,
+  "sha256": "d3cab949d8b4fc6f274915df03b1d4aafd00195f474f1db4c14fc292979ee470",
   "error": null
  },
  {
@@ -1051,8 +1075,8 @@
   "baseDir": "samples",
   "basicStub": false,
   "ok": true,
-  "size": 759,
-  "sha256": "a5adaa20b64ea5f4eca02a00ae02167269e9fb12ff93dcc30e4b819174766131",
+  "size": 793,
+  "sha256": "67412282fc4768430399c86e59c18a12d8e4b84993ce84354bbd46171dc6a7ca",
   "error": null
  },
  {
@@ -1063,8 +1087,8 @@
   "baseDir": "samples",
   "basicStub": true,
   "ok": true,
-  "size": 4011,
-  "sha256": "8b6dcddedbfc2c250446c5803c6ebbdc0520560544a96a04d4558100672b877f",
+  "size": 4051,
+  "sha256": "ad79689ceb461cc1956f46507db4616404a9ad69bcff0c7ef8847a5709035f17",
   "error": null
  },
  {
@@ -1075,8 +1099,8 @@
   "baseDir": "samples",
   "basicStub": false,
   "ok": true,
-  "size": 684,
-  "sha256": "1876bd222a2b21355c7c0f5013b45a8148ed3a2f3c8431df2a99cb13be653e4d",
+  "size": 724,
+  "sha256": "10083180b2cbfda0613ddc08562e4ee422aef7bafca06044117a41b7e9132c40",
   "error": null
  },
  {
@@ -1255,8 +1279,8 @@
   "baseDir": "samples",
   "basicStub": true,
   "ok": true,
-  "size": 128,
-  "sha256": "811934b090aa3cc21d3cd02eed6c2cb2c054980292ca214d1bf57fc83e1bc72f",
+  "size": 136,
+  "sha256": "dc4f0dddf4c2d938f75d28338b3d2bd8c248dd26b247d93bc54fee213ddef86e",
   "error": null
  },
  {
@@ -1267,8 +1291,8 @@
   "baseDir": "samples",
   "basicStub": false,
   "ok": true,
-  "size": 116,
-  "sha256": "053b2aab47e43186d436fd077ad7e410a71e82ae2e4b8a1c651f8fdd5eb5f50b",
+  "size": 124,
+  "sha256": "79f9db23197f1581cbdf70256412196581c567cdfc76ae8ca06771baf71a56f1",
   "error": null
  },
  {
@@ -1424,7 +1448,7 @@
   "basicStub": true,
   "ok": true,
   "size": 1055,
-  "sha256": "8ae50c69a8a95296307c3fbae1a4acf50bb37d6f8fcb878344e054808061ed95",
+  "sha256": "df82da5bbf7454177aa65b433b2d4f5015a62b3fd8badaeb9a002f30699d932c",
   "error": null
  },
  {
@@ -1436,7 +1460,55 @@
   "basicStub": false,
   "ok": true,
   "size": 1055,
-  "sha256": "4e7575fc1e5a9ab931f14d3d3622f35e18535c3278aaf2a1243a70fd796924d1",
+  "sha256": "17060dad9603b64a3dfa760e22850309a2931d5607b11bd850eadf0be579694d",
+  "error": null
+ },
+ {
+  "id": "samples-runtime-if-demo",
+  "caseId": "samples-runtime-if-demo",
+  "kind": "text",
+  "file": "samples/runtime-if-demo.asm",
+  "baseDir": "samples",
+  "basicStub": true,
+  "ok": true,
+  "size": 568,
+  "sha256": "7cf16677b386555dd0f339d6f711d1f6f337adf03f0e561bbc0d70f1e756398a",
+  "error": null
+ },
+ {
+  "id": "samples-runtime-if-demo@nostub",
+  "caseId": "samples-runtime-if-demo",
+  "kind": "text",
+  "file": "samples/runtime-if-demo.asm",
+  "baseDir": "samples",
+  "basicStub": false,
+  "ok": true,
+  "size": 556,
+  "sha256": "6e9b304567630335454242e9780e92ac1ef8969a46d5831b95e9c606b848d783",
+  "error": null
+ },
+ {
+  "id": "samples-runtime-if-demo-blocks",
+  "caseId": "samples-runtime-if-demo-blocks",
+  "kind": "blocks",
+  "file": "samples/runtime-if-demo.json",
+  "baseDir": "samples",
+  "basicStub": true,
+  "ok": true,
+  "size": 14,
+  "sha256": "cbeb9bdacaf92f4a82113c41e51e44ecf11d5469cfceb5568a4172dca6467551",
+  "error": null
+ },
+ {
+  "id": "samples-runtime-if-demo-blocks@nostub",
+  "caseId": "samples-runtime-if-demo-blocks",
+  "kind": "blocks",
+  "file": "samples/runtime-if-demo.json",
+  "baseDir": "samples",
+  "basicStub": false,
+  "ok": true,
+  "size": 2,
+  "sha256": "81c2a21c99c2e261ad6d91443ffb383b57c321d7e33f09cb64c8b946bb14939b",
   "error": null
  },
  {
@@ -1663,8 +1735,8 @@
   "baseDir": "samples",
   "basicStub": true,
   "ok": true,
-  "size": 2121,
-  "sha256": "40b5e11038fc8258e44ab1cbb94a31d170a19c91a78acda1877a45c6cc483c52",
+  "size": 2129,
+  "sha256": "aa2179dc8e7390ef1e36557be8afa05619bf23fb2e24bfce1bd6a1f35736db90",
   "error": null
  },
  {
@@ -1675,8 +1747,8 @@
   "baseDir": "samples",
   "basicStub": false,
   "ok": true,
-  "size": 74,
-  "sha256": "dcbff4fbe16beb5d1f61d1425047cda7ae318862eec42b3fa0ae936e5f0ad3dd",
+  "size": 82,
+  "sha256": "25b635c616cd8297cba2a91649ce3563368fb60e7d0e85748ffefd842c4226c1",
   "error": null
  },
  {
@@ -1687,8 +1759,8 @@
   "baseDir": "samples",
   "basicStub": true,
   "ok": true,
-  "size": 50,
-  "sha256": "94d18d28ac9c22880d3ed0a7ef22927fb3d37b33d21382c4e1c9261f7d80fc3f",
+  "size": 54,
+  "sha256": "1e8f8760710f8aef022795b69c3e4548df49b00d20cf04a1679bfc968387e8bb",
   "error": null
  },
  {
@@ -1699,8 +1771,8 @@
   "baseDir": "samples",
   "basicStub": false,
   "ok": true,
-  "size": 38,
-  "sha256": "a9815fb5d425174e54b6f64e3231b6b3c043ee6ae5ff4f07fd7634e382d5488d",
+  "size": 42,
+  "sha256": "5c3029bf50cab9584a97625576932c441f447dc19bc306269c68ac3f82d3778f",
   "error": null
  },
  {
@@ -4231,8 +4303,8 @@
   "baseDir": "",
   "basicStub": true,
   "ok": true,
-  "size": 2059,
-  "sha256": "3e68194e0da91d8ee77f77be4478798e27ec4c2e98ebdfc9e9d83bd8aad0873f",
+  "size": 2063,
+  "sha256": "dfc97a1ed005b57f2ff77aadab3852a154f1379373730b7302743d9160d4199a",
   "error": null
  },
  {
@@ -4243,8 +4315,8 @@
   "baseDir": "",
   "basicStub": false,
   "ok": true,
-  "size": 12,
-  "sha256": "b142c5cffe79b1ef73ac196e3cfe5052b69473d5ccb58e2f3a32e89529237b75",
+  "size": 16,
+  "sha256": "e6af83d95e47598168955406ba28f4add5188fb843ae43e0477dd0beda5ad62f",
   "error": null
  },
  {
@@ -4375,8 +4447,8 @@
   "baseDir": "",
   "basicStub": true,
   "ok": true,
-  "size": 10242,
-  "sha256": "0fbb4b38993e332c59bb235d03fb082501699ba8e894544d8e79c6531500a57f",
+  "size": 10243,
+  "sha256": "9c1730e035eda061e257ecfaf44aa125e6baf198ef986d6168f2406c5b291ad9",
   "error": null
  },
  {
@@ -4387,8 +4459,8 @@
   "baseDir": "",
   "basicStub": false,
   "ok": true,
-  "size": 8195,
-  "sha256": "52f94f37a754c9abe3ec215f965b2b89426c888bbde9b4cd510f7400202cfcb2",
+  "size": 8196,
+  "sha256": "cbd051317930138d08663e506acc4911382421479096c7d57c54fa38774980af",
   "error": null
  },
  {
@@ -6391,8 +6463,8 @@
   "baseDir": "tests/vma-golden/files",
   "basicStub": true,
   "ok": true,
-  "size": 19190,
-  "sha256": "b47fb39da1c90d32707ffbf6bac9076fb7863be312fa778b4f8dc35719babcf3",
+  "size": 19200,
+  "sha256": "29e7d7a6835cac123003cc81e73e359c83b133ad4d1f5990b3fad11b304f1dcb",
   "error": null
  },
  {
@@ -6403,8 +6475,8 @@
   "baseDir": "tests/vma-golden/files",
   "basicStub": false,
   "ok": true,
-  "size": 17143,
-  "sha256": "f77dbb058aa31908c905129ef3a31770046740aa2e96dff51de18cd0c6bb9e9f",
+  "size": 17153,
+  "sha256": "37d3584338edbba408bf0b135c019698c4c10ae74dc7be76e215b5f5cac8f9f5",
   "error": null
  },
  {
@@ -6415,8 +6487,8 @@
   "baseDir": "tests/vma-golden/files",
   "basicStub": true,
   "ok": true,
-  "size": 2548,
-  "sha256": "e7bb930393298194c4d51a91de3ef3a826cfb79aff44bc7414487c5571d3ae43",
+  "size": 2630,
+  "sha256": "483dedafe66634077a1a01fa6c8b37cf4784cff6b490e88f3f80b597d6c167e1",
   "error": null
  },
  {
@@ -6427,8 +6499,8 @@
   "baseDir": "tests/vma-golden/files",
   "basicStub": false,
   "ok": true,
-  "size": 501,
-  "sha256": "b410c1172b9cece2e4ff21b1212fce5d54d7abd55ed5af10659d750fabd4d028",
+  "size": 583,
+  "sha256": "f7a3ff5caf41717514cf7d0572aac0ac677c03fe51135ecf2ef92436ba61b9e4",
   "error": null
  },
  {

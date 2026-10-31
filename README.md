@@ -13,6 +13,8 @@ Visual Assembler is free and open source (GPLv3): every feature — editors, bui
 - **Machine settings** — PAL or NTSC, SID 6581 or 8580, reSID or FastSID, REU up to 16 MB, joystick port, warp and sound.
 - **Your own files** — the **Files** menu loads a PRG and attaches a D64 or a cartridge (.crt). The status bar shows the drive LED and track, and a blinking LED shows as a drive error, for example when a file cannot be found.
 - **Display** — a CRT filter with scanlines, full screen (button or double click, Esc leaves) and a resizable window. The window and its settings come back on the next start.
+- **Hi-Res Editor** — multicolor cells are limited to the paper plus 3 colours, cells over the limit are marked in red and the export warns about them; drawing past the edge of the picture with the pixel grid on no longer raises errors.
+- **Editor right-click menu** — in the Expert and Ultimate Basic editors: Cut, Copy, Paste, Select all, and UPPERCASE / lowercase for the selected text.
 
 ## Earlier: v2.6.9
 

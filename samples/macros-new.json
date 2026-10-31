@@ -5,7 +5,7 @@
     "extras": [],
     "progName": ""
   },
-  "expertText": "* = $1500\n.const LineX0Hi = $12\n.const LineX1Hi = $13\n.const LineCurXHi = $14\n.const LineDxHi = $15\nOldDD00:\n.byte 0\nOldD018:\n.byte 0\nOldD016:\n.byte 0\nOldD011:\n.byte 0\n.macro BitmapOn\n    SEI\n    LDA $DD00\n    STA OldDD00\n    LDA $D018\n    STA OldD018\n    LDA $D016\n    STA OldD016\n    LDA $D011\n    ORA #%00010000\n    STA OldD011\n    LDA $DD00\n    AND #%11111100\n    ORA #%00000011\n    STA $DD00\n    LDA #$18\n    STA $D018\n    LDA $D016\n    AND #%11101111\n    STA $D016\n    LDA $D011\n    ORA #%00100000\n    STA $D011\n    JSR HiresClearScreen\n    JSR ClearColorRam\n    CLI\n.endm\n.macro BitmapOff\n    SEI\n    LDA OldD016\n    STA $D016\n    LDA OldD018\n    STA $D018\n    LDA OldDD00\n    STA $DD00\n    LDA OldD011\n    STA $D011\n    CLI\n    LDA #$93\n    JSR $FFD2\n.endm\n.macro HiresClearScreen\n    LDX #$20\n    LDY #$00\n    LDA #$00\n    STA $FB\n    LDA #$20\n    STA $FC\n    LDA #$00\nHcsBmpPage:\n    STA ($FB),Y\n    INY\n    BNE HcsBmpPage\n    INC $FC\n    DEX\n    BNE HcsBmpPage\n    LDA #$00\n    LDX #$00\nHcsScreenBlock:\n    STA $0400,X\n    STA $0500,X\n    STA $0600,X\n    INX\n    BNE HcsScreenBlock\n    LDX #$00\nHcsScreenTail:\n    CPX #$E8\n    BEQ HcsDone\n    STA $0700,X\n    INX\n    BNE HcsScreenTail\nHcsDone:\n.endm\n.macro ClearColorRam\n    LDA #$00\n    LDX #$00\nCcrBlock:\n    STA $D800,X\n    STA $D900,X\n    STA $DA00,X\n    INX\n    BNE CcrBlock\n    LDX #$00\nCcrTail:\n    CPX #$E8\n    BEQ CcrDone\n    STA $DB00,X\n    INX\n    BNE CcrTail\nCcrDone:\n.endm\n\n.macro WaitForKey\n    CLI\nWaitKeyFlush:\n    JSR $FFE4\n    CMP #$00\n    BNE WaitKeyFlush\nWaitKeyLoop:\n    JSR $FFE4\n    CMP #$00\n    BEQ WaitKeyLoop\n    SEI\n.endm\n.macro DbufSetup\n    ; Double-buffer init. Call once before main loop.\n    ; ZP $10 (draw_bmp_hi): $20=bank0 bitmap, $60=bank1 bitmap\n    ; ZP $11 (dbuf_bank):   $03=bank0, $02=bank1 for DD00 bits 0-1\n    ; On return: VIC shows bank0, draw target = bank1.\n    LDA #$60\n    STA $10\n    LDA #$02\n    STA $11\n    LDA $DD00\n    AND #%11111100\n    ORA #$03\n    STA $DD00\n    LDA #$10\n    LDX #$00\nDbufFillB1:\n    STA $4400,X\n    STA $4500,X\n    STA $4600,X\n    INX\n    BNE DbufFillB1\n    LDX #$00\nDbufFillB2:\n    STA $4700,X\n    INX\n    CPX #$E8\n    BNE DbufFillB2\n.endm\n.macro DbufSwap\n    ; Wait for vblank then swap display/draw buffers.\n    ; Call after a complete frame is drawn.\nDbufW1:\n    LDA $D012\n    CMP #$F8\n    BCC DbufW1\nDbufW2:\n    LDA $D012\n    CMP #$F8\n    BCS DbufW2\n    LDA $DD00\n    AND #%11111100\n    ORA $11\n    STA $DD00\n    LDA $11\n    EOR #$01\n    STA $11\n    LDA $10\n    EOR #$40\n    STA $10\n.endm\n; ---- Hires graphics library (double-buffer aware) ----\nclear_bitmap:\n    LDA $10\n    STA $FE\n    LDA #$00\n    STA $FD\n    LDX #$1F\n    LDY #$00\ncb_page:\n    STA ($FD),Y\n    INY\n    BNE cb_page\n    INC $FE\n    DEX\n    BNE cb_page\n    LDY #$00\ncb_tail:\n    STA ($FD),Y\n    INY\n    CPY #$40\n    BNE cb_tail\n    RTS\n\nsetpixel:\n; In: $FB=X lo, $FC=Y (0-199), LineCurXHi=cx_hi (0 or 1 for X 0..319)\n    TXA\n    PHA\n    LDA $FC\n    LSR\n    LSR\n    LSR\n    TAX\n    LDA row320lo,X\n    STA $FD\n    LDA row320hi,X\n    STA $FE\n    LDA $FB\n    LSR\n    LSR\n    LSR\n    STA $05\n    LDA LineCurXHi\n    BEQ sp_xbyte_ok\n    LDA $05\n    CLC\n    ADC #$20\n    STA $05\nsp_xbyte_ok:\n    LDA #$00\n    STA $06\n    LDA $05\n    ASL\n    ROL $06\n    ASL\n    ROL $06\n    ASL\n    ROL $06\n    CLC\n    ADC $FD\n    STA $FD\n    LDA $06\n    ADC $FE\n    STA $FE\n    CLC\n    LDA $FE\n    ADC $10\n    STA $FE\n    LDA $FC\n    AND #$07\n    CLC\n    ADC $FD\n    STA $FD\n    BCC sp_ok\n    INC $FE\nsp_ok:\n    LDA $FB\n    AND #$07\n    TAX\n    LDA bitmask,X\n    LDY #$00\n    ORA ($FD),Y\n    STA ($FD),Y\n    PLA\n    TAX\n    RTS\n\ndraw_line:\n; In: $20=X0lo, LineX0Hi=X0hi, $21=Y0, $22=X1lo, LineX1Hi=X1hi, $23=Y1\n; 16-bit err Bresenham. Full 0..319 X, 0..199 Y.\n    LDA $20\n    STA $FB\n    LDA LineX0Hi\n    STA LineCurXHi\n    LDA $21\n    STA $FC\n    LDA LineX1Hi\n    CMP LineX0Hi\n    BCC dl_xneg\n    BNE dl_xpos\n    LDA $22\n    CMP $20\n    BCC dl_xneg\ndl_xpos:\n    SEC\n    LDA $22\n    SBC $20\n    STA $24\n    LDA LineX1Hi\n    SBC LineX0Hi\n    STA LineDxHi\n    LDA #$01\n    STA $26\n    JMP dl_caldy\ndl_xneg:\n    SEC\n    LDA $20\n    SBC $22\n    STA $24\n    LDA LineX0Hi\n    SBC LineX1Hi\n    STA LineDxHi\n    LDA #$FF\n    STA $26\ndl_caldy:\n    LDA $23\n    CMP $21\n    BCS dl_ypos\n    SEC\n    LDA $21\n    SBC $23\n    STA $25\n    LDA #$FF\n    STA $27\n    JMP dl_init\ndl_ypos:\n    SEC\n    LDA $23\n    SBC $21\n    STA $25\n    LDA #$01\n    STA $27\ndl_init:\n    SEC\n    LDA $24\n    SBC $25\n    STA $28\n    LDA LineDxHi\n    SBC #$00\n    STA $29\ndl_loop:\n    JSR setpixel\n    LDA $FB\n    CMP $22\n    BNE dl_step\n    LDA LineCurXHi\n    CMP LineX1Hi\n    BNE dl_step\n    LDA $FC\n    CMP $23\n    BEQ dl_done\ndl_step:\n    LDA $28\n    ASL\n    STA $05\n    LDA $29\n    ROL\n    STA $06\n    CLC\n    LDA $05\n    ADC $25\n    TAX\n    LDA $06\n    ADC #$00\n    BPL dl_xchk\n    JMP dl_ychk\ndl_xchk:\n    BNE dl_do_x\n    CPX #$00\n    BEQ dl_ychk\ndl_do_x:\n    SEC\n    LDA $28\n    SBC $25\n    STA $28\n    LDA $29\n    SBC #$00\n    STA $29\n    LDA $26\n    BMI dl_dec_x\ndl_inc_x:\n    INC $FB\n    BNE dl_ychk\n    INC LineCurXHi\n    JMP dl_ychk\ndl_dec_x:\n    LDA $FB\n    BNE dl_dec_x_lo\n    DEC LineCurXHi\ndl_dec_x_lo:\n    DEC $FB\ndl_ychk:\n    LDA $06\n    BMI dl_do_y\n    CMP LineDxHi\n    BCC dl_do_y\n    BNE dl_loop\n    LDA $05\n    CMP $24\n    BCC dl_do_y\n    JMP dl_loop\ndl_do_y:\n    CLC\n    LDA $28\n    ADC $24\n    STA $28\n    LDA $29\n    ADC LineDxHi\n    STA $29\n    CLC\n    LDA $FC\n    ADC $27\n    STA $FC\n    JMP dl_loop\ndl_done:\n    RTS\n\nbitmap_on:\n; VIC bank 0: $0000-$3FFF\n    LDA $DD00\n    AND #%11111100\n    ORA #%00000011\n    STA $DD00\n\n; hires bitmap on\n    LDA #$2B\n    STA $D011\n\n; make sure multicolor bitmap is off\n    LDA $D016\n    AND #%11101111\n    STA $D016\n\n; screen=$0400, bitmap=$2000\n    LDA #$18\n    STA $D018\n\n; black border/background\n    LDA #$00\n    STA $D020\n    STA $D021\n    RTS\n\nrow320lo:\n.byte $00,$40,$80,$C0,$00,$40,$80,$C0\n.byte $00,$40,$80,$C0,$00,$40,$80,$C0\n.byte $00,$40,$80,$C0,$00,$40,$80,$C0\n.byte $00\n\nrow320hi:\n.byte $00,$01,$02,$03,$05,$06,$07,$08\n.byte $0A,$0B,$0C,$0D,$0F,$10,$11,$12\n.byte $14,$15,$16,$17,$19,$1A,$1B,$1C\n.byte $1E\n\nbitmask:\n.byte $80,$40,$20,$10,$08,$04,$02,$01\n.macro DisplayOff\n    LDA $D011\n    AND #%11101111\n    STA $D011\n.endm\n.macro DisplayOn\n    LDA $D011\n    ORA #%00010000\n    STA $D011\n.endm\n; ---- Convenience macros (wrap library subroutines) ----\n.macro ClearBitmap\n    JSR clear_bitmap\n.endm\n.macro PlotPixel x, y\n    ; x is a word (0..319), y a byte (0..199)\n    LDA #<{x}\n    STA $FB\n    LDA #>{x}\n    STA LineCurXHi\n    LDA #<{y}\n    STA $FC\n    JSR setpixel\n.endm\n.macro DrawLine x0, y0, x1, y1\n    ; x0/x1 are words (0..319), y0/y1 bytes (0..199)\n    LDA #<{x0}\n    STA $20\n    LDA #>{x0}\n    STA LineX0Hi\n    LDA #<{y0}\n    STA $21\n    LDA #<{x1}\n    STA $22\n    LDA #>{x1}\n    STA LineX1Hi\n    LDA #<{y1}\n    STA $23\n    JSR draw_line\n.endm\n.macro SetColor fg, bg\n    ; Fill screen RAM ($0400-$07E7) with (fg<<4)|bg — hires foreground/background per 8x8 cell\n    LDA #{fg}\n    ASL\n    ASL\n    ASL\n    ASL\n    ORA #{bg}\n    LDX #$00\nSetColorLoop:\n    STA $0400,X\n    STA $0500,X\n    STA $0600,X\n    INX\n    BNE SetColorLoop\n    LDX #$00\nSetColorTail:\n    STA $0700,X\n    INX\n    CPX #$E8\n    BNE SetColorTail\n.endm",
+  "expertText": "* = $1500\n.const LineX0Hi = $12\n.const LineX1Hi = $13\n.const LineCurXHi = $14\n.const LineDxHi = $15\nOldDD00:\n.byte 0\nOldD018:\n.byte 0\nOldD016:\n.byte 0\nOldD011:\n.byte 0\n.macro BitmapOn\n    SEI\n    LDA $DD00\n    STA OldDD00\n    LDA $D018\n    STA OldD018\n    LDA $D016\n    STA OldD016\n    LDA $D011\n    ORA #%00010000\n    STA OldD011\n    LDA $DD00\n    AND #%11111100\n    ORA #%00000011\n    STA $DD00\n    LDA #$18\n    STA $D018\n    LDA $D016\n    AND #%11101111\n    STA $D016\n    LDA $D011\n    ORA #%00100000\n    STA $D011\n    JSR HiresClearScreen\n    JSR ClearColorRam\n    CLI\n.endm\n.macro BitmapOff\n    SEI\n    LDA OldD016\n    STA $D016\n    LDA OldD018\n    STA $D018\n    LDA OldDD00\n    STA $DD00\n    LDA OldD011\n    STA $D011\n    CLI\n    LDA #$93\n    JSR $FFD2\n.endm\nHiresClearScreen:\n    LDX #$20\n    LDY #$00\n    LDA #$00\n    STA $FB\n    LDA #$20\n    STA $FC\n    LDA #$00\nHcsBmpPage:\n    STA ($FB),Y\n    INY\n    BNE HcsBmpPage\n    INC $FC\n    DEX\n    BNE HcsBmpPage\n    LDA #$00\n    LDX #$00\nHcsScreenBlock:\n    STA $0400,X\n    STA $0500,X\n    STA $0600,X\n    INX\n    BNE HcsScreenBlock\n    LDX #$00\nHcsScreenTail:\n    CPX #$E8\n    BEQ HcsDone\n    STA $0700,X\n    INX\n    BNE HcsScreenTail\nHcsDone:\n    RTS\nClearColorRam:\n    LDA #$00\n    LDX #$00\nCcrBlock:\n    STA $D800,X\n    STA $D900,X\n    STA $DA00,X\n    INX\n    BNE CcrBlock\n    LDX #$00\nCcrTail:\n    CPX #$E8\n    BEQ CcrDone\n    STA $DB00,X\n    INX\n    BNE CcrTail\nCcrDone:\n    RTS\n\n.macro WaitForKey\n    CLI\nWaitKeyFlush:\n    JSR $FFE4\n    CMP #$00\n    BNE WaitKeyFlush\nWaitKeyLoop:\n    JSR $FFE4\n    CMP #$00\n    BEQ WaitKeyLoop\n    SEI\n.endm\n.macro DbufSetup\n    ; Double-buffer init. Call once before main loop.\n    ; ZP $10 (draw_bmp_hi): $20=bank0 bitmap, $60=bank1 bitmap\n    ; ZP $11 (dbuf_bank):   $03=bank0, $02=bank1 for DD00 bits 0-1\n    ; On return: VIC shows bank0, draw target = bank1.\n    LDA #$60\n    STA $10\n    LDA #$02\n    STA $11\n    LDA $DD00\n    AND #%11111100\n    ORA #$03\n    STA $DD00\n    LDA #$10\n    LDX #$00\nDbufFillB1:\n    STA $4400,X\n    STA $4500,X\n    STA $4600,X\n    INX\n    BNE DbufFillB1\n    LDX #$00\nDbufFillB2:\n    STA $4700,X\n    INX\n    CPX #$E8\n    BNE DbufFillB2\n.endm\n.macro DbufSwap\n    ; Wait for vblank then swap display/draw buffers.\n    ; Call after a complete frame is drawn.\nDbufW1:\n    LDA $D012\n    CMP #$F8\n    BCC DbufW1\nDbufW2:\n    LDA $D012\n    CMP #$F8\n    BCS DbufW2\n    LDA $DD00\n    AND #%11111100\n    ORA $11\n    STA $DD00\n    LDA $11\n    EOR #$01\n    STA $11\n    LDA $10\n    EOR #$40\n    STA $10\n.endm\n; ---- Hires graphics library (double-buffer aware) ----\nclear_bitmap:\n    LDA $10\n    STA $FE\n    LDA #$00\n    STA $FD\n    LDX #$1F\n    LDY #$00\ncb_page:\n    STA ($FD),Y\n    INY\n    BNE cb_page\n    INC $FE\n    DEX\n    BNE cb_page\n    LDY #$00\ncb_tail:\n    STA ($FD),Y\n    INY\n    CPY #$40\n    BNE cb_tail\n    RTS\n\nsetpixel:\n; In: $FB=X lo, $FC=Y (0-199), LineCurXHi=cx_hi (0 or 1 for X 0..319)\n    TXA\n    PHA\n    LDA $FC\n    LSR\n    LSR\n    LSR\n    TAX\n    LDA row320lo,X\n    STA $FD\n    LDA row320hi,X\n    STA $FE\n    LDA $FB\n    LSR\n    LSR\n    LSR\n    STA $05\n    LDA LineCurXHi\n    BEQ sp_xbyte_ok\n    LDA $05\n    CLC\n    ADC #$20\n    STA $05\nsp_xbyte_ok:\n    LDA #$00\n    STA $06\n    LDA $05\n    ASL\n    ROL $06\n    ASL\n    ROL $06\n    ASL\n    ROL $06\n    CLC\n    ADC $FD\n    STA $FD\n    LDA $06\n    ADC $FE\n    STA $FE\n    CLC\n    LDA $FE\n    ADC $10\n    STA $FE\n    LDA $FC\n    AND #$07\n    CLC\n    ADC $FD\n    STA $FD\n    BCC sp_ok\n    INC $FE\nsp_ok:\n    LDA $FB\n    AND #$07\n    TAX\n    LDA bitmask,X\n    LDY #$00\n    ORA ($FD),Y\n    STA ($FD),Y\n    PLA\n    TAX\n    RTS\n\ndraw_line:\n; In: $20=X0lo, LineX0Hi=X0hi, $21=Y0, $22=X1lo, LineX1Hi=X1hi, $23=Y1\n; 16-bit err Bresenham. Full 0..319 X, 0..199 Y.\n    LDA $20\n    STA $FB\n    LDA LineX0Hi\n    STA LineCurXHi\n    LDA $21\n    STA $FC\n    LDA LineX1Hi\n    CMP LineX0Hi\n    BCC dl_xneg\n    BNE dl_xpos\n    LDA $22\n    CMP $20\n    BCC dl_xneg\ndl_xpos:\n    SEC\n    LDA $22\n    SBC $20\n    STA $24\n    LDA LineX1Hi\n    SBC LineX0Hi\n    STA LineDxHi\n    LDA #$01\n    STA $26\n    JMP dl_caldy\ndl_xneg:\n    SEC\n    LDA $20\n    SBC $22\n    STA $24\n    LDA LineX0Hi\n    SBC LineX1Hi\n    STA LineDxHi\n    LDA #$FF\n    STA $26\ndl_caldy:\n    LDA $23\n    CMP $21\n    BCS dl_ypos\n    SEC\n    LDA $21\n    SBC $23\n    STA $25\n    LDA #$FF\n    STA $27\n    JMP dl_init\ndl_ypos:\n    SEC\n    LDA $23\n    SBC $21\n    STA $25\n    LDA #$01\n    STA $27\ndl_init:\n    SEC\n    LDA $24\n    SBC $25\n    STA $28\n    LDA LineDxHi\n    SBC #$00\n    STA $29\ndl_loop:\n    JSR setpixel\n    LDA $FB\n    CMP $22\n    BNE dl_step\n    LDA LineCurXHi\n    CMP LineX1Hi\n    BNE dl_step\n    LDA $FC\n    CMP $23\n    BEQ dl_done\ndl_step:\n    LDA $28\n    ASL\n    STA $05\n    LDA $29\n    ROL\n    STA $06\n    CLC\n    LDA $05\n    ADC $25\n    TAX\n    LDA $06\n    ADC #$00\n    BPL dl_xchk\n    JMP dl_ychk\ndl_xchk:\n    BNE dl_do_x\n    CPX #$00\n    BEQ dl_ychk\ndl_do_x:\n    SEC\n    LDA $28\n    SBC $25\n    STA $28\n    LDA $29\n    SBC #$00\n    STA $29\n    LDA $26\n    BMI dl_dec_x\ndl_inc_x:\n    INC $FB\n    BNE dl_ychk\n    INC LineCurXHi\n    JMP dl_ychk\ndl_dec_x:\n    LDA $FB\n    BNE dl_dec_x_lo\n    DEC LineCurXHi\ndl_dec_x_lo:\n    DEC $FB\ndl_ychk:\n    LDA $06\n    BMI dl_do_y\n    CMP LineDxHi\n    BCC dl_do_y\n    BNE dl_loop\n    LDA $05\n    CMP $24\n    BCC dl_do_y\n    JMP dl_loop\ndl_do_y:\n    CLC\n    LDA $28\n    ADC $24\n    STA $28\n    LDA $29\n    ADC LineDxHi\n    STA $29\n    CLC\n    LDA $FC\n    ADC $27\n    STA $FC\n    JMP dl_loop\ndl_done:\n    RTS\n\nbitmap_on:\n; VIC bank 0: $0000-$3FFF\n    LDA $DD00\n    AND #%11111100\n    ORA #%00000011\n    STA $DD00\n\n; hires bitmap on\n    LDA #$2B\n    STA $D011\n\n; make sure multicolor bitmap is off\n    LDA $D016\n    AND #%11101111\n    STA $D016\n\n; screen=$0400, bitmap=$2000\n    LDA #$18\n    STA $D018\n\n; black border/background\n    LDA #$00\n    STA $D020\n    STA $D021\n    RTS\n\nrow320lo:\n.byte $00,$40,$80,$C0,$00,$40,$80,$C0\n.byte $00,$40,$80,$C0,$00,$40,$80,$C0\n.byte $00,$40,$80,$C0,$00,$40,$80,$C0\n.byte $00\n\nrow320hi:\n.byte $00,$01,$02,$03,$05,$06,$07,$08\n.byte $0A,$0B,$0C,$0D,$0F,$10,$11,$12\n.byte $14,$15,$16,$17,$19,$1A,$1B,$1C\n.byte $1E\n\nbitmask:\n.byte $80,$40,$20,$10,$08,$04,$02,$01\n.macro DisplayOff\n    LDA $D011\n    AND #%11101111\n    STA $D011\n.endm\n.macro DisplayOn\n    LDA $D011\n    ORA #%00010000\n    STA $D011\n.endm\n; ---- Convenience macros (wrap library subroutines) ----\n.macro ClearBitmap\n    JSR clear_bitmap\n.endm\n.macro PlotPixel x, y\n    ; x is a word (0..319), y a byte (0..199)\n    LDA #<{x}\n    STA $FB\n    LDA #>{x}\n    STA LineCurXHi\n    LDA #<{y}\n    STA $FC\n    JSR setpixel\n.endm\n.macro DrawLine x0, y0, x1, y1\n    ; x0/x1 are words (0..319), y0/y1 bytes (0..199)\n    LDA #<{x0}\n    STA $20\n    LDA #>{x0}\n    STA LineX0Hi\n    LDA #<{y0}\n    STA $21\n    LDA #<{x1}\n    STA $22\n    LDA #>{x1}\n    STA LineX1Hi\n    LDA #<{y1}\n    STA $23\n    JSR draw_line\n.endm\n.macro SetColor fg, bg\n    ; Fill screen RAM ($0400-$07E7) with (fg<<4)|bg — hires foreground/background per 8x8 cell\n    LDA #{fg}\n    ASL\n    ASL\n    ASL\n    ASL\n    ORA #{bg}\n    LDX #$00\nSetColorLoop:\n    STA $0400,X\n    STA $0500,X\n    STA $0600,X\n    INX\n    BNE SetColorLoop\n    LDX #$00\nSetColorTail:\n    STA $0700,X\n    INX\n    CPX #$E8\n    BNE SetColorTail\n.endm",
   "program": [
     {
       "_srcLine": 0,
@@ -744,20 +744,19 @@
       "validationError": ""
     },
     {
-      "_srcLine": 54,
-      "addressingMode": "implied",
-      "base": "hex",
-      "category": "Makrok",
-      "collapsed": true,
-      "description": "",
       "id": "8d768706-f3b6-4af8-980e-df9438be72fd",
-      "isMacroDefStart": true,
-      "macroName": "HiresClearScreen",
-      "macroParams": "",
-      "mnemonic": "MACRO",
+      "category": "Szerkezet",
+      "mnemonic": "LABEL",
       "operand": "HiresClearScreen",
       "rawOperand": "HiresClearScreen",
-      "validationError": ""
+      "description": "",
+      "addressingMode": "implied",
+      "base": "hex",
+      "validationError": "",
+      "collapsed": true,
+      "isLabel": true,
+      "labelName": "HiresClearScreen",
+      "_srcLine": 0
     },
     {
       "_srcLine": 55,
@@ -1158,34 +1157,32 @@
       "validationError": ""
     },
     {
-      "_srcLine": 85,
-      "addressingMode": "implied",
-      "base": "hex",
-      "category": "Makrok",
-      "collapsed": true,
-      "description": "",
       "id": "2d6a4606-faa9-47e0-a375-e794563ffe77",
-      "isMacroDefEnd": true,
-      "mnemonic": "ENDM",
+      "category": "Ugrasok",
+      "mnemonic": "RTS",
+      "description": "Visszateres szubrutinbol.",
       "operand": "",
       "rawOperand": "",
-      "validationError": ""
-    },
-    {
-      "_srcLine": 86,
       "addressingMode": "implied",
       "base": "hex",
-      "category": "Makrok",
+      "validationError": "",
       "collapsed": true,
-      "description": "",
+      "_srcLine": 1
+    },
+    {
       "id": "005a24e7-5e48-46fc-ba94-9c3ea38fe2ea",
-      "isMacroDefStart": true,
-      "macroName": "ClearColorRam",
-      "macroParams": "",
-      "mnemonic": "MACRO",
+      "category": "Szerkezet",
+      "mnemonic": "LABEL",
       "operand": "ClearColorRam",
       "rawOperand": "ClearColorRam",
-      "validationError": ""
+      "description": "",
+      "addressingMode": "implied",
+      "base": "hex",
+      "validationError": "",
+      "collapsed": true,
+      "isLabel": true,
+      "labelName": "ClearColorRam",
+      "_srcLine": 2
     },
     {
       "_srcLine": 87,
@@ -1402,18 +1399,17 @@
       "validationError": ""
     },
     {
-      "_srcLine": 103,
-      "addressingMode": "implied",
-      "base": "hex",
-      "category": "Makrok",
-      "collapsed": true,
-      "description": "",
       "id": "6ab0474b-cedd-4e8c-a65e-3d02dd0b6510",
-      "isMacroDefEnd": true,
-      "mnemonic": "ENDM",
+      "category": "Ugrasok",
+      "mnemonic": "RTS",
+      "description": "Visszateres szubrutinbol.",
       "operand": "",
       "rawOperand": "",
-      "validationError": ""
+      "addressingMode": "implied",
+      "base": "hex",
+      "validationError": "",
+      "collapsed": true,
+      "_srcLine": 1
     },
     {
       "_srcLine": 104,
