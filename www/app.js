@@ -3680,6 +3680,11 @@ function applyTranslations() {
     setText("#choose-debugger", t("chooseDebugger"));
     setText("#debugger-exe-label", t("debuggerExecutable"));
     setText("#debugger-params-label", t("debuggerParamsLabel"));
+    setText("#debugger-choice-section", t("debuggerChoiceSection"));
+    setText("#debugger-choice-label", t("debuggerChoiceLabel"));
+    setText("#debugger-choice-va", t("debuggerChoiceVa"));
+    setText("#debugger-choice-retro", t("debuggerChoiceRetro"));
+    setText("#debugger-choice-note", t("debuggerChoiceNote"));
     setText("#dbg-jmp-label", t("debuggerJmpLabel"));
     setText("#dbg-wait-label", t("debuggerWaitLabel"));
     setText("#dbg-unpause-label", t("debuggerUnpauseLabel"));
@@ -4479,7 +4484,7 @@ function _applyEditorTranslations() {
   setText("#w64-sid-model-lbl", t("w64SidChip"));
   setText("#w64-sid-engine-lbl", t("w64SidEngine"));
   setText('#w64-reu option[value="0"]', t("w64ReuOff"));
-  setText("#ud-title", t("ue2DbgTitle"));
+  setText("#ud-title", t(document.getElementById("ue2-debug-dialog")?.dataset.target === "vice" ? "viceDbgTitle" : "ue2DbgTitle"));
   setText("#ud-regs-lbl", t("w64Registers"));
   setText("#ud-disasm-lbl", t("w64Disassembly"));
   setText("#ud-mem-lbl", t("w64Memory"));
@@ -19588,11 +19593,18 @@ function _debuggerTargets(prg) {
 }
 
 async function runInDebugger() {
+  // The built-in C64 and the Ultimate emulator debug on themselves whatever is chosen:
+  // RetroDebugger runs the program in its own emulator.
   if (runMode === "ue2" || runMode === "ue2-d64") {
-    await _udDebug();
+    await _udDebug("ue2");
     return;
   }
-  if (runMode === "web64" || !debuggerPath) {
+  const choice = _debuggerChoice();
+  if (choice === "va" && (runMode === "prg" || runMode === "d64")) {
+    await _udDebug("vice");
+    return;
+  }
+  if (runMode === "web64" || choice === "va" || !debuggerPath) {
     await _w64Debug();
     return;
   }
@@ -61297,6 +61309,7 @@ function _w64OnDialogClose() {
   const s = _w64S();
   _w64SavePref("open", false);
   _w64ExitFullscreen();
+  _w64ReleaseDebug();
   if (s.mod && !s.stopped && !s.mod._vice_web_pause_status()) {
     s.mod._vice_web_pause();
     s.pausedByClose = true;
@@ -61639,6 +61652,24 @@ function _w64ShowDebugPanel(show) {
   if (show) _w64RenderDebug();
   _w64SyncButtons();
 }
+// Closing the debugger lets the program go: no breakpoints, and a CPU stopped in the monitor runs on.
+function _w64ReleaseDebug() {
+  const s = _w64S();
+  const stopped = !!(s.mod && s.stopped);
+  _w64EndDebugView();
+  s.manual = new Set();
+  if (s.session) s.session = null;
+  if (stopped) {
+    s.mod._vice_web_monitor_breakpoint_hit_clear();
+    s.mod._vice_web_monitor_continue();
+    clearTimeout(s.resumeTimer);
+    s.stopped = false;
+  }
+  _w64RenderDebug();
+  _w64SyncButtons();
+  return stopped;
+}
+
 function _w64EndDebugView() {
   const s = _w64S();
   s.tempBp = -1;
@@ -61882,6 +61913,7 @@ function setupWeb64() {
   on("w64-debug-toggle", "click", () => {
     const show = !!document.getElementById("w64-debug")?.hidden;
     _w64SavePref("debug", show);
+    if (!show) _w64ReleaseDebug();
     _w64ShowDebugPanel(show);
   });
   on("w64-continue", "click", _w64Continue);
@@ -62025,7 +62057,7 @@ function setupWeb64() {
 // The build, the source map, the editor line and the panels are those of the built-in debugger.
 const _ud = {
   session: null, manual: new Set(), running: false, stopped: false, pc: -1, snap: null, memAddr: 0x0400,
-  tempBp: -1, disasmFrom: undefined, pollTimer: 0, resumeTimer: 0, generation: 0, busy: false,
+  tempBp: -1, disasmFrom: undefined, pollTimer: 0, resumeTimer: 0, generation: 0, busy: false, target: "ue2",
 };
 const _UD_REGISTERS = ["PC", "A", "X", "Y", "SP", "FL"];
 
@@ -62088,7 +62120,7 @@ function _udRenderBreakpoints() {
 }
 
 async function _udRefresh() {
-  const result = await window.electronAPI.ue2DbgSnapshot(_ud.memAddr & 0xFFFF);
+  const result = await window.electronAPI.dbgSnapshot(_ud.memAddr & 0xFFFF);
   if (!result?.ok) { _udSetStatus(result?.error || "", true); return false; }
   _ud.snap = result.value;
   _ud.pc = result.value.registers.PC ?? _ud.pc;
@@ -62123,7 +62155,7 @@ async function _udPoll() {
   clearTimeout(_ud.pollTimer);
   if (!_ud.running) return;
   const generation = _ud.generation;
-  const result = await window.electronAPI.ue2DbgPoll();
+  const result = await window.electronAPI.dbgPoll();
   if (generation !== _ud.generation || !_ud.running) return;
   if (!result?.ok) { _udOnEnded(); return; }
   if (result.value !== null && result.value !== undefined && !_ud.stopped && !_ud.busy) await _udOnStop(result.value);
@@ -62153,23 +62185,37 @@ async function _udResume(action) {
 }
 
 function _udContinue() {
-  return _udResume(() => window.electronAPI.ue2DbgContinue(_udBreakpoints()));
+  return _udResume(() => window.electronAPI.dbgContinue(_udBreakpoints()));
 }
 function _udStep(mode) {
-  return _udResume(() => window.electronAPI.ue2DbgStep(mode, _udBreakpoints()));
+  return _udResume(() => window.electronAPI.dbgStep(mode, _udBreakpoints()));
 }
 async function _udBreak() {
   if (!_ud.running || _ud.stopped || _ud.busy) return;
   _ud.busy = true;
   _ud.generation++;
-  const result = await window.electronAPI.ue2DbgBreak();
+  const result = await window.electronAPI.dbgBreak();
   _ud.busy = false;
   if (!result?.ok) { _udOnEnded(); _udSetStatus(result?.error || "", true); return; }
   await _udOnStop(result.value ?? _ud.pc);
   _udPoll();
 }
 
-async function _udDebug() {
+// The Debug button: "va" = the Visual Assembler debugger on the machine of the run mode (VICE,
+// Ultimate emulator, built-in C64; the built-in C64 for the hardware modes), "retro" = RetroDebugger.
+// Unset: RetroDebugger when it is configured, as before; the old VICE choice means "va".
+function _debuggerChoice() {
+  let stored = null;
+  try {
+    stored = localStorage.getItem("c64va-debugger");
+    if (!stored && localStorage.getItem("c64va-debug-target") === "vice") stored = "va";
+  } catch (_) {}
+  if (stored === "va" || stored === "retro") return stored;
+  return debuggerPath ? "retro" : "va";
+}
+
+async function _udDebug(target = _ud.target) {
+  _ud.target = target === "vice" ? "vice" : "ue2";
   const session = await _w64DebugBuild();
   if (!session) return;
   session.labels = _w64SessionLabels(session);
@@ -62185,13 +62231,18 @@ async function _udDebug() {
     dlg.show();
     document.getElementById("run-debugger")?.classList.add("main-tb-btn--active");
   }
-  _udSetStatus(t("ue2DbgStarting"));
+  const onVice = _ud.target === "vice";
+  if (dlg) dlg.dataset.target = _ud.target;
+  const title = document.getElementById("ud-title");
+  if (title) title.textContent = t(onVice ? "viceDbgTitle" : "ue2DbgTitle");
+  _udSetStatus(t(onVice ? "viceDbgStarting" : "ue2DbgStarting"));
   _udRender();
-  const result = await window.electronAPI?.ue2DbgStart(Array.from(session.bytes), _udBreakpoints());
+  const start = onVice ? window.electronAPI?.viceDbgStart : window.electronAPI?.ue2DbgStart;
+  const result = await start?.(Array.from(session.bytes), _udBreakpoints());
   _ud.busy = false;
-  _ue2RefreshSettings();
+  if (!onVice) _ue2RefreshSettings();
   if (!result?.ok) {
-    const message = _ue2ErrorText(result);
+    const message = onVice ? (result?.error || t("launchingViceFailed")) : _ue2ErrorText(result);
     _udSetStatus(message, true);
     _udSyncButtons();
     showViceToast(message, true);
@@ -62204,8 +62255,18 @@ async function _udDebug() {
 }
 
 function setupUe2Debugger() {
+  const debuggerChoice = document.getElementById("debugger-choice");
+  if (debuggerChoice) {
+    debuggerChoice.value = _debuggerChoice();
+    debuggerChoice.addEventListener("change", () => {
+      try {
+        localStorage.setItem("c64va-debugger", debuggerChoice.value);
+        localStorage.removeItem("c64va-debug-target");
+      } catch (_) {}
+    });
+  }
   const on = (id, event, handler) => document.getElementById(id)?.addEventListener(event, handler);
-  on("ud-restart", "click", _udDebug);
+  on("ud-restart", "click", () => _udDebug());
   on("ud-continue", "click", _udContinue);
   on("ud-break", "click", _udBreak);
   on("ud-step-into", "click", () => _udStep(0));
@@ -62215,7 +62276,7 @@ function setupUe2Debugger() {
   on("ue2-debug-dialog", "close", () => {
     document.getElementById("run-debugger")?.classList.remove("main-tb-btn--active");
     _udOnEnded();
-    window.electronAPI?.ue2DbgEnd?.();
+    window.electronAPI?.dbgEnd?.();
   });
   on("ud-disasm", "click", (e) => {
     const button = e.target.closest(".w64-bp[data-addr]");
@@ -62240,7 +62301,7 @@ function setupUe2Debugger() {
     if (_ud.stopped && await _udRefresh()) _udRender();
   });
   const setRegister = async (id, value) => {
-    await window.electronAPI.ue2DbgSetRegister(_UD_REGISTERS[id], value);
+    await window.electronAPI.dbgSetRegister(_UD_REGISTERS[id], value);
     if (await _udRefresh()) _udRender();
   };
   on("ud-regs", "change", (e) => {

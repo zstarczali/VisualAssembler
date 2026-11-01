@@ -26,6 +26,9 @@ const CMD_ADVANCE: u8 = 0x71;
 const CMD_UNTIL_RETURN: u8 = 0x73;
 const CMD_PING: u8 = 0x81;
 const CMD_KEYBOARD_FEED: u8 = 0x72;
+const CMD_AUTOSTART: u8 = 0xDD;
+#[cfg(test)]
+const CMD_QUIT: u8 = 0xBB;
 const EVENT_STOPPED: u8 = 0x62;
 const CHECKPOINT_EXEC: u8 = 4;
 const MEMSPACE_MAIN: u8 = 0;
@@ -168,6 +171,28 @@ impl Monitor {
         let pc = self.register_id("PC")?;
         self.stop_pc = self.registers()?.iter().find(|(id, _)| *id == pc).map(|(_, v)| *v);
         Ok(self.stop_pc)
+    }
+
+    /// VICE stops on any command; this one does nothing else.
+    pub fn stop(&mut self) -> Result<(), String> {
+        self.request(CMD_PING, &[]).map(|_| ())
+    }
+
+    /// Ends VICE (the tests close the one they started).
+    #[cfg(test)]
+    pub fn quit(&mut self) -> Result<(), String> {
+        self.request(CMD_QUIT, &[]).map(|_| ())
+    }
+
+    /// Loads a PRG or disk image from the host and runs it, as VICE's autostart does.
+    pub fn autostart(&mut self, path: &str) -> Result<(), String> {
+        let name = path.as_bytes();
+        if name.len() > 255 {
+            return Err("VICE monitor: file path too long".to_string());
+        }
+        let mut body = vec![1, 0, 0, name.len() as u8];
+        body.extend_from_slice(name);
+        self.request(CMD_AUTOSTART, &body).map(|_| ())
     }
 
     /// Puts PETSCII text into the C64's keyboard buffer.

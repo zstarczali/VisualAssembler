@@ -8,6 +8,7 @@ Visual Assembler is free and open source (GPLv3): every feature — editors, bui
 
 ## What's New in v2.7.1
 
+- **Debugger choice and a debugger for VICE** — Settings → General → Debugger: **Visual Assembler** debugs on the machine of the run mode (your own VICE through its binary monitor, the Ultimate emulator, the built-in C64), **RetroDebugger** opens the external program. In VICE: breakpoints, step into / over / out, registers, disassembly and memory, the editor following the CPU.
 - **Ultimate emulator** — the **Ultimate emulator** and **D64 on Ultimate emulator** run modes run the program on [UE2-C64U-Emulator](https://github.com/Jondalar/UE2-C64U-Emulator) (the unmodified C64 Ultimate firmware on your computer) through its REST API; VA starts it on demand and installs a `.ue2` firmware into a flash image. **Debug** opens a debugger for it, and the VICE Monitor window connects to it. Settings → Integrations → Ultimate emulator (UE2). New examples: **Ultimate turbo demo (64 sprites)** and **Ultimate turbo cube**, the CPU speed changing through `$D031` from 1 to 64 MHz.
 - **SID Editor: two SIDs** — 3 or 6 voices with a selectable address for the second SID (`$D420`–`$D7E0`, `$DE00`–`$DFE0`). Preview, `.bin` save, `.sid` and assembly export and `.sid` import handle both chips. The exports hold at most 46 patterns with two SIDs.
 - **SID Player: 2SID and 3SID tunes** — VA SID Core plays them in stereo: SID 1 left, SID 2 right, a third SID in the centre.

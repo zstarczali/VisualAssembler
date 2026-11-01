@@ -1565,6 +1565,9 @@ PRINTABLE CHARACTERS
       <p class="whats-new-version">v2.7.1</p>
       <ul class="whats-new-list">
         <li>
+          <strong>Debugger choice:</strong> <em>Settings → General → Debugger</em>: the Visual Assembler debugger works on the machine of the run mode (your own VICE, the Ultimate emulator or the built-in C64), with breakpoints, stepping, registers and memory; or RetroDebugger.
+        </li>
+        <li>
           <strong>Ultimate emulator:</strong> run your program on the C64 Ultimate firmware on your computer (UE2-C64U-Emulator), as a PRG or from a D64, with a debugger and the VICE Monitor window. Set it up in <em>Settings → Integrations</em>. New examples: <em>Ultimate turbo demo (64 sprites)</em> and <em>Ultimate turbo cube</em>, the CPU speed changing from 1 to 64 MHz.
         </li>
         <li>
@@ -3967,15 +3970,6 @@ PRINTABLE CHARACTERS
               <input type="checkbox" id="ub-asm-sidecar-toggle">
               <span id="ub-asm-sidecar-label">UltimateBasic ASM source generálása (.asm)</span>
             </label>
-            <div class="hw-settings-subsection hw-settings-subsection--inline">
-              <h3 class="hw-settings-section-label" id="update-settings-label">Updates</h3>
-              <label class="field compact-field hw-field">
-                <span id="update-server-label">Update server</span>
-                <input id="update-server" type="text" spellcheck="false" autocomplete="off" placeholder="https://www.c64va.pro/" value="https://www.c64va.pro/">
-              </label>
-              <button id="update-server-default" class="secondary" type="button">Default</button>
-              <p id="update-server-status" class="menu-note"></p>
-            </div>
           </section>
           <section class="hw-settings-section">
             <h3 class="hw-settings-section-label" id="asm-output-settings-label">ASM output</h3>
@@ -3995,6 +3989,22 @@ PRINTABLE CHARACTERS
               <input type="checkbox" id="global-memory-panel-toggle" checked>
               <span id="global-memory-panel-toggle-label">Show memory panel</span>
             </label>
+          </section>
+          <section class="hw-settings-section">
+            <h3 class="hw-settings-section-label" id="editor-settings-label">Editors</h3>
+            <label class="field compact-field hw-field">
+              <span id="editor-palette-label">C64 colour palette</span>
+              <select id="editor-palette" class="sid-select">
+                <option value="colodore" selected>Colodore</option>
+                <option value="pepto">Pepto</option>
+                <option value="vice">VICE</option>
+                <option value="deekay">Deekay</option>
+                <option value="c64wiki">C64 Wiki / Godot</option>
+                <option value="custom">Custom</option>
+              </select>
+            </label>
+            <button id="editor-palette-edit" class="secondary" type="button">Edit custom palette…</button>
+            <p id="editor-palette-note" class="menu-note">Used by the sprite, character, Charset Canvas, Hi-Res, map and level editors. Colodore is the closest to real C64 hardware.</p>
           </section>
         </div>
         <div class="hw-settings-col">
@@ -4033,6 +4043,16 @@ PRINTABLE CHARACTERS
             <p id="sid-player-buffer-note" class="menu-note">A larger buffer stops the crackle while the app is busy. WebSID: after a restart; VA SID Core renders 10 / 15 / 20 / 30 s ahead.</p>
           </section>
           <section class="hw-settings-section">
+            <h3 class="hw-settings-section-label" id="debugger-choice-section">Debugger</h3>
+            <label class="field compact-field hw-field"><span id="debugger-choice-label">Debug button</span>
+              <select id="debugger-choice">
+                <option value="va" id="debugger-choice-va">Visual Assembler</option>
+                <option value="retro" id="debugger-choice-retro">RetroDebugger</option>
+              </select>
+            </label>
+            <p id="debugger-choice-note" class="menu-note">Visual Assembler debugs on the machine of the run mode.</p>
+          </section>
+          <section class="hw-settings-section">
             <h3 class="hw-settings-section-label" id="debugger-params-label">C64 Debugger params</h3>
             <label class="menu-checkbox-label">
               <input type="checkbox" id="dbg-jmp" checked>
@@ -4057,22 +4077,6 @@ PRINTABLE CHARACTERS
               <input type="checkbox" id="git-preferred" checked>
               <span id="git-preferred-label">Use Git when the project is in a repository</span>
             </label>
-          </section>
-          <section class="hw-settings-section">
-            <h3 class="hw-settings-section-label" id="editor-settings-label">Editors</h3>
-            <label class="field compact-field hw-field">
-              <span id="editor-palette-label">C64 colour palette</span>
-              <select id="editor-palette" class="sid-select">
-                <option value="colodore" selected>Colodore</option>
-                <option value="pepto">Pepto</option>
-                <option value="vice">VICE</option>
-                <option value="deekay">Deekay</option>
-                <option value="c64wiki">C64 Wiki / Godot</option>
-                <option value="custom">Custom</option>
-              </select>
-            </label>
-            <button id="editor-palette-edit" class="secondary" type="button">Edit custom palette…</button>
-            <p id="editor-palette-note" class="menu-note">Used by the sprite, character, Charset Canvas, Hi-Res, map and level editors. Colodore is the closest to real C64 hardware.</p>
           </section>
         </div>
       </div>
@@ -4141,6 +4145,15 @@ PRINTABLE CHARACTERS
               <input id="debugger-path" type="text" readonly placeholder="">
             </label>
             <p id="debugger-status" class="menu-note"></p>
+          </section>
+          <section class="hw-settings-section">
+            <h3 class="hw-settings-section-label" id="update-settings-label">Updates</h3>
+            <label class="field compact-field hw-field">
+              <span id="update-server-label">Update server</span>
+              <input id="update-server" type="text" spellcheck="false" autocomplete="off" placeholder="https://www.c64va.pro/" value="https://www.c64va.pro/">
+            </label>
+            <button id="update-server-default" class="secondary" type="button">Default</button>
+            <p id="update-server-status" class="menu-note"></p>
           </section>
         </div>
         <div class="hw-settings-col">

@@ -17,6 +17,7 @@ use tauri_plugin_dialog::{MessageDialogButtons, MessageDialogKind};
 use tauri_plugin_opener::OpenerExt;
 
 mod c64;
+mod debugger;
 mod hvsc;
 mod mos6510;
 mod sid_core;
@@ -267,13 +268,18 @@ fn windows_spawn_detached(program: &str, args: &[String]) -> std::io::Result<()>
 }
 
 fn spawn_vice_with_file(vice_path: &str, file_path: &std::path::Path, extra_args: &[String]) -> Result<(), String> {
+    spawn_vice(vice_path, Some(file_path), extra_args)
+}
+
+/// VICE with an optional file to autostart.
+fn spawn_vice(vice_path: &str, file_path: Option<&std::path::Path>, extra_args: &[String]) -> Result<(), String> {
     let binary = resolve_vice_launch_path(vice_path)?;
 
     let result = if cfg!(target_os = "macos") {
         Command::new("bash")
             .arg(&binary)
             .args(extra_args)
-            .arg(file_path.to_str().unwrap())
+            .args(file_path.map(|p| p.to_string_lossy().to_string()))
             .stdin(std::process::Stdio::null())
             .stdout(std::process::Stdio::null())
             .stderr(std::process::Stdio::null())
@@ -295,7 +301,7 @@ fn spawn_vice_with_file(vice_path: &str, file_path: &std::path::Path, extra_args
             // to it and survives hot-reload independently. This is only an issue in
             // `tauri dev` mode; production builds do not use a KILL_ON_JOB_CLOSE job.
             let mut args = extra_args.to_vec();
-            args.push(file_path.to_string_lossy().to_string());
+            args.extend(file_path.map(|p| p.to_string_lossy().to_string()));
             windows_spawn_detached(&binary, &args)
         }
         #[cfg(not(target_os = "windows"))]
@@ -318,7 +324,7 @@ fn spawn_vice_with_file(vice_path: &str, file_path: &std::path::Path, extra_args
             cmd.args(extra_args)
                 .arg("-autostartprgmode")
                 .arg("1")
-                .arg(file_path.to_str().unwrap())
+                .args(file_path.map(|p| p.to_string_lossy().to_string()))
                 .stdin(std::process::Stdio::null())
                 .stdout(std::process::Stdio::null())
                 .stderr(std::process::Stdio::null())
@@ -348,6 +354,55 @@ fn vice_monitor_launch_args(cfg: &serde_json::Value) -> Vec<String> {
     }
 }
 
+/// VICE answering on `port`, or a new one started for it.
+fn vice_debug_monitor(vice_path: &str, port: u16, extra_args: &[&str]) -> Result<vice_monitor::Monitor, String> {
+    if let Ok(monitor) = vice_monitor::Monitor::connect_ready(port, Duration::from_millis(500)) {
+        return Ok(monitor);
+    }
+    let mut args = vice_monitor::launch_args(port);
+    args.extend(extra_args.iter().map(|a| a.to_string()));
+    spawn_vice(vice_path, None, &args)?;
+    vice_monitor::Monitor::connect_ready(port, Duration::from_secs(20))
+        .map_err(|e| format!("VICE did not open its monitor on port {port}: {e}"))
+}
+
+/// Debugging in VICE: the checkpoints are armed before the program is autostarted, so the first
+/// instruction can be stopped at. A VICE already running on the monitor port is used.
+#[tauri::command]
+async fn vice_dbg_start(app: AppHandle, prg_bytes: Vec<u8>, breakpoints: Vec<u16>) -> serde_json::Value {
+    let cfg = read_config(&app);
+    let vice_path = match cfg["vicePath"].as_str().filter(|p| !p.is_empty()) {
+        Some(p) => p.to_string(),
+        None => detect_vice_executable(),
+    };
+    if vice_path.is_empty() {
+        return serde_json::json!({ "ok": false, "error": "VICE nincs beallitva. Kattints az Edit gombra es add meg a VICE eleresi utjat." });
+    }
+    let port = vice_monitor_port(&cfg);
+    let temp_dir = std::env::temp_dir().join("c64-visual-assembler");
+    let _ = fs::create_dir_all(&temp_dir);
+    let file_path = temp_dir.join("debug.prg");
+    if let Err(e) = fs::write(&file_path, &prg_bytes) {
+        return serde_json::json!({ "ok": false, "error": e.to_string() });
+    }
+    let started = tauri::async_runtime::spawn_blocking(move || -> Result<(), String> {
+        debugger::end_debug();
+        let monitor = vice_debug_monitor(&vice_path, port, &[])?;
+        let mut session = debugger::DebugSession::new(monitor, debugger::Halt::Monitor);
+        debugger::sync_checkpoints(&mut session, &breakpoints)?;
+        session.monitor.autostart(&file_path.to_string_lossy())?;
+        debugger::release_cpu(&mut session)?;
+        debugger::install(session);
+        Ok(())
+    })
+    .await;
+    match started {
+        Ok(Ok(())) => serde_json::json!({ "ok": true }),
+        Ok(Err(e)) => serde_json::json!({ "ok": false, "error": e }),
+        Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
+    }
+}
+
 #[derive(Deserialize)]
 struct ViceMonSegment {
     address: u16,
@@ -374,8 +429,8 @@ async fn vice_monitor_blocking<T: Send + 'static>(
     job: impl FnOnce(&mut vice_monitor::Monitor) -> Result<T, String> + Send + 'static,
 ) -> Result<T, String> {
     let ue2_port = ue2emu::monitor_port();
-    if ue2_port.is_some() && ue2emu::debug_active() {
-        return Err("VICE monitor: the emulator is in a debug session".to_string());
+    if debugger::debug_active() {
+        return Err("VICE monitor: a debug session is open".to_string());
     }
     let port = ue2_port.unwrap_or_else(|| vice_monitor_port(&read_config(app)));
     tauri::async_runtime::spawn_blocking(move || {
@@ -5054,6 +5109,117 @@ async fn load_sample(app: AppHandle, sample_name: String) -> serde_json::Value {
 
 #[cfg(test)]
 mod tests {
+    use crate::debugger::{self, continue_cpu, step, wait_stop, with_debug, DebugSession, Halt};
+    use std::time::{Duration, Instant};
+
+    #[track_caller]
+    fn vice_wait_for_stop() -> u16 {
+        let deadline = Instant::now() + Duration::from_secs(30);
+        loop {
+            let stop = with_debug(|session| wait_stop(session, Duration::from_millis(50))).unwrap();
+            if let Some(pc) = stop {
+                return pc;
+            }
+            assert!(Instant::now() < deadline, "the CPU did not stop");
+        }
+    }
+
+    #[track_caller]
+    fn vice_step(mode: u8) -> u16 {
+        with_debug(|session| step(session, mode, &[])).unwrap();
+        vice_wait_for_stop()
+    }
+
+    /// The VICE debugger end to end: \`VICE_EXE\` = x64sc, with \`--ignored\`.
+    #[test]
+    #[ignore]
+    fn real_vice_debug_session() {
+        let vice = std::env::var("VICE_EXE").expect("VICE_EXE is not set");
+        let port = 6511;
+        let prg: Vec<u8> = vec![
+            0x01, 0x08, 0x0B, 0x08, 0x0A, 0x00, 0x9E, 0x32, 0x30, 0x36, 0x31, 0x00, 0x00, 0x00, // 10 SYS 2061
+            0xEA, // $080D NOP
+            0x20, 0x1D, 0x08, // $080E JSR $081D
+            0xEE, 0x00, 0x04, // $0811 INC $0400
+            0xEE, 0x02, 0x04, // $0814 INC $0402
+            0x20, 0x1D, 0x08, // $0817 JSR $081D
+            0x4C, 0x14, 0x08, // $081A JMP $0814
+            0xA9, 0x07, // $081D LDA #$07
+            0x8D, 0x01, 0x04, // $081F STA $0401
+            0x60, // $0822 RTS
+        ];
+        let file = std::env::temp_dir().join("va-vice-debug-test.prg");
+        std::fs::write(&file, &prg).unwrap();
+
+        // no exit confirmation, so QUIT closes it
+        let monitor = super::vice_debug_monitor(&vice, port, &["+confirmonexit"]).unwrap();
+        let mut session = DebugSession::new(monitor, Halt::Monitor);
+        debugger::sync_checkpoints(&mut session, &[0x080D]).unwrap();
+        session.monitor.autostart(&file.to_string_lossy()).unwrap();
+        debugger::release_cpu(&mut session).unwrap();
+        debugger::install(session);
+        // VICE goes on running when the test fails: QUIT it anyway.
+        struct QuitVice;
+        impl Drop for QuitVice {
+            fn drop(&mut self) {
+                let _ = with_debug(|session| session.monitor.quit());
+                debugger::end_debug();
+            }
+        }
+        let _quit = QuitVice;
+
+        assert_eq!(vice_wait_for_stop(), 0x080D, "stops on the first instruction");
+        assert_eq!(vice_step(0), 0x080E, "step into, plain instruction");
+        assert_eq!(vice_step(1), 0x0811, "step over the JSR");
+        with_debug(|session| {
+            let cpu = session.monitor.bank_id("cpu")?;
+            assert_eq!(session.monitor.read_memory(0x0401, 0x0401, cpu)?, [0x07], "the routine ran");
+            let pc = session.monitor.register_id("PC")?;
+            session.monitor.set_register(pc, 0x080E)?;
+            session.monitor.note_stop().map(|_| ())
+        })
+        .unwrap();
+        assert_eq!(vice_step(0), 0x081D, "step into the JSR");
+        assert_eq!(vice_step(0), 0x081F, "next instruction");
+        assert_eq!(vice_step(2), 0x0811, "step out");
+
+        let counter = || {
+            with_debug(|session| {
+                let cpu = session.monitor.bank_id("cpu")?;
+                session.monitor.read_memory(0x0402, 0x0402, cpu)
+            })
+            .unwrap()[0]
+        };
+        with_debug(|session| continue_cpu(session, &[0x0814])).unwrap();
+        assert_eq!(vice_wait_for_stop(), 0x0814, "breakpoint in the loop");
+        let round = counter();
+        with_debug(|session| continue_cpu(session, &[0x0814])).unwrap();
+        assert_eq!(vice_wait_for_stop(), 0x0814, "the same breakpoint again");
+        assert_eq!(counter(), round.wrapping_add(1), "one round, not a stop on the spot");
+
+        with_debug(|session| continue_cpu(session, &[])).unwrap();
+        std::thread::sleep(Duration::from_millis(400));
+        let running = with_debug(|session| wait_stop(session, Duration::from_millis(20))).unwrap();
+        assert_eq!(running, None, "runs on with no breakpoint");
+        let pc = with_debug(debugger::break_cpu).unwrap();
+        assert!(pc.is_some_and(|at| (0x0811..=0x0822).contains(&at)), "break at {pc:?}");
+        let before = counter();
+        std::thread::sleep(Duration::from_millis(300));
+        assert_eq!(counter(), before, "the loop stands after Break");
+
+        // A second session in the same VICE, as the next Debug press does.
+        debugger::end_debug();
+        std::thread::sleep(Duration::from_millis(300));
+        // no exit confirmation, so QUIT closes it
+        let monitor = super::vice_debug_monitor(&vice, port, &["+confirmonexit"]).unwrap();
+        let mut session = DebugSession::new(monitor, Halt::Monitor);
+        debugger::sync_checkpoints(&mut session, &[0x080D]).unwrap();
+        session.monitor.autostart(&file.to_string_lossy()).unwrap();
+        debugger::release_cpu(&mut session).unwrap();
+        debugger::install(session);
+        assert_eq!(vice_wait_for_stop(), 0x080D, "the second session stops on the first instruction too");
+    }
+
     #[test]
     fn basic_program_end_finds_the_sys_stub() {
         // 10 SYS49152 at $0801, code far above it.
@@ -5887,13 +6053,14 @@ pub fn run() {
             ue2emu::ue2_run_prg,
             ue2emu::ue2_ensure,
             ue2emu::ue2_dbg_start,
-            ue2emu::ue2_dbg_poll,
-            ue2emu::ue2_dbg_snapshot,
-            ue2emu::ue2_dbg_continue,
-            ue2emu::ue2_dbg_step,
-            ue2emu::ue2_dbg_break,
-            ue2emu::ue2_dbg_set_register,
-            ue2emu::ue2_dbg_end,
+            vice_dbg_start,
+            debugger::dbg_poll,
+            debugger::dbg_snapshot,
+            debugger::dbg_continue,
+            debugger::dbg_step,
+            debugger::dbg_break,
+            debugger::dbg_set_register,
+            debugger::dbg_end,
             ue2emu::ue2_set_monitor_target,
         ])
         .on_window_event(|window, event| {

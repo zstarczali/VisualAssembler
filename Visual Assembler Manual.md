@@ -235,6 +235,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 
 ## Version 2.7.1 Highlights
 
+- **Debugger for VICE** — **Settings → General → Debugger** chooses the Debug button's debugger: **Visual Assembler** debugs on the machine of the run mode (VICE, Ultimate emulator, built-in C64), **RetroDebugger** opens the external program. In VICE the window works on your own VICE: breakpoints, step into / over / out, registers, disassembly and memory, with the editor following the CPU. See [Built-in C64 and debugger](#built-in-c64-and-debugger).
 - **Ultimate emulator** — two new run modes, **Ultimate emulator** and **D64 on Ultimate emulator**, run the program on [UE2-C64U-Emulator](https://github.com/Jondalar/UE2-C64U-Emulator), the unmodified C64 Ultimate / Ultimate 64 firmware on your computer, through the same REST API as the real device. VA starts the emulator on the first run, installs a `.ue2` firmware into a flash image and closes the emulator with the app. **Debug** in these modes opens a debugger (breakpoints, step into / over / out, registers, disassembly, memory), and the **VICE Monitor** window connects to the emulator. Set it up in **Settings → Integrations → Ultimate emulator (UE2)**. New examples: **Ultimate turbo demo (64 sprites)** and **Ultimate turbo cube** (Examples → IRQ & hardware) change the CPU speed through `$D031` every 3 seconds, from 1 to 64 MHz, and run only on an Ultimate with the turbo registers on. See [C64 Ultimate / 1541 Ultimate](#c64-ultimate--1541-ultimate).
 - **SID Editor: two SIDs** — **SID: 1 / 2** in the tracker toolbar gives a tune 6 voices, with a selectable address for the second SID (`$D420`–`$D7E0`, `$DE00`–`$DFE0`). Preview, `.bin` save, `.sid` and assembly export, and `.sid` import all handle both chips. See [SID Editor](#sid-editor-3-voice-tracker).
 - **SID Player: 2SID and 3SID tunes** — VA SID Core plays them in stereo: SID 1 left, SID 2 right, a third SID in the centre. See [SID Player](#sid-player).
@@ -742,7 +743,7 @@ The line under the bar names the step that is running, with the file — for exa
 | **Debug (RetroDebugger)** | Compile and launch in RetroDebugger with breakpoints, symbols, and autostart flags (see [Section 10](#10-debugger-integration)) |
 | **Run with Exomizer** | Checkbox in **Settings → General → Program** — when enabled, all Run and Build operations crunch the PRG through `exomizer sfx` before launching or saving (`sfx basic` for a PRG that starts with a BASIC line, so RUN works again after the program returns; `sfx $<load address>` otherwise). Works with Run as PRG, Run via D64, Run on Hardware, Build PRG, and Build D64. Configure the Exomizer executable in **Settings → Files and paths** first. |
 | **Automatic autosave entries** | Checkbox in **Settings → General → Version control**. When enabled, the app adds an autosave entry to the version history about 2.5 seconds after you stop editing a tab (for a tab of a project also to the project history). Turn it off if you only want your own commits. See [Version control](#version-control). |
-| **Settings** (formerly Hardware Settings) | Open the settings dialog with three tabs: **General** (assembler mode, VMA compiler, BASIC SYS stub, Exomizer, updates, ASM output, SID preview, debugger parameters, version control), **Files and paths** (VICE, RetroDebugger, ACME, Exomizer, git) and **Integrations** (C64 Ultimate, Ultimate emulator, Kung Fu Flash 2). See [Section 13](#13-settings). |
+| **Settings** (formerly Hardware Settings) | Open the settings dialog with three tabs: **General** (assembler mode, VMA compiler, BASIC SYS stub, Exomizer, ASM output, SID preview, debugger choice and parameters, version control), **Files and paths** (VICE, RetroDebugger, update server, ACME, Exomizer, git) and **Integrations** (C64 Ultimate, Ultimate emulator, Kung Fu Flash 2). See [Section 13](#13-settings). |
 | **New program…** (`Menu → Program`) | Opens a confirmation dialog, then clears all blocks from the program area |
 | **Export ASM** (`Menu → Program`) | Copies the generated assembly source |
 | **Collapse All** | Collapse all blocks |
@@ -812,7 +813,7 @@ After the download the app installs the update and restarts:
 
 If there are unsaved tabs, the app asks before closing. The same check runs quietly a few seconds after every start: nothing is shown unless a newer version exists. The result also appears in the Ultimate Basic status bar — **Up to date (vX)**, or a highlighted **Update available: vY** that opens the update dialog.
 
-**Update server:** **Settings → General → Updates → Update server** sets where releases are looked up (default `https://www.c64va.pro/`); the installers are read from `<server>downloads/VA/`. The address must use `https://` (plain `http://` only for `localhost`, for testing); **Default** goes back to c64va.pro.
+**Update server:** **Settings → Files and paths → Updates → Update server** sets where releases are looked up (default `https://www.c64va.pro/`); the installers are read from `<server>downloads/VA/`. The address must use `https://` (plain `http://` only for `localhost`, for testing); **Default** goes back to c64va.pro.
 
 ### Free and open source
 
@@ -4142,7 +4143,11 @@ The status bar shows what is attached and the LED of drive 8 with the track of t
 
 The toolbar also has **Reset**, **Pause**, **Warp**, **Sound**, **CRT filter** and **Full screen**. The CRT filter uses the CRT emulation of VICE, smooth scaling and scanlines; the scanlines appear once a C64 line is at least 3 pixels high. Full screen also starts with a double click on the screen, and Esc or another double click leaves it. The window can be moved by its header and resized at its bottom right corner. Its place, size, open state and settings come back on the next start.
 
-**Debugging:** press **Debug** while the run mode is **Built-in C64**. The Debug button also uses this debugger whenever no RetroDebugger is set. It works with VMA, Kick projects, ACME and Ultimate Basic alike. The program stops at the first breakpoint it reaches, or at its first instruction if there are no breakpoints.
+**Debugging:** press **Debug** while the run mode is **Built-in C64**. The Debug button also uses this debugger whenever no RetroDebugger is set. It works with VMA, Kick projects, ACME and Ultimate Basic alike. The program stops at the first breakpoint it reaches, or at its first instruction if there are no breakpoints. Closing the window or hiding the debugger panel ends the session: the breakpoints go, and a stopped program runs on (in a closed window once it is opened again). The Ultimate emulator and VICE debugger windows do the same when closed.
+
+**Choosing the debugger:** **Settings → General → Debugger → Debug button** is **Visual Assembler** or **RetroDebugger**. Unset, it is RetroDebugger when one is configured, else Visual Assembler. **Visual Assembler** debugs on the machine of the run mode: in your own VICE (*Run as PRG*, *Run via D64*), on the Ultimate emulator, or on the built-in C64 (also for the real hardware modes, C64 Ultimate and Kung Fu Flash 2). **RetroDebugger** opens the external program for the VICE and hardware modes. The *Built-in C64* and *Ultimate emulator* run modes always use their own debugger.
+
+**Debugging in VICE:** with **Visual Assembler** chosen, **Debug** in the *Run as PRG* and *Run via D64* modes opens the same debugger window for your own VICE installation: VA starts VICE with its binary monitor (the **VICE monitor port**, default 6502), or uses the one already running there, arms the breakpoints and autostarts the program, which stops at its first instruction if there are no breakpoints. Breakpoints, step into / over / out, registers, disassembly and memory work as in the built-in C64, and the editor follows the CPU. Closing the window lets the program run on in VICE. With **RetroDebugger** chosen, the VICE modes open RetroDebugger as before.
 
 The CPU stops **before** the instruction at the breakpoint, so the registers and memory show the state just before it runs.
 
@@ -4307,7 +4312,7 @@ Because the payload is stored linearly — one flat image from the lowest to the
 
 ## 13. Settings
 
-Open via **Menu → Settings…** (formerly *Hardware Settings*). The dialog has three tabs: **General** (assembler mode, VMA compiler, BASIC SYS stub, Run with Exomizer, updates, ASM output, SID preview, C64 Debugger parameters, snapshots / version control), **Files and paths** (VICE, RetroDebugger, ACME, Exomizer, git) and **Integrations** (C64 Ultimate, Ultimate emulator, Kung Fu Flash 2). The sections below describe the external tools and devices.
+Open via **Menu → Settings…** (formerly *Hardware Settings*). The dialog has three tabs: **General** (assembler mode, VMA compiler, BASIC SYS stub, Run with Exomizer, ASM output, SID preview, debugger choice and C64 Debugger parameters, snapshots / version control), **Files and paths** (VICE, RetroDebugger, update server, ACME, Exomizer, git) and **Integrations** (C64 Ultimate, Ultimate emulator, Kung Fu Flash 2). The sections below describe the external tools and devices.
 
 ### VMA compiler
 
