@@ -230,7 +230,7 @@ egy sorral előbb (elsőbbsége van a `C` előtt); hangmagasság = a fő hullám
 fő hullámforma + PW/PWM + szűrő + wave tábla a teljes hangból (a következő hangig, a néma hard-restart frame előtt vágva;
 lépésenként abszolút vagy relatív hangmagasság az azonos formájú hangok szavazata alapján, teszt-bites / néma frame = `$08` lépés hangmagasság nélkül; legrövidebb előtag + ismétlődő periódus, max 32 lépés; félhangnál kisebb szabályos kitérés → hangszer-vibrato `vibDelay/Speed/Depth`); gate: későbbi sorban `C`,
 a következő hang előtt < sorhossz frame-mel gate timer (+ hr, ha az ADSR nullázva), egyébként S = 0, D = R. Max 128 hangszer,
-a 255 lépéses tábla-keretet használat szerint osztja (azonos táblát a `_sidTuneData` egyszer tárol). Csak asztali appban (VA SID Core). Teszt: `tests/sid-dump-import.test.js`
+a 255 lépéses tábla-keretet használat szerint osztja (azonos táblát a `_sidTuneData` egyszer tárol). Szűrő: `moveEnd` / `sweepEnd` (a teljes hang, amíg egy másik hang újra nem indítja), fix sebesség-korlát 127 / frame (`reach`, közelebbi kezdet), LFO a szélsőértékek között; pulzus: `movement` (frame-enként), a hangszer a hangjainak teljes tartományát tartja; tábla: `tableSpeed` a futamhosszak lnko-jából, a periódust a következő hangot előkészítő utolsó frame-ek nem törik meg (`maxTrim`); hard restart csak ha az ADSR a gate-tel együtt nullázódik. Csak asztali appban (VA SID Core). Teszt: `tests/sid-dump-import.test.js`
 (a szerkesztő motorjával is visszajátssza), Rust `register_dump_flags_gate_edges_*`, valódi dalra `SID_DUMP_IN/OUT` +
 `dump_registers_to_file` (#[ignore]).
 

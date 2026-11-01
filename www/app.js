@@ -56586,24 +56586,35 @@ function _sidDumpImport(regs, meta) {
           if (cr < totalRows && cols[v][cr].note == null && !cols[v][cr].fx) cols[v][cr] = { note: null, inst: 0, fx: "C", fxval: 0 };
         } else if (next < frames && gap < speed && gap <= 15) {
           ins.gateTimer = gap;
-          ins.hr = R(next - 1, b + 5) === 0 && R(next - 1, b + 6) === 0;
+          // the player zeroes ADSR with the gate: if the tune does it later, the release has to sound until then
+          ins.hr = R(off, b + 5) === 0 && R(off, b + 6) === 0;
         } else {
           ins.s = 0; ins.d = ins.r;
         }
       }
 
+      // the filter keeps moving after the waveform went silent (a drum's hard restart): the whole note counts
+      const moveEnd = Math.min(next, f + _SID_DUMP_WINDOW, frames);
+      // units per frame, also when the player writes only every few frames; a wrap-around is no speed
+      const movement = function(valueAt, from, until) {
+        const steps = [];
+        for (let g = from + 1; g < until; g++) { const d = Math.abs(valueAt(g) - valueAt(g - 1)); if (d) steps.push(d); }
+        if (!steps.length) return 0;
+        const median = steps.slice().sort(function(a, c){ return a - c; })[steps.length >> 1];
+        const sum = steps.reduce(function(a, d){ return a + (d > 16 * median ? median : d); }, 0);
+        return Math.max(1, Math.round(sum / Math.max(1, until - from - 1)));
+      };
       // pulse width from the first frame on the pulse wave (drum attacks often precede it)
       const end = f + len;
       let pf = f;
       while (pf < end - 1 && !(R(pf, b + 4) & 0x40)) pf++;
       ins.pw = pwAt(pf);
-      let lo = ins.pw, hi = ins.pw, dsum = 0, dn = 0;
+      let lo = ins.pw, hi = ins.pw;
       for (let g = pf + 1; g < end; g++) {
-        const p = pwAt(g), d = Math.abs(p - pwAt(g - 1));
+        const p = pwAt(g);
         lo = Math.min(lo, p); hi = Math.max(hi, p);
-        if (d) { dsum += d; dn++; }
       }
-      if (dn && hi > lo) { ins.pwmSpeed = Math.min(255, Math.max(1, Math.round(dsum / dn))); ins.pwmMin = lo; ins.pwmMax = hi; }
+      if (hi > lo) { ins.pwmSpeed = Math.min(255, movement(pwAt, pf, end)); ins.pwmMin = lo; ins.pwmMax = hi; }
       // filter: global registers, routed per voice
       const mv = R(f, at + 0x18);
       ins.vol = mv & 15;
@@ -56612,14 +56623,51 @@ function _sidDumpImport(regs, meta) {
       if (ins.filt) {
         ins.lp = !!(mv & 0x10); ins.bp = !!(mv & 0x20); ins.hp = !!(mv & 0x40);
         ins.res = R(f, at + 0x17) >> 4;
-        ins.cut = cutAt(f);
-        ins.cutEnd = cutAt(end - 1);
-        let cs = 0, cn = 0, up = false, down = false;
-        for (let g = f + 1; g < end; g++) {
-          const d = cutAt(g) - cutAt(g - 1);
-          if (d) { cs += Math.abs(d); cn++; if (d > 0) up = true; else down = true; }
+        // the next change of the cutoff after frame g
+        const nextCut = function(g) {
+          for (let i = g + 1; i < moveEnd; i++) { const d = cutAt(i) - cutAt(i - 1); if (d) return d; }
+          return 0;
+        };
+        // a filter table can start one frame after the gate: a big step that then turns back
+        let cf = f;
+        if (f + 2 < moveEnd) {
+          const d1 = cutAt(f + 1) - cutAt(f), d2 = nextCut(f + 1);
+          if (Math.abs(d1) >= 64 && d2 && (d1 > 0) !== (d2 > 0)) cf = f + 1;
         }
-        if (cn && ins.cutEnd !== ins.cut) { ins.cutSpeed = Math.min(127, Math.max(1, Math.round(cs / cn))); ins.cutPing = up && down; }
+        ins.cut = cutAt(cf);
+        // the sweep of this note ends where the filter jumps again: another voice's note restarted it
+        let sweepEnd = moveEnd, dir = 0, still = 0, up = false, down = false;
+        for (let g = cf + 1; g < moveEnd; g++) {
+          const d = cutAt(g) - cutAt(g - 1);
+          if (!d) { still++; continue; }
+          const turns = function(a, c) { return a && c && (a > 0) !== (c > 0); };
+          if (Math.abs(d) >= 64 && (turns(dir, d) || (still >= 2 && turns(d, nextCut(g))))) { sweepEnd = g; break; }
+          still = 0;
+          dir = d;
+          if (d > 0) up = true; else down = true;
+        }
+        ins.cutEnd = cutAt(sweepEnd - 1);
+        if (up && down) {
+          // an LFO: the player bounces between two values, so those are the extremes, whatever the phase
+          let cutLo = ins.cut, cutHi = ins.cut;
+          for (let g = cf + 1; g < sweepEnd; g++) { cutLo = Math.min(cutLo, cutAt(g)); cutHi = Math.max(cutHi, cutAt(g)); }
+          if (cutHi - cutLo >= 16) {
+            const falling = cutAt(cf + 1) <= ins.cut;
+            ins.cut = falling ? cutHi : cutLo;
+            ins.cutEnd = falling ? cutLo : cutHi;
+            ins.cutPing = true;
+            ins.cutSpeed = Math.min(127, movement(cutAt, cf, sweepEnd));
+          } else ins.cutEnd = ins.cut;
+        } else if ((up || down) && ins.cutEnd !== ins.cut) {
+          // a one-way sweep often falls fast and then creeps (a filter table): what counts is when it gets there
+          let reach = sweepEnd - 1;
+          const near = Math.abs(ins.cutEnd - ins.cut) >> 4;
+          while (reach > cf + 1 && Math.abs(cutAt(reach - 1) - ins.cutEnd) <= near) reach--;
+          const frames2 = Math.max(1, reach - cf), range = Math.abs(ins.cutEnd - ins.cut);
+          // the player moves at most 127 per frame: too fast a sweep ends on time, from a nearer start
+          if (range > 127 * frames2) ins.cut = ins.cutEnd + (ins.cut > ins.cutEnd ? 127 : -127) * frames2;
+          ins.cutSpeed = Math.min(127, Math.max(1, Math.ceil(Math.abs(ins.cutEnd - ins.cut) / frames2)));
+        }
       }
       cols[v][row] = { note: base, inst: 0, fx: null, fxval: 0 };
       recs.push({ v: v, row: row, base: base, w: w, ins: ins, raw: raw, vibFrom: vibFrom });
@@ -56660,38 +56708,58 @@ function _sidDumpImport(regs, meta) {
     });
     const isPlain = function(st) { return st.w === w && st.n === 0 && !st.abs; };
     if (!steps.every(isPlain)) {
-      // shortest table: a prefix plus a period that repeats to the end of the note
+      // a table step can last several frames: one step per common run length
+      let runGcd = 0;
+      for (let k = 0, run = 1; k + 1 < len; k++) {
+        if (same(steps[k], steps[k + 1])) { run++; continue; }
+        const gcd = function(a, c) { return c ? gcd(c, a % c) : a; };
+        runGcd = gcd(runGcd, run);
+        run = 1;
+      }
+      const tableSpeed = runGcd >= 2 ? Math.min(15, runGcd) : 1;
+      const packed = tableSpeed > 1 ? steps.filter(function(_, k){ return k % tableSpeed === 0; }) : steps;
+      const plen = packed.length;
+      // shortest table: a prefix plus a period that repeats to the end of the note. The last frames may
+      // already prepare the next note (hard restart): they do not count against a period
       let tStart = -1, tPer = 0;
+      const maxTrim = Math.min(6, plen >> 2);
+      for (let trim = 0; trim <= maxTrim && tStart < 0; trim++) {
       for (let p = 1; p <= _SID_DUMP_TABLE_STEPS && tStart < 0; p++) {
-        let st = len - p;
-        while (st > 0 && same(steps[st - 1], steps[st - 1 + p])) st--;
-        if (len - st >= 2 * p && st + p <= _SID_DUMP_TABLE_STEPS) { tStart = st; tPer = p; }
+        let st = plen - trim - p;
+        while (st > 0 && same(packed[st - 1], packed[st - 1 + p])) st--;
+        if (plen - trim - st >= 2 * p && st + p <= _SID_DUMP_TABLE_STEPS) { tStart = st; tPer = p; }
+      }
       }
       let table, loop;
       if (tStart >= 0) {
-        table = steps.slice(0, tStart + tPer);
+        table = packed.slice(0, tStart + tPer);
         // a single repeated step needs no loop: the table holds its last step
         loop = tPer === 1 ? -1 : tStart;
       } else {
-        table = steps.slice(0, _SID_DUMP_TABLE_STEPS);
+        table = packed.slice(0, _SID_DUMP_TABLE_STEPS);
         loop = -1;
-        skip("long wave tables (cut)");
+        if (plen > _SID_DUMP_TABLE_STEPS) skip("long wave tables (cut)");
       }
       if (loop < 0) {
         while (table.length > 1 && isPlain(table[table.length - 1]) && isPlain(table[table.length - 2])) table.pop();
       }
-      if (!table.every(isPlain)) { ins.table = table; ins.tableLoop = loop; ins.tableSpeed = 1; }
+      if (!table.every(isPlain)) { ins.table = table; ins.tableLoop = loop; ins.tableSpeed = tableSpeed; }
     }
     const norm = _sidInstNorm(ins);
     // coarse signature: pulse width only matters for the pulse wave (and not under
     // a running sweep, where the start is arbitrary); filter sweeps are global
     const key = JSON.stringify(Object.assign({}, norm, {
-      name: "", pw: norm.pul && !norm.pwmSpeed ? norm.pw >> 8 : 0, pwmMin: 0, pwmMax: 0,
+      // a free-running sweep is not reset by the notes: its start per note, coarsely, keeps it going
+      name: "", pw: norm.pul ? norm.pw >> (norm.pwmSpeed ? 9 : 8) : 0, pwmMin: 0, pwmMax: 0,
       pwmSpeed: norm.pul && norm.pwmSpeed ? Math.round(Math.log2(norm.pwmSpeed)) : 0,
-      cut: norm.cut >> 7, cutEnd: 0, cutSpeed: 0, cutPing: false
+      cut: norm.cut >> 6, cutEnd: norm.cutSpeed ? norm.cutEnd >> 7 : 0, cutSpeed: norm.cutSpeed ? Math.round(Math.log2(norm.cutSpeed)) : 0, cutPing: norm.cutPing
     }));
     let idx = instKeys[key];
     if (idx === undefined) { idx = insts.length; instKeys[key] = idx; insts.push(norm); }
+    else if (norm.pwmSpeed) {
+      insts[idx].pwmMin = Math.min(insts[idx].pwmMin, norm.pwmMin);
+      insts[idx].pwmMax = Math.max(insts[idx].pwmMax, norm.pwmMax);
+    }
     cols[r.v][r.row].inst = idx;
   });
   if (!insts.length) return null;
