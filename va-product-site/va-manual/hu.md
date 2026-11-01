@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**2.7.0 verzió**
+**2.7.1-es verzió**
 
 Vizuális, blokk alapú 6502 assembler a Commodore 64-hez. Programokat hozhat
 létre húzással és elengedéssel (fogd és vidd) utasításblokkokkal, és valós
@@ -10,6 +10,7 @@ időben tekintheti meg a létrehozott assembly és gépi kódot.
 
 ## Tartalomjegyzék
 
+- [2.7.1-es verzió – kiemelt funkciók](#version-271-highlights)
 - [2.7.0 verzió – kiemelt funkciók](#version-270-highlights)
 - [2.6.9-es verzió – kiemelt funkciók](#version-269-highlights)
 - [2.6.8-as verzió kiemelt funkciói](#version-268-highlights)
@@ -243,6 +244,50 @@ időben tekintheti meg a létrehozott assembly és gépi kódot.
   - [Görbeszerkesztő](#curve-editor)
   - [Táblázatgenerátor](#table-generator)
   - [Számátváltó](#number-converter)
+
+---
+
+## A 2.7.1-es verzió főbb jellemzői
+
+- **VICE hibakereső** — **Beállítások → Általános → Hibakereső** kiválasztja a
+  Hibakeresés gomb hibakeresőjét: **Visual Assembler** a futtatott mód gépén
+  hibakeres (VICE, Ultimate emulator, beépített C64), **RetroDebugger**
+  megnyitja a külső programot. A VICE-ban az ablak a saját VICE-on működik:
+  töréspontok, belépés / átlépés / kilépés, regiszterek, szétszerelés és
+  memória, a szerkesztő a CPU-t követi. Lásd: [Beépített C64 és
+  hibakereső](#built-in-c64-and-debugger).
+- **Ultimate emulator** — két új futási mód, az **Ultimate emulator** és a **D64
+  az Ultimate emulator**-en, a programot az
+  [UE2-C64U-Emulator](https://github.com/Jondalar/UE2-C64U-Emulator)-en, a
+  módosítatlan C64 Ultimate / Ultimate 64 firmware-en futtatja a számítógépén,
+  ugyanazon a REST API-n keresztül, mint a valódi eszköz. A VA az első futáskor
+  elindítja az emulátort, telepít egy `.ue2` firmware-t egy flash képfájlba, és
+  bezárja az emulátort az alkalmazással. A **Debug** ezekben a módokban egy
+  hibakeresőt nyit meg (töréspontok, belépés / átlépés / kilépés, regiszterek,
+  szétszerelés, memória), és a **VICE Monitor** ablak csatlakozik az
+  emulátorhoz. Beállítható a **Beállítások → Integrációk → Ultimate emulátor
+  (UE2)** menüpontban. Új példák: **Ultimate turbo demo (64 sprite)** és
+  **Ultimate turbo cube** (Példák → IRQ és hardver) a CPU sebességét a `$D031`
+  paranccsal változtatják 3 másodpercenként, 1 MHz-ről 64 MHz-re, és csak
+  bekapcsolt turbo regiszterekkel rendelkező Ultimate-on futnak. Lásd: [C64
+  Ultimate / 1541 Ultimate]{2].
+- **SID szerkesztő: két SID** — **SID: 1 / 2** a követő eszköztáron egy 6 hangú
+  dallamot ad, kiválasztható címmel a második SID számára (`$D420`–`$D7E0`,
+  `$DE00`–`$DFE0`). Az előnézet, az `.bin` mentés, az `.sid` és assembly export,
+  valamint az `.sid` import mind mindkét chipet kezeli. Lásd: [SID
+  szerkesztő](#sid-editor-3-voice-tracker).
+- **SID lejátszó: 2SID és 3SID dallamok** — A VA SID Core sztereóban játssza le
+  őket: SID 1 balra, SID 2 jobbra, egy harmadik SID középen. Lásd: [SID
+  lejátszó](#sid-player).
+- **Csatornaspektrum** — egy külön 16 sávos analizátor minden hanghoz a tracker
+  lejátszása során a SID Editorban.
+- **SID szerkesztő** — **Fájlok → Új dallam**, a dallam címe a fejlécben, egy
+  gomb a követő leválasztásához és csatlakoztatásához, valamint egy rendezettebb
+  hangszerlista a vízszintes követőben.
+- **Javítva** — **A D64 hardveren** elküldi a kép típusát a csatolási kéréssel,
+  amelyet a C64 Ultimate firmware 1.1.0 megkövetel. A WebSID nem tudta betölteni
+  a szerkesztő előnézeteit és a teljes dallamot a **Lejátszás: Összes** részben;
+  a szerkesztő leállítása már nem zárja be a SID lejátszót.
 
 ---
 
@@ -1352,8 +1397,8 @@ vagy projekt nélkül a megnyitott fájl fülek:
 témakörök szerint csoportosítva (Alapok, Makrók és vezérlési folyamat, Grafika,
 Sprite-ok és bevitel, Fájlok és betöltés, Zene, IRQ és hardver) két oszlopban.
 
-- **Run** (VICE, D64, C64 Ultimate, Kung Fu Flash 2) — a PRG megépítése és
-  elindítása.
+- **Futtatás** (VICE, D64, C64 Ultimate, Ultimate emulátor, Kung Fu Flash 2) — a
+  PRG felépítése és elindítása.
 - **Debug** — a PRG felépítése és a RetroDebugger elindítása.
 - **Projekt**, **D64** és **Exomizer** csomagolás.
 
@@ -1397,7 +1442,7 @@ sikertelen.
 | **Hibakeresés (RetroDebugger)**                                                              | Fordítás és indítás a RetroDebuggerben töréspontokkal, szimbólumokkal és automatikus indítási jelzőkkel (lásd: [10. szakasz](#10-debugger-integration))                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | **Futtatás az Exomizerrel**                                                                  | Jelölőnégyzet a **Beállítások → Általános → Program** menüpontban — ha engedélyezve van, akkor az összes Futtatás és Összeállítás művelet a PRG-t az `exomizer sfx` parancson keresztül futtatja indítás vagy mentés előtt (`sfx basic` egy BASIC sorral kezdődő PRG esetén, így a RUN a program visszatérése után újra működik; `sfx $<betöltési cím>` egyébként). Működik a Futtatás PRG-ként, Futtatás D64-en keresztül, Futtatás hardveren, PRG összeállítása és D64 összeállítása paranccsal. Először konfigurálja az Exomizer futtatható fájlját a **Beállítások → Fájlok és elérési utak** menüpontban.                                                                                                                                                                                                                                                                                                                                                  |
 | **Automatikus automatikus mentési bejegyzések**                                              | Jelölőnégyzet a **Beállítások → Általános → Verziókövetés** menüpontban. Ha engedélyezve van, az alkalmazás körülbelül 2,5 másodperccel a fül szerkesztésének befejezése után automatikusan mentésre kerül a verzióelőzményekbe (egy projekt füle esetén a projektelőzményekbe is). Kapcsold ki, ha csak a saját commitjaidat szeretnéd. Lásd: [Verziókövetés]{1].                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| **Beállítások** (korábban Hardverbeállítások)                                                | Nyisd meg a beállítások párbeszédpanelt három füllel: **Általános** (assembler mód, VMA fordító, BASIC SYS csonk, Exomizer, frissítések, ASM kimenet, SID előnézet, hibakereső paraméterek, verziókövetés), **Fájlok és elérési utak** (VICE, RetroDebugger, ACME, Exomizer, git) és **Integrációk** (C64 Ultimate, Kung Fu Flash 2). Lásd: [13. szakasz](#13-settings).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| **Beállítások** (korábban Hardverbeállítások)                                                | Nyisd meg a beállítások párbeszédpanelt három füllel: **Általános** (assembler mód, VMA fordító, BASIC SYS csonk, Exomizer, ASM kimenet, SID előnézet, hibakereső kiválasztása és paraméterei, verziókövetés), **Fájlok és elérési utak** (VICE, RetroDebugger, frissítőkiszolgáló, ACME, Exomizer, git) és **Integrációk** (C64 Ultimate, Ultimate emulátor, Kung Fu Flash 2). Lásd: [13. szakasz](#13-settings).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | **Új program…** (`Menü → Program`)                                                           | Megnyit egy megerősítő párbeszédpanelt, majd törli az összes blokkot a programterületről.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | **ASM exportálása** (`Menü → Programozás`)                                                   | A generált assembly forráskód másolása                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | **Összes összecsukása**                                                                      | Összes blokk összecsukása                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
@@ -1574,12 +1619,12 @@ A parancslista magassága szándékosan korlátozott, így a parancsrészletező
 kitöltheti a panel fennmaradó magasságát. A részletes terület külön görgethető a
 hosszabb szintaxisleírásokért.
 
-**Frissítési szerver:** **Beállítások → Általános → Frissítések → Frissítési
-szerver** beállítja, hogy hol keressenek a kiadásokat (alapértelmezett:
-`https://www.c64va.pro/`); a telepítőket a `<szerver>letöltések/VA/` címről
-olvassa be. A címnek `https://` címet kell használnia (sima `http://` csak a
-`localhost` esetén, tesztelés céljából); az **Alapértelmezett** címre áll
-vissza, ahol a c64va.pro található.
+**Frissítési szerver:** **Beállítások → Fájlok és elérési utak → Frissítések →
+Frissítési szerver** beállítja, hogy hol keressenek a kiadásokat
+(alapértelmezett: `https://www.c64va.pro/`); a telepítőket a
+`<szerver>letöltések/VA/` címről olvassa be. A címnek `https://` címet kell
+használnia (tesztelés céljából csak sima `http://` címet a `localhost` címhez);
+az **Alapértelmezett** címre áll vissza, amely a c64va.pro címre mutat.
 
 ### Ingyenes és nyílt forráskódú
 
@@ -1697,10 +1742,11 @@ parancsot. Kattintson egy használt cellára, hogy lássa, mely sorok érik el
 (kattintson egy sorra az odaugráshoz), és egy figyelmeztetést, amikor a BASIC
 vagy KERNAL területre ír.
 
-Ha a program tartalmazza a SID Editor exportált lejátszóját (`sid_` címkék),
-akkor a lejátszó nulla oldala (`$02–$1C`, `$2F`, `$FB–$FD`) is megjelölésre
-kerül, és minden olyan cím, amelyet a saját kódod is használ, **ütközésként**
-jelenik meg (piros keret, figyelmeztetés a fejlécben).
+Ha a program tartalmazza az SID Editor exportált lejátszóját (`sid_` címkék),
+akkor a lejátszó nulla oldala (`$02–$1C`, `$2F`, `$FB–$FD`, és `$50–$69`, ha a
+SID Editorban lévő dallamnak két SID-je van) is megjelölésre kerül, és minden
+olyan cím, amelyet a saját kódod is használ, **ütközésként** jelenik meg (piros
+keret, figyelmeztetés a fejlécben).
 
 ### Épület és diagnosztika
 
@@ -2571,10 +2617,11 @@ leckék blokkokból építik fel a VMA programokat).
 Ami az ACME build után következik:
 
 - A **Build** (a kalapács gomb a Szakértői eszköztáron, *Build ACME forráskód*),
-  **Run** (PRG, D64, C64 Ultimate, Kung Fu Flash 2), **Build PRG**, **Build
-  D64**, **Build CRT**, **Build project** és **Debug (RetroDebugger)** fájlok az
-  ACME-n keresztül fordulnak; az ACME hibák és figyelmeztetések a normál
-  fordítási hiba párbeszédablakban nyílnak meg, a forráskód sorral együtt.
+  **Run** (PRG, D64, C64 Ultimate, Ultimate emulátor, Kung Fu Flash 2), **Build
+  PRG**, **Build D64**, **Build CRT**, **Build project** és **Debug
+  (RetroDebugger)** az ACME-n keresztül fordulnak; az ACME hibák és
+  figyelmeztetések a normál fordítási hiba párbeszédablakban nyílnak meg, a
+  forráskód sorral együtt.
 - Egy gépelési szünet után a forrás újraépül, így az **memóriatérkép**
   (memóriacsík, szegmens panel, átfedés figyelmeztetés), az **Disassembly** és
   **Monitor** panelek, valamint a ciklushatár a valódi ACME kimenetet mutatja; a
@@ -5844,9 +5891,34 @@ mozgatható és a jobb alsó sarkában átméretezhető. A helye, mérete, megny
 
 **Hibakeresés:** Nyomja meg a **Debug** gombot, miközben a futási mód **Built-in
 C64**. A Debug gomb ezt a hibakeresőt használja, ha nincs beállítva
-RetroDebugger. VMA, Kick projektekkel, ACME és Ultimate Basic programmal
-egyaránt működik. A program az első elért töréspontnál megáll, vagy az első
-utasításnál, ha nincsenek töréspontok.
+RetroDebugger. VMA, Kick projektekkel, ACME-vel és Ultimate Basic-kel egyaránt
+működik. A program az első elért töréspontnál leáll, vagy az első utasításnál,
+ha nincsenek töréspontok. Az ablak bezárása vagy a hibakereső panel elrejtése
+befejezi a munkamenetet: a töréspontok eltűnnek, és a leállított program tovább
+fut (egy bezárt ablakban, miután újra megnyitják). Az Ultimate emulátor és a
+VICE hibakereső ablakai ugyanezt teszik bezáráskor.
+
+**A hibakereső kiválasztása:** **Beállítások → Általános → Hibakereső →
+Hibakeresés gomb** a **Visual Assembler** vagy a **RetroDebugger**.
+Beállítatlanul RetroDebugger, ha konfigurálva van, egyébként Visual Assembler. A
+**Visual Assembler** a futási mód gépén végez hibakeresést: a saját VICE-ban
+(*Futtatás PRG-ként*, *Futtatás D64-en keresztül*), az Ultimate emulátoron vagy
+a beépített C64-en (valódi hardver módokban is, C64 Ultimate és Kung Fu Flash
+2). A **RetroDebugger** megnyitja a külső programot a VICE és hardver módokhoz.
+A beépített * C64* és * Ultimate emulator* futási módok mindig saját hibakeresőt
+használnak.
+
+**Hibakeresés VICE-ban:** a kiválasztott **Visual Assembler**, a **Debug** a
+*Futtatás PRG-ként* és *Futtatás D64-en keresztül* módokban ugyanazt a
+hibakereső ablakot nyitja meg a saját VICE telepítésedhez: A VA a VICE-t a
+bináris monitorával indítja (a **VICE monitor port**, alapértelmezett 6502),
+vagy a már ott futót használja, élesíti a töréspontokat és automatikusan
+elindítja a programot, amely az első utasításnál leáll, ha nincsenek
+töréspontok. A töréspontok, a belépés / átlépés / kilépés, a regiszterek, a
+szétszerelés és a memória a beépített C64-hez hasonlóan működnek, és a
+szerkesztő követi a CPU-t. Az ablak bezárása lehetővé teszi a program
+továbbfutását a VICE-ban. A **RetroDebugger** kiválasztásával a VICE módok a
+korábbiakhoz hasonlóan megnyitják a RetroDebuggert.
 
 A CPU a töréspontnál lévő utasítást **előtt** állítja le, így a regiszterek és a
 memória a futás előtti állapotot mutatják.
@@ -6123,11 +6195,12 @@ memória-elrendezést, vagy felosztja az adatokat.
 
 Nyissa meg a **Menü → Beállítások…** (korábban *Hardverbeállítások*)
 menüpontban. A párbeszédpanel három füllel rendelkezik: **Általános** (assembler
-mód, VMA fordító, BASIC SYS csonk, Futtatás Exomizerrel, frissítések, ASM
-kimenet, SID előnézet, C64 Debugger paraméterek, pillanatképek / verziókövetés),
-**Fájlok és elérési utak** (VICE, RetroDebugger, ACME, Exomizer, git) és
-**Integrációk** (C64 Ultimate, Kung Fu Flash 2). Az alábbi szakaszok a külső
-eszközöket és eszközöket ismertetik.
+mód, VMA fordító, BASIC SYS csonk, Futtatás Exomizerrel, ASM kimenet, SID
+előnézet, hibakereső választás és C64 hibakereső paraméterek, pillanatképek /
+verziókövetés), **Fájlok és elérési utak** (VICE, RetroDebugger,
+frissítőkiszolgáló, ACME, Exomizer, git) és **Integrációk** (C64 Ultimate,
+Ultimate emulátor, Kung Fu Flash 2). Az alábbi szakaszok a külső eszközöket és
+eszközöket ismertetik.
 
 ### VMA fordító
 
@@ -6230,8 +6303,47 @@ Karakterszerkesztő menüpontban.
    Integrációk → C64 Ultimate** menüpontban.
 3. Válaszd a **Futtatás hardveren** lehetőséget a megosztott futtatás menüből.
 4. Kattintson a **▶ Futtatás** gombra — a PRG lefordításra kerül, és HTTP
-   POST-on keresztül elküldésre kerül az eszközre a `/v3/runners/prg` címre. Az
-   eszköz azonnal betölti és futtatja a C64-en.
+   POST-on keresztül elküldésre kerül az eszközre a `/v1/runners:run_prg` címre.
+   Az eszköz azonnal betölti és futtatja a C64-en.
+
+**Hardver nélkül:** válaszd az **Ultimate emulator** elemet az osztott futtatás
+menüből, hogy az
+[UE2-C64U-Emulator](https://github.com/Jondalar/UE2-C64U-Emulator) eszközön
+fusson, amely a módosítatlan Ultimate firmware-t futtatja a számítógépeden.
+Telepítsd külön, majd állíts be három dolgot a **Beállítások → Integrációk →
+Ultimate emulator (UE2)** menüpontban: az `ue2emu` programot, egy firmware-t
+(`.ue2`, `.elf` vagy `.app`, nem tartozék) és a ROM mappát (`roms/` egy
+[1541ultimate](https://github.com/GideonZ/1541ultimate) pénztárnál). Csak a(z)
+`chars.bin` fájlra (2048 bájt, a menü betűtípusa) van szükség ebből a mappából;
+a Commodore firmware a saját C64 ROM-jairól indul. Az első futtatáskor egy
+`.ue2` fájlt telepít egy flash képfájlba, amelyet firmware-enként tárolnak az
+alkalmazás konfigurációs mappájában, és minden indításkor bekapcsolja a firmware
+webszolgáltatását, amelyet a Commodore firmware letiltva szállít. Az emulátor az
+első futtatáskor elindul, és nyitva marad a további futtatásokhoz; a REST API-ja
+a(z) `127.0.0.1` címen figyel a(z) **REST porton** (alapértelmezett: 8064). Az
+alkalmazással vagy a(z) **Stop emulator** paranccsal bezár. Az **D64 az Ultimate
+emulator** ugyanebben a menüben egy D64-et csomagol (ehhez VICE `c1541`
+könyvtárára van szükség), felcsatolja azt az A meghajtóra és futtatja az első
+programot. Amíg e két futási mód egyike ki van választva, a **VICE Monitor**
+ablak (hot reload, live watch, profiler) az emulátorhoz csatlakozik a VICE
+helyett. A **Debug** ezekben a futási módokban megnyitja az emulátor
+hibakeresőjét: a regiszterek, a szétszerelés, a memória és a töréspontok egy
+külön ablakban, a kép az emulátor ablakában látható. A program az első elért
+töréspontnál megáll, vagy ha nincs ilyen, az első utasításnál; a szerkesztő sor
+a CPU-t követi, az F5, F10, F11 és a Shift+F11 pedig a szerkesztőben lévő fókusz
+mellett is működik. Egy időzítő IRQ lépést tehet a KERNAL-ba, mint a VICE
+monitorában, amikor a megszakítások be vannak kapcsolva. A VA a **Turbo
+Control** értéket is beállítja az emulátor flash memóriájában található turbó
+regiszterekre, így egy program a `$D031` paraméteren keresztül módosíthatja a
+CPU sebességét (reset után `$00` értéket olvas, 1 MHz).
+
+Példa: **Ultimate turbo demo (64 sprite)** (`samples/ultimate-turbo-demo.asm`) —
+a sebesség 3 másodpercenként változik 1-ről 64 MHz-re; 1 MHz-nél golyók tűnnek
+el, és a képkockasebesség csökken, 4 MHz-től mind a 64 sprite 50 fps-sel fut.
+Csak egy Ultimate gépen fut bekapcsolt turbóregisztrációval; bárhol máshol ezt
+írja ki. Az **Ultimate turbo cube** (`samples/ultimate-box-demo.asm`) ugyanezt
+teszi a dobozminta kockájával: minél gyorsabb a CPU, annál gyorsabban forog a
+kocka (5 képkocka/másodperc 1 MHz-en, 50 16 MHz-től).
 
 > **Tipp:** Nincs szükség USB-kábelre vagy illesztőprogramra – a REST API be van
 > építve az Ultimate firmware-be. A számítógépnek és az eszköznek ugyanazon a
@@ -6538,6 +6650,16 @@ emulációját; a VA SID Core esetében a chipet is ki kell választani (MOS 658
 8580). A szerkesztő fejléce mutatja a használatban lévő motort (pl. *· VA SID
 Core v1.2 (MOS 8580)*). A műszerparamétereket gombokkal lehet beállítani.
 
+**Két SID:** **SID: Az 1 / 2** a követő eszköztáron 3 és 6 hang között váltja a
+dallamot. Két SID esetén a mellette lévő lista állítja be a második SID címét:
+`$D420`–`$D7E0` vagy `$DE00`–`$DFE0`, `$20` lépésekben. Az oszlopok fejlécei:
+**S1 V1** … **S2 V3**. Minden SID-nek saját szűrője és hangereje van, és egy
+hang csak a saját chipjét vezérli. A VA SID Core és a kis szintetizátor
+sztereóban játssza le a két SID-t (SID 1 bal, SID 2 jobb); a WebSID a második
+SID címét a PSID fejlécből veszi. A hangjegyek előnézete az első SID-n játszódik
+le. Az egyik SID-re való visszaváltás törli a második SID hangjait, és először
+megkérdezi, hogy tartalmaznak-e valamit.
+
 **Eszközönkénti vezérlők:**
 - Hullámforma jelölőnégyzetek (TRI / SAW / PUL / NOI) – több hullámforma ÉS
   kapcsolattal van összekapcsolva, mint a SID-en – plusz **RING** (a háromszög
@@ -6573,8 +6695,8 @@ Core v1.2 (MOS 8580)*). A műszerparamétereket gombokkal lehet beállítani.
   valamint hangeffektek (lézer, hangszedő, explosion).
 
 **Követőrács:**
-- 3 hang × akár 256 pattern × 32 sor; a dal/sorrend lista akár 255 lépést is
-  tartalmazhat.
+- 3 hang (6 egy második SID-del) × akár 256 pattern × 32 sor; a dal/sorrend
+  lista akár 255 lépést is tartalmazhat.
 - Soronként: hangjegy + hangszerindex, plusz egy opcionális effekt (lásd az
   **Effekt oszlopot** alább). Az üres sorok az előző hangjegyet tartalmazzák:
   más követőkhöz (GoatTracker, SID-Wizard) hasonlóan egy hangjegy a következő
@@ -6588,8 +6710,8 @@ Core v1.2 (MOS 8580)*). A műszerparamétereket gombokkal lehet beállítani.
   néven mentve és exportálva).
 - Jelöljön ki egy cellát a szokásos módon, vagy tartsa lenyomva a **Shift**
   billentyűt kattintás közben, illetve a nyílbillentyűkkel bővítse ki a téglalap
-  alakú kijelölés sorokon és a három hang bármelyikén át. A kijelölt területen
-  belül a jobb gombbal kattintva a tartomány érintetlen marad.
+  alakú kijelölés sorokon és bármelyik hangon átívelő részét. A kijelölt
+  területen belül a jobb gombbal kattintva a tartomány érintetlen marad.
 - A Másolás, Kivágás, Beillesztés és Törlés parancsok elérhetők az ikon
   eszköztáron és az ikon alapú helyi menüben. A `Ctrl/Cmd+C` és a `Ctrl/Cmd+V`
   billentyűkombinációk ugyanazon a téglalap alakú kijelölésen működnek.
@@ -6600,8 +6722,8 @@ Core v1.2 (MOS 8580)*). A műszerparamétereket gombokkal lehet beállítani.
 - Arpeggio segéd: a kiválasztott akkordból kiindulva 4, 8 vagy 16 lépéses
   hangjegyfutamok előzetes megtekintése vagy beszúrása fel, le vagy fel/le
   irányban.
-- A **Sor meghallgatása** meghallgatja a kiválasztott sort mindhárom hangon a
-  pattern lejátszásának elindítása nélkül.
+- A **Sor előnézete** meghallgatja a kiválasztott sort az összes hangon
+  keresztül a minta lejátszásának elindítása nélkül.
 - A cellatartomány-beillesztés mostantól a kiválasztott tartomány
   kezdőcellájánál kezdődik, és tisztán megáll a hang- és sorhatároknál,
   ahelyett, hogy a következő oszlopba vagy sorba folyatódna.
@@ -6645,6 +6767,13 @@ formátumban.
   pozícióját (POS), a pattern-t (PAT), a sort (ROW) és a játékidőt (TIME),
   leállított állapotban pedig a szerkesztési pozíciót. **Beállítások → Általános
   → SID előnézet → LCD színe** zöldre vagy pirosra állítja.
+- A nyomkövető eszköztáron található **Channel spectrum** gomb egy ablakot nyit
+  meg, amelyen hangonként 16 sávos analizátor található (6, két SID-del). A
+  lejátszott SID regiszterek – frekvencia, hullámforma, impulzusszélesség,
+  közelítő ADSR, szűrő és hangerő – alapján kerül kiszámításra, nem a
+  hanganyagból, mivel a kimenet egyetlen mix. A gyűrűmoduláció, a szinkron és a
+  szűrőrezonancia nem látható, és csak a nyomkövető lejátszása közben mozog, a
+  hangjegyek előnézeténél nem.
 - A billentyűzet eszköztár gombja megnyitja a **VA-VK** nevű, nem modális
   zongorát (2, 3 vagy 4 oktáv; pozíció, nyitott állapot, oktáv és *Beszúrás a
   követőbe* megjegyződik) saját **Lejátszás / Leállítás** gombokkal, amelyek a
@@ -6686,6 +6815,7 @@ formátumban.
 | Export                               | Mit csinál                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | ` .bin mentése…`                     | A szerkesztő natív szerializált formátumát írja ki (hangszerek az összes modulációs beállítással és névvel, sebességgel, patternekkel, dallal). A régebbi mentések továbbra is betöltődnek.                                                                                                                                                                                                                                    |
+| `Új dallam`                          | Egy üres dallamot indít az aktuális helyett, miután előbb rákérdezett.                                                                                                                                                                                                                                                                                                                                                         |
 | `Blokkok exportálása (csak adatok)`  | A `* = $C000` helyen hozzáfűzi a műszertáblázatot + minta blokkokat a programhoz.                                                                                                                                                                                                                                                                                                                                              |
 | `Blokkok exportálása + minilejátszó` | Hozzáadja a teljes lejátszót (sid_init / sid_irq / sid_frame / sid_play_row / sid_set_voice) plusz PAL frekvenciatáblázatokat. Exportálás után helyezz el egy `JSR sid_init` függvényt a fő kódodban, ahol a zenének kezdődnie kell; ehelyett képkockánként egyszer használd a saját `JSR sid_frame` IRQ hívásodat.                                                                                                            |
 | ` ASM exportálása (vágólap)`         | A teljes assembly forráskódot a vágólapra másolja.                                                                                                                                                                                                                                                                                                                                                                             |
@@ -6735,14 +6865,19 @@ majd a *Konvertálás…* a konverziót.
   nullázódik) vagy egy lecsengéssé válik a kioldási ütemben. Az azonos
   hangszerek megosztásra kerülnek, akár 128-ig.
 - Egy üzenet felsorolja a közelítő értékeket, például a félhangú lépésekké váló
-  diákat vagy a 32 lépésnél hosszabb táblázatokat. A több SID-vel rendelkező
-  dallamok és a BASIC programként induló RSID dallamok nem támogatottak.
+  diákat vagy a 32 lépésnél hosszabb táblázatokat. A BASIC programként induló
+  RSID-dallamok nem támogatottak.
+- **Több SID:** egy 2SID-s dallam hat hanggá válik, és magával hozza a második
+  SID címét is. Egy 3SID-s dallam importálja az első két SID-jét, és egy üzenet
+  jelzi ezt.
 
 **Lejátszó ZP használata:** `$02`–`$1C` (mintamutatók, minta eltolás,
 hőmérséklet) és `$2F` (aktuális sebesség), plusz `$FB`–`$FD` (tick számláló,
 sorindex, sorrendlista pozíció). A hang, a moduláció és a szűrőállapot a
 `sid_state` helyen található a játékoskód után. A ZP bájtok ütköznek, ha a fő
-kódod használja őket – szükség esetén áthelyezheted őket Szakértő módban.
+kódod használja őket – szükség esetén áthelyezheted őket Szakértő módban. Két
+SID esetén a játékos a `$50`–`$67` (a 4–6. hangok mutatói) és az `$68`/`$69` (az
+aktuális hang SID regiszterei) regisztereket is használja.
 
 **Ismert korlátok:**
 - A lejátszó és az állapota az `$C000` karikánál található. Amikor a
@@ -6750,6 +6885,11 @@ kódod használja őket – szükség esetén áthelyezheted őket Szakértő m�
   saját szegmensükbe kerülnek, amelyek az `$A000` karika alatt végződnek (az
   exportált asm-nek van egy második `* =` sora); ezt tartsd távol a saját
   programodtól.
+- Egy két SID-vel rendelkező dallamnak kétszer annyi pattern adatra van
+  szüksége: az `.sid` és az assembly exportok legfeljebb 46 pattern-t
+  tartalmaznak, a többit pedig egy jegyzettel kihagyják az assembly forrásban. A
+  dallam egészben marad a szerkesztőben. Az **Export to UltimateBasic** csak az
+  első három hangot írja ki egy jegyzettel.
 - A C64 `$D418` globális hangerő több hangszerhang között megoszlik – a
   hangszerenkénti hangerőcsúszka tájékoztató jellegű; a kitartási szint (az ADSR
   `S` értéke) a hangszerhangonkénti effektív hangerő.
@@ -6760,9 +6900,11 @@ kódod használja őket – szükség esetén áthelyezheted őket Szakértő m�
 
 ---
 
-Az **Export .sid (PSID)…** (Fájlok menü) opcióval a lejátszható `$C000`
-lejátszóval mentheti el a dallamot szabványos PSID fájlként – ez lejátszható az
-SID lejátszóban, a VICE `vsid` lejátszójában és bármely más SID lejátszóban.
+Az **Export .sid (PSID)…** (Fájlok menü) parancs a lejátszható `$C000`
+lejátszóval szabványos PSID fájlként menti el a dallamot – ez lejátszható az SID
+lejátszóban, a VICE `vsid` lejátszójában és bármely más SID lejátszóban. A két
+SID-vel rendelkező dallamok PSID v3 fájlként kerülnek mentésre a második SID
+címével.
 
 ### SID-lejátszó
 
@@ -6791,10 +6933,12 @@ dalokat.
 - **Engine:** az ablak mutatja, hogy melyik motor játszik le (WebSID, vagy VA
   SID Core a verziójával és SID chipjével); válaszd ki a **Beállítások →
   Általános → SID előnézet** menüpontban. A VA SID Core egy natív Rust C64 magon
-  futtatja a dallamot, cikluspontos 6510-es processzorral, precíz megszakítási
-  időzítéssel, CIA 6526A-val, VIC-II időzítéssel rossz vonalakkal, sprite DMA és
-  raszteres megszakításokkal, valamint a 6510 I/O porttal – így a raszteres IRQ,
-  CIA időzített és digitális dallamok egy valódi gép időzítésével játszanak.
+  futtatja a dallamot, cikluspontos 6510-es processzorral, precíz
+  megszakításidőzítéssel, CIA 6526A-val, VIC-II időzítéssel hibás vonalakkal,
+  sprite DMA és raszteres megszakításokkal, valamint a 6510 I/O porttal – így a
+  raszteres IRQ, CIA időzített és digitális dallamok egy valódi gép időzítésével
+  játszódnak le. A VA SID Core 2SID és 3SID dallamokat (PSID v3 / v4) is
+  lejátszik sztereóban: SID 1 balra, SID 2 jobbra, egy harmadik SID középen.
 - **Véletlenszerű lejátszás:** A **Következő** melletti véletlenszerű lejátszás
   gomb véletlenszerű sorrendben játssza le a lejátszási listát – egyetlen dallam
   sem ismétlődik, amíg az összes dallam le nem hangzott, az **Előző** pedig
@@ -6833,6 +6977,9 @@ LED-stílusú sávok zöldtől sárgán át narancssárgáig, lassan elhalványu
 Editor lejátszik, bármelyik motorral. A **Bands** 8, 16, 24 vagy 32 sávot állít
 be. Az ablak mozgatható és átméretezhető, a SID Playerrel együtt záródik és
 nyílik meg újra, és csak akkor rajzol, amikor meg van nyitva.
+
+Az SID szerkesztőnek saját, hangonkénti ** csatornaspektrum** ablaka van: lásd:
+[SID szerkesztő](#sid-editor-3-voice-tracker).
 
 ---
 

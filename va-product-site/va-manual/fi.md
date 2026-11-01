@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Käyttöopas
 
-**Versio 2.7.0**
+**Versio 2.7.1**
 
 Visuaalinen, lohkopohjainen 6502-assembler Commodore 64:lle. Voit luoda ohjelmia
 vetämällä ja pudottamalla käskylohkoja ja nähdä luodun assemblerin ja konekoodin
@@ -10,6 +10,7 @@ reaaliajassa.
 
 ## Sisällysluettelo
 
+- [Version 2.7.1 kohokohdat](#version-271-highlights)
 - [Version 2.7.0 kohokohdat](#version-270-highlights)
 - [Version 2.6.9 kohokohdat](#version-269-highlights)
 - [Version 2.6.8 kohokohdat](#version-268-highlights)
@@ -244,6 +245,50 @@ reaaliajassa.
   - [Käyräeditori](#curve-editor)
   - [Taulukkogeneraattori](#table-generator)
   - [Numeronmuunnin](#number-converter)
+
+---
+
+## Version 2.7.1 kohokohdat
+
+- **VICE-virheenkorjaus** — **Asetukset → Yleiset → Virheenkorjaus** valitsee
+  Virheenkorjaus-painikkeen virheenkorjauksen: **Visual Assembler** suorittaa
+  virheenkorjauksen suoritustilassa olevalla koneella (VICE,
+  Ultimate-emulaattori, sisäänrakennettu C64), **RetroDebugger** avaa ulkoisen
+  ohjelman. VICE:ssä ikkuna toimii omalla VICE-ohjelmallasi: keskeytyspisteet,
+  askel sisään / yli / ulos, rekisterit, purkaminen ja muisti, editorin
+  seuratessa suoritinta. Katso [Sisäänrakennettu C64 ja
+  virheenkorjaus](#built-in-c64-and-debugger).
+- **Ultimate emulator** — kaksi uutta suoritustilaa, **Ultimate emulator** ja
+  **D64 Ultimate emulator**:ssä, ajavat ohjelman
+  [UE2-C64U-Emulator](https://github.com/Jondalar/UE2-C64U-Emulator):ssä, joka
+  on muokkaamaton C64 Ultimate / Ultimate 64 -laiteohjelmisto tietokoneellasi,
+  saman REST API:n kautta kuin oikea laite. VA käynnistää emulaattorin
+  ensimmäisellä suorituskerralla, asentaa `.ue2`-laiteohjelmiston flash-kuvaan
+  ja sulkee emulaattorin sovelluksella. **Debug** avaa näissä tiloissa
+  virheenkorjaajan (katkaisupisteet, step in / over / out, rekisterit, purku,
+  muisti), ja **VICE Monitor** -ikkuna muodostaa yhteyden emulaattoriin. Määritä
+  se kohdassa **Asetukset → Integraatiot → Ultimate-emulaattori (UE2)**. Uusia
+  esimerkkejä: **Ultimate turbo demo (64 spriteä)** ja **Ultimate turbo kuutio**
+  (Esimerkkejä → IRQ ja laitteisto) muuttavat suorittimen nopeutta `$D031`:n
+  kautta 3 sekunnin välein välillä 1–64 MHz, ja toimivat vain Ultimate-mallissa,
+  jossa turbo-rekisterit ovat päällä. Katso [C64 Ultimate / 1541 Ultimate]{2].
+- **SID-editori: kaksi SID:tä** — **SID: 1/2** seurantatyökalupalkissa antaa
+  kuusiäänisen sävelmän, jossa on valittavissa oleva osoite toiselle SID:lle
+  (`$D420`–`$D7E0`, `$DE00`–`$DFE0`). Esikatselu, `.bin` tallennus, `.sid` ja
+  kokoonpanon vienti sekä `.sid` tuonti käsittelevät kaikki molemmat sirut.
+  Katso [SID-editori]{1].
+- **SID-soitin: 2SID- ja 3SID-kappaleet** — VA SID Core toistaa ne stereona: SID
+  1 vasemmalla, SID 2 oikealla, kolmas SID keskellä. Katso
+  [SID-soitin](#sid-player).
+- **Kanavaspektri** — erillinen 16-kaistainen analysaattori jokaiselle äänelle
+  seurantatoiston aikana SID-editorissa.
+- **SID-editori** — **Tiedostot → Uusi sävelmä**, sävelmän nimi otsikossa, yksi
+  painike seurannan irrottamiseen ja kiinnittämiseen sekä siistimpi
+  soitinluettelo vaakasuuntaisessa seurannassa.
+- **Korjattu** — **D64 laitteistossa** lähettää kuvatyypin liitospyynnön mukana,
+  mitä C64 Ultimate -laiteohjelmisto 1.1.0 vaatii. WebSID ei voinut ladata
+  editorin esikatseluja ja koko musiikkia **Toista: Kaikki** -kohdassa; editorin
+  pysäyttäminen ei enää sulje SID-soitinta.
 
 ---
 
@@ -1336,8 +1381,8 @@ esimerkkiohjelmat ryhmiteltyinä aiheen mukaan (Perusteet, Makrot ja ohjaus,
 Grafiikka, Spritet ja syöttö, Tiedostot ja lataus, Musiikki, IRQ ja laitteisto)
 kahdessa sarakkeessa.
 
-- **Suorita** (VICE, D64, C64 Ultimate, Kung Fu Flash 2) — PRG:n rakentaminen ja
-  käynnistäminen.
+- **Suorita** (VICE, D64, C64 Ultimate, Ultimate emulator, Kung Fu Flash 2) —
+  PRG:n rakentaminen ja käynnistäminen.
 - **Debug** — PRG:n rakentaminen ja RetroDebuggerin käynnistäminen.
 - **Rakenna projekti**, **Rakenna D64** ja **Exomizer** pakkaus.
 
@@ -1381,7 +1426,7 @@ kun toiminto on valmis tai epäonnistuu.
 | **Virheenkorjaus (RetroDebugger)**                                                                     | Käännä ja käynnistä RetroDebuggerissa käyttämällä keskeytyskohtia, symboleja ja automaattisen käynnistyksen lippuja (katso [Osio 10](#10-debugger-integration))                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | **Suorita Exomizerilla**                                                                               | Valintaruutu kohdassa **Asetukset → Yleiset → Ohjelma** — kun se on käytössä, kaikki Suorita- ja Kokoonpanotoiminnot käsittelevät PRG:n `exomizer sfx` -komennon avulla ennen käynnistämistä tai tallentamista (`sfx basic` PRG:lle, joka alkaa BASIC-rivillä, joten RUN toimii uudelleen ohjelman paluun jälkeen; `sfx $<latausosoite>` muuten). Toimii seuraavien kanssa: Suorita PRG:nä, Suorita D64:n kautta, Suorita laitteistolla, Kokoa PRG ja Kokoa D64. Määritä Exomizer-suoritettava tiedosto ensin kohdassa **Asetukset → Tiedostot ja polut**.                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | **Automaattiset automaattiset tallennusmerkinnät**                                                     | Valintaruutu kohdassa **Asetukset → Yleiset → Versiohallinta**. Kun tämä on käytössä, sovellus lisää automaattisen tallennuksen versiohistoriaan noin 2,5 sekuntia sen jälkeen, kun lopetat välilehden muokkaamisen (projektin välilehden osalta myös projektin historiaan). Poista se käytöstä, jos haluat vain omat commit-tiedostosi. Katso [Versiohallinta]{1].                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| **Asetukset** (aiemmin Laitteistoasetukset)                                                            | Avaa asetusvalintaikkuna, jossa on kolme välilehteä: **Yleiset** (assembler-tila, VMA-kääntäjä, BASIC SYS -tynkä, Exomizer, päivitykset, ASM-tuloste, SID-esikatselu, virheenkorjausparametrit, versionhallinta), **Tiedosto- ja polut** (VICE, RetroDebugger, ACME, Exomizer, git) ja **Integraatiot** (C64 Ultimate, Kung Fu Flash 2). Katso [Osio 13](#13-settings).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| **Asetukset** (aiemmin Laitteistoasetukset)                                                            | Avaa asetusvalintaikkuna, jossa on kolme välilehteä: **Yleiset** (assembler-tila, VMA-kääntäjä, BASIC SYS -tynkä, Exomizer, ASM-lähtö, SID-esikatselu, virheenkorjaajan valinta ja parametrit, versionhallinta), **Tiedosto- ja polut** (VICE, RetroDebugger, päivityspalvelin, ACME, Exomizer, git) ja **Integraatiot** (C64 Ultimate, Ultimate-emulaattori, Kung Fu Flash 2). Katso [Osio 13](#13-settings).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 | **Uusi ohjelma…** (`Valikko → Ohjelma`)                                                                | Avaa vahvistusikkunan ja tyhjentää sitten kaikki lohkot ohjelma-alueelta.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | **Vie ASM** (`Valikko → Ohjelma`)                                                                      | Kopioi luodun kokoonpanon lähdekoodin                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | **Pitkännä kaikki**                                                                                    | Kutista kaikki lohkot                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
@@ -1557,11 +1602,12 @@ Komentoluettelon korkeus on tarkoituksella rajoitettu, jotta komentotietokortti
 voi täyttää paneelin jäljellä olevan korkeuden. Tietoalue vierii itsenäisesti
 pidempiä syntaksikuvauksia varten.
 
-**Päivityspalvelin:** **Asetukset → Yleiset → Päivitykset → Päivityspalvelin**
-määrittää, mistä julkaisuja haetaan (oletusarvo `https://www.c64va.pro/`);
-asennusohjelmat luetaan osoitteesta `<palvelin>lataukset/VA/`. Osoitteen on
-oltava `https://` (tavallinen `http://` vain kohteelle `localhost` testausta
-varten); **Oletus** palaa osoitteeseen c64va.pro.
+**Päivityspalvelin:** **Asetukset → Tiedostot ja polut → Päivitykset →
+Päivityspalvelin** määrittää, mistä julkaisuja haetaan (oletusarvo
+`https://www.c64va.pro/`); asennusohjelmat luetaan osoitteesta
+`<palvelin>lataukset/VA/`. Osoitteen on oltava `https://` (tavallinen `http://`
+vain osoitteelle `localhost` testausta varten); **Oletus** palaa osoitteeseen
+c64va.pro.
 
 ### Ilmainen ja avoimen lähdekoodin
 
@@ -1678,9 +1724,9 @@ Napsauta käytettyä solua nähdäksesi, mitkä rivit käyttävät sitä (napsau
 hypätäksesi siihen) ja varoituksen, kun kirjoitat BASIC- tai KERNAL-alueelle.
 
 Jos ohjelma sisältää SID-editorin viedyn soittimen (`sid_`-tunnisteet),
-soittimen nollasivu (`$02–$1C`, `$2F`, `$FB–$FD`) merkitään myös, ja jokainen
-oma koodisi käyttämä osoite raportoidaan **conflict** -ristiriidana (punainen
-kehys, varoitus otsikossa).
+soittimen nollasivu (`$02–$1C`, `$2F`, `$FB–$FD` ja `$50–$69`, kun SID-editorin
+sävelmällä on kaksi SID:tä) merkitään myös, ja jokainen oma koodisi käyttämä
+osoite raportoidaan **-ristiriitana** (punainen kehys, varoitus otsikossa).
 
 ### Rakennus ja diagnostiikka
 
@@ -2527,11 +2573,12 @@ rakentavat VMA-ohjelmia lohkoista).
 
 Mitä seuraa ACME-koontiversiosta:
 
-- **Build** (vasarapainike asiantuntijatyökalurivillä, *Build ACME
-  -lähdekoodi*), **Run** (PRG, D64, C64 Ultimate, Kung Fu Flash 2), **Build
-  PRG**, **Build D64**, **Build CRT**, **Build-projekti** ja **Debug
-  (RetroDebugger)** kääntyvät ACME:n kautta; ACME-virheet ja -varoitukset
-  avautuvat normaalissa käännösvirhe-valintaikkunassa lähdekoodirivillä.
+- **Build** (vasarapainike asiantuntijatyökalupalkissa, *Build ACME
+  -lähdekoodi*), **Run** (PRG, D64, C64 Ultimate, Ultimate emulator, Kung Fu
+  Flash 2), **Build PRG**, **Build D64**, **Build CRT**, **Build-projekti** ja
+  **Debug (RetroDebugger)** kääntyvät ACME:n kautta; ACME-virheet ja
+  -varoitukset avautuvat normaalissa käännösvirhe-valintaikkunassa
+  lähdekoodirivillä.
 - Kirjoitustauon jälkeen lähdekoodi rakennetaan uudelleen, joten
   **muistikartta** (muistiliuska, segmenttipaneeli, päällekkäisyysvaroitus),
   **Disassembly**- ja **Monitor**-paneelit sekä syklin jono näyttävät todellisen
@@ -5772,11 +5819,36 @@ Ikkunaa voidaan siirtää sen otsikosta ja muuttaa sen kokoa oikeassa alakulmass
 Sen sijainti, koko, avaustila ja asetukset palautuvat seuraavan käynnistyksen
 yhteydessä.
 
-**Virheenkorjaus:** paina **Debug** suoritustilassa **Built-in C64**.
+**Virheenkorjaus:** paina **Debug** suoritustilassa **Sisäänrakennettu C64**.
 Debug-painike käyttää tätä virheenkorjaajaa myös silloin, kun RetroDebuggeria ei
 ole asetettu. Se toimii sekä VMA:n, Kick-projektien, ACME:n että Ultimate
 Basicin kanssa. Ohjelma pysähtyy ensimmäiseen saavuttamaansa keskeytyspisteeseen
-tai ensimmäiseen käskyynsä, jos keskeytyspisteitä ei ole.
+tai ensimmäiseen käskyyn, jos keskeytyspisteitä ei ole. Ikkunan sulkeminen tai
+virheenkorjauspaneelin piilottaminen lopettaa istunnon: keskeytyspisteet
+poistuvat ja pysäytetty ohjelma jatkaa suoritusta (suljetussa ikkunassa, kun se
+avataan uudelleen). Ultimate-emulaattori ja VICE-virheenkorjausikkunat tekevät
+saman suljettaessa.
+
+**Virheenkorjaajan valitseminen:** **Asetukset → Yleiset → Virheenkorjaaja →
+Virheenkorjauspainike** on **Visual Assembler** tai **RetroDebugger**. Jos
+painiketta ei ole asetettu, se on RetroDebugger, jos sellainen on konfiguroitu,
+muuten Visual Assembler. **Visual Assembler** suorittaa virheenkorjauksen
+suoritustilan koneella: omassa VICE-ympäristössäsi (*Suorita PRG:nä*, *Suorita
+D64:n kautta*), Ultimate-emulaattorissa tai sisäänrakennetussa C64:ssä (myös
+oikeissa laitteistotiloissa, C64 Ultimate ja Kung Fu Flash 2). **RetroDebugger**
+avaa ulkoisen ohjelman VICE- ja laitteistotiloja varten. Sisäänrakennetut *C64*-
+ja *Ultimate emulator* -ajotilat käyttävät aina omaa virheenkorjaajaansa.
+
+**Virheenkorjaus VICE:ssä:** valittuna **Visual Assembler**, **Debug** *Run as
+PRG* ja *Run via D64* -tiloissa avaa saman virheenkorjausikkunan omalle
+VICE-asennuksellesi: VA käynnistää VICE:n binäärimonitorillaan
+(**VICE-monitoriportti**, oletusarvo 6502) tai käyttää siellä jo käynnissä
+olevaa monitoria, aktivoi keskeytyspisteet ja käynnistää ohjelman
+automaattisesti, joka pysähtyy ensimmäiseen käskyynsä, jos keskeytyspisteitä ei
+ole. Keskeytyspisteet, step into / over / out, rekisterit, disassemblation ja
+muisti toimivat kuten sisäänrakennetussa C64:ssä, ja editori seuraa suoritinta.
+Ikkunan sulkeminen antaa ohjelman jatkaa suorittamista VICE:ssä. Kun
+**RetroDebugger** on valittu, VICE-tilat avaavat RetroDebuggerin kuten ennenkin.
 
 CPU pysäyttää käskyn **ennen** keskeytyskohdassa, joten rekisterit ja muisti
 näyttävät tilan juuri ennen sen suorittamista.
@@ -6053,11 +6125,12 @@ muistiasettelu tai jaa tiedot.
 
 Avaa valitsemalla **Valikko → Asetukset…** (aiemmin *Laitteistoasetukset*).
 Valintaikkunassa on kolme välilehteä: **Yleiset** (assembler-tila, VMA-kääntäjä,
-BASIC SYS -tynkä, Suorita Exomizerilla, päivitykset, ASM-tuloste,
-SID-esikatselu, C64-virheenkorjausparametrit, tilannevedokset /
-versionhallinta), **Tiedosto- ja polut** (VICE, RetroDebugger, ACME, Exomizer,
-git) ja **Integraatiot** (C64 Ultimate, Kung Fu Flash 2). Alla olevat osiot
-kuvaavat ulkoisia työkaluja ja laitteita.
+BASIC SYS -tynkä, Suorita Exomizerilla, ASM-lähtö, SID-esikatselu,
+virheenkorjausohjelman valinta ja C64-virheenkorjausohjelman parametrit,
+tilannevedokset / versionhallinta), **Tiedosto- ja polut** (VICE, RetroDebugger,
+päivityspalvelin, ACME, Exomizer, git) ja **Integraatiot** (C64 Ultimate,
+Ultimate-emulaattori, Kung Fu Flash 2). Alla olevat osiot kuvaavat ulkoisia
+työkaluja ja laitteita.
 
 ### VMA-kääntäjä
 
@@ -6158,8 +6231,48 @@ Katso täydellinen debuggerin dokumentaatio kohdasta [Osio
    Integraatiot → C64 Ultimate**.
 3. Valitse jaetun suorituksen valikosta **Suorita laitteistolla**.
 4. Napsauta **▶ Suorita** — PRG käännetään ja lähetetään laitteelle HTTP POST
-   -protokollan kautta osoitteeseen `/v3/runners/prg`. Laite latautuu ja
+   -komennon kautta osoitteeseen `/v1/runners:run_prg`. Laite latautuu ja
    suorittaa sen C64:llä välittömästi.
+
+**Ilman laitteistoa:** valitse jaetun suorituksen valikosta **Ultimate
+emulator** suorittaaksesi sen
+[UE2-C64U-Emulator](https://github.com/Jondalar/UE2-C64U-Emulator):llä, joka
+suorittaa muokkaamattoman Ultimate-laiteohjelmiston tietokoneellasi. Asenna se
+erikseen ja aseta sitten kolme asiaa kohdassa **Asetukset → Integraatiot →
+Ultimate emulator (UE2)**: `ue2emu`-ohjelma, laiteohjelmisto (`.ue2`, `.elf` tai
+`.app`, ei sisälly toimitukseen) ja ROM-kansio (`roms/`
+[1541ultimate](https://github.com/GideonZ/1541ultimate) -kassalla). Vain
+`chars.bin` (2048 tavua, valikon fontti) tarvitaan kyseisestä kansiosta;
+Commodoren laiteohjelmisto käynnistyy omilta C64 ROM -muisteiltaan.
+Ensimmäisellä käynnistyskerralla asennetaan `.ue2` flash-kuvaan, jota
+laiteohjelmisto säilyttää sovelluksen asetuskansiossa, ja jokainen käynnistys
+käynnistää laiteohjelmiston web-palvelun, joka Commodoren laiteohjelmistossa on
+poistettu käytöstä. Emulaattori käynnistyy ensimmäisellä käynnistyskerralla ja
+pysyy auki seuraavia käynnistyksiä varten; sen REST API kuuntelee `127.0.0.1`
+**REST-portissa** (oletusarvo 8064). Se sulkeutuu sovelluksen käynnistyessä tai
+komennolla **Stop emulator**. **D64 Ultimate emulatorissa** samassa valikossa
+pakkaa D64:n (tämä tarvitsee VICE:n `c1541`), asentaa sen asemalle A ja
+suorittaa ensimmäisen ohjelman. Kun toinen näistä kahdesta suoritustilasta on
+valittuna, **VICE Monitor** -ikkuna (hot reload, live watch, profiler) muodostaa
+yhteyden emulaattoriin VICE:n sijaan. **Debug** avaa näissä suoritustiloissa
+emulaattorin debuggerin: rekisterit, purku, muisti ja keskeytyspisteet omassa
+ikkunassaan, kuva emulaattorin ikkunassa. Ohjelma pysähtyy ensimmäiseen
+saavuttamaansa keskeytyspisteeseen tai ensimmäiseen käskyynsä, jos sellaista ei
+ole; editoririvi seuraa CPU:ta, ja F5, F10, F11 ja Shift+F11 toimivat myös
+editorin kohdistuksen ollessa aktiivinen. Ajastimen IRQ voi ottaa askeleen
+KERNAL-piiriin, kuten VICE:n monitorissa, kun keskeytykset ovat päällä. VA
+asettaa myös **Turbo Control** -asetuksen emulaattorin flash-muistin
+turborekistereihin, joten ohjelma voi muuttaa suorittimen nopeutta `$D031`
+-asetuksen kautta (se lukee `$00`, 1 MHz, nollauksen jälkeen).
+
+Näyte: **Ultimate turbo demo (64 sprittiä)** (`samples/ultimate-turbo-demo.asm`)
+— nopeus muuttuu 3 sekunnin välein 1:stä 64 MHz:iin; 1 MHz:n taajuudella palloja
+katoaa ja ruudunpäivitysnopeus laskee, 4 MHz:stä alkaen kaikki 64 sprittiä
+toimivat 50 fps:n nopeudella. Se toimii vain Ultimatella, jossa turbo on päällä;
+muualla se ilmoittaa niin. **Ultimate turbo cube**
+(`samples/ultimate-box-demo.asm`) tekee saman laatikkonäytteen kuutiolle: mitä
+nopeampi CPU, sitä nopeammin kuutio pyörii (5 kuvaa sekunnissa 1 MHz:llä, 50
+alkaen 16 MHz:llä).
 
 > **Vinkki:** USB-kaapelia tai ajuria ei tarvita – REST API on sisäänrakennettu
 > Ultimate-laiteohjelmistoon. Tietokoneesi ja laitteen on oltava samassa
@@ -6461,6 +6574,16 @@ SID Coren kanssa valitaan myös siru (MOS 6581 / 8580). Editorin otsikko näytt�
 käytössä olevan moottorin (esim. *· VA SID Core v1.2 (MOS 8580)*).
 Instrumenttiparametrit asetetaan säätimillä.
 
+**Kaksi SID:tä:** **SID: 1 / 2** seurantatyökalupalkissa vaihtaa sävelmän 3 ja 6
+äänen välillä. Kahdella SID:llä sen vieressä oleva lista asettaa toisen SID:n
+osoitteen: `$D420`–`$D7E0` tai `$DE00`–`$DFE0`, `$20` välein. Sarakkeet ovat
+otsikoilla **S1 V1** … **S2 V3**. Jokaisella SID:llä on oma suodattimensa ja
+äänenvoimakkuutensa, ja ääni ohjaa vain omaa siruaan. VA SID Core ja pieni
+syntetisaattori soittavat kaksi SID:tä stereona (SID 1 vasemmalla, SID 2
+oikealla); WebSID ottaa toisen SID:n osoitteen PSID-otsikosta. Nuottien
+esikatselut soivat ensimmäisellä SID:llä. Vaihtaminen takaisin yhteen SID:hen
+poistaa toisen SID:n äänet ja kysyy ensin, onko niissä mitään.
+
 **Laitekohtaiset säätimet:**
 - Aaltomuodon valintaruudut (TRI / SAW / PUL / NOI) — useat aaltomuodot
   yhdistetään JA-operaattorilla kuten SID:ssä — sekä **RING** (kolmion
@@ -6496,8 +6619,8 @@ Instrumenttiparametrit asetetaan säätimillä.
   äänitehosteet (laser, mikrofoni, explosion).
 
 **Seurantaruudukko:**
-- 3 ääntä × jopa 256 patternia × 32 riviä; kappale-/järjestysluettelossa on jopa
-  255 askelta.
+- 3 ääntä (6 toisella SID:llä) × jopa 256 patternia × 32 riviä;
+  kappale-/järjestysluettelossa on jopa 255 askelta.
 - Rivikohtainen: nuotti + instrumenttiindeksi sekä valinnainen efekti (katso
   **Efektisarake** alla). Tyhjät rivit sisältävät edellisen nuotin: kuten
   muissakin seurantalaitteissa (GoatTracker, SID-Wizard), nuotti pitää porttinsa
@@ -6511,10 +6634,9 @@ Instrumenttiparametrit asetetaan säätimillä.
   samalla tavalla kuin `C` -efekti ilman nuottia (tallennettu ja viety nimellä
   `C00`).
 - Valitse yksi solu normaalisti tai pidä **Shift**-näppäintä pohjassa samalla,
-  kun napsautat tai käytät nuolinäppäimiä suorakulmaisen valinnan
-  laajentamiseksi rivien ja minkä tahansa kolmen äänen yli. Hiiren
-  kakkospainikkeella napsauttaminen valitun alueen sisällä pitää alueen
-  ennallaan.
+  kun napsautat tai käytät nuolinäppäimiä laajentaaksesi suorakulmaista valintaa
+  rivien ja minkä tahansa äänen yli. Hiiren kakkospainikkeella napsauttaminen
+  valitun alueen sisällä pitää alueen ennallaan.
 - Kopioi, Leikkaa, Liitä ja Tyhjennä ovat käytettävissä kuvaketyökalurivillä ja
   kuvakepohjaisessa kontekstivalikosta. `Ctrl/Cmd+C` ja `Ctrl/Cmd+V` käyttävät
   samaa suorakaiteen muotoista valintaa.
@@ -6524,7 +6646,7 @@ Instrumenttiparametrit asetetaan säätimillä.
   Sus4, dominantti 7, duuri 7, molli 7, 6, molli 6, 9, b9, #9, dim7 ja 7sus4.
 - Arpeggio-apuohjelma: esikatsele tai lisää 4-, 8- tai 16-askelisia nuotteja
   valitusta soinnusta alkaen ylös, alas tai ylös/alas.
-- **Esikatselurivi** kuuntelee valitun rivin kaikissa kolmessa äänessä
+- **Esikatselu rivi** kuuntelee valitun rivin kaikkien äänien osalta
   aloittamatta kuvioiden toistoa.
 - Solualueen liittäminen alkaa nyt valitusta alueen aloitussolusta ja pysähtyy
   siististi ääni- ja rivirajoihin sen sijaan, että rivitys jatkuisi seuraavaan
@@ -6568,6 +6690,13 @@ ajoitusta), toimivat identtisesti Web Audio -esikatselussa ja käännetyssä
   kuvion (PAT), rivin (ROW) ja toistoajan (TIME) toiston aikana sekä
   muokkauskohdan pysäytystilassa. **Asetukset → Yleiset → SID-esikatselu →
   LCD-väri** tekee siitä vihreän tai punaisen.
+- Seurantatyökalupalkin **Kanavaspektri** -painike avaa ikkunan, jossa on
+  16-kaistainen analysaattori ääntä kohden (6 kahdella SID:llä). Se lasketaan
+  toistettavien SID-rekistereiden – taajuuden, aaltomuodon, pulssinleveyden,
+  arvioidun ADSR:n, suodattimen ja äänenvoimakkuuden – perusteella, ei äänestä,
+  koska lähtö on yksi miksaus. Rengasmodulaatio, synkronointi ja suodattimen
+  resonanssi eivät näy, ja se liikkuu vain seurantatoiston aikana, ei nuottien
+  esikatselussa.
 - Näppäimistön työkalupalkin painike avaa **VA-VK**, ei-modaalisen pianon (2, 3
   tai 4 oktaavia; asento, avoin tila, oktaavi ja *Lisää seurantaan* muistetaan)
   omilla **Toista / Pysäytä** -painikkeillaan, jotka pysyvät käytettävissä
@@ -6609,6 +6738,7 @@ ajoitusta), toimivat identtisesti Web Audio -esikatselussa ja käännetyssä
 | Viedä                            | Mitä se tekee                                                                                                                                                                                                                                                                                                                                                                                                        |
 | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `Tallenna .bin…`                 | Kirjoittaa editorin natiivin serialisoidun formaatin (instrumentit kaikilla modulaatioasetuksilla ja nimillä, nopeudella, patterneilla, kappaleella). Vanhemmat tallennukset latautuvat edelleen.                                                                                                                                                                                                                    |
+| `Uusi sävelmä`                   | Aloittaa tyhjän sävelmän nykyisen tilalle kysyttyään ensin.                                                                                                                                                                                                                                                                                                                                                          |
 | `Vie lohkot (vain tiedot)`       | Liittää instrumenttitaulukon + kuviolohkot ohjelmaan kohtaan `* = $C000`.                                                                                                                                                                                                                                                                                                                                            |
 | `Vie lohkot + minipelaaja`       | Lisää koko soittimen (sid_init / sid_irq / sid_frame / sid_play_row / sid_set_voice) sekä PAL-taajuustaulukot. Viennin jälkeen sijoita `JSR sid_init` pääkoodiisi kohtaan, josta musiikin tulisi alkaa; käytä omaa IRQ-kutsua `JSR sid_frame` kerran kehystä kohden.                                                                                                                                                 |
 | `Vie asm (leikepöytä)`           | Kopioi koko kokoonpanon lähdekoodin leikepöydälle.                                                                                                                                                                                                                                                                                                                                                                   |
@@ -6659,21 +6789,30 @@ tilalle. Edistymispalkki seuraa tallennusta ja sitten *Muunnetaan…* muunnosta.
   tai decay vapautusnopeudella. Identtiset instrumentit jaetaan, jopa 128
   kappaleeseen asti.
 - Viestissä luetellaan, mitä on arvioitu, esimerkiksi diat, joista tulee
-  puolisävelaskeleita, tai taulukot, jotka ovat pidempiä kuin 32 askelta. Usean
-  SID:n sävelmiä ja RSID-sävelmiä, jotka alkavat BASIC-ohjelmana, ei tueta.
+  puolisävelaskeleita, tai taulukot, jotka ovat pidempiä kuin 32 askelta.
+  RSID-sävelmiä, jotka alkavat BASIC-ohjelmana, ei tueta.
+- **Useita SID-tunnuksia:** 2SID-sävelmästä tulee kuusiääninen ja se tuo
+  mukanaan toisen SID-osoitteensa. 3SID-sävelmä tuo kaksi ensimmäistä
+  SID-tunnustaan, ja viesti ilmoittaa tästä.
 
 **Soittimen ZP-käyttö:** `$02`–`$1C` (kuvio-osoittimet, kuvion offset,
 lämpötila) ja `$2F` (nykyinen nopeus), sekä `$FB`–`$FD` (tick-laskuri,
 rivi-indeksi, järjestyslistan sijainti). Ääni, modulaatio ja suodattimen tila
 sijaitsevat `sid_state` -tiedostossa pelaajakoodin jälkeen. ZP-tavut ovat
 ristiriidassa, jos pääkoodisi käyttää niitä – siirrä tarvittaessa Expert-tilan
-kautta.
+kautta. Kahdella SID:llä pelaaja käyttää myös `$50`–`$67` (äänten 4–6
+osoittimet) ja `$68`/`$69` (nykyisen äänen SID-rekisterit).
 
 **Tunnetut rajat:**
 - Soitin ja sen tila sijaitsevat kohdassa `$C000`. Kun sävelmädata ei mahdu
   niiden viereen olevan `$D000` alapuolelle, data siirtyy omaan segmenttiinsä,
   joka päättyy `$A000` alapuolelle (viedyssä asm-tiedostossa on toinen rivi `*
   =`); pidä se erillään omasta ohjelmastasi.
+- Kahdella SID:llä varustettu sävelmä tarvitsee kaksinkertaisen määrän
+  pattern-dataa: sen `.sid`- ja assembly-viennit sisältävät enintään 46
+  patternia, ja loput jätetään pois assembly-lähdekoodissa nuotin kera. Sävelmä
+  pysyy kokonaisena editorissa. **Export to UltimateBasicin** -komennossa
+  kirjoitetaan vain kolme ensimmäistä ääntä nuotin kera.
 - C64 `$D418` globaali äänenvoimakkuus jaetaan eri äänien kesken —
   instrumenttikohtainen äänenvoimakkuuden liukusäädin on informatiivinen;
   sustain-taso (ADSR:n `S`) on efektiivinen äänenvoimakkuus äänittäin.
@@ -6684,10 +6823,11 @@ kautta.
 
 ---
 
-**Vie .sid (PSID)…** (Tiedostot-valikko) tallentaa sävelmän toistettavan
-`$C000`-soittimen mukana tavallisena PSID-tiedostona — se toistetaan
-SID-soittimessa, VICE:n `vsid`-soittimessa ja missä tahansa muussa
-SID-soittimessa.
+**Vie .sid (PSID)…** (Tiedostot-valikko) tallentaa sävelmän toistettavalla
+`$C000`-soittimella tavallisena PSID-tiedostona — se toistetaan SID-soittimessa,
+VICE:n `vsid`-ohjelmassa ja missä tahansa muussa SID-soittimessa. Kahdella
+SID:llä varustettu sävelmä tallennetaan PSID v3 -muodossa toisen SID:n
+osoitteella.
 
 ### SID-soitin
 
@@ -6713,13 +6853,15 @@ SID-soittimessa.
   sovelluksen ollessa käynnissä. WebSID käyttää uutta kokoa
   uudelleenkäynnistyksen jälkeen; VA SID Core renderöi 10 / 15 / 20 / 30
   sekuntia eteenpäin seuraavasta sävelmästä.
-- **Prosessori:** ikkunassa näkyy, mitä prosessoria käytetään (WebSID tai VA SID
+- **Moottori:** ikkunassa näkyy, mitä moottoria toistetaan (WebSID tai VA SID
   Core versioineen ja SID-siruineen); valitse se kohdasta **Asetukset → Yleiset
-  → SID-esikatselu**. VA SID Core suorittaa virityksen natiivilla Rust C64
+  → SID-esikatselu**. VA SID Core suorittaa sävelmän natiivilla Rust C64
   -ytimellä, jossa on syklintarkka 6510-prosessori, tarkka keskeytysajoitus, CIA
   6526A, VIC-II-ajoitus huonoilla linjoilla, sprite DMA ja rasterikeskeytykset
-  sekä 6510 I/O -portti – joten rasteri-IRQ, CIA-ajoitettu ja digitaalinen
-  viritys toistavat oikean koneen ajoituksen.
+  sekä 6510 I/O -portti – joten rasteri-IRQ-, CIA-ajoitetut ja digitaaliset
+  sävelmät toistetaan oikean koneen ajoituksella. VA SID Core toistaa myös 2SID-
+  ja 3SID-sävelmiä (PSID v3 / v4) stereona: SID 1 vasemmalla, SID 2 oikealla,
+  kolmas SID keskellä.
 - **Satunnaistoisto:** Satunnaistoistopainike **Seuraava**-painikkeen vieressä
   toistaa soittolistan satunnaisessa järjestyksessä – mikään kappale ei toistu
   ennen kuin kaikki kappaleet on soitettu, ja **Edellinen** siirtyy taaksepäin
@@ -6759,6 +6901,9 @@ lattia perspektiivissä. Se näyttää kaiken, mitä SID Player tai SID Editor
 toistaa, kummallakin moottorilla. **Bands** asettaa 8, 16, 24 tai 32 kaistaa.
 Ikkunaa voi siirtää ja sen kokoa voi muuttaa, se sulkeutuu ja avautuu uudelleen
 yhdessä SID Playerin kanssa, ja se piirtää vain ollessaan auki.
+
+SID-editorilla on oma äänikohtainen **kanavaspektri**-ikkunansa: katso
+[SID-editori](#sid-editor-3-voice-tracker).
 
 ---
 

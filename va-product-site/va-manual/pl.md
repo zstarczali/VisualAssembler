@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Podręcznik użytkownika
 
-**Wersja 2.7.0**
+**Wersja 2.7.1**
 
 Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągając
 i upuszczając bloki instrukcji, i oglądaj generowany kod assemblera i maszynowy
@@ -10,6 +10,7 @@ w czasie rzeczywistym.
 
 ## Spis treści
 
+- [Najważniejsze cechy wersji 2.7.1](#version-271-highlights)
 - [Najważniejsze cechy wersji 2.7.0](#version-270-highlights)
 - [Najważniejsze cechy wersji 2.6.9](#version-269-highlights)
 - [Najważniejsze cechy wersji 2.6.8](#version-268-highlights)
@@ -246,6 +247,49 @@ w czasie rzeczywistym.
   - [Edytor krzywych](#curve-editor)
   - [Generator tabel](#table-generator)
   - [Konwerter liczb](#number-converter)
+
+---
+
+## Najważniejsze cechy wersji 2.7.1
+
+- **Debugger dla VICE** — **Ustawienia → Ogólne → Debugger** wybiera debugger
+  przycisku Debug: **Visual Assembler** debuguje na maszynie w trybie
+  uruchomieniowym (VICE, emulator Ultimate, wbudowany C64), **RetroDebugger**
+  otwiera program zewnętrzny. W VICE okno działa na Twoim własnym VICE: punkty
+  przerwania, wejście/wyjście/przejście, rejestry, deasemblacja i pamięć, a
+  edytor podąża za procesorem. Zobacz [Wbudowany C64 i
+  debugger](#built-in-c64-and-debugger).
+- **Emulator Ultimate** — dwa nowe tryby pracy: **Emulator Ultimate** i **D64 na
+  emulatorze Ultimate**. Uruchamiają program na
+  [UE2-C64U-Emulator](https://github.com/Jondalar/UE2-C64U-Emulator),
+  niezmodyfikowanym oprogramowaniu układowym C64 Ultimate/Ultimate 64 na
+  komputerze, przez to samo API REST, co rzeczywiste urządzenie. VA uruchamia
+  emulator przy pierwszym uruchomieniu, instaluje oprogramowanie układowe `.ue2`
+  w obrazie flash i zamyka emulator z aplikacją. W tych trybach **Debugowanie**
+  otwiera debugger (punkty przerwania, wejście/wyjście/przejście, rejestry,
+  dezasemblacja, pamięć), a okno **Monitora VICE** łączy się z emulatorem.
+  Skonfiguruj w **Ustawienia → Integracje → Emulator Ultimate (UE2)**. Nowe
+  przykłady: **Ultimate turbo demo (64 sprite'y)** i **Ultimate turbo cube**
+  (Przykłady → IRQ i sprzęt) zmieniają prędkość procesora za pomocą `$D031` co 3
+  sekundy, od 1 do 64 MHz, i działają tylko na Ultimate z włączonymi rejestrami
+  turbo. Zobacz [C64 Ultimate / 1541 Ultimate](#c64-ultimate--1541-ultimate).
+- **Edytor SID: dwa SID-y** — **SID: 1 / 2** na pasku narzędzi trackera daje
+  melodię 6-głosową z możliwością wyboru adresu dla drugiego SID-a
+  (`$D420`–`$D7E0`, `$DE00`–`$DFE0`). Podgląd, zapis `.bin`, eksport `.sid` i
+  zestawu oraz import `.sid` obsługują oba układy. Zobacz [Edytor
+  SID](#sid-editor-3-voice-tracker).
+- **Odtwarzacz SID: utwory 2SID i 3SID** — rdzeń VA SID odtwarza je w stereo:
+  SID 1 po lewej, SID 2 po prawej, trzeci SID na środku. Zobacz [Odtwarzacz
+  SID](#sid-player).
+- **Widmo kanałów** — oddzielny 16-pasmowy analizator dla każdego głosu podczas
+  odtwarzania trackera w edytorze SID.
+- **Edytor SID** — **Pliki → Nowy utwór**, tytuł utworu w nagłówku, jeden
+  przycisk do odłączania i podłączania trackera oraz bardziej uporządkowana
+  lista instrumentów w poziomym trackerze.
+- **Naprawiono** — **D64 na sprzęcie** wysyła typ obrazu z żądaniem montowania,
+  co jest wymagane przez oprogramowanie układowe C64 Ultimate 1.1.0. WebSID nie
+  mógł załadować podglądów edytora ani pełnego utworu w **Odtwórz: Wszystko**;
+  zatrzymanie edytora nie powoduje już zamknięcia odtwarzacza SID.
 
 ---
 
@@ -1359,8 +1403,8 @@ programy pogrupowane tematycznie (Podstawy, Makra i przepływ sterowania,
 Grafika, Sprite'y i dane wejściowe, Pliki i ładowanie, Muzyka, IRQ i sprzęt) w
 dwóch kolumnach.
 
-- **Uruchom** (VICE, D64, C64 Ultimate, Kung Fu Flash 2) — budowanie PRG i
-  uruchamianie go.
+- **Uruchom** (VICE, D64, C64 Ultimate, emulator Ultimate, Kung Fu Flash 2) —
+  budowanie PRG i uruchamianie go.
 - **Debug** — budowanie PRG i uruchamianie RetroDebuggera.
 - **Kompilacja projektu**, **Kompilacja D64** i pakowanie **Exomizera**.
 
@@ -1404,7 +1448,7 @@ zakończeniu lub niepowodzeniu akcji.
 | **Debugowanie (RetroDebugger)**                                                                | Kompiluj i uruchamiaj w RetroDebuggerze z punktami przerwania, symbolami i flagami autostartu (patrz [Sekcja 10](#10-debugger-integration))                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | **Uruchom z Exomizerem**                                                                       | Pole wyboru w **Ustawienia → Ogólne → Program** — po zaznaczeniu wszystkie operacje uruchamiania i kompilacji przeszukują PRG przez `exomizer sfx` przed uruchomieniem lub zapisaniem (`sfx basic` dla PRG rozpoczynającego się od wiersza BASIC, więc RUN działa ponownie po zakończeniu programu; `sfx $<adres ładowania>` w przeciwnym razie). Działa z opcjami Uruchom jako PRG, Uruchom przez D64, Uruchom na sprzęcie, Kompiluj PRG i Kompiluj D64. Najpierw skonfiguruj plik wykonywalny Exomizera w **Ustawienia → Pliki i ścieżki**.                                                                                                                                                                                                                                                                                                                                                                                    |
 | **Automatyczne wpisy autozapisu**                                                              | Pole wyboru w **Ustawienia → Ogólne → Kontrola wersji **. Po włączeniu aplikacja dodaje wpis automatycznego zapisu do historii wersji około 2,5 sekundy po zakończeniu edycji karty (w przypadku karty projektu również do historii projektu). Wyłącz tę opcję, jeśli chcesz mieć dostęp tylko do własnych zatwierdzeń. Zobacz [Kontrola wersji](#version-control).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| **Ustawienia** (dawniej Ustawienia sprzętowe)                                                  | Otwórz okno dialogowe ustawień z trzema zakładkami: **Ogólne** (tryb asemblera, kompilator VMA, stub BASIC SYS, Exomizer, aktualizacje, wyjście ASM, podgląd SID, parametry debugera, kontrola wersji), **Pliki i ścieżki** (VICE, RetroDebugger, ACME, Exomizer, git) i **Integracje** (C64 Ultimate, Kung Fu Flash 2). Zobacz [Sekcję 13](#13-settings).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| **Ustawienia** (dawniej Ustawienia sprzętowe)                                                  | Otwórz okno dialogowe ustawień z trzema zakładkami: **Ogólne** (tryb asemblera, kompilator VMA, stub BASIC SYS, Exomizer, wyjście ASM, podgląd SID, wybór i parametry debugera, kontrola wersji), **Pliki i ścieżki** (VICE, RetroDebugger, serwer aktualizacji, ACME, Exomizer, git) i **Integracje** (C64 Ultimate, emulator Ultimate, Kung Fu Flash 2). Zobacz [Sekcję 13](#13-settings).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | **Nowy program…** (`Menu → Program`)                                                           | Otwiera okno dialogowe potwierdzenia, a następnie czyści wszystkie bloki z obszaru programu                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | **Eksportuj ASM** (`Menu → Program`)                                                           | Kopiuje wygenerowany kod źródłowy zestawu                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | **Zwiń wszystko**                                                                              | Zwiń wszystkie bloki                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
@@ -1578,9 +1622,9 @@ Lista poleceń ma celowo ograniczoną wysokość, aby karta szczegółów polece
 mogła wypełnić pozostałą wysokość panelu. Obszar szczegółów przewija się
 niezależnie, umożliwiając dostęp do dłuższych opisów składni.
 
-**Serwer aktualizacji:** **Ustawienia → Ogólne → Aktualizacje → Serwer
+**Serwer aktualizacji:** **Ustawienia → Pliki i ścieżki → Aktualizacje → Serwer
 aktualizacji** ustawia, gdzie wyszukiwane są wydania (domyślnie
-`https://www.c64va.pro/`); instalatory są odczytywane z `<server>downloads/VA/`.
+`https://www.c64va.pro/`); instalatory są odczytywane z `<serwer>downloads/VA/`.
 Adres musi używać `https://` (zwykły `http://` tylko dla `localhost`, do
 testów); **Domyślnie** wraca do c64va.pro.
 
@@ -1699,9 +1743,10 @@ zobaczyć, które wiersze mają do niej dostęp (kliknij wiersz, aby tam przejś
 ostrzeżenie, gdy zapisujesz do obszaru BASIC lub KERNAL.
 
 Jeśli program zawiera wyeksportowany odtwarzacz SID Editor (etykiety `sid_`),
-strona zerowa odtwarzacza (`$02–$1C`, `$2F`, `$FB–$FD`) jest również oznaczona,
-a każdy adres używany przez Twój własny kod jest raportowany jako **conflict**
-(czerwona ramka, ostrzeżenie w nagłówku).
+strona zerowa odtwarzacza (`$02–$1C`, `$2F`, `$FB–$FD` i `$50–$69`, gdy utwór w
+SID Editor ma dwa SID-y) jest również oznaczona, a każdy adres używany również
+przez Twój własny kod jest raportowany jako **conflict** (czerwona ramka,
+ostrzeżenie w nagłówku).
 
 ### Budynek i diagnostyka
 
@@ -2562,11 +2607,11 @@ budują programy VMA z bloków).
 Co następuje po kompilacji ACME:
 
 - **Kompilacja** (przycisk młotka na pasku narzędzi eksperta, *Kompilacja kodu
-  źródłowego ACME*), **Uruchomienie** (PRG, D64, C64 Ultimate, Kung Fu Flash 2),
-  **Kompilacja PRG**, **Kompilacja D64**, **Kompilacja CRT**, **Kompilacja
-  projektu** i **Debugowanie (RetroDebugger)** za pomocą ACME; błędy i
-  ostrzeżenia ACME otwierają się w normalnym oknie dialogowym kompilacji i
-  błędów, z wierszem kodu źródłowego.
+  źródłowego ACME*), **Uruchomienie** (PRG, D64, C64 Ultimate, emulator
+  Ultimate, Kung Fu Flash 2), **Kompilacja PRG**, **Kompilacja D64**,
+  **Kompilacja CRT**, **Kompilacja projektu** i **Debugowanie (RetroDebugger)**
+  za pomocą ACME; błędy i ostrzeżenia ACME otwierają się w normalnym oknie
+  dialogowym kompilacji i błędów, z wierszem kodu źródłowego.
 - Po przerwie w pisaniu źródło jest odbudowywane, więc mapa pamięci **** (pasek
   pamięci, panel segmentowy, ostrzeżenie o nakładaniu się), panele **Demontaż **
   i **Monitor ** oraz pasek cykli pokazują rzeczywisty wynik ACME; panele
@@ -5919,11 +5964,36 @@ opuszcza. Okno można przesuwać za pomocą nagłówka i zmieniać jego rozmiar 
 prawym dolnym rogu. Jego miejsce, rozmiar, stan otwarcia i ustawienia powracają
 przy następnym uruchomieniu.
 
-**Debugowanie: ** naciśnij **Debugowanie** w trybie **Wbudowany C64**. Przycisk
-Debugowanie również korzysta z tego debugera, gdy RetroDebugger nie jest
-ustawiony. Działa on zarówno z projektami VMA, Kick, ACME, jak i Ultimate Basic.
-Program zatrzymuje się po osiągnięciu pierwszego punktu przerwania lub po
-pierwszej instrukcji, jeśli nie ma punktów przerwania.
+**Debugowanie: ** naciśnij **Debugowanie**, gdy trybem pracy jest **Wbudowany
+C64**. Przycisk Debugowanie również korzysta z tego debugera, gdy RetroDebugger
+nie jest ustawiony. Działa on zarówno z projektami VMA, Kick, ACME, jak i
+Ultimate Basic. Program zatrzymuje się po osiągnięciu pierwszego punktu
+przerwania lub po wykonaniu pierwszej instrukcji, jeśli nie ma punktów
+przerwania. Zamknięcie okna lub ukrycie panelu debugera kończy sesję: punkty
+przerwania znikają, a zatrzymany program działa dalej (w zamkniętym oknie po
+jego ponownym otwarciu). Okna emulatora Ultimate i debugera VICE robią to samo
+po zamknięciu.
+
+**Wybór debugera: ** **Ustawienia → Ogólne → Debuger → Przycisk Debug** to
+**Visual Assembler** lub **RetroDebugger**. Nieustawione, to RetroDebugger, gdy
+jest skonfigurowane, w przeciwnym razie Visual Assembler. **Visual Assembler**
+debuguje na maszynie w trybie uruchamiania: w Twoim własnym VICE (*Uruchom jako
+PRG*, *Uruchom przez D64*), na emulatorze Ultimate lub na wbudowanym C64
+(również w trybach sprzętowych, C64 Ultimate i Kung Fu Flash 2).
+**RetroDebugger** otwiera program zewnętrzny dla trybów VICE i sprzętowego.
+Tryby pracy *Wbudowany C64* i *Emulator Ultimate* zawsze korzystają z własnego
+debugera.
+
+**Debugowanie w VICE: ** z wybranym **Visual Assembler**, **Debugowanie** w
+trybach *Uruchom jako PRG* i *Uruchom przez D64* otwiera to samo okno debugera
+dla Twojej instalacji VICE: VA uruchamia VICE z monitorem binarnym (port
+monitora **VICE**, domyślnie 6502) lub używa już działającego, uzbraja punkty
+przerwania i automatycznie uruchamia program, który zatrzymuje się na pierwszej
+instrukcji, jeśli nie ma punktów przerwania. Punkty przerwania,
+wchodzenie/wychodzenie/przechodzenie, rejestry, deasemblacja i pamięć działają
+tak samo jak we wbudowanym C64, a edytor podąża za procesorem. Zamknięcie okna
+pozwala programowi na dalsze działanie w VICE. Po wybraniu opcji
+**RetroDebugger** tryby VICE otwierają RetroDebugger tak jak poprzednio.
 
 Procesor zatrzymuje **przed** instrukcją w punkcie przerwania, więc rejestry i
 pamięć pokazują stan tuż przed jej uruchomieniem.
@@ -6194,11 +6264,11 @@ podzielić dane.
 
 Otwórz przez **Menu → Ustawienia…** (dawniej *Ustawienia sprzętowe*). Okno
 dialogowe ma trzy zakładki: **Ogólne** (tryb asemblera, kompilator VMA,
-szczątkowy pakiet BASIC SYS, Uruchom z Exomizerem, aktualizacje, wyjście ASM,
-podgląd SID, parametry debugera C64, migawki / kontrola wersji), **Pliki i
-ścieżki** (VICE, RetroDebugger, ACME, Exomizer, git) i **Integracje** (C64
-Ultimate, Kung Fu Flash 2). Poniższe sekcje opisują narzędzia i urządzenia
-zewnętrzne.
+szczątkowy BASIC SYS, Uruchom z Exomizerem, wyjście ASM, podgląd SID, wybór
+debugera i parametry debugera C64, migawki / kontrola wersji), **Pliki i
+ścieżki** (VICE, RetroDebugger, serwer aktualizacji, ACME, Exomizer, git) i
+**Integracje** (C64 Ultimate, emulator Ultimate, Kung Fu Flash 2). Poniższe
+sekcje opisują narzędzia i urządzenia zewnętrzne.
 
 ### Kompilator VMA
 
@@ -6299,8 +6369,47 @@ Edytor znaków 8×8 o pojemności 256 znaków. Otwórz przez Toolkit → Edytor 
    Integracje → C64 Ultimate**.
 3. Wybierz **Uruchom na sprzęcie** z menu podzielonego uruchamiania.
 4. Kliknij **▶ Uruchom** — PRG zostanie skompilowany i wysłany do urządzenia za
-   pomocą protokołu HTTP POST do `/v3/runners/prg`. Urządzenie natychmiast go
-   załaduje i uruchomi na komputerze C64.
+   pomocą protokołu HTTP POST na adres `/v1/runners:run_prg`. Urządzenie
+   natychmiast go załaduje i uruchomi na komputerze C64.
+
+**Bez sprzętu: ** wybierz **Emulator Ultimate** z menu uruchamiania, aby
+uruchomić [UE2-C64U-Emulator](https://github.com/Jondalar/UE2-C64U-Emulator),
+który uruchamia niezmodyfikowane oprogramowanie układowe Ultimate na Twoim
+komputerze. Zainstaluj go osobno, a następnie skonfiguruj trzy rzeczy w
+**Ustawienia → Integracje → Emulator Ultimate (UE2)**: program `ue2emu`,
+oprogramowanie układowe (`.ue2`, `.elf` lub `.app`, brak w zestawie) oraz folder
+ROM (`roms/` w [1541ultimate](https://github.com/GideonZ/1541ultimate)). Z tego
+folderu wymagany jest tylko plik `chars.bin` (2048 bajtów, czcionka menu);
+oprogramowanie układowe Commodore uruchamia się na własnych ROM-ach C64.
+Pierwsze uruchomienie instaluje plik `.ue2` w obrazie flash przechowywanym dla
+oprogramowania układowego w folderze konfiguracyjnym aplikacji, a każde
+uruchomienie uruchamia usługę sieciową oprogramowania układowego, która w
+oprogramowaniu układowym Commodore jest domyślnie wyłączona. Emulator uruchamia
+się podczas pierwszego uruchomienia i pozostaje otwarty podczas kolejnych
+uruchomień; jego interfejs API REST nasłuchuje na porcie `127.0.0.1` **REST**
+(domyślnie 8064). Zamyka się wraz z aplikacją lub poleceniem **Stop emulator**.
+**D64 na emulatorze Ultimate ** w tym samym menu pakuje D64 (wymaga to `c1541`
+VICE), montuje go na dysku A i uruchamia pierwszy program. Gdy wybrany jest
+jeden z tych dwóch trybów uruchamiania, okno **Monitora VICE ** (gorące
+przeładowanie, podgląd na żywo, profiler) łączy się z emulatorem zamiast z VICE.
+**Debugowanie ** w tych trybach uruchamiania otwiera debuger emulatora:
+rejestry, deasemblacja, pamięć i punkty przerwania w osobnym oknie, obraz w
+oknie emulatora. Program zatrzymuje się na pierwszym osiągniętym punkcie
+przerwania lub na pierwszej instrukcji, jeśli ich nie ma; linia edytora podąża
+za procesorem, a klawisze F5, F10, F11 i Shift+F11 działają również z fokusem w
+edytorze. Przerwanie IRQ z timerem może wykonać krok do KERNALU, jak w monitorze
+VICE, gdy przerwania są włączone. VA ustawia również **Turbo Control** na
+rejestry turbo w pamięci flash emulatora, dzięki czemu program może zmienić
+prędkość procesora za pomocą `$D031` (odczytuje `$00`, 1 MHz, po resecie).
+
+Przykład: **Ultimate turbo demo (64 sprite'y)**
+(`samples/ultimate-turbo-demo.asm`) — prędkość zmienia się co 3 sekundy od 1 do
+64 MHz; przy 1 MHz kulki znikają, a liczba klatek na sekundę spada; od 4 MHz
+wszystkie 64 sprite'y wyświetlają się z prędkością 50 kl./s. Działa tylko na
+komputerze Ultimate z włączonymi rejestrami turbo; wszędzie indziej jest to
+zaznaczone. **Ultimate turbo cube** (`samples/ultimate-box-demo.asm`) robi to
+samo z sześcianem przykładu pudełkowego: im szybszy procesor, tym szybciej
+obraca się sześcian (5 klatek na sekundę przy 1 MHz, 50 przy 16 MHz).
 
 > **Wskazówka: ** Nie potrzebujesz kabla USB ani sterownika — interfejs API REST
 > jest wbudowany w oprogramowanie układowe Ultimate. Twój komputer i urządzenie
@@ -6606,6 +6715,16 @@ Core wybiera się również układ (MOS 6581/8580). Nagłówek edytora pokazuje
 używany silnik (np. *· VA SID Core v1.2 (MOS 8580)*). Parametry instrumentu
 ustawia się za pomocą pokręteł.
 
+**Dwa SID-y: ** **SID: 1 / 2** na pasku narzędzi trackera przełącza melodię
+między 3 a 6 głosami. W przypadku dwóch SID-ów, lista obok nich ustawia adres
+drugiego SID-a: `$D420`–`$D7E0` lub `$DE00`–`$DFE0`, w krokach co `$20`. Kolumny
+mają nagłówki **S1 V1** … **S2 V3**. Każdy SID ma swój własny filtr i głośność,
+a głos steruje tylko własnym układem. VA SID Core i mały syntezator odtwarzają
+dwa SID-y w stereo (SID 1 lewy, SID 2 prawy); WebSID pobiera adres drugiego
+SID-a z nagłówka PSID. Podglądy nut są odtwarzane na pierwszym SID-zie. Powrót
+do jednego SID-a usuwa głosy drugiego SID-a i najpierw pyta, czy coś w nich
+jest.
+
 **Sterowanie na instrument:**
 - Pola wyboru przebiegów (TRI / SAW / PUL / NOI) — wiele przebiegów jest
   łączonych logicznie jak w SID — plus **RING** (modulacja pierścieniowa
@@ -6639,8 +6758,8 @@ ustawia się za pomocą pokręteł.
   oraz efekty dźwiękowe (laser, pickup, wybuch).
 
 **Siatka śledzenia: **
-- 3 głosy × do 256 wzorów × 32 wiersze; lista utworów/kolejności mieści do 255
-  kroków.
+- 3 głosy (6 z drugim SID) × do 256 wzorów × 32 wiersze; lista
+  utworów/kolejności mieści do 255 kroków.
 - Na wiersz: nuta + indeks instrumentu, plus opcjonalny efekt (patrz **Kolumna
   efektów** poniżej). Puste wiersze zawierają poprzednią nutę: podobnie jak w
   innych trackerach (GoatTracker, SID-Wizard), nuta utrzymuje swoją bramkę
@@ -6654,8 +6773,8 @@ ustawia się za pomocą pokręteł.
   jak efekt `C` bez nuty (zapisany i wyeksportowany jako `C00`).
 - Zaznacz jedną komórkę normalnie lub przytrzymaj klawisze **Shift** podczas
   klikania lub używania klawiszy strzałek, aby rozszerzyć prostokątne
-  zaznaczenie na wiersze i dowolny z trzech głosów. Kliknięcie prawym
-  przyciskiem myszy w zaznaczonym obszarze zachowuje zakres.
+  zaznaczenie na wiersze i dowolne głosy. Kliknięcie prawym przyciskiem myszy w
+  zaznaczonym obszarze zachowuje zakres.
 - Kopiuj, Wytnij, Wklej i Wyczyść są dostępne na pasku narzędzi ikon i w menu
   kontekstowym opartym na ikonach. `Ctrl/Cmd+C` i `Ctrl/Cmd+V` działają na tym
   samym prostokątnym zaznaczeniu.
@@ -6667,7 +6786,7 @@ ustawia się za pomocą pokręteł.
   z 4, 8 lub 16 kroków od wybranego akordu w kierunku w górę, w dół lub w górę/w
   dół.
 - **Podgląd wiersza** umożliwia odsłuchanie wybranego wiersza we wszystkich
-  trzech głosach bez rozpoczynania odtwarzania wzorca.
+  głosach bez rozpoczynania odtwarzania wzorca.
 - Wklejanie zakresu komórek rozpoczyna się teraz od wybranej komórki początkowej
   zakresu i kończy się na granicach wiersza lub głosu, zamiast przechodzić do
   następnej kolumny lub wiersza.
@@ -6709,6 +6828,13 @@ eksporcie 6502 oraz są zapisywane/ładowane bezstratnie w wersjonowanym formaci
   (POS), wzór (PAT), wiersz (ROW) i czas odtwarzania (TIME) podczas odtwarzania,
   a także pozycję edycji po zatrzymaniu. **Ustawienia → Ogólne → Podgląd SID →
   Kolor wyświetlacza LCD** zmienia kolor na zielony lub czerwony.
+- Przycisk **Widmo kanałów** na pasku narzędzi trackera otwiera okno z
+  16-pasmowym analizatorem dla każdego głosu (6 z dwoma SID-ami). Jest ono
+  obliczane na podstawie odtwarzanych rejestrów SID — częstotliwości, kształtu
+  fali, szerokości impulsu, przybliżonego ADSR, filtra i głośności — a nie z
+  dźwięku, ponieważ wyjściem jest jeden miks. Modulacja pierścieniowa,
+  synchronizacja i rezonans filtra nie są wyświetlane i zmieniają się tylko
+  podczas odtwarzania trackera, a nie w podglądzie nut.
 - Przycisk na pasku narzędzi klawiatury otwiera **VA-VK**, pianino niemodalne
   (2, 3 lub 4 oktawy; pozycja, stan otwarcia, oktawa i *Wstaw do trackera* są
   zapamiętywane) z własnymi przyciskami **Odtwarzaj/Stop**, które pozostają
@@ -6748,6 +6874,7 @@ eksporcie 6502 oraz są zapisywane/ładowane bezstratnie w wersjonowanym formaci
 | Eksport                           | Co to robi                                                                                                                                                                                                                                                                                                                                                                                                        |
 | --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `Zapisz .bin…`                    | Zapisuje natywny format serializowany edytora (instrumenty ze wszystkimi ustawieniami modulacji i nazwami, prędkością, wzorcami i melodią). Starsze zapisy nadal się ładują.                                                                                                                                                                                                                                      |
+| `Nowy utwór`                      | Po zadaniu pytania rozpoczyna odtwarzanie pustej melodii w miejsce obecnej.                                                                                                                                                                                                                                                                                                                                       |
 | `Eksportuj bloki (tylko dane)`    | Dodaje do programu tabelę instrumentów + bloki wzorców w punkcie `* = $C000`.                                                                                                                                                                                                                                                                                                                                     |
 | `Eksport bloków + miniodtwarzacz` | Dodaje pełny odtwarzacz (sid_init / sid_irq / sid_frame / sid_play_row / sid_set_voice) oraz tabele częstotliwości PAL. Po wyeksportowaniu umieść `JSR sid_init` w kodzie głównym w miejscu, w którym ma się zaczynać muzyka; zamiast tego użyj własnego wywołania IRQ `JSR sid_frame` raz na klatkę.                                                                                                             |
 | `Eksportuj asm (schowek)`         | Kopiuje cały kod źródłowy zestawu do schowka.                                                                                                                                                                                                                                                                                                                                                                     |
@@ -6797,21 +6924,30 @@ po nagraniu, a następnie *Konwertowanie…* konwersja.
   restartem po wyzerowaniu ADSR) lub zanikaniem z częstotliwością zwalniania.
   Identyczne instrumenty są współdzielone, do 128.
 - Komunikat zawiera listę przybliżonych wartości, na przykład slajdy, które
-  stają się krokami półtonowymi lub tabele dłuższe niż 32 kroki. Melodie
-  Multi-SID i melodie RSID uruchamiane jako program BASIC nie są obsługiwane.
+  stają się krokami półtonowymi lub tabele dłuższe niż 32 kroki. Utwory RSID
+  uruchamiane jako programy w języku BASIC nie są obsługiwane.
+- **Kilka SID-ów:** melodia 2SID staje się sześcioma głosami i zawiera adres
+  swojego drugiego SID-a. Melodia 3SID importuje swoje pierwsze dwa SID-y, o
+  czym informuje komunikat.
 
 **Użycie ZP odtwarzacza: ** `$02`–`$1C` (wskaźniki wzorców, przesunięcie wzorca,
 temperatura) i `$2F` (bieżąca prędkość), plus `$FB`–`$FD` (licznik taktów,
 indeks wiersza, pozycja na liście zleceń). Stan głosu, modulacji i filtra
 znajduje się w `sid_state` po kodzie odtwarzacza. Bajty ZP powodują konflikt,
 jeśli korzysta z nich kod główny — w razie potrzeby przenieś je w trybie
-eksperckim.
+eksperckim. W przypadku dwóch SID-ów gracz używa również `$50`–`$67` (wskaźników
+głosów 4–6) i `$68`/`$69` (rejestrów SID bieżącego głosu).
 
 **Znane limity:**
 - Odtwarzacz i jego stan znajdują się w `$C000`. Jeśli dane melodii nie mieszczą
   się poniżej `$D000` obok nich, dane przenoszą się do własnego segmentu
   kończącego się poniżej `$A000` (wyeksportowany plik asm ma drugi wiersz `*
   =`); nie należy go umieszczać w programie.
+- Melodia z dwoma identyfikatorami SID wymaga dwukrotnie więcej danych o
+  wzorcach: jej pliki `.sid` i eksporty assembly zawierają maksymalnie 46
+  wzorców, a reszta jest pomijana z nutą w kodzie źródłowym assembly. Melodia
+  pozostaje w całości w edytorze. **Eksport do UltimateBasic** zapisuje tylko
+  pierwsze trzy głosy z nutą.
 - Globalna głośność C64 `$D418` jest współdzielona przez wszystkie głosy — suwak
   głośności dla każdego instrumentu ma charakter informacyjny; poziom
   podtrzymania (`S` ADSR) to efektywna głośność dla każdego głosu.
@@ -6822,9 +6958,10 @@ eksperckim.
 
 ---
 
-**Eksportuj .sid (PSID)…** (menu Pliki) zapisuje utwór w odtwarzalnym
-odtwarzaczu `$C000` jako standardowy plik PSID — można go odtworzyć w
-odtwarzaczu SID, w programie VICE `vsid` i w dowolnym innym odtwarzaczu SID.
+**Eksportuj .sid (PSID)…** (menu Pliki) zapisuje utwór z odtwarzalnym
+odtwarzaczem `$C000` jako standardowy plik PSID — odtwarzany jest on w
+odtwarzaczu SID, w `vsid` programu VICE i w dowolnym innym odtwarzaczu SID.
+Utwór z dwoma SID-ami jest zapisywany jako PSID v3 z adresem drugiego SID-a.
 
 ### Odtwarzacz SID
 
@@ -6849,14 +6986,15 @@ HVSC.
   (2048, 4096, 8192 lub 16384 próbek). Większy bufor eliminuje trzaski, gdy
   aplikacja jest zajęta. WebSID używa nowego rozmiaru po ponownym uruchomieniu;
   rdzeń VA SID renderuje 10 / 15 / 20 / 30 s przed następnym utworem.
-- **Silnik:** okno pokazuje, który silnik odtwarza (WebSID czy VA SID Core wraz
+- **Silnik:** okno pokazuje, który silnik odtwarza (WebSID lub VA SID Core wraz
   z jego wersją i chipem SID); wybierz go w **Ustawienia → Ogólne → Podgląd
-  SID**. VA SID Core uruchamia utwór na natywnym rdzeniu Rust C64 z dokładnym
-  pod względem cyklu procesorem 6510, precyzyjnym taktowaniem przerwań, CIA
-  6526A, taktowaniem VIC-II z błędnymi liniami, przerwaniami DMA i rastrowymi
-  dla sprite'ów oraz portem wejścia/wyjścia 6510 — dzięki czemu utwory rastrowe
-  z przerwaniami IRQ, taktowane przez CIA i cyfrowe odtwarzają się z taktowaniem
-  prawdziwej maszyny.
+  SID**. VA SID Core odtwarza utwór na natywnym rdzeniu Rust C64 z dokładnym pod
+  względem cyklu procesorem 6510, precyzyjnym taktowaniem przerwań, CIA 6526A,
+  taktowaniem VIC-II z błędnymi liniami, przerwaniami DMA i rastrowymi oraz
+  portem wejścia/wyjścia 6510 — dzięki czemu utwory rastrowe IRQ, taktowane
+  przez CIA i cyfrowe odtwarzają się z taktowaniem prawdziwej maszyny. VA SID
+  Core odtwarza również utwory 2SID i 3SID (PSID v3 / v4) w stereo: SID 1 po
+  lewej, SID 2 po prawej, trzeci SID na środku.
 - **Losowo: ** przycisk losowania obok **Następny** odtwarza playlistę w
   kolejności losowej — żaden utwór nie powtarza się, dopóki nie zostaną
   odtworzone wszystkie utwory, a **Poprzedni** cofa się w kolejności losowej.
@@ -6896,6 +7034,9 @@ zanikające i lustrzane odbicie w perspektywie. Pokazuje wszystko, co odtwarza
 SID Player lub SID Editor, niezależnie od silnika. **Bands** ustawia 8, 16, 24
 lub 32 pasma. Okno można przesuwać i zmieniać jego rozmiar, zamyka się i otwiera
 ponownie razem z SID Player, a rysuje tylko wtedy, gdy jest otwarte.
+
+Edytor SID ma własne okno **widma kanałów** dla każdego głosu: zobacz [Edytor
+SID](#sid-editor-3-voice-tracker).
 
 ---
 

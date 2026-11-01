@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Gebruikershandleiding
 
-**Versie 2.7.0**
+**Versie 2.7.1**
 
 Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw
 programma's door instructieblokken te slepen en neer te zetten, en bekijk de
@@ -10,6 +10,7 @@ gegenereerde assembly- en machinecode in realtime.
 
 ## Inhoudsopgave
 
+- [Hoogtepunten van versie 2.7.1](#version-271-highlights)
 - [Hoogtepunten van versie 2.7.0](#version-270-highlights)
 - [Hoogtepunten van versie 2.6.9](#version-269-highlights)
 - [Hoogtepunten van versie 2.6.8](#version-268-highlights)
@@ -241,6 +242,50 @@ gegenereerde assembly- en machinecode in realtime.
   - [Curve-editor](#curve-editor)
   - [Tabelgenerator](#table-generator)
   - [Nummeromzetter](#number-converter)
+
+---
+
+## Hoogtepunten van versie 2.7.1
+
+- **Debugger voor VICE** — **Instellingen → Algemeen → Debugger** kiest de
+  debugger van de knop Debug: **Visual Assembler** debugt op de machine in de
+  uitvoeringsmodus (VICE, Ultimate-emulator, ingebouwde C64), **RetroDebugger**
+  opent het externe programma. In VICE werkt het venster op je eigen VICE:
+  breakpoints, stap in/over/uit, registers, disassembleren en geheugen, waarbij
+  de editor de CPU volgt. Zie [Ingebouwde C64 en
+  debugger](#built-in-c64-and-debugger).
+- **Ultieme emulator** — twee nieuwe uitvoeringsmodi, **Ultieme emulator** en
+  **D64 op de ultieme emulator**, voeren het programma uit op
+  [UE2-C64U-Emulator](https://github.com/Jondalar/UE2-C64U-Emulator), de
+  ongewijzigde C64 Ultimate / Ultimate 64 firmware op uw computer, via dezelfde
+  REST API als het echte apparaat. VA start de emulator bij de eerste keer
+  opstarten, installeert een `.ue2` firmware in een flash-image en sluit de
+  emulator met de app. **Debug** opent in deze modi een debugger (breakpoints,
+  stap in/over/uit, registers, disassembleren, geheugen), en het **VICE
+  Monitor** venster maakt verbinding met de emulator. Stel het in via
+  **Instellingen → Integraties → Ultimate-emulator (UE2)**. Nieuwe voorbeelden:
+  **Ultimate turbo-demo (64 sprites)** en **Ultimate turbo-kubus** (Voorbeelden
+  → IRQ & hardware) wijzigen de CPU-snelheid via `$D031` elke 3 seconden, van 1
+  tot 64 MHz, en werken alleen op een Ultimate met de turbo-registers
+  ingeschakeld. Zie [C64 Ultimate / 1541
+  Ultimate](#c64-ultimate--1541-ultimate).
+- **SID-editor: twee SID's** — **SID: 1 / 2** in de tracker-werkbalk geeft een
+  afstemming van 6 stemmen, met een selecteerbaar adres voor de tweede SID
+  (`$D420`–`$D7E0`, `$DE00`–`$DFE0`). Voorbeeldweergave, `.bin` opslaan, `.sid`
+  en assembly-export, en `.sid` importeren verwerken beide chips. Zie
+  [SID-editor](#sid-editor-3-voice-tracker).
+- **SID-speler: 2SID- en 3SID-melodieën** — VA SID Core speelt ze in stereo af:
+  SID 1 links, SID 2 rechts, een derde SID in het midden. Zie
+  [SID-speler](#sid-player).
+- **Kanaalspectrum** — een aparte 16-bands analyzer voor elke stem tijdens het
+  afspelen van de tracker in de SID Editor.
+- **SID-editor** — **Bestanden → Nieuwe melodie**, de titel van de melodie in de
+  header, één knop om de tracker los te koppelen en weer vast te maken, en een
+  overzichtelijkere instrumentenlijst in de horizontale tracker.
+- **Opgelost** — **D64 op hardware** stuurt het afbeeldingstype mee met het
+  mountverzoek, wat C64 Ultimate firmware 1.1.0 vereist. WebSID kon de previews
+  van de editor en de volledige melodie niet laden in **Afspelen: Alles**; het
+  stoppen van de editor sluit de SID Player niet langer af.
 
 ---
 
@@ -1361,8 +1406,8 @@ voorbeeldprogramma's gegroepeerd per onderwerp (Basisprincipes, Macro's en
 besturingsstroom, Grafische elementen, Sprites en invoer, Bestanden en laden,
 Muziek, IRQ en hardware) in twee kolommen.
 
-- **Uitvoeren** (VICE, D64, C64 Ultimate, Kung Fu Flash 2) — het PRG bouwen en
-  starten.
+- **Uitvoeren** (VICE, D64, C64 Ultimate, Ultimate emulator, Kung Fu Flash 2) —
+  het PRG-bestand bouwen en starten.
 - **Debug** — het bouwen van de PRG en het starten van RetroDebugger.
 - **Project bouwen**, **D64 bouwen** en **Exomizer inpakken**.
 
@@ -1406,7 +1451,7 @@ automatisch wanneer de actie is voltooid of mislukt.
 | **Debug (RetroDebugger)**                                                                             | Compileer en start in RetroDebugger met breakpoints, symbolen en autostart-vlaggen (zie [Sectie 10](#10-debugger-integration))                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | **Uitvoeren met Exomizer**                                                                            | Selectievakje in **Instellingen → Algemeen → Programma** — wanneer ingeschakeld, verwerken alle Run- en Build-bewerkingen de PRG via `exomizer sfx` voordat ze worden gestart of opgeslagen (`sfx basic` voor een PRG die begint met een BASIC-regel, zodat RUN weer werkt nadat het programma is teruggekeerd; `sfx $<laadadres>` anders). Werkt met Run as PRG, Run via D64, Run on Hardware, Build PRG en Build D64. Configureer eerst het Exomizer-uitvoerbare bestand in **Instellingen → Bestanden en paden**.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | **Automatische opslag van items**                                                                     | Selectievakje in **Instellingen → Algemeen → Versiebeheer**. Wanneer dit is ingeschakeld, voegt de app ongeveer 2,5 seconden nadat u stopt met het bewerken van een tabblad een automatisch opgeslagen item toe aan de versiegeschiedenis (voor een tabblad van een project ook aan de projectgeschiedenis). Schakel dit uit als u alleen uw eigen commits wilt bewaren. Zie [Versiebeheer](#version-control).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| **Instellingen** (voorheen Hardware-instellingen)                                                     | Open het instellingendialoogvenster met drie tabbladen: **Algemeen** (assemblermodus, VMA-compiler, BASIC SYS-stub, Exomizer, updates, ASM-uitvoer, SID-voorbeeld, debuggerparameters, versiebeheer), **Bestanden en paden** (VICE, RetroDebugger, ACME, Exomizer, git) en **Integraties** (C64 Ultimate, Kung Fu Flash 2). Zie [Paragraaf 13](#13-settings).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| **Instellingen** (voorheen Hardware-instellingen)                                                     | Open het instellingendialoogvenster met drie tabbladen: **Algemeen** (assemblermodus, VMA-compiler, BASIC SYS-stub, Exomizer, ASM-uitvoer, SID-voorbeeld, debuggerkeuze en -parameters, versiebeheer), **Bestanden en paden** (VICE, RetroDebugger, updateserver, ACME, Exomizer, git) en **Integraties** (C64 Ultimate, Ultimate-emulator, Kung Fu Flash 2). Zie [Paragraaf 13](#13-settings).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | **Nieuw programma…** (`Menu → Programma`)                                                             | Opent een bevestigingsdialoogvenster en verwijdert vervolgens alle blokkeringen uit het programmagebied.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | **Export ASM** (`Menu → Programma`)                                                                   | Kopieert de gegenereerde assembly-broncode                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | **Alles inklappen**                                                                                   | Vouw alle blokken samen                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
@@ -1587,8 +1632,8 @@ De lijst met opdrachten is opzettelijk in hoogte beperkt, zodat de detailkaart
 van de opdracht de resterende paneelhoogte kan vullen. Het detailgebied scrollt
 onafhankelijk voor langere syntaxbeschrijvingen.
 
-**Updateserver:** **Instellingen → Algemeen → Updates → Updateserver** bepaalt
-waar releases worden opgezocht (standaard `https://www.c64va.pro/`); de
+**Updateserver:** **Instellingen → Bestanden en paden → Updates → Updateserver**
+bepaalt waar releases worden opgezocht (standaard `https://www.c64va.pro/`); de
 installatiebestanden worden gelezen van `<server>downloads/VA/`. Het adres moet
 `https://` gebruiken (plain `http://` alleen voor `localhost`, voor
 testdoeleinden); **Standaard** gaat terug naar c64va.pro.
@@ -1714,9 +1759,10 @@ Een kader markeert een **write**, een arcering een **pointer** (`(zp),Y` /
 wanneer u naar het BASIC- of KERNAL-gebied schrijft.
 
 Als het programma de geëxporteerde speler van de SID Editor bevat (`sid_`
-labels), wordt de nulpagina van de speler (`$02–$1C`, `$2F`, `$FB–$FD`) ook
-gemarkeerd, en elk adres dat uw eigen code ook gebruikt, wordt gerapporteerd als
-een **conflict** (rood kader, waarschuwing in de header).
+labels), wordt de nulpagina van de speler (`$02–$1C`, `$2F`, `$FB–$FD` en
+`$50–$69` wanneer de melodie in de SID Editor twee SID's heeft) ook gemarkeerd,
+en elk adres dat uw eigen code ook gebruikt, wordt gerapporteerd als een
+**conflict** (rood kader, waarschuwing in de header).
 
 ### Bouw en diagnose
 
@@ -2585,10 +2631,10 @@ lessen bouwen VMA-programma's op uit blokken).
 Wat volgt na de ACME-build:
 
 - **Build** (de hamerknop in de Expert-werkbalk, *Build ACME-broncode*), **Run**
-  (PRG, D64, C64 Ultimate, Kung Fu Flash 2), **Build PRG**, **Build D64**,
-  **Build CRT**, **Build project** en **Debug (RetroDebugger)** compileren via
-  ACME; ACME-fouten en -waarschuwingen worden geopend in het normale
-  dialoogvenster voor compileerfouten, met de broncoderegel.
+  (PRG, D64, C64 Ultimate, Ultimate-emulator, Kung Fu Flash 2), **Build PRG**,
+  **Build D64**, **Build CRT**, **Build project** en **Debug (RetroDebugger)**
+  compileren via ACME; ACME-fouten en -waarschuwingen worden geopend in het
+  normale dialoogvenster voor compileerfouten, met de broncoderegel.
 - Na een korte pauze wordt de broncode opnieuw opgebouwd, zodat de
   **geheugenkaart** (geheugenstrook, segmentpaneel, overlapwaarschuwing), de
   **Disassembly** en **Monitor** panelen en de cyclusgoot de werkelijke
@@ -6258,11 +6304,36 @@ venster weer gesloten. Het venster kan worden verplaatst via de koptekst en de
 grootte kan worden aangepast in de rechteronderhoek. De positie, grootte,
 geopende status en instellingen worden bij de volgende keer opstarten hersteld.
 
-**Debuggen:** Druk op **Debug** terwijl de uitvoeringsmodus **Built-in C64** is.
+**Debuggen:** druk op **Debug** terwijl de uitvoeringsmodus **Built-in C64** is.
 De Debug-knop gebruikt deze debugger ook wanneer er geen RetroDebugger is
-ingesteld. Het werkt met VMA-, Kick-, ACME- en Ultimate Basic-projecten. Het
+ingesteld. Het werkt met VMA-, Kick-projecten, ACME en Ultimate Basic. Het
 programma stopt bij het eerste breakpoint dat het bereikt, of bij de eerste
-instructie als er geen breakpoints zijn.
+instructie als er geen breakpoints zijn. Het sluiten van het venster of het
+verbergen van het debuggerpaneel beëindigt de sessie: de breakpoints verdwijnen
+en een gestopt programma wordt voortgezet (in een gesloten venster zodra het
+weer wordt geopend). De Ultimate-emulator en VICE-debuggervensters doen
+hetzelfde wanneer ze worden gesloten.
+
+**De debugger kiezen: ** **Instellingen → Algemeen → Debugger → Debug-knop ** is
+**Visual Assembler ** of **RetroDebugger **. Niet ingesteld, is het
+RetroDebugger als er een is geconfigureerd, anders Visual Assembler. **Visual
+Assembler ** debugt op de machine van de uitvoeringsmodus: in je eigen VICE
+(*Uitvoeren als PRG *, *Uitvoeren via D64 *), op de Ultimate-emulator of op de
+ingebouwde C64 (ook voor de echte hardwaremodi, C64 Ultimate en Kung Fu Flash
+2). **RetroDebugger** opent het externe programma voor de VICE- en hardwaremodi.
+De *Built-in C64* en *Ultimate emulator* uitvoeringsmodi gebruiken altijd hun
+eigen debugger.
+
+**Debuggen in VICE:** met **Visual Assembler** geselecteerd, **Debug** in de
+*Uitvoeren als PRG* en *Uitvoeren via D64* modi opent hetzelfde debugvenster
+voor uw eigen VICE-installatie: VA start VICE met zijn binaire monitor (de
+**VICE-monitorpoort**, standaard 6502), of gebruikt de monitor die daar al
+draait, activeert de breakpoints en start het programma automatisch, dat stopt
+bij de eerste instructie als er geen breakpoints zijn. Breakpoints, stap
+in/over/uit, registers, disassembleren en geheugen werken zoals in de ingebouwde
+C64, en de editor volgt de CPU. Door het venster te sluiten, kan het programma
+verder draaien in VICE. Wanneer **RetroDebugger** is geselecteerd, openen de
+VICE-modi RetroDebugger zoals voorheen.
 
 De CPU stopt ** voor ** de instructie bij het breekpunt, dus de registers en het
 geheugen tonen de toestand vlak voordat deze wordt uitgevoerd.
@@ -6541,10 +6612,11 @@ de gegevens.
 
 Openen via **Menu → Instellingen…** (voorheen *Hardware-instellingen*). Het
 dialoogvenster heeft drie tabbladen: **Algemeen** (assemblermodus, VMA-compiler,
-BASIC SYS-stub, Uitvoeren met Exomizer, updates, ASM-uitvoer, SID-voorbeeld, C64
-Debugger-parameters, snapshots / versiebeheer), **Bestanden en paden** (VICE,
-RetroDebugger, ACME, Exomizer, git) en **Integraties** (C64 Ultimate, Kung Fu
-Flash 2). De onderstaande secties beschrijven de externe tools en apparaten.
+BASIC SYS-stub, Uitvoeren met Exomizer, ASM-uitvoer, SID-voorbeeld,
+debuggerkeuze en C64 Debugger-parameters, snapshots / versiebeheer), **Bestanden
+en paden** (VICE, RetroDebugger, updateserver, ACME, Exomizer, git) en
+**Integraties** (C64 Ultimate, Ultimate-emulator, Kung Fu Flash 2). De
+onderstaande secties beschrijven de externe tools en apparaten.
 
 ### VMA-compiler
 
@@ -6646,8 +6718,48 @@ Teksteditor.
    Integraties → C64 Ultimate**.
 3. Selecteer **Uitvoeren op hardware** in het menu voor gesplitste uitvoering.
 4. Klik op **▶ Uitvoeren** — de PRG wordt gecompileerd en via HTTP POST naar het
-   apparaat verzonden naar `/v3/runners/prg`. Het apparaat laadt en voert het
-   direct uit op de C64.
+   apparaat verzonden naar `/v1/runners:run_prg`. Het apparaat laadt en voert
+   het direct uit op de C64.
+
+**Zonder hardware:** selecteer **Ultimate emulator** in het gesplitste
+uitvoeringsmenu om
+[UE2-C64U-Emulator](https://github.com/Jondalar/UE2-C64U-Emulator) uit te
+voeren, die de ongewijzigde Ultimate-firmware op uw computer uitvoert.
+Installeer deze apart en stel vervolgens drie dingen in in **Instellingen →
+Integraties → Ultimate emulator (UE2)**: het `ue2emu`-programma, een firmware
+(`.ue2`, `.elf` of `.app`, niet inbegrepen) en de ROM-map (`roms/` van een
+[1541ultimate](https://github.com/GideonZ/1541ultimate)-checkout). Alleen
+`chars.bin` (2048 bytes, het menu-lettertype) is nodig vanuit die map; de
+Commodore-firmware start op met zijn eigen C64-ROM's. Bij de eerste keer
+opstarten wordt een `.ue2` geïnstalleerd in een flash-image die per firmware in
+de configuratiemap van de app wordt bewaard, en elke keer dat de app wordt
+gestart, wordt de webservice van de firmware ingeschakeld, die standaard is
+uitgeschakeld in de Commodore-firmware. De emulator start bij de eerste keer
+opstarten en blijft open voor de volgende keren; de REST API luistert op
+`127.0.0.1` op de **REST-poort** (standaard 8064). De emulator sluit met de app
+of met **Stop emulator**. **D64 op Ultimate emulator** in hetzelfde menu verpakt
+een D64 (hiervoor is VICE's `c1541` nodig), koppelt deze aan schijf A en voert
+het eerste programma uit. Zolang een van deze twee uitvoeringsmodi is
+geselecteerd, maakt het **VICE Monitor**-venster (hot reload, live watch,
+profiler) verbinding met de emulator in plaats van met VICE. **Debug** opent in
+deze uitvoeringsmodi de debugger van de emulator: registers, disassembler,
+geheugen en breakpoints in een eigen venster, de afbeelding in het venster van
+de emulator. Het programma stopt bij het eerste breakpoint dat het bereikt, of
+bij de eerste instructie als er geen zijn; de editorregel volgt de CPU en F5,
+F10, F11 en Shift+F11 werken ook met de focus in de editor. Een timer-IRQ kan
+een stap in de kernel uitvoeren, zoals in de monitor van VICE, wanneer
+interrupts zijn ingeschakeld. VA stelt ook **Turbo Control** in op de
+turboregisters in het flashgeheugen van de emulator, zodat een programma de
+CPU-snelheid kan wijzigen via `$D031` (het leest `$00`, 1 MHz, na een reset).
+
+Voorbeeld: **Ultimate turbo demo (64 sprites)**
+(`samples/ultimate-turbo-demo.asm`) — de snelheid verandert elke 3 seconden van
+1 tot 64 MHz; bij 1 MHz verdwijnen ballen en daalt de framesnelheid, vanaf 4 MHz
+draaien alle 64 sprites op 50 fps. Het werkt alleen op een Ultimate met de
+turbo-registers ingeschakeld; elders wordt dit aangegeven. **Ultimate turbo
+cube** (`samples/ultimate-box-demo.asm`) doet hetzelfde met de kubus uit het
+doosvoorbeeld: hoe sneller de CPU, hoe sneller de kubus draait (5 frames per
+seconde bij 1 MHz, 50 bij 16 MHz).
 
 > **Tip:** Geen USB-kabel of stuurprogramma nodig — de REST API is ingebouwd in
 > de Ultimate-firmware. Uw computer en het apparaat moeten zich op hetzelfde
@@ -6955,6 +7067,17 @@ app; met VA SID Core kiest u ook de chip (MOS 6581 / 8580). De header van de
 editor toont de gebruikte engine (bijv. *· VA SID Core v1.2 (MOS 8580)*). De
 instrumentparameters worden ingesteld met draaiknoppen.
 
+**Twee SID's:** **SID: 1 / 2** In de tracker-werkbalk schakelt de melodie tussen
+3 en 6 stemmen. Met twee SID's stelt de lijst ernaast het adres van de tweede
+SID in: `$D420`–`$D7E0` of `$DE00`–`$DFE0`, in stappen van `$20`. De kolommen
+hebben de kopteksten **S1 V1** … **S2 V3**. Elke SID heeft zijn eigen filter en
+volume, en een stem bestuurt alleen die van zijn eigen chip. VA SID Core en de
+kleine synthesizer spelen de twee SID's in stereo af (SID 1 links, SID 2
+rechts); WebSID haalt het adres van de tweede SID uit de PSID-header.
+Nootvoorbeelden worden afgespeeld op de eerste SID. Bij het terugschakelen naar
+één SID worden de stemmen van de tweede SID verwijderd en wordt eerst gevraagd
+of ze nog iets bevatten.
+
 ** Bedieningselementen per instrument: **
 - Golfvormselectievakjes (TRI / SAW / PUL / NOI) — meerdere golfvormen worden
   gecombineerd met een AND-bewerking zoals op de SID — plus **RING**
@@ -6989,8 +7112,8 @@ instrumentparameters worden ingesteld met draaiknoppen.
   pickup, explosie).
 
 **Tracker raster:**
-- 3 stemmen × tot 256 patronen × 32 rijen; de lied-/volgordelijst bevat maximaal
-  255 stappen.
+- 3 stemmen (6 met een tweede SID) × tot 256 patronen × 32 rijen; de
+  lied-/volgordelijst bevat maximaal 255 stappen.
 - Per rij: noot + instrumentindex, plus een optioneel effect (zie
   **Effectkolom** hieronder). Lege rijen bevatten de vorige noot: net als in
   andere trackers (GoatTracker, SID-Wizard) houdt een noot zijn gate aan
@@ -7003,8 +7126,8 @@ instrumentparameters worden ingesteld met draaiknoppen.
   geëxporteerd als `C00`).
 - Selecteer een cel op de normale manier, of houd **Shift** ingedrukt terwijl u
   klikt of de pijltjestoetsen gebruikt om een rechthoekige selectie uit te
-  breiden over rijen en elk van de drie stemmen. Door met de rechtermuisknop
-  binnen het geselecteerde gebied te klikken, blijft het bereik intact.
+  breiden over rijen en alle stemmen. Door met de rechtermuisknop binnen het
+  geselecteerde gebied te klikken, blijft het bereik intact.
 - Kopiëren, knippen, plakken en wissen zijn beschikbaar via de iconenwerkbalk en
   het contextmenu met pictogrammen. `Ctrl/Cmd+C` en `Ctrl/Cmd+V` werken op
   dezelfde rechthoekige selectie.
@@ -7016,8 +7139,8 @@ instrumentparameters worden ingesteld met draaiknoppen.
 - Arpeggio-hulpmiddel: bekijk of voeg notenreeksen van 4, 8 of 16 stappen in
   vanaf het geselecteerde akkoord in opwaartse, neerwaartse of op/neerwaartse
   richting in.
-- **Voorbeeldrij** laat de geselecteerde rij horen op alle drie de stemmen
-  zonder het patroon af te spelen.
+- **Voorbeeldrij** laat de geselecteerde rij horen op alle stemmen zonder het
+  patroon af te spelen.
 - Het plakken binnen een celbereik begint nu bij de geselecteerde begincel van
   het bereik en stopt netjes bij de grenzen van stemmen en rijen, in plaats van
   door te lopen naar de volgende kolom of rij.
@@ -7061,6 +7184,13 @@ in het versiebeheerde `.bin`-formaat.
   het patroon (PAT), de rij (ROW) en de afspeeltijd (TIME) tijdens het afspelen,
   en de bewerkingspositie wanneer het afspelen is gestopt. **Instellingen →
   Algemeen → SID-voorbeeld → LCD-kleur** maakt het groen of rood.
+- De knop **Kanaalspectrum** in de tracker-werkbalk opent een venster met een
+  16-bands analyzer per stem (6 met twee SID's). Deze wordt berekend op basis
+  van de afgespeelde SID-registers — frequentie, golfvorm, pulsbreedte,
+  benaderde ADSR, filter en volume — en niet op basis van de audio, omdat de
+  output één mix is. Ringmodulatie, sync en filterresonantie worden niet
+  weergegeven en de analyzer beweegt alleen tijdens het afspelen van de tracker,
+  niet tijdens het bekijken van notenvoorbeelden.
 - De knop in de toetsenbordwerkbalk opent **VA-VK**, een niet-modaal piano (2, 3
   of 4 octaven; positie, open status, octaaf en *Invoegen in tracker* worden
   onthouden) met eigen **Afspelen/Stoppen**-knoppen die bruikbaar blijft terwijl
@@ -7102,6 +7232,7 @@ in het versiebeheerde `.bin`-formaat.
 | Exporteren                             | Wat het doet                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `Sla .bin op…`                         | Schrijft de eigen geserialiseerde indeling van de editor (instrumenten met alle modulatie-instellingen en namen, snelheid, patronen, nummer). Oudere saves kunnen nog steeds worden geladen.                                                                                                                                                                                                                                     |
+| `Nieuwe melodie`                       | Start een lege melodie in plaats van de huidige, na eerst toestemming te hebben gevraagd.                                                                                                                                                                                                                                                                                                                                        |
 | `Blokken exporteren (alleen gegevens)` | Voegt de instrumenttabel + patroonblokken toe aan het programma op `* = $C000`.                                                                                                                                                                                                                                                                                                                                                  |
 | `Blokken exporteren + miniplayer`      | Voegt de volledige speler (sid_init / sid_irq / sid_frame / sid_play_row / sid_set_voice) plus PAL-frequentietabellen toe. Plaats na het exporteren een `JSR sid_init` in uw hoofdcode waar de muziek moet beginnen; gebruik in plaats daarvan uw eigen IRQ-aanroep `JSR sid_frame` eenmaal per frame.                                                                                                                           |
 | `Exporteer asm (klembord)`             | Kopieert de volledige broncode van de assembly naar het klembord.                                                                                                                                                                                                                                                                                                                                                                |
@@ -7150,14 +7281,19 @@ vervanging van het huidige nummer. Een voortgangsbalk volgt de opname, daarna
   (met harde herstart wanneer ADSR op nul staat) of een decay met de release
   rate. Identieke instrumenten worden gedeeld, tot 128.
 - Een bericht geeft aan wat er is benaderd, bijvoorbeeld slides die halve
-  toonstappen worden of tabellen langer dan 32 stappen. Multi-SID-tunes en
-  RSID-tunes die als BASIC-programma starten, worden niet ondersteund.
+  toonstappen worden of tabellen langer dan 32 stappen. RSID-melodieën die als
+  BASIC-programma starten, worden niet ondersteund.
+- **Meerdere SIDs:** een 2SID-melodie wordt zes stemmen en neemt het adres van
+  de tweede SID mee. Een 3SID-melodie importeert de eerste twee SIDs, en een
+  bericht bevestigt dit.
 
 **Gebruik van de speler-ZP: ** `$02`–`$1C` (patroonpointers, patroonoffset,
 temp) en `$2F` (huidige snelheid), plus `$FB`–`$FD` (tickteller, rij-index,
 positie in de orderlijst). De stem-, modulatie- en filterstatus bevindt zich in
 `sid_state` na de spelercode. De ZP-bytes conflicteren als uw hoofdcode ze
-gebruikt — verplaats ze indien nodig via de Expert-modus.
+gebruikt — verplaats ze indien nodig via de Expert-modus. Met twee SID's
+gebruikt de speler ook `$50`–`$67` (de pointers van stemmen 4–6) en `$68`/`$69`
+(de SID-registers van de huidige stem).
 
 **Bekende limieten: **
 - De speler en zijn status bevinden zich op `$C000`. Wanneer de
@@ -7165,6 +7301,11 @@ gebruikt — verplaats ze indien nodig via de Expert-modus.
   verplaatst naar een eigen segment dat eindigt onder `$A000` (de geëxporteerde
   assembler bevat een tweede regel `* =`); zorg ervoor dat deze niet in uw eigen
   programma terechtkomt.
+- Een melodie met twee SIDs heeft twee keer zoveel patroongegevens nodig: de
+  `.sid` en assembly-exports bevatten maximaal 46 patronen, en de rest wordt
+  weggelaten met een noot in de assembly-broncode. De melodie blijft intact in
+  de editor. **Exporteren naar UltimateBasic** schrijft alleen de eerste drie
+  stemmen, met een noot.
 - C64 `$D418` Het globale volume wordt gedeeld over alle stemmen — de
   volumeregelaar per instrument is informatief; het sustainniveau (`S` van ADSR)
   is het effectieve volume per stem.
@@ -7175,9 +7316,10 @@ gebruikt — verplaats ze indien nodig via de Expert-modus.
 
 ---
 
-**Exporteer .sid (PSID)…** (menu Bestanden) slaat de melodie op met de
-afspeelbare `$C000` speler als een standaard PSID-bestand — het wordt afgespeeld
-in de SID Player, in VICE's `vsid` en in elke andere SID-speler.
+**Export .sid (PSID)…** (menu Bestanden) slaat de melodie op met de afspeelbare
+`$C000` speler als een standaard PSID-bestand — het wordt afgespeeld in de SID
+Player, in VICE's `vsid` en in elke andere SID-speler. Een melodie met twee
+SID's wordt opgeslagen als PSID v3 met het adres van de tweede SID.
 
 ### SID-speler
 
@@ -7208,7 +7350,9 @@ HVSC-collectie.
   C64-core met een cycle-exacte 6510, precieze interrupt-timing, CIA 6526A,
   VIC-II-timing met foutlijnen, sprite DMA en raster-interrupts, en de 6510
   I/O-poort — zodat raster-IRQ-, CIA-getimede en digitale tunes worden
-  afgespeeld met de timing van een echte machine.
+  afgespeeld met de timing van een echte machine. VA SID Core speelt ook 2SID-
+  en 3SID-tunes (PSID v3/v4) in stereo af: SID 1 links, SID 2 rechts, een derde
+  SID in het midden.
 - **Shuffle:** De shuffle-knop naast **Volgende** speelt de afspeellijst in
   willekeurige volgorde af — geen enkel nummer wordt herhaald totdat elk nummer
   is afgespeeld, en **Vorige** gaat terug in de willekeurige volgorde. De
@@ -7250,6 +7394,9 @@ gespiegelde vloer in perspectief. Het toont alles wat de SID Player of de SID
 Editor afspeelt, ongeacht de engine. **Bands** stelt 8, 16, 24 of 32 banden in.
 Het venster kan worden verplaatst en van formaat worden veranderd, het sluit en
 heropent samen met de SID Player en het tekent alleen wanneer het open is.
+
+De SID Editor heeft een eigen per-stem **kanaalspectrum** venster: zie [SID
+Editor](#sid-editor-3-voice-tracker).
 
 ---
 

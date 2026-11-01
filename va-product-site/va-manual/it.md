@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Manuale utente
 
-**Versione 2.7.0**
+**Versione 2.7.1**
 
 Un assembler visuale a blocchi per il Commodore 64, basato sul processore 6502.
 Crea programmi trascinando e rilasciando blocchi di istruzioni e visualizza in
@@ -10,6 +10,7 @@ tempo reale il codice assembly e il codice macchina generati.
 
 ## Sommario
 
+- [Punti salienti della versione 2.7.1](#version-271-highlights)
 - [Punti salienti della versione 2.7.0](#version-270-highlights)
 - [Punti salienti della versione 2.6.9](#version-269-highlights)
 - [Punti salienti della versione 2.6.8](#version-268-highlights)
@@ -246,6 +247,49 @@ tempo reale il codice assembly e il codice macchina generati.
   - [Editor di curve](#curve-editor)
   - [Generatore di tabelle](#table-generator)
   - [Convertitore di numeri](#number-converter)
+
+---
+
+## Novità principali della versione 2.7.1
+
+- **Debugger per VICE** — **Impostazioni → Generale → Debugger** sceglie il
+  debugger del pulsante Debug: **Assemblatore visivo** esegue il debug sulla
+  macchina della modalità di esecuzione (VICE, emulatore Ultimate, C64
+  integrato), **RetroDebugger** apre il programma esterno. In VICE la finestra
+  funziona sul tuo VICE: breakpoint, step into / over / out, registri,
+  disassemblaggio e memoria, con l'editor che segue la CPU. Vedi [C64 integrato
+  e debugger](#built-in-c64-and-debugger).
+- **Emulatore Ultimate** — due nuove modalità di esecuzione, **Emulatore
+  Ultimate** e **D64 su emulatore Ultimate**, eseguono il programma su
+  [UE2-C64U-Emulator](https://github.com/Jondalar/UE2-C64U-Emulator), il
+  firmware C64 Ultimate / Ultimate 64 non modificato sul computer, tramite la
+  stessa API REST del dispositivo reale. VA avvia l'emulatore alla prima
+  esecuzione, installa un firmware `.ue2` in un'immagine flash e chiude
+  l'emulatore con l'app. **Debug** in queste modalità apre un debugger (punti di
+  interruzione, passo passo, registri, disassemblaggio, memoria) e la finestra
+  **VICE Monitor** si connette all'emulatore. Configuralo in **Impostazioni →
+  Integrazioni → Emulatore Ultimate (UE2)**. Nuovi esempi: **Demo turbo Ultimate
+  (64 sprite)** e **Cubo turbo Ultimate** (Esempi → IRQ e hardware) cambiano la
+  velocità della CPU tramite `$D031` ogni 3 secondi, da 1 a 64 MHz, e funzionano
+  solo su un Ultimate con i registri turbo attivi. Vedi [C64 Ultimate / 1541
+  Ultimate](#c64-ultimate--1541-ultimate).
+- **Editor SID: due SID** — **SID: 1 / 2** nella barra degli strumenti del
+  tracker fornisce una melodia a 6 voci, con un indirizzo selezionabile per il
+  secondo SID (`$D420`–`$D7E0`, `$DE00`–`$DFE0`). Anteprima, `.bin` salvataggio,
+  `.sid` ed esportazione assembly e `.sid` importazione gestiscono entrambi i
+  chip. Vedi [Editor SID](#sid-editor-3-voice-tracker).
+- **SID Player: melodie 2SID e 3SID** — VA SID Core le riproduce in stereo: SID
+  1 a sinistra, SID 2 a destra, un terzo SID al centro. Vedi [SID
+  Player](#sid-player).
+- **Spettro del canale** — un analizzatore separato a 16 bande per ogni voce
+  durante la riproduzione del tracker nell'editor SID.
+- **Editor SID** — **File → Nuova melodia**, il titolo della melodia
+  nell'intestazione, un pulsante per staccare e attaccare il tracker e un elenco
+  di strumenti più ordinato nel tracker orizzontale.
+- **Risolto** — **D64 sull'hardware** invia il tipo di immagine con la richiesta
+  di montaggio, come richiesto dal firmware 1.1.0 di C64 Ultimate. WebSID non è
+  riuscito a caricare le anteprime dell'editor e la melodia completa in
+  **Riproduci: Tutto**; l'arresto dell'editor non chiude più SID Player.
 
 ---
 
@@ -1400,8 +1444,8 @@ integrati sono raggruppati per argomento (Nozioni di base, Macro e flusso di
 controllo, Grafica, Sprite e input, File e caricamento, Musica, IRQ e hardware)
 in due colonne.
 
-- **Esegui** (VICE, D64, C64 Ultimate, Kung Fu Flash 2) — creazione del PRG e
-  avvio.
+- **Esegui** (VICE, D64, C64 Ultimate, Ultimate emulator, Kung Fu Flash 2) —
+  creazione del PRG e avvio.
 - **Debug** — creazione del PRG e avvio di RetroDebugger.
 - **Compila il progetto**, **Compila D64** e **Impacca l'Exomizer**.
 
@@ -1445,7 +1489,7 @@ errore dell'azione.
 | **Debug (RetroDebugger)**                                                                                                  | Compilare ed eseguire in RetroDebugger con breakpoint, simboli e flag di avvio automatico (vedere [Sezione 10](#10-debugger-integration))                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | **Esegui con Exoizer**                                                                                                     | Casella di controllo in **Impostazioni → Generale → Programma** — quando abilitata, tutte le operazioni di esecuzione e compilazione elaborano il PRG tramite `exomizer sfx` prima di avviarlo o salvarlo (`sfx basic` per un PRG che inizia con una riga BASIC, in modo che ESEGUI funzioni di nuovo dopo che il programma ritorna; `sfx $<indirizzo di caricamento>` altrimenti). Funziona con Esegui come PRG, Esegui tramite D64, Esegui su hardware, Compila PRG e Compila D64. Configura prima l'eseguibile Exomizer in **Impostazioni → File e percorsi**.                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | **Salvataggio automatico delle voci**                                                                                      | Casella di controllo in **Impostazioni → Generale → Controllo versione**. Quando è abilitata, l'app aggiunge una voce di salvataggio automatico alla cronologia delle versioni circa 2,5 secondi dopo aver smesso di modificare una scheda (per una scheda di un progetto anche alla cronologia del progetto). Disattivala se desideri salvare solo i tuoi commit. Vedi [Controllo versione](#version-control).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| **Impostazioni** (precedentemente Impostazioni hardware)                                                                   | Aprire la finestra di dialogo delle impostazioni con tre schede: **Generale** (modalità assembler, compilatore VMA, stub BASIC SYS, Exomizer, aggiornamenti, output ASM, anteprima SID, parametri del debugger, controllo della versione), **File e percorsi** (VICE, RetroDebugger, ACME, Exomizer, git) e **Integrazioni** (C64 Ultimate, Kung Fu Flash 2). Vedere [Sezione 13](#13-settings).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| **Impostazioni** (precedentemente Impostazioni hardware)                                                                   | Aprire la finestra di dialogo delle impostazioni con tre schede: **Generale** (modalità assembler, compilatore VMA, stub BASIC SYS, Exomizer, output ASM, anteprima SID, scelta e parametri del debugger, controllo della versione), **File e percorsi** (VICE, RetroDebugger, server di aggiornamento, ACME, Exomizer, git) e **Integrazioni** (C64 Ultimate, emulatore Ultimate, Kung Fu Flash 2). Vedere [Sezione 13](#13-settings).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | **Nuovo programma…** (`Menu → Programma`)                                                                                  | Apre una finestra di dialogo di conferma, quindi cancella tutti i blocchi dall'area del programma.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | **Esporta ASM** (`Menu → Programma`)                                                                                       | Copia il codice sorgente dell'assemblaggio generato                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | **Comprimi tutto**                                                                                                         | Comprimi tutti i blocchi                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
@@ -1626,8 +1670,8 @@ scheda dei dettagli del comando possa riempire l'altezza rimanente del pannello.
 L'area dei dettagli scorre indipendentemente per consentire descrizioni di
 sintassi più lunghe.
 
-**Server di aggiornamento:** **Impostazioni → Generale → Aggiornamenti → Server
-di aggiornamento** imposta dove vengono cercate le release (predefinito
+**Server di aggiornamento:** **Impostazioni → File e percorsi → Aggiornamenti →
+Server di aggiornamento** imposta dove vengono cercate le release (predefinito
 `https://www.c64va.pro/`); i programmi di installazione vengono letti da
 `<server>downloads/VA/`. L'indirizzo deve utilizzare `https://` (solo `http://`
 per `localhost`, per i test); **Predefinito** torna a c64va.pro.
@@ -1753,10 +1797,11 @@ sono riempite; una cornice contrassegna una **scrittura**, un tratteggio un
 quali righe vi accedono (fai clic su una riga per saltare lì) e un avviso quando
 scrivi nell'area BASIC o KERNAL.
 
-Se il programma contiene il player esportato dall'editor SID (`etichette sid_`),
-anche la pagina zero del player (`$02–$1C`, `$2F`, `$FB–$FD`) viene
-contrassegnata e ogni indirizzo utilizzato anche dal proprio codice viene
-segnalato come un **conflitto** (cornice rossa, avviso nell'intestazione).
+Se il programma contiene il lettore esportato dall'Editor SID (etichette
+`sid_`), anche la pagina zero del lettore (`$02–$1C`, `$2F`, `$FB–$FD` e
+`$50–$69` quando la melodia nell'Editor SID ha due SID) viene contrassegnata e
+ogni indirizzo utilizzato anche dal proprio codice viene segnalato come un
+**conflitto** (cornice rossa, avviso nell'intestazione).
 
 ### Costruzione e diagnostica
 
@@ -2644,11 +2689,11 @@ l'interruttore Blocco/Esperto è bloccato e il pulsante **Tutorial** è nascosto
 Ecco cosa succede dopo la costruzione ACME:
 
 - **Compila** (il pulsante martello nella barra degli strumenti Esperto,
-  *Compila il codice sorgente ACME*), **Esegui** (PRG, D64, C64 Ultimate, Kung
-  Fu Flash 2), **Compila PRG**, **Compila D64**, **Compila CRT**, **Compila il
-  progetto** e **Debug (RetroDebugger)** compilano tramite ACME; gli errori e
-  gli avvisi di ACME si aprono nella normale finestra di dialogo degli errori di
-  compilazione, con la riga del codice sorgente.
+  *Compila il codice sorgente ACME*), **Esegui** (PRG, D64, C64 Ultimate,
+  emulatore Ultimate, Kung Fu Flash 2), **Compila PRG**, **Compila D64**,
+  **Compila CRT**, **Compila il progetto** e **Debug (RetroDebugger)** compilano
+  tramite ACME; gli errori e gli avvisi di ACME si aprono nella normale finestra
+  di dialogo degli errori di compilazione, con la riga del codice sorgente.
 - Dopo una pausa di digitazione, il codice sorgente viene ricostruito, quindi la
   **mappa della memoria** (striscia di memoria, pannello dei segmenti, avviso di
   sovrapposizione), i pannelli **Disassemblaggio** e **Monitor** e il margine
@@ -6217,9 +6262,34 @@ impostazioni vengono ripristinate al successivo avvio.
 
 **Debug:** premere **Debug** mentre la modalità di esecuzione è **C64
 integrato**. Il pulsante Debug utilizza questo debugger anche quando non è
-impostato alcun RetroDebugger. Funziona con progetti VMA, Kick, ACME e Ultimate
-Basic. Il programma si arresta al primo breakpoint raggiunto, oppure alla sua
-prima istruzione se non ci sono breakpoint.
+impostato alcun RetroDebugger. Funziona con VMA, progetti Kick, ACME e Ultimate
+Basic. Il programma si ferma al primo breakpoint raggiunto, o alla sua prima
+istruzione se non ci sono breakpoint. Chiudendo la finestra o nascondendo il
+pannello del debugger si termina la sessione: i breakpoint vengono rimossi e un
+programma interrotto continua l'esecuzione (in una finestra chiusa una volta
+riaperta). Le finestre dell'emulatore Ultimate e del debugger VICE si comportano
+allo stesso modo quando vengono chiuse.
+
+**Scelta del debugger:** **Impostazioni → Generale → Debugger → Pulsante Debug**
+è **Assemblatore visivo** o **RetroDebugger**. Se non impostato, è RetroDebugger
+quando è configurato, altrimenti Assembler visivo. **Assemblatore visivo**
+esegue il debug sulla macchina della modalità di esecuzione: nel tuo VICE
+(*Esegui come PRG*, *Esegui tramite D64*), sull'emulatore Ultimate o sul C64
+integrato (anche per le modalità hardware reali, C64 Ultimate e Kung Fu Flash
+2). **RetroDebugger** apre il programma esterno per le modalità VICE e hardware.
+Le modalità di esecuzione *Built-in C64* e *Ultimate emulator* utilizzano sempre
+il proprio debugger.
+
+**Debug in VICE:** con **Assemblatore visivo** selezionato, **Debug** nelle
+modalità *Esegui come PRG* e *Esegui tramite D64* apre la stessa finestra di
+debug per la tua installazione di VICE: VA avvia VICE con il suo monitor binario
+(la **porta monitor VICE**, predefinita 6502), oppure utilizza quello già in
+esecuzione, attiva i breakpoint e avvia automaticamente il programma, che si
+arresta alla sua prima istruzione se non ci sono breakpoint. Breakpoint, step
+into/over/out, registri, disassemblaggio e memoria funzionano come nel C64
+integrato e l'editor segue la CPU. Chiudendo la finestra, il programma continua
+a essere eseguito in VICE. Con **RetroDebugger** selezionato, le modalità VICE
+aprono RetroDebugger come prima.
 
 La CPU si ferma **prima** dell'istruzione al punto di interruzione, quindi i
 registri e la memoria mostrano lo stato immediatamente prima dell'esecuzione.
@@ -6500,11 +6570,12 @@ layout di memoria o suddividere i dati.
 
 Aprire tramite **Menu → Impostazioni…** (precedentemente *Impostazioni
 hardware*). La finestra di dialogo ha tre schede: **Generale** (modalità
-assembler, compilatore VMA, stub BASIC SYS, Esegui con Exomizer, aggiornamenti,
-output ASM, anteprima SID, parametri C64 Debugger, snapshot/controllo versione),
-**File e percorsi** (VICE, RetroDebugger, ACME, Exomizer, git) e
-**Integrazioni** (C64 Ultimate, Kung Fu Flash 2). Le sezioni seguenti descrivono
-gli strumenti e i dispositivi esterni.
+assembler, compilatore VMA, stub BASIC SYS, Esegui con Exomizer, output ASM,
+anteprima SID, scelta del debugger e parametri del debugger C64,
+snapshot/controllo versione), **File e percorsi** (VICE, RetroDebugger, server
+di aggiornamento, ACME, Exomizer, git) e **Integrazioni** (C64 Ultimate,
+emulatore Ultimate, Kung Fu Flash 2). Le sezioni seguenti descrivono gli
+strumenti e i dispositivi esterni.
 
 ### Compilatore VMA
 
@@ -6608,9 +6679,48 @@ Editor di caratteri 8×8 con supporto per 256 caratteri. Apribile tramite Toolki
 2. Inserisci il suo indirizzo IP (e la password, se impostata) in **Impostazioni
    → Integrazioni → C64 Ultimate**.
 3. Seleziona **Esegui su hardware** dal menu di esecuzione diviso.
-4. Fai clic su **▶ Esegui**: il PRG viene compilato e inviato al dispositivo
-   tramite HTTP POST a `/v3/runners/prg`. Il dispositivo lo carica ed esegue
+4. Fai clic su **▶ Esegui** — il PRG viene compilato e inviato al dispositivo
+   tramite HTTP POST a `/v1/runners:run_prg`. Il dispositivo lo carica ed esegue
    immediatamente sul C64.
+
+**Senza hardware:**seleziona **emulatore Ultimate** dal menu di esecuzione
+divisa per eseguire
+[UE2-C64U-Emulator](https://github.com/Jondalar/UE2-C64U-Emulator), che esegue
+il firmware Ultimate non modificato sul tuo computer. Installalo separatamente,
+quindi imposta tre cose in **Impostazioni → Integrazioni → Emulatore Ultimate
+(UE2)**: il programma `ue2emu`, un firmware (`.ue2`, `.elf` o `.app`, non
+inclusi) e la cartella ROM (`roms/` di un checkout di
+[1541ultimate](https://github.com/GideonZ/1541ultimate)). Solo il file
+`chars.bin` (2048 byte, il font del menu) è richiesto da quella cartella; il
+firmware Commodore si avvia sulle proprie ROM C64. La prima esecuzione installa
+un `.ue2` in un'immagine flash conservata per ogni firmware nella cartella di
+configurazione dell'app, e ogni avvio attiva il servizio web del firmware, che
+il firmware Commodore fornisce disabilitato. L'emulatore si avvia alla prima
+esecuzione e rimane aperto per le successive; la sua API REST è in ascolto su
+`127.0.0.1` alla **porta REST** (predefinita 8064). Si chiude con l'app o con
+**Stop emulator**. **D64 sull'emulatore Ultimate** nello stesso menu impacchetta
+un D64 (questo richiede `c1541` di VICE), lo monta sull'unità A ed esegue il
+primo programma. Mentre è selezionata una di queste due modalità di esecuzione,
+la finestra **VICE Monitor** (hot reload, live watch, profiler) si connette
+all'emulatore invece che a VICE. **Debug** in queste modalità di esecuzione apre
+il debugger dell'emulatore: registri, disassemblaggio, memoria e breakpoint in
+una finestra separata, l'immagine nella finestra dell'emulatore. Il programma si
+arresta al primo breakpoint raggiunto, o alla sua prima istruzione se non ce ne
+sono; la riga dell'editor segue la CPU e F5, F10, F11 e Maiusc+F11 funzionano
+anche con il focus nell'editor. Un IRQ del timer può eseguire un passo nel
+KERNAL, come nel monitor di VICE, quando gli interrupt sono attivi. VA imposta
+anche **Turbo Control** sui registri turbo nella memoria flash dell'emulatore,
+in modo che un programma possa modificare la velocità della CPU tramite `$D031`
+(legge `$00`, 1 MHz, dopo un reset).
+
+Esempio: **Demo turbo definitivo (64 sprite)**
+(`samples/ultimate-turbo-demo.asm`) — la velocità cambia ogni 3 secondi da 1 a
+64 MHz; a 1 MHz le palline scompaiono e il frame rate cala, da 4 MHz tutti i 64
+sprite vengono eseguiti a 50 fps. Funziona solo su un Ultimate con i registri
+turbo attivi; in qualsiasi altro caso è specificato. **Cubo turbo definitivo**
+(`samples/ultimate-box-demo.asm`) fa lo stesso con il cubo dell'esempio della
+scatola: più veloce è la CPU, più velocemente gira il cubo (5 fotogrammi al
+secondo a 1 MHz, 50 da 16 MHz).
 
 > **Suggerimento:** Non sono necessari cavi USB o driver: l'API REST è integrata
 > nel firmware Ultimate. Il computer e il dispositivo devono trovarsi sulla
@@ -6918,6 +7028,16 @@ VA SID Core si sceglie anche il chip (MOS 6581 / 8580). L'intestazione
 dell'editor mostra il motore in uso (ad esempio *· VA SID Core v1.2 (MOS
 8580)*). I parametri dello strumento vengono impostati tramite manopole.
 
+**Due SID:** **SID: 1 / 2** nella barra degli strumenti del tracker commuta la
+melodia tra 3 e 6 voci. Con due SID, l'elenco accanto imposta l'indirizzo del
+secondo SID: `$D420`–`$D7E0` o `$DE00`–`$DFE0`, a passi di `$20`. Le colonne
+sono intestate **S1 V1** … **S2 V3**. Ogni SID ha il proprio filtro e volume e
+una voce controlla solo il proprio chip. VA SID Core e il piccolo sintetizzatore
+riproducono i due SID in stereo (SID 1 a sinistra, SID 2 a destra); WebSID
+ricava l'indirizzo del secondo SID dall'intestazione PSID. Le anteprime delle
+note vengono riprodotte sul primo SID. Il passaggio a un solo SID elimina le
+voci del secondo SID e chiede prima se contengono qualcosa.
+
 **Comandi per strumento:**
 - Caselle di controllo della forma d'onda (TRI / SAW / PUL / NOI) — più forme
   d'onda sono combinate tramite AND come nel SID — più **RING** (modulazione ad
@@ -6952,8 +7072,8 @@ dell'editor mostra il motore in uso (ad esempio *· VA SID Core v1.2 (MOS
   effetti sonori (laser, pickup, esplosione).
 
 ** Griglia di tracciamento:**
-- 3 voci × fino a 256 pattern × 32 righe; l'elenco dei brani/ordini può
-  contenere fino a 255 passi.
+- 3 voci (6 con un secondo SID) × fino a 256 pattern × 32 righe; l'elenco dei
+  brani/ordini può contenere fino a 255 passi.
 - Per riga: nota + indice dello strumento, più un effetto opzionale (vedi
   **Colonna Effetti** qui sotto). Le righe vuote contengono la nota precedente:
   come in altri tracker (GoatTracker, SID-Wizard), una nota mantiene il suo gate
@@ -6966,9 +7086,9 @@ dell'editor mostra il motore in uso (ad esempio *· VA SID Core v1.2 (MOS
   eseguito — lo stesso dell'effetto `C` senza una nota (salvato ed esportato
   come `C00`).
 - Seleziona una cella normalmente oppure tieni premuto **Maiusc** mentre fai
-  clic o usi i tasti freccia per estendere una selezione rettangolare su più
-  righe e su una qualsiasi delle tre voci. Facendo clic con il pulsante destro
-  del mouse all'interno dell'area selezionata, l'intervallo rimane invariato.
+  clic o usi i tasti freccia per estendere una selezione rettangolare su righe e
+  su una qualsiasi delle voci. Facendo clic con il pulsante destro del mouse
+  all'interno dell'area selezionata, l'intervallo rimane invariato.
 - Le funzioni Copia, Taglia, Incolla e Cancella sono disponibili dalla barra
   degli strumenti delle icone e dal menu contestuale basato sulle icone.
   `Ctrl/Cmd+C` e `Ctrl/Cmd+V` operano sulla stessa selezione rettangolare.
@@ -6980,8 +7100,8 @@ dell'editor mostra il motore in uso (ad esempio *· VA SID Core v1.2 (MOS
 - Strumento per arpeggi: visualizza in anteprima o inserisci sequenze di note di
   4, 8 o 16 intervalli a partire dall'accordo selezionato, in direzione
   ascendente, discendente o ascendente/discendente.
-- **Anteprima riga** Ascolta la riga selezionata su tutte e tre le voci senza
-  avviare la riproduzione del pattern.
+- **Anteprima riga** ascolta la riga selezionata su tutte le voci senza avviare
+  la riproduzione del pattern.
 - L'incolla di intervalli di celle ora inizia dalla cella iniziale
   dell'intervallo selezionato e termina in modo pulito ai limiti di riga e di
   voce, invece di andare a capo nella colonna o riga successiva.
@@ -7026,6 +7146,13 @@ dati nel formato versionato `.bin`.
   riproduzione (TIME) durante la riproduzione e la posizione di modifica quando
   è fermato. **Impostazioni → Generale → Anteprima SID → Colore LCD** lo rende
   verde o rosso.
+- Il pulsante **Spettro del canale** nella barra degli strumenti del tracker
+  apre una finestra con un analizzatore a 16 bande per voce (6 con due SID).
+  Viene calcolato dai registri SID in riproduzione — frequenza, forma d'onda,
+  larghezza dell'impulso, ADSR approssimato, filtro e volume — non dall'audio,
+  perché l'uscita è un mix unico. La modulazione ad anello, la sincronizzazione
+  e la risonanza del filtro non vengono visualizzate e si muove solo durante la
+  riproduzione del tracker, non per le anteprime delle note.
 - Il pulsante della barra degli strumenti della tastiera apre **VA-VK**, un
   pianoforte non modale (2, 3 o 4 ottave; posizione, stato di apertura, ottava e
   *Inserisci nel tracker* vengono memorizzati) con i propri pulsanti **Riproduci
@@ -7069,6 +7196,7 @@ dati nel formato versionato `.bin`.
 | Esportare                          | Cosa fa                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `Salva .bin…`                      | Scrive nel formato serializzato nativo dell'editor (strumenti con tutte le impostazioni di modulazione e i nomi, velocità, pattern, brano). I salvataggi precedenti vengono comunque caricati.                                                                                                                                                                                                                                            |
+| `Nuova melodia`                    | Avvia una melodia vuota al posto di quella corrente, dopo aver chiesto conferma.                                                                                                                                                                                                                                                                                                                                                          |
 | `Esportazione blocchi (solo dati)` | Aggiunge la tabella degli strumenti + i blocchi di pattern al programma in `* = $C000`.                                                                                                                                                                                                                                                                                                                                                   |
 | `Esporta blocchi + minigiocatore`  | Aggiunge il player completo (sid_init / sid_irq / sid_frame / sid_play_row / sid_set_voice) più le tabelle di frequenza PAL. Dopo l'esportazione, inserisci un `JSR sid_init` nel tuo codice principale dove dovrebbe iniziare la musica; con la tua chiamata IRQ `JSR sid_frame` una volta per frame.                                                                                                                                    |
 | `Esporta asm (appunti)`            | Copia l'intero codice sorgente dell'assembly negli appunti.                                                                                                                                                                                                                                                                                                                                                                               |
@@ -7119,21 +7247,29 @@ quindi *Conversione…* la conversione.
   sono condivisi, fino a 128.
 - Un messaggio elenca gli elementi approssimati, ad esempio le transizioni che
   diventano intervalli di semitono o le tabelle più lunghe di 32 intervalli. Le
-  melodie Multi-SID e RSID che iniziano come programmi BASIC non sono
-  supportate.
+  melodie RSID che iniziano come programmi BASIC non sono supportate.
+- **Diversi SID:** una melodia 2SID diventa sei voci e porta con sé l'indirizzo
+  del suo secondo SID. Una melodia 3SID importa i suoi primi due SID e un
+  messaggio lo indica.
 
 **Utilizzo ZP del lettore:** `$02`–`$1C` (puntatori pattern, offset pattern,
 temp) e `$2F` (velocità corrente), più `$FB`–`$FD` (contatore tick, indice di
 riga, posizione nella lista degli ordini). Voce, modulazione e stato del filtro
 risiedono in `sid_state` dopo il codice del lettore. I byte ZP sono in conflitto
 se il codice principale li utilizza: riposizionarli tramite la modalità Esperto
-se necessario.
+se necessario. Con due SID il giocatore utilizza anche `$50`–`$67` (i puntatori
+delle voci 4–6) e `$68`/`$69` (i registri SID della voce corrente).
 
 **Limiti noti:**
 - Il lettore e il suo stato si trovano in `$C000`. Quando i dati di melodia non
   rientrano sotto `$D000` accanto a loro, i dati si spostano nel loro segmento
   che termina sotto `$A000` (l'asm esportato ha una seconda riga `* =`); tienila
   lontana dal tuo programma.
+- Una melodia con due SID necessita del doppio dei dati del pattern: le sue
+  esportazioni `.sid` e assembly contengono al massimo 46 pattern, e il resto
+  viene omesso con una nota nel codice sorgente assembly. La melodia rimane
+  intatta nell'editor. **Esporta in UltimateBasic** scrive solo le prime tre
+  voci, con una nota.
 - Il volume globale del C64 `$D418` è condiviso tra le voci: il cursore del
   volume per strumento è informativo; il livello di sustain (`S` di ADSR) è il
   volume effettivo per voce.
@@ -7144,8 +7280,9 @@ se necessario.
 ---
 
 **Esporta .sid (PSID)...** (menu File) salva il brano con il lettore
-riproducibile `$C000` come un file PSID standard: viene riprodotto nel lettore
-SID, in `vsid` di VICE e in qualsiasi altro lettore SID.
+riproducibile `$C000` come file PSID standard: viene riprodotto nel lettore SID,
+in `vsid` di VICE e in qualsiasi altro lettore SID. Un brano con due SID viene
+salvato come PSID v3 con l'indirizzo del suo secondo SID.
 
 ### SID Player
 
@@ -7170,13 +7307,15 @@ collezione HVSC.
   crepitio mentre l'app è occupata. WebSID utilizza la nuova dimensione dopo un
   riavvio; VA SID Core esegue il rendering 10 / 15 / 20 / 30 s in anticipo
   rispetto al brano successivo.
-- **Motore:** la finestra mostra quale motore è in esecuzione (WebSID o VA SID
+- **Motore:** la finestra mostra quale motore è in riproduzione (WebSID o VA SID
   Core con la sua versione e chip SID); selezionalo in **Impostazioni → Generale
   → Anteprima SID**. VA SID Core esegue la melodia su un core Rust C64 nativo
   con un 6510 a ciclo esatto, temporizzazione precisa degli interrupt, CIA
   6526A, temporizzazione VIC-II con linee errate, DMA sprite e interrupt raster
-  e la porta I/O 6510, quindi gli interrupt raster, temporizzati CIA e digitali
-  vengono riprodotti con la temporizzazione di una macchina reale.
+  e la porta I/O 6510, quindi le melodie raster-IRQ, temporizzate CIA e digitali
+  vengono riprodotte con la temporizzazione di una macchina reale. VA SID Core
+  riproduce anche melodie 2SID e 3SID (PSID v3 / v4) in stereo: SID 1 a
+  sinistra, SID 2 a destra, un terzo SID al centro.
 - **Riproduzione casuale:** il pulsante di riproduzione casuale accanto a
   **Avanti** riproduce la playlist in ordine casuale: nessun brano si ripete
   finché non sono stati riprodotti tutti i brani, e **Precedente** torna
@@ -7218,6 +7357,9 @@ qualsiasi cosa riprodotta da SID Player o SID Editor, con entrambi i motori.
 **Bands** imposta 8, 16, 24 o 32 bande. La finestra può essere spostata e
 ridimensionata, si chiude e si riapre insieme a SID Player e disegna solo quando
 è aperta.
+
+L'editor SID ha una propria finestra **spettro del canale** per voce: vedere
+[Editor SID](#sid-editor-3-voice-tracker).
 
 ---
 

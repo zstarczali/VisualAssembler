@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.7.0**
+**Version 2.7.1**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -8,6 +8,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 
 ## Table of Contents
 
+- [Version 2.7.1 Highlights](#version-271-highlights)
 - [Version 2.7.0 Highlights](#version-270-highlights)
 - [Version 2.6.9 Highlights](#version-269-highlights)
 - [Version 2.6.8 Highlights](#version-268-highlights)
@@ -229,6 +230,18 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
   - [Curve Editor](#curve-editor)
   - [Table Generator](#table-generator)
   - [Number Converter](#number-converter)
+
+---
+
+## Version 2.7.1 Highlights
+
+- **Debugger for VICE** — **Settings → General → Debugger** chooses the Debug button's debugger: **Visual Assembler** debugs on the machine of the run mode (VICE, Ultimate emulator, built-in C64), **RetroDebugger** opens the external program. In VICE the window works on your own VICE: breakpoints, step into / over / out, registers, disassembly and memory, with the editor following the CPU. See [Built-in C64 and debugger](#built-in-c64-and-debugger).
+- **Ultimate emulator** — two new run modes, **Ultimate emulator** and **D64 on Ultimate emulator**, run the program on [UE2-C64U-Emulator](https://github.com/Jondalar/UE2-C64U-Emulator), the unmodified C64 Ultimate / Ultimate 64 firmware on your computer, through the same REST API as the real device. VA starts the emulator on the first run, installs a `.ue2` firmware into a flash image and closes the emulator with the app. **Debug** in these modes opens a debugger (breakpoints, step into / over / out, registers, disassembly, memory), and the **VICE Monitor** window connects to the emulator. Set it up in **Settings → Integrations → Ultimate emulator (UE2)**. New examples: **Ultimate turbo demo (64 sprites)** and **Ultimate turbo cube** (Examples → IRQ & hardware) change the CPU speed through `$D031` every 3 seconds, from 1 to 64 MHz, and run only on an Ultimate with the turbo registers on. See [C64 Ultimate / 1541 Ultimate](#c64-ultimate--1541-ultimate).
+- **SID Editor: two SIDs** — **SID: 1 / 2** in the tracker toolbar gives a tune 6 voices, with a selectable address for the second SID (`$D420`–`$D7E0`, `$DE00`–`$DFE0`). Preview, `.bin` save, `.sid` and assembly export, and `.sid` import all handle both chips. See [SID Editor](#sid-editor-3-voice-tracker).
+- **SID Player: 2SID and 3SID tunes** — VA SID Core plays them in stereo: SID 1 left, SID 2 right, a third SID in the centre. See [SID Player](#sid-player).
+- **Channel spectrum** — a separate 16-band analyzer for every voice during tracker playback in the SID Editor.
+- **SID Editor** — **Files → New tune**, the tune's title in the header, one button to detach and attach the tracker, and a tidier instrument list in the horizontal tracker.
+- **Fixed** — **D64 on hardware** sends the image type with the mount request, which C64 Ultimate firmware 1.1.0 requires. WebSID could not load the editor's previews and the full tune in **Play: All**; stopping the editor no longer closes the SID Player.
 
 ---
 
@@ -690,7 +703,7 @@ The ASM panel displays **line numbers** (`001 |`, `002 |`, …) to make troubles
 
 During heavier actions, a centered progress modal appears with a progress bar:
 
-- **Run** (VICE, D64, C64 Ultimate, Kung Fu Flash 2) — building the PRG and starting it.
+- **Run** (VICE, D64, C64 Ultimate, Ultimate emulator, Kung Fu Flash 2) — building the PRG and starting it.
 - **Debug** — building the PRG and launching RetroDebugger.
 - **Build project**, **Build D64** and **Exomizer** packing.
 
@@ -730,7 +743,7 @@ The line under the bar names the step that is running, with the file — for exa
 | **Debug (RetroDebugger)** | Compile and launch in RetroDebugger with breakpoints, symbols, and autostart flags (see [Section 10](#10-debugger-integration)) |
 | **Run with Exomizer** | Checkbox in **Settings → General → Program** — when enabled, all Run and Build operations crunch the PRG through `exomizer sfx` before launching or saving (`sfx basic` for a PRG that starts with a BASIC line, so RUN works again after the program returns; `sfx $<load address>` otherwise). Works with Run as PRG, Run via D64, Run on Hardware, Build PRG, and Build D64. Configure the Exomizer executable in **Settings → Files and paths** first. |
 | **Automatic autosave entries** | Checkbox in **Settings → General → Version control**. When enabled, the app adds an autosave entry to the version history about 2.5 seconds after you stop editing a tab (for a tab of a project also to the project history). Turn it off if you only want your own commits. See [Version control](#version-control). |
-| **Settings** (formerly Hardware Settings) | Open the settings dialog with three tabs: **General** (assembler mode, VMA compiler, BASIC SYS stub, Exomizer, updates, ASM output, SID preview, debugger parameters, version control), **Files and paths** (VICE, RetroDebugger, ACME, Exomizer, git) and **Integrations** (C64 Ultimate, Kung Fu Flash 2). See [Section 13](#13-settings). |
+| **Settings** (formerly Hardware Settings) | Open the settings dialog with three tabs: **General** (assembler mode, VMA compiler, BASIC SYS stub, Exomizer, ASM output, SID preview, debugger choice and parameters, version control), **Files and paths** (VICE, RetroDebugger, update server, ACME, Exomizer, git) and **Integrations** (C64 Ultimate, Ultimate emulator, Kung Fu Flash 2). See [Section 13](#13-settings). |
 | **New program…** (`Menu → Program`) | Opens a confirmation dialog, then clears all blocks from the program area |
 | **Export ASM** (`Menu → Program`) | Copies the generated assembly source |
 | **Collapse All** | Collapse all blocks |
@@ -800,7 +813,7 @@ After the download the app installs the update and restarts:
 
 If there are unsaved tabs, the app asks before closing. The same check runs quietly a few seconds after every start: nothing is shown unless a newer version exists. The result also appears in the Ultimate Basic status bar — **Up to date (vX)**, or a highlighted **Update available: vY** that opens the update dialog.
 
-**Update server:** **Settings → General → Updates → Update server** sets where releases are looked up (default `https://www.c64va.pro/`); the installers are read from `<server>downloads/VA/`. The address must use `https://` (plain `http://` only for `localhost`, for testing); **Default** goes back to c64va.pro.
+**Update server:** **Settings → Files and paths → Updates → Update server** sets where releases are looked up (default `https://www.c64va.pro/`); the installers are read from `<server>downloads/VA/`. The address must use `https://` (plain `http://` only for `localhost`, for testing); **Default** goes back to c64va.pro.
 
 ### Free and open source
 
@@ -840,7 +853,7 @@ The **Full C64 memory** panel can float: the **undock** button in its header mov
 
 When the program touches the zero page, a **Zero page usage** section appears at the top of the memory map: a 16 × 16 grid of `$00–$FF`, coloured by area — CPU port (`$00–$01`), free (`$02`, `$FB–$FE`), BASIC (`$03–$8F`, `$FF`) and KERNAL (`$90–$FA`). Used cells are filled; a frame marks a **write**, a hatch a **pointer** (`(zp),Y` / `(zp,X)`). Click a used cell to see which lines access it (click a line to jump there) and a warning when you write into the BASIC or KERNAL area.
 
-If the program contains the SID Editor's exported player (`sid_` labels), the player's zero page (`$02–$1C`, `$2F`, `$FB–$FD`) is marked too, and every address that your own code also uses is reported as a **conflict** (red frame, warning in the header).
+If the program contains the SID Editor's exported player (`sid_` labels), the player's zero page (`$02–$1C`, `$2F`, `$FB–$FD`, and `$50–$69` when the tune in the SID Editor has two SIDs) is marked too, and every address that your own code also uses is reported as a **conflict** (red frame, warning in the header).
 
 ### Project templates
 
@@ -1280,7 +1293,7 @@ The mode is saved with a `.proj` project, so every project opens with its own as
 
 What follows the ACME build:
 
-- **Build** (the hammer button in the Expert toolbar, *Build ACME source*), **Run** (PRG, D64, C64 Ultimate, Kung Fu Flash 2), **Build PRG**, **Build D64**, **Build CRT**, **Build project** and **Debug (RetroDebugger)** compile through ACME; ACME errors and warnings open in the normal compile-error dialog, with the source line.
+- **Build** (the hammer button in the Expert toolbar, *Build ACME source*), **Run** (PRG, D64, C64 Ultimate, Ultimate emulator, Kung Fu Flash 2), **Build PRG**, **Build D64**, **Build CRT**, **Build project** and **Debug (RetroDebugger)** compile through ACME; ACME errors and warnings open in the normal compile-error dialog, with the source line.
 - After a typing pause the source is rebuilt, so the **memory map** (memory strip, segment panel, overlap warning), the **Disassembly** and **Monitor** panels and the cycle gutter show the real ACME output; the panels use the ACME labels. An overlap is an address that two source lines write (the later one wins in the PRG).
 - **Debug files** (*Generate debug files* in Settings → General) are made from the ACME label dump: `.sym` (KickAssembler style) and `.vs` (VICE labels) next to the PRG; there is no `.dbg` source map in ACME mode. **Debug (RetroDebugger)** gets the same labels, and the Expert breakpoints are placed by the ACME report (a breakpoint on a line without code stops at the next code line).
 - **Cycle counts** and **optimisation hints** come from the ACME report (`-r`) of the last build.
@@ -4130,7 +4143,11 @@ The status bar shows what is attached and the LED of drive 8 with the track of t
 
 The toolbar also has **Reset**, **Pause**, **Warp**, **Sound**, **CRT filter** and **Full screen**. The CRT filter uses the CRT emulation of VICE, smooth scaling and scanlines; the scanlines appear once a C64 line is at least 3 pixels high. Full screen also starts with a double click on the screen, and Esc or another double click leaves it. The window can be moved by its header and resized at its bottom right corner. Its place, size, open state and settings come back on the next start.
 
-**Debugging:** press **Debug** while the run mode is **Built-in C64**. The Debug button also uses this debugger whenever no RetroDebugger is set. It works with VMA, Kick projects, ACME and Ultimate Basic alike. The program stops at the first breakpoint it reaches, or at its first instruction if there are no breakpoints.
+**Debugging:** press **Debug** while the run mode is **Built-in C64**. The Debug button also uses this debugger whenever no RetroDebugger is set. It works with VMA, Kick projects, ACME and Ultimate Basic alike. The program stops at the first breakpoint it reaches, or at its first instruction if there are no breakpoints. Closing the window or hiding the debugger panel ends the session: the breakpoints go, and a stopped program runs on (in a closed window once it is opened again). The Ultimate emulator and VICE debugger windows do the same when closed.
+
+**Choosing the debugger:** **Settings → General → Debugger → Debug button** is **Visual Assembler** or **RetroDebugger**. Unset, it is RetroDebugger when one is configured, else Visual Assembler. **Visual Assembler** debugs on the machine of the run mode: in your own VICE (*Run as PRG*, *Run via D64*), on the Ultimate emulator, or on the built-in C64 (also for the real hardware modes, C64 Ultimate and Kung Fu Flash 2). **RetroDebugger** opens the external program for the VICE and hardware modes. The *Built-in C64* and *Ultimate emulator* run modes always use their own debugger.
+
+**Debugging in VICE:** with **Visual Assembler** chosen, **Debug** in the *Run as PRG* and *Run via D64* modes opens the same debugger window for your own VICE installation: VA starts VICE with its binary monitor (the **VICE monitor port**, default 6502), or uses the one already running there, arms the breakpoints and autostarts the program, which stops at its first instruction if there are no breakpoints. Breakpoints, step into / over / out, registers, disassembly and memory work as in the built-in C64, and the editor follows the CPU. Closing the window lets the program run on in VICE. With **RetroDebugger** chosen, the VICE modes open RetroDebugger as before.
 
 The CPU stops **before** the instruction at the breakpoint, so the registers and memory show the state just before it runs.
 
@@ -4295,7 +4312,7 @@ Because the payload is stored linearly — one flat image from the lowest to the
 
 ## 13. Settings
 
-Open via **Menu → Settings…** (formerly *Hardware Settings*). The dialog has three tabs: **General** (assembler mode, VMA compiler, BASIC SYS stub, Run with Exomizer, updates, ASM output, SID preview, C64 Debugger parameters, snapshots / version control), **Files and paths** (VICE, RetroDebugger, ACME, Exomizer, git) and **Integrations** (C64 Ultimate, Kung Fu Flash 2). The sections below describe the external tools and devices.
+Open via **Menu → Settings…** (formerly *Hardware Settings*). The dialog has three tabs: **General** (assembler mode, VMA compiler, BASIC SYS stub, Run with Exomizer, ASM output, SID preview, debugger choice and C64 Debugger parameters, snapshots / version control), **Files and paths** (VICE, RetroDebugger, update server, ACME, Exomizer, git) and **Integrations** (C64 Ultimate, Ultimate emulator, Kung Fu Flash 2). The sections below describe the external tools and devices.
 
 ### VMA compiler
 
@@ -4369,7 +4386,11 @@ Run assembled PRGs directly on real hardware over the local network using the Ul
 1. Connect the 1541 Ultimate / Ultimate 64 to your local network.
 2. Enter its IP address (and password if set) in **Settings → Integrations → C64 Ultimate**.
 3. Select **Run on hardware** from the split run menu.
-4. Click **▶ Run** — the PRG is compiled and sent to the device via HTTP POST to `/v3/runners/prg`. The device loads and runs it on the C64 immediately.
+4. Click **▶ Run** — the PRG is compiled and sent to the device via HTTP POST to `/v1/runners:run_prg`. The device loads and runs it on the C64 immediately.
+
+**Without hardware:** select **Ultimate emulator** from the split run menu to run on [UE2-C64U-Emulator](https://github.com/Jondalar/UE2-C64U-Emulator), which runs the unmodified Ultimate firmware on your computer. Install it separately, then set three things in **Settings → Integrations → Ultimate emulator (UE2)**: the `ue2emu` program, a firmware (`.ue2`, `.elf` or `.app`, not included) and the ROM folder (`roms/` of a [1541ultimate](https://github.com/GideonZ/1541ultimate) checkout). Only `chars.bin` (2048 bytes, the menu font) is required from that folder; the Commodore firmware boots on its own C64 ROMs. The first run installs a `.ue2` into a flash image kept per firmware in the app's config folder, and every start turns on the firmware's web service, which the Commodore firmware ships disabled. The emulator starts on the first run and stays open for the next ones; its REST API listens on `127.0.0.1` at the **REST port** (default 8064). It closes with the app or with **Stop emulator**. **D64 on Ultimate emulator** in the same menu packages a D64 (this needs VICE's `c1541`), mounts it on drive A and runs the first program. While one of these two run modes is selected, the **VICE Monitor** window (hot reload, live watch, profiler) connects to the emulator instead of VICE. **Debug** in these run modes opens the emulator debugger: registers, disassembly, memory and breakpoints in a window of their own, the picture in the emulator's window. The program stops at the first breakpoint it reaches, or at its first instruction if there are none; the editor line follows the CPU, and F5, F10, F11 and Shift+F11 work with the focus in the editor too. A timer IRQ can take a step into the KERNAL, as in VICE's monitor, when interrupts are on. VA also sets **Turbo Control** to the turbo registers in the emulator's flash, so a program can change the CPU speed through `$D031` (it reads `$00`, 1 MHz, after a reset).
+
+Sample: **Ultimate turbo demo (64 sprites)** (`samples/ultimate-turbo-demo.asm`) — the speed changes every 3 seconds from 1 to 64 MHz; at 1 MHz balls go missing and the frame rate drops, from 4 MHz all 64 sprites run at 50 fps. It runs only on an Ultimate with the turbo registers on; anywhere else it says so. **Ultimate turbo cube** (`samples/ultimate-box-demo.asm`) does the same with the cube of the box sample: the faster the CPU, the faster the cube turns (5 frames a second at 1 MHz, 50 from 16 MHz).
 
 > **Tip:** No USB cable or driver needed — the REST API is built into the Ultimate firmware. Your computer and the device must be on the same local network.
 
@@ -4579,6 +4600,8 @@ Multi-instrument 3-voice tracker. Open it with the SID Editor toolbar button. **
 
 **Preview engine:** **Settings → General → SID preview** selects **WebSID** or **VA SID Core (Rust)**, the app's own SID emulation; with VA SID Core you also choose the chip (MOS 6581 / 8580). The editor's header shows the engine in use (e.g. *· VA SID Core v1.2 (MOS 8580)*). The instrument parameters are set with knobs.
 
+**Two SIDs:** **SID: 1 / 2** in the tracker toolbar switches the tune between 3 and 6 voices. With two SIDs, the list next to it sets the second SID's address: `$D420`–`$D7E0` or `$DE00`–`$DFE0`, in steps of `$20`. The columns are headed **S1 V1** … **S2 V3**. Each SID has its own filter and volume, and a voice controls only its own chip's. VA SID Core and the small synthesizer play the two SIDs in stereo (SID 1 left, SID 2 right); WebSID takes the second SID's address from the PSID header. Note previews play on the first SID. Switching back to one SID deletes the second SID's voices, and asks first if they hold anything.
+
 **Per-instrument controls:**
 - Waveform checkboxes (TRI / SAW / PUL / NOI) — multiple waveforms are ANDed like on the SID — plus **RING** (ring modulation of the triangle by the previous voice: 1 ← 3, 2 ← 1, 3 ← 2) and **SYNC** (hard sync to the previous voice).
 - ADSR (attack / decay / sustain / release) shown as a drag-graph above the four sliders.
@@ -4590,15 +4613,15 @@ Multi-instrument 3-voice tracker. Open it with the SID Editor toolbar button. **
 - **Wave / arpeggio table:** up to 32 steps of waveform (— = keep) and note (offset in semitones, or **abs** = absolute note), one step every **Speed** frames, **Loop** back to a step or stop on the last one. **Presets** (25, in groups; the list keeps the chosen preset until the table is edited by hand): arpeggios (major, minor, 7th chords, sus4, diminished, augmented, power chord, octave, trill), drums (kick, snare, tom, clap, closed / open hi-hat), lead and bass attacks, and sound effects (laser, pickup, explosion).
 
 **Tracker grid:**
-- 3 voices × up to 256 patterns × 32 rows; the song / order list holds up to 255 steps.
+- 3 voices (6 with a second SID) × up to 256 patterns × 32 rows; the song / order list holds up to 255 steps.
 - Per-row: note + instrument index, plus an optional effect (see **Effect column** below). Empty rows hold the previous note: like in other trackers (GoatTracker, SID-Wizard), a note keeps its gate on (sustain level) until the next note on that voice or a **note-off**.
 - **Enter** (or a double-click) edits the selected cell as text (`C-4 01 V24`); **Enter** saves and moves to the next row, **Esc** cancels.
 - **Note-off** (`===`): key **1** (or `` ` `` / `=`), or type `===` / `OFF` into a cell. It releases the gate, so the instrument's release runs — the same as the `C` effect without a note (saved and exported as `C00`).
-- Select one cell normally, or hold **Shift** while clicking or using the arrow keys to extend a rectangular selection across rows and any of the three voices. Right-clicking inside the selected area keeps the range intact.
+- Select one cell normally, or hold **Shift** while clicking or using the arrow keys to extend a rectangular selection across rows and any of the voices. Right-clicking inside the selected area keeps the range intact.
 - Copy, Cut, Paste, and Clear are available from the icon toolbar and the icon-based context menu. `Ctrl/Cmd+C` and `Ctrl/Cmd+V` operate on the same rectangular selection.
 - Harmony helper: choose a root note, chord type, and octave, preview the chord with the current instrument, then insert the voicing directly into the tracker. Available types include Major, Minor, Diminished, Augmented, Sus2, Sus4, Dominant 7, Major 7, Minor 7, 6, Minor 6, 9, b9, #9, Dim7, and 7sus4.
 - Arpeggio helper: preview or insert 4-, 8-, or 16-step note runs from the selected chord in up, down, or up/down directions.
-- **Preview row** auditions the selected row across all three voices without starting pattern playback.
+- **Preview row** auditions the selected row across all voices without starting pattern playback.
 - Cell-range paste now starts at the selected range start cell and stops cleanly at voice and row boundaries instead of wrapping into the next column or row.
 - **Speed** (frames between rows, 1–255) is typed in or stepped with the − / + buttons next to it; the `F` effect changes it during playback.
 
@@ -4623,6 +4646,7 @@ Effects update once per row (matching the exported player's timing), run identic
 **Playback and virtual keyboard:**
 - The Play toolbar button changes to Pause during playback and to Resume while paused; Stop ends playback and resets the state.
 - The **LCD** at the end of the tracker toolbar shows the song position (POS), pattern (PAT), row (ROW) and play time (TIME) during playback, and the edit position when stopped. **Settings → General → SID preview → LCD colour** makes it green or red.
+- The **Channel spectrum** button in the tracker toolbar opens a window with a 16-band analyzer per voice (6 with two SIDs). It is calculated from the SID registers being played — frequency, waveform, pulse width, approximated ADSR, filter and volume — not from the audio, because the output is one mix. Ring modulation, sync and filter resonance do not show, and it moves during tracker playback only, not for note previews.
 - The keyboard toolbar button opens **VA-VK**, a non-modal piano (2, 3 or 4 octaves; position, open state, octave and *Insert into tracker* are remembered) with its own **Play / Stop** buttons that remains usable while the SID editor is active. Drag its header to place it anywhere over the main application.
 - The **Instrument** knob on VA-VK (drag, mouse wheel or arrow keys) selects the instrument, shown with its number and name on the LCD next to it; it follows the instrument list of the editor. The badge next to the VA-VK title shows the SID emulation in use (WebSID, or VA SID Core with the chip model).
 - Enable **Insert into tracker** to write each played note at the current tracker cursor and advance to the next row. Disable it to audition notes without editing.
@@ -4639,6 +4663,7 @@ Effects update once per row (matching the exported player's timing), run identic
 | Export | What it does |
 |---|---|
 | `Save .bin…` | Writes the editor's native serialized format (instruments with all modulation settings and names, speed, patterns, song). Older saves still load. |
+| `New tune` | Starts an empty tune in place of the current one, after asking first. |
 | `Export blocks (data only)` | Appends instrument table + pattern blocks to the program at `* = $C000`. |
 | `Export blocks + miniplayer` | Adds the full player (sid_init / sid_irq / sid_frame / sid_play_row / sid_set_voice) plus PAL frequency tables. After export, place a `JSR sid_init` in your main code where the music should start; with your own IRQ call `JSR sid_frame` once per frame instead. |
 | `Export asm (clipboard)` | Copies the full assembly source to the clipboard. |
@@ -4656,18 +4681,20 @@ Effects update once per row (matching the exported player's timing), run identic
 - **Notes:** a note on is a gate edge (a retrigger within 2 frames counts as one note); a pitch change under a held gate that stays at least 5 frames becomes a new, retriggered (legato) note. The pitch is the most common semitone of the note's main waveform; NTSC tunes are retuned to the PAL note table.
 - **Rows:** rows start exactly on the note ons. The base length is the longest that fits almost all of them; rows of that length or one frame longer (funktempo, swing, tempo changes) are set with `F` effects one row ahead.
 - **Instruments:** AD / SR, the main waveform, pulse width and PWM, the filter (routing, mode, resonance, cutoff sweep) and the waveform and pitch of every frame of the note, up to the next one: the wave / arpeggio table (a prefix plus a repeating loop, up to 32 steps). A fixed-pitch drum attack keeps absolute notes and an arpeggio relative ones, decided over all notes of the same sound; a regular sub-semitone wobble becomes the instrument vibrato. The gate becomes a note cut, a gate timer (with hard restart when ADSR is zeroed) or a decay at the release rate. Identical instruments are shared, up to 128.
-- A message lists what was approximated, for example slides that become semitone steps or tables longer than 32 steps. Multi-SID tunes and RSID tunes that start as a BASIC program are not supported.
+- A message lists what was approximated, for example slides that become semitone steps or tables longer than 32 steps. RSID tunes that start as a BASIC program are not supported.
+- **Several SIDs:** a 2SID tune becomes six voices and brings its second SID's address along. A 3SID tune imports its first two SIDs, and a message says so.
 
-**Player ZP usage:** `$02`–`$1C` (pattern pointers, pattern offset, temp) and `$2F` (current speed), plus `$FB`–`$FD` (tick counter, row index, order-list position). Voice, modulation and filter state lives in `sid_state` after the player code. The ZP bytes conflict if your main code uses them — relocate via Expert mode if needed.
+**Player ZP usage:** `$02`–`$1C` (pattern pointers, pattern offset, temp) and `$2F` (current speed), plus `$FB`–`$FD` (tick counter, row index, order-list position). Voice, modulation and filter state lives in `sid_state` after the player code. The ZP bytes conflict if your main code uses them — relocate via Expert mode if needed. With two SIDs the player also uses `$50`–`$67` (the pointers of voices 4–6) and `$68`/`$69` (the current voice's SID registers).
 
 **Known limits:**
 - The player and its state sit at `$C000`. When the tune data does not fit below `$D000` next to them, the data moves to its own segment ending below `$A000` (the exported asm has a second `* =` line); keep it clear of your own program.
+- A tune with two SIDs needs twice the pattern data: its `.sid` and assembly exports hold at most 46 patterns, and the rest are left out with a note in the assembly source. The tune stays whole in the editor. **Export to UltimateBasic** writes the first three voices only, with a note.
 - C64 `$D418` global volume is shared across voices — the per-instrument volume slider is informational; sustain level (`S` of ADSR) is the effective per-voice volume.
 - While **Play: All** has the real tune loaded (also when paused), note previews fall back to the small synthesizer, which only approximates the SID chip. Previews reach WebSid about 0.1 s ahead of the sound.
 
 ---
 
-**Export .sid (PSID)…** (Files menu) saves the tune with the playable `$C000` player as a standard PSID file — it plays in the SID Player, in VICE's `vsid` and in any other SID player.
+**Export .sid (PSID)…** (Files menu) saves the tune with the playable `$C000` player as a standard PSID file — it plays in the SID Player, in VICE's `vsid` and in any other SID player. A tune with two SIDs is saved as PSID v3 with its second SID's address.
 
 ### SID Player
 
@@ -4678,7 +4705,7 @@ The **SID Player** toolbar button opens a floating window that plays `.sid` musi
 - **Seek:** the position bar and **Back / Forward 10 s** work with the VA SID Core engine. WebSID cannot seek, so these controls are disabled with it.
 - **Volume:** the knob is shared with the SID Editor's master volume.
 - **Buffer:** **Settings → General → SID preview → SID Player buffer** (2048, 4096, 8192 or 16384 samples). A larger buffer stops the crackle while the app is busy. WebSID uses the new size after a restart; VA SID Core renders 10 / 15 / 20 / 30 s ahead from the next tune on.
-- **Engine:** the window shows which engine is playing (WebSID, or VA SID Core with its version and SID chip); choose it in **Settings → General → SID preview**. VA SID Core runs the tune on a native Rust C64 core with a cycle-exact 6510, precise interrupt timing, CIA 6526A, VIC-II timing with bad lines, sprite DMA and raster interrupts, and the 6510 I/O port — so raster-IRQ, CIA-timed and digi tunes play with the timing of a real machine.
+- **Engine:** the window shows which engine is playing (WebSID, or VA SID Core with its version and SID chip); choose it in **Settings → General → SID preview**. VA SID Core runs the tune on a native Rust C64 core with a cycle-exact 6510, precise interrupt timing, CIA 6526A, VIC-II timing with bad lines, sprite DMA and raster interrupts, and the 6510 I/O port — so raster-IRQ, CIA-timed and digi tunes play with the timing of a real machine. VA SID Core also plays 2SID and 3SID tunes (PSID v3 / v4) in stereo: SID 1 left, SID 2 right, a third SID in the centre.
 - **Shuffle:** the shuffle button next to **Next** plays the playlist in random order — no tune repeats until every tune has played, and **Previous** steps back along the random order. The setting is remembered.
 - **Favourites:** the ☆ / ★ in each row marks a tune; it is kept in the saved state and in `.sidpl` playlists.
 
@@ -4695,6 +4722,8 @@ The **HVSC** button in the SID Player toolbar opens a search panel for the [High
 #### Spectrum analyzer
 
 The bar button in the SID Player toolbar opens the **Spectrum** window: LED-style bars from green through yellow to orange, cells that fade out slowly and a mirrored floor in perspective. It shows whatever the SID Player or the SID Editor plays, with either engine. **Bands** sets 8, 16, 24 or 32 bands. The window can be moved and resized, it closes and reopens together with the SID Player, and it draws only while it is open.
+
+The SID Editor has its own per-voice **Channel spectrum** window: see [SID Editor](#sid-editor-3-voice-tracker).
 
 ---
 
