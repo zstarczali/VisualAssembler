@@ -6,15 +6,15 @@ const vm = require("node:vm");
 
 const appJs = fs.readFileSync(path.join(__dirname, "..", "www", "app.js"), "utf8").replace(/\r\n/g, "\n");
 
-function load() {
+function load(voices = 3) {
   const opStart = appJs.indexOf("const opcodeMap = {");
   const opEnd = appJs.indexOf("\n};\n", opStart) + 4;
   const revStart = appJs.indexOf("const _REV_OP = (");
   const revEnd = appJs.indexOf("function _disasmBytes(");
-  const context = {};
+  const context = { _sidVoiceCount: () => voices };
   vm.createContext(context);
   vm.runInContext(appJs.slice(opStart, opEnd) + appJs.slice(revStart, revEnd) +
-    "\nthis.zp = { area: _zpArea, acc: _zpAccesses, analyze: _zpAnalyze, sid: _ZP_SID_PLAYER };", context);
+    "\nthis.zp = { area: _zpArea, acc: _zpAccesses, analyze: _zpAnalyze, sid: _ZP_SID_PLAYER, isSid: _zpIsSidPlayer };", context);
   return context.zp;
 }
 
@@ -51,4 +51,11 @@ test("conflicts only with the SID player present", () => {
   assert.equal(r.map.get(0xFB).write, true);
   assert.equal(r.map.get(0xFB).read, true);
   assert.equal(r.map.get(0xFB).refs.length, 2);
+});
+
+test("the second SID's zero page counts only for a tune with two SIDs", () => {
+  assert.equal(load(3).isSid(0x68), false);
+  assert.equal(load(6).isSid(0x68), true);
+  assert.equal(load(3).isSid(0x02), true);
+  assert.equal(load(6).isSid(0x70), false);
 });

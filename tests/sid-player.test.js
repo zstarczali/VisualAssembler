@@ -30,10 +30,10 @@ const FNS = ["_sidNewInst", "_sidInstNorm", "_sidInstCtrl", "_sidWaveByte", "_si
 function sandbox(state) {
   const ctx = { Math, TextEncoder, TextDecoder, Uint8Array, t: (k) => k };
   vm.createContext(ctx);
-  vm.runInContext(`${constLine("_SID_ROWS")} ${constLine("_SID_PLAYER_CODE_MAX")}
-    var _sidInsts = null, _sidPatterns = null, _sidSong = null, _sidSpeed = 6;
+  vm.runInContext(`${constLine("_SID_ROWS")} ${constLine("_SID_PLAYER_CODE_MAX")} ${constLine("_SID_PLAYER_2SID_EXTRA")}
+    var _sidInsts = null, _sidPatterns = null, _sidSong = null, _sidSpeed = 6, _sidSid2Addr = 0xD420;
     ${FNS.map(fnSource).join("\n")}
-    this.api = { set(s) { _sidInsts = s.insts; _sidPatterns = s.patterns; _sidSong = s.song; _sidSpeed = s.speed; },
+    this.api = { set(s) { _sidInsts = s.insts; _sidPatterns = s.patterns; _sidSong = s.song; _sidSpeed = s.speed; _sidSid2Addr = s.sid2 || 0xD420; },
       ${FNS.join(", ")} };`, ctx);
   ctx.api.set(state);
   return ctx.api;
@@ -166,4 +166,122 @@ test("the player code fits in the reserved size", () => {
   const vm2 = labels.sid_vbase - 0xC000;
   const max = Number(/const _SID_PLAYER_CODE_MAX = (0x[0-9A-Fa-f]+);/.exec(appJs)[1]);
   assert.ok(vm2 <= max, `player code ${vm2} > ${max}`);
+});
+
+// ---- two SIDs: six voices, the second chip at $D420 --------------------------
+
+function twoSidTune() {
+  const tune = richTune();
+  // the second SID plays the same material shifted, so both filters sweep independently
+  tune.patterns = tune.patterns.map((p, k) => {
+    const second = emptyPattern();
+    p.forEach((col, v) => col.forEach((c, r) => {
+      if (r + 3 < 32) second[v][r + 3] = c.note != null ? { ...c, note: c.note + 5, inst: (c.inst + k + 1) % 5 } : { ...c };
+    }));
+    return p.concat(second);
+  });
+  return tune;
+}
+
+function runTwoSidPlayer(api, frames, sid2 = 0xD420) {
+  const { mem, labels } = assemble(api._sidExportAsmPlayable());
+  const c = cpu(mem);
+  c.call(labels.sid_init);
+  const out = [];
+  for (let k = 0; k < frames; k++) {
+    c.call(labels.sid_frame);
+    out.push(Array.from(mem.slice(0xD400, 0xD419)).concat(Array.from(mem.slice(sid2, sid2 + 25))));
+  }
+  return { out, labels, mem };
+}
+
+test("two SIDs: the exported player and the JS engine write identical registers on both chips", () => {
+  const api = sandbox(twoSidTune());
+  const frames = 32 * 4 * 6 + 50;
+  const cpuOut = runTwoSidPlayer(api, frames).out;
+  const engOut = runEngine(api, frames);
+  assert.equal(engOut[0].length, 50);
+  for (let k = 0; k < frames; k++) assert.deepEqual(cpuOut[k], engOut[k], `SID registers differ at frame ${k}`);
+  assert.ok(engOut.some((r) => r[25 + 4] & 1), "the second SID's voice 1 sounds");
+  assert.ok(engOut.some((r) => r[25 + 0x18] & 15), "the second SID's volume is set");
+  const cut = (at) => new Set(engOut.map((r) => (r[at + 0x15] & 7) | (r[at + 0x16] << 3))).size;
+  assert.ok(cut(0) > 20 && cut(25) > 20, "both cutoffs sweep");
+});
+
+test("two SIDs: the second chip plays at any address a PSID header can state", () => {
+  const frames = 32 * 2 * 6 + 20;
+  for (const sid2 of [0xD440, 0xD4E0, 0xD500, 0xD7E0, 0xDE00, 0xDFE0]) {
+    const api = sandbox({ ...twoSidTune(), sid2 });
+    const { out, mem } = runTwoSidPlayer(api, frames, sid2);
+    assert.deepEqual(out, runEngine(api, frames), `$${sid2.toString(16)}`);
+    assert.ok(out.some((r) => r[25 + 0x18] & 15), `$${sid2.toString(16)} gets the second SID's volume`);
+    assert.equal(mem[0xD438], 0, `$${sid2.toString(16)}: nothing is left at the default address`);
+    assert.match(api._sidExportAsmPlayable(), new RegExp("second SID at \\$" + sid2.toString(16).toUpperCase()));
+  }
+});
+
+test("two SIDs: filter, volume and routing belong to the chip of the voice", () => {
+  const p = emptyPattern().concat(emptyPattern());
+  p[1][0] = { note: 48, inst: 0, fx: null, fxval: 0 };
+  p[5][0] = { note: 50, inst: 1, fx: null, fxval: 0 };
+  const insts = [
+    { pul: true, filt: true, lp: true, cut: 300, cutEnd: 300, res: 3, vol: 9 },
+    { saw: true, pul: false, filt: true, hp: true, cut: 1200, cutEnd: 1200, res: 7, vol: 12 },
+  ];
+  const api = sandbox({ insts, patterns: [p], song: [0], speed: 6 });
+  const r = runEngine(api, 8)[7];
+  assert.deepEqual(runTwoSidPlayer(api, 8).out[7], r);
+  const chip = (at) => ({ route: r[at + 0x17] & 7, res: r[at + 0x17] >> 4, mode: r[at + 0x18] & 0x70, vol: r[at + 0x18] & 15 });
+  assert.deepEqual(chip(0), { route: 2, res: 3, mode: 0x10, vol: 9 });
+  assert.deepEqual(chip(25), { route: 4, res: 7, mode: 0x40, vol: 12 });
+  assert.ok((r[11] & 0x40) && (r[25 + 18] & 0x20), "voice 2 pulse on SID 1, voice 6 saw on SID 2");
+});
+
+test("two SIDs: every voice triggers, each on its own register base", () => {
+  const api = sandbox(twoSidTune());
+  const e = api._sidEngineNew(api._sidTuneData());
+  assert.equal(e.trig.length, 6);
+  assert.deepEqual(Array.from(e.base), [0, 7, 14, 25, 32, 39]);
+  const seen = new Set();
+  for (let k = 0; k < 200; k++) { api._sidEngFrame(e); e.trig.forEach((on, v) => { if (on) seen.add(v); }); }
+  [0, 1, 2, 3, 4, 5].forEach((v) => assert.ok(seen.has(v), `voice ${v} triggered`));
+});
+
+test("two SIDs: the player code fits the reserved size and sid_init clears all the state", () => {
+  const api = sandbox(twoSidTune());
+  const { labels, mem } = runTwoSidPlayer(api, 1);
+  const max = Number(/const _SID_PLAYER_CODE_MAX = (0x[0-9A-Fa-f]+);/.exec(appJs)[1]) +
+    Number(/const _SID_PLAYER_2SID_EXTRA = (0x[0-9A-Fa-f]+);/.exec(appJs)[1]);
+  // the code ends where the data starts, or at the state when the data moved below $A000
+  const end = labels.sid_vbase >= 0xC000 ? labels.sid_vbase : labels.sid_state;
+  assert.ok(end - 0xC000 <= max, `player code ${end - 0xC000} > ${max}`);
+  const size = labels.sid_m1 + 1 - labels.sid_state;
+  assert.ok(size > 128, "more state than a BPL loop can clear");
+  mem.fill(0x55, labels.sid_state, labels.sid_m1 + 1);
+  cpu(mem).call(labels.sid_init);
+  const expected = new Array(size).fill(0);
+  expected[labels.sid_fown - labels.sid_state] = 0xFF;
+  expected[labels.sid_fown2 - labels.sid_state] = 0xFF;
+  assert.deepEqual(Array.from(mem.slice(labels.sid_state, labels.sid_m1 + 1)), expected);
+});
+
+test("two SIDs: a long tune stays out of I/O and ROM and keeps playing like the engine", () => {
+  const p = (k) => [0, 1, 2, 3, 4, 5].map((v) => Array.from({ length: 32 }, (_, r) =>
+    ({ note: r % 4 ? null : 24 + ((k + v + r) % 40), inst: v & 1, fx: null, fxval: 0 })));
+  const patterns = Array.from({ length: 60 }, (_, k) => p(k));
+  const api = sandbox({ insts: [{ pul: true }, { saw: true, pul: false }], patterns: patterns.slice(0, 46), song: patterns.slice(0, 46).map((_, k) => k), speed: 2 });
+  const frames = 32 * 2 * 47;
+  const { out, labels } = runTwoSidPlayer(api, frames);
+  const addrs = Object.entries(labels).filter(([k]) => k.startsWith("sid_")).map(([, a]) => a);
+  assert.ok(addrs.every((a) => a < 0xA000 || (a >= 0xC000 && a < 0xD000)), "no label in BASIC ROM, I/O or KERNAL");
+  assert.ok(labels.sid_v0_notes >= 0x0900, "the data does not run into the start stub");
+  assert.deepEqual(out, runEngine(api, frames));
+
+  const over = sandbox({ insts: [{ pul: true }], patterns, song: [0], speed: 2 });
+  assert.match(over._sidExportAsmPlayable(), /only the first 46 patterns are exported \(60 present\)/);
+});
+
+test("a one-SID tune exports without any second-SID code", () => {
+  const asm = sandbox(richTune())._sidExportAsmPlayable();
+  assert.doesNotMatch(asm, /\$D42|\$D43|sid_filter2|sid_v3_|\(\$50\)/);
 });

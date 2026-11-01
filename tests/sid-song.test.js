@@ -112,7 +112,7 @@ test("Song list: moving past either end is a no-op", () => {
 
 function loadSerdeSandbox() {
   return loadFunctions(
-    ["_sidInstFields", "_sidInstNorm", "_sidInstCtrl", "_sidInstExtBytes", "_sidReadInstExt", "_sidWaStop", "_sidStreamSilence", "_sidStreamPreload", "_sidInstBytes", "_sidWaveByte", "_sidNewInst", "_sidNewPattern", "_sidSerialize", "_sidDeserialize", "_sidSyncPlayModeSel", "_sidBuildInstSel", "_sidLoadInstUI", "_sidBuildPatSel", "_sidBuildSongList", "_sidBuildTracker", "_sidStop", "_sidUpdatePauseButton", "_sidCurInst"],
+    ["_sidInstFields", "_sidInstNorm", "_sidInstCtrl", "_sidInstExtBytes", "_sidReadInstExt", "_sidWaStop", "_sidStreamSilence", "_sidStreamPreload", "_sidInstBytes", "_sidWaveByte", "_sidNewInst", "_sidVoiceCount", "_sidNewPattern", "_sidSerialize", "_sidDeserialize", "_sidSyncPlayModeSel", "_sidBuildInstSel", "_sidLoadInstUI", "_sidBuildPatSel", "_sidBuildSongList", "_sidBuildTracker", "_sidStop", "_sidUpdatePauseButton", "_sidCurInst"],
     {
       Uint8Array, Math, String, Array, TextEncoder, TextDecoder, _sidSpeed: 6, _sidWaPlay: null, _sidStream: null, _webSidLoadSeq: 0, setTimeout: () => 0, _sidPreviewSources: new Set(), _sidRenderTable: () => {},
       // _sidLoadInstUI assigns document.getElementById("sid-inst-name").value
@@ -132,6 +132,9 @@ function loadSerdeSandbox() {
       // directly (bare global reads, e.g. "if (_sidTimer)") — these must
       // exist as real properties on the sandbox or referencing them throws
       // ReferenceError, even where the app only reads them defensively.
+      _sidSid2Addr: 0xD420,
+      _sidAna: {},
+      _sidPatterns: null,
       _sidSong: undefined,
       _sidSongPos: 0,
       _sidSongPlayPos: 0,
