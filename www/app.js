@@ -2664,9 +2664,9 @@ function setupDraggableEditorDialogs() {
       dialog.style.top = rect.top + "px";
       // Measured once: reading the size on every move forced a layout after each
       // position write. The move itself is a GPU transform (no layout, no repaint
-      // of the big dialog), committed to left / top on release — except when the
-      // dialog holds fixed floating panels (SID Editor tracker / VA-VK / roll):
-      // a transform would carry them along and they would jump back.
+      // of the big dialog), committed to left / top on release. A transform on the
+      // dialog would carry its fixed floating panels (tracker / VA-VK / roll) along,
+      // so with those open only the card moves: they are its siblings.
       const floats = dialog.querySelector(".sid-trk-float:not([hidden]), .sid-vkbd-dialog:not([hidden])");
       _editorDialogDrag = {
         dialog,
@@ -2675,9 +2675,9 @@ function setupDraggableEditorDialogs() {
         x0: rect.left, y0: rect.top, x: rect.left, y: rect.top,
         maxX: Math.max(8, window.innerWidth - rect.width - 8),
         maxY: Math.max(8, window.innerHeight - rect.height - 8),
-        useTransform: !floats, raf: 0
+        moving: floats ? dialog.firstElementChild : dialog, raf: 0
       };
-      if (!floats) dialog.style.willChange = "transform";
+      _editorDialogDrag.moving.style.willChange = "transform";
       try { header.setPointerCapture(e.pointerId); } catch(_) {}
       e.preventDefault();
     });
@@ -2689,8 +2689,7 @@ function setupDraggableEditorDialogs() {
       if (d.raf) return;
       d.raf = requestAnimationFrame(function() {
         d.raf = 0;
-        if (d.useTransform) dialog.style.transform = "translate3d(" + (d.x - d.x0) + "px, " + (d.y - d.y0) + "px, 0)";
-        else { dialog.style.left = d.x + "px"; dialog.style.top = d.y + "px"; }
+        d.moving.style.transform = "translate3d(" + (d.x - d.x0) + "px, " + (d.y - d.y0) + "px, 0)";
       });
     });
     const endDrag = function(e) {
@@ -2701,7 +2700,8 @@ function setupDraggableEditorDialogs() {
       dialog.style.left = d.x + "px";
       dialog.style.top = d.y + "px";
       dialog.style.transform = "none";
-      dialog.style.willChange = "";
+      d.moving.style.willChange = "";
+      if (d.moving !== dialog) d.moving.style.transform = "";
       if (e && e.pointerId != null) { try { header.releasePointerCapture(e.pointerId); } catch(_) {} }
       persistPosition();
     };
@@ -59840,10 +59840,33 @@ function _dlgRaise(dlg) {
   _dlgMarkActive(dlg);
 }
 
-// Az aktív (legutóbb használt) nem modális ablak kiemelt keretet és fejlécet kap (.dlg-active).
+// Az aktív (legutóbb használt) ablak kiemelt keretet és fejlécet kap (.dlg-active): nem modális ablak,
+// a modális SID Editor vagy annak lebegő panelje. A panel külön ablak, nem a dialógusa része.
+const _DLG_PANELS = ".sid-trk-float:not([hidden]), .sid-vkbd-dialog:not([hidden])";
 function _dlgMarkActive(active) {
-  document.querySelectorAll("dialog.dlg-active").forEach((d) => { if (d !== active) d.classList.remove("dlg-active"); });
+  document.querySelectorAll(".dlg-active").forEach((d) => { if (d !== active) d.classList.remove("dlg-active"); });
   active?.classList.add("dlg-active");
+}
+
+// A panelek sorrendje a szerkesztőn belül; a szerkesztő saját menüi (z-index 40) alatt marad.
+let _dlgPanelStack = [];
+function _dlgRaisePanel(panel) {
+  _dlgPanelStack = _dlgPanelStack.filter((p) => p !== panel && !p.hidden);
+  _dlgPanelStack.push(panel);
+  _dlgPanelStack.forEach((p, i) => { p.style.zIndex = String(30 + i); });
+  _dlgMarkActive(panel);
+}
+
+// Az aktív ablak eltűnése után a legfelső lesz az aktív; a modális SID Editor mindennél feljebb van.
+function _dlgMarkTop() {
+  const editor = document.getElementById("sid-editor-dialog");
+  if (editor?.open) {
+    const panels = _dlgPanelStack.filter((p) => !p.hidden);
+    _dlgMarkActive(panels[panels.length - 1] || editor);
+    return;
+  }
+  _dlgStack = _dlgStack.filter((d) => d.open && !_dlgIsModal(d));
+  _dlgMarkActive(_dlgStack[_dlgStack.length - 1] || null);
 }
 
 function setupDialogStacking() {
@@ -59852,19 +59875,37 @@ function setupDialogStacking() {
     if (dlg && !_dlgIsModal(dlg)) _dlgRaise(dlg);
     // a főablakba kattintva egyik lebegő ablak sem aktív
     else if (!dlg) _dlgMarkActive(null);
+    if (dlg?.id === "sid-editor-dialog" && !e.target.closest("#sid-ctx-menu")) {
+      const panel = e.target.closest(_DLG_PANELS);
+      if (panel) _dlgRaisePanel(panel);
+      else _dlgMarkActive(dlg);
+    }
   }, true);
   // a toggle nem buborékol, de a document capture-fázisban megkapja
   document.addEventListener("toggle", (e) => {
     const dlg = e.target;
     if (!(dlg instanceof HTMLDialogElement)) return;
     if (dlg.open && !_dlgIsModal(dlg)) _dlgRaise(dlg);
-    else if (!dlg.open && dlg.classList.contains("dlg-active")) {
+    else if (dlg.open && dlg.id === "sid-editor-dialog") _dlgMarkActive(dlg);
+    else if (!dlg.open && (dlg.classList.contains("dlg-active") || dlg.querySelector(".dlg-active"))) {
       // bezáráskor az alatta lévő nyitott ablak lesz az aktív
       dlg.classList.remove("dlg-active");
-      _dlgStack = _dlgStack.filter((d) => d !== dlg && d.open && !_dlgIsModal(d));
-      _dlgMarkActive(_dlgStack[_dlgStack.length - 1] || null);
+      dlg.querySelector(".dlg-active")?.classList.remove("dlg-active");
+      _dlgStack = _dlgStack.filter((d) => d !== dlg);
+      _dlgMarkTop();
     }
   }, true);
+  // A panel a hidden attribútummal nyílik és zárul, több helyről is.
+  const panelObserver = new MutationObserver((changes) => {
+    changes.forEach(({ target: panel }) => {
+      if (!panel.hidden) { if (panel.closest("dialog[open]")) _dlgRaisePanel(panel); return; }
+      const wasActive = panel.classList.contains("dlg-active");
+      panel.classList.remove("dlg-active");
+      _dlgPanelStack = _dlgPanelStack.filter((p) => p !== panel);
+      if (wasActive) _dlgMarkTop();
+    });
+  });
+  document.querySelectorAll(".sid-trk-float, .sid-vkbd-dialog").forEach((panel) => panelObserver.observe(panel, { attributes: true, attributeFilter: ["hidden"] }));
 }
 
 /* ── Memóriapanel leválasztása ───────────────────────────────────────────────

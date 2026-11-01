@@ -12926,11 +12926,19 @@ button.vm-prof-row:hover { outline: 1px solid var(--primary); }
 @media (max-width: 720px) { .te-body { grid-template-columns: 1fr; } .te-left { border-right: none; border-bottom: 1px solid var(--panel-border); } }
 
 /* ── Aktív nem modális ablak (_dlgMarkActive) ──────────────────────── */
-dialog.dlg-active[open]:not(:modal) > :first-child {
+dialog.dlg-active[open]:not(:modal) > :first-child,
+#sid-editor-dialog.dlg-active[open] > :first-child,
+.sid-vkbd-dialog.dlg-active > :first-child,
+.sid-trk-float.dlg-active {
   box-shadow: 0 0 0 1px var(--primary), 0 0 14px color-mix(in srgb, var(--primary) 35%, transparent), 0 16px 40px rgba(0, 0, 0, 0.55);
 }
-dialog.dlg-active[open]:not(:modal) > :first-child > :first-child {
+dialog.dlg-active[open]:not(:modal) > :first-child > :first-child,
+#sid-editor-dialog.dlg-active[open] > :first-child > :first-child,
+.sid-trk-float.dlg-active > :first-child {
   background: color-mix(in srgb, var(--primary) 20%, var(--panel-strong));
+}
+.sid-vkbd-dialog.dlg-active > :first-child > :first-child {
+  background: color-mix(in srgb, var(--primary) 25%, #33302b);
 }
 
 /* ── Online leckék ─────────────────────────────────────────────────── */
