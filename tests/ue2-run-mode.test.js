@@ -14,7 +14,7 @@ test("every ue2-* element the app uses is in the page", () => {
   const ids = new Set();
   for (const match of app.matchAll(/["'#`](ue2-[a-z0-9-]+|run-ue2-[a-z0-9-]+)["'`]/g)) ids.add(match[1]);
   ["ue2-choose-exe", "ue2-choose-firmware", "ue2-choose-roms"].forEach((id) => ids.add(id));
-  ["ue2", "ue2-d64", "ue2-271"].forEach((value) => ids.delete(value));
+  ["ue2", "ue2-d64", "ue2-271", "ue2-vice-271"].forEach((value) => ids.delete(value));
   assert.ok(ids.size > 8);
   for (const id of ids) assert.ok(html.includes(`id="${id}"`), `index.html has no #${id}`);
 });

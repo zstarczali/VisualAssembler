@@ -77,54 +77,54 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "ue2-271",
+  id: "ue2-vice-271",
   url: "https://www.c64va.pro/docs.html",
   hu: {
     eyebrow: "Újdonság a 2.7.1-ben",
     title: "Üdvözöl a Visual Assembler",
-    body: `<ul><li><strong>Ultimate emulátor</strong>: a program a C64 Ultimate firmware-en fut a gépeden (UE2-C64U-Emulator), PRG-ként vagy D64-ről, debuggerrel. Run menü → <em>Ultimate emulátor</em>, beállítás: Beállítások → Integrációk.</li><li><strong>Két SID a SID Editorban</strong>: 3 vagy 6 hang, választható második SID-cím, .sid import és export.</li><li><strong>SID Player</strong>: 2SID és 3SID dalok sztereóban.</li></ul>`,
+    body: `<ul><li><strong>Ultimate emulátor</strong>: a program a C64 Ultimate firmware-en fut a gépeden (UE2-C64U-Emulator), PRG-ként vagy D64-ről, debuggerrel. Run menü → <em>Ultimate emulátor</em>, beállítás: Beállítások → Integrációk.</li><li><strong>Debugger külső VICE-hoz</strong>: a Debug gomb a saját VICE-odban állítja meg a programot, töréspontokkal, lépésenkénti futtatással, regiszterekkel és memórianézettel. Beállítások → Általános → <em>Debugger</em>: Visual Assembler.</li><li><strong>Két SID a SID Editorban</strong>: 3 vagy 6 hang, választható második SID-cím, .sid import és export.</li><li><strong>SID Player</strong>: 2SID és 3SID dalok sztereóban.</li></ul>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
     eyebrow: "New in 2.7.1",
     title: "Welcome to Visual Assembler",
-    body: `<ul><li><strong>Ultimate emulator</strong>: run your program on the C64 Ultimate firmware on your computer (UE2-C64U-Emulator), as a PRG or from a D64, with a debugger. Run menu → <em>Ultimate emulator</em>, set up in Settings → Integrations.</li><li><strong>Two SIDs in the SID Editor</strong>: 3 or 6 voices, a selectable second SID address, .sid import and export.</li><li><strong>SID Player</strong>: 2SID and 3SID tunes in stereo.</li></ul>`,
+    body: `<ul><li><strong>Ultimate emulator</strong>: run your program on the C64 Ultimate firmware on your computer (UE2-C64U-Emulator), as a PRG or from a D64, with a debugger. Run menu → <em>Ultimate emulator</em>, set up in Settings → Integrations.</li><li><strong>Debugger for external VICE</strong>: the Debug button stops your program in your own VICE, with breakpoints, stepping, registers and memory. Settings → General → <em>Debugger</em>: Visual Assembler.</li><li><strong>Two SIDs in the SID Editor</strong>: 3 or 6 voices, a selectable second SID address, .sid import and export.</li><li><strong>SID Player</strong>: 2SID and 3SID tunes in stereo.</li></ul>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
     eyebrow: "Novedad en la 2.7.1",
     title: "Bienvenido a Visual Assembler",
-    body: `<ul><li><strong>Emulador Ultimate</strong>: ejecuta tu programa en el firmware del C64 Ultimate en tu ordenador (UE2-C64U-Emulator), como PRG o desde un D64, con depurador. Menú Run → <em>Emulador Ultimate</em>, configuración en Ajustes → Integraciones.</li><li><strong>Dos SID en el SID Editor</strong>: 3 o 6 voces, dirección del segundo SID seleccionable, importación y exportación .sid.</li><li><strong>SID Player</strong>: temas 2SID y 3SID en estéreo.</li></ul>`,
+    body: `<ul><li><strong>Emulador Ultimate</strong>: ejecuta tu programa en el firmware del C64 Ultimate en tu ordenador (UE2-C64U-Emulator), como PRG o desde un D64, con depurador. Menú Run → <em>Emulador Ultimate</em>, configuración en Ajustes → Integraciones.</li><li><strong>Depurador para VICE externo</strong>: el botón Debug detiene tu programa en tu propio VICE, con puntos de interrupción, ejecución paso a paso, registros y memoria. Ajustes → General → <em>Depurador</em>: Visual Assembler.</li><li><strong>Dos SID en el SID Editor</strong>: 3 o 6 voces, dirección del segundo SID seleccionable, importación y exportación .sid.</li><li><strong>SID Player</strong>: temas 2SID y 3SID en estéreo.</li></ul>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
     eyebrow: "Neu in 2.7.1",
     title: "Willkommen bei Visual Assembler",
-    body: `<ul><li><strong>Ultimate-Emulator</strong>: dein Programm läuft auf der C64-Ultimate-Firmware auf deinem Rechner (UE2-C64U-Emulator), als PRG oder von einer D64, mit Debugger. Run-Menü → <em>Ultimate-Emulator</em>, Einrichtung unter Einstellungen → Integrationen.</li><li><strong>Zwei SIDs im SID Editor</strong>: 3 oder 6 Stimmen, wählbare Adresse des zweiten SID, .sid-Import und -Export.</li><li><strong>SID Player</strong>: 2SID- und 3SID-Stücke in Stereo.</li></ul>`,
+    body: `<ul><li><strong>Ultimate-Emulator</strong>: dein Programm läuft auf der C64-Ultimate-Firmware auf deinem Rechner (UE2-C64U-Emulator), als PRG oder von einer D64, mit Debugger. Run-Menü → <em>Ultimate-Emulator</em>, Einrichtung unter Einstellungen → Integrationen.</li><li><strong>Debugger für externes VICE</strong>: die Debug-Schaltfläche hält dein Programm in deinem eigenen VICE an, mit Haltepunkten, Einzelschritten, Registern und Speicheransicht. Einstellungen → Allgemein → <em>Debugger</em>: Visual Assembler.</li><li><strong>Zwei SIDs im SID Editor</strong>: 3 oder 6 Stimmen, wählbare Adresse des zweiten SID, .sid-Import und -Export.</li><li><strong>SID Player</strong>: 2SID- und 3SID-Stücke in Stereo.</li></ul>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
     eyebrow: "Nieuw in 2.7.1",
     title: "Welkom bij Visual Assembler",
-    body: `<ul><li><strong>Ultimate-emulator</strong>: je programma draait op de C64 Ultimate-firmware op je computer (UE2-C64U-Emulator), als PRG of vanaf een D64, met debugger. Run-menu → <em>Ultimate-emulator</em>, instellen via Instellingen → Integraties.</li><li><strong>Twee SID's in de SID Editor</strong>: 3 of 6 stemmen, kiesbaar adres voor de tweede SID, .sid-import en -export.</li><li><strong>SID Player</strong>: 2SID- en 3SID-nummers in stereo.</li></ul>`,
+    body: `<ul><li><strong>Ultimate-emulator</strong>: je programma draait op de C64 Ultimate-firmware op je computer (UE2-C64U-Emulator), als PRG of vanaf een D64, met debugger. Run-menu → <em>Ultimate-emulator</em>, instellen via Instellingen → Integraties.</li><li><strong>Debugger voor externe VICE</strong>: de Debug-knop stopt je programma in je eigen VICE, met breekpunten, stap voor stap, registers en geheugen. Instellingen → Algemeen → <em>Debugger</em>: Visual Assembler.</li><li><strong>Twee SID's in de SID Editor</strong>: 3 of 6 stemmen, kiesbaar adres voor de tweede SID, .sid-import en -export.</li><li><strong>SID Player</strong>: 2SID- en 3SID-nummers in stereo.</li></ul>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
     eyebrow: "Nowość w 2.7.1",
     title: "Witamy w Visual Assembler",
-    body: `<ul><li><strong>Emulator Ultimate</strong>: program działa na firmware C64 Ultimate na twoim komputerze (UE2-C64U-Emulator), jako PRG lub z D64, z debugerem. Menu Run → <em>Emulator Ultimate</em>, konfiguracja w Ustawienia → Integracje.</li><li><strong>Dwa SID-y w SID Editorze</strong>: 3 lub 6 głosów, wybierany adres drugiego SID-a, import i eksport .sid.</li><li><strong>SID Player</strong>: utwory 2SID i 3SID w stereo.</li></ul>`,
+    body: `<ul><li><strong>Emulator Ultimate</strong>: program działa na firmware C64 Ultimate na twoim komputerze (UE2-C64U-Emulator), jako PRG lub z D64, z debugerem. Menu Run → <em>Emulator Ultimate</em>, konfiguracja w Ustawienia → Integracje.</li><li><strong>Debuger dla zewnętrznego VICE</strong>: przycisk Debug zatrzymuje program w twoim własnym VICE, z pułapkami, pracą krokową, rejestrami i pamięcią. Ustawienia → Ogólne → <em>Debuger</em>: Visual Assembler.</li><li><strong>Dwa SID-y w SID Editorze</strong>: 3 lub 6 głosów, wybierany adres drugiego SID-a, import i eksport .sid.</li><li><strong>SID Player</strong>: utwory 2SID i 3SID w stereo.</li></ul>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
     eyebrow: "Novità nella 2.7.1",
     title: "Benvenuto in Visual Assembler",
-    body: `<ul><li><strong>Emulatore Ultimate</strong>: il programma gira sul firmware del C64 Ultimate sul tuo computer (UE2-C64U-Emulator), come PRG o da un D64, con debugger. Menu Run → <em>Emulatore Ultimate</em>, configurazione in Impostazioni → Integrazioni.</li><li><strong>Due SID nel SID Editor</strong>: 3 o 6 voci, indirizzo del secondo SID selezionabile, importazione ed esportazione .sid.</li><li><strong>SID Player</strong>: brani 2SID e 3SID in stereo.</li></ul>`,
+    body: `<ul><li><strong>Emulatore Ultimate</strong>: il programma gira sul firmware del C64 Ultimate sul tuo computer (UE2-C64U-Emulator), come PRG o da un D64, con debugger. Menu Run → <em>Emulatore Ultimate</em>, configurazione in Impostazioni → Integrazioni.</li><li><strong>Debugger per VICE esterno</strong>: il pulsante Debug ferma il programma nel tuo VICE, con breakpoint, esecuzione passo passo, registri e memoria. Impostazioni → Generale → <em>Debugger</em>: Visual Assembler.</li><li><strong>Due SID nel SID Editor</strong>: 3 o 6 voci, indirizzo del secondo SID selezionabile, importazione ed esportazione .sid.</li><li><strong>SID Player</strong>: brani 2SID e 3SID in stereo.</li></ul>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
