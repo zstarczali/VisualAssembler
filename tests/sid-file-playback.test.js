@@ -18,104 +18,34 @@ function fnSource(name) {
   throw new Error(`Could not parse ${name}`);
 }
 
-test("stopping for an external SID does not preload the editor stream", () => {
-  let preloads = 0, externalStops = 0, webSidPauses = 0;
+test("Stop leaves the SID Player's tune alone unless asked", () => {
+  let externalStops = 0;
   const ctx = {
     _sidTimer: null,
-    _sidPlaybackUsingWebSid: false,
     _sidExternalCore: {},
     _sidWaStop() {},
     _sidExternalCoreStop() { externalStops++; },
-    _sidStreamSilence() {},
-    _webSidPause() { webSidPauses++; },
-    _sidStreamPreload() { preloads++; },
     _sidUpdatePauseButton() {},
     _sidBuildSongList() {},
     document: { getElementById() { return null; } },
   };
   vm.createContext(ctx);
   vm.runInContext(`${fnSource("_sidStop")}; this.stop = _sidStop;`, ctx);
-  ctx.stop(false);
-  assert.equal(preloads, 0);
+  ctx.stop();
   assert.equal(externalStops, 0);
-  assert.equal(webSidPauses, 0);
-  ctx.stop(false, true);
+  ctx.stop(true);
   assert.equal(externalStops, 1);
-  assert.equal(webSidPauses, 1);
-  ctx.stop();
-  assert.equal(preloads, 1);
 });
 
-test("Stop silences the editor's WebSID playback, without closing the SID Player", () => {
-  let enginePauses = 0, windowPauses = 0;
-  const ctx = {
-    _sidTimer: null,
-    _sidPlaybackUsingWebSid: true,
-    _webSidActive: true,
-    _sidExternalCore: null,
-    ScriptNodePlayer: { getInstance() { return { pause() { enginePauses++; } }; } },
-    _sidWaStop() {},
-    _sidStreamSilence() {},
-    _webSidPause() { windowPauses++; },
-    _sidStreamPreload() {},
-    _sidUpdatePauseButton() {},
-    _sidBuildSongList() {},
-    document: { getElementById() { return null; } },
-  };
-  vm.createContext(ctx);
-  vm.runInContext(`${fnSource("_sidStop")}; this.stop = _sidStop;`, ctx);
-  ctx.stop();
-  assert.equal(enginePauses, 1);
-  assert.equal(windowPauses, 0);
-  assert.equal(ctx._webSidActive, false);
-  assert.equal(ctx._sidPlaybackUsingWebSid, false);
-  ctx.stop();
-  assert.equal(enginePauses, 1, "nothing of the editor is playing any more");
-});
-
-test("WebSID file playback remains available", async () => {
-  const calls = { stop: [], resume: 0, shown: [] };
-  const ctx = {
-    Blob,
-    Uint8Array,
-    URL: { createObjectURL() { return "blob:external-sid"; }, revokeObjectURL() {} },
-    _sidPreviewEngine: "websid",
-    _sidStream: null,
-    _webSidBlobUrl: null,
-    _webSidLoadSeq: 0,
-    _webSidActive: false,
-    _sidStop(...args) { calls.stop.push(args); },
-    _webSidInit: async () => true,
-    _sidApplyMasterVolume() {},
-    _webSidShowExternalDialog(name) { calls.shown.push(name); },
-    showViceToast(message) { throw new Error(message); },
-    ScriptNodePlayer: {
-      loadMusicFromURL() { return Promise.resolve(); },
-      getInstance() { return { resume() { calls.resume++; } }; },
-    },
-  };
-  vm.createContext(ctx);
-  vm.runInContext(`${fnSource("_webSidPlayFileBytes")}; this.play = _webSidPlayFileBytes;`, ctx);
-  const bytes = new Uint8Array(0x7c);
-  bytes.set([0x50, 0x53, 0x49, 0x44]);
-  assert.equal(await ctx.play(bytes, "example.sid"), true);
-  assert.deepEqual(calls.stop, [[false, true]]);
-  assert.equal(calls.resume, 1);
-  assert.deepEqual(calls.shown, ["example.sid"]);
-  assert.equal(ctx._webSidActive, true);
-
-  // .sid files are played only from the toolbar SID player, not the SID Editor menu
+test(".sid files are played only from the toolbar SID player, on the backend", () => {
   const html = fs.readFileSync(path.join(__dirname, "..", "www", "index.html"), "utf8");
   assert.ok(!html.includes('id="sid-play-sid"'));
   assert.ok(html.includes('id="sid-player-btn"'));
   assert.ok(fnSource("_sidPlayerPlayIndex").includes("_sidExtStartFile"));
-  const start = fnSource("_sidExtStartFile");
-  assert.ok(start.includes("_webSidPlayFileBytes"));
-  assert.ok(start.includes("_sidUsesVaCore()"));
-  assert.ok(start.includes("_vaSidPlayFileBytes"));
+  assert.ok(fnSource("_sidExtStartFile").includes("_vaSidPlayFileBytes"));
 });
 
-test("VA SID Core renders an external PSID without WebSID", async () => {
+test("the backend renders an external PSID in chunks", async () => {
   const calls = { render: [], release: [], shown: [], sources: [] };
   const ac = { currentTime: 0, sampleRate: 44100 };
   const ctx = {
@@ -128,20 +58,21 @@ test("VA SID Core renders an external PSID without WebSID", async () => {
     _sidExternalCore: null,
     _VA_SID_CORE_VERSION: "1.0",
     _sidPreviewModel: "6581",
+    _sidPreviewEngine: "va-core",
     _sidPreviewSources: new Set(),
     _sidExtSources: new Set(),
     _sidStop() {},
     _sidEnsureAudio() { return ac; },
     _sidDecodePcm16() { return new Float32Array(4410); },
     _sidPlayBuffer(pcm, when) { calls.sources.push({ pcm, when }); },
-    _webSidShowExternalDialog(name, engine) { calls.shown.push(name); calls.engine = engine; },
-    _webSidHideExternalDialog() {},
+    _sidPlayerShowTune(name, engine) { calls.shown.push(name); calls.engine = engine; },
+    _sidPlayerHideWindow() {},
     showViceToast(message) { throw new Error(message); },
     setInterval(callback) { calls.tick = callback; return 1; },
     clearInterval() {},
   };
   vm.createContext(ctx);
-  vm.runInContext(`${fnSource("_sidExternalCoreStop")}; ${fnSource("_sidVaCoreLabel")}; ${fnSource("_sidPlayerAheadSeconds")}; ${fnSource("_sidPlayerBufferSize")}; ${fnSource("_vaSidPlayFileBytes")}; this.play = _vaSidPlayFileBytes; this.stop = _sidExternalCoreStop;`, ctx);
+  vm.runInContext(`${fnSource("_sidExternalCoreStop")}; ${fnSource("_sidEngineLabel")}; ${fnSource("_sidPlayerAheadSeconds")}; ${fnSource("_sidPlayerBufferSize")}; ${fnSource("_vaSidPlayFileBytes")}; this.play = _vaSidPlayFileBytes; this.stop = _sidExternalCoreStop;`, ctx);
   const bytes = new Uint8Array([80, 83, 73, 68]);
   assert.equal(await ctx.play(bytes, "example.sid"), true);
   assert.ok(calls.render.length > 1);
@@ -178,20 +109,21 @@ test("a stereo .sid render is timed by its samples per channel", async () => {
     _sidExternalCore: null,
     _VA_SID_CORE_VERSION: "1.0",
     _sidPreviewModel: "8580",
+    _sidPreviewEngine: "va-core",
     _sidExtSources: new Set(),
     _sidPlaylist: [],
     _sidStop() {},
     _sidEnsureAudio() { return ac; },
     _sidDecodePcm16() { return new Float32Array(8820); },
     _sidPlayBuffer(pcm, when, sources, channels) { buffers.push({ when, channels }); },
-    _webSidShowExternalDialog() {},
-    _webSidHideExternalDialog() {},
+    _sidPlayerShowTune() {},
+    _sidPlayerHideWindow() {},
     showViceToast(message) { throw new Error(message); },
     setInterval() { return 1; },
     clearInterval() {},
   };
   vm.createContext(ctx);
-  vm.runInContext(`${fnSource("_sidExternalCoreStop")}; ${fnSource("_sidVaCoreLabel")}; ${fnSource("_sidPlayerAheadSeconds")}; ${fnSource("_sidPlayerBufferSize")}; ${fnSource("_vaSidPlayFileBytes")}; this.play = _vaSidPlayFileBytes; this.stop = _sidExternalCoreStop;`, ctx);
+  vm.runInContext(`${fnSource("_sidExternalCoreStop")}; ${fnSource("_sidEngineLabel")}; ${fnSource("_sidPlayerAheadSeconds")}; ${fnSource("_sidPlayerBufferSize")}; ${fnSource("_vaSidPlayFileBytes")}; this.play = _vaSidPlayFileBytes; this.stop = _sidExternalCoreStop;`, ctx);
   assert.equal(await ctx.play(new Uint8Array([80, 83, 73, 68]), "stereo.sid"), true);
   assert.ok(buffers.length > 1);
   assert.equal(buffers[0].channels, 2);
@@ -237,13 +169,13 @@ test("the PSID header of a two-SID tune is v3 with the second SID's address", ()
 
 test("a two-SID VA Core preview is stereo, with one restart mask for six voices", async () => {
   const ctx = {
-    Math, Array, Promise, _sidPreviewModel: "8580",
+    Math, Array, Promise, _sidPreviewModel: "8580", _sidPreviewEngine: "resid",
     window: { electronAPI: { renderSidPreview(p) { ctx.payload = p; return Promise.resolve("x"); } } },
     _sidDecodePcm16() { return new Float32Array(4); },
   };
   vm.createContext(ctx);
-  vm.runInContext(`${fnSource("_sidVaCoreFrame")}; ${fnSource("_sidRenderVaCoreFrames")};
-    this.frame = _sidVaCoreFrame; this.render = _sidRenderVaCoreFrames;`, ctx);
+  vm.runInContext(`${fnSource("_sidNativeFrame")}; ${fnSource("_sidRenderNativeFrames")};
+    this.frame = _sidNativeFrame; this.render = _sidRenderNativeFrames;`, ctx);
   const frame = ctx.frame({ regs: new Uint8Array(50), trig: [true, false, false, false, false, true] });
   assert.equal(frame.length, 51);
   assert.equal(frame[50], 0x21);
@@ -293,11 +225,11 @@ test("VA arpeggio renders one voice once and schedules notes after a delayed ren
   const ctx = {
     document: { getElementById: () => null },
     _sidGetChordNotes: () => [48, 52, 55], _sidEnsureAudio() {}, _sidAudio: ac,
-    _sidUsesVaCore: () => true, _sidCurInst: () => ({}),
+    _sidUsesNativeCore: () => true, _sidCurInst: () => ({}),
     _sidTuneData: () => ({ insts: [{ r: 0 }] }), _SID_DCR: [20],
     _sidEngineNew: () => ({ v: [{ gate: 0 }] }),
     _sidEngNoteOn(eng, voice, note) { calls.notes.push({ voice, note }); eng.v[0].gate = 1; },
-    _sidRenderVaCore(eng, count, rate, hook) {
+    _sidRenderNative(eng, count, rate, hook) {
       for (let frame = 0; frame < count; frame++) hook(eng, frame);
       return new Promise(resolve => { finish = resolve; });
     },
@@ -423,7 +355,7 @@ test("switching tunes stops the current one through the player, keeping the wind
     _sidExtStartSeq: 0,
     _vaFullAllowed() { return true; },
     _sidExtStop() { order.push("player-stop"); ctx._sidExtStatus = "stopped"; },
-    _sidUsesVaCore: () => true,
+    _sidUsesNativeCore: () => true,
     _vaSidPlayFileBytes: async () => { order.push("start"); return true; },
     _webSidPlayFileBytes: async () => true,
   };
@@ -572,7 +504,7 @@ test("SID player seek jumps the counter at once and coalesces quick clicks", asy
   assert.deepEqual(seeks, [60000, 120000], "only the newest pending target runs");
 });
 
-test("SID player: WebSID cannot seek, the request is ignored", async () => {
+test("SID player: without a running tune a seek is ignored", async () => {
   const ctx = {
     performance: { now: () => 0 },
     _sidExtStarting: false,
@@ -590,7 +522,7 @@ test("SID player: WebSID cannot seek, the request is ignored", async () => {
   await ctx.seek(60000);
   assert.equal(ctx._sidExtElapsed, 5000, "the counter stays where it was");
   ctx._sidExternalCore = {};
-  assert.equal(ctx.can(), true, "VA SID Core can seek");
+  assert.equal(ctx.can(), true, "a running tune can seek");
 });
 
 test("SID player shuffle: every tune once per round, Previous steps back along the random order", () => {

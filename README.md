@@ -2,19 +2,23 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.7.1**
+**Current version: v2.7.2**
 
 Visual Assembler is free and open source (GPLv3): every feature — editors, builds, hardware runs, languages and themes — works without a registration or serial. At most once a day the app sends an anonymous startup ping (version, OS, UI language, launch count, a random install ID) for the usage statistics; no email, project or source code is sent.
+
+## What's New in v2.7.2
+
+- **reSID in place of WebSID** — the SID Player and the SID Editor play on the backend, on [resid-rs](https://github.com/binaryfields/resid-rs) (a Rust port of reSID, the default) or on VA SID Core, both with the MOS 6581 or 8580 (Settings → General → SID preview). WebSID is gone.
 
 ## What's New in v2.7.1
 
 - **Debugger choice and a debugger for VICE** — Settings → General → Debugger: **Visual Assembler** debugs on the machine of the run mode (your own VICE through its binary monitor, the Ultimate emulator, the built-in C64), **RetroDebugger** opens the external program. In VICE: breakpoints, step into / over / out, registers, disassembly and memory, the editor following the CPU.
 - **Ultimate emulator** — the **Ultimate emulator** and **D64 on Ultimate emulator** run modes run the program on [UE2-C64U-Emulator](https://github.com/Jondalar/UE2-C64U-Emulator) (the unmodified C64 Ultimate firmware on your computer) through its REST API; VA starts it on demand and installs a `.ue2` firmware into a flash image. **Debug** opens a debugger for it, and the VICE Monitor window connects to it. Settings → Integrations → Ultimate emulator (UE2). New examples: **Ultimate turbo demo (64 sprites)** and **Ultimate turbo cube**, the CPU speed changing through `$D031` from 1 to 64 MHz.
 - **SID Editor: two SIDs** — 3 or 6 voices with a selectable address for the second SID (`$D420`–`$D7E0`, `$DE00`–`$DFE0`). Preview, `.bin` save, `.sid` and assembly export and `.sid` import handle both chips. The exports hold at most 46 patterns with two SIDs.
-- **SID Player: 2SID and 3SID tunes** — VA SID Core plays them in stereo: SID 1 left, SID 2 right, a third SID in the centre.
+- **SID Player: 2SID and 3SID tunes** — played in stereo: SID 1 left, SID 2 right, a third SID in the centre.
 - **Channel spectrum** — a separate 16-band analyzer for every voice during tracker playback, calculated from the played SID registers.
 - **SID Editor** — **Files → New tune**, the tune's title in the header, one button to detach and attach the tracker, and a tidier instrument list in the horizontal tracker.
-- **Fixed** — **D64 on hardware** sends the image type with the mount request (needed by C64 Ultimate firmware 1.1.0). WebSID could not load the editor's previews and the full tune in **Play: All**; stopping the editor no longer closes the SID Player.
+- **Fixed** — **D64 on hardware** sends the image type with the mount request (needed by C64 Ultimate firmware 1.1.0); stopping the editor no longer closes the SID Player.
 
 ## Earlier: v2.7.0
 
@@ -565,7 +569,7 @@ Each block in `program[]` is a plain object:
 
 The **Toolkit tab** provides access to built-in visual editors, all with *Export to blocks* support:
 
-- **SID editor** — 3-voice tracker with waveform, ADSR drag-graph, filter, cycle-exact WebSid WASM preview, external `.sid` playback, BPM display, metronome, and full C64-runnable IRQ player export (`sid_init` / `sid_irq` / `sid_play_row`)
+- **SID editor** — 3-voice tracker with waveform, ADSR drag-graph, filter, reSID / VA SID Core preview, external `.sid` playback, BPM display, metronome, and full C64-runnable IRQ player export (`sid_init` / `sid_irq` / `sid_play_row`)
 - **Curve Editor** — generate `.byte` lookup tables from math curves (sine, easings, triangle/sawtooth/square/bounce) with a live graph and bouncing-ball preview; outputs an 8-bit table or a 16-bit lo/hi split pair with an optional sprite-X/Y reader routine; `.bin` save/load
 - **Sprite editor** — frame-by-frame sprite design, flip/shift tools, multi-frame animation, `.bin` load/save
 - **Hires / multicolor bitmap editor** — pixel editor with native multicolor `.bin` export (10 000 bytes: bitmap + screen + color RAM)

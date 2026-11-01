@@ -1,6 +1,6 @@
 [package]
 name = "c64-visual-assembler"
-version = "2.7.1"
+version = "2.7.2"
 edition = "2021"
 
 [lib]
@@ -11,6 +11,7 @@ crate-type = ["cdylib", "rlib"]
 tauri-build = { version = "2", features = [] }
 
 [dependencies]
+resid-rs = { path = "vendor/resid-rs" }
 tauri = { version = "2", features = [] }
 tauri-plugin-opener = "2"
 tauri-plugin-dialog = "2"

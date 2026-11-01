@@ -20,6 +20,7 @@ mod c64;
 mod debugger;
 mod hvsc;
 mod mos6510;
+mod sid_chip;
 mod sid_core;
 mod sid_file;
 mod tutorials;
@@ -626,19 +627,21 @@ struct SidPreviewPayload {
     sample_rate: u32,
     model: String,
     #[serde(default)]
+    engine: String,
+    #[serde(default)]
     session_id: Option<String>,
     frames: Vec<Vec<u8>>,
 }
 
 /// One chip of a preview: its core and each voice's last control register.
-type PreviewChip = (sid_core::SidCore, [u8; 3]);
+type PreviewChip = (sid_chip::SidChip, [u8; 3]);
 
 static SID_PREVIEW_SESSIONS: OnceLock<Mutex<HashMap<String, (Vec<PreviewChip>, Instant)>>> = OnceLock::new();
 
 /// Writes one chip's 25 registers of a SID Editor frame in the player's order:
 /// per voice AD / SR, frequency and pulse width before the control register (a
 /// restarted note first gets its gate cleared), then the filter and volume.
-fn write_preview_frame(sid: &mut sid_core::SidCore, registers: &[u8], restart: u8, last_ctl: &mut [u8; 3]) {
+fn write_preview_frame(sid: &mut sid_chip::SidChip, registers: &[u8], restart: u8, last_ctl: &mut [u8; 3]) {
     for voice in 0..3 {
         let base = voice * 7;
         if restart & (1 << voice) != 0 {
@@ -654,7 +657,7 @@ fn write_preview_frame(sid: &mut sid_core::SidCore, registers: &[u8], restart: u
     }
 }
 
-/// Offline renderer for the SID Editor's original Rust core.  Audio is
+/// Offline renderer for the SID Editor's previews.  Audio is
 /// rendered in short frame batches on the backend, then scheduled by Web Audio
 /// in the frontend; keeping the audio device in the WebView avoids native
 /// device/driver differences across Windows, macOS and Linux.
@@ -690,8 +693,9 @@ fn render_sid_preview_blocking(payload: SidPreviewPayload) -> Result<String, Str
     } else {
         sid_core::SidModel::Mos8580
     };
+    let engine = sid_chip::SidEngine::parse(&payload.engine);
     let new_chips = || -> Vec<PreviewChip> {
-        (0..chip_count).map(|_| (sid_core::SidCore::new(sample_rate, model), [0; 3])).collect()
+        (0..chip_count).map(|_| (sid_chip::SidChip::new(engine, sample_rate, model), [0; 3])).collect()
     };
     // mono, or interleaved stereo with SID 1 left and SID 2 right
     let render_frames = |chips: &mut [PreviewChip]| {
@@ -756,6 +760,8 @@ struct SidFilePayload {
     session_id: String,
     sample_rate: u32,
     model: String,
+    #[serde(default)]
+    engine: String,
     frames: usize,
     file_bytes: Option<Vec<u8>>,
     #[serde(default)]
@@ -822,7 +828,8 @@ fn render_sid_file_blocking(payload: SidFilePayload) -> Result<serde_json::Value
             }
         }
         // built outside the map lock: the init routine may run for a while
-        let player = sid_file::SidFilePlayer::with_song(bytes, sample_rate, model, payload.song)?;
+        let engine = sid_chip::SidEngine::parse(&payload.engine);
+        let player = sid_file::SidFilePlayer::with_engine(bytes, sample_rate, model, payload.song, engine)?;
         let session = Arc::new(Mutex::new(player));
         sid_file_sessions()?.insert(payload.session_id.clone(), (session.clone(), Instant::now()));
         session
@@ -6079,6 +6086,7 @@ mod sid_file_session_tests {
 
     fn payload(id: &str, file: Option<&[u8]>, skip_ms: u32) -> SidFilePayload {
         SidFilePayload {
+            engine: String::new(),
             session_id: id.into(),
             sample_rate: 44_100,
             model: "8580".into(),
@@ -6136,8 +6144,8 @@ mod sid_preview_tests {
 
     /// Voice 3 envelope after a few frames where the note is restarted under a
     /// held gate (the SID Editor engine's note on), with and without the flag.
-    fn env_after_restart(flag: bool) -> u8 {
-        let mut sid = sid_core::SidCore::new(44_100, sid_core::SidModel::Mos8580);
+    fn env_after_restart(engine: sid_chip::SidEngine, flag: bool) -> u8 {
+        let mut sid = sid_chip::SidChip::new(engine, 44_100, sid_core::SidModel::Mos8580);
         let mut last = [0u8; 3];
         let mut frame = vec![0u8; 0x1a];
         frame[14] = 0x00;
@@ -6160,8 +6168,10 @@ mod sid_preview_tests {
 
     #[test]
     fn restart_flag_retriggers_the_envelope_under_a_held_gate() {
-        assert_eq!(env_after_restart(false), 0, "sustain 0: the envelope has died out");
-        assert!(env_after_restart(true) > 0, "the restart gives a new attack");
+        for engine in [sid_chip::SidEngine::VaCore, sid_chip::SidEngine::Resid] {
+            assert_eq!(env_after_restart(engine, false), 0, "{engine:?} sustain 0: the envelope has died out");
+            assert!(env_after_restart(engine, true) > 0, "{engine:?} the restart gives a new attack");
+        }
     }
 
     fn decode(base64_pcm: &str) -> Vec<i16> {
@@ -6175,6 +6185,7 @@ mod sid_preview_tests {
 
     fn preview(frames: Vec<Vec<u8>>) -> Result<Vec<i16>, String> {
         render_sid_preview_blocking(SidPreviewPayload {
+            engine: String::new(),
             sample_rate: 44_100,
             model: "8580".into(),
             session_id: None,

@@ -1,7 +1,9 @@
 # macOS Installation Guide
-Version 2.7.1
+Version 2.7.2
 
-2.7.1: debugger choice (Settings -> General -> Debugger: Visual Assembler on VICE / Ultimate emulator / built-in C64, or RetroDebugger), Ultimate emulator run modes (UE2-C64U-Emulator: PRG and D64, debugger, VICE Monitor window), Ultimate turbo demos (64 sprites and a rotating cube, 1-64 MHz through $D031), D64 on hardware mount fix; two SIDs in the SID Editor (3 or 6 voices, selectable second SID address, .sid import and export), 2SID and 3SID tunes in stereo on VA SID Core, per-voice channel spectrum, New tune, WebSID preview fix.
+2.7.2: reSID (resid-rs) replaces WebSID in the SID Player and the SID Editor, VA SID Core stays selectable (Settings -> General -> SID preview), SID Player buffer in seconds.
+
+2.7.1: debugger choice (Settings -> General -> Debugger: Visual Assembler on VICE / Ultimate emulator / built-in C64, or RetroDebugger), Ultimate emulator run modes (UE2-C64U-Emulator: PRG and D64, debugger, VICE Monitor window), Ultimate turbo demos (64 sprites and a rotating cube, 1-64 MHz through $D031), D64 on hardware mount fix; two SIDs in the SID Editor (3 or 6 voices, selectable second SID address, .sid import and export), 2SID and 3SID tunes in stereo, per-voice channel spectrum, New tune, WebSID preview fix.
 
 2.7.0: Built-in C64: VICE 3.10 (x64sc in WebAssembly) inside the app, nothing to install (Run menu -> Built-in C64, or its toolbar button); debugger that stops before the instruction at a breakpoint, with Continue, Break, Step into / over / out, editable registers and flags, disassembly, memory view and breakpoint list, breakpoints from the editor, Block mode and the disassembly, the editor following the CPU (the Debug button uses it in this mode and whenever no RetroDebugger is set); PAL / NTSC, SID 6581 / 8580, reSID / FastSID, REU up to 16 MB, joystick port, warp, sound; load a PRG, attach a D64 or a cartridge; CRT filter with scanlines, full screen, resizable window, window and settings remembered.
 
@@ -117,7 +119,7 @@ Both `sfx sys` (Run/Build with Exomizer toggle) and `mem` mode (per-file EXO in 
 
 ---
 
-**Version:** 2.7.1 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 2.7.2 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
 
 ## Building from source: macOS app icon
 

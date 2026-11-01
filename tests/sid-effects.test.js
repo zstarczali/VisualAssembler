@@ -106,7 +106,7 @@ test("cell text renders the effect column alongside note+instrument", () => {
 
 function loadSerdeSandbox() {
   return loadFunctions(
-    ["_sidInstFields", "_sidInstNorm", "_sidInstCtrl", "_sidInstExtBytes", "_sidReadInstExt", "_sidWaStop", "_sidStreamSilence", "_sidStreamPreload", "_sidInstBytes", "_sidWaveByte", "_sidNewInst", "_sidVoiceCount", "_sidNewPattern", "_sidSerialize", "_sidDeserialize",
+    ["_sidInstFields", "_sidInstNorm", "_sidInstCtrl", "_sidInstExtBytes", "_sidReadInstExt", "_sidWaStop", "_sidInstBytes", "_sidWaveByte", "_sidNewInst", "_sidVoiceCount", "_sidNewPattern", "_sidSerialize", "_sidDeserialize",
      "_sidSyncPlayModeSel", "_sidBuildInstSel", "_sidLoadInstUI", "_sidBuildPatSel", "_sidBuildSongList",
      "_sidBuildTracker", "_sidStop", "_sidUpdatePauseButton", "_sidCurInst"],
     {
@@ -114,7 +114,6 @@ function loadSerdeSandbox() {
       document: { getElementById: (id) => (id === "sid-inst-name" ? {} : null), querySelectorAll: () => [] },
       t: (k) => k,
       tf: () => "",
-      _webSidPause: () => {},
       _sidDrawADSR: () => {},
       _sidSid2Addr: 0xD420,
       _sidAna: {},
@@ -124,7 +123,6 @@ function loadSerdeSandbox() {
       _sidSongPlayPos: 0,
       _sidTimer: null,
       _sidPaused: false,
-      _sidPlaybackUsingWebSid: false,
     },
     `${extractConstLine("_SID_ROWS")}\n${extractConstLine("_SID_PLAYER_CODE_MAX")}\n${extractConstLine("_SID_FX_CODES")}\n${extractConstLine("_SID_FX_NAMES")}`
   );
