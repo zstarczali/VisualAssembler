@@ -1577,7 +1577,7 @@ PRINTABLE CHARACTERS
           <strong>Tracker keys:</strong> the upper row of the keyboard played a semitone too high from R on, and F could not be entered from it.
         </li>
         <li>
-          <strong>SID Editor windows:</strong> the active one has a highlighted frame and header and comes to the front: the editor, the detached tracker, the horizontal tracker, the channel spectrum or VA-VK.
+          <strong>SID Editor windows:</strong> the active one has a highlighted frame and header and comes to the front: the editor, the detached tracker, the horizontal tracker, the channel spectrum or VA-VK. The VA-VK button brings it back from behind the editor.
         </li>
       </ul>
       <p class="whats-new-previous">v2.7.1</p>
@@ -1623,27 +1623,6 @@ PRINTABLE CHARACTERS
         </li>
         <li>
           <strong>Editor right-click menu:</strong> Cut, Copy, Paste, Select all, and UPPERCASE / lowercase for the selected text in the Expert and Ultimate Basic editors.
-        </li>
-      </ul>
-      <p class="whats-new-previous">v2.6.9</p>
-      <ul class="whats-new-list">
-        <li>
-          <strong>Git branches:</strong> the Version control window switches, creates, renames and deletes branches and merges one into the current branch; a merge conflict lists the files, marks them red and offers <em>Abort merge</em>. The open tabs reload from disk after a switch or merge.
-        </li>
-        <li>
-          <strong>File by file and stash:</strong> in the change list each file can be staged, unstaged, discarded (or, untracked, deleted) and its diff opened with a click; <em>Stash</em> puts the changes aside, the stash list applies, pops or drops them. Without <em>Stage all</em> a project commit takes only the staged files.
-        </li>
-        <li>
-          <strong>A better diff:</strong> a card per file with its status and +/− counts, old and new line numbers, assembly / UB syntax colours and the changed part of a line highlighted; <em>Split</em> shows old | new side by side, ⤢ gives it more room.
-        </li>
-        <li>
-          <strong>Discard changes really discards:</strong> in Git mode it asks first, then resets the files on disk to HEAD (git restore) and reloads the tabs, so you can switch branches afterwards; from the menu the result shows as a message.
-        </li>
-        <li>
-          <strong>Kick projects:</strong> cycle counts, errors and hints also work in files the startup file does not import (they come from the file’s own tree, e.g. <code>main.asm</code> next to a <code>boot.asm</code> startup); a forward branch inside <code>.pseudopc</code> (<code>bne !+</code>) is relative to the logical address; <code>s.charAt(i) == '1'</code> compares as in KickAssembler.
-        </li>
-        <li>
-          <strong>Fixes and looks:</strong> <em>Save project</em> saves an opened project in place (with its unsaved file tabs) instead of asking for a name; the Version control window stays within the screen and uses icon tool buttons; shorter fields in the Table Generator.
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>

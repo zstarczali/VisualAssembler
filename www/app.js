@@ -58192,6 +58192,7 @@ function setupSidEditor() {
   onId("sid-vkbd-stop", "click", _sidStop);
   onId("sid-virtual-keyboard", "click", function(){
     _sidOpenVirtualKeyboard();
+    _dlgRaisePanel(document.getElementById("sid-virtual-keyboard-dialog"));
   });
   onId("sid-midi-connect", "click", _sidMidiConnect);
   onId("sid-midi-input", "change", function(e) { _sidMidiSetInput(e.target.value); });
@@ -59854,7 +59855,20 @@ function _dlgRaisePanel(panel) {
   _dlgPanelStack = _dlgPanelStack.filter((p) => p !== panel && !p.hidden);
   _dlgPanelStack.push(panel);
   _dlgPanelStack.forEach((p, i) => { p.style.zIndex = String(30 + i); });
-  _dlgMarkActive(panel);
+  _dlgMarkActive(_dlgPanelWindow(panel));
+}
+
+// A szerkesztő kártyája a panelek testvére, ezért velük közös sorrendben van: aktívan fölöttük.
+function _dlgPanelWindow(panel) {
+  return panel.classList.contains("sid-card") ? panel.parentElement : panel;
+}
+
+// Megnyitáskor a panelek látszanak, a kártya nem takarja őket a múltkori sorrend miatt.
+function _dlgEditorOpened(editor) {
+  const card = editor.firstElementChild;
+  _dlgPanelStack = _dlgPanelStack.filter((p) => p !== card);
+  card.style.zIndex = "";
+  _dlgMarkTop();
 }
 
 // Az aktív ablak eltűnése után a legfelső lesz az aktív; a modális SID Editor mindennél feljebb van.
@@ -59862,7 +59876,7 @@ function _dlgMarkTop() {
   const editor = document.getElementById("sid-editor-dialog");
   if (editor?.open) {
     const panels = _dlgPanelStack.filter((p) => !p.hidden);
-    _dlgMarkActive(panels[panels.length - 1] || editor);
+    _dlgMarkActive(panels.length ? _dlgPanelWindow(panels[panels.length - 1]) : editor);
     return;
   }
   _dlgStack = _dlgStack.filter((d) => d.open && !_dlgIsModal(d));
@@ -59877,8 +59891,7 @@ function setupDialogStacking() {
     else if (!dlg) _dlgMarkActive(null);
     if (dlg?.id === "sid-editor-dialog" && !e.target.closest("#sid-ctx-menu")) {
       const panel = e.target.closest(_DLG_PANELS);
-      if (panel) _dlgRaisePanel(panel);
-      else _dlgMarkActive(dlg);
+      _dlgRaisePanel(panel || dlg.firstElementChild);
     }
   }, true);
   // a toggle nem buborékol, de a document capture-fázisban megkapja
@@ -59886,7 +59899,7 @@ function setupDialogStacking() {
     const dlg = e.target;
     if (!(dlg instanceof HTMLDialogElement)) return;
     if (dlg.open && !_dlgIsModal(dlg)) _dlgRaise(dlg);
-    else if (dlg.open && dlg.id === "sid-editor-dialog") _dlgMarkActive(dlg);
+    else if (dlg.open && dlg.id === "sid-editor-dialog") _dlgEditorOpened(dlg);
     else if (!dlg.open && (dlg.classList.contains("dlg-active") || dlg.querySelector(".dlg-active"))) {
       // bezáráskor az alatta lévő nyitott ablak lesz az aktív
       dlg.classList.remove("dlg-active");
