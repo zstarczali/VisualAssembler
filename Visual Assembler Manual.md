@@ -248,7 +248,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 ## Version 2.7.0 Highlights
 
 - **Built-in C64** — VICE 3.10 (x64sc, compiled to WebAssembly) now runs inside the app, nothing to install. Choose **Built-in C64** in the Run menu, or open it with its toolbar button. See [Built-in C64 and debugger](#built-in-c64-and-debugger).
-- **Debugger** — it stops before the instruction at a breakpoint; **Continue**, **Break**, **Step into / over / out**; editable registers and flags, disassembly around PC, memory view and breakpoint list. Breakpoints come from the editor, from Block mode and from the disassembly, and the editor follows the CPU. The **Debug** button uses it in this mode, and whenever no RetroDebugger is set.
+- **Debugger** — it stops before the instruction at a breakpoint; **Continue**, **Break**, **Step into / over / out**; editable registers and flags, disassembly around PC, memory view and breakpoint list. Breakpoints come from the editor, from Block mode and from the disassembly, and the editor follows the CPU. The **Debug** button uses it in this mode, and in the real hardware modes when **Visual Assembler** is the chosen debugger.
 - **Machine settings** — PAL or NTSC, SID 6581 or 8580, reSID or FastSID, REU up to 16 MB, joystick port, warp and sound.
 - **Your own files** — the **Files** menu loads a PRG and attaches a D64 or a cartridge (`.crt`). The status bar shows the drive LED and track, and a blinking LED shows as a drive error, for example when a file cannot be found.
 - **Display** — a CRT filter with scanlines, full screen and a resizable window. The window and its settings come back on the next start.
@@ -4143,9 +4143,9 @@ The status bar shows what is attached and the LED of drive 8 with the track of t
 
 The toolbar also has **Reset**, **Pause**, **Warp**, **Sound**, **CRT filter** and **Full screen**. The CRT filter uses the CRT emulation of VICE, smooth scaling and scanlines; the scanlines appear once a C64 line is at least 3 pixels high. Full screen also starts with a double click on the screen, and Esc or another double click leaves it. The window can be moved by its header and resized at its bottom right corner. Its place, size, open state and settings come back on the next start.
 
-**Debugging:** press **Debug** while the run mode is **Built-in C64**. The Debug button also uses this debugger whenever no RetroDebugger is set. It works with VMA, Kick projects, ACME and Ultimate Basic alike. The program stops at the first breakpoint it reaches, or at its first instruction if there are no breakpoints. Closing the window or hiding the debugger panel ends the session: the breakpoints go, and a stopped program runs on (in a closed window once it is opened again). The Ultimate emulator and VICE debugger windows do the same when closed.
+**Debugging:** press **Debug** while the run mode is **Built-in C64**. The Debug button also uses this debugger in the real hardware modes when **Visual Assembler** is the chosen debugger. It works with VMA, Kick projects, ACME and Ultimate Basic alike. The program stops at the first breakpoint it reaches, or at its first instruction if there are no breakpoints. Closing the window or hiding the debugger panel ends the session: the breakpoints go, and a stopped program runs on (in a closed window once it is opened again). The Ultimate emulator and VICE debugger windows do the same when closed.
 
-**Choosing the debugger:** **Settings → General → Debugger → Debug button** is **Visual Assembler** or **RetroDebugger**. Unset, it is RetroDebugger when one is configured, else Visual Assembler. **Visual Assembler** debugs on the machine of the run mode: in your own VICE (*Run as PRG*, *Run via D64*), on the Ultimate emulator, or on the built-in C64 (also for the real hardware modes, C64 Ultimate and Kung Fu Flash 2). **RetroDebugger** opens the external program for the VICE and hardware modes. The *Built-in C64* and *Ultimate emulator* run modes always use their own debugger.
+**Choosing the debugger:** **Settings → General → Debugger → Debug button** is **Visual Assembler** or **RetroDebugger**. **RetroDebugger** can only be selected once its path is set in **Settings → Files and paths**; never chosen, it is RetroDebugger when one is configured, else Visual Assembler. **Visual Assembler** debugs on the machine of the run mode: in your own VICE (*Run as PRG*, *Run via D64*), on the Ultimate emulator, or on the built-in C64 (also for the real hardware modes, C64 Ultimate and Kung Fu Flash 2). **RetroDebugger** opens the external program for the VICE and hardware modes. The *Built-in C64* and *Ultimate emulator* run modes always use their own debugger.
 
 **Debugging in VICE:** with **Visual Assembler** chosen, **Debug** in the *Run as PRG* and *Run via D64* modes opens the same debugger window for your own VICE installation: VA starts VICE with its binary monitor (the **VICE monitor port**, default 6502), or uses the one already running there, arms the breakpoints and autostarts the program, which stops at its first instruction if there are no breakpoints. Breakpoints, step into / over / out, registers, disassembly and memory work as in the built-in C64, and the editor follows the CPU. Closing the window lets the program run on in VICE. With **RetroDebugger** chosen, the VICE modes open RetroDebugger as before.
 
@@ -4195,7 +4195,9 @@ The toolbar **Run** button is a **split button**:
 | **D64 on hardware** | Build a `.d64` (like Run via D64) and send it to the **1541 Ultimate / Ultimate 64**, which mounts and runs it. |
 | **Kung Fu Flash 2** | Assemble to PRG and upload it over USB serial to a real C64/C128 with a **Kung Fu Flash 2** cartridge. See [Kung Fu Flash 2](#kung-fu-flash-2). |
 
-The selected mode is saved between sessions.
+The menu lists only the modes whose tool is set: VICE for the first two, the device address in **Settings → Integrations** for C64 Ultimate, the port (detected at startup, or set there) for Kung Fu Flash 2, the program, firmware and ROM folder for the Ultimate emulator. The **Built-in C64** is always there.
+
+The selected mode is saved between sessions. If its tool is missing, Run uses VICE or the built-in C64, and the saved mode comes back once the tool is set.
 
 ### Export to D64 dialog
 

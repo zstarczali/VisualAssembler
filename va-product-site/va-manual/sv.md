@@ -1,6 +1,6 @@
 # C64 Visuell Assembler — Användarmanual
 
-**Version 2.7.0**
+**Version 2.7.1**
 
 En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom att
 dra och släppa instruktionsblock och se den genererade assemblern och
@@ -10,6 +10,7 @@ maskinkoden i realtid.
 
 ## Innehållsförteckning
 
+- [Höjdpunkter i version 2.7.1](#version-271-highlights)
 - [Höjdpunkter i version 2.7.0](#version-270-highlights)
 - [Höjdpunkter i version 2.6.9](#version-269-highlights)
 - [Höjdpunkter i version 2.6.8](#version-268-highlights)
@@ -243,6 +244,48 @@ maskinkoden i realtid.
 
 ---
 
+## Höjdpunkter i version 2.7.1
+
+- **Felsökare för VICE** — **Inställningar → Allmänt → Felsökare** väljer
+  felsökarknappens felsökare: **Visual Assembler** felsöker på maskinen i
+  körläge (VICE, Ultimate emulator, inbyggd C64), **RetroDebugger** öppnar det
+  externa programmet. I VICE fungerar fönstret på din egen VICE: brytpunkter,
+  steg in / över / ut, register, demontering och minne, med editorn som följer
+  processorn. Se [Inbyggd C64 och felsökare](#built-in-c64-and-debugger).
+- **Ultimate emulator** — två nya körlägen, **Ultimate emulator** och **D64 på
+  Ultimate emulator**, kör programmet på
+  [UE2-C64U-Emulator](https://github.com/Jondalar/UE2-C64U-Emulator), den
+  omodifierade C64 Ultimate / Ultimate 64-firmwaren på din dator, via samma REST
+  API som den riktiga enheten. VA startar emulatorn vid första körningen,
+  installerar en `.ue2`-firmware i en flash-avbildning och stänger emulatorn med
+  appen. **Debug** i dessa lägen öppnar en felsökare (brytpunkter, steg in /
+  över / ut, register, demontering, minne), och **VICE Monitor**-fönstret
+  ansluter till emulatorn. Konfigurera det i **Inställningar → Integrationer →
+  Ultimate emulator (UE2)**. Nya exempel: **Ultimate turbo demo (64 sprites)**
+  och **Ultimate turbo cube** (Exempel → IRQ och hårdvara) ändrar
+  CPU-hastigheten via `$D031` var tredje sekund, från 1 till 64 MHz, och kör
+  endast på en Ultimate med turboregistren på. Se [C64 Ultimate / 1541
+  Ultimate](#c64-ultimate--1541-ultimate).
+- **SID-redigerare: två SID:er** — **SID: 1 / 2** i spårningsverktygsfältet ger
+  en melodi med 6 röster, med en valbar adress för det andra SID:t
+  (`$D420`–`$D7E0`, `$DE00`–`$DFE0`). Förhandsgranska, `.bin` spara, `.sid` och
+  assembly exportera, och `.sid` importera alla hanterar båda chipsen. Se
+  [SID-redigerare](#sid-editor-3-voice-tracker).
+- **SID-spelare: 2SID- och 3SID-låtar** — VA SID Core spelar upp dem i stereo:
+  SID 1 vänster, SID 2 höger, ett tredje SID i mitten. Se
+  [SID-spelare](#sid-player).
+- **Kanalspektrum** — en separat 16-bandsanalysator för varje röst under
+  trackeruppspelning i SID-redigeraren.
+- **SID-redigerare** — **Filer → Ny låt**, låtens titel i rubriken, en knapp för
+  att koppla loss och fästa spåraren och en mer prydlig instrumentlista i den
+  horisontella spåraren.
+- **Åtgärdat** — **D64 på hårdvara** skickar bildtypen med monteringsbegäran,
+  vilket C64 Ultimate firmware 1.1.0 kräver. WebSID kunde inte ladda
+  redigerarens förhandsgranskningar och den fullständiga melodin i **Spela:
+  Alla**; att stoppa redigeraren stänger inte längre SID Player.
+
+---
+
 ## Höjdpunkter i version 2.7.0
 
 - **Inbyggd C64** — VICE 3.10 (x64sc, kompilerad till WebAssembly) körs nu inuti
@@ -253,8 +296,8 @@ maskinkoden i realtid.
   **Bryt**, **Steg in i / över / ut**; redigerbara register och flaggor,
   demontering runt PC, minnesvy och brytpunktslista. Brytpunkter kommer från
   editorn, från blockläge och från demonteringen, och editorn följer CPU:n.
-  Knappen **Felsök** använder den i detta läge, och när ingen RetroDebugger är
-  inställd.
+  Knappen **Felsök** använder den i detta läge och i de verkliga hårdvarulägena
+  när **Visuell assembler** är den valda felsökaren.
 - **Maskininställningar** — PAL eller NTSC, SID 6581 eller 8580, reSID eller
   FastSID, REU upp till 16 MB, joystickport, warp och ljud.
 - **Dina egna filer** — menyn **Filer** laddar en PRG och ansluter en D64 eller
@@ -1304,8 +1347,8 @@ filflikarna:
 grupperade efter ämne (Grunder, Makron och kontrollflöde, Grafik, Sprites och
 inmatning, Filer och inläsning, Musik, IRQ och hårdvara) i två kolumner.
 
-- **Run** (VICE, D64, C64 Ultimate, Kung Fu Flash 2) — bygger PRG och startar
-  den.
+- **Kör** (VICE, D64, C64 Ultimate, Ultimate emulator, Kung Fu Flash 2) — bygger
+  PRG och startar den.
 - **Debug** — bygger PRG och startar RetroDebugger.
 - Packning av **Byggprojekt**, **Bygg D64** och **Exomizer**.
 
@@ -1348,7 +1391,7 @@ Modalfilen stängs automatiskt när åtgärden slutförs eller misslyckas.
 | **Felsök (RetroDebugger)**                                                                       | Kompilera och starta i RetroDebugger med brytpunkter, symboler och autostartflaggor (se [Avsnitt 10](#10-debugger-integration))                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | **Kör med Exomizer**                                                                             | Kryssruta i **Inställningar → Allmänt → Program** — när den är aktiverad, kör alla Kör- och Bygg-åtgärder PRG genom `exomizer sfx` innan de startas eller sparas (`sfx basic` för en PRG som börjar med en BASIC-rad, så RUN fungerar igen efter att programmet returnerar; `sfx $<ladda adress>` annars). Fungerar med Kör som PRG, Kör via D64, Kör på hårdvara, Bygg PRG och Bygg D64. Konfigurera Exomizer-körbarheten i **Inställningar → Filer och sökvägar** först.                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | **Automatiskt sparade poster**                                                                   | Kryssruta i **Inställningar → Allmänt → Versionshantering**. När den är aktiverad lägger appen till en automatisk sparningspost i versionshistoriken cirka 2,5 sekunder efter att du slutat redigera en flik (för en flik i ett projekt även i projekthistoriken). Stäng av den om du bara vill ha dina egna commits. Se [Versionshantering](#version-control).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| **Inställningar** (tidigare maskinvaruinställningar)                                             | Öppna inställningsdialogrutan med tre flikar: **Allmänt** (assemblerläge, VMA-kompilator, BASIC SYS-stub, Exomizer, uppdateringar, ASM-utdata, SID-förhandsgranskning, felsökarparametrar, versionskontroll), **Filer och sökvägar** (VICE, RetroDebugger, ACME, Exomizer, git) och **Integrationer** (C64 Ultimate, Kung Fu Flash 2). Se [Avsnitt 13](#13-settings).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| **Inställningar** (tidigare maskinvaruinställningar)                                             | Öppna inställningsdialogrutan med tre flikar: **Allmänt** (assemblerläge, VMA-kompilator, BASIC SYS-stub, Exomizer, ASM-utdata, SID-förhandsgranskning, felsökarval och parametrar, versionshantering), **Filer och sökvägar** (VICE, RetroDebugger, uppdateringsserver, ACME, Exomizer, git) och **Integrationer** (C64 Ultimate, Ultimate-emulator, Kung Fu Flash 2). Se [Avsnitt 13](#13-settings).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | **Nytt program…** (`Meny → Program`)                                                             | Öppnar en bekräftelsedialogruta och rensar sedan alla block från programområdet                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | **Exportera ASM** (`Meny → Program`)                                                             | Kopierar den genererade assemblykällan                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | **Komprimera alla**                                                                              | Komprimera alla block                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
@@ -1511,7 +1554,7 @@ Kommandolistan är avsiktligt höjdbegränsad så att kommandodetaljkortet kan f
 den återstående panelhöjden. Detaljområdet rullar oberoende för längre
 syntaxbeskrivningar.
 
-**Uppdateringsserver:** **Inställningar → Allmänt → Uppdateringar →
+**Uppdateringsserver:** **Inställningar → Filer och sökvägar → Uppdateringar →
 Uppdateringsserver** anger var utgåvor söks upp (standard
 `https://www.c64va.pro/`); installationsprogrammen läses från
 `<server>downloads/VA/`. Adressen måste använda `https://` (vanlig `http://`
@@ -1627,10 +1670,10 @@ skuggning en **pekare** (`(zp),Y` / `(zp,X)`). Klicka på en använd cell för a
 se vilka rader som öppnar den (klicka på en rad för att hoppa dit) och en
 varning när du skriver i BASIC- eller KERNAL-området.
 
-Om programmet innehåller SID-redigerarens exporterade spelare
-(`sid_`-etiketter), markeras spelarens nollasida (`$02–$1C`, `$2F`, `$FB–$FD`)
-också, och varje adress som din egen kod också använder rapporteras som en
-**konflikt** (röd ram, varning i rubriken).
+Om programmet innehåller SID-editorns exporterade spelare (`sid_`-etiketter),
+markeras även spelarens nollseida (`$02–$1C`, `$2F`, `$FB–$FD` och `$50–$69` när
+melodin i SID-editorn har två SID:er), och varje adress som din egen kod också
+använder rapporteras som en **konflikt** (röd ram, varning i rubriken).
 
 ### Byggnad och diagnostik
 
@@ -2455,10 +2498,10 @@ block).
 Vad som följer efter ACME-bygget:
 
 - **Bygg** (hammarknappen i expertverktygsfältet, *Bygg ACME-källkod*), **Kör**
-  (PRG, D64, C64 Ultimate, Kung Fu Flash 2), **Bygg PRG**, **Bygg D64**, **Bygg
-  CRT**, **Bygg projekt** och **Felsök (RetroDebugger)** kompileras via ACME;
-  ACME-fel och varningar öppnas i den vanliga dialogrutan för kompileringsfel,
-  med källkodsraden.
+  (PRG, D64, C64 Ultimate, Ultimate-emulator, Kung Fu Flash 2), **Bygg PRG**,
+  **Bygg D64**, **Bygg CRT**, **Bygg projekt** och **Felsök (RetroDebugger)**
+  kompileras via ACME; ACME-fel och varningar öppnas i den vanliga dialogrutan
+  för kompileringsfel, med källkodsraden.
 - Efter en skrivpaus återuppbyggs källkoden, så **minneskartan** (minnesremsa,
   segmentpanel, överlappningsvarning), panelerna **Demontering** och **Skärm**
   samt cykelrännan visar den verkliga ACME-utmatningen; panelerna använder
@@ -5573,10 +5616,36 @@ rubriken och ändra storlek i det nedre högra hörnet. Dess plats, storlek,
 öppningsläge och inställningar återställs vid nästa start.
 
 **Felsökning:** tryck på **Felsökning** medan körläget är **Inbyggt C64**.
-Felsökningsknappen använder även denna felsökare när ingen RetroDebugger är
-inställd. Den fungerar med både VMA, Kick-projekt, ACME och Ultimate Basic.
-Programmet stannar vid den första brytpunkten det når, eller vid sin första
-instruktion om det inte finns några brytpunkter.
+Felsökningsknappen använder även denna felsökare i de verkliga hårdvarulägena
+när **Visual Assembler** är den valda felsökaren. Den fungerar med både VMA,
+Kick-projekt, ACME och Ultimate Basic. Programmet stoppar vid den första
+brytpunkten det når, eller vid sin första instruktion om det inte finns några
+brytpunkter. Att stänga fönstret eller dölja felsökarpanelen avslutar sessionen:
+brytpunkterna försvinner och ett stoppat program körs vidare (i ett stängt
+fönster när det öppnas igen). Ultimate-emulatorn och VICE-felsökarfönstren gör
+detsamma när de stängs.
+
+**Välja felsökare:** **Inställningar → Allmänt → Felsökare → Felsökningsknapp**
+är **Visual Assembler** eller **RetroDebugger**. **RetroDebugger** kan bara
+väljas när dess sökväg är inställd i **Inställningar → Filer och sökvägar**;
+aldrig vald, det är RetroDebugger när en sådan är konfigurerad, annars Visual
+Assembler. **Visual Assembler** felsöker på maskinen i körläget: i din egen VICE
+(*Kör som PRG*, *Kör via D64*), på Ultimate-emulatorn eller på den inbyggda C64
+(även för de riktiga hårdvarulägena, C64 Ultimate och Kung Fu Flash 2).
+**RetroDebugger** öppnar det externa programmet för VICE- och hårdvarulägena.
+Körlägena *Inbyggda C64* och *Ultimate emulator* använder alltid sin egen
+felsökare.
+
+**Felsökning i VICE:** med **Visual Assembler** vald, **Felsökning** i lägena
+*Kör som PRG* och *Kör via D64* öppnar samma felsökningsfönster för din egen
+VICE-installation: VA startar VICE med sin binära monitor
+(**VICE-monitorporten**, standard 6502), eller använder den som redan körs där,
+aktiverar brytpunkterna och autostartar programmet, vilket stannar vid sin
+första instruktion om det inte finns några brytpunkter. Brytpunkter, steg in i /
+över / ut, register, disassemblering och minne fungerar som i den inbyggda C64,
+och editorn följer CPU:n. Genom att stänga fönstret kan programmet köras vidare
+i VICE. Med **RetroDebugger** valt öppnar VICE-lägena RetroDebugger som
+tidigare.
 
 CPU:n stoppar **före ** instruktionen vid brytpunkten, så registren och minnet
 visar tillståndet precis innan den körs.
@@ -5636,7 +5705,15 @@ Verktygsfältets **Kör**-knapp är en **delknapp**:
 | **D64 på hårdvara** | Bygg en `.d64` (som Kör via D64) och skicka den till **1541 Ultimate / Ultimate 64**, som monterar och kör den.                                                                                                             |
 | **Kung Fu Flash 2** | Montera till PRG och ladda upp den via USB-seriellt till en riktig C64/C128 med en **Kung Fu Flash 2**-pickup. Se [Kung Fu Flash 2](#kung-fu-flash-2).                                                                      |
 
-Det valda läget sparas mellan sessionerna.
+Menyn listar endast de lägen vars verktyg är inställt: VICE för de två första,
+enhetsadressen i **Inställningar → Integrationer ** för C64 Ultimate, porten
+(detekterad vid start, eller inställd där) för Kung Fu Flash 2, program-,
+firmware- och ROM-mappen för Ultimate-emulatorn. Den **inbyggda C64 ** finns
+alltid där.
+
+Det valda läget sparas mellan sessioner. Om dess verktyg saknas använder Run
+VICE eller den inbyggda C64, och det sparade läget återställs när verktyget är
+inställt.
 
 ### Ladda adress och startpunkt
 
@@ -5836,11 +5913,11 @@ fel – antingen komprimera minneslayouten eller dela upp data.
 
 Öppna via **Meny → Inställningar…** (tidigare *Maskinvaruinställningar*).
 Dialogrutan har tre flikar: **Allmänt** (assemblerläge, VMA-kompilator, BASIC
-SYS-stub, Kör med Exomizer, uppdateringar, ASM-utdata, SID-förhandsgranskning,
+SYS-stub, Kör med Exomizer, ASM-utdata, SID-förhandsgranskning, felsökarval och
 C64 Debugger-parametrar, ögonblicksbilder / versionskontroll), **Filer och
-sökvägar** (VICE, RetroDebugger, ACME, Exomizer, git) och **Integrationer** (C64
-Ultimate, Kung Fu Flash 2). Avsnitten nedan beskriver de externa verktygen och
-enheterna.
+sökvägar** (VICE, RetroDebugger, uppdateringsserver, ACME, Exomizer, git) och
+**Integrationer** (C64 Ultimate, Ultimate-emulator, Kung Fu Flash 2). Avsnitten
+nedan beskriver de externa verktygen och enheterna.
 
 ### VMA-kompilator
 
@@ -5940,7 +6017,44 @@ Teckenredigerare.
    Integrationer → C64 Ultimate**.
 3. Välj **Kör på hårdvara** från menyn för delad körning.
 4. Klicka på **▶ Kör** — PRG kompileras och skickas till enheten via HTTP POST
-   till `/v3/runners/prg`. Enheten laddar och kör den omedelbart på C64.
+   till `/v1/runners:run_prg`. Enheten laddar och kör den omedelbart på C64.
+
+**Utan hårdvara:** välj **Ultimate emulator** från split run-menyn för att köra
+på [UE2-C64U-Emulator](https://github.com/Jondalar/UE2-C64U-Emulator), som kör
+den omodifierade Ultimate-firmwaren på din dator. Installera den separat och
+ställ sedan in tre saker i **Inställningar → Integrationer → Ultimate emulator
+(UE2)**: programmet `ue2emu`, en firmware (`.ue2`, `.elf` eller `.app`, ingår
+ej) och ROM-mappen (`roms/` för en
+[1541ultimate](https://github.com/GideonZ/1541ultimate)-utcheckning). Endast
+`chars.bin` (2048 byte, menytypsnittet) krävs från den mappen;
+Commodore-firmwaren startar från sina egna C64-ROM. Den första körningen
+installerar en `.ue2` i en flash-avbildning som lagras per firmware i appens
+konfigurationsmapp, och varje start aktiverar firmwares webbtjänst, som
+Commodore-firmwaren levereras inaktiverad. Emulatorn startar vid den första
+körningen och förblir öppen för de följande; dess REST API lyssnar på
+`127.0.0.1` på **REST-porten** (standard 8064). Den stängs med appen eller med
+**Stoppa emulatorn**. **D64 på Ultimate-emulatorn** i samma meny paketerar en
+D64 (detta behöver VICE:s `c1541`), monterar den på enhet A och kör det första
+programmet. Medan ett av dessa två körlägen är valt ansluter **VICE
+Monitor**-fönstret (hot reload, live watch, profiler) till emulatorn istället
+för VICE. **Debug** i dessa körlägen öppnar emulatorns felsökare: register,
+disassemblering, minne och brytpunkter i ett eget fönster, bilden i emulatorns
+fönster. Programmet stannar vid den första brytpunkten det når, eller vid sin
+första instruktion om det inte finns någon; editorraden följer processorn, och
+F5, F10, F11 och Shift+F11 arbetar med fokus i editorn också. En timer-IRQ kan
+ta ett steg in i KERNAL, som i VICEs monitor, när avbrott är på. VA ställer
+också in **Turbo Control** till turboregistren i emulatorns flashminne, så ett
+program kan ändra CPU-hastigheten via `$D031` (den visar `$00`, 1 MHz, efter en
+återställning).
+
+Exempel: **Ultimate turbo demo (64 sprites)**
+(`samples/ultimate-turbo-demo.asm`) — hastigheten ändras var 3:e sekund från 1
+till 64 MHz; vid 1 MHz försvinner bollar och bildfrekvensen sjunker, från 4 MHz
+körs alla 64 sprites i 50 fps. Den körs bara på en Ultimate med turboregistren
+på; någon annanstans står det så. **Ultimate turbo cube**
+(`samples/ultimate-box-demo.asm`) gör samma sak med kuben i box-exemplet: ju
+snabbare processorn är, desto snabbare snurrar kuben (5 bildrutor per sekund vid
+1 MHz, 50 från 16 MHz).
 
 > **Tips:** Ingen USB-kabel eller drivrutin behövs – REST API är inbyggt i
 > Ultimate-firmwaren. Din dator och enheten måste vara på samma lokala nätverk.
@@ -6238,6 +6352,16 @@ egen SID-emulering; med VA SID Core väljer du även chipet (MOS 6581 / 8580).
 Redigerarens rubrik visar vilken motor som används (t.ex. *· VA SID Core v1.2
 (MOS 8580)*). Instrumentparametrarna ställs in med rattar.
 
+**Två SID:** **SID: 1 / 2** i spårningsverktygsfältet växlar melodin mellan 3
+och 6 röster. Med två SID:er ställer listan bredvid in det andra SID:ts adress:
+`$D420`–`$D7E0` eller `$DE00`–`$DFE0`, i steg om `$20`. Kolumnerna har
+rubrikerna **S1 V1** … **S2 V3**. Varje SID har sitt eget filter och sin egen
+volym, och en röst styr bara sina egna chip. VA SID Core och den lilla
+synthesizern spelar de två SID:erna i stereo (SID 1 vänster, SID 2 höger);
+WebSID tar det andra SID:ets adress från PSID-rubriken. Förhandsvisningar av
+noter spelas upp på det första SID:et. Om man växlar tillbaka till ett SID
+raderas det andra SID:ets röster och först frågas om de innehåller något.
+
 **Kontroller per instrument: **
 - Kryssrutor för vågformer (TRI / SAW / PUL / NOI) — flera vågformer
   AND-behandlas som på SID — plus **RING** (ringmodulering av triangeln av
@@ -6271,8 +6395,8 @@ Redigerarens rubrik visar vilken motor som används (t.ex. *· VA SID Core v1.2
   ljudeffekter (laser, pickup, explosion).
 
 **Spårningsrutnät:**
-- 3 röster × upp till 256 mönster × 32 rader; sång-/ordningslistan rymmer upp
-  till 255 steg.
+- 3 röster (6 med ett andra SID) × upp till 256 mönster × 32 rader;
+  sång-/ordningslistan rymmer upp till 255 steg.
 - Per rad: not + instrumentindex, plus en valfri effekt (se **Effektkolumnen**
   nedan). Tomma rader innehåller föregående not: precis som i andra trackers
   (GoatTracker, SID-Wizard) behåller en not sin gate på (sustainnivå) tills
@@ -6284,8 +6408,8 @@ Redigerarens rubrik visar vilken motor som används (t.ex. *· VA SID Core v1.2
   samma sätt som `C`-effekten utan en not (sparad och exporterad som `C00`).
 - Markera en cell normalt, eller håll ner Shift** medan du klickar eller
   använder piltangenterna för att utöka en rektangulär markering över rader och
-  någon av de tre rösterna. Om du högerklickar inuti det markerade området
-  behålls området intakt.
+  någon av rösterna. Om du högerklickar inuti det markerade området behålls
+  området intakt.
 - Kopiera, Klipp ut, Klistra in och Rensa är tillgängliga från
   ikonverktygsfältet och den ikonbaserade snabbmenyn. `Ctrl/Cmd+C` och
   `Ctrl/Cmd+V` fungerar på samma rektangulära markering.
@@ -6295,8 +6419,8 @@ Redigerarens rubrik visar vilken motor som används (t.ex. *· VA SID Core v1.2
   dominant 7, dur 7, moll 7, 6, moll 6, 9, b9, #9, dim7 och 7sus4.
 - Arpeggio-hjälp: förhandsgranska eller infoga 4-, 8- eller 16-stegsnoter som
   löper från det valda ackordet i uppåt-, nedåt- eller uppåt/nedåt-riktning.
-- **Förhandsgranskningsrad** provspelar den valda raden över alla tre ljud utan
-  att starta mönsteruppspelning.
+- **Förhandsgranskningsrad** provspelar den valda raden över alla ljud utan att
+  starta mönsteruppspelning.
 - Inklistring av cellintervall börjar nu vid den valda intervallets startcell
   och stoppar tydligt vid röst- och radgränser istället för att radbrytas till
   nästa kolumn eller rad.
@@ -6336,6 +6460,12 @@ och sparas/läses förlustfritt i det versionerade `.bin`-formatet.
   (PAT), rad (ROW) och speltid (TIME) under uppspelning, samt
   redigeringspositionen när uppspelningen är stoppad. **Inställningar → Allmänt
   → SID-förhandsvisning → LCD-färg** gör den grön eller röd.
+- Knappen **Kanalspektrum** i trackerverktygsfältet öppnar ett fönster med en
+  16-bandsanalysator per röst (6 med två SID:er). Den beräknas från de
+  SID-register som spelas – frekvens, vågform, pulsbredd, approximerad ADSR,
+  filter och volym – inte från ljudet, eftersom utdata är en mix.
+  Ringmodulering, synk och filterresonans visas inte, och den rör sig endast
+  under trackeruppspelning, inte för förhandsgranskningar av toner.
 - Knappen i verktygsfältet på tangentbordet öppnar **VA-VK**, ett icke-modalt
   piano (2, 3 eller 4 oktaver; position, öppet tillstånd, oktav och *Insert into
   tracker* kommer ihåg) med egna **Play / Stop**-knappar som förblir användbara
@@ -6375,6 +6505,7 @@ och sparas/läses förlustfritt i det versionerade `.bin`-formatet.
 | Exportera                       | Vad den gör                                                                                                                                                                                                                                                                                                                                                                                                    |
 | ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `Spara .bin…`                   | Skriver editorns ursprungliga serialiserade format (instrument med alla moduleringsinställningar och namn, hastighet, mönster, låt). Äldre sparade filer laddas fortfarande.                                                                                                                                                                                                                                   |
+| `Ny melodi`                     | Startar en tom melodi istället för den nuvarande, efter att först ha frågat.                                                                                                                                                                                                                                                                                                                                   |
 | `Exportera block (endast data)` | Lägger till instrumenttabell + mönsterblock till programmet vid `* = $C000`.                                                                                                                                                                                                                                                                                                                                   |
 | `Exportera block + minispelare` | Lägger till hela spelaren (sid_init / sid_irq / sid_frame / sid_play_row / sid_set_voice) plus PAL-frekvenstabeller. Efter export, placera en `JSR sid_init` i din huvudkod där musiken ska börja; med ditt eget IRQ-anrop `JSR sid_frame` en gång per bildruta istället.                                                                                                                                      |
 | `Exportera asm (urklipp)`       | Kopierar hela assembly-källkoden till urklipp.                                                                                                                                                                                                                                                                                                                                                                 |
@@ -6420,21 +6551,30 @@ förloppsindikator följer inspelningen och sedan *Konverterar…* konverteringe
   notavbrott, en gate-timer (med hård omstart när ADSR nollställs) eller en
   avklingning vid utlösningshastigheten. Identiska instrument delas, upp till
   128.
-- Ett meddelande listar vad som approximerades, till exempel bilder som blir
-  halvtonssteg eller tabeller längre än 32 steg. Multi-SID-låtar och RSID-låtar
-  som börjar som ett BASIC-program stöds inte.
+- Ett meddelande listar vad som approximerades, till exempel diabilder som blir
+  halvtonssteg eller tabeller längre än 32 steg. RSID-melodier som börjar som
+  ett BASIC-program stöds inte.
+- **Flera SID:er:** en 2SID-melodi blir sex röster och tar med sig sin andra
+  SID:s adress. En 3SID-melodi importerar sina två första SID:er, och ett
+  meddelande säger det.
 
 **Användning av spelarens ZP:** `$02`–`$1C` (mönsterpekare, mönsterförskjutning,
 temp) och `$2F` (nuvarande hastighet), plus `$FB`–`$FD` (tickräknare, radindex,
 position i orderlistan). Röst, modulering och filtertillstånd finns i
 `sid_state` efter spelarkoden. ZP-bytena kolliderar om din huvudkod använder dem
-— flytta via expertläge om det behövs.
+— flytta via expertläge om det behövs. Med två SID använder spelaren även
+`$50`–`$67` (pekarna för rösterna 4–6) och `$68`/`$69` (den aktuella röstens
+SID-register).
 
 **Kända gränser:**
 - Spelaren och dess tillstånd sitter vid `$C000`. När melodidata inte får plats
   nedanför `$D000` bredvid dem, flyttas data till ett eget segment som slutar
   nedanför `$A000` (den exporterade asm har en andra `* =`-rad); håll den borta
   från ditt eget program.
+- En melodi med två SID:er behöver dubbelt så mycket mönsterdata: dess `.sid`
+  och assembly-exporter innehåller högst 46 mönster, och resten utelämnas med en
+  not i assembly-källkoden. Melodin förblir hel i editorn. **Export till
+  UltimateBasic** skriver endast de tre första rösterna, med en not.
 - C64 `$D418` global volym delas mellan röster — volymreglaget per instrument är
   informativt; sustainnivån (`S` för ADSR) är den effektiva volymen per röst.
 - Medan **Play: All** har den riktiga melodin laddad (även när den är pausad),
@@ -6444,9 +6584,10 @@ position i orderlistan). Röst, modulering och filtertillstånd finns i
 
 ---
 
-**Exportera .sid (PSID)…** (Fil-menyn) sparar låten med den spelbara
-`$C000`-spelaren som en standard PSID-fil — den spelas upp i SID-spelaren, i
-VICE:s `vsid` och i vilken annan SID-spelare som helst.
+**Exportera .sid (PSID)…** (Filmeny) sparar låten med den spelbara
+`$C000`-spelaren som en vanlig PSID-fil — den spelas upp i SID-spelaren, i
+VICE:s `vsid` och i vilken annan SID-spelare som helst. En låt med två SID:er
+sparas som PSID v3 med dess andra SID:s adress.
 
 ### SID-spelare
 
@@ -6476,7 +6617,8 @@ Verktygsfältsknappen **SID Player** öppnar ett flytande fönster som spelar up
   med en cykelexakt 6510, exakt avbrottstiming, CIA 6526A, VIC-II-timing med
   dåliga linjer, sprite DMA och rasteravbrott, och 6510 I/O-porten — så
   raster-IRQ, CIA-tidsinställda och digitala melodier spelas med timingen hos en
-  riktig maskin.
+  riktig maskin. VA SID Core spelar även 2SID- och 3SID-melodier (PSID v3 / v4)
+  i stereo: SID 1 vänster, SID 2 höger, ett tredje SID i mitten.
 - **Slumpvis:** slumpmässig ordningsknappen bredvid **Nästa** spelar upp
   spellistan i slumpmässig ordning — ingen låt upprepas förrän varje låt har
   spelats, och **Föregående** går tillbaka i den slumpmässiga ordningen.
@@ -6514,6 +6656,9 @@ långsamt och ett speglat golv i perspektiv. Det visar vad SID Player eller SID
 Editor spelar, med endera motorn. **Bands** ställer in 8, 16, 24 eller 32 band.
 Fönstret kan flyttas och ändras i storlek, det stängs och öppnas igen
 tillsammans med SID Player, och det ritar bara när det är öppet.
+
+SID-redigeraren har ett eget fönster för **kanalspektrum** per röst: se
+[SID-redigerare](#sid-editor-3-voice-tracker).
 
 ---
 
