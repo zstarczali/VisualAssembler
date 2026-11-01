@@ -213,7 +213,7 @@ A SID szerkesztő egy 3 vagy 6 hangos (két SID) tracker Web Audio előnézettel
 ### SID Player — HVSC
 
 A SID Player `#websid-play-hvsc` gombja a `#websid-hvsc` panelt nyitja (High Voltage SID Collection): katalógus =
-`DOCUMENTS/Songlengths.md5` (útvonal + subtune-hosszak, `_hvscParseCatalog`, keresés `_hvscSearch`, min. 2 karakter),
+`DOCUMENTS/Songlengths.md5` (útvonal + subtune-hosszak, `_hvscParseCatalog`, keresés `_hvscSearch`, min. 2 karakter; `#websid-hvsc-field` = `all` | `composer`, `_hvscComposerMatches`: a név a `MUSICIANS` alatti mappa, a `GAMES` / `DEMOS` daloknak nincs szerzőjük),
 dal-letöltés egyenként (`hvsc_fetch`, cache: app cache dir `hvsc/`), helyi kibontott mappa (`hvscPath` a configban,
 `hvsc_choose_folder`), teljes gyűjtemény egyben (`hvsc_download_all`: hivatalos .7z a `hvsc.brona.dk`-ról, `sevenz-rust2`,
 `hvsc-download-progress` esemény, `hvsc_cancel_download`). Backend: `src-tauri/src/hvsc.rs`; tükrök `HVSC_MIRRORS`.

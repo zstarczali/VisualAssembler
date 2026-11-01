@@ -4432,7 +4432,10 @@ function _applyEditorTranslations() {
   setAttr("#websid-hvsc-add-all", t("sidHvscAddAll"));
   setAttr("#websid-hvsc-refresh", t("sidHvscRefresh"));
   setAttr("#websid-hvsc-search", t("sidHvscSearch"));
-  document.getElementById("websid-hvsc-search")?.setAttribute("placeholder", t("sidHvscSearch"));
+  _hvscFieldSync();
+  setAttr("#websid-hvsc-field", t("sidHvscField"));
+  setText('#websid-hvsc-field option[value="all"]', t("sidHvscFieldAll"));
+  setText('#websid-hvsc-field option[value="composer"]', t("sidHvscFieldComposer"));
   setAttr("#websid-play-open-list", t("sidPlayerOpenList"));
   setAttr("#websid-play-song-prev", t("sidPlayerPrevSong"));
   setAttr("#websid-play-song-next", t("sidPlayerNextSong"));
@@ -48675,6 +48678,11 @@ function setupSidPlayer() {
     clearTimeout(hvscSearchTimer);
     hvscSearchTimer = setTimeout(_hvscRunSearch, 150);
   });
+  on("websid-hvsc-field", "change", function() {
+    _hvscFieldSync();
+    _hvscRunSearch();
+    document.getElementById("websid-hvsc-search")?.focus();
+  });
   on("websid-hvsc-search", "keydown", function(e) {
     if (e.key === "Enter" && _hvscResults.length) { e.preventDefault(); _hvscAddEntry(_hvscResults[0], true); }
   });
@@ -53570,7 +53578,7 @@ function _sidPreviewSelectedRow() {
 
 /* Keyboard note mapping (tracker style, one octave + above) */
 const _SID_KEYMAP = { z:0,s:1,x:2,d:3,c:4,v:5,g:6,b:7,h:8,n:9,j:10,m:11,
-  q:12,2:13,w:14,3:15,e:16,r:18,5:19,t:20,6:21,y:22,7:23,u:24,i:26 };
+  q:12,2:13,w:14,3:15,e:16,r:17,5:18,t:19,6:20,y:21,7:22,u:23,i:24 };
 
 /* ── Audio ── */
 function _sidEnsureAudio() {
@@ -54491,12 +54499,24 @@ function _hvscParseCatalog(text) {
   });
   return entries;
 }
+// A composer is the MUSICIANS folder of the tune, so GAMES and DEMOS have none.
+// Every word must start a word of the name: "rob" is Rob and Robert, not Probe.
+function _hvscComposerMatches(entry, words) {
+  const name = entry.a.toLowerCase().split(/[\s.-]+/);
+  return words.every(function(w) { return name.some(function(n) { return n.startsWith(w); }); });
+}
+
 // Every word must occur in the path (title, composer, folders); titles that
 // match the query come first.
-function _hvscSearch(entries, query, limit = _HVSC_RESULT_LIMIT) {
+function _hvscSearch(entries, query, limit = _HVSC_RESULT_LIMIT, field = "all") {
   const words = String(query || "").toLowerCase().replace(/_/g, " ").split(/\s+/).filter(Boolean);
   const phrase = words.join(" ");
   if (phrase.length < 2) return { total: 0, items: [] };
+  if (field === "composer") {
+    const found = (entries || []).filter(function(e) { return _hvscComposerMatches(e, words); });
+    found.sort(function(a, b) { return a.a.localeCompare(b.a) || a.t.localeCompare(b.t); });
+    return { total: found.length, items: found.slice(0, limit) };
+  }
   const hits = (entries || []).filter(function(e) { return words.every(function(w) { return e.k.includes(w); }); });
   const rank = function(e) {
     const title = e.t.toLowerCase();
@@ -54535,7 +54555,7 @@ function _hvscOpen() {
 }
 function _hvscPersist() {
   try {
-    localStorage.setItem(_HVSC_STORE, JSON.stringify({ open: _hvscOpen(), query: document.getElementById("websid-hvsc-search")?.value || "" }));
+    localStorage.setItem(_HVSC_STORE, JSON.stringify({ open: _hvscOpen(), query: document.getElementById("websid-hvsc-search")?.value || "", field: _hvscField() }));
   } catch (_) {}
 }
 async function _hvscLoad(refresh) {
@@ -54559,9 +54579,20 @@ async function _hvscLoad(refresh) {
   try { await _hvscLoading; } finally { _hvscLoading = null; }
   _hvscRunSearch();
 }
+function _hvscField() {
+  return document.getElementById("websid-hvsc-field")?.value === "composer" ? "composer" : "all";
+}
+
+function _hvscFieldSync() {
+  const text = t(_hvscField() === "composer" ? "sidHvscSearchComposer" : "sidHvscSearch");
+  const search = document.getElementById("websid-hvsc-search");
+  search?.setAttribute("placeholder", text);
+  search?.setAttribute("aria-label", text);
+}
+
 function _hvscRunSearch() {
   const query = document.getElementById("websid-hvsc-search")?.value || "";
-  const res = _hvscSearch(_hvscEntries, query);
+  const res = _hvscSearch(_hvscEntries, query, _HVSC_RESULT_LIMIT, _hvscField());
   _hvscResults = res.items;
   _hvscTotal = res.total;
   _hvscRender();
@@ -54630,6 +54661,8 @@ function _hvscRender() {
   }
   const search = document.getElementById("websid-hvsc-search");
   if (search) search.disabled = !ready;
+  const hvscField = document.getElementById("websid-hvsc-field");
+  if (hvscField) hvscField.disabled = !ready;
   const list = document.getElementById("websid-hvsc-list");
   if (!list) return;
   list.textContent = "";
@@ -54768,6 +54801,9 @@ function _hvscRestore() {
   try { saved = JSON.parse(localStorage.getItem(_HVSC_STORE) || "null"); } catch (_) {}
   const search = document.getElementById("websid-hvsc-search");
   if (search && typeof saved?.query === "string") search.value = saved.query;
+  const hvscField = document.getElementById("websid-hvsc-field");
+  if (hvscField && saved?.field === "composer") hvscField.value = "composer";
+  _hvscFieldSync();
   if (saved?.open) _hvscSetOpen(true);
 }
 

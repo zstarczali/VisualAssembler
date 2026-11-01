@@ -1570,6 +1570,12 @@ PRINTABLE CHARACTERS
         <li>
           <strong>SID Player buffer:</strong> the setting now states how far ahead the tune is rendered: 10, 15, 20 or 30 s.
         </li>
+        <li>
+          <strong>HVSC by composer:</strong> the search panel can search composer names only.
+        </li>
+        <li>
+          <strong>Tracker keys:</strong> the upper row of the keyboard played a semitone too high from R on, and F could not be entered from it.
+        </li>
       </ul>
       <p class="whats-new-previous">v2.7.1</p>
       <ul class="whats-new-list">
@@ -3157,6 +3163,7 @@ PRINTABLE CHARACTERS
         </div>
         <section id="websid-hvsc" class="websid-hvsc" hidden>
           <div class="websid-hvsc-bar">
+            <select id="websid-hvsc-field" class="websid-hvsc-field" aria-label="Search in"><option value="all">All</option><option value="composer">Composer</option></select>
             <input id="websid-hvsc-search" class="websid-hvsc-search" type="search" spellcheck="false" autocomplete="off" placeholder="Search HVSC…">
             <div class="websid-play-tools">
               <button id="websid-hvsc-random" class="websid-play-tool" type="button" aria-label="Random tunes"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="2" width="12" height="12" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="5.3" cy="5.3" r="1.1" fill="currentColor"/><circle cx="8" cy="8" r="1.1" fill="currentColor"/><circle cx="10.7" cy="10.7" r="1.1" fill="currentColor"/></svg></button>

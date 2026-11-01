@@ -11530,6 +11530,7 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .websid-hvsc[hidden] { display: none; }
 .websid-hvsc-bar { display: flex; align-items: center; gap: 8px; }
 .websid-hvsc-search { flex: 1; min-width: 0; height: 30px; min-height: 0; padding: 3px 8px; font-size: 0.82rem; }
+.websid-hvsc-field { flex: none; width: auto; height: 30px; min-height: 0; padding: 3px 26px 3px 8px; font-size: 0.82rem; }
 .websid-hvsc-status { display: flex; align-items: center; gap: 8px; font-size: 0.72rem; color: var(--secondary); min-height: 1.2em; }
 .websid-hvsc-status > span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .websid-hvsc-status--error { color: #e05555; }
