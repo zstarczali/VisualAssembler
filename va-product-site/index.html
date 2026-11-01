@@ -2192,7 +2192,7 @@
       </div>
     </div>
     <div class="hero-left">
-      <div class="badge">V2.7.0 — LATEST RELEASE</div>
+      <div class="badge">V2.7.1 — LATEST RELEASE</div>
       <h1 class="hero-title">WRITE C64 PROGRAMS<br><span>BLOCKS, MACRO-ASM OR ULTIMATE BASIC.</span></h1>
       <p class="hero-tagline">&ldquo;The best all-in-one, multiplatform Commodore 64 IDE.&rdquo;</p>
       <p class="hero-sub">A modern Commodore 64 IDE: drag-and-drop 6502 assembly blocks or switch to a full text editor
@@ -2287,10 +2287,52 @@
 
   <hr class="div">
 
+  <!-- V2.7.1: ULTIMATE EMULATOR + TWO SIDS -->
+  <div id="release-271" style="background:var(--scr-darker);padding:80px 0">
+    <div class="sec" style="padding-top:0;padding-bottom:0">
+      <div class="ub-tag">NEW IN V2.7.1</div>
+      <div class="sec-s">// A C64 ULTIMATE WITHOUT THE HARDWARE</div>
+      <h2 class="sec-t">ULTIMATE EMULATOR, VICE DEBUGGER<br><span style="color:var(--ylw)">AND TWO SIDS</span></h2>
+      <p class="sec-d" style="max-width:680px">Version 2.7.1 runs your program on the real C64 Ultimate firmware on your own computer, through <a href="https://github.com/Jondalar/UE2-C64U-Emulator" target="_blank" rel="noopener noreferrer">UE2-C64U-Emulator</a>, debugs your program in your own, external VICE, and the SID Editor writes tunes for two SID chips.</p>
+      <div class="feature-list fl-2col">
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>Ultimate emulator:</b> <span>two new run modes send a PRG or a D64 to the unmodified C64 Ultimate / Ultimate 64 firmware, through the same REST API as the real device. VA starts the emulator, installs a <code>.ue2</code> firmware and closes it with the app.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>Debugger on the Ultimate:</b> <span>breakpoints, step into / over / out, registers, disassembly and memory, with the editor following the CPU; the VICE Monitor window connects to the emulator too.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>Debugger for VICE:</b> <span>the same debugger window for your own VICE installation, through its binary monitor. One setting chooses the Debug button's debugger: Visual Assembler (VICE, Ultimate emulator, built-in C64) or RetroDebugger.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>Ultimate turbo demo:</b> <span>a new example with 64 sprites: the CPU speed changes through <code>$D031</code> every 3 seconds, from 1 to 64 MHz. At 1 MHz the frame does not fit; from 4 MHz all 64 run at 50 fps. A second example spins the box cube faster as the CPU speeds up.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>SID Editor, two SIDs:</b> <span>3 or 6 voices with a selectable address for the second SID; preview, save, <code>.sid</code> and assembly export and <code>.sid</code> import handle both chips.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>SID Player:</b> <span>2SID and 3SID tunes in stereo on VA SID Core, and a 16-band spectrum for every voice in the SID Editor.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>Fixes:</b> <span><i>D64 on hardware</i> works with C64 Ultimate firmware 1.1.0; WebSID loads the editor's previews again.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="div">
+
   <!-- V2.7.0: BUILT-IN C64 + DEBUGGER -->
   <div id="release-270" style="background:var(--scr-darker);padding:80px 0">
     <div class="sec" style="padding-top:0;padding-bottom:0">
-      <div class="ub-tag">NEW IN V2.7.0</div>
+      <div class="ub-tag">V2.7.0</div>
       <div class="sec-s">// A C64 INSIDE THE IDE</div>
       <h2 class="sec-t">BUILT-IN C64<br><span style="color:var(--ylw)">WITH A REAL DEBUGGER</span></h2>
       <p class="sec-d" style="max-width:680px">Version 2.7.0 puts VICE 3.10 inside the app: press Run, and your program starts on a complete C64, with nothing to install. Press Debug, and the editor follows the CPU, line by line.</p>
@@ -3673,7 +3715,7 @@
           <div class="fc-ico">► VICE</div>
           <div class="fc-t">VICE INTEGRATION</div>
           <div class="fc-d">Launch directly in the VICE C64 emulator. Supports RetroDebugger, C64 Ultimate hardware
-            upload via REST API, and D64 disk image building.</div>
+            upload via REST API, the Ultimate emulator, and D64 disk image building.</div>
         </div>
         <div class="fc">
           <div class="fc-ico">∿ CURVE</div>
@@ -3856,6 +3898,11 @@
           </div>
           <div class="fi">
             <div class="fi-dot">►</div>
+            <div><b>Ultimate emulator</b> <span>— no hardware at hand: the same PRG / D64 runs on the C64 Ultimate
+                firmware on your computer (UE2-C64U-Emulator), with a debugger.</span></div>
+          </div>
+          <div class="fi">
+            <div class="fi-dot">►</div>
             <div><b>Gideon's Ultimate II+</b> <span>— use Visual Assembler projects on original 1980s and 1990s C64
                 hardware with PRG, D64 and compatible cartridge builds.</span></div>
           </div>
@@ -3863,6 +3910,11 @@
             <div class="fi-dot">►</div>
             <div><b>VICE + RetroDebugger</b> <span>— one-click launch with breakpoints, symbol files and monitor
                 commands.</span></div>
+          </div>
+          <div class="fi">
+            <div class="fi-dot">►</div>
+            <div><b>Debugger for external VICE</b> <span>— the Debug button stops your program in your own VICE
+                (binary monitor): breakpoints, stepping, registers, memory, the editor following the CPU.</span></div>
           </div>
           <div class="fi">
             <div class="fi-dot">►</div>
@@ -4390,7 +4442,7 @@
       const saved = document.cookie.split('; ').find(row => row.startsWith('va_docs_lang='))?.split('=')[1];
       const savedManual = document.cookie.split('; ').find(row => row.startsWith('va_docs_manual='))?.split('=')[1];
       const language = languages.includes(saved) ? saved : 'en';
-      const manual = ['va', 'ub'].includes(savedManual) ? savedManual : 'va';
+      const manual = ['va', 'ub', 'vma'].includes(savedManual) ? savedManual : 'va';
       const url = new URL('docs.html', location.href);
       url.searchParams.set('doc', language);
       url.searchParams.set('manual', manual);
@@ -4457,7 +4509,7 @@
       setTimeout(sparkle, 2500);
     })();
   </script>
-  <script src="assets/consent.js?v=1"></script>
+  <script src="assets/consent.js?v=2"></script>
 </body>
 
 </html>

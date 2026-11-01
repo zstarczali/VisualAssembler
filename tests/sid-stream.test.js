@@ -149,3 +149,142 @@ test("the ring index wraps after 64 frames", () => {
   c.call(0x1003);
   assert.equal(raw[0x1F00], 0);
 });
+
+// ---- two SIDs: a second ring at $3000 is copied to $D420 ---------------------
+
+const ctx2 = {};
+vm.createContext(ctx2);
+vm.runInContext(`${fnSource("_sidStreamPrg")}; this.prg = _sidStreamPrg(2);`, ctx2);
+const PRG2 = Array.from(ctx2.prg);
+
+const hex2 = (n) => n.toString(16).padStart(2, "0");
+const chipSrc = (at, id) => `
+  LDY #28
+  LDA ($FB),Y
+  STA $FD
+  LSR $FD
+  BCC t2${id}
+  LDY #25
+  LDA ($FB),Y
+  STA $D4${hex2(at + 4)}
+t2${id}:
+  LSR $FD
+  BCC t3${id}
+  LDY #26
+  LDA ($FB),Y
+  STA $D4${hex2(at + 11)}
+t3${id}:
+  LSR $FD
+  BCC regs${id}
+  LDY #27
+  LDA ($FB),Y
+  STA $D4${hex2(at + 18)}
+regs${id}:
+  LDY #24
+copy${id}:
+  LDA ($FB),Y
+  STA $D4${hex2(at)},Y
+  DEY
+  BPL copy${id}
+`;
+
+const SRC2 = `
+* = $1000
+  JMP init
+  JMP play
+init:
+  LDA #0
+  STA $1F00
+  STA $1F01
+  LDX #$18
+iclr:
+  STA $D400,X
+  STA $D420,X
+  DEX
+  BPL iclr
+  RTS
+play:
+  LDX $1F00
+  CPX $1F01
+  BNE go
+  RTS
+go:
+  TXA
+  ASL
+  ASL
+  ASL
+  ASL
+  ASL
+  STA $FB
+  TXA
+  LSR
+  LSR
+  LSR
+  CLC
+  ADC #$20
+  STA $FC
+${chipSrc(0, "a")}
+  LDA $FC
+  CLC
+  ADC #$10
+  STA $FC
+${chipSrc(0x20, "b")}
+  INX
+  TXA
+  AND #63
+  STA $1F00
+  RTS
+`;
+
+test("the two-SID stream player matches its source", () => {
+  const code = PRG2.slice(2);
+  const { mem } = assemble(SRC2);
+  assert.deepEqual(Array.from(mem.slice(0x1000, 0x1000 + code.length)), code);
+});
+
+test("the stream player writes the second SID at its own address", () => {
+  const c3 = {};
+  vm.createContext(c3);
+  vm.runInContext(`${fnSource("_sidStreamPrg")}; this.prg = _sidStreamPrg(2, 0xDE20);`, c3);
+  const raw = new Uint8Array(0x10000);
+  Array.from(c3.prg).slice(2).forEach((b, i) => { raw[0x1000 + i] = b; });
+  const c = cpu(raw);
+  c.call(0x1000);
+  for (let k = 0; k < 25; k++) raw[0x3000 + k] = 0x80 + k;
+  raw[0x1F01] = 1;
+  c.call(0x1003);
+  assert.deepEqual(Array.from(raw.slice(0xDE20, 0xDE39)), Array.from({ length: 25 }, (_, k) => 0x80 + k));
+  assert.equal(raw[0xD420], 0);
+});
+
+test("the two-SID stream copies each ring to its own chip", () => {
+  const raw = new Uint8Array(0x10000);
+  PRG2.slice(2).forEach((b, i) => { raw[0x1000 + i] = b; });
+  const log = [];
+  const mem = new Proxy(raw, {
+    set(target, key, value) {
+      const ad = Number(key);
+      if (ad >= 0xD400 && ad <= 0xD438) log.push([ad - 0xD400, value]);
+      target[key] = value;
+      return true;
+    },
+  });
+  const c = cpu(mem);
+  c.call(0x1000);
+  log.length = 0;
+  c.call(0x1003);
+  assert.equal(log.length, 0, "empty ring writes nothing");
+  // the last ring slot, to check the wrap and the high ring address: voice 2 of SID 2 re-triggered
+  const a = 0x2000 + 63 * 32, b = 0x3000 + 63 * 32;
+  for (let k = 0; k < 25; k++) { raw[a + k] = 0x40 + k; raw[b + k] = 0x80 + k; }
+  raw[b + 26] = 0x10; raw[b + 28] = 2;
+  raw[0x1F00] = 63; raw[0x1F01] = 0;
+  c.call(0x1003);
+  assert.equal(raw[0x1F00], 0);
+  const first = log.slice(0, 25), second = log.slice(25);
+  assert.deepEqual(first.map((w) => w[0]), Array.from({ length: 25 }, (_, i) => 24 - i));
+  assert.ok(first.every(([r, v]) => v === 0x40 + r));
+  assert.deepEqual(second[0], [0x20 + 11, 0x10], "gate-off first, on the second chip");
+  assert.deepEqual(second.slice(1).map((w) => w[0]), Array.from({ length: 25 }, (_, i) => 0x20 + 24 - i));
+  assert.ok(second.slice(1).every(([r, v]) => v === 0x80 + r - 0x20));
+});

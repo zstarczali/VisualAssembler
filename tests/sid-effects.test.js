@@ -106,7 +106,7 @@ test("cell text renders the effect column alongside note+instrument", () => {
 
 function loadSerdeSandbox() {
   return loadFunctions(
-    ["_sidInstFields", "_sidInstNorm", "_sidInstCtrl", "_sidInstExtBytes", "_sidReadInstExt", "_sidWaStop", "_sidStreamSilence", "_sidStreamPreload", "_sidInstBytes", "_sidWaveByte", "_sidNewInst", "_sidNewPattern", "_sidSerialize", "_sidDeserialize",
+    ["_sidInstFields", "_sidInstNorm", "_sidInstCtrl", "_sidInstExtBytes", "_sidReadInstExt", "_sidWaStop", "_sidStreamSilence", "_sidStreamPreload", "_sidInstBytes", "_sidWaveByte", "_sidNewInst", "_sidVoiceCount", "_sidNewPattern", "_sidSerialize", "_sidDeserialize",
      "_sidSyncPlayModeSel", "_sidBuildInstSel", "_sidLoadInstUI", "_sidBuildPatSel", "_sidBuildSongList",
      "_sidBuildTracker", "_sidStop", "_sidUpdatePauseButton", "_sidCurInst"],
     {
@@ -116,6 +116,9 @@ function loadSerdeSandbox() {
       tf: () => "",
       _webSidPause: () => {},
       _sidDrawADSR: () => {},
+      _sidSid2Addr: 0xD420,
+      _sidAna: {},
+      _sidPatterns: null,
       _sidSong: undefined,
       _sidSongPos: 0,
       _sidSongPlayPos: 0,
@@ -144,6 +147,33 @@ test("serialize/deserialize round-trips per-cell effect data", () => {
   assert.deepEqual({ ...ctx._sidPatterns[0][0][3] }, { note: 40, inst: 0, fx: "V", fxval: 0x24 });
   assert.deepEqual({ ...ctx._sidPatterns[0][1][5] }, { note: null, inst: 0, fx: "F", fxval: 4 });
   assert.deepEqual({ ...ctx._sidPatterns[0][2][7] }, { note: null, inst: 0, fx: "C", fxval: 0 });
+});
+
+test("a tune with two SIDs saves and loads its six voices; a one-SID tune keeps the old format", () => {
+  const ctx = loadSerdeSandbox();
+  ctx._sidInsts = [ctx._sidNewInst("Lead")];
+  ctx._sidPatterns = [ctx._sidNewPattern()];
+  ctx._sidSong = [0];
+  assert.equal(ctx._sidSerialize()[0], 0xFD);
+
+  ctx._sidPatterns = [ctx._sidNewPattern(6)];
+  ctx._sidPatterns.push(ctx._sidNewPattern());
+  assert.equal(ctx._sidPatterns[1].length, 6, "new patterns follow the tune's width");
+  ctx._sidPatterns[0][5][7] = { note: 40, inst: 0, fx: "V", fxval: 0x24 };
+  ctx._sidPatterns[1][3][0] = { note: 12, inst: 0, fx: null, fxval: 0 };
+  ctx._sidSong = [1, 0];
+  ctx._sidSid2Addr = 0xDE00;
+  const bytes = ctx._sidSerialize();
+  assert.equal(bytes[0], 0xFC);
+
+  ctx._sidPatterns = null; ctx._sidInsts = null; ctx._sidSong = null; ctx._sidSid2Addr = 0;
+  ctx._sidDeserialize(bytes);
+  assert.equal(ctx._sidSid2Addr, 0xDE00);
+  assert.equal(ctx._sidPatterns.length, 2);
+  assert.equal(ctx._sidVoiceCount(), 6);
+  assert.deepEqual({ ...ctx._sidPatterns[0][5][7] }, { note: 40, inst: 0, fx: "V", fxval: 0x24 });
+  assert.equal(ctx._sidPatterns[1][3][0].note, 12);
+  assert.deepEqual(Array.from(ctx._sidSong), [1, 0]);
 });
 
 test("deserialize reads pre-effect-column saves (no marker, 2 bytes/cell) with no effects", () => {

@@ -298,3 +298,65 @@ test("instruments with the same wave table store it once in the player data", ()
   assert.deepEqual(Array.from(td.a.itst), [0, 0, 1]);
   assert.equal(td.a.tw.length, 2);
 });
+
+// ---- two SIDs: 26 bytes per chip in a frame, six voices in the tune -----------
+
+function twoSidDump(frames, notes) {
+  const { freq } = load();
+  const d = new Uint8Array(frames * FB * 2);
+  for (let f = 0; f < frames; f++) { d[f * FB * 2 + 0x18] = 0x0F; d[f * FB * 2 + 26 + 0x18] = 0x0F; }
+  notes.forEach((n) => {
+    const at = 26 * (n.v / 3 | 0), bit = n.v % 3, b = at + bit * 7;
+    for (let f = n.frame; f < Math.min(frames, n.frame + n.len); f++) {
+      const o = f * FB * 2 + b, fr = freq(n.note);
+      d[o] = fr & 0xFF; d[o + 1] = fr >> 8;
+      d[o + 2] = 0; d[o + 3] = 8;
+      d[o + 4] = (n.wave || 0x40) | 1;
+      d[o + 5] = 0x09; d[o + 6] = 0xA0;
+    }
+    d[n.frame * FB * 2 + at + 25] |= 1 << bit;
+  });
+  return d;
+}
+
+test("a two-SID dump becomes six voices, each note on its own voice", () => {
+  const { imp } = load();
+  const notes = [
+    { v: 0, frame: 0, note: 48, len: 10 }, { v: 3, frame: 0, note: 60, len: 10, wave: 0x20 },
+    { v: 1, frame: 12, note: 50, len: 10 }, { v: 4, frame: 12, note: 62, len: 10, wave: 0x10 },
+    { v: 2, frame: 24, note: 52, len: 10 }, { v: 5, frame: 24, note: 64, len: 10, wave: 0x80 },
+  ];
+  const r = imp(twoSidDump(80, notes), { frameBytes: 52, sid2Addr: 0xD500 });
+  assert.equal(r.sid2, 0xD500);
+  const p = r.patterns[r.song[0]];
+  assert.equal(p.length, 6);
+  notes.forEach((n) => {
+    const row = p[n.v].findIndex((c) => c.note != null);
+    assert.equal(p[n.v][row].note, n.note, `voice ${n.v}`);
+    assert.equal(row, Math.round(n.frame / r.speed), `voice ${n.v} row`);
+  });
+  assert.equal(r.insts[p[3][0].inst].saw, true);
+  assert.equal(r.insts[p[5][p[5].findIndex((c) => c.note != null)].inst].noi, true);
+});
+
+test("a two-SID import takes filter and volume from the chip of the voice", () => {
+  const { imp } = load();
+  const d = twoSidDump(40, [{ v: 0, frame: 0, note: 48, len: 20 }, { v: 4, frame: 0, note: 60, len: 20 }]);
+  for (let f = 0; f < 40; f++) {
+    const o = f * 52;
+    d[o + 0x16] = 0x10; d[o + 0x17] = 0x30; d[o + 0x18] = 0x07;              // SID 1: no routing, volume 7
+    d[o + 26 + 0x16] = 0x80; d[o + 26 + 0x17] = 0x52; d[o + 26 + 0x18] = 0x4C; // SID 2: voice 2 routed, HP, volume 12
+  }
+  const r = imp(d, { frameBytes: 52, sid2Addr: 0xD420 });
+  const p = r.patterns[r.song[0]];
+  const first = r.insts[p[0][0].inst], second = r.insts[p[4][0].inst];
+  assert.deepEqual([first.vol, first.filt], [7, false]);
+  assert.deepEqual([second.vol, second.filt, second.hp, second.res, second.cut], [12, true, true, 5, 0x80 << 3]);
+});
+
+test("a one-SID dump still gives three voices and no second SID address", () => {
+  const { imp } = load();
+  const r = imp(dump(40, [{ v: 0, frame: 0, note: 48, len: 10 }]), { frameBytes: 26 });
+  assert.equal(r.patterns[0].length, 3);
+  assert.equal(r.sid2, 0);
+});

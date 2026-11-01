@@ -52,6 +52,14 @@ fn kernal_stub() -> Box<[u8; 8192]> {
     rom
 }
 
+/// A second or third chip of a PSID v3 / v4 tune, 32 registers at `base`.
+struct ExtraSid {
+    base: u16,
+    core: SidCore,
+    regs: [u8; 32],
+    gate_on: u8,
+}
+
 struct Machine {
     ram: Box<[u8; 65_536]>,
     kernal: Box<[u8; 8192]>,
@@ -60,15 +68,26 @@ struct Machine {
     /// Machine cycles since power-on (for the CPU port's floating bits).
     clk: u64,
     sid: SidCore,
+    extra_sids: Vec<ExtraSid>,
     cia1: Cia,
     cia2: Cia,
     vic: Vicii,
+    /// Mono, or interleaved stereo when the tune has extra SIDs.
     output: Vec<i16>,
+    /// Sample frames to drop instead of adding them to the output.
     discard: usize,
-    /// Last value written to each SID register (the chip is write-only).
+    /// Last value written to each register of the first SID (the chip is write-only).
     sid_regs: [u8; 32],
-    /// Voices whose gate bit went 0 → 1 since the last register dump frame.
+    /// Voices of the first SID whose gate bit went 0 → 1 since the last register dump frame.
     gate_on: u8,
+}
+
+/// Keeps a SID write for the register dump: the value and any gate-on edge.
+fn track_sid_write(regs: &mut [u8; 32], gate_on: &mut u8, reg: usize, value: u8) {
+    if matches!(reg, 4 | 11 | 18) && regs[reg] & 1 == 0 && value & 1 != 0 {
+        *gate_on |= 1 << (reg / 7);
+    }
+    regs[reg] = value;
 }
 
 impl Machine {
@@ -81,7 +100,47 @@ impl Machine {
         banks & 3 != 0 && banks & 4 != 0
     }
 
+    fn extra_sid(&mut self, address: u16) -> Option<&mut ExtraSid> {
+        self.extra_sids.iter_mut().find(|sid| address & 0xffe0 == sid.base)
+    }
+
+    fn channels(&self) -> usize {
+        if self.extra_sids.is_empty() {
+            1
+        } else {
+            2
+        }
+    }
+
+    /// SID 1 left, SID 2 right, as on a stereo C64; a third chip goes to the centre.
+    fn push_output(&mut self) {
+        let first = self.sid.output_sample();
+        match self.extra_sids.as_slice() {
+            [] => self.output.push(first),
+            [second] => {
+                let right = second.core.output_sample();
+                self.output.extend_from_slice(&[first, right]);
+            }
+            [second, third, ..] => {
+                let (left, right) = (i32::from(first), i32::from(second.core.output_sample()));
+                let centre = i32::from(third.core.output_sample());
+                self.output.push(((2 * left + centre) / 3) as i16);
+                self.output.push(((2 * right + centre) / 3) as i16);
+            }
+        }
+    }
+
+    fn set_output_enabled(&mut self, enabled: bool) {
+        self.sid.set_output_enabled(enabled);
+        for sid in &mut self.extra_sids {
+            sid.core.set_output_enabled(enabled);
+        }
+    }
+
     fn io_read(&mut self, address: u16) -> u8 {
+        if let Some(sid) = self.extra_sid(address) {
+            return sid.core.read((address & 0x1f) as u8);
+        }
         match address {
             0xd000..=0xd3ff => self.vic.read(address),
             0xd400..=0xd7ff => self.sid.read((address & 0x1f) as u8),
@@ -93,14 +152,17 @@ impl Machine {
     }
 
     fn io_write(&mut self, address: u16, value: u8) {
+        if let Some(sid) = self.extra_sid(address) {
+            let reg = (address & 0x1f) as usize;
+            track_sid_write(&mut sid.regs, &mut sid.gate_on, reg, value);
+            sid.core.write(reg as u8, value);
+            return;
+        }
         match address {
             0xd000..=0xd3ff => self.vic.write(address, value),
             0xd400..=0xd7ff => {
                 let reg = (address & 0x1f) as usize;
-                if matches!(reg, 4 | 11 | 18) && self.sid_regs[reg] & 1 == 0 && value & 1 != 0 {
-                    self.gate_on |= 1 << (reg / 7);
-                }
-                self.sid_regs[reg] = value;
+                track_sid_write(&mut self.sid_regs, &mut self.gate_on, reg, value);
                 self.sid.write(reg as u8, value);
             }
             0xd800..=0xdbff => self.color[(address & 0x3ff) as usize] = value & 0x0f,
@@ -143,11 +205,16 @@ impl Bus for Machine {
             self.vic.tick();
             self.cia1.tick();
             self.cia2.tick();
-            if self.sid.clock() {
+            // same clock and sample rate: the samples of all chips fall due together
+            let due = self.sid.clock();
+            for sid in &mut self.extra_sids {
+                sid.core.clock();
+            }
+            if due {
                 if self.discard > 0 {
                     self.discard -= 1;
                 } else {
-                    self.output.push(self.sid.output_sample());
+                    self.push_output();
                 }
             }
         }
@@ -181,6 +248,26 @@ fn bank_for(code_high: u8, end_high: u8) -> u8 {
         0x36
     } else {
         0x37
+    }
+}
+
+/// A PSID v3 / v4 extra SID address byte: even $42-$7E ($D420-$D7E0) or
+/// $E0-$FE ($DE00-$DFE0). Any other value means there is no such chip.
+fn extra_sid_base(byte: u8) -> Option<u16> {
+    (byte & 1 == 0 && matches!(byte, 0x42..=0x7e | 0xe0..=0xfe)).then(|| 0xd000 + u16::from(byte) * 16)
+}
+
+/// The chosen model drives every chip, unless the header asks for a model
+/// other than the first SID's: such a tune is written for a mixed pair.
+fn extra_sid_model(flags: u16, shift: u32, model: SidModel) -> SidModel {
+    let declared = (flags >> shift) & 3;
+    if declared == (flags >> 4) & 3 {
+        return model;
+    }
+    match declared {
+        1 => SidModel::Mos6581,
+        2 => SidModel::Mos8580,
+        _ => model,
     }
 }
 
@@ -220,10 +307,9 @@ impl SidFilePlayer {
         if version >= 2 && bytes.len() < 0x7c {
             return Err("Truncated SID v2 header.".into());
         }
-        if version >= 3 && (bytes[0x7a] != 0 || bytes[0x7b] != 0) {
-            return Err("Multi-SID files are not yet supported by VA SID Core.".into());
-        }
         let flags = if version >= 2 { be16(bytes, 0x76) } else { 0 };
+        let second_sid = if version >= 3 { extra_sid_base(bytes[0x7a]) } else { None };
+        let third_sid = if version >= 4 { extra_sid_base(bytes[0x7b]) } else { None }.filter(|&base| Some(base) != second_sid);
         if rsid && flags & 0x02 != 0 {
             return Err("RSID tunes that start as a BASIC program are not supported (no BASIC ROM).".into());
         }
@@ -258,6 +344,13 @@ impl SidFilePlayer {
         let clock_hz = if ntsc { NTSC_CLOCK } else { PAL_CLOCK };
         let speed = u32::from_be_bytes(bytes[0x12..0x16].try_into().unwrap());
         let cia_speed = !rsid && (speed >> (song - 1).min(31)) & 1 != 0;
+        let extra_sids = [(second_sid, 6), (third_sid, 8)]
+            .into_iter()
+            .filter_map(|(base, model_shift)| {
+                let core = SidCore::new_with_clock(sample_rate, extra_sid_model(flags, model_shift, model), clock_hz);
+                base.map(|base| ExtraSid { base, core, regs: [0; 32], gate_on: 0 })
+            })
+            .collect();
 
         let mut machine = Machine {
             ram: Box::new([0; 65_536]),
@@ -266,6 +359,7 @@ impl SidFilePlayer {
             port: CpuPort::new(),
             clk: 0,
             sid: SidCore::new_with_clock(sample_rate, model, clock_hz),
+            extra_sids,
             cia1: Cia::new(CiaModel::Mos6526A, clock_hz as u32, if ntsc { 60 } else { 50 }),
             cia2: Cia::new(CiaModel::Mos6526A, clock_hz as u32, if ntsc { 60 } else { 50 }),
             vic: Vicii::new(if ntsc { ViciiModel::Ntsc } else { ViciiModel::Pal }),
@@ -298,6 +392,10 @@ impl SidFilePlayer {
         machine.cia1.write(0x0e, 0x01);
         machine.sid.write(0x18, 0x0f);
         machine.sid_regs[0x18] = 0x0f;
+        for sid in &mut machine.extra_sids {
+            sid.core.write(0x18, 0x0f);
+            sid.regs[0x18] = 0x0f;
+        }
         let raster_play = !rsid && play_address != 0 && !cia_speed;
         if raster_play {
             machine.vic.write(0xd01a, 0x01);
@@ -339,6 +437,25 @@ impl SidFilePlayer {
 
     pub fn song(&self) -> u16 {
         self.song
+    }
+
+    /// 1 (mono), or 2 (interleaved stereo) for a tune with extra SIDs.
+    pub fn channels(&self) -> usize {
+        self.machine.channels()
+    }
+
+    pub fn sid_count(&self) -> usize {
+        1 + self.machine.extra_sids.len()
+    }
+
+    /// The address of the second SID, if the tune has one.
+    pub fn second_sid(&self) -> Option<u16> {
+        self.machine.extra_sids.first().map(|sid| sid.base)
+    }
+
+    /// The bytes of one `dump_registers` frame.
+    pub fn dump_frame_bytes(&self) -> usize {
+        DUMP_FRAME_BYTES * self.sid_count().min(DUMP_MAX_SIDS)
     }
 
     /// Calls `address` like JSR, returning to the driver at CALL_RETURN.
@@ -417,23 +534,26 @@ impl SidFilePlayer {
         at(self.frame_number + frames) - at(self.frame_number)
     }
 
-    /// Renders `frames` video frames of audio (50.12 Hz PAL, 59.83 Hz NTSC).
+    /// Renders `frames` video frames of audio (50.12 Hz PAL, 59.83 Hz NTSC),
+    /// `channels()` interleaved values per sample.
     pub fn render_frames(&mut self, frames: usize) -> Result<Vec<i16>, String> {
-        let count = self.frame_samples(frames);
+        let count = self.frame_samples(frames) * self.channels();
         self.run_until(|machine| machine.output.len() >= count);
         self.frame_number += frames;
         Ok(self.machine.output.drain(..count).collect())
     }
 
     /// Runs `frames` video frames without computing the output (seeking).
+    /// Returns the number of samples per channel skipped.
     pub fn skip_frames(&mut self, frames: usize) -> Result<usize, String> {
         let count = self.frame_samples(frames);
-        let buffered = count.min(self.machine.output.len());
-        self.machine.output.drain(..buffered);
+        let channels = self.channels();
+        let buffered = count.min(self.machine.output.len() / channels);
+        self.machine.output.drain(..buffered * channels);
         self.machine.discard = count - buffered;
-        self.machine.sid.set_output_enabled(false);
+        self.machine.set_output_enabled(false);
         self.run_until(|machine| machine.discard == 0);
-        self.machine.sid.set_output_enabled(true);
+        self.machine.set_output_enabled(true);
         self.frame_number += frames;
         Ok(count)
     }
@@ -442,16 +562,17 @@ impl SidFilePlayer {
         self.frame_rate
     }
 
-    /// Runs `frames` video frames silently and returns, per frame, the SID
-    /// registers $D400-$D418 as last written (25 bytes) plus one byte whose
-    /// bits 0-2 flag the voices whose gate went on during that frame.
+    /// Runs `frames` video frames silently and returns, per frame and SID (the
+    /// SID Editor's two at most), the registers $00-$18 as last written (25 bytes)
+    /// plus one byte whose bits 0-2 flag the voices whose gate went on during that frame.
     /// `progress` gets the number of frames done after every frame.
     pub fn dump_registers(&mut self, frames: usize, mut progress: impl FnMut(usize)) -> Vec<u8> {
         let frame_cycles = u64::from(self.machine.vic.lines()) * u64::from(self.machine.vic.cycles_per_line());
-        let mut out = Vec::with_capacity(frames * DUMP_FRAME_BYTES);
+        let frame_bytes = self.dump_frame_bytes();
+        let mut out = Vec::with_capacity(frames * frame_bytes);
         self.machine.output.clear();
         self.machine.discard = usize::MAX;
-        self.machine.sid.set_output_enabled(false);
+        self.machine.set_output_enabled(false);
         let mut target = self.machine.clk;
         for _ in 0..frames {
             target += frame_cycles;
@@ -459,15 +580,22 @@ impl SidFilePlayer {
             out.extend_from_slice(&self.machine.sid_regs[..25]);
             out.push(self.machine.gate_on);
             self.machine.gate_on = 0;
-            progress(out.len() / DUMP_FRAME_BYTES);
+            for sid in self.machine.extra_sids.iter_mut().take(DUMP_MAX_SIDS - 1) {
+                out.extend_from_slice(&sid.regs[..25]);
+                out.push(sid.gate_on);
+                sid.gate_on = 0;
+            }
+            progress(out.len() / frame_bytes);
         }
         self.machine.discard = 0;
-        self.machine.sid.set_output_enabled(true);
+        self.machine.set_output_enabled(true);
         out
     }
 }
 
+/// The bytes of one SID in a `dump_registers` frame.
 pub const DUMP_FRAME_BYTES: usize = 26;
+const DUMP_MAX_SIDS: usize = 2;
 
 /// Name and author fields of a PSID / RSID header (Latin-1, zero padded).
 pub fn header_strings(bytes: &[u8]) -> (String, String) {
@@ -542,6 +670,172 @@ mod tests {
             assert_eq!(f[25] & 1 != 0, f[4] & 1 != 0);
             assert_eq!(f[0x18], 0x0f);
         }
+    }
+
+    /// A PSID v3 / v4 header around `code`, which starts with init at $1000.
+    fn multi_sid(version: u8, second: u8, third: u8, flags: u16, play: u16, code: &[u8]) -> Vec<u8> {
+        let mut file = psid(0x1000, 0x1000, play, 0, code);
+        file[5] = version;
+        file[0x76..0x78].copy_from_slice(&flags.to_be_bytes());
+        file[0x7a] = second;
+        file[0x7b] = third;
+        file
+    }
+
+    /// LDA #value / STA address, for each of `writes`, followed by RTS.
+    fn write_code(writes: &[(u16, u8)]) -> Vec<u8> {
+        let mut code = Vec::new();
+        for &(address, value) in writes {
+            code.extend_from_slice(&[0xa9, value, 0x8d, address as u8, (address >> 8) as u8]);
+        }
+        code.push(0x60);
+        code
+    }
+
+    /// A held sawtooth note on voice 1 of the SID at `base`.
+    fn note(base: u16) -> Vec<(u16, u8)> {
+        vec![(base + 1, 0x20), (base + 5, 0x00), (base + 6, 0xf0), (base + 0x18, 0x0f), (base + 4, 0x21)]
+    }
+
+    fn peaks(pcm: &[i16]) -> (i32, i32) {
+        let peak = |channel: usize| pcm.chunks(2).map(|pair| i32::from(pair[channel]).abs()).max().unwrap();
+        (peak(0), peak(1))
+    }
+
+    #[test]
+    fn header_address_bytes_select_the_extra_sids() {
+        assert_eq!(extra_sid_base(0x42), Some(0xd420));
+        assert_eq!(extra_sid_base(0x50), Some(0xd500));
+        assert_eq!(extra_sid_base(0xe0), Some(0xde00));
+        for invalid in [0x00, 0x40, 0x43, 0x80, 0xd0, 0xe1] {
+            assert_eq!(extra_sid_base(invalid), None, "{invalid:#x}");
+        }
+        let code = [0x60, 0x60];
+        let count = |version, second, third| {
+            SidFilePlayer::new(&multi_sid(version, second, third, 0, 0x1000, &code), 44_100, SidModel::Mos8580)
+                .unwrap()
+                .sid_count()
+        };
+        assert_eq!(count(2, 0x42, 0x44), 1, "v2 has no extra SID fields");
+        assert_eq!(count(3, 0x00, 0x00), 1);
+        assert_eq!(count(3, 0x42, 0x44), 2, "v3 has no third SID");
+        assert_eq!(count(4, 0x42, 0x44), 3);
+        assert_eq!(count(4, 0x42, 0x42), 2, "the third SID cannot share the second's address");
+    }
+
+    #[test]
+    fn extra_sid_model_follows_the_chosen_model_unless_the_tune_is_mixed() {
+        let (first_6581, second_6581, second_8580) = (1 << 4, 1 << 6, 2 << 6);
+        assert_eq!(extra_sid_model(0, 6, SidModel::Mos8580), SidModel::Mos8580);
+        assert_eq!(extra_sid_model(first_6581 | second_6581, 6, SidModel::Mos8580), SidModel::Mos8580);
+        assert_eq!(extra_sid_model(first_6581 | second_8580, 6, SidModel::Mos6581), SidModel::Mos8580);
+        assert_eq!(extra_sid_model(first_6581, 6, SidModel::Mos8580), SidModel::Mos8580, "unknown: same as the first");
+    }
+
+    #[test]
+    fn stereo_output_keeps_each_sid_on_its_own_channel() {
+        for (byte, base) in [(0x42, 0xd420), (0xe0, 0xde00)] {
+            let code = write_code(&note(base));
+            let bytes = multi_sid(3, byte, 0, 0, 0x1000, &code);
+            let mut only_second = SidFilePlayer::new(&bytes, 44_100, SidModel::Mos8580).unwrap();
+            assert_eq!(only_second.channels(), 2);
+            let pcm = only_second.render_frames(10).unwrap();
+            let expected = (10.0 * 44_100.0 / only_second.frame_rate).floor() as usize * 2;
+            assert_eq!(pcm.len(), expected);
+            let (left, right) = peaks(&pcm[expected / 2..]);
+            assert!(right > 1_000 && left * 20 < right, "{base:#x}: left {left}, right {right}");
+        }
+        let code = write_code(&note(0xd400));
+        let mut only_first = SidFilePlayer::new(&multi_sid(3, 0x42, 0, 0, 0x1000, &code), 44_100, SidModel::Mos8580).unwrap();
+        let pcm = only_first.render_frames(10).unwrap();
+        let (left, right) = peaks(&pcm[pcm.len() / 2..]);
+        assert!(left > 1_000 && right * 20 < left, "left {left}, right {right}");
+    }
+
+    #[test]
+    fn third_sid_is_heard_on_both_channels() {
+        let code = write_code(&note(0xd440));
+        let mut player = SidFilePlayer::new(&multi_sid(4, 0x42, 0x44, 0, 0x1000, &code), 44_100, SidModel::Mos8580).unwrap();
+        assert_eq!(player.channels(), 2);
+        let pcm = player.render_frames(10).unwrap();
+        let (left, right) = peaks(&pcm[pcm.len() / 2..]);
+        assert!(left > 1_000 && left == right, "left {left}, right {right}");
+    }
+
+    #[test]
+    fn single_sid_tune_keeps_the_mirrors_and_mono_output() {
+        // no second SID: $D420 is a mirror of $D400
+        let code = write_code(&note(0xd420));
+        let mut player = SidFilePlayer::new(&multi_sid(3, 0x00, 0, 0, 0x1000, &code), 44_100, SidModel::Mos8580).unwrap();
+        assert_eq!(player.channels(), 1);
+        let pcm = player.render_frames(10).unwrap();
+        assert_eq!(pcm.len(), (10.0 * 44_100.0 / player.frame_rate).floor() as usize);
+        assert!(pcm.iter().any(|&sample| i32::from(sample).abs() > 1_000));
+    }
+
+    #[test]
+    fn extra_sid_registers_read_back_from_their_own_chip() {
+        // voice 3 of the second SID runs at full frequency; its oscillator shows at $D43B
+        let code = write_code(&[(0xd42f, 0xff), (0xd432, 0x20)]);
+        let bytes = multi_sid(3, 0x42, 0, 0, 0x1000, &code);
+        let mut player = SidFilePlayer::new(&bytes, 44_100, SidModel::Mos8580).unwrap();
+        player.render_frames(2).unwrap();
+        let second: Vec<u8> = (0..16)
+            .map(|_| {
+                player.machine.tick(37);
+                player.machine.io_read(0xd43b)
+            })
+            .collect();
+        assert!(second.windows(2).any(|w| w[0] != w[1]), "{second:?}");
+        assert_eq!(player.machine.io_read(0xd41b), 0, "the first SID's voice 3 is silent");
+    }
+
+    #[test]
+    fn stereo_seek_lands_on_the_same_audio_as_rendering() {
+        let code = write_code(&[note(0xd400), note(0xd420)].concat());
+        let bytes = multi_sid(3, 0x42, 0, 0, 0x1000, &code);
+        let mut played = SidFilePlayer::new(&bytes, 44_100, SidModel::Mos8580).unwrap();
+        let mut skipped = SidFilePlayer::new(&bytes, 44_100, SidModel::Mos8580).unwrap();
+        let whole = played.render_frames(30).unwrap();
+        let dropped = skipped.skip_frames(10).unwrap();
+        let resumed = skipped.render_frames(20).unwrap();
+        assert_eq!(resumed.len(), whole.len() - dropped * 2);
+        let settle = 4_410 * 2;
+        let peak_of = |part: &[i16]| part.iter().map(|&sample| i32::from(sample).abs()).max().unwrap();
+        assert!((peak_of(&resumed[settle..]) - peak_of(&whole[dropped * 2 + settle..])).abs() < 200);
+    }
+
+    #[test]
+    fn register_dump_holds_two_sids_each_with_its_own_gate_edges() {
+        let code = write_code(&[(0xd400, 0x11), (0xd500, 0x22), (0xd404, 0x21), (0xd50b, 0x41)]);
+        let mut player = SidFilePlayer::new(&multi_sid(3, 0x50, 0, 0, 0x1000, &code), 44_100, SidModel::Mos8580).unwrap();
+        assert_eq!(player.second_sid(), Some(0xd500));
+        let frame = player.dump_frame_bytes();
+        assert_eq!(frame, 2 * DUMP_FRAME_BYTES);
+        let mut seen = 0;
+        let dump = player.dump_registers(2, |done| seen = done);
+        assert_eq!((dump.len(), seen), (2 * frame, 2));
+        assert_eq!((dump[0], dump[4], dump[25]), (0x11, 0x21, 1), "first SID");
+        let second = &dump[DUMP_FRAME_BYTES..frame];
+        assert_eq!((second[0], second[11], second[0x18], second[25]), (0x22, 0x41, 0x0f, 2), "second SID");
+        assert_eq!((dump[frame + 25], dump[frame + DUMP_FRAME_BYTES + 25]), (0, 0), "the edges are reported once");
+    }
+
+    #[test]
+    fn register_dump_of_three_sids_keeps_the_first_two() {
+        let code = write_code(&[(0xd400, 0x11), (0xd420, 0x22), (0xd440, 0x33)]);
+        let mut player = SidFilePlayer::new(&multi_sid(4, 0x42, 0x44, 0, 0x1000, &code), 44_100, SidModel::Mos8580).unwrap();
+        assert_eq!(player.dump_frame_bytes(), 2 * DUMP_FRAME_BYTES);
+        let dump = player.dump_registers(1, |_| {});
+        assert_eq!((dump.len(), dump[0], dump[DUMP_FRAME_BYTES]), (2 * DUMP_FRAME_BYTES, 0x11, 0x22));
+    }
+
+    #[test]
+    fn register_dump_of_a_one_sid_tune_keeps_its_layout() {
+        let code = write_code(&[(0xd400, 0x11)]);
+        let mut player = SidFilePlayer::new(&multi_sid(3, 0, 0, 0, 0x1000, &code), 44_100, SidModel::Mos8580).unwrap();
+        assert_eq!(player.second_sid(), None);
+        assert_eq!(player.dump_registers(3, |_| {}).len(), 3 * DUMP_FRAME_BYTES);
     }
 
     #[test]
@@ -777,10 +1071,11 @@ mod smoke {
                 wav.extend_from_slice(b"RIFF");
                 wav.extend_from_slice(&(36 + data).to_le_bytes());
                 wav.extend_from_slice(b"WAVEfmt ");
-                wav.extend_from_slice(&[16, 0, 0, 0, 1, 0, 1, 0]);
+                let channels = player.channels() as u8;
+                wav.extend_from_slice(&[16, 0, 0, 0, 1, 0, channels, 0]);
                 wav.extend_from_slice(&44_100u32.to_le_bytes());
-                wav.extend_from_slice(&88_200u32.to_le_bytes());
-                wav.extend_from_slice(&[2, 0, 16, 0]);
+                wav.extend_from_slice(&(88_200 * u32::from(channels)).to_le_bytes());
+                wav.extend_from_slice(&[2 * channels, 0, 16, 0]);
                 wav.extend_from_slice(b"data");
                 wav.extend_from_slice(&data.to_le_bytes());
                 pcm.iter().for_each(|sample| wav.extend_from_slice(&sample.to_le_bytes()));

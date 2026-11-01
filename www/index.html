@@ -14,7 +14,7 @@
     rel="stylesheet">
   <link rel="icon" type="image/png" href="assets/icon.png">
   <link rel="shortcut icon" href="favicon.ico">
-  <link rel="stylesheet" href="style.css?v=2.7.0">
+  <link rel="stylesheet" href="style.css?v=2.7.1">
 </head>
 
 <body>
@@ -113,6 +113,8 @@
                     <option value="box">3D kocka forgatas (dupla puffer, hires)</option>
                     <option value="macro-showcase">Új makrók bemutató</option>
                     <option value="runtime-if-demo">Futásidejű IF / ELSE demo</option>
+                    <option value="ultimate-turbo-demo">Ultimate turbó demo (64 sprite)</option>
+                    <option value="ultimate-box-demo">Ultimate turbó kocka</option>
                   </select>
                 </label>
                 <button id="load-sample" class="secondary" type="button">Példák…</button>
@@ -318,6 +320,14 @@
               <button id="run-kff2-mode" class="run-mode-item" role="menuitem" data-mode="kff2">
                 <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="13" height="13" aria-hidden="true"><rect x="3" y="5" width="10" height="7" rx="1"/><path d="M5 5V3M8 5V3M11 5V3M5 12v1M8 12v1M11 12v1M1 7h2M1 9h2M13 7h2M13 9h2"/><path d="M6 8h4M8 6v4" stroke-linecap="round"/></svg>
                 <span id="run-kff2-label">Kung Fu Flash 2</span>
+              </button>
+              <button id="run-ue2-mode" class="run-mode-item" role="menuitem" data-mode="ue2">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="13" height="13" aria-hidden="true"><rect x="3" y="5" width="10" height="7" rx="1"/><path d="M5 5V3M8 5V3M11 5V3M5 12v1M8 12v1M11 12v1M1 7h2M1 9h2M13 7h2M13 9h2"/><path d="M6.8 6.8l2.8 1.7-2.8 1.7z" fill="currentColor" stroke="none"/></svg>
+                <span id="run-ue2-label">Ultimate emulator</span>
+              </button>
+              <button id="run-ue2-d64-mode" class="run-mode-item" role="menuitem" data-mode="ue2-d64">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="13" height="13" aria-hidden="true"><rect x="3" y="5" width="10" height="7" rx="1"/><path d="M5 5V3M8 5V3M11 5V3M5 12v1M8 12v1M11 12v1M1 7h2M1 9h2M13 7h2M13 9h2"/><circle cx="8" cy="8.5" r="1.8" fill="currentColor" stroke="none"/></svg>
+                <span id="run-ue2-d64-label">D64 on Ultimate emulator</span>
               </button>
               <button id="run-web64-mode" class="run-mode-item" role="menuitem" data-mode="web64">
                 <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="13" height="13" aria-hidden="true"><rect x="1.5" y="3" width="13" height="8.5" rx="1"/><path d="M5.5 14h5"/><path d="M6.5 5.5l3.5 2-3.5 2z" fill="currentColor" stroke="none"/></svg>
@@ -1515,7 +1525,7 @@ PRINTABLE CHARACTERS
           <img src="assets/logo-about.png" alt="C64 Visual Assembler" width="200" height="160">
         </div>
         <h2 class="about-title">C64 Visual Assembler</h2>
-        <p class="about-version" id="about-version">v2.7.0</p>
+        <p class="about-version" id="about-version">v2.7.1</p>
         <p class="about-version" id="about-ub-version"><span id="about-ub-version-label">UltimateBasic:</span> <span id="about-ub-version-value">v?</span></p>
         <p class="about-version" id="about-vma-version"><span id="about-vma-version-label">VMA:</span> <span id="about-vma-version-value">v?</span></p>
       </div>
@@ -1527,6 +1537,8 @@ PRINTABLE CHARACTERS
           <p class="about-contact"><a href="mailto:retroboj@outlook.com">retroboj@outlook.com</a></p>
           <p class="about-repo"><span>License:</span><br><a href="https://github.com/zstarczali/VisualAssembler/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">GNU General Public License v3.0</a></p>
           <p class="about-repo"><span>Visual Assembler website:</span><br><a href="https://www.c64va.pro" target="_blank" rel="noopener noreferrer">www.c64va.pro</a></p>
+          <p class="about-repo" id="about-repo"><span id="about-repo-label">Visual Assembler GitHub repository:</span><br><a href="https://github.com/zstarczali/VisualAssembler" target="_blank" rel="noopener noreferrer">https://github.com/zstarczali/VisualAssembler</a></p>
+          <p class="about-sid-credit" id="about-sid-credit"><span id="about-sid-credit-label">Web SID player: WebSid (WebAudio version of Tiny'R'Sid) by Juergen Wothke. GitHub repository:</span> <a href="https://github.com/wothke/websid" target="_blank" rel="noopener noreferrer">https://github.com/wothke/websid</a><br><span id="about-sid-credit-license">(CC BY-NC-SA 4.0)</span></p>
         </div>
         <div class="about-col about-col-right">
           <div class="about-compilers">
@@ -1539,9 +1551,8 @@ PRINTABLE CHARACTERS
               <p class="about-repo"><span>VMA GitHub repository:</span><br><a href="https://github.com/zstarczali/VMA" target="_blank" rel="noopener noreferrer">github.com/zstarczali/VMA</a></p>
             </div>
           </div>
-          <p class="about-sid-credit" id="about-sid-credit"><span id="about-sid-credit-label">Web SID player: WebSid (WebAudio version of Tiny'R'Sid) by Juergen Wothke. GitHub repository:</span> <a href="https://github.com/wothke/websid" target="_blank" rel="noopener noreferrer">https://github.com/wothke/websid</a><br><span id="about-sid-credit-license">(CC BY-NC-SA 4.0)</span></p>
           <p class="about-sid-credit" id="about-vice-credit"><span id="about-vice-credit-label">Built-in C64: VICE 3.10 x64sc (WebAssembly). Website:</span> <a href="https://vice-emu.sourceforge.io/" target="_blank" rel="noopener noreferrer">https://vice-emu.sourceforge.io/</a><br><span id="about-vice-credit-license">License:</span> <a href="https://www.gnu.org/licenses/old-licenses/gpl-2.0.html" target="_blank" rel="noopener noreferrer">GNU General Public License v2 or later</a></p>
-          <p class="about-repo" id="about-repo"><span id="about-repo-label">Visual Assembler GitHub repository:</span><br><a href="https://github.com/zstarczali/VisualAssembler" target="_blank" rel="noopener noreferrer">https://github.com/zstarczali/VisualAssembler</a></p>
+          <p class="about-sid-credit" id="about-ue2-credit"><span id="about-ue2-credit-label">Ultimate emulator: UE2-C64U-Emulator by Jondalar. GitHub repository:</span> <a href="https://github.com/Jondalar/UE2-C64U-Emulator" target="_blank" rel="noopener noreferrer">https://github.com/Jondalar/UE2-C64U-Emulator</a><br><span id="about-ue2-credit-license">License:</span> <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank" rel="noopener noreferrer">GNU General Public License v3.0</a></p>
         </div>
       </div>
       <button id="about-close" class="primary" type="button">Close</button>
@@ -1551,7 +1562,28 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.7.0</p>
+      <p class="whats-new-version">v2.7.1</p>
+      <ul class="whats-new-list">
+        <li>
+          <strong>Debugger choice:</strong> <em>Settings → General → Debugger</em>: the Visual Assembler debugger works on the machine of the run mode (your own VICE, the Ultimate emulator or the built-in C64), with breakpoints, stepping, registers and memory; or RetroDebugger.
+        </li>
+        <li>
+          <strong>Ultimate emulator:</strong> run your program on the C64 Ultimate firmware on your computer (UE2-C64U-Emulator), as a PRG or from a D64, with a debugger and the VICE Monitor window. Set it up in <em>Settings → Integrations</em>. New examples: <em>Ultimate turbo demo (64 sprites)</em> and <em>Ultimate turbo cube</em>, the CPU speed changing from 1 to 64 MHz.
+        </li>
+        <li>
+          <strong>SID Editor, two SIDs:</strong> 3 or 6 voices with a selectable address for the second SID. Preview, save, .sid and assembly export and .sid import handle both chips.
+        </li>
+        <li>
+          <strong>SID Player, 2SID and 3SID tunes:</strong> VA SID Core plays them in stereo.
+        </li>
+        <li>
+          <strong>Channel spectrum:</strong> a separate analyzer for every voice during tracker playback in the SID Editor.
+        </li>
+        <li>
+          <strong>SID Editor:</strong> <em>Files → New tune</em>, the tune's title in the header, one button to detach and attach the tracker, and a tidier instrument list in the horizontal tracker. WebSID previews load again.
+        </li>
+      </ul>
+      <p class="whats-new-previous">v2.7.0</p>
       <ul class="whats-new-list">
         <li>
           <strong>Built-in C64:</strong> VICE 3.10 (x64sc) now runs inside the app, nothing to install. Choose <em>Built-in C64</em> in the Run menu, or open it with its toolbar button.
@@ -2647,6 +2679,7 @@ PRINTABLE CHARACTERS
         <div class="ed-file">
           <button class="ed-file-btn" type="button">Files ▾</button>
           <div class="ed-file-menu" hidden>
+            <button id="sid-new-tune" type="button">New tune</button>
             <button id="sid-load-bin" type="button">Load .bin…</button>
             <button id="sid-save-bin" type="button">Save .bin…</button>
             <button id="sid-import-goat" type="button">Import GoatTracker .sng…</button>
@@ -2664,6 +2697,7 @@ PRINTABLE CHARACTERS
         </div>
         <span class="sid-title">SID EDITOR</span>
         <span id="sid-engine-name" class="sid-engine-name"></span>
+        <span id="sid-tune-title" class="sid-tune-title"></span>
         <button id="sid-close" class="sid-xbtn" type="button" aria-label="Close">×</button>
       </div>
       <div class="sid-body">
@@ -2812,6 +2846,9 @@ PRINTABLE CHARACTERS
             <option value="current">Pattern</option>
             <option value="all">All</option>
           </select>
+          <span class="sid-mini-lbl" id="sid-chip-lbl">SID:</span>
+          <select id="sid-chip-count" class="sid-select"><option value="1">1</option><option value="2">2</option></select>
+          <select id="sid-chip-addr" class="sid-select" hidden></select>
           <span class="sid-mini-lbl">Speed:</span>
           <button id="sid-speed-down" class="sid-mini-btn" type="button" aria-label="Speed down">−</button>
           <input id="sid-speed" class="sid-input sid-speed" type="number" min="1" max="255" value="6">
@@ -2836,6 +2873,9 @@ PRINTABLE CHARACTERS
           </button>
           <button id="sid-roll-btn" class="ce-tool-btn" type="button" aria-label="Horizontal tracker" aria-pressed="false">
             <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 2.5h13M1.5 13.5h13" stroke="currentColor" stroke-width="1" opacity=".5"/><rect x="2" y="4.5" width="5" height="2" rx=".5" fill="currentColor"/><rect x="6" y="7.5" width="7" height="2" rx=".5" fill="currentColor"/><rect x="9.5" y="4.5" width="4" height="2" rx=".5" fill="currentColor"/><rect x="3" y="10.5" width="4" height="1.6" rx=".5" fill="currentColor"/></svg>
+          </button>
+          <button id="sid-ana-btn" class="ce-tool-btn" type="button" aria-label="Channel spectrum" aria-pressed="false">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 14V9M5 14V5M8 14v-3M11 14V3M14 14V7" stroke="currentColor" stroke-width="2"/></svg>
           </button>
           <button id="sid-tracker-detach" class="ce-tool-btn" type="button" aria-label="Detach tracker">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3H3.5a1 1 0 00-1 1v8.5a1 1 0 001 1H12a1 1 0 001-1V9"/><path d="M9.5 2.5h4v4M13.5 2.5L8 8"/></svg>
@@ -2934,6 +2974,14 @@ PRINTABLE CHARACTERS
       </div>
       <div id="sid-trk-float-body" class="sid-trk-float-body"></div>
     </div>
+    <!-- Channel spectrum: one analyzer per voice, computed from the played registers -->
+    <div id="sid-ana" class="sid-trk-float sid-ana" hidden>
+      <div class="sid-trk-float-hdr">
+        <span id="sid-ana-title" class="sid-title">CHANNEL SPECTRUM</span>
+        <button id="sid-ana-close" class="sid-xbtn sid-trk-attach" type="button" aria-label="Close">×</button>
+      </div>
+      <canvas id="sid-ana-canvas" class="sid-ana-canvas"></canvas>
+    </div>
     <!-- Horizontal tracker: the song drawn as notes over time, editable with the mouse -->
     <div id="sid-roll" class="sid-trk-float sid-roll" hidden>
       <div class="sid-trk-float-hdr sid-roll-hdr">
@@ -2942,6 +2990,9 @@ PRINTABLE CHARACTERS
           <button type="button" class="sid-roll-vbtn" data-voice="0">V1</button>
           <button type="button" class="sid-roll-vbtn" data-voice="1">V2</button>
           <button type="button" class="sid-roll-vbtn" data-voice="2">V3</button>
+          <button type="button" class="sid-roll-vbtn" data-voice="3" hidden>V4</button>
+          <button type="button" class="sid-roll-vbtn" data-voice="4" hidden>V5</button>
+          <button type="button" class="sid-roll-vbtn" data-voice="5" hidden>V6</button>
         </div>
         <div class="sid-roll-tools">
           <button id="sid-roll-play" class="ce-tool-btn" type="button" aria-label="Play"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.5l8 4.5-8 4.5z" fill="currentColor"/></svg></button>
@@ -3312,6 +3363,61 @@ PRINTABLE CHARACTERS
       </div>
       <div class="w64-statusbar"><span id="w64-status" class="vm-status"></span><span id="w64-media" class="vm-status w64-media"></span><span id="w64-drive" class="w64-drive"><span class="w64-led"></span><span id="w64-drive-text">8</span></span></div>
       <div id="w64-resize" class="w64-resize" aria-hidden="true"></div>
+    </div>
+  </dialog>
+
+  <dialog id="ue2-debug-dialog" class="curve-gen-dialog vm-dialog ud-dialog">
+    <div class="cg-card">
+      <div class="cg-hdr vm-hdr ud-hdr">
+        <div class="cg-hdr-title"><span id="ud-title" class="cg-title">Ultimate emulator debugger</span></div>
+        <button id="ud-close" class="cg-xbtn" type="button" aria-label="Close">×</button>
+      </div>
+      <div class="cg-toolbar">
+        <div class="cg-tool-group">
+          <button id="ud-restart" class="cg-tool cg-tool--accent" type="button" aria-label="Build and debug">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 3l8.5 5-8.5 5z" fill="currentColor"/></svg>
+          </button>
+          <button id="ud-continue" class="cg-tool" type="button" aria-label="Continue (F5)">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2.5" y="3.5" width="2" height="9" fill="currentColor"/><path d="M6.5 3.5l7 4.5-7 4.5z" fill="currentColor"/></svg>
+          </button>
+          <button id="ud-break" class="cg-tool" type="button" aria-label="Break">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><rect x="3" y="3" width="10" height="10" rx="2"/><path d="M6.5 6v4M9.5 6v4" stroke-linecap="round"/></svg>
+          </button>
+          <button id="ud-step-into" class="cg-tool" type="button" aria-label="Step into (F11)">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v7M5 6l3 3 3-3"/><circle cx="8" cy="13" r="1.4" fill="currentColor" stroke="none"/></svg>
+          </button>
+          <button id="ud-step-over" class="cg-tool" type="button" aria-label="Step over (F10)">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 9a5.5 5.5 0 0 1 10.5-2.3"/><path d="M13.5 3.5v3.5H10"/><circle cx="8" cy="13" r="1.4" fill="currentColor" stroke="none"/></svg>
+          </button>
+          <button id="ud-step-out" class="cg-tool" type="button" aria-label="Step out (Shift+F11)">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 11V3M5 6l3-3 3 3"/><circle cx="8" cy="13.5" r="1.4" fill="currentColor" stroke="none"/></svg>
+          </button>
+        </div>
+        <span id="ud-status" class="vm-status"></span>
+      </div>
+      <div class="ud-body">
+        <div class="w64-debug">
+          <section class="w64-sec">
+            <div class="vm-sec-lbl" id="ud-regs-lbl">Registers</div>
+            <div id="ud-regs" class="w64-regs"></div>
+          </section>
+          <section class="w64-sec w64-sec--grow">
+            <div class="vm-sec-lbl" id="ud-disasm-lbl">Disassembly</div>
+            <div id="ud-disasm" class="w64-disasm"></div>
+          </section>
+          <section class="w64-sec">
+            <div class="w64-sec-row">
+              <div class="vm-sec-lbl" id="ud-mem-lbl">Memory</div>
+              <form id="ud-mem-form" class="w64-mem-form"><input id="ud-mem-addr" class="cg-text-in" type="text" spellcheck="false" autocomplete="off" value="$0400" aria-label="Address"></form>
+            </div>
+            <div id="ud-mem" class="w64-mem"></div>
+          </section>
+          <section class="w64-sec">
+            <div class="vm-sec-lbl" id="ud-bps-lbl">Breakpoints</div>
+            <div id="ud-bps" class="w64-bps"></div>
+          </section>
+        </div>
+      </div>
     </div>
   </dialog>
 
@@ -3864,15 +3970,6 @@ PRINTABLE CHARACTERS
               <input type="checkbox" id="ub-asm-sidecar-toggle">
               <span id="ub-asm-sidecar-label">UltimateBasic ASM source generálása (.asm)</span>
             </label>
-            <div class="hw-settings-subsection hw-settings-subsection--inline">
-              <h3 class="hw-settings-section-label" id="update-settings-label">Updates</h3>
-              <label class="field compact-field hw-field">
-                <span id="update-server-label">Update server</span>
-                <input id="update-server" type="text" spellcheck="false" autocomplete="off" placeholder="https://www.c64va.pro/" value="https://www.c64va.pro/">
-              </label>
-              <button id="update-server-default" class="secondary" type="button">Default</button>
-              <p id="update-server-status" class="menu-note"></p>
-            </div>
           </section>
           <section class="hw-settings-section">
             <h3 class="hw-settings-section-label" id="asm-output-settings-label">ASM output</h3>
@@ -3892,6 +3989,22 @@ PRINTABLE CHARACTERS
               <input type="checkbox" id="global-memory-panel-toggle" checked>
               <span id="global-memory-panel-toggle-label">Show memory panel</span>
             </label>
+          </section>
+          <section class="hw-settings-section">
+            <h3 class="hw-settings-section-label" id="editor-settings-label">Editors</h3>
+            <label class="field compact-field hw-field">
+              <span id="editor-palette-label">C64 colour palette</span>
+              <select id="editor-palette" class="sid-select">
+                <option value="colodore" selected>Colodore</option>
+                <option value="pepto">Pepto</option>
+                <option value="vice">VICE</option>
+                <option value="deekay">Deekay</option>
+                <option value="c64wiki">C64 Wiki / Godot</option>
+                <option value="custom">Custom</option>
+              </select>
+            </label>
+            <button id="editor-palette-edit" class="secondary" type="button">Edit custom palette…</button>
+            <p id="editor-palette-note" class="menu-note">Used by the sprite, character, Charset Canvas, Hi-Res, map and level editors. Colodore is the closest to real C64 hardware.</p>
           </section>
         </div>
         <div class="hw-settings-col">
@@ -3930,6 +4043,16 @@ PRINTABLE CHARACTERS
             <p id="sid-player-buffer-note" class="menu-note">A larger buffer stops the crackle while the app is busy. WebSID: after a restart; VA SID Core renders 10 / 15 / 20 / 30 s ahead.</p>
           </section>
           <section class="hw-settings-section">
+            <h3 class="hw-settings-section-label" id="debugger-choice-section">Debugger</h3>
+            <label class="field compact-field hw-field"><span id="debugger-choice-label">Debug button</span>
+              <select id="debugger-choice">
+                <option value="va" id="debugger-choice-va">Visual Assembler</option>
+                <option value="retro" id="debugger-choice-retro">RetroDebugger</option>
+              </select>
+            </label>
+            <p id="debugger-choice-note" class="menu-note">Visual Assembler debugs on the machine of the run mode.</p>
+          </section>
+          <section class="hw-settings-section">
             <h3 class="hw-settings-section-label" id="debugger-params-label">C64 Debugger params</h3>
             <label class="menu-checkbox-label">
               <input type="checkbox" id="dbg-jmp" checked>
@@ -3955,22 +4078,6 @@ PRINTABLE CHARACTERS
               <span id="git-preferred-label">Use Git when the project is in a repository</span>
             </label>
           </section>
-          <section class="hw-settings-section">
-            <h3 class="hw-settings-section-label" id="editor-settings-label">Editors</h3>
-            <label class="field compact-field hw-field">
-              <span id="editor-palette-label">C64 colour palette</span>
-              <select id="editor-palette" class="sid-select">
-                <option value="colodore" selected>Colodore</option>
-                <option value="pepto">Pepto</option>
-                <option value="vice">VICE</option>
-                <option value="deekay">Deekay</option>
-                <option value="c64wiki">C64 Wiki / Godot</option>
-                <option value="custom">Custom</option>
-              </select>
-            </label>
-            <button id="editor-palette-edit" class="secondary" type="button">Edit custom palette…</button>
-            <p id="editor-palette-note" class="menu-note">Used by the sprite, character, Charset Canvas, Hi-Res, map and level editors. Colodore is the closest to real C64 hardware.</p>
-          </section>
         </div>
       </div>
       <div id="hw-settings-integrations" class="hw-settings-body" role="tabpanel" aria-labelledby="hw-settings-tab-integrations" hidden>
@@ -3988,6 +4095,18 @@ PRINTABLE CHARACTERS
             </label>
             <button id="ultimate-connect-test" class="secondary" type="button">Kapcsolat tesztelése</button>
             <p id="ultimate-status" class="menu-note"></p>
+          </section>
+          <section class="hw-settings-section">
+            <h3 class="hw-settings-section-label" id="ue2-section-label">Ultimate emulator (UE2)</h3>
+            <button id="ue2-choose-exe" class="secondary" type="button">ue2emu</button>
+            <label class="field compact-field hw-field"><span id="ue2-exe-label">ue2emu</span><input id="ue2-exe" type="text" readonly></label>
+            <button id="ue2-choose-firmware" class="secondary" type="button">Firmware</button>
+            <label class="field compact-field hw-field"><span id="ue2-firmware-label">Firmware</span><input id="ue2-firmware" type="text" readonly></label>
+            <button id="ue2-choose-roms" class="secondary" type="button">ROMs</button>
+            <label class="field compact-field hw-field"><span id="ue2-roms-label">ROMs</span><input id="ue2-roms" type="text" readonly></label>
+            <label class="field compact-field hw-field"><span id="ue2-port-label">REST port</span><input id="ue2-port" type="number" min="1024" max="65533" step="1"></label>
+            <button id="ue2-stop" class="secondary" type="button">Stop</button>
+            <p id="ue2-status" class="menu-note"></p>
           </section>
         </div>
         <div class="hw-settings-col">
@@ -4026,6 +4145,15 @@ PRINTABLE CHARACTERS
               <input id="debugger-path" type="text" readonly placeholder="">
             </label>
             <p id="debugger-status" class="menu-note"></p>
+          </section>
+          <section class="hw-settings-section">
+            <h3 class="hw-settings-section-label" id="update-settings-label">Updates</h3>
+            <label class="field compact-field hw-field">
+              <span id="update-server-label">Update server</span>
+              <input id="update-server" type="text" spellcheck="false" autocomplete="off" placeholder="https://www.c64va.pro/" value="https://www.c64va.pro/">
+            </label>
+            <button id="update-server-default" class="secondary" type="button">Default</button>
+            <p id="update-server-status" class="menu-note"></p>
           </section>
         </div>
         <div class="hw-settings-col">
@@ -4088,13 +4216,13 @@ PRINTABLE CHARACTERS
     </div>
   </div>
 
-  <script src="tauri-bridge.js?v=2.7.0"></script>
-  <script src="i18n.js?v=2.7.0"></script>
-  <script src="tutorial-data.js?v=2.7.0"></script>
+  <script src="tauri-bridge.js?v=2.7.1"></script>
+  <script src="i18n.js?v=2.7.1"></script>
+  <script src="tutorial-data.js?v=2.7.1"></script>
   <script>window.WASM_SEARCH_PATH = "lib/websid/";</script>
   <script src="lib/websid/scriptprocessor_player.min.js"></script>
   <script src="lib/websid/backend_websid.js"></script>
-  <script src="app.js?v=2.7.0"></script>
+  <script src="app.js?v=2.7.1"></script>
 
 </body>
 

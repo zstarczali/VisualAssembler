@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**Verzió: 2.7.0**
+**Verzió: 2.7.1**
 
 Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasításblokkok fogd-és-vidd módszerrel történő elrendezésével építed fel, a generált assembly és gépi kód pedig valós időben frissül.
 
@@ -10,6 +10,7 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 
 ## Tartalomjegyzék
 
+- [A 2.7.1 verzió újdonságai](#a-271-verzió-újdonságai)
 - [A 2.7.0 verzió újdonságai](#a-270-verzió-újdonságai)
 - [A 2.6.9 verzió újdonságai](#a-269-verzió-újdonságai)
 - [A 2.6.8 verzió újdonságai](#a-268-verzió-újdonságai)
@@ -231,6 +232,18 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
   - [Curve Editor](#curve-editor)
   - [Táblagenerátor](#táblagenerátor)
   - [Számrendszer-átváltó](#számrendszer-átváltó)
+
+---
+
+## A 2.7.1 verzió újdonságai
+
+- **Debugger VICE-hoz** — a **Beállítások → Általános → Debugger** választja ki a Debug gomb debuggerét: a **Visual Assembler** a futtatási mód gépén keres hibát (VICE, Ultimate emulátor, beépített C64), a **RetroDebugger** a külső programot nyitja. VICE-ban az ablak a saját VICE-odon dolgozik: töréspontok, lépés be / át / ki, regiszterek, disassembly és memória, a szerkesztő követi a CPU-t. Lásd: [Beépített C64 és debugger](#beépített-c64-és-debugger).
+- **Ultimate emulátor** — két új futtatási mód, az **Ultimate emulátor** és a **D64 az Ultimate emulátoron**, a programot az [UE2-C64U-Emulator](https://github.com/Jondalar/UE2-C64U-Emulator) emulátoron futtatja, amely a változatlan C64 Ultimate / Ultimate 64 firmware-t futtatja a számítógépeden, ugyanazon a REST API-n át, mint a valódi eszközön. A VA az első futtatáskor indítja az emulátort, a `.ue2` firmware-t flash-képbe telepíti, és az appal együtt zárja be az emulátort. Ezekben a módokban a **Debug** debuggert nyit (töréspontok, lépés be / át / ki, regiszterek, disassembly, memória), a **VICE Monitor** ablak pedig az emulátorhoz kapcsolódik. Beállítás: **Beállítások → Integrációk → Ultimate emulátor (UE2)**. Új példák: az **Ultimate turbó demo (64 sprite)** és az **Ultimate turbó kocka** (Példák → IRQ és hardver) 3 másodpercenként váltja a CPU sebességét a `$D031`-gyel 1 és 64 MHz között, és csak bekapcsolt turbó-regiszterű Ultimate-en fut. Lásd: [C64 Ultimate / 1541 Ultimate](#c64-ultimate--1541-ultimate).
+- **SID Editor: két SID** — a tracker eszköztárán a **SID: 1 / 2** 6 hangosra váltja a dalt, a második SID címe választható (`$D420`–`$D7E0`, `$DE00`–`$DFE0`). Az előnézet, a `.bin` mentés, a `.sid` és az assembly export, valamint a `.sid` import is kezeli mindkét chipet. Lásd: [SID Editor](#sid-editor-3-voice-tracker).
+- **SID Player: 2SID és 3SID dalok** — a VA SID Core sztereóban játssza őket: SID 1 balra, SID 2 jobbra, a harmadik SID középre. Lásd: [SID Player](#sid-player).
+- **Csatorna-spektrum** — a SID Editorban tracker-lejátszás közben minden hangnak külön, 16 sávos analizátora van.
+- **SID Editor** — **Files → New tune**, a dal címe a fejlécben, egy gomb a tracker kilógatásához és visszatételéhez, valamint rendezettebb hangszerlista a vízszintes trackerben.
+- **Javítások** — a **D64 on hardware** a csatolási kérésben elküldi a lemezkép típusát, amit a C64 Ultimate 1.1.0 firmware megkövetel. A WebSID nem tudta betölteni a szerkesztő előnézeteit és a **Play: All** teljes dalát; a szerkesztő leállítása már nem zárja be a SID Playert.
 
 ---
 
@@ -684,7 +697,7 @@ Az ASM panel **sorszámokat** jelenít meg (`001 |`, `002 |`, …), hogy megkön
 
 Nehezebb műveletek alatt egy középre igazított folyamatjelző modal jelenik meg progress bárral:
 
-- **Futtatás** (VICE, D64, C64 Ultimate, Kung Fu Flash 2) — a PRG fordítása és indítása.
+- **Futtatás** (VICE, D64, C64 Ultimate, Ultimate emulátor, Kung Fu Flash 2) — a PRG fordítása és indítása.
 - **Debug** — a PRG fordítása és a RetroDebugger indítása.
 - **Build project**, **Build D64** és **Exomizer** tömörítés.
 
@@ -724,7 +737,7 @@ A sáv alatti sor az éppen futó lépést mutatja a fájllal — például *Kic
 | **Debug (RetroDebugger)** | Fordítás és indítás RetroDebuggerben breakpointokkal, szimbólumokkal és autostart flag-ekkel (lásd a [10. szakaszt](#10-debugger-integráció)) |
 | **Run with Exomizer** | Jelölőnégyzet a **Beállítások → Általános → Program** alatt — bekapcsolva minden Run és Build művelet `exomizer sfx`-szel tömöríti a PRG-t indítás vagy mentés előtt (BASIC sorral kezdődő PRG-nél `sfx basic`, így a program visszatérése után a RUN újra működik; egyébként `sfx $<betöltési cím>`). Működik a Run as PRG, Run via D64, Run on Hardware, Build PRG és Build D64 műveletekkel. Először állítsd be az Exomizer futtathatót a **Beállítások → Fájlok és útvonalak** alatt. |
 | **Automatikus mentések a verziókezelésbe** | Jelölőnégyzet a **Beállítások → Általános → Verziókezelés** alatt. Bekapcsolva az app kb. 2,5 másodperccel azután, hogy abbahagytad egy fül szerkesztését, automatikus mentést tesz a verziótörténetbe (projekthez tartozó fülnél a projekt történetébe is). Kapcsold ki, ha csak a saját commitjaidat szeretnéd. Lásd: [Verziókezelés](#verziókezelés). |
-| **Beállítások** (korábban Hardware Settings) | Megnyitja a beállítások dialógust három füllel: **Általános** (assembler mód, VMA fordító, BASIC SYS stub, Exomizer, frissítés, ASM kimenet, SID előnézet, debugger paraméterek, verziókezelés), **Fájlok és útvonalak** (VICE, RetroDebugger, ACME, Exomizer, git) és **Integrációk** (C64 Ultimate, Kung Fu Flash 2). Lásd a [13. szakaszt](#13-beállítások). |
+| **Beállítások** (korábban Hardware Settings) | Megnyitja a beállítások dialógust három füllel: **Általános** (assembler mód, VMA fordító, BASIC SYS stub, Exomizer, ASM kimenet, SID előnézet, debugger kiválasztása és paraméterei, verziókezelés), **Fájlok és útvonalak** (VICE, RetroDebugger, frissítési szerver, ACME, Exomizer, git) és **Integrációk** (C64 Ultimate, Ultimate emulátor, Kung Fu Flash 2). Lásd a [13. szakaszt](#13-beállítások). |
 | **Új program…** (`Menu → Program`) | Megerősítő dialógust nyit, majd törli az összes blokkot a programterületről |
 | **ASM export** (`Menu → Program`) | A generált assembly forrás másolása |
 | **Collapse All** | Minden blokk becsukása |
@@ -794,7 +807,7 @@ A letöltés után az app telepíti a frissítést és újraindul:
 
 Ha vannak mentetlen fülek, az app bezárás előtt rákérdez. Ugyanez az ellenőrzés minden induláskor néhány másodperc után csendben is lefut: csak akkor jelenik meg bármi, ha van újabb verzió. Az eredmény az Ultimate Basic statusbarban is látszik — **Naprakész (vX)**, vagy kiemelt **Frissítés elérhető: vY**, ami megnyitja a frissítés dialógust.
 
-**Frissítési szerver:** a **Beállítások → Általános → Frissítés → Frissítési szerver** adja meg, honnan keresi a kiadásokat (alapértelmezés `https://www.c64va.pro/`); a telepítőket a `<szerver>downloads/VA/` alól olvassa. A cím `https://` legyen (sima `http://` csak `localhost`-ra, teszteléshez); az **Alapértelmezett** visszaáll a c64va.pro-ra.
+**Frissítési szerver:** a **Beállítások → Fájlok és útvonalak → Frissítés → Frissítési szerver** adja meg, honnan keresi a kiadásokat (alapértelmezés `https://www.c64va.pro/`); a telepítőket a `<szerver>downloads/VA/` alól olvassa. A cím `https://` legyen (sima `http://` csak `localhost`-ra, teszteléshez); az **Alapértelmezett** visszaáll a c64va.pro-ra.
 
 ### Ingyenes és nyílt forrású
 
@@ -834,7 +847,7 @@ A **Teljes C64 memória** panel leválasztható: a fejlécében lévő **levála
 
 Ha a program használja a zero page-et, a memóriatérkép tetején megjelenik a **Zero page foglaltság** rész: egy 16 × 16-os rács a `$00–$FF` címekről, területenként színezve — CPU port (`$00–$01`), szabad (`$02`, `$FB–$FE`), BASIC (`$03–$8F`, `$FF`) és KERNAL (`$90–$FA`). A használt cellák kitöltöttek; a keret **írást**, a sraffozás **pointert** jelöl (`(zp),Y` / `(zp,X)`). Egy használt cellára kattintva látod, mely sorok érik el (a sorra kattintva oda ugrik), és figyelmeztetést kapsz, ha BASIC- vagy KERNAL-területre írsz.
 
-Ha a programban benne van a SID Editor exportált lejátszója (`sid_` címkék), a lejátszó zero page-e (`$02–$1C`, `$2F`, `$FB–$FD`) is jelölve van, és minden cím, amelyet a saját kódod is használ, **ütközésként** jelenik meg (piros keret, figyelmeztetés a fejlécben).
+Ha a programban benne van a SID Editor exportált lejátszója (`sid_` címkék), a lejátszó zero page-e (`$02–$1C`, `$2F`, `$FB–$FD`, és `$50–$69`, ha a SID Editorban lévő dal két SID-es) is jelölve van, és minden cím, amelyet a saját kódod is használ, **ütközésként** jelenik meg (piros keret, figyelmeztetés a fejlécben).
 
 ### Projekt sablonok
 
@@ -1270,7 +1283,7 @@ A mód a `.proj` projekttel együtt mentődik, így minden projekt a saját asse
 
 Ami az ACME fordítását követi:
 
-- A **Build** (kalapács gomb az Expert eszköztáron, *ACME fordítás*), a **Futtatás** (PRG, D64, C64 Ultimate, Kung Fu Flash 2), a **Build PRG**, a **Build D64**, a **Build CRT**, a **Build project** és a **Debug (RetroDebugger)** ACME-vel fordít; az ACME hibái és figyelmeztetései a szokásos fordítási hiba ablakban jelennek meg, a forrássorral.
+- A **Build** (kalapács gomb az Expert eszköztáron, *ACME fordítás*), a **Futtatás** (PRG, D64, C64 Ultimate, Ultimate emulátor, Kung Fu Flash 2), a **Build PRG**, a **Build D64**, a **Build CRT**, a **Build project** és a **Debug (RetroDebugger)** ACME-vel fordít; az ACME hibái és figyelmeztetései a szokásos fordítási hiba ablakban jelennek meg, a forrássorral.
 - A gépelési szünet után a forrás újrafordul, így a **memóriatérkép** (memóriasáv, szegmens-panel, átfedés-figyelmeztetés), a **Disassembly** és a **Monitor** panel és a ciklus-gutter a valódi ACME kimenetet mutatja; a panelek az ACME címkéit használják. Átfedés az a cím, amelyet két forrássor is ír (a PRG-ben a későbbi nyer).
 - A **debug fájlok** (*Debug fájlok generálása* a Beállítások → Általános alatt) az ACME címkelistájából készülnek: `.sym` (KickAssembler stílus) és `.vs` (VICE címkék) a PRG mellé; `.dbg` forrás-térkép ACME módban nincs. A **Debug (RetroDebugger)** ugyanezeket a címkéket kapja, az Expert breakpointokat pedig az ACME lista alapján helyezi el (kód nélküli sorra tett breakpoint a következő kódsoron áll meg).
 - A **ciklusszámok** és az **optimalizálási tippek** az utolsó fordítás ACME listájából (`-r`) jönnek.
@@ -4119,7 +4132,11 @@ A státuszsor mutatja, mi van csatolva, valamint a 8-as meghajtó LED-jét és a
 
 Az eszköztáron van még **Reset**, **Szünet**, **Gyorsítás (warp)**, **Hang**, **CRT szűrő** és **Teljes képernyő**. A CRT szűrő a VICE CRT-emulációját, sima nagyítást és scanline-okat ad; a scanline-ok akkor jelennek meg, ha egy C64-sor legalább 3 képpont magas. A teljes képernyő a képernyőre duplán kattintva is indul, Esc-kel vagy újabb dupla kattintással lehet kilépni. Az ablak a fejlécénél mozgatható, a jobb alsó sarkánál méretezhető. A helye, mérete, nyitott állapota és a beállításai a következő indításkor visszatérnek.
 
-**Hibakeresés:** nyomd meg a **Debug** gombot, miközben a futtatási mód **Beépített C64**. A Debug gomb akkor is ezt a debuggert használja, ha nincs beállítva RetroDebugger. VMA-val, Kick projekttel, ACME-vel és Ultimate Basic-kel egyaránt működik. A program az első elért töréspontnál áll meg, töréspont nélkül az első utasításánál.
+**Hibakeresés:** nyomd meg a **Debug** gombot, miközben a futtatási mód **Beépített C64**. A Debug gomb akkor is ezt a debuggert használja, ha nincs beállítva RetroDebugger. VMA-val, Kick projekttel, ACME-vel és Ultimate Basic-kel egyaránt működik. A program az első elért töréspontnál áll meg, töréspont nélkül az első utasításánál. Az ablak bezárása vagy a debugger-panel elrejtése lezárja a munkamenetet: a töréspontok megszűnnek, a megállított program pedig fut tovább (bezárt ablaknál az újranyitás után). Az Ultimate emulátor és a VICE debugger-ablaka bezáráskor ugyanígy tesz.
+
+**A debugger kiválasztása:** a **Beállítások → Általános → Debugger → Debug gomb** értéke **Visual Assembler** vagy **RetroDebugger**. Beállítás nélkül RetroDebugger, ha az be van állítva, különben Visual Assembler. A **Visual Assembler** a futtatási mód gépén keres hibát: a saját VICE-odban (*Run as PRG*, *Run via D64*), az Ultimate emulátoron vagy a beépített C64-en (a valódi hardveres módokban, C64 Ultimate és Kung Fu Flash 2, is ezen). A **RetroDebugger** a VICE-os és a hardveres módokban a külső programot nyitja. A *Beépített C64* és az *Ultimate emulátor* futtatási mód mindig a saját debuggerét használja.
+
+**Hibakeresés VICE-ban:** ha a **Visual Assembler** van kiválasztva, a *Run as PRG* és *Run via D64* módban a **Debug** ugyanazt a debugger-ablakot nyitja a saját VICE-odhoz: a VA a binary monitorral indítja a VICE-t (a **VICE monitor port**on, alapból 6502), vagy az ott már futót használja, élesíti a töréspontokat és autostarttal indítja a programot, amely töréspont nélkül az első utasításán áll meg. A töréspontok, a lépés be / át / ki, a regiszterek, a disassembly és a memória ugyanúgy működik, mint a beépített C64-ben, és a szerkesztő követi a CPU-t. Az ablak bezárása után a program tovább fut a VICE-ban. Ha a **RetroDebugger** van kiválasztva, a VICE-os módok a korábbiak szerint a RetroDebuggert nyitják.
 
 A CPU a töréspont utasítása **előtt** áll meg, így a regiszterek és a memória a lefutása előtti állapotot mutatják.
 
@@ -4283,7 +4300,7 @@ Mivel a payload lineárisan tárolódik — egyetlen lapos kép a legalacsonyabb
 
 ## 13. Beállítások
 
-A **Menu → Beállítások…** nyitja meg (korábban *Hardware Settings*). A dialógusnak három füle van: **Általános** (assembler mód, VMA fordító, BASIC SYS stub, Run with Exomizer, frissítés, ASM kimenet, SID előnézet, C64 Debugger paraméterek, snapshot / verziókezelés), **Fájlok és útvonalak** (VICE, RetroDebugger, ACME, Exomizer, git) és **Integrációk** (C64 Ultimate, Kung Fu Flash 2). Az alábbi szakaszok a külső eszközöket és hardvereket írják le.
+A **Menu → Beállítások…** nyitja meg (korábban *Hardware Settings*). A dialógusnak három füle van: **Általános** (assembler mód, VMA fordító, BASIC SYS stub, Run with Exomizer, ASM kimenet, SID előnézet, debugger kiválasztása és C64 Debugger paraméterek, snapshot / verziókezelés), **Fájlok és útvonalak** (VICE, RetroDebugger, frissítési szerver, ACME, Exomizer, git) és **Integrációk** (C64 Ultimate, Ultimate emulátor, Kung Fu Flash 2). Az alábbi szakaszok a külső eszközöket és hardvereket írják le.
 
 ### VMA fordító
 
@@ -4357,7 +4374,11 @@ Lefordított PRG-ket futtass közvetlenül valódi hardveren a helyi hálózaton
 1. Csatlakoztasd az 1541 Ultimate / Ultimate 64-et a helyi hálózatodhoz.
 2. Add meg az IP-címét (és jelszavát, ha van) a **Beállítások → Integrációk → C64 Ultimate** alatt.
 3. Válaszd a **Run on hardware**-t az osztott run menüből.
-4. Kattints a **▶ Run**-ra — a PRG lefordul, és HTTP POST-tal a `/v3/runners/prg`-re kerül. Az eszköz azonnal betölti és futtatja a C64-en.
+4. Kattints a **▶ Run**-ra — a PRG lefordul, és HTTP POST-tal a `/v1/runners:run_prg`-re kerül. Az eszköz azonnal betölti és futtatja a C64-en.
+
+**Hardver nélkül:** az osztott run menü **Ultimate emulátor** pontja az [UE2-C64U-Emulator](https://github.com/Jondalar/UE2-C64U-Emulator) emulátoron futtat, amely a változatlan Ultimate firmware-t futtatja a számítógépeden. Külön kell telepíteni, majd a **Beállítások → Integrációk → Ultimate emulátor (UE2)** alatt három dolgot kell megadni: az `ue2emu` programot, egy firmware-t (`.ue2`, `.elf` vagy `.app`, nincs mellékelve) és a ROM-mappát (egy [1541ultimate](https://github.com/GideonZ/1541ultimate) klón `roms/` mappája). A mappából csak a `chars.bin` kötelező (2048 bájt, a menü betűkészlete), a Commodore firmware a saját C64 ROM-jaival bootol. Az első futtatás a `.ue2`-t egy flash-képbe telepíti, firmware-enként külön, az app konfigurációs mappájában, és minden indítás bekapcsolja a firmware webszolgáltatását, amely a Commodore firmware-ben alapból ki van kapcsolva. Az emulátor az első futtatáskor indul, és nyitva marad a következőkhöz; a REST API-ja a `127.0.0.1` címen, a **REST port**on figyel (alapból 8064). Az appal együtt vagy az **Emulátor leállítása** gombbal zárul. Ugyanebben a menüben a **D64 az Ultimate emulátoron** D64-et csomagol (ehhez a VICE `c1541`-e kell), az A meghajtóra csatolja, és futtatja az első programot. Amíg e két futtatási mód egyike van kiválasztva, a **VICE Monitor** ablak (hot reload, élő változók, profiler) a VICE helyett az emulátorhoz kapcsolódik. Ezekben a módokban a **Debug** az emulátor debuggerét nyitja meg: regiszterek, disassembly, memória és töréspontok külön ablakban, a kép az emulátor ablakában. A program az első elért töréspontnál áll meg, töréspont nélkül az első utasításánál; a szerkesztő sora követi a CPU-t, az F5, F10, F11 és Shift+F11 akkor is működik, ha a szerkesztőben van a fókusz. Engedélyezett megszakításoknál egy timer IRQ a lépést a KERNAL-ba viheti, mint a VICE monitorában. A VA az emulátor flash-képében a **Turbo Control**-t is a turbó-regiszterekre állítja, így a program a `$D031`-gyel állíthatja a CPU sebességét (reset után `$00`, azaz 1 MHz).
+
+Minta: **Ultimate turbó demo (64 sprite)** (`samples/ultimate-turbo-demo.asm`) — a sebesség 3 másodpercenként vált 1 és 64 MHz között; 1 MHz-en golyók tűnnek el és csökken a képkockaszám, 4 MHz-től mind a 64 sprite 50 fps-sel fut. Csak bekapcsolt turbó-regiszterű Ultimate-en fut, máshol ezt írja ki. Az **Ultimate turbó kocka** (`samples/ultimate-box-demo.asm`) ugyanezt teszi a box minta kockájával: minél gyorsabb a CPU, annál gyorsabban forog a kocka (1 MHz-en 5, 16 MHz-től 50 képkocka másodpercenként).
 
 > **Tipp:** nem kell USB kábel vagy driver — a REST API be van építve az Ultimate firmware-be. A számítógépednek és az eszköznek ugyanazon a helyi hálózaton kell lennie.
 
@@ -4567,6 +4588,8 @@ Több-hangszeres 3-voice tracker. A SID Editor eszköztár-gombjával nyílik. A
 
 **Előnézeti motor:** a **Beállítások → Általános → SID előnézet** alatt a **WebSID** vagy a **VA SID Core (Rust)** — az alkalmazás saját SID-emulációja — választható; VA SID Core esetén a chip is (MOS 6581 / 8580). A szerkesztő fejléce mutatja a használt motort (pl. *· VA SID Core v1.2 (MOS 8580)*). A hangszer-paraméterek tekerőgombokkal állíthatók.
 
+**Két SID:** a tracker eszköztárán a **SID: 1 / 2** 3 és 6 hang között váltja a dalt. Két SID-nél a mellette lévő lista a második SID címét állítja: `$D420`–`$D7E0` vagy `$DE00`–`$DFE0`, `$20`-as lépésekben. Az oszlopok fejléce **S1 V1** … **S2 V3**. Mindkét SID-nek saját szűrője és hangereje van, és egy hang csak a saját chipjéét vezérli. A VA SID Core és a kis szintetizátor sztereóban játssza a két SID-et (SID 1 balra, SID 2 jobbra); a WebSID a PSID fejlécből kapja a második SID címét. A hang-előnézetek az első SID-en szólnak. Egy SID-re visszaváltva a második SID hangjai törlődnek, és ha van bennük valami, előbb rákérdez.
+
 **Hangszerenkénti vezérlők:**
 - Hullámforma jelölőnégyzetek (TRI / SAW / PUL / NOI) — több hullámforma a SID-hez hasonlóan ÉS-elődik —, plusz **RING** (a háromszög gyűrűmodulációja az előző hanggal: 1 ← 3, 2 ← 1, 3 ← 2) és **SYNC** (hard sync az előző hanghoz).
 - ADSR (attack / decay / sustain / release) drag-grafikonként a négy csúszka fölött.
@@ -4578,15 +4601,15 @@ Több-hangszeres 3-voice tracker. A SID Editor eszköztár-gombjával nyílik. A
 - **Wave / arpeggio tábla:** legfeljebb 32 lépés hullámformával (— = marad) és hanggal (eltolás félhangban, vagy **abs** = abszolút hang), lépésenként **Sebesség** frame, **Ismétlés** egy lépésre vissza, vagy megáll az utolsón. **Előbeállítások** (25, csoportosítva; a lista mutatja a választottat, amíg a táblát kézzel nem szerkeszted): arpeggiók (dúr, moll, szeptimakkordok, sus4, szűkített, bővített, power akkord, oktáv, trilla), dobok (lábdob, pergő, tam, taps, zárt / nyitott lábcin), lead- és basszus-indítások, hangeffektek (lézer, felvétel, robbanás).
 
 **Tracker rács:**
-- 3 voice × akár 256 pattern × 32 sor; a song / sorrend lista legfeljebb 255 lépés.
+- 3 voice (második SID-del 6) × akár 256 pattern × 32 sor; a song / sorrend lista legfeljebb 255 lépés.
 - Soronként: note + hangszer-index, plusz egy opcionális effekt (lásd lentebb az **Effekt-oszlop**-ot). Az üres sorok az előző note-ot tartják: más trackerekhez hasonlóan (GoatTracker, SID-Wizard) a hang gate-je nyitva marad (sustain szint) a voice következő hangjáig vagy egy **note-off**-ig.
 - Az **Enter** (vagy dupla kattintás) szövegként szerkeszti a kijelölt cellát (`C-4 01 V24`); az **Enter** ment és a következő sorra lép, az **Esc** elvet.
 - **Note-off** (`===`): **1** billentyű (vagy `` ` `` / `=`), vagy `===` / `OFF` a cellába írva. Elengedi a gate-et, így lefut a hangszer release-e — ugyanaz, mint a hang nélküli `C` effekt (`C00`-ként mentődik és exportálódik).
-- Válassz egy cellát normálisan, vagy tartsd a **Shift**-et kattintás vagy nyílbillentyű közben egy téglalap-kijelölés kiterjesztéséhez sorokon és a három voice bármelyikén át. A kijelölt területen belüli jobbklikk megőrzi a tartományt.
+- Válassz egy cellát normálisan, vagy tartsd a **Shift**-et kattintás vagy nyílbillentyű közben egy téglalap-kijelölés kiterjesztéséhez sorokon és bármelyik voice-on át. A kijelölt területen belüli jobbklikk megőrzi a tartományt.
 - A Copy, Cut, Paste és Clear elérhető az ikon-eszköztárból és az ikon-alapú context menüből. A `Ctrl/Cmd+C` és `Ctrl/Cmd+V` ugyanazon a téglalap-kijelölésen működik.
 - Harmónia segéd: válassz alaphangot, akkord-típust és oktávot, hallgasd meg az akkordot az aktuális hangszerrel, majd szúrd be a hangzatot közvetlenül a trackerbe. Az elérhető típusok: Major, Minor, Diminished, Augmented, Sus2, Sus4, Dominant 7, Major 7, Minor 7, 6, Minor 6, 9, b9, #9, Dim7, 7sus4.
 - Arpeggio segéd: hallgasd meg vagy szúrd be a kiválasztott akkordból 4-, 8- vagy 16 lépéses note-futamokat fel, le vagy fel/le irányban.
-- A **Preview row** meghallgatja a kiválasztott sort mind a három voice-on a pattern-lejátszás indítása nélkül.
+- A **Preview row** meghallgatja a kiválasztott sort az összes voice-on a pattern-lejátszás indítása nélkül.
 - A cella-tartomány beillesztés mostantól a kijelölt tartomány kezdőcellájánál kezdődik, és tisztán megáll a voice- és sor-határoknál, ahelyett hogy a következő oszlopba vagy sorba fordulna.
 - A **Speed** (frame-ek a sorok közt, 1–255) beírható vagy a mellette lévő − / + gombbal léptethető; az `F` effekt lejátszás közben változtatja.
 
@@ -4611,6 +4634,7 @@ Az effektek soronként egyszer frissülnek (megegyezően az exportált lejátsz�
 **Lejátszás és virtuális billentyűzet:**
 - A Play eszköztár-gomb lejátszás közben Pause-ra, szüneteltetve Resume-ra vált; a Stop leállítja a lejátszást és visszaállítja az állapotot.
 - A tracker eszköztár végén lévő **LCD** lejátszás közben a song-pozíciót (POS), a patternt (PAT), a sort (ROW) és a lejátszási időt (TIME) mutatja, leállítva a szerkesztési pozíciót. A **Beállítások → Általános → SID előnézet → LCD színe** zöldre vagy pirosra állítja.
+- A tracker eszköztárán a **Csatorna-spektrum** gomb egy ablakot nyit, amelyben hangonként egy 16 sávos analizátor látszik (két SID-nél 6). A lejátszott SID-regiszterekből számolódik — frekvencia, hullámforma, pulzusszélesség, közelített ADSR, szűrő és hangerő —, nem a hangból, mert a kimenet egyetlen keverék. A gyűrűmoduláció, a sync és a szűrő rezonanciája nem látszik, és csak tracker-lejátszás közben mozog, hang-előnézetnél nem.
 - A billentyűzet eszköztár-gomb a **VA-VK**-t, egy nem-modális zongorát nyit (2, 3 vagy 4 oktáv; a helyét, a nyitott állapotát, az oktávot és az *Insert into tracker*-t megjegyzi) saját **Play / Stop** gombokkal, amely használható marad, míg a SID szerkesztő aktív. Húzd a fejlécét a fő alkalmazás fölé bárhova.
 - A VA-VK **Hangszer** tekerőgombja (húzás, görgő vagy nyílbillentyűk) választja ki a hangszert, a mellette lévő LCD a számát és a nevét mutatja; a szerkesztő hangszerlistáját követi. A VA-VK címe melletti jelvény a használt SID-emulációt mutatja (WebSID vagy VA SID Core a chip-modellel).
 - Engedélyezd az **Insert into tracker**-t, hogy minden lejátszott note az aktuális tracker-kurzorra íródjon, és a következő sorra lépjen. Kapcsold ki a note-ok meghallgatásához szerkesztés nélkül.
@@ -4627,6 +4651,7 @@ Az effektek soronként egyszer frissülnek (megegyezően az exportált lejátsz�
 | Export | Mit csinál |
 |---|---|
 | `Save .bin…` | A szerkesztő natív szerializált formátumát írja (hangszerek minden modulációs beállítással és névvel, sebesség, patternek, song). A régebbi mentések is betölthetők. |
+| `New tune` | Üres dalt kezd a jelenlegi helyett, előbb rákérdez. |
 | `Export blocks (data only)` | Hangszer-táblát + pattern blokkokat fűz a programhoz a `* = $C000`-en. |
 | `Export blocks + miniplayer` | Hozzáadja a teljes lejátszót (sid_init / sid_irq / sid_frame / sid_play_row / sid_set_voice) plusz a PAL frekvencia-táblákat. Export után tegyél egy `JSR sid_init`-et a fő kódodba, ahol a zenének indulnia kell; saját IRQ-ból ehelyett frame-enként egyszer `JSR sid_frame`. |
 | `Export asm (clipboard)` | A teljes assembly forrást vágólapra másolja. |
@@ -4644,18 +4669,20 @@ Az effektek soronként egyszer frissülnek (megegyezően az exportált lejátsz�
 - **Hangok:** a hangkezdet egy gate-él (2 frame-en belüli újragate egy hangnak számít); ha tartott gate mellett a hangmagasság új félhangra vált és legalább 5 frame-ig ott marad, az új, újraindított (legato) hang lesz. A hangmagasság a hang fő hullámformájának leggyakoribb félhangja; az NTSC dalok a PAL hangtáblára hangolódnak át.
 - **Sorok:** a sorok pontosan a hangkezdeteken indulnak. Az alapsorhossz a leghosszabb, amelyre szinte mind illeszkedik; az ennyi vagy egy frame-mel hosszabb sorokat (funktempo, swing, tempóváltás) egy sorral előbb álló `F` effekt állítja.
 - **Hangszerek:** AD / SR, a fő hullámforma, pulzusszélesség és PWM, a szűrő (routing, mód, rezonancia, cutoff-söprés), valamint a hang minden frame-jének hullámformája és hangmagassága a következő hangig: ez a wave / arpeggio tábla (előtag és ismétlődő loop, legfeljebb 32 lépés). A fix magasságú dob-attack abszolút, az arpeggio relatív hangokat kap, az azonos hangzású hangok közös döntése alapján; a szabályos, félhangnál kisebb kitérés a hangszer vibratója lesz. A gate-ből note cut, gate időzítő (hard restarttal, ha az ADSR nullázva van) vagy release-sebességű lecsengés lesz. Az azonos hangszerek közösek, legfeljebb 128.
-- Egy üzenet felsorolja, mi lett közelítve, például a félhanglépésekké váló glide-ok vagy a 32 lépésnél hosszabb táblák. A több SID-es dalok és a BASIC programként induló RSID dalok nem támogatottak.
+- Egy üzenet felsorolja, mi lett közelítve, például a félhanglépésekké váló glide-ok vagy a 32 lépésnél hosszabb táblák. A BASIC programként induló RSID dalok nem támogatottak.
+- **Több SID:** a 2SID-es dal hat hangos lesz, és a második SID címe is átjön. A 3SID-es dalból az első két SID kerül át, erről üzenet is szól.
 
-**Lejátszó ZP használat:** `$02`–`$1C` (pattern-mutatók, pattern offset, temp) és `$2F` (aktuális sebesség), valamint `$FB`–`$FD` (tick számláló, sor-index, sorrend-pozíció). A hang-, modulációs és szűrő-állapot a lejátszó kódja utáni `sid_state` területen van. A ZP bájtok ütköznek, ha a fő kódod használja őket — szükség esetén relokálj Expert módon.
+**Lejátszó ZP használat:** `$02`–`$1C` (pattern-mutatók, pattern offset, temp) és `$2F` (aktuális sebesség), valamint `$FB`–`$FD` (tick számláló, sor-index, sorrend-pozíció). A hang-, modulációs és szűrő-állapot a lejátszó kódja utáni `sid_state` területen van. A ZP bájtok ütköznek, ha a fő kódod használja őket — szükség esetén relokálj Expert módon. Két SID-nél a lejátszó a `$50`–`$67` (a 4–6. hang mutatói) és a `$68`/`$69` (az aktuális hang SID-regiszterei) címeket is használja.
 
 **Ismert korlátok:**
 - A lejátszó és állapota `$C000`-n van. Ha a dal adata nem fér el mellettük `$D000` alatt, az adat külön szegmensbe kerül, amely `$A000` alatt végződik (az exportált asm-ben egy második `* =` sor); ne ütközzön a saját programoddal.
+- A két SID-es dalhoz kétszer annyi pattern-adat kell: a `.sid` és az assembly export legfeljebb 46 patternt tartalmaz, a többi kimarad, erről az assembly forrásban megjegyzés szól. A szerkesztőben a dal teljes marad. Az **Export to UltimateBasic** csak az első három hangot írja ki, megjegyzéssel.
 - A C64 `$D418` globális hangerő megosztott a voice-ok közt — a hangszerenkénti hangerő-csúszka informatív; a sustain szint (az ADSR `S`-e) a tényleges per-voice hangerő.
 - Amíg a **Play: All** valódi dala be van töltve (szüneteltetve is), a hang-előnézet a kis szintetizátoron szól, ami csak közelíti a SID chipet. Az előnézet kb. 0,1 mp-cel a hang előtt jut a WebSid-be.
 
 ---
 
-**.sid (PSID) export…** (Files menü): a dalt a lejátszható `$C000`-s lejátszóval szabványos PSID fájlba menti — lejátszható a SID Playerben, a VICE `vsid`-jében és bármely más SID lejátszóban.
+**.sid (PSID) export…** (Files menü): a dalt a lejátszható `$C000`-s lejátszóval szabványos PSID fájlba menti — lejátszható a SID Playerben, a VICE `vsid`-jében és bármely más SID lejátszóban. A két SID-es dal PSID v3-ként mentődik, a második SID címével.
 
 ### SID Player
 
@@ -4666,7 +4693,7 @@ A **SID Player** toolbar gomb egy lebegő ablakot nyit, amely `.sid` zenefájlok
 - **Tekerés:** a pozíciósáv és a **Back / Forward 10 s** a VA SID Core motorral működik. A WebSID nem tud tekerni, ezért vele ezek a vezérlők le vannak tiltva.
 - **Hangerő:** a tekerőgomb közös a SID szerkesztő master hangerejével.
 - **Puffer:** **Beállítások → Általános → SID előnézet → SID Player puffer** (2048, 4096, 8192 vagy 16384 minta). Nagyobb pufferrel nem recseg a hang, ha az app épp dolgozik. A WebSID újraindítás után használja az új méretet, a VA SID Core a következő számtól 10 / 15 / 20 / 30 mp-et renderel előre.
-- **Motor:** az ablak kiírja, melyik motor szól (WebSID, vagy VA SID Core a verziójával és a SID chippel); a **Beállítások → Általános → SID előnézet** alatt választható. A VA SID Core natív Rust C64 magon futtatja a zenét: ciklusra pontos 6510 precíz interrupt-időzítéssel, CIA 6526A, VIC-II időzítés badline-okkal, sprite-DMA-val és raster interruptokkal, valamint a 6510 I/O port — így a raster IRQ-s, CIA-időzített és digi zenék is valódi gép időzítésével szólnak.
+- **Motor:** az ablak kiírja, melyik motor szól (WebSID, vagy VA SID Core a verziójával és a SID chippel); a **Beállítások → Általános → SID előnézet** alatt választható. A VA SID Core natív Rust C64 magon futtatja a zenét: ciklusra pontos 6510 precíz interrupt-időzítéssel, CIA 6526A, VIC-II időzítés badline-okkal, sprite-DMA-val és raster interruptokkal, valamint a 6510 I/O port — így a raster IRQ-s, CIA-időzített és digi zenék is valódi gép időzítésével szólnak. A VA SID Core a 2SID és 3SID dalokat (PSID v3 / v4) is sztereóban játssza: SID 1 balra, SID 2 jobbra, a harmadik SID középre.
 - **Véletlen lejátszás:** a **Next** melletti kapcsoló véletlen sorrendben játssza a listát — egy szám sem ismétlődik, amíg mind le nem ment, a **Previous** pedig a véletlen sorrendben lép vissza. A beállítást megjegyzi.
 - **Kedvencek:** a sorokban lévő ☆ / ★ megjelöli a számot; a mentett állapotban és a `.sidpl` lejátszási listákban is megmarad.
 
@@ -4683,6 +4710,8 @@ A SID Player eszköztárának **HVSC** gombja keresőpanelt nyit a [High Voltage
 #### Spektrum-analizátor
 
 A SID Player eszköztárának oszlopdiagram-gombja a **Spectrum** ablakot nyitja: LED-szerű oszlopok zöldtől sárgán át narancsig, lassan halványuló cellák és perspektivikus tükörpadló. Azt mutatja, ami a SID Playerben vagy a SID szerkesztőben szól, bármelyik motorral. A **Bands** 8, 16, 24 vagy 32 sávot állít. Az ablak mozgatható és átméretezhető, a SID Playerrel együtt zárul és nyílik, és csak nyitva rajzol.
+
+A SID Editornak saját, hangonkénti **Csatorna-spektrum** ablaka van: lásd [SID Editor](#sid-editor-3-voice-tracker).
 
 ---
 

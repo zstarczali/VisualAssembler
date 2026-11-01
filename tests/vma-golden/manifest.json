@@ -144,6 +144,30 @@
   "error": null
  },
  {
+  "id": "samples-box",
+  "caseId": "samples-box",
+  "kind": "text",
+  "file": "samples/box.asm",
+  "baseDir": "samples",
+  "basicStub": true,
+  "ok": true,
+  "size": 4021,
+  "sha256": "d6142ad1e9122d9f4c116149fc53e76a4cc5579759cfe738118407f607ad1c4a",
+  "error": null
+ },
+ {
+  "id": "samples-box@nostub",
+  "caseId": "samples-box",
+  "kind": "text",
+  "file": "samples/box.asm",
+  "baseDir": "samples",
+  "basicStub": false,
+  "ok": true,
+  "size": 4021,
+  "sha256": "3c220e82ccc1186b5c3a3458c5e89d2c75249cef0478e59f9916f071702eadd6",
+  "error": null
+ },
+ {
   "id": "samples-box-blocks",
   "caseId": "samples-box-blocks",
   "kind": "blocks",
@@ -1749,6 +1773,102 @@
   "ok": true,
   "size": 82,
   "sha256": "25b635c616cd8297cba2a91649ce3563368fb60e7d0e85748ffefd842c4226c1",
+  "error": null
+ },
+ {
+  "id": "samples-ultimate-box-demo",
+  "caseId": "samples-ultimate-box-demo",
+  "kind": "text",
+  "file": "samples/ultimate-box-demo.asm",
+  "baseDir": "samples",
+  "basicStub": true,
+  "ok": true,
+  "size": 4021,
+  "sha256": "92bf9694c5b347f8ea21f5e88096f7faf28fea1091f8bd9fd35ce68a83e44ec1",
+  "error": null
+ },
+ {
+  "id": "samples-ultimate-box-demo@nostub",
+  "caseId": "samples-ultimate-box-demo",
+  "kind": "text",
+  "file": "samples/ultimate-box-demo.asm",
+  "baseDir": "samples",
+  "basicStub": false,
+  "ok": true,
+  "size": 4021,
+  "sha256": "882ced19aac3ef34b7dc3296e5a72a1accaa00baf2fe362ea170ea23bce5f268",
+  "error": null
+ },
+ {
+  "id": "samples-ultimate-box-demo-blocks",
+  "caseId": "samples-ultimate-box-demo-blocks",
+  "kind": "blocks",
+  "file": "samples/ultimate-box-demo.json",
+  "baseDir": "samples",
+  "basicStub": true,
+  "ok": true,
+  "size": 4021,
+  "sha256": "92bf9694c5b347f8ea21f5e88096f7faf28fea1091f8bd9fd35ce68a83e44ec1",
+  "error": null
+ },
+ {
+  "id": "samples-ultimate-box-demo-blocks@nostub",
+  "caseId": "samples-ultimate-box-demo-blocks",
+  "kind": "blocks",
+  "file": "samples/ultimate-box-demo.json",
+  "baseDir": "samples",
+  "basicStub": false,
+  "ok": true,
+  "size": 4021,
+  "sha256": "882ced19aac3ef34b7dc3296e5a72a1accaa00baf2fe362ea170ea23bce5f268",
+  "error": null
+ },
+ {
+  "id": "samples-ultimate-turbo-demo",
+  "caseId": "samples-ultimate-turbo-demo",
+  "kind": "text",
+  "file": "samples/ultimate-turbo-demo.asm",
+  "baseDir": "samples",
+  "basicStub": true,
+  "ok": true,
+  "size": 10305,
+  "sha256": "fbd53d6ff3f339244020e61cf34bcc938f75041d8d587c900418a23d890f69bc",
+  "error": null
+ },
+ {
+  "id": "samples-ultimate-turbo-demo@nostub",
+  "caseId": "samples-ultimate-turbo-demo",
+  "kind": "text",
+  "file": "samples/ultimate-turbo-demo.asm",
+  "baseDir": "samples",
+  "basicStub": false,
+  "ok": true,
+  "size": 10305,
+  "sha256": "61c07d0502aa110da0e98376a6028b99bdeb75b79840ecd35bec0dad0f278cc2",
+  "error": null
+ },
+ {
+  "id": "samples-ultimate-turbo-demo-blocks",
+  "caseId": "samples-ultimate-turbo-demo-blocks",
+  "kind": "blocks",
+  "file": "samples/ultimate-turbo-demo.json",
+  "baseDir": "samples",
+  "basicStub": true,
+  "ok": true,
+  "size": 10305,
+  "sha256": "fbd53d6ff3f339244020e61cf34bcc938f75041d8d587c900418a23d890f69bc",
+  "error": null
+ },
+ {
+  "id": "samples-ultimate-turbo-demo-blocks@nostub",
+  "caseId": "samples-ultimate-turbo-demo-blocks",
+  "kind": "blocks",
+  "file": "samples/ultimate-turbo-demo.json",
+  "baseDir": "samples",
+  "basicStub": false,
+  "ok": true,
+  "size": 10305,
+  "sha256": "61c07d0502aa110da0e98376a6028b99bdeb75b79840ecd35bec0dad0f278cc2",
   "error": null
  },
  {

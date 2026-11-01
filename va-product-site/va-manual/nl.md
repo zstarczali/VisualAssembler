@@ -10,6 +10,8 @@ gegenereerde assembly- en machinecode in realtime.
 
 ## Inhoudsopgave
 
+- [Hoogtepunten van versie 2.7.0](#version-270-highlights)
+- [Hoogtepunten van versie 2.6.9](#version-269-highlights)
 - [Hoogtepunten van versie 2.6.8](#version-268-highlights)
 - [Hoogtepunten van versie 2.6.7](#version-267-highlights)
 - [Hoogtepunten van versie 2.6.6](#version-266-highlights)
@@ -201,6 +203,7 @@ gegenereerde assembly- en machinecode in realtime.
   - [Debugger-vlaggen](#debugger-flags)
   - [VICE Monitor (hot reload, live watch,
     profiler)](#vice-monitor-hot-reload-live-watch-profiler)
+  - [Ingebouwde C64 en debugger](#built-in-c64-and-debugger)
 - [11. Links naar de kennisbank](#11-knowledge-base-links)
 - [12. D64 Exporteren & Uitvoeren](#12-d64-export--run)
   - [Knop Split Run](#split-run-button)
@@ -240,6 +243,72 @@ gegenereerde assembly- en machinecode in realtime.
   - [Nummeromzetter](#number-converter)
 
 ---
+
+## Hoogtepunten van versie 2.7.0
+
+- **Ingebouwde C64** — VICE 3.10 (x64sc, gecompileerd naar WebAssembly) draait
+  nu binnen de app, er hoeft niets geïnstalleerd te worden. Kies **Ingebouwde
+  C64** in het menu Uitvoeren, of open het met de knop in de werkbalk. Zie
+  [Ingebouwde C64 en debugger](#built-in-c64-and-debugger).
+- **Debugger** — stopt vóór de instructie bij een breakpoint; **Doorgaan**,
+  **Break**, **Stap in/over/uit**; bewerkbare registers en vlaggen,
+  disassembleren rond de programmateller (PC), geheugenweergave en
+  breakpointlijst. Breakpoints komen uit de editor, uit de blokmodus en uit de
+  disassembler, en de editor volgt de CPU. De **Debug**-knop gebruikt deze in
+  deze modus, en wanneer er geen RetroDebugger is ingesteld.
+- **Machine-instellingen** — PAL of NTSC, SID 6581 of 8580, reSID of FastSID,
+  REU tot 16 MB, joystickpoort, warp en geluid.
+- **Uw eigen bestanden** — het **Bestanden** menu laadt een PRG en sluit een D64
+  of een cartridge aan (`.crt`). De statusbalk toont de drive-LED en het spoor,
+  en een knipperende LED geeft een drivefout aan, bijvoorbeeld wanneer een
+  bestand niet kan worden gevonden.
+- **Weergave** — een CRT-filter met scanlijnen, volledig scherm en een venster
+  waarvan de grootte kan worden aangepast. Het venster en de bijbehorende
+  instellingen worden bij de volgende opstart weer ingeschakeld.
+- **Editor voor hoge resolutie** — meerkleurige cellen zijn beperkt tot het
+  papier plus 3 kleuren, cellen die de limiet overschrijden worden rood
+  gemarkeerd en tekenen buiten de rand van de afbeelding met het pixelraster
+  ingeschakeld geeft geen foutmeldingen meer. Zie [Editor voor hoge resolutie /
+  meerkleurig](#hi-res--multicolor-editor).
+- **Rechtermuisklikmenu van de editor** — in de Expert- en Ultimate
+  Basic-editors: Knippen, Kopiëren, Plakken, Alles selecteren en HOOFDLETTERS /
+  kleine letters voor de geselecteerde tekst.
+
+## Hoogtepunten van versie 2.6.9
+
+- **Git-branches** — het venster Versiebeheer schakelt tussen branches (de lijst
+  met branches), maakt, hernoemt en verwijdert ze en voegt er een samen met de
+  huidige branch. Een samenvoegingsconflict geeft de bestanden weer, markeert ze
+  rood en **Samenvoeging afbreken** gaat terug naar de staat van vóór de
+  samenvoeging; de geopende tabbladen worden na een wisseling, samenvoeging of
+  stash opnieuw geladen vanaf de schijf. Zie [Git](#git).
+- **Bestand voor bestand en stash** — elk gewijzigd bestand heeft zijn eigen
+  **Stage / Unstage / Discard** knoppen (een niet-getrackt bestand kan worden
+  verwijderd), en een klik op de naam opent de diff. **Stash** zet de
+  wijzigingen apart; de stashlijst past ze toe, verwijdert ze of zet ze weg.
+  Zonder **Alle wijzigingen stagen** neemt een projectcommit alleen de gestagede
+  bestanden over.
+- **Een betere diff** — een kaart per bestand met de status en +/− tellingen,
+  oude en nieuwe regelnummers, kleuren voor assembly/Ultimate Basic-syntaxis en
+  het gewijzigde deel van een regel gemarkeerd; **Splitsen** toont de oude en
+  nieuwe tekst naast elkaar en ⤢ geeft de diff meer ruimte.
+- **Discard changes discard really discards** — in Git mode it first ask, then
+  reset the files on disk to HEAD (`git restore`) and reload the tabs, so a
+  branch switch works after. Started from the menu, its result appears as a
+  message.
+- **Kick-projecten** — cyclustellers, fouten en hints werken ook in een bestand
+  dat niet door het opstartbestand wordt geïmporteerd: ze komen uit de
+  boomstructuur waartoe het bestand behoort (bijvoorbeeld `main.asm` naast een
+  `boot.asm` opstartbestand). Een forward branch binnen `.pseudopc` (`bne !+`)
+  is relatief ten opzichte van het logische adres, en een char-literal is gelijk
+  aan een tekenreeks van één teken (`s.charAt(i) == '1'`), zoals in
+  KickAssembler.
+- **Oplossingen en uiterlijk** — **Project opslaan** slaat een geopend
+  Expert-project op zijn plaats op, inclusief de tabbladen met niet-opgeslagen
+  bestanden, in plaats van te vragen om een bestandsnaam; het venster
+  Versiebeheer blijft binnen het scherm en heeft pictogrammen voor de
+  gereedschappen, net als de editors; kortere numerieke velden in de
+  Tabelgenerator.
 
 ## Hoogtepunten van versie 2.6.8
 
@@ -1333,7 +1402,7 @@ automatisch wanneer de actie is voltooid of mislukt.
 | **Build D64** (`Menu → Build`)                                                                        | Verpak het programma en de extra bestanden in een `.d64` schijfkopie — zie [Exporteren naar D64-dialoogvenster]{1]                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | **CRT bouwen**                                                                                        | Exporteer het programma als een 64K Magic Desk-bestand (`.crt`, cartridgetype 19). Zie [Paragraaf 12b](#12b-crt-export-magic-desk-64k-cartridge).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | **Project bouwen** (`Menu → Bouwen`)                                                                  | Compileer elk compileerbaar bestand van het project (of van de geopende tabbladen) naar een `.prg` naast de broncode — zie [Project bouwen](#build-project)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| **Uitvoeren (splitknop)**                                                                             | De hoofdknop **▶ Run** start de huidige modus; klik op de pijl **▾** om te schakelen tussen: **Uitvoeren als PRG** (VICE direct compileren en starten), **Uitvoeren via D64** (verpakken in een .d64-schijfimage en VICE starten), **Uitvoeren op hardware** (PRG naar een C64 Ultimate / 1541 Ultimate-apparaat sturen), **D64 op hardware** (een D64 naar hetzelfde apparaat sturen), of **Kung Fu Flash 2** (de PRG via USB uploaden naar een echte C64/C128 met een Kung Fu Flash 2-cartridge). Zie [Artikel 12](#12-d64-export--run) en [Artikel 13](#13-settings).                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| **Uitvoeren (splitknop)**                                                                             | De hoofdknop **▶ Run** start de huidige modus; klik op de pijl **▾** om te schakelen tussen: **Uitvoeren als PRG** (VICE direct compileren en starten), **Uitvoeren via D64** (verpakken in een .d64-schijfimage en VICE starten), **Uitvoeren op hardware** (PRG naar een C64 Ultimate / 1541 Ultimate-apparaat sturen), **D64 op hardware** (een D64 naar hetzelfde apparaat sturen), of **Kung Fu Flash 2** (de PRG via USB uploaden naar een echte C64/C128 met een Kung Fu Flash 2-cartridge). Zie [Sectie 12](#12-d64-export--run) en [Sectie 13](#13-settings). **Ingebouwde C64** voert het programma uit op de C64 binnen de app, zie [Ingebouwde C64 en debugger](#built-in-c64-and-debugger).                                                                                                                                                                                                                                                                                                        |
 | **Debug (RetroDebugger)**                                                                             | Compileer en start in RetroDebugger met breakpoints, symbolen en autostart-vlaggen (zie [Sectie 10](#10-debugger-integration))                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | **Uitvoeren met Exomizer**                                                                            | Selectievakje in **Instellingen → Algemeen → Programma** — wanneer ingeschakeld, verwerken alle Run- en Build-bewerkingen de PRG via `exomizer sfx` voordat ze worden gestart of opgeslagen (`sfx basic` voor een PRG die begint met een BASIC-regel, zodat RUN weer werkt nadat het programma is teruggekeerd; `sfx $<laadadres>` anders). Werkt met Run as PRG, Run via D64, Run on Hardware, Build PRG en Build D64. Configureer eerst het Exomizer-uitvoerbare bestand in **Instellingen → Bestanden en paden**.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | **Automatische opslag van items**                                                                     | Selectievakje in **Instellingen → Algemeen → Versiebeheer**. Wanneer dit is ingeschakeld, voegt de app ongeveer 2,5 seconden nadat u stopt met het bewerken van een tabblad een automatisch opgeslagen item toe aan de versiegeschiedenis (voor een tabblad van een project ook aan de projectgeschiedenis). Schakel dit uit als u alleen uw eigen commits wilt bewaren. Zie [Versiebeheer](#version-control).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
@@ -1348,12 +1417,13 @@ automatisch wanneer de actie is voltooid of mislukt.
 
 ### Versiebeheer
 
-Elk tabblad heeft zijn eigen versiegeschiedenis, zoals een kleine
-git-repository; een tabblad dat bij een open `.proj`-project hoort, kan ook als
+Elk tabblad heeft zijn eigen versiegeschiedenis, net als een kleine
+Git-repository; een tabblad dat bij een open `.proj`-project hoort, kan ook als
 geheel project van een versie worden voorzien (zie
 [Projectmodus](#project-mode)). **Menu → Versiebeheer → Versiebeheer…** (of
 **Commit…**) opent het dialoogvenster; **Wijzigingen ongedaan maken (terug naar
-HEAD)** herstelt de laatste commit direct.
+HEAD)** herstelt de laatste commit na bevestiging (in Git-modus ook de bestanden
+op de schijf).
 
 De gebruikelijke workflow: schrijf een **commitbericht** en druk op **Commit**
 (of Ctrl+Enter) → blijf bewerken → druk op **Diff** om te zien wat er is
@@ -1364,14 +1434,18 @@ veranderd → commit opnieuw.
   **HEAD**. Een commit zonder wijzigingen sinds HEAD wordt niet aangemaakt.
 - **Statusregel** — *Niets om te committen, werkmap schoon* of
   *Niet-gecommitteerde wijzigingen sinds `<hash>`*.
-- **Diff** — de wijzigingen sinds HEAD; de **Diff**-knop van een
-  logboekvermelding vergelijkt die versie met de editor. Toegevoegde regels zijn
-  groen, verwijderde regels rood en de header toont **+N / −M**.
-  Blokmodusprogramma's worden vergeleken als assembly-regels (één regel per
-  blok), Expert-bronnen regel voor regel, Ultimate Basic-tabbladen op basis van
-  hun broncode, zodat een blokmodusproject dat als JSON is opgeslagen nog steeds
-  leesbare wijzigingen toont. Een bronbestand (`.asm`, `.s`, `.inc` …) wordt
-  opgeslagen als tekst, zodat een versie een bronbestand blijft.
+- **Diff** — de wijzigingen sinds HEAD; de **Diff**-knop van een logboekitem
+  vergelijkt die versie met de editor. Toegevoegde regels zijn groen,
+  verwijderde regels rood en de header toont **+N / −M**. Blokmodusprogramma's
+  worden vergeleken als assemblerregels (één regel per blok), Expert-bronnen
+  regel voor regel, Ultimate Basic-tabbladen per broncode, zodat een
+  blokmodusproject dat als JSON is opgeslagen nog steeds leesbare wijzigingen
+  toont. Elk bestand is een inklapbare kaart met de status (**M** / **A** /
+  **D** / **R**) en tellingen, de regels tonen hun oude en nieuwe nummers en de
+  syntaxkleuren van de editor, en in een gewijzigde regel wordt het afwijkende
+  deel gemarkeerd. **Split** toont de oude en nieuwe versie naast elkaar
+  (onthouden), ⤢ geeft de diff meer ruimte. Een bronbestand (`.asm`, `.s`,
+  `.inc` …) wordt opgeslagen als tekst, zodat een versie een bronbestand blijft.
 - **Checkout** — laadt die versie in de editor. Het bestand op de schijf wordt
   alleen gewijzigd wanneer je opslaat; **Discard changes** gaat terug naar HEAD.
 - **Automatisch opslaan van items** — met **Instellingen → Algemeen →
@@ -1438,10 +1512,42 @@ echte git-repository.
   over naar de Git-modus voor bestanden in een repository. De schakelaar
   **Ingebouwd / Git** in de dialoogvensterkop wijzigt de modus handmatig.
 - De header toont de branch met **↑** (commits om te pushen) en **↓** (commits
-  om te pullen), gevolgd door de gewijzigde bestanden van de repository.
-- **Commit** slaat het bestand eerst op, zet alleen dit bestand (of elke
-  wijziging met **Stage all changes (git add -A)**) in de staging area en voert
-  `git commit` uit.
+  om te pullen). Onder de statusregel bevindt zich een werkbalk (pictogrammen,
+  de namen verschijnen bij hover) met de **branchlijst**, de branchtools,
+  **Stash** en **Pull/Push/Refresh**.
+- **Branches** — selecteer een andere branch in de lijst om ernaar over te
+  schakelen (`git switch`); **New branch** maakt er een aan vanuit HEAD en
+  schakelt ernaar over, **Rename** hernoemt de huidige branch, **Delete branch**
+  verwijdert een andere (een branch die nog niet is samengevoegd, wordt pas na
+  een tweede bevestiging verwijderd). Om te schakelen zijn opgeslagen tabbladen
+  nodig: sla eerst de wijzigingen in de editor op of negeer ze. Na het schakelen
+  worden de geopende tabbladen van de repository opnieuw geladen vanaf de
+  schijf.
+- **Merge…** voegt een gekozen branch samen met de huidige (`git merge
+  --no-edit`). Bij een conflict worden de conflicterende bestanden weergegeven
+  in een rode lijst en verschijnt de statusbalk met de tekst *Merge in
+  progress*: los ze op in de editor, sla op, markeer elk conflict met
+  **Resolved** en commit — of druk op **Abort merge** (`git merge --abort`) om
+  terug te gaan.
+- **De wijzigingslijst** toont elk gewijzigd bestand van de repository met de
+  bijbehorende `git status` code. Klik op een naam voor de diff (HEAD ten
+  opzichte van het bestand op de schijf); de knoppen ernaast **Stage** (`git
+  add`), **Unstage** (`git restore --staged`) en **Discard** (terug naar HEAD op
+  de schijf, na bevestiging) — een niet-getrackt bestand kan in plaats daarvan
+  **deleted** worden.
+- **Stash** zet de niet-vastgelegde wijzigingen apart met een optioneel bericht
+  (`git stash push`); de **stash list** onder de wijzigingen **past** toe,
+  **popt** of **dropt** een item.
+- **Wijzigingen negeren** vraagt eerst toestemming, waarna de gewijzigde
+  bestanden op de schijf worden teruggezet naar HEAD (`git restore --staged
+  --worktree`) en hun tabbladen opnieuw worden geladen — voor een project de
+  hele projectmap, anders het bestand van het tabblad; niet-bijgehouden
+  bestanden worden behouden.
+- **Commit** slaat het bestand eerst op, voegt alleen dit bestand toe aan de
+  staging area (of elke wijziging met **Stage all changes (git add -A)**) en
+  voert `git commit` uit. In een project is **Stage all changes** standaard
+  ingeschakeld; als dit is uitgeschakeld, neemt de commit alleen de bestanden
+  over die je in de lijst met wijzigingen hebt toegevoegd aan de staging area.
 - Het logboek toont de commits van dit bestand met hun branches en tags.
   **Diff** op een item vergelijkt de commit met de parent; de knop **Diff**
   vergelijkt HEAD met de editor, inclusief niet-opgeslagen wijzigingen.
@@ -1854,6 +1960,13 @@ die in beide voorkomen, worden onderscheiden door hun vorm:
 | `.if DEBUG` … `.else` … `.endif`                  | `.if (expressie) { … } anders { … }`                                                                                   |
 | `.macro name(p)` … `.endm`, called with `.invoke` | `.macro Name(p) { … }`, aangeroepen als `Name(arg)`                                                                    |
 | `.var name = value` (een runtime-variabele)       | `.var name = value` (een scriptvariabele) — in een Kick-compatibel project is `.var` altijd de KickAssembler-variabele |
+
+**Live check:** Terwijl je typt, komen fouten, de cyclusmarge en de hints uit de
+boomstructuur waartoe het geopende bestand behoort — de boomstructuur van het
+opstartbestand, of, voor een bestand dat het niet importeert (bijvoorbeeld
+`main.asm` naast een `boot.asm` opstartbestand), de boomstructuur van de
+projectbroncode die het importeert. Uitvoeren en bouwen bouwen altijd het
+opstartbestand.
 
 Het project wordt gecompileerd met de VA-assembler, niet met KickAssembler: elke
 compilatie (Uitvoeren, PRG bouwen, D64, CRT, Exomizer, Debuggen, VICE Monitor,
@@ -4201,8 +4314,13 @@ plakken.
 | Parameters | Optionele parameternamen, gescheiden door komma's (bijv. `color` of `color, count`) |
 
 Markeer het begin van een macrodefinitie. Blokken tussen MACRO en ENDM vormen de
-body van de macro — ze genereren geen code waar de definitie zich bevindt.
-Gebruik {paramName} als placeholder voor argumenten.
+body van de macro. Een macro met parameters ** genereert geen code ** waar de
+definitie zich bevindt. Een macro zonder parameters wordt daar ook opgeslagen
+als een subroutine, dus `JSR naam ` roept deze aan: de programmastroom springt
+eroverheen (`JMP `), en er wordt een `RTS ` aan het einde toegevoegd. Hetzelfde
+geldt voor een dergelijke macro in een bibliotheek die op een vast adres is
+opgenomen (zonder de `JMP ` bevindt de bibliotheek zich buiten de
+programmastroom). Gebruik `{paramName} ` als placeholder voor argumenten.
 
 **Gegenereerde ASM:**
 ```
@@ -4622,7 +4740,7 @@ genereert de juiste `CMP` / `CPX` / `CPY` + branchsequentie voor u.
 | Veld     | Beschrijving                                 |
 | -------- | -------------------------------------------- |
 | Register | `A`, `X`, of `Y`                             |
-| Operator | `==`, `!=`, `<`, `<=`, `>`, `>=` |
+| Operator | `==`, `!=`, `&lt;`, `&lt;=`, `&gt;`, `&gt;=` |
 | Waarde   | Directe waarde in HEX- of DEC-formaat        |
 
 **Expert syntax:**
@@ -4642,6 +4760,8 @@ De vergelijking is standaard zonder teken. Voor `<=` en `>` wordt de macro
 uitgebreid naar de kortste equivalente vertakkingsketen voor het geselecteerde
 register.
 
+Voorbeeld: **Runtime IF/ELSE demo** (`samples/runtime-if-demo.asm`).
+
 ---
 
 ### TERWIJL / EINDE
@@ -4652,7 +4772,7 @@ zolang de voorwaarde waar blijft.
 | Veld     | Beschrijving                                 |
 | -------- | -------------------------------------------- |
 | Register | `A`, `X`, of `Y`                             |
-| Operator | `==`, `!=`, `<`, `<=`, `>`, `>=` |
+| Operator | `==`, `!=`, `&lt;`, `&lt;=`, `&gt;`, `&gt;=` |
 | Waarde   | Directe waarde in HEX- of DEC-formaat        |
 
 **Expert syntax:**
@@ -4679,7 +4799,7 @@ Zoals **een runtime-lus met een test onderaan** — de body wordt altijd minsten
 | Veld     | Beschrijving                                 |
 | -------- | -------------------------------------------- |
 | Register | `A`, `X`, of `Y`                             |
-| Operator | `==`, `!=`, `<`, `<=`, `>`, `>=` |
+| Operator | `==`, `!=`, `&lt;`, `&lt;=`, `&gt;`, `&gt;=` |
 | Waarde   | Directe waarde in HEX- of DEC-formaat        |
 
 **Expert syntax:**
@@ -6083,6 +6203,101 @@ starten, of de schijfkopie te exporteren voor gebruik elders.
 
 ---
 
+### Ingebouwde C64 en debugger
+
+De app bevat een complete C64: VICE 3.10 (x64sc) gecompileerd naar WebAssembly.
+Installatie en instellingen zijn niet nodig en de app werkt zonder externe
+VICE-server.
+
+**Een programma starten:** kies **Ingebouwde C64** in het gesplitste
+**Uitvoeren** menu en druk vervolgens op **Uitvoeren**. Het programma wordt
+gecompileerd, de machine wordt gereset en het programma start: `UITVOEREN` voor
+een programma met een BASIC-regel op `$0801`, anders `SYS` met het laadadres. De
+knop in de werkbalk opent het venster zonder iets uit te voeren; de eerste knop
+in de werkbalk compileert en voert het programma opnieuw uit.
+
+**Het toetsenbord** gaat naar de C64 wanneer het scherm de focus heeft (klik
+erop). **Tab** is CTRL, **Alt** is de Commodore-toets en je kunt tekst plakken
+met Ctrl+V. Met een **Joystick**-poort geselecteerd, zijn de pijltjestoetsen en
+de spatiebalk of rechter Ctrl de joystick.
+
+**Het menu Bestanden**
+
+| Item                                           | Wat het doet                                                                  |
+| ---------------------------------------------- | ----------------------------------------------------------------------------- |
+| **Programma laden…**                           | Start een `.prg` met autostart                                                |
+| **Bevestig D64…**                              | Koppelt de afbeelding aan station 8, reset, vervolgens `LOAD"*",8,1` en `RUN` |
+| **Patroon bevestigen…**                        | Voegt een `.crt` toe en reset.                                                |
+| **Schijf loskoppelen / Cartridge loskoppelen** | Verwijdert de afbeelding; het loskoppelen van een cartridge reset deze ook.   |
+
+De statusbalk toont wat er is aangesloten en de LED van station 8 met de
+richting van de lees-/schrijfkop. De LED blijft branden tijdens het laden. Een
+knipperende LED betekent dat het station een fout meldt, bijvoorbeeld een
+bestand dat niet gevonden of gelezen kan worden: de LED wordt rood en de
+statusbalk geeft **Stationfout** weer totdat het station de fout verhelpt.
+Aangesloten bestanden worden niet onthouden. Als u uw eigen programma vanuit de
+editor uitvoert, wordt een aangesloten cartridge eerst verwijderd; anders zou de
+cartridge starten.
+
+**Machine-instellingen** op de werkbalk:
+
+| Instelling    | Waarden                       | Opmerking                                                                                                         |
+| ------------- | ----------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| **Video**     | PAL, NTSC                     | Harde reset                                                                                                       |
+| **SID-chip**  | 6581, 8580                    | Geldt onmiddellijk                                                                                                |
+| **SID-motor** | reSID, FastSID                | Is direct van toepassing. De VA SID Core is hier niet beschikbaar: deze machine gebruikt de SID-engines van VICE. |
+| **REU**       | Uitgeschakeld, 128 KB – 16 MB | Harde reset                                                                                                       |
+| **Joystick**  | —, Haven 1, Haven 2           |                                                                                                                   |
+
+De werkbalk bevat ook **Reset**, **Pauze**, **Warp**, **Geluid**, **CRT-filter**
+en **Volledig scherm**. Het CRT-filter maakt gebruik van de CRT-emulatie van
+VICE, vloeiende schaling en scanlijnen; de scanlijnen verschijnen zodra een
+C64-lijn minstens 3 pixels hoog is. Volledig scherm wordt ook geactiveerd door
+dubbel te klikken op het scherm, en met Esc of een andere dubbelklik wordt het
+venster weer gesloten. Het venster kan worden verplaatst via de koptekst en de
+grootte kan worden aangepast in de rechteronderhoek. De positie, grootte,
+geopende status en instellingen worden bij de volgende keer opstarten hersteld.
+
+**Debuggen:** Druk op **Debug** terwijl de uitvoeringsmodus **Built-in C64** is.
+De Debug-knop gebruikt deze debugger ook wanneer er geen RetroDebugger is
+ingesteld. Het werkt met VMA-, Kick-, ACME- en Ultimate Basic-projecten. Het
+programma stopt bij het eerste breakpoint dat het bereikt, of bij de eerste
+instructie als er geen breakpoints zijn.
+
+De CPU stopt ** voor ** de instructie bij het breekpunt, dus de registers en het
+geheugen tonen de toestand vlak voordat deze wordt uitgevoerd.
+
+| Knop                 | Sleutel                         | Wat het doet                                          |
+| -------------------- | ------------------------------- | ----------------------------------------------------- |
+| **Doorgaan**         | F5                              | Gaat door naar het volgende breekpunt.                |
+| **Break**            | Druk op F5 tijdens het draaien. | Stopt een lopend programma                            |
+| **Stap in **         | F11                             | Voert één instructie uit                              |
+| **Stap over **       | F10                             | Voert een JSR uit naar zijn terugkeer                 |
+| **Stap naar buiten** | Shift+F11                       | Voert de instructie uit na de RTS/RTI van de routine. |
+
+De toetsen werken wanneer de focus in het venster ligt, maar niet op het
+C64-scherm, omdat F5 daar ook een C64-toets is.
+
+Het **Debugger-paneel** toont:
+
+- **Registers:** PC, A, X, Y en SP zijn bewerkbare hexadecimale velden en de
+  vlaggen zijn knoppen. Wijzigingen worden van kracht wanneer de CPU wordt
+  ingeschakeld.
+- **Demontage** rondom de pc, met de labels van uw programma. Klik op de stip
+  aan het begin van een regel om een breekpunt in te stellen of te verwijderen.
+- **Geheugen:** typ een adres als `$hex`, een decimaal getal of een label. Lezen
+  heeft geen neveneffecten, dus kijken naar `$DC0D` bevestigt geen onderbreking.
+- **Breakpoints:** het adres en de `bestand:regel` van elk ervan.
+
+Breakpoints worden gegenereerd vanuit de regelmarge van de editor (elk geopend
+tabblad van de build), vanuit breakpoints in blokmodus en vanuit de
+disassemblage. Een wijziging in de editor telt mee bij de volgende Continue- of
+stap. Wanneer de CPU stopt, opent de editor het bestand en markeert de regel; in
+blokmodus wordt het blok geselecteerd.
+
+Het **VICE Monitor**-venster blijft alleen werken met een externe VICE; het
+maakt geen verbinding met deze machine.
+
 ## 12b. CRT-export (Magic Desk 64K-cartridge)
 
 Je kunt je programma (en extra gegevensbestanden) verpakken in een C64
@@ -6171,7 +6386,7 @@ schijfbeheerder.
 
 **Bestanden ▾ menu:**
 
-| Platform              | Actie                                              |
+| Item                  | Actie                                              |
 | --------------------- | -------------------------------------------------- |
 | VICE (`x64sc`, `x64`) | Werkt via **Bestand → Cartridge-image bijvoegen**. |
 | De C64 / De C64 Mini  | Werkt via de ingebouwde patroonlader.              |
@@ -6550,7 +6765,7 @@ werkbalk.
 | Celpapier (hoge resolutie)    | Bij hoge resolutie zijn er twee kleuren in elke 8×8 cel mogelijk: de inkt (ingestelde pixels, hoge nibble van de scherm-RAM-byte van de cel) en het papier (wisbare pixels, lage nibble). Met de tool **Celpapier** wordt het papier van elke cel waarop u klikt of die u sleept ingesteld op de geselecteerde kleur; **PAPIER** stelt nog steeds alle cellen tegelijk in. De gum verwijdert pixels, zodat het eigen papier van de cel zichtbaar wordt. Uitgeschakeld in meerkleurige weergave, waar de achtergrond ($D021) wordt gedeeld.                                                                                                                                               |
 | Spuitgereedschap              | Een airbrush-achtig tekenprogramma dat tijdens het tekenen pixels rond de cursor verspreidt.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | Spuitintensiteit              | Met het keuzemenu naast het spuitgereedschap kunt u de dichtheid van elke spuitbeweging aanpassen.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| Kleurenpalet                  | Voorgrond (inkt) + papier (achtergrond) selectieknoppen. Meerkleurenmodus houdt automatisch 3 extra's per cel bij.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| Kleurenpalet                  | Voorgrond (inkt) + papier (achtergrond) selectievelden. In meerkleurig bevat elke 4×8 cel het papier plus 3 extra kleuren: een vierde kleur wordt geweigerd met een bericht in de statusbalk. Het wijzigen van het papier kleurt alle achtergrondpixels opnieuw in, zoals `$D021` doet. Cellen die de limiet overschrijden (bijvoorbeeld in een raw-bestand van 32000 bytes) krijgen een rood kader en de export waarschuwt hiervoor, omdat hun extra kleuren in de achtergrond zouden veranderen.                                                                                                                                                                                       |
 | Ongedaan maken / Opnieuw doen | Geschiedenis per beroerte, ctrl-Z / ctrl-Y.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | Select                        | Het gereedschap met gestippelde vierkanten: sleep over het canvas om een rechthoekig gebied te markeren. **Esc** wist de selectie.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | Kopiëren / Plakken            | **Kopiëren** (`Ctrl/Cmd+C`) kopieert het geselecteerde gebied. **Plakken** (`Ctrl/Cmd+V`) toont een voorbeeld dat de cursor volgt: klik op het canvas om het te plaatsen, **Esc** annuleert. De kopie blijft behouden, dus door op `Ctrl/Cmd+V` te drukken en opnieuw te klikken, kunt u het zo vaak als nodig plaatsen. In de hoge-resolutiemodus volgen geplakte pixels nog steeds de limiet van twee kleuren per cel, dus lijn het gebied uit met het celraster om de kleuren te behouden. Kopiëren, Plakken en Transparant plakken zijn ook beschikbaar in het rechtermuisklikmenu van het canvas; een plakactie die daar wordt gestart, toont een voorbeeld op de aangeklikte plek. |
@@ -6558,7 +6773,7 @@ werkbalk.
 | Raster + Raster               | **Grid** toont het raster van de tekencellen: 8×8 pixels in hoge resolutie, 4×8 dubbelbrede pixels in meerkleurig. Bij 4× zoom wordt er ook een dunnere lijn rond elke pixel getekend, zodat elke pixel precies geplaatst kan worden. **Raster** voegt een rasterrij-overlay toe.                                                                                                                                                                                                                                                                                                                                                                                                        |
 | Zoom                          | Schuifregelaar van 1× tot 16×, of Ctrl+muiswiel over het canvas (het punt onder de cursor blijft op zijn plaats).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | Afbeelding importeren         | PNG/JPEG/GIF-bestanden die op het canvas worden geplaatst, worden automatisch gequantiseerd naar het 16-kleuren C64-palet.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| Exporteer blokken             | Voegt BYTE/RAWBYTES-blokken met de gecodeerde bitmap-, scherm- en kleurgegevens toe aan het programma.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| Exporteer blokken             | Voegt een loader toe aan het programma: deze laadt het bestand `HIRES` van de schijf naar `$2000`, kopieert het scherm-RAM naar `$0400` (en in meerkleurig kleur-RAM naar `$D800`), en schakelt vervolgens de bitmapmodus in. De afbeelding bevindt zich niet in de blokken: voeg deze toe aan de schijf met **Opslaan naar D64**.                                                                                                                                                                                                                                                                                                                                                       |
 | Exporteer `.bin`              | Slaat het oorspronkelijke meerkleurige formaat (10000 bytes: 8000 bitmap + 1000 scherm + 1000 kleur) klaar voor LOADFILE op in $2000.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 
 ### Sprite-editor

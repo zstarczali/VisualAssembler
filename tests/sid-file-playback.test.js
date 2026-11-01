@@ -22,6 +22,7 @@ test("stopping for an external SID does not preload the editor stream", () => {
   let preloads = 0, externalStops = 0, webSidPauses = 0;
   const ctx = {
     _sidTimer: null,
+    _sidPlaybackUsingWebSid: false,
     _sidExternalCore: {},
     _sidWaStop() {},
     _sidExternalCoreStop() { externalStops++; },
@@ -43,6 +44,33 @@ test("stopping for an external SID does not preload the editor stream", () => {
   assert.equal(webSidPauses, 1);
   ctx.stop();
   assert.equal(preloads, 1);
+});
+
+test("Stop silences the editor's WebSID playback, without closing the SID Player", () => {
+  let enginePauses = 0, windowPauses = 0;
+  const ctx = {
+    _sidTimer: null,
+    _sidPlaybackUsingWebSid: true,
+    _webSidActive: true,
+    _sidExternalCore: null,
+    ScriptNodePlayer: { getInstance() { return { pause() { enginePauses++; } }; } },
+    _sidWaStop() {},
+    _sidStreamSilence() {},
+    _webSidPause() { windowPauses++; },
+    _sidStreamPreload() {},
+    _sidUpdatePauseButton() {},
+    _sidBuildSongList() {},
+    document: { getElementById() { return null; } },
+  };
+  vm.createContext(ctx);
+  vm.runInContext(`${fnSource("_sidStop")}; this.stop = _sidStop;`, ctx);
+  ctx.stop();
+  assert.equal(enginePauses, 1);
+  assert.equal(windowPauses, 0);
+  assert.equal(ctx._webSidActive, false);
+  assert.equal(ctx._sidPlaybackUsingWebSid, false);
+  ctx.stop();
+  assert.equal(enginePauses, 1, "nothing of the editor is playing any more");
 });
 
 test("WebSID file playback remains available", async () => {
@@ -94,7 +122,7 @@ test("VA SID Core renders an external PSID without WebSID", async () => {
     Uint8Array, Float32Array, Promise, Array,
     crypto: { randomUUID() { return "sid-session-1"; } },
     window: { electronAPI: {
-      renderSidFile(payload) { calls.render.push(payload); return Promise.resolve("AAAAAA=="); },
+      renderSidFile(payload) { calls.render.push(payload); return Promise.resolve({ channels: 1, pcm: "AAAAAA==" }); },
       releaseSidFile(id) { calls.release.push(id); return Promise.resolve(); },
     } },
     _sidExternalCore: null,
@@ -135,6 +163,127 @@ test("VA SID Core renders an external PSID without WebSID", async () => {
   await Promise.resolve();
   await Promise.resolve();
   assert.deepEqual(calls.release, ["sid-session-1"]);
+});
+
+test("a stereo .sid render is timed by its samples per channel", async () => {
+  const buffers = [];
+  const ac = { currentTime: 0, sampleRate: 44100 };
+  const ctx = {
+    Uint8Array, Float32Array, Promise, Array,
+    crypto: { randomUUID() { return "sid-session-2"; } },
+    window: { electronAPI: {
+      renderSidFile() { return Promise.resolve({ channels: 2, pcm: "" }); },
+      releaseSidFile() { return Promise.resolve(); },
+    } },
+    _sidExternalCore: null,
+    _VA_SID_CORE_VERSION: "1.0",
+    _sidPreviewModel: "8580",
+    _sidExtSources: new Set(),
+    _sidPlaylist: [],
+    _sidStop() {},
+    _sidEnsureAudio() { return ac; },
+    _sidDecodePcm16() { return new Float32Array(8820); },
+    _sidPlayBuffer(pcm, when, sources, channels) { buffers.push({ when, channels }); },
+    _webSidShowExternalDialog() {},
+    _webSidHideExternalDialog() {},
+    showViceToast(message) { throw new Error(message); },
+    setInterval() { return 1; },
+    clearInterval() {},
+  };
+  vm.createContext(ctx);
+  vm.runInContext(`${fnSource("_sidExternalCoreStop")}; ${fnSource("_sidVaCoreLabel")}; ${fnSource("_sidPlayerAheadSeconds")}; ${fnSource("_sidPlayerBufferSize")}; ${fnSource("_vaSidPlayFileBytes")}; this.play = _vaSidPlayFileBytes; this.stop = _sidExternalCoreStop;`, ctx);
+  assert.equal(await ctx.play(new Uint8Array([80, 83, 73, 68]), "stereo.sid"), true);
+  assert.ok(buffers.length > 1);
+  assert.equal(buffers[0].channels, 2);
+  // 8820 interleaved values = 4410 samples = 0.1 s
+  assert.ok(Math.abs(buffers[1].when - buffers[0].when - 0.1) < 1e-9);
+  assert.equal(ctx._sidExternalCore.renderedMs, buffers.length * 100);
+  ctx.stop();
+});
+
+test("the audio buffer splits interleaved stereo into its channels", () => {
+  const made = [];
+  const ac = {
+    currentTime: 0, sampleRate: 44100, destination: {},
+    createBuffer(channels, samples) {
+      const buf = { channels, samples, data: [], copyToChannel(data, c) { buf.data[c] = Array.from(data); } };
+      made.push(buf);
+      return buf;
+    },
+    createBufferSource() { return { connect() {}, start() {} }; },
+  };
+  const ctx = { Float32Array, Math, _sidMasterGain: null, _sidPreviewSources: new Set(), _sidEnsureAudio() { return ac; } };
+  vm.createContext(ctx);
+  vm.runInContext(`${fnSource("_sidPlayBuffer")}; this.play = _sidPlayBuffer;`, ctx);
+  ctx.play(new Float32Array([0.5, -0.5, 0.25, -0.25]), 0, new Set(), 2);
+  assert.deepEqual([made[0].channels, made[0].samples], [2, 2]);
+  assert.deepEqual(made[0].data, [[0.5, 0.25], [-0.5, -0.25]]);
+  ctx.play(new Float32Array([0.5, 0.25]), 0);
+  assert.deepEqual([made[1].channels, made[1].samples], [1, 2]);
+  assert.deepEqual(made[1].data, [[0.5, 0.25]]);
+});
+
+test("the PSID header of a two-SID tune is v3 with the second SID's address", () => {
+  const ctx = { Uint8Array, TextEncoder };
+  vm.createContext(ctx);
+  vm.runInContext(`${fnSource("_buildPsidBytes")}; this.build = _buildPsidBytes;`, ctx);
+  const one = ctx.build(new Uint8Array([0, 0x10, 0x60]), 0x1000, 0, "x");
+  assert.deepEqual([one[5], one[0x7A]], [2, 0]);
+  const two = ctx.build(new Uint8Array([0, 0x10, 0x60]), 0x1000, 0, "x", "2026", 0xD420);
+  assert.deepEqual([two[5], two[0x7A], two[0x7B]], [3, 0x42, 0]);
+  assert.equal(ctx.build(new Uint8Array([0, 0x10, 0x60]), 0x1000, 0, "x", "2026", 0xDE00)[0x7A], 0xE0);
+  assert.equal(two.length, 0x7C + 3);
+});
+
+test("a two-SID VA Core preview is stereo, with one restart mask for six voices", async () => {
+  const ctx = {
+    Math, Array, Promise, _sidPreviewModel: "8580",
+    window: { electronAPI: { renderSidPreview(p) { ctx.payload = p; return Promise.resolve("x"); } } },
+    _sidDecodePcm16() { return new Float32Array(4); },
+  };
+  vm.createContext(ctx);
+  vm.runInContext(`${fnSource("_sidVaCoreFrame")}; ${fnSource("_sidRenderVaCoreFrames")};
+    this.frame = _sidVaCoreFrame; this.render = _sidRenderVaCoreFrames;`, ctx);
+  const frame = ctx.frame({ regs: new Uint8Array(50), trig: [true, false, false, false, false, true] });
+  assert.equal(frame.length, 51);
+  assert.equal(frame[50], 0x21);
+  assert.equal((await ctx.render([frame], 44100)).channels, 2);
+  assert.equal(ctx.payload.frames[0].length, 51);
+  const mono = ctx.frame({ regs: new Uint8Array(25), trig: [false, true, false] });
+  assert.equal(mono.length, 26);
+  assert.equal((await ctx.render([mono], 44100)).channels, undefined);
+});
+
+test("the Web Audio synth renders two SIDs to interleaved stereo", () => {
+  const ctx = { Math, Float32Array, Uint8Array, Array };
+  vm.createContext(ctx);
+  vm.runInContext(`${fnSource("_sidRenderEngine")};
+    function _sidSynthNew() { return {}; }
+    function _sidEngFrame() {}
+    function _sidSynthRender(sy, regs, trig, out, off, count) { for (let i = 0; i < count; i++) out[off + i] = regs[0]; }
+    this.render = _sidRenderEngine;`, ctx);
+  const regs = new Uint8Array(50);
+  regs[0] = 1; regs[25] = 2;
+  const out = ctx.render({ chips: 2, regs, trig: new Array(6).fill(false) }, 1, 100);
+  assert.equal(out.channels, 2);
+  assert.deepEqual(Array.from(out), [1, 2, 1, 2]);
+  const mono = ctx.render({ chips: 1, regs: regs.slice(0, 25), trig: [false, false, false] }, 1, 100);
+  assert.equal(mono.channels, undefined);
+  assert.deepEqual(Array.from(mono), [1, 1]);
+});
+
+test("the audio buffer takes its channel count from the rendered data", () => {
+  const made = [];
+  const ac = { currentTime: 0, sampleRate: 44100, destination: {},
+    createBuffer(channels, samples) { const b = { channels, samples, copyToChannel() {} }; made.push(b); return b; },
+    createBufferSource() { return { connect() {}, start() {} }; } };
+  const ctx = { Float32Array, Math, _sidMasterGain: null, _sidPreviewSources: new Set(), _sidEnsureAudio() { return ac; } };
+  vm.createContext(ctx);
+  vm.runInContext(`${fnSource("_sidPlayBuffer")}; this.play = _sidPlayBuffer;`, ctx);
+  const data = new Float32Array(4);
+  data.channels = 2;
+  ctx.play(data, 0);
+  assert.deepEqual([made[0].channels, made[0].samples], [2, 2]);
 });
 
 test("VA arpeggio renders one voice once and schedules notes after a delayed render", async () => {
@@ -479,3 +628,4 @@ test("SID player shuffle: every tune once per round, Previous steps back along t
   ctx.api.next();
   assert.equal(started.length, 6, "a new round starts after every tune has played");
 });
+

@@ -20,12 +20,25 @@ const CMD_REG_SET: u8 = 0x32;
 const CMD_BANKS: u8 = 0x82;
 const CMD_REGS_AVAILABLE: u8 = 0x83;
 const CMD_EXIT: u8 = 0xAA;
+const CMD_CHECKPOINT_SET: u8 = 0x12;
+const CMD_CHECKPOINT_DELETE: u8 = 0x13;
+const CMD_ADVANCE: u8 = 0x71;
+const CMD_UNTIL_RETURN: u8 = 0x73;
+const CMD_PING: u8 = 0x81;
+const CMD_KEYBOARD_FEED: u8 = 0x72;
+const CMD_AUTOSTART: u8 = 0xDD;
+#[cfg(test)]
+const CMD_QUIT: u8 = 0xBB;
+const EVENT_STOPPED: u8 = 0x62;
+const CHECKPOINT_EXEC: u8 = 4;
 const MEMSPACE_MAIN: u8 = 0;
 
 pub struct Monitor {
     stream: TcpStream,
     next_id: u32,
     stopped: bool,
+    /// PC of the last STOPPED event; a command that lets the CPU go clears it.
+    stop_pc: Option<u16>,
 }
 
 fn io_err(e: std::io::Error) -> String {
@@ -45,20 +58,46 @@ impl Monitor {
         stream.set_read_timeout(Some(Duration::from_secs(3))).map_err(io_err)?;
         stream.set_write_timeout(Some(Duration::from_secs(3))).map_err(io_err)?;
         let _ = stream.set_nodelay(true);
-        Ok(Monitor { stream, next_id: 1, stopped: false })
+        Ok(Monitor { stream, next_id: 1, stopped: false, stop_pc: None })
+    }
+
+    /// One client at a time: a connection made right after the previous one closed can be
+    /// dropped by the emulator, so it counts once a command has an answer.
+    pub fn connect_ready(port: u16, patience: Duration) -> Result<Self, String> {
+        let deadline = std::time::Instant::now() + patience;
+        loop {
+            let attempt = Monitor::connect(port).and_then(|mut monitor| {
+                monitor.request(CMD_PING, &[])?;
+                Ok(monitor)
+            });
+            match attempt {
+                Ok(monitor) => return Ok(monitor),
+                Err(_) if std::time::Instant::now() < deadline => std::thread::sleep(Duration::from_millis(150)),
+                Err(error) => return Err(error),
+            }
+        }
+    }
+
+    fn packet(&mut self, cmd: u8, body: &[u8], out: &mut Vec<u8>) -> u32 {
+        let id = self.next_id;
+        self.next_id = self.next_id.wrapping_add(1).max(1);
+        out.extend_from_slice(&[STX, API]);
+        out.extend_from_slice(&(body.len() as u32).to_le_bytes());
+        out.extend_from_slice(&id.to_le_bytes());
+        out.push(cmd);
+        out.extend_from_slice(body);
+        id
     }
 
     fn request(&mut self, cmd: u8, body: &[u8]) -> Result<Vec<u8>, String> {
-        let id = self.next_id;
-        self.next_id = self.next_id.wrapping_add(1).max(1);
         let mut pkt = Vec::with_capacity(11 + body.len());
-        pkt.extend_from_slice(&[STX, API]);
-        pkt.extend_from_slice(&(body.len() as u32).to_le_bytes());
-        pkt.extend_from_slice(&id.to_le_bytes());
-        pkt.push(cmd);
-        pkt.extend_from_slice(body);
+        let id = self.packet(cmd, body, &mut pkt);
         self.stream.write_all(&pkt).map_err(io_err)?;
         self.stopped = cmd != CMD_EXIT;
+        self.read_reply(id, cmd)
+    }
+
+    fn read_reply(&mut self, id: u32, cmd: u8) -> Result<Vec<u8>, String> {
         // események közt is határidő: egy folyamatos eseményáram se akaszthassa meg a választ
         let deadline = std::time::Instant::now() + Duration::from_secs(3);
         loop {
@@ -74,6 +113,7 @@ impl Monitor {
             let mut data = vec![0u8; len];
             self.stream.read_exact(&mut data).map_err(io_err)?;
             if u32::from_le_bytes([head[8], head[9], head[10], head[11]]) != id {
+                self.note_event(head[6], &data);
                 continue;
             }
             if head[7] != 0 {
@@ -81,6 +121,153 @@ impl Monitor {
             }
             return Ok(data);
         }
+    }
+
+    fn note_event(&mut self, kind: u8, data: &[u8]) {
+        if kind == EVENT_STOPPED {
+            self.stop_pc = u16_at(data, 0).ok();
+        }
+    }
+
+    /// Reads the events waiting on the socket, at most `wait` for the first one; for a CPU that
+    /// runs in the debugger, since any command would stop it.
+    pub fn poll_events(&mut self, wait: Duration) -> Result<(), String> {
+        self.stream.set_read_timeout(Some(wait.max(Duration::from_millis(1)))).map_err(io_err)?;
+        let outcome = loop {
+            let mut head = [0u8; 12];
+            match self.stream.peek(&mut head) {
+                Ok(0) => break Err("VICE monitor: connection closed".to_string()),
+                Ok(n) if n < head.len() => break Ok(()),
+                Ok(_) => {}
+                Err(e) if matches!(e.kind(), std::io::ErrorKind::WouldBlock | std::io::ErrorKind::TimedOut) => break Ok(()),
+                Err(e) => break Err(io_err(e)),
+            }
+            self.stream.set_read_timeout(Some(Duration::from_secs(3))).map_err(io_err)?;
+            self.stream.read_exact(&mut head).map_err(io_err)?;
+            let len = u32::from_le_bytes([head[2], head[3], head[4], head[5]]) as usize;
+            let mut data = vec![0u8; len];
+            self.stream.read_exact(&mut data).map_err(io_err)?;
+            self.note_event(head[6], &data);
+            self.stream.set_read_timeout(Some(Duration::from_millis(1))).map_err(io_err)?;
+        };
+        self.stream.set_read_timeout(Some(Duration::from_secs(3))).map_err(io_err)?;
+        outcome
+    }
+
+    pub fn stop_pc(&self) -> Option<u16> {
+        self.stop_pc
+    }
+
+    /// A command that lets the CPU go. A stop event can come twice in a row: one that arrives
+    /// before the reply belongs to the previous run, the stop of this run comes after it.
+    fn run_command(&mut self, cmd: u8, body: &[u8]) -> Result<(), String> {
+        self.request(cmd, body)?;
+        self.stop_pc = None;
+        Ok(())
+    }
+
+    /// For a stop that came from elsewhere, with no event: gives the PC it is at.
+    pub fn note_stop(&mut self) -> Result<Option<u16>, String> {
+        let pc = self.register_id("PC")?;
+        self.stop_pc = self.registers()?.iter().find(|(id, _)| *id == pc).map(|(_, v)| *v);
+        Ok(self.stop_pc)
+    }
+
+    /// VICE stops on any command; this one does nothing else.
+    pub fn stop(&mut self) -> Result<(), String> {
+        self.request(CMD_PING, &[]).map(|_| ())
+    }
+
+    /// Ends VICE (the tests close the one they started).
+    #[cfg(test)]
+    pub fn quit(&mut self) -> Result<(), String> {
+        self.request(CMD_QUIT, &[]).map(|_| ())
+    }
+
+    /// Loads a PRG or disk image from the host and runs it, as VICE's autostart does.
+    pub fn autostart(&mut self, path: &str) -> Result<(), String> {
+        let name = path.as_bytes();
+        if name.len() > 255 {
+            return Err("VICE monitor: file path too long".to_string());
+        }
+        let mut body = vec![1, 0, 0, name.len() as u8];
+        body.extend_from_slice(name);
+        self.request(CMD_AUTOSTART, &body).map(|_| ())
+    }
+
+    /// Puts PETSCII text into the C64's keyboard buffer.
+    pub fn keyboard_feed(&mut self, text: &[u8]) -> Result<(), String> {
+        let mut body = vec![text.len() as u8];
+        body.extend_from_slice(text);
+        self.request(CMD_KEYBOARD_FEED, &body).map(|_| ())
+    }
+
+    /// Deletes checkpoints by number and sets execution checkpoints that stop the CPU, all in one
+    /// write so that they are served together; gives the new numbers.
+    pub fn update_checkpoints(&mut self, delete: &[u32], set: &[u16]) -> Result<Vec<u32>, String> {
+        let mut packets = Vec::new();
+        let mut deleted = Vec::with_capacity(delete.len());
+        for number in delete {
+            deleted.push(self.packet(CMD_CHECKPOINT_DELETE, &number.to_le_bytes(), &mut packets));
+        }
+        let mut created = Vec::with_capacity(set.len());
+        for address in set {
+            let mut body = address.to_le_bytes().to_vec();
+            body.extend_from_slice(&address.to_le_bytes());
+            body.extend_from_slice(&[1, 1, CHECKPOINT_EXEC, 0]);
+            created.push(self.packet(CMD_CHECKPOINT_SET, &body, &mut packets));
+        }
+        if packets.is_empty() {
+            return Ok(Vec::new());
+        }
+        self.stream.write_all(&packets).map_err(io_err)?;
+        self.stopped = true;
+        for id in deleted {
+            self.read_reply(id, CMD_CHECKPOINT_DELETE)?;
+        }
+        let mut numbers = Vec::with_capacity(created.len());
+        for id in created {
+            let reply = self.read_reply(id, CMD_CHECKPOINT_SET)?;
+            let number = reply.get(0..4).ok_or("VICE monitor: short response")?;
+            numbers.push(u32::from_le_bytes([number[0], number[1], number[2], number[3]]));
+        }
+        Ok(numbers)
+    }
+
+    /// One instruction, over a JSR with `over`; the stop arrives as an event.
+    pub fn advance(&mut self, over: bool) -> Result<(), String> {
+        let mut body = vec![u8::from(over)];
+        body.extend_from_slice(&1u16.to_le_bytes());
+        self.run_command(CMD_ADVANCE, &body)
+    }
+
+    /// Runs until the current routine returns, or it runs out of the machine's budget for that if
+    /// it never does; the stop arrives as an event. Not waited for: the machine answers only then.
+    pub fn until_return(&mut self) -> Result<(), String> {
+        let mut pkt = Vec::with_capacity(11);
+        self.packet(CMD_UNTIL_RETURN, &[], &mut pkt);
+        self.poll_events(Duration::from_millis(1))?;
+        self.stop_pc = None;
+        self.stream.write_all(&pkt).map_err(io_err)?;
+        self.stopped = true;
+        Ok(())
+    }
+
+    /// A regiszterek azonosítói és nevei.
+    pub fn register_names(&mut self) -> Result<Vec<(u8, String)>, String> {
+        let b = self.request(CMD_REGS_AVAILABLE, &[MEMSPACE_MAIN])?;
+        let count = u16_at(&b, 0)?;
+        let mut out = Vec::with_capacity(count as usize);
+        let mut p = 2;
+        for _ in 0..count {
+            let size = *b.get(p).ok_or("VICE monitor: short response")? as usize;
+            let id = *b.get(p + 1).ok_or("VICE monitor: short response")?;
+            let nlen = *b.get(p + 3).ok_or("VICE monitor: short response")? as usize;
+            let name = b.get(p + 4..p + 4 + nlen).ok_or("VICE monitor: short response")?;
+            out.push((id, String::from_utf8_lossy(name).to_string()));
+            p += 1 + size;
+        }
+        Ok(out)
     }
 
     /// Bank azonosító név szerint ("ram", "cpu", …); ismeretlennél 0 (default).
@@ -166,7 +353,7 @@ impl Monitor {
     }
 
     pub fn resume(&mut self) -> Result<(), String> {
-        self.request(CMD_EXIT, &[]).map(|_| ())
+        self.run_command(CMD_EXIT, &[])
     }
 }
 
@@ -236,6 +423,7 @@ mod tests {
                 out.extend((0..n).map(|i| (start as usize + i) as u8));
                 out
             }
+            CMD_CHECKPOINT_SET => vec![u16::from_le_bytes([body[0], body[1]]) as u8, 0, 0, 0],
             CMD_MEM_SET => {
                 assert_eq!(&body[..5], &[0, 0x00, 0xC0, 0x02, 0xC0]);
                 assert_eq!(&body[6..8], &[1, 0], "writes go to the RAM bank");
@@ -279,6 +467,26 @@ mod tests {
         }
         let cpu = m.bank_id("cpu").unwrap();
         assert_eq!(m.read_memory(0xC000, 0xC002, cpu).unwrap(), vec![0xEE, 0x20, 0xD0]);
+    }
+
+    #[test]
+    fn checkpoint_changes_go_out_together() {
+        let port = fake_vice(handler);
+        let mut m = Monitor::connect(port).unwrap();
+        assert_eq!(m.update_checkpoints(&[], &[]).unwrap(), Vec::<u32>::new());
+        assert_eq!(m.update_checkpoints(&[7, 8], &[0x0810, 0x0820]).unwrap(), vec![0x10, 0x20]);
+    }
+
+    #[test]
+    fn events_report_the_stop_without_a_command() {
+        let port = fake_vice(handler);
+        let mut m = Monitor::connect(port).unwrap();
+        m.poll_events(Duration::from_millis(5)).unwrap();
+        assert_eq!(m.stop_pc(), None, "nothing on the socket yet");
+        m.bank_id("ram").unwrap();
+        assert_eq!(m.stop_pc(), Some(0x1000), "the event before the reply counts");
+        m.resume().unwrap();
+        m.poll_events(Duration::from_millis(5)).unwrap();
     }
 
     #[test]

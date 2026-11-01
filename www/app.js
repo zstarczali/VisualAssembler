@@ -77,54 +77,54 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "web64-270",
+  id: "ue2-vice-271",
   url: "https://www.c64va.pro/docs.html",
   hu: {
-    eyebrow: "Újdonság a 2.7.0-ban",
+    eyebrow: "Újdonság a 2.7.1-ben",
     title: "Üdvözöl a Visual Assembler",
-    body: `<ul><li><strong>Beépített C64</strong>: a VICE 3.10 mostantól az appon belül fut, nem kell telepíteni. Run menü → <em>Beépített C64</em>, vagy az eszköztár gombja.</li><li><strong>Debugger</strong>: töréspont, lépés be / át / ki, szerkeszthető regiszterek, disassembly, memória; a szerkesztő követi a CPU-t.</li><li><strong>Gép</strong>: PAL / NTSC, SID 6581 / 8580, reSID / FastSID, REU 16 MB-ig, joystick, warp.</li><li><strong>Fájlok</strong>: PRG, D64 és cartridge betöltése.</li><li><strong>Kép</strong>: CRT szűrő, teljes képernyő, átméretezhető ablak; a beállításokat megjegyzi.</li></ul><p>Kérdés, ötlet vagy hiba: <strong>Menu → Támogatás</strong>.</p>`,
+    body: `<ul><li><strong>Ultimate emulátor</strong>: a program a C64 Ultimate firmware-en fut a gépeden (UE2-C64U-Emulator), PRG-ként vagy D64-ről, debuggerrel. Run menü → <em>Ultimate emulátor</em>, beállítás: Beállítások → Integrációk.</li><li><strong>Debugger külső VICE-hoz</strong>: a Debug gomb a saját VICE-odban állítja meg a programot, töréspontokkal, lépésenkénti futtatással, regiszterekkel és memórianézettel. Beállítások → Általános → <em>Debugger</em>: Visual Assembler.</li><li><strong>Két SID a SID Editorban</strong>: 3 vagy 6 hang, választható második SID-cím, .sid import és export.</li><li><strong>SID Player</strong>: 2SID és 3SID dalok sztereóban, a VA SID Core-ral.</li></ul>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
-    eyebrow: "New in 2.7.0",
+    eyebrow: "New in 2.7.1",
     title: "Welcome to Visual Assembler",
-    body: `<ul><li><strong>Built-in C64</strong>: VICE 3.10 now runs inside the app, nothing to install. Run menu → <em>Built-in C64</em>, or its toolbar button.</li><li><strong>Debugger</strong>: breakpoints, step into / over / out, editable registers, disassembly, memory; the editor follows the CPU.</li><li><strong>Machine</strong>: PAL / NTSC, SID 6581 / 8580, reSID / FastSID, REU up to 16 MB, joystick, warp.</li><li><strong>Files</strong>: load a PRG, a D64 or a cartridge.</li><li><strong>Display</strong>: CRT filter, full screen, resizable window; your settings are remembered.</li></ul><p>Questions, ideas or bugs: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Ultimate emulator</strong>: run your program on the C64 Ultimate firmware on your computer (UE2-C64U-Emulator), as a PRG or from a D64, with a debugger. Run menu → <em>Ultimate emulator</em>, set up in Settings → Integrations.</li><li><strong>Debugger for external VICE</strong>: the Debug button stops your program in your own VICE, with breakpoints, stepping, registers and memory. Settings → General → <em>Debugger</em>: Visual Assembler.</li><li><strong>Two SIDs in the SID Editor</strong>: 3 or 6 voices, a selectable second SID address, .sid import and export.</li><li><strong>SID Player</strong>: 2SID and 3SID tunes in stereo, with VA SID Core.</li></ul>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
-    eyebrow: "Novedad en la 2.7.0",
+    eyebrow: "Novedad en la 2.7.1",
     title: "Bienvenido a Visual Assembler",
-    body: `<ul><li><strong>C64 integrado</strong>: VICE 3.10 ahora funciona dentro de la aplicación, sin instalar nada. Menú Run → <em>C64 integrado</em>, o su botón de la barra.</li><li><strong>Depurador</strong>: puntos de interrupción, paso a paso, registros editables, desensamblado, memoria; el editor sigue a la CPU.</li><li><strong>Máquina</strong>: PAL / NTSC, SID 6581 / 8580, reSID / FastSID, REU hasta 16 MB, joystick, warp.</li><li><strong>Archivos</strong>: carga PRG, D64 o cartuchos.</li><li><strong>Imagen</strong>: filtro CRT, pantalla completa, ventana redimensionable; recuerda tus ajustes.</li></ul><p>Preguntas, ideas o errores: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Emulador Ultimate</strong>: ejecuta tu programa en el firmware del C64 Ultimate en tu ordenador (UE2-C64U-Emulator), como PRG o desde un D64, con depurador. Menú Run → <em>Emulador Ultimate</em>, configuración en Ajustes → Integraciones.</li><li><strong>Depurador para VICE externo</strong>: el botón Debug detiene tu programa en tu propio VICE, con puntos de interrupción, ejecución paso a paso, registros y memoria. Ajustes → General → <em>Depurador</em>: Visual Assembler.</li><li><strong>Dos SID en el SID Editor</strong>: 3 o 6 voces, dirección del segundo SID seleccionable, importación y exportación .sid.</li><li><strong>SID Player</strong>: temas 2SID y 3SID en estéreo, con VA SID Core.</li></ul>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
-    eyebrow: "Neu in 2.7.0",
+    eyebrow: "Neu in 2.7.1",
     title: "Willkommen bei Visual Assembler",
-    body: `<ul><li><strong>Eingebauter C64</strong>: VICE 3.10 läuft jetzt in der App, ohne Installation. Run-Menü → <em>Eingebauter C64</em> oder der Knopf in der Werkzeugleiste.</li><li><strong>Debugger</strong>: Haltepunkte, Einzelschritt / Prozedurschritt / Rücksprung, editierbare Register, Disassembly, Speicher; der Editor folgt der CPU.</li><li><strong>Maschine</strong>: PAL / NTSC, SID 6581 / 8580, reSID / FastSID, REU bis 16 MB, Joystick, Warp.</li><li><strong>Dateien</strong>: PRG, D64 oder Modul laden.</li><li><strong>Bild</strong>: CRT-Filter, Vollbild, veränderbares Fenster; die Einstellungen bleiben erhalten.</li></ul><p>Fragen, Ideen oder Fehler: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Ultimate-Emulator</strong>: dein Programm läuft auf der C64-Ultimate-Firmware auf deinem Rechner (UE2-C64U-Emulator), als PRG oder von einer D64, mit Debugger. Run-Menü → <em>Ultimate-Emulator</em>, Einrichtung unter Einstellungen → Integrationen.</li><li><strong>Debugger für externes VICE</strong>: die Debug-Schaltfläche hält dein Programm in deinem eigenen VICE an, mit Haltepunkten, Einzelschritten, Registern und Speicheransicht. Einstellungen → Allgemein → <em>Debugger</em>: Visual Assembler.</li><li><strong>Zwei SIDs im SID Editor</strong>: 3 oder 6 Stimmen, wählbare Adresse des zweiten SID, .sid-Import und -Export.</li><li><strong>SID Player</strong>: 2SID- und 3SID-Stücke in Stereo, mit VA SID Core.</li></ul>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
-    eyebrow: "Nieuw in 2.7.0",
+    eyebrow: "Nieuw in 2.7.1",
     title: "Welkom bij Visual Assembler",
-    body: `<ul><li><strong>Ingebouwde C64</strong>: VICE 3.10 draait nu in de app, zonder installatie. Run-menu → <em>Ingebouwde C64</em> of de knop in de werkbalk.</li><li><strong>Debugger</strong>: breekpunten, stap in / over / uit, bewerkbare registers, disassembly, geheugen; de editor volgt de CPU.</li><li><strong>Machine</strong>: PAL / NTSC, SID 6581 / 8580, reSID / FastSID, REU tot 16 MB, joystick, warp.</li><li><strong>Bestanden</strong>: laad een PRG, D64 of cartridge.</li><li><strong>Beeld</strong>: CRT-filter, volledig scherm, aanpasbaar venster; je instellingen blijven bewaard.</li></ul><p>Vragen, ideeën of bugs: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Ultimate-emulator</strong>: je programma draait op de C64 Ultimate-firmware op je computer (UE2-C64U-Emulator), als PRG of vanaf een D64, met debugger. Run-menu → <em>Ultimate-emulator</em>, instellen via Instellingen → Integraties.</li><li><strong>Debugger voor externe VICE</strong>: de Debug-knop stopt je programma in je eigen VICE, met breekpunten, stap voor stap, registers en geheugen. Instellingen → Algemeen → <em>Debugger</em>: Visual Assembler.</li><li><strong>Twee SID's in de SID Editor</strong>: 3 of 6 stemmen, kiesbaar adres voor de tweede SID, .sid-import en -export.</li><li><strong>SID Player</strong>: 2SID- en 3SID-nummers in stereo, met VA SID Core.</li></ul>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
-    eyebrow: "Nowość w 2.7.0",
+    eyebrow: "Nowość w 2.7.1",
     title: "Witamy w Visual Assembler",
-    body: `<ul><li><strong>Wbudowany C64</strong>: VICE 3.10 działa teraz w aplikacji, bez instalacji. Menu Run → <em>Wbudowany C64</em> lub przycisk na pasku.</li><li><strong>Debugger</strong>: pułapki, krok do wnętrza / nad / wyjście, edytowalne rejestry, deasemblacja, pamięć; edytor podąża za CPU.</li><li><strong>Maszyna</strong>: PAL / NTSC, SID 6581 / 8580, reSID / FastSID, REU do 16 MB, joystick, warp.</li><li><strong>Pliki</strong>: wczytaj PRG, D64 lub kartridż.</li><li><strong>Obraz</strong>: filtr CRT, pełny ekran, zmienny rozmiar okna; ustawienia są zapamiętywane.</li></ul><p>Pytania, pomysły lub błędy: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Emulator Ultimate</strong>: program działa na firmware C64 Ultimate na twoim komputerze (UE2-C64U-Emulator), jako PRG lub z D64, z debugerem. Menu Run → <em>Emulator Ultimate</em>, konfiguracja w Ustawienia → Integracje.</li><li><strong>Debuger dla zewnętrznego VICE</strong>: przycisk Debug zatrzymuje program w twoim własnym VICE, z pułapkami, pracą krokową, rejestrami i pamięcią. Ustawienia → Ogólne → <em>Debuger</em>: Visual Assembler.</li><li><strong>Dwa SID-y w SID Editorze</strong>: 3 lub 6 głosów, wybierany adres drugiego SID-a, import i eksport .sid.</li><li><strong>SID Player</strong>: utwory 2SID i 3SID w stereo, z VA SID Core.</li></ul>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
-    eyebrow: "Novità nella 2.7.0",
+    eyebrow: "Novità nella 2.7.1",
     title: "Benvenuto in Visual Assembler",
-    body: `<ul><li><strong>C64 integrato</strong>: VICE 3.10 ora funziona dentro l’app, senza installazione. Menu Run → <em>C64 integrato</em> o il pulsante della barra.</li><li><strong>Debugger</strong>: breakpoint, entra / scavalca / esci, registri modificabili, disassemblato, memoria; l’editor segue la CPU.</li><li><strong>Macchina</strong>: PAL / NTSC, SID 6581 / 8580, reSID / FastSID, REU fino a 16 MB, joystick, warp.</li><li><strong>File</strong>: carica PRG, D64 o cartucce.</li><li><strong>Immagine</strong>: filtro CRT, schermo intero, finestra ridimensionabile; le impostazioni vengono ricordate.</li></ul><p>Domande, idee o bug: <strong>Menu → Support</strong>.</p>`,
+    body: `<ul><li><strong>Emulatore Ultimate</strong>: il programma gira sul firmware del C64 Ultimate sul tuo computer (UE2-C64U-Emulator), come PRG o da un D64, con debugger. Menu Run → <em>Emulatore Ultimate</em>, configurazione in Impostazioni → Integrazioni.</li><li><strong>Debugger per VICE esterno</strong>: il pulsante Debug ferma il programma nel tuo VICE, con breakpoint, esecuzione passo passo, registri e memoria. Impostazioni → Generale → <em>Debugger</em>: Visual Assembler.</li><li><strong>Due SID nel SID Editor</strong>: 3 o 6 voci, indirizzo del secondo SID selezionabile, importazione ed esportazione .sid.</li><li><strong>SID Player</strong>: brani 2SID e 3SID in stereo, con VA SID Core.</li></ul>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
@@ -2396,12 +2396,15 @@ function initPalette() {
     else if (runMode === "ultimate") runOnUltimate();
     else if (runMode === "ultimate-d64") runUltimateD64();
     else if (runMode === "kff2") runOnKff2();
+    else if (runMode === "ue2") runOnUe2();
+    else if (runMode === "ue2-d64") runUltimateD64("ue2");
     else runInEmulator();
   });
   setupRunModeDropdown();
   setupHardwareSettingsDialog();
   setupUltimateSettings();
   setupKff2Settings();
+  setupUe2Settings();
   chooseExomizerButton?.addEventListener("click", chooseExomizerExecutable);
   runExomizerToggle?.addEventListener("change", () => {
     exomizerEnabled = !!runExomizerToggle.checked;
@@ -2589,6 +2592,7 @@ function setupDraggableEditorDialogs() {
     ["curve-gen-dialog", ".cg-hdr"],
     ["table-gen-dialog", ".tg-hdr"],
     ["vice-mon-dialog", ".vm-hdr"],
+    ["ue2-debug-dialog", ".ud-hdr"],
     ["web64-dialog", ".w64-hdr"],
     ["memory-float-dialog", ".mem-float-hdr"],
     ["d64-editor-dialog", ".de-hdr"],
@@ -3492,6 +3496,8 @@ function applyTranslations() {
     setText("#about-sid-credit-license", t("aboutSidCreditLicense"));
     setText("#about-vice-credit-label", t("aboutViceCreditLabel"));
     setText("#about-vice-credit-license", t("aboutLicenseLabel"));
+    setText("#about-ue2-credit-label", t("aboutUe2CreditLabel"));
+    setText("#about-ue2-credit-license", t("aboutLicenseLabel"));
     setText("#about-repo-label", t("aboutRepoLabel"));
     setText("#about-ub-version-label", t("aboutUbVersionLabel"));
     setText("#about-vma-version-label", t("aboutVmaVersionLabel"));
@@ -3674,6 +3680,11 @@ function applyTranslations() {
     setText("#choose-debugger", t("chooseDebugger"));
     setText("#debugger-exe-label", t("debuggerExecutable"));
     setText("#debugger-params-label", t("debuggerParamsLabel"));
+    setText("#debugger-choice-section", t("debuggerChoiceSection"));
+    setText("#debugger-choice-label", t("debuggerChoiceLabel"));
+    setText("#debugger-choice-va", t("debuggerChoiceVa"));
+    setText("#debugger-choice-retro", t("debuggerChoiceRetro"));
+    setText("#debugger-choice-note", t("debuggerChoiceNote"));
     setText("#dbg-jmp-label", t("debuggerJmpLabel"));
     setText("#dbg-wait-label", t("debuggerWaitLabel"));
     setText("#dbg-unpause-label", t("debuggerUnpauseLabel"));
@@ -3684,6 +3695,8 @@ function applyTranslations() {
     setText("#run-ultimate-label", t("runOnUltimate"));
     setText("#run-ultimate-d64-label", t("runD64OnHardware"));
     setText("#run-kff2-label", t("runOnKff2"));
+    setText("#run-ue2-label", t("runOnUe2"));
+    setText("#run-ue2-d64-label", t("runOnUe2D64"));
     setText("#ultimate-section-label", t("ultimateSectionLabel"));
     setText("#ultimate-host-label", t("ultimateHostLabel"));
     setText("#ultimate-password-label", t("ultimatePasswordLabel"));
@@ -3693,6 +3706,15 @@ function applyTranslations() {
     setText("#kff2-port-label", t("kff2PortLabel"));
     setText("#kff2-detect-btn", t("kff2DetectBtn"));
     document.getElementById("kff2-port")?.setAttribute("placeholder", t("kff2PortPlaceholder"));
+    setText("#ue2-section-label", t("ue2SectionLabel"));
+    setText("#ue2-choose-exe", t("ue2ChooseExe"));
+    setText("#ue2-exe-label", t("ue2ExeLabel"));
+    setText("#ue2-choose-firmware", t("ue2ChooseFirmware"));
+    setText("#ue2-firmware-label", t("ue2FirmwareLabel"));
+    setText("#ue2-choose-roms", t("ue2ChooseRoms"));
+    setText("#ue2-roms-label", t("ue2RomsLabel"));
+    setText("#ue2-port-label", t("ue2PortLabel"));
+    setText("#ue2-stop", t("ue2Stop"));
     setText("#run-debugger .run-label", t("runInDebugger"));
     const runModeArrow = document.getElementById("run-mode-arrow");
     if (runModeArrow) {
@@ -3995,6 +4017,8 @@ function applyTranslations() {
   if (sampleOptions[34]) sampleOptions[34].textContent = t("sampleBoxDemo");
   if (sampleOptions[35]) sampleOptions[35].textContent = t("sampleMacroShowcase");
   if (sampleOptions[36]) sampleOptions[36].textContent = t("sampleRuntimeIfDemo");
+  if (sampleOptions[37]) sampleOptions[37].textContent = t("sampleUltimateTurboDemo");
+  if (sampleOptions[38]) sampleOptions[38].textContent = t("sampleUltimateBoxDemo");
 
   updateThemeToggleLabel();
   refreshCategoryOptions();
@@ -4331,6 +4355,7 @@ function _applyEditorTranslations() {
   setText("#sid-load-bin", t("sidLoadBin"));
   setText("#sid-save-bin", t("sidSaveBin"));
   setText("#sid-import-goat", t("sidImportGoat"));
+  setText("#sid-new-tune", t("sidNewTune"));
   setText("#sid-import-sid", t("sidImportSid"));
   setText("#sid-master-vol-lbl", t("sidMasterVolume"));
   setText("#sid-vkbd-inst-lbl", t("sidVkbdInstrumentLabel"));
@@ -4441,7 +4466,9 @@ function _applyEditorTranslations() {
   setAttr("#web64-btn", t("w64Title"));
   setText("#w64-title", t("w64Title").toUpperCase());
   setText("#run-web64-label", t("runInWeb64"));
-  [["#w64-run", "w64Run"], ["#w64-reset", "w64Reset"], ["#w64-pause", "w64Pause"], ["#w64-continue", "w64Continue"],
+  [["#ud-restart", "ue2DbgRestart"], ["#ud-continue", "w64Continue"], ["#ud-break", "w64Break"], ["#ud-step-into", "w64StepInto"],
+    ["#ud-step-over", "w64StepOver"], ["#ud-step-out", "w64StepOut"], ["#ud-close", "w64Close"], ["#ud-mem-addr", "w64Address"],
+    ["#w64-run", "w64Run"], ["#w64-reset", "w64Reset"], ["#w64-pause", "w64Pause"], ["#w64-continue", "w64Continue"],
     ["#w64-break", "w64Break"], ["#w64-step-into", "w64StepInto"], ["#w64-step-over", "w64StepOver"],
     ["#w64-step-out", "w64StepOut"], ["#w64-warp", "w64Warp"], ["#w64-sound", "w64Sound"],
     ["#w64-debug-toggle", "w64Debugger"], ["#w64-fullscreen", "w64Fullscreen"], ["#w64-crt", "w64Crt"], ["#w64-close", "w64Close"], ["#w64-mem-addr", "w64Address"]]
@@ -4457,6 +4484,11 @@ function _applyEditorTranslations() {
   setText("#w64-sid-model-lbl", t("w64SidChip"));
   setText("#w64-sid-engine-lbl", t("w64SidEngine"));
   setText('#w64-reu option[value="0"]', t("w64ReuOff"));
+  setText("#ud-title", t(document.getElementById("ue2-debug-dialog")?.dataset.target === "vice" ? "viceDbgTitle" : "ue2DbgTitle"));
+  setText("#ud-regs-lbl", t("w64Registers"));
+  setText("#ud-disasm-lbl", t("w64Disassembly"));
+  setText("#ud-mem-lbl", t("w64Memory"));
+  setText("#ud-bps-lbl", t("w64Breakpoints"));
   setText("#w64-regs-lbl", t("w64Registers"));
   setText("#w64-disasm-lbl", t("w64Disassembly"));
   setText("#w64-mem-lbl", t("w64Memory"));
@@ -4556,7 +4588,7 @@ function _applyEditorTranslations() {
   setText(".sid-tracker-row .sid-lbl", t("sidTrackerLabel"));
   setAttr("#sid-pat-add", t("sidAddPattern"));
   setAttr("#sid-pat-del", t("sidDeletePattern"));
-  const sidTrackerMiniLbls = document.querySelectorAll(".sid-tracker-row .sid-mini-lbl");
+  const sidTrackerMiniLbls = document.querySelectorAll(".sid-tracker-row .sid-mini-lbl:not(#sid-chip-lbl)");
   if (sidTrackerMiniLbls[0]) sidTrackerMiniLbls[0].textContent = t("sidPlayMode");
   if (sidTrackerMiniLbls[1]) sidTrackerMiniLbls[1].textContent = t("sidSpeed");
   const sidOctLbl = [...sidTrackerMiniLbls].find(function(el){ return el.nextElementSibling?.id === "sid-oct-down"; });
@@ -4577,6 +4609,8 @@ function _applyEditorTranslations() {
   setAttr("#sid-stop", t("sidStop"));
   setAttr("#sid-vkbd-stop", t("sidStop"));
   _updateEditorModeIndicator();
+  setAttr("#sid-chip-count", t("sidChipCount"));
+  setAttr("#sid-chip-addr", t("sidChipAddr"));
   setAttr("#sid-voice-copy", t("sidVoiceCopy"));
   setAttr("#sid-voice-paste", t("sidVoicePaste"));
   setAttr("#sid-clear", t("sidClearSelection"));
@@ -4588,8 +4622,10 @@ function _applyEditorTranslations() {
   setText("#sid-vkbd-insert-label", t("sidVkbdInsert"));
   setText("#sid-vkbd-showplay-label", t("sidVkbdShowPlay"));
   setText("#sid-vkbd-octaves-label", t("sidVkbdOctaves"));
-  setAttr("#sid-tracker-detach", t("sidTrackerDetach"));
+  _sidSyncDetachBtn();
   setAttr("#sid-roll-btn", t("sidRollTitle"));
+  setAttr("#sid-ana-btn", t("sidAnaTitle"));
+  setText("#sid-ana-title", t("sidAnaTitle"));
   setText("#sid-roll-title", t("sidRollTitle"));
   setText("#sid-roll-help", t("sidRollHelp"));
   setAttr("#sid-roll-stop", t("sidStop"));
@@ -10015,11 +10051,12 @@ async function _ubRun(mode) {
   if (!source.trim()) { _ubSetStatus(t("ubNothingToRun"), true); return; }
   const usesUltimate = mode === "ultimate" || mode === "ultimate-d64";
   const usesKff2 = mode === "kff2";
+  const usesUe2 = mode === "ue2" || mode === "ue2-d64";
   const host = usesUltimate ? (document.getElementById("ultimate-host")?.value || ultimateHost).trim() : "";
   const kff2PortValue = usesKff2 ? (document.getElementById("kff2-port")?.value || kff2Port).trim() : "";
   if (usesUltimate && !host) { _ubSetStatus(t("ultimateNotConfigured"), true); return; }
   if (usesKff2 && !kff2PortValue) { _ubSetStatus(t("kff2NotConfigured"), true); return; }
-  if (!usesUltimate && !usesKff2 && !vicePath) { _ubSetStatus(t("viceIsNotConfiguredSelectItInTheMenuFirs"), true); return; }
+  if (!usesUltimate && !usesKff2 && !usesUe2 && !vicePath) { _ubSetStatus(t("viceIsNotConfiguredSelectItInTheMenuFirs"), true); return; }
 
   await showWorkProgress("ubRunProgress");
   let success = false;
@@ -10029,11 +10066,11 @@ async function _ubRun(mode) {
     if (!build) return;
     setWorkProgress(exomizerEnabled ? 78 : 70);
 
-    if (mode === "d64" || mode === "ultimate-d64") {
+    if (mode === "d64" || mode === "ultimate-d64" || mode === "ue2-d64") {
       _ubApplyD64LoadAddresses(source);
       hideWorkProgress();
-      await openD64ExportDialog(build.outputPrg || build.prg, _ubBuildSidecars(build), mode === "ultimate-d64" ? "ultimate" : true);
-      _ubSetStatus(mode === "ultimate-d64" ? "Ultimate D64 ready" : "D64 ready");
+      await openD64ExportDialog(build.outputPrg || build.prg, _ubBuildSidecars(build), mode === "ultimate-d64" ? "ultimate" : mode === "ue2-d64" ? "ue2" : true);
+      _ubSetStatus(mode === "ultimate-d64" || mode === "ue2-d64" ? "Ultimate D64 ready" : "D64 ready");
       return;
     }
 
@@ -10045,6 +10082,11 @@ async function _ubRun(mode) {
     } else if (mode === "kff2") {
       result = await window.electronAPI?.runOnKff2(kff2PortValue, build.outputPrg || build.prg);
       _ubSetStatus(result?.ok ? "Running on Kung Fu Flash ✓" : (result?.error || t("kff2RunFailed")), !result?.ok);
+    } else if (mode === "ue2") {
+      setWorkStep("stepUe2", { bytes: (build.outputPrg || build.prg).length });
+      result = await window.electronAPI?.ue2RunPrg(Array.from(build.outputPrg || build.prg));
+      _ubSetStatus(result?.ok ? t("workProgressSuccessUe2") : _ue2ErrorText(result), !result?.ok);
+      _ue2RefreshSettings();
     } else {
       result = await window.electronAPI?.launchVice?.({ bytes: build.outputPrg || build.prg, fileName: `ultimate-basic-${Date.now()}.prg`, sidecars: _ubBuildSidecars(build) });
       _ubSetStatus(result?.ok ? "Running in VICE ✓" : (result?.error || "VICE launch failed"), !result?.ok);
@@ -14558,6 +14600,11 @@ function _cycleSum(map, fromLine, toLine) {
 const _ZP_WRITE_MNEMS = new Set(["STA", "STX", "STY", "SAX", "INC", "DEC", "ASL", "LSR", "ROL", "ROR", "DCP", "ISC", "SLO", "RLA", "SRE", "RRA"]);
 // a SID szerkesztő exportált lejátszójának ZP-je (_sidExportAsmPlayable)
 const _ZP_SID_PLAYER = new Set([..._zpRange(0x02, 0x1C), 0x2F, 0xFB, 0xFC, 0xFD]);
+// két SID-nél a v3-v5 mutatói és a hangregiszter-mutató is
+const _ZP_SID_PLAYER_2SID = new Set(_zpRange(0x50, 0x69));
+function _zpIsSidPlayer(addr) {
+  return _ZP_SID_PLAYER.has(addr) || (_sidVoiceCount() > 3 && _ZP_SID_PLAYER_2SID.has(addr));
+}
 
 function _zpRange(from, to) {
   return Array.from({ length: to - from + 1 }, (_, i) => from + i);
@@ -14605,7 +14652,7 @@ function _zpAnalyze(entries) {
   const hasSid = entries.some((e) => e.owner === "sid");
   const conflicts = [];
   map.forEach((rec, addr) => {
-    if (hasSid && _ZP_SID_PLAYER.has(addr) && [...rec.owners].some((o) => o !== "sid")) conflicts.push(addr);
+    if (hasSid && _zpIsSidPlayer(addr) && [...rec.owners].some((o) => o !== "sid")) conflicts.push(addr);
   });
   return { map, conflicts: conflicts.sort((a, b) => a - b), hasSid };
 }
@@ -16551,7 +16598,7 @@ const _SAMPLE_CATEGORIES = [
   ["sampleCatSprites", ["sprite-demo", "sprite-macro-demo", "joystick-demo", "mouse-demo", "collision-demo"]],
   ["sampleCatFiles", ["incbin-demo", "loadfile-demo", "exo-multicolor-demo", "include-demo"]],
   ["sampleCatMusic", ["sid-demo", "sid-direct-demo"]],
-  ["sampleCatHardware", ["irq-demo", "overlapping-raster-demo", "memory-overlap-demo", "reu-demo"]]
+  ["sampleCatHardware", ["irq-demo", "overlapping-raster-demo", "memory-overlap-demo", "reu-demo", "ultimate-turbo-demo", "ultimate-box-demo"]]
 ];
 let _sampleDlgSelected = "";
 
@@ -19546,7 +19593,18 @@ function _debuggerTargets(prg) {
 }
 
 async function runInDebugger() {
-  if (runMode === "web64" || !debuggerPath) {
+  // The built-in C64 and the Ultimate emulator debug on themselves whatever is chosen:
+  // RetroDebugger runs the program in its own emulator.
+  if (runMode === "ue2" || runMode === "ue2-d64") {
+    await _udDebug("ue2");
+    return;
+  }
+  const choice = _debuggerChoice();
+  if (choice === "va" && (runMode === "prg" || runMode === "d64")) {
+    await _udDebug("vice");
+    return;
+  }
+  if (runMode === "web64" || choice === "va" || !debuggerPath) {
     await _w64Debug();
     return;
   }
@@ -24220,6 +24278,12 @@ async function d64LoadSavedExtras(savedExtras, baseDir = _d64ModeWorkingFolder()
   return restored;
 }
 
+function _d64ConfirmKey(runModeValue) {
+  if (runModeValue === "ultimate") return "runOnUltimate";
+  if (runModeValue === "ue2") return "runOnUe2D64";
+  return runModeValue ? "runViaD64Confirm" : "d64ExportConfirm";
+}
+
 async function openD64ExportDialog(prgBytes, sidecars = null, runModeOverride = false) {
   const dialog = document.getElementById("d64-export-dialog");
   if (!dialog) return;
@@ -24256,7 +24320,7 @@ async function openD64ExportDialog(prgBytes, sidecars = null, runModeOverride = 
   if (errorBox) { errorBox.hidden = true; errorBox.textContent = ""; }
 
   const confirmBtn = document.getElementById("d64-export-confirm");
-  if (confirmBtn) confirmBtn.textContent = t(runModeOverride === "ultimate" ? "runOnUltimate" : runModeOverride ? "runViaD64Confirm" : "d64ExportConfirm");
+  if (confirmBtn) confirmBtn.textContent = t(_d64ConfirmKey(runModeOverride));
   const titleEl = document.getElementById("d64-export-title");
   if (titleEl) titleEl.textContent = t(runModeOverride ? "runD64Title" : "d64ExportTitle");
 
@@ -24386,7 +24450,7 @@ async function confirmD64Export() {
   if (cancelBtn) cancelBtn.disabled = true;
 
   const isRunMode = d64ExportState.runMode;
-  const isUltimateMode = isRunMode === "ultimate";
+  const isUltimateMode = isRunMode === "ultimate" || isRunMode === "ue2";
 
   // If any extra needs EXO crunching, the loop below blocks on `exomizer`
   // for several seconds per file. Show the work-progress modal up front so
@@ -24437,7 +24501,7 @@ async function confirmD64Export() {
     delete f._decompressAddress;
     if (!crunchResult?.ok) {
       if (willCrunchAny) hideWorkProgress();
-      if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.textContent = t(isUltimateMode ? "runOnUltimate" : isRunMode ? "runViaD64Confirm" : "d64ExportConfirm"); }
+      if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.textContent = t(_d64ConfirmKey(isRunMode)); }
       if (cancelBtn) cancelBtn.disabled = false;
       if (errorBox) { errorBox.hidden = false; errorBox.textContent = `${f.name}: ${crunchResult?.error || t("exomizerLaunchFailed")}`; }
       return;
@@ -24458,12 +24522,15 @@ async function confirmD64Export() {
   try {
     setWorkStep("stepD64", { disk: diskName || "disk", count: files.length });
     if (isUltimateMode) {
-      const host = (document.getElementById("ultimate-host")?.value || ultimateHost).trim();
-      const password = (document.getElementById("ultimate-password")?.value || ultimatePassword).trim() || null;
+      const onEmulator = isRunMode === "ue2";
+      const started = onEmulator ? await window.electronAPI.ue2Ensure() : null;
+      if (onEmulator) _ue2RefreshSettings();
+      const host = onEmulator ? (started?.host || "") : (document.getElementById("ultimate-host")?.value || ultimateHost).trim();
+      const password = onEmulator ? null : (document.getElementById("ultimate-password")?.value || ultimatePassword).trim() || null;
       if (!host) {
         hideWorkProgress();
-        if (errorBox) { errorBox.hidden = false; errorBox.textContent = t("ultimateNotConfigured"); }
-        if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.textContent = t("runOnUltimate"); }
+        if (errorBox) { errorBox.hidden = false; errorBox.textContent = onEmulator ? _ue2ErrorText(started) : t("ultimateNotConfigured"); }
+        if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.textContent = t(_d64ConfirmKey(isRunMode)); }
         if (cancelBtn) cancelBtn.disabled = false;
         return;
       }
@@ -24476,7 +24543,7 @@ async function confirmD64Export() {
   } finally {
     if (confirmBtn) {
       confirmBtn.disabled = false;
-      confirmBtn.textContent = t(isUltimateMode ? "runOnUltimate" : isRunMode ? "runViaD64Confirm" : "d64ExportConfirm");
+      confirmBtn.textContent = t(_d64ConfirmKey(isRunMode));
     }
     if (cancelBtn) cancelBtn.disabled = false;
   }
@@ -24516,6 +24583,8 @@ function getRunModeLabel(mode) {
   if (mode === "ultimate") return t("runOnUltimate");
   if (mode === "ultimate-d64") return t("runD64OnHardware");
   if (mode === "kff2") return t("runOnKff2");
+  if (mode === "ue2") return t("runOnUe2");
+  if (mode === "ue2-d64") return t("runOnUe2D64");
   if (mode === "web64") return t("runInWeb64");
   return t("runInEmulator");
 }
@@ -24563,10 +24632,12 @@ function setupRunModeDropdown() {
   document.getElementById("run-ultimate-mode")?.addEventListener("click", () => { setRunMode("ultimate"); closeMenu(); });
   document.getElementById("run-ultimate-d64-mode")?.addEventListener("click", () => { setRunMode("ultimate-d64"); closeMenu(); });
   document.getElementById("run-kff2-mode")?.addEventListener("click", () => { setRunMode("kff2"); closeMenu(); });
+  document.getElementById("run-ue2-mode")?.addEventListener("click", () => { setRunMode("ue2"); closeMenu(); });
+  document.getElementById("run-ue2-d64-mode")?.addEventListener("click", () => { setRunMode("ue2-d64"); closeMenu(); });
   document.getElementById("run-web64-mode")?.addEventListener("click", () => { setRunMode("web64"); closeMenu(); });
 
   const saved = localStorage.getItem("runMode");
-  if (["prg", "d64", "ultimate", "ultimate-d64", "kff2", "web64"].includes(saved)) setRunMode(saved);
+  if (["prg", "d64", "ultimate", "ultimate-d64", "kff2", "ue2", "ue2-d64", "web64"].includes(saved)) setRunMode(saved);
 }
 
 function setRunMode(mode) {
@@ -24582,6 +24653,9 @@ function setRunMode(mode) {
   if (ulBtn) ulBtn.classList.toggle("active", mode === "ultimate");
   if (ulD64Btn) ulD64Btn.classList.toggle("active", mode === "ultimate-d64");
   if (kff2Btn) kff2Btn.classList.toggle("active", mode === "kff2");
+  document.getElementById("run-ue2-mode")?.classList.toggle("active", mode === "ue2");
+  document.getElementById("run-ue2-d64-mode")?.classList.toggle("active", mode === "ue2-d64");
+  window.electronAPI?.ue2SetMonitorTarget?.(mode === "ue2" || mode === "ue2-d64");
   document.getElementById("run-web64-mode")?.classList.toggle("active", mode === "web64");
   const label = document.querySelector("#run-emulator .run-label");
   const runLabel = getRunModeLabel(mode);
@@ -25317,6 +25391,60 @@ function setupKff2Settings() {
   detectKff2Port();
 }
 
+// UE2-C64U-Emulator: the backend starts it on demand and sends the PRG over its REST API.
+function _ue2ErrorText(result) {
+  const detail = result?.error || "";
+  if (result?.code === "notConfigured") {
+    const what = { ue2emu: "ue2ExeLabel", firmware: "ue2FirmwareLabel", roms: "ue2RomsLabel" }[detail];
+    return tf("ue2NotConfigured", { what: what ? t(what) : detail });
+  }
+  const key = {
+    romsInvalid: "ue2RomsInvalid",
+    installFailed: "ue2InstallFailed",
+    startFailed: "ue2StartFailed",
+    exited: "ue2Exited",
+    timeout: "ue2Timeout",
+    busy: "ue2Busy",
+  }[result?.code] || "ue2RunFailed";
+  return tf(key, { detail });
+}
+
+function _ue2ApplyConfig(config) {
+  if (!config) return;
+  const setValue = (id, value) => {
+    const input = document.getElementById(id);
+    if (input) input.value = value ?? "";
+  };
+  setValue("ue2-exe", config.exe);
+  setValue("ue2-firmware", config.firmware);
+  setValue("ue2-roms", config.roms);
+  setValue("ue2-port", config.webPort);
+  const stopBtn = document.getElementById("ue2-stop");
+  if (stopBtn) stopBtn.disabled = !config.running;
+  const status = document.getElementById("ue2-status");
+  if (status) status.textContent = config.running ? tf("ue2Running", { port: config.webPort }) : "";
+}
+
+function _ue2RefreshSettings() {
+  return window.electronAPI?.ue2GetConfig?.().then(_ue2ApplyConfig);
+}
+
+function setupUe2Settings() {
+  if (!window.electronAPI?.ue2GetConfig) return;
+  for (const kind of ["exe", "firmware", "roms"]) {
+    document.getElementById(`ue2-choose-${kind}`)?.addEventListener("click", async () => {
+      _ue2ApplyConfig(await window.electronAPI.ue2Choose(kind));
+    });
+  }
+  document.getElementById("ue2-port")?.addEventListener("change", async (event) => {
+    _ue2ApplyConfig(await window.electronAPI.ue2SetWebPort(Number(event.target.value) || 0));
+  });
+  document.getElementById("ue2-stop")?.addEventListener("click", async () => {
+    _ue2ApplyConfig(await window.electronAPI.ue2Stop());
+  });
+  _ue2RefreshSettings();
+}
+
 function detectKff2Port() {
   const portInput = document.getElementById("kff2-port");
   const status = document.getElementById("kff2-status");
@@ -25393,6 +25521,29 @@ async function runOnUltimate() {
   }
 }
 
+async function runOnUe2() {
+  if (isProgramEmpty()) {
+    showViceToast(t("nothingToRunAddSomeInstructionsFirst"), true);
+    return;
+  }
+  const prg = await buildRunPrgForCurrentMode();
+  if (!prg.ok) {
+    if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
+    if (emulatorStatus) emulatorStatus.textContent = prg.error;
+    return;
+  }
+  await showWorkProgress("workProgressRunUe2");
+  setWorkStep("stepUe2", { bytes: prg.bytes.length });
+  const result = await window.electronAPI?.ue2RunPrg(Array.from(prg.bytes));
+  _ue2RefreshSettings();
+  if (result?.ok) {
+    await completeWorkProgress("workProgressSuccessUe2");
+  } else {
+    hideWorkProgress();
+    showViceToast(_ue2ErrorText(result), true);
+  }
+}
+
 async function runOnKff2() {
   if (isProgramEmpty()) {
     showViceToast(t("nothingToRunAddSomeInstructionsFirst"), true);
@@ -25420,13 +25571,13 @@ async function runOnKff2() {
   }
 }
 
-async function runUltimateD64() {
+async function runUltimateD64(target = "ultimate") {
   if (isProgramEmpty()) {
     showViceToast(t("nothingToRunAddSomeInstructionsFirst"), true);
     return;
   }
   const host = (document.getElementById("ultimate-host")?.value || ultimateHost).trim();
-  if (!host) {
+  if (target === "ultimate" && !host) {
     showViceToast(t("ultimateNotConfigured"), true);
     return;
   }
@@ -25439,7 +25590,7 @@ async function runUltimateD64() {
   }
 
   d64ExportState.prgBytes = prg.bytes;
-  d64ExportState.runMode = "ultimate";
+  d64ExportState.runMode = target;
 
   const dialog = document.getElementById("d64-export-dialog");
   const diskInput = document.getElementById("d64-export-diskname");
@@ -25470,7 +25621,7 @@ async function runUltimateD64() {
   if (diskInput) diskInput.value = diskName;
   if (progInput) progInput.value = progName;
   if (errorBox) { errorBox.hidden = true; errorBox.textContent = ""; }
-  if (confirmBtn) confirmBtn.textContent = t("runOnUltimate");
+  if (confirmBtn) confirmBtn.textContent = t(_d64ConfirmKey(target));
   const titleEl = document.getElementById("d64-export-title");
   if (titleEl) titleEl.textContent = t("runD64Title");
   renderD64ExtraFiles();
@@ -30362,7 +30513,7 @@ async function _applyProjectPayload(projectData, { sourceFilePath = "", keepFile
     applyZoom();
   }
 
-  const validRunModes = ["prg", "d64", "ultimate", "ultimate-d64", "kff2", "web64"];
+  const validRunModes = ["prg", "d64", "ultimate", "ultimate-d64", "kff2", "ue2", "ue2-d64", "web64"];
   if (projectData.ui?.runMode && validRunModes.includes(projectData.ui.runMode)) {
     setRunMode(projectData.ui.runMode);
   }
@@ -35951,7 +36102,7 @@ function _zpRenderPanel(layout) {
     const cell = document.createElement("button");
     cell.type = "button";
     cell.className = `zp-cell zp-area-${_zpArea(addr)}`
-      + (zp.hasSid && _ZP_SID_PLAYER.has(addr) ? " zp-sid" : "")
+      + (zp.hasSid && _zpIsSidPlayer(addr) ? " zp-sid" : "")
       + (rec ? " zp-used" + (rec.write ? " zp-w" : "") + (rec.ptr ? " zp-p" : "") : "")
       + (zp.conflicts.includes(addr) ? " zp-conflict" : "")
       + (addr === _zpSelected ? " zp-selected" : "");
@@ -40685,7 +40836,7 @@ async function loadSampleFromFile(sampleName) {
     d64ExportState.progName = "";
   }
 
-  const validRunModes = ["prg", "d64", "ultimate", "ultimate-d64", "kff2", "web64"];
+  const validRunModes = ["prg", "d64", "ultimate", "ultimate-d64", "kff2", "ue2", "ue2-d64", "web64"];
   if (sampleData.ui?.runMode && validRunModes.includes(sampleData.ui.runMode)) {
     setRunMode(sampleData.ui.runMode);
   }
@@ -41025,6 +41176,16 @@ function loadSelectedSample() {
 
   if (sampleSelect.value === "runtime-if-demo") {
     loadSampleFromFile("runtime-if-demo");
+    return;
+  }
+
+  if (sampleSelect.value === "ultimate-turbo-demo") {
+    loadSampleFromFile("ultimate-turbo-demo");
+    return;
+  }
+
+  if (sampleSelect.value === "ultimate-box-demo") {
+    loadSampleFromFile("ultimate-box-demo");
     return;
   }
 
@@ -51558,11 +51719,11 @@ function _spImportText(txt) {
 }
 
 /* =======================================================
-   SID EDITOR / PLAYER (3-voice tracker, Web Audio preview)
+   SID EDITOR / PLAYER (3 or 6 voice tracker, Web Audio preview)
    ======================================================= */
 const _SID_ROWS = 32;
 let _sidInsts = null;     // instruments
-let _sidPatterns = null;  // [pattern][voice 0..2][row 0..31] = {note, inst}
+let _sidPatterns = null;  // [pattern][voice 0..2, or 0..5 with a second SID][row 0..31] = {note, inst}
 let _sidInst = 0, _sidPat = 0, _sidSpeed = 6;
 let _sidMetronomeEnabled = false;
 let _sidMetroCtx = null;
@@ -51669,10 +51830,37 @@ function _sidInstNorm(ins) {
 function _sidInstCtrl(ins) {
   return (ins.tri?0x10:0) | (ins.saw?0x20:0) | (ins.pul?0x40:0) | (ins.noi?0x80:0) | (ins.ring?0x04:0) | (ins.sync?0x02:0);
 }
-function _sidNewPattern() {
+// Address of the second SID: what a PSID v3 header can state ($D420-$D7E0, $DE00-$DFE0).
+var _sidSid2Addr = 0xD420;
+function _sidSid2Addrs() {
+  const out = [];
+  for (let a = 0xD420; a <= 0xD7E0; a += 0x20) out.push(a);
+  for (let a = 0xDE00; a <= 0xDFE0; a += 0x20) out.push(a);
+  return out;
+}
+// A tune has 3 voices, or 6 with a second SID: the width of its patterns tells which.
+function _sidVoiceCount() {
+  return _sidPatterns && _sidPatterns[0] ? _sidPatterns[0].length : 3;
+}
+function _sidNewPattern(voices = _sidVoiceCount()) {
   const p = [];
-  for (let v = 0; v < 3; v++) { const col = []; for (let r = 0; r < _SID_ROWS; r++) col.push({ note:null, inst:0, fx:null, fxval:0 }); p.push(col); }
+  for (let v = 0; v < voices; v++) { const col = []; for (let r = 0; r < _SID_ROWS; r++) col.push({ note:null, inst:0, fx:null, fxval:0 }); p.push(col); }
   return p;
+}
+// Switches the tune between one and two SIDs; dropping the second one loses its voices.
+async function _sidSetSidCount(count) {
+  const voices = count * 3;
+  if (voices === _sidVoiceCount()) return;
+  const used = voices < _sidVoiceCount() && _sidPatterns.some(function(pat) {
+    return pat.slice(voices).some(function(col) { return col.some(function(c) { return c.note != null || c.fx; }); });
+  });
+  if (used && !(await _showConfirm(t("sidChipsDropConfirm")))) { _sidBuildTracker(); return; }
+  _sidStop();
+  _sidPatterns.forEach(function(pat) {
+    pat.length = Math.min(pat.length, voices);
+    while (pat.length < voices) pat.push(_sidNewPattern(1)[0]);
+  });
+  _sidBuildTracker();
 }
 function _sidCurInst() { return _sidInsts[_sidInst]; }
 function _sidCurPat() { return _sidPatterns[_sidPat]; }
@@ -51941,9 +52129,20 @@ function _sidSetTrackerDetached(on) {
     dock.appendChild(section);
     float.hidden = true;
   }
-  const btn = document.getElementById("sid-tracker-detach");
-  if (btn) btn.hidden = !!on;
+  _sidSyncDetachBtn();
   _sidSaveTrackerFloat({ detached: !!on });
+}
+function _sidTrackerIsDetached() {
+  const float = document.getElementById("sid-tracker-float");
+  return !!float && !float.hidden;
+}
+function _sidSyncDetachBtn() {
+  const btn = document.getElementById("sid-tracker-detach");
+  if (!btn) return;
+  if (!btn._detachIcon) btn._detachIcon = btn.innerHTML;
+  const on = _sidTrackerIsDetached();
+  btn.innerHTML = on ? document.getElementById("sid-tracker-attach").innerHTML : btn._detachIcon;
+  btn.setAttribute("aria-label", t(on ? "sidTrackerAttach" : "sidTrackerDetach"));
 }
 /* x / y are viewport coordinates. The SID dialog is centered with a transform,
    so it is the containing block of this fixed panel: subtract its origin. */
@@ -51953,15 +52152,27 @@ function _sidPlaceTrackerFloat(x, y) {
 // A drag moves a floating panel once per frame (the placement measures the panel);
 // _sidDragFlush applies the last position at once when the drag ends.
 function _sidDragTo(state, el, x, y) {
-  state.tx = x; state.ty = y;
+  if (!state.box) {
+    const r = el.getBoundingClientRect();
+    state.box = { x: r.left, y: r.top, maxX: window.innerWidth - r.width - 8, maxY: window.innerHeight - r.height - 8 };
+    el.style.willChange = "transform";
+  }
+  state.tx = Math.max(8, Math.min(x, state.box.maxX));
+  state.ty = Math.max(8, Math.min(y, state.box.maxY));
   if (state.raf) return;
-  state.raf = requestAnimationFrame(function() { state.raf = 0; state.at = _sidPlaceFixed(el, state.tx, state.ty); });
+  state.raf = requestAnimationFrame(function() {
+    state.raf = 0;
+    el.style.transform = "translate3d(" + (state.tx - state.box.x) + "px, " + (state.ty - state.box.y) + "px, 0)";
+  });
 }
 function _sidDragFlush(state, el) {
-  if (!state || !state.raf) return;
-  cancelAnimationFrame(state.raf);
+  if (!state || !state.box) return;
+  if (state.raf) cancelAnimationFrame(state.raf);
   state.raf = 0;
+  el.style.transform = "";
+  el.style.willChange = "";
   state.at = _sidPlaceFixed(el, state.tx, state.ty);
+  state.box = null;
 }
 function _sidPlaceFixed(float, x, y) {
   // a closed dialog has no layout to measure; the open handler places it
@@ -52057,7 +52268,7 @@ var _sidVkbdPlayNotes = [null, null, null];
 function _sidVkbdTrackRow(ev) {
   const pat = _sidPatterns && _sidPatterns[ev.pat != null ? ev.pat : _sidPlayPat];
   if (!pat) return;
-  for (let v = 0; v < 3; v++) {
+  for (let v = 0; v < pat.length; v++) {
     const c = pat[v] && pat[v][ev.row];
     if (!c) continue;
     if (c.note != null) _sidVkbdPlayNotes[v] = c.note;
@@ -52075,7 +52286,7 @@ function _sidVkbdRenderPlay() {
   _sidVkbdPlayNotes.forEach(function(note, v) {
     if (note == null) return;
     const key = dlg.querySelector('.sid-vkbd-key[data-note="' + note + '"]');
-    if (key) key.classList.add("sid-vkbd-key--v" + (v + 1));
+    if (key) key.classList.add("sid-vkbd-key--v" + (v % 3 + 1));
   });
 }
 function _sidVkbdClearPlay() {
@@ -52597,7 +52808,7 @@ function _sidPasteCells() {
   const targetStartRow = _sidSelAnchor === null ? _sidSel.row : Math.min(_sidSelAnchor.row, _sidSel.row);
   for (let v = 0; v < _sidCellClip.voices; v++) {
     const targetVoice = targetStartVoice + v;
-    if (targetVoice >= 3) break;
+    if (targetVoice >= pat.length) break;
     for (let r = 0; r < _sidCellClip.rows; r++) {
       const targetRow = targetStartRow + r;
       if (targetRow >= _SID_ROWS) break;
@@ -52700,7 +52911,17 @@ function _sidShowCtxMenu(e, voice, row) {
 function _sidBuildTracker() {
   const t = document.getElementById("sid-tracker"); if (!t) return;
   const pat = _sidCurPat();
-  let html = "<thead><tr><th></th><th>VOICE 1</th><th>VOICE 2</th><th>VOICE 3</th></tr></thead><tbody>";
+  if (_sidSel.voice >= pat.length) { _sidSel.voice = pat.length - 1; _sidSelAnchor = null; }
+  const chips = document.getElementById("sid-chip-count");
+  if (chips) chips.value = String(pat.length / 3);
+  const addr = document.getElementById("sid-chip-addr");
+  if (addr) { addr.value = String(_sidSid2Addr); addr.hidden = pat.length <= 3; }
+  _sidRollSyncHeader();
+  let html = "<thead><tr><th></th>";
+  for (let v = 0; v < pat.length; v++) {
+    html += '<th' + (v === 3 ? ' class="sid-col-sid2"' : '') + '>' + (pat.length > 3 ? "S" + ((v / 3 | 0) + 1) + " V" + (v % 3 + 1) : "VOICE " + (v + 1)) + "</th>";
+  }
+  html += "</tr></thead><tbody>";
   for (let r = 0; r < _SID_ROWS; r++) {
     const beat = (r % 4 === 0) ? " sid-beat" : "";
     html += '<tr class="sid-trow'+beat+'" data-row="'+r+'">';
@@ -52709,11 +52930,11 @@ function _sidBuildTracker() {
     const rangeRowHi = _sidSelAnchor !== null ? Math.max(_sidSelAnchor.row, _sidSel.row) : _sidSel.row;
     const rangeVoiceLo = _sidSelAnchor !== null ? Math.min(_sidSelAnchor.voice, _sidSel.voice) : _sidSel.voice;
     const rangeVoiceHi = _sidSelAnchor !== null ? Math.max(_sidSelAnchor.voice, _sidSel.voice) : _sidSel.voice;
-    for (let v = 0; v < 3; v++) {
+    for (let v = 0; v < pat.length; v++) {
       const isCursor = _sidSel.voice === v && _sidSel.row === r;
       const inRange  = v >= rangeVoiceLo && v <= rangeVoiceHi && r >= rangeRowLo && r <= rangeRowHi && !isCursor;
       const selCls = isCursor ? " sid-cell--sel" : (inRange ? " sid-cell--sel-range" : "");
-      html += '<td class="sid-cell'+selCls+'" data-v="'+v+'" data-r="'+r+'">' + _sidGridCellText(pat[v][r]) + '</td>';
+      html += '<td class="sid-cell'+selCls+(v === 3 ? " sid-col-sid2" : "")+'" data-v="'+v+'" data-r="'+r+'">' + _sidGridCellText(pat[v][r]) + '</td>';
     }
     html += "</tr>";
   }
@@ -52910,7 +53131,7 @@ function _sidSetCellText(v, r) {
  * drag its right edge = length, right-click = delete. Patterns are shared, so
  * an edit shows at every song step that uses the pattern. */
 const _SID_ROLL_COLORS = ["#ffb347", "#7c9cff", "#ff6b6b", "#4ade80", "#f7d154", "#c084fc", "#38d6ff", "#ff8fd8", "#a3e635", "#fb923c", "#2dd4bf", "#e879f9"];
-const _SID_ROLL_VOICE = ["#38d6ff", "#ff5ccf", "#4ade80"];
+const _SID_ROLL_VOICE = ["#38d6ff", "#ff5ccf", "#4ade80", "#ffb020", "#a78bfa", "#f87171"];
 var _sidRollView = { row0: 0, colW: 14, rowPx: 11, lo: 36, span: 48, voice: 0, raf: 0, drag: null, hover: null, follow: true };
 function _sidRollState() {
   try { return JSON.parse(localStorage.getItem("c64va-sid-roll") || "{}") || {}; } catch (_) { return {}; }
@@ -52934,7 +53155,7 @@ function _sidRollWrite(v, g, cell) {
 // notes of the whole song: { v, note, inst, start, end } in song rows
 function _sidRollNotes() {
   const total = _sidRollTotalRows(), notes = [];
-  for (let v = 0; v < 3; v++) {
+  for (let v = 0; v < _sidVoiceCount(); v++) {
     let cur = null;
     for (let g = 0; g < total; g++) {
       const at = _sidRollCell(v, g);
@@ -53023,6 +53244,7 @@ function _sidRollLegend(notes) {
     sw.style.background = _SID_ROLL_COLORS[i % _SID_ROLL_COLORS.length];
     const label = document.createElement("span");
     label.textContent = (i < 10 ? "0" : "") + i + " " + ((_sidInsts[i] && _sidInsts[i].name) || "");
+    chip.title = label.textContent;
     chip.append(sw, label);
     box.appendChild(chip);
   });
@@ -53133,7 +53355,12 @@ function _sidRollLoop() {
 function _sidRollSyncHeader() {
   const follow = document.getElementById("sid-roll-follow");
   if (follow) { follow.classList.toggle("sid-metronome-on", _sidRollView.follow); follow.setAttribute("aria-pressed", String(_sidRollView.follow)); }
-  document.querySelectorAll(".sid-roll-vbtn").forEach(function(b) { b.classList.toggle("active", Number(b.dataset.voice) === _sidRollView.voice); });
+  const voices = _sidVoiceCount();
+  if (_sidRollView.voice >= voices) _sidRollView.voice = voices - 1;
+  document.querySelectorAll(".sid-roll-vbtn").forEach(function(b) {
+    b.hidden = Number(b.dataset.voice) >= voices;
+    b.classList.toggle("active", Number(b.dataset.voice) === _sidRollView.voice);
+  });
   const inst = document.getElementById("sid-roll-inst");
   if (inst) inst.textContent = (_sidInst < 10 ? "0" : "") + _sidInst + " " + ((_sidCurInst() && _sidCurInst().name) || "");
 }
@@ -53292,7 +53519,7 @@ function _sidPreviewSelectedRow() {
   const when = _sidAudio.currentTime + 0.02;
   const rowSec = Math.max(_sidSpeed, 1) / 50;
   const notes = [];
-  for (let v = 0; v < 3; v++) {
+  for (let v = 0; v < pat.length; v++) {
     const cell = pat[v]?.[row];
     if (cell && cell.note != null) {
       const inst = _sidInsts[cell.inst] || _sidCurInst();
@@ -53618,7 +53845,7 @@ function _webSidInit() {
   return _webSidInitPromise;
 }
 
-function _buildPsidBytes(prgBytes, initAddr, playAddr, name, released = "2026") {
+function _buildPsidBytes(prgBytes, initAddr, playAddr, name, released = "2026", secondSid = 0) {
   const HEADER_LEN = 0x7C;
   const out = new Uint8Array(HEADER_LEN + prgBytes.length);
   const wStr = (off, str, maxLen) => {
@@ -53645,7 +53872,8 @@ function _buildPsidBytes(prgBytes, initAddr, playAddr, name, released = "2026") 
   wStr(0x56, released, 32);
   // Flags: bit2..3 = PAL (01), bit4..5 = 6581 (01) → 0x14
   out[0x76]=0x00; out[0x77]=0x14;
-  // startPage, pageLength, secondSIDAddress = 0
+  // startPage, pageLength, secondSIDAddress = 0; PSID v3 for a second SID
+  if (secondSid) { out[5]=0x03; out[0x7A]=(secondSid - 0xD000) >> 4; }
   out.set(prgBytes, HEADER_LEN);
   return out;
 }
@@ -53681,7 +53909,7 @@ async function _webSidPlayCurrent() {
   if (!prgBytes || prgBytes.length < 3) return false;
   // sid_init is hardcoded at $C000 by _sidExportAsmPlayable's `* = $C000` ORG;
   // playAddress=0 tells the PSID player to use the IRQ vector installed by init.
-  return !!(await _webSidLoadPsid(_buildPsidBytes(prgBytes, 0xC000, 0x0000, "VA SID preview")));
+  return !!(await _webSidLoadPsid(_buildPsidBytes(prgBytes, 0xC000, 0x0000, "VA SID preview", "2026", _sidVoiceCount() > 3 ? _sidSid2Addr : 0)));
 }
 
 /* Loads a PSID into WebSid and starts it; resolves to the load's sequence
@@ -53699,7 +53927,7 @@ function _webSidLoadPsid(psid) {
     try {
       const p = ScriptNodePlayer.loadMusicFromURL(
         _webSidBlobUrl,
-        { track: song > 0 ? song - 1 : -1, timeout: -1, traceSID: false },
+        { track: -1, timeout: -1, traceSID: false },
         function() { done(false); },
         function() {}
       );
@@ -53730,7 +53958,6 @@ function _webSidPause() {
   if (!_webSidActive) return;
   try { ScriptNodePlayer.getInstance()?.pause(); } catch(_) {}
   _webSidActive = false;
-  _webSidHideExternalDialog();
 }
 
 /* ── SID register stream: every editor preview through WebSid ─────────────
@@ -53741,22 +53968,29 @@ function _webSidPause() {
  * control value written first for them, like sid_set_voice. Ring indices:
  * rd = $1F00 (player), wr = $1F01 (JS). _sidStreamPump keeps the ring a few
  * frames ahead from the JS engine: note previews (_sidStreamNote) or a
- * pattern (_sidWaStart). */
-function _sidStreamPrg() {
+ * pattern (_sidWaStart). A two-SID tune has a second ring at $3000 for its second SID. */
+function _sidStreamPrg(chips = 1, addr = 0xD420) {
+  const two = chips > 1, lo2 = addr & 0xFF, hi2 = addr >> 8;
+  // re-triggered voices: gate-off control value first; then the registers 24 → 0
+  const chip = function(lo, hi) {
+    return [0xA0, 0x1C, 0xB1, 0xFB, 0x85, 0xFD,
+      0x46, 0xFD, 0x90, 0x07, 0xA0, 0x19, 0xB1, 0xFB, 0x8D, lo + 0x04, hi,
+      0x46, 0xFD, 0x90, 0x07, 0xA0, 0x1A, 0xB1, 0xFB, 0x8D, lo + 0x0B, hi,
+      0x46, 0xFD, 0x90, 0x07, 0xA0, 0x1B, 0xB1, 0xFB, 0x8D, lo + 0x12, hi,
+      0xA0, 0x18, 0xB1, 0xFB, 0x99, lo, hi, 0x88, 0x10, 0xF8];
+  };
   return [0x00, 0x10,
-    0x4C, 0x06, 0x10, 0x4C, 0x17, 0x10,
-    // init: rd = wr = 0, clear $D400-$D418
-    0xA9, 0x00, 0x8D, 0x00, 0x1F, 0x8D, 0x01, 0x1F, 0xA2, 0x18, 0x9D, 0x00, 0xD4, 0xCA, 0x10, 0xFA, 0x60,
+    0x4C, 0x06, 0x10, 0x4C, two ? 0x1A : 0x17, 0x10,
+    // init: rd = wr = 0, clear $D400-$D418 (and the second SID)
+    0xA9, 0x00, 0x8D, 0x00, 0x1F, 0x8D, 0x01, 0x1F, 0xA2, 0x18, 0x9D, 0x00, 0xD4,
+    ...(two ? [0x9D, lo2, hi2, 0xCA, 0x10, 0xF7] : [0xCA, 0x10, 0xFA]), 0x60,
     // play: empty ring → RTS; ($FB) = $2000 + rd * 32
-    0xAE, 0x00, 0x1F, 0xEC, 0x01, 0x1F, 0xF0, 0x49,
+    0xAE, 0x00, 0x1F, 0xEC, 0x01, 0x1F, ...(two ? [0xD0, 0x01, 0x60] : [0xF0, 0x49]),
     0x8A, 0x0A, 0x0A, 0x0A, 0x0A, 0x0A, 0x85, 0xFB, 0x8A, 0x4A, 0x4A, 0x4A, 0x18, 0x69, 0x20, 0x85, 0xFC,
-    // re-triggered voices: gate-off control value first
-    0xA0, 0x1C, 0xB1, 0xFB, 0x85, 0xFD,
-    0x46, 0xFD, 0x90, 0x07, 0xA0, 0x19, 0xB1, 0xFB, 0x8D, 0x04, 0xD4,
-    0x46, 0xFD, 0x90, 0x07, 0xA0, 0x1A, 0xB1, 0xFB, 0x8D, 0x0B, 0xD4,
-    0x46, 0xFD, 0x90, 0x07, 0xA0, 0x1B, 0xB1, 0xFB, 0x8D, 0x12, 0xD4,
-    // registers 24 → 0, then rd = (rd + 1) & 63
-    0xA0, 0x18, 0xB1, 0xFB, 0x99, 0x00, 0xD4, 0x88, 0x10, 0xF8,
+    ...chip(0x00, 0xD4),
+    // the second SID's ring is at $3000
+    ...(two ? [0xA5, 0xFC, 0x18, 0x69, 0x10, 0x85, 0xFC, ...chip(lo2, hi2)] : []),
+    // rd = (rd + 1) & 63
     0xE8, 0x8A, 0x29, 0x3F, 0x8D, 0x00, 0x1F, 0x60];
 }
 var _sidStream = null;
@@ -53768,16 +54002,21 @@ function _sidStreamEnsure() {
   if (!_sidStream) {
     _sidStream = { state: "idle", failed: false, wr: 0, rd: 0, frame: 0, timer: null, idleSince: 0,
       pv: null, events: [], owner: [null, null, null], vstart: [0, 0, 0], busyUntil: 0,
-      src: null, onRows: null, slotRows: new Array(64).fill(null), prev: new Uint8Array(25) };
+      src: null, onRows: null, slotRows: new Array(64).fill(null), prev: new Uint8Array(25), chips: 1, addr: _sidSid2Addr };
   }
   const st = _sidStream;
   st.idleSince = 0;
+  // the loaded stream player drives as many SIDs as the tune has
+  const chips = _sidVoiceCount() / 3;
+  if ((st.chips !== chips || st.addr !== _sidSid2Addr) && st.state !== "loading") {
+    st.chips = chips; st.addr = _sidSid2Addr; st.prev = new Uint8Array(25 * chips); st.state = "idle";
+  }
   if (st.state === "ready" && !_webSidActive) {
     try { ScriptNodePlayer.getInstance().resume(); _webSidActive = true; _sidApplyMasterVolume(); } catch (_) {}
   } else if (st.state === "idle") {
     st.state = "loading";
     _webSidInit().then(function(ok) {
-      return ok ? _webSidLoadPsid(_buildPsidBytes(new Uint8Array(_sidStreamPrg()), 0x1000, 0x1003, "VA SID stream")) : false;
+      return ok ? _webSidLoadPsid(_buildPsidBytes(new Uint8Array(_sidStreamPrg(st.chips, st.addr)), 0x1000, 0x1003, "VA SID stream", "2026", st.chips > 1 ? st.addr : 0)) : false;
     }).then(function(seq) {
       if (!seq) {
         st.failed = true; st.state = "idle";
@@ -53833,11 +54072,16 @@ function _sidStreamPump() {
   be.setRAM(0x1F01, st.wr);
 }
 function _sidStreamWrite(st, regs, mask, rows) {
-  const be = _webSidBackend, base = 0x2000 + st.wr * 32;
-  for (let k = 0; k < 25; k++) be.setRAM(base + k, regs[k]);
-  for (let v = 0; v < 3; v++) be.setRAM(base + 25 + v, st.prev[7 * v + 4] & 0xFE);
-  be.setRAM(base + 28, mask);
-  st.prev.set(regs);
+  const be = _webSidBackend;
+  for (let c = 0; c < st.chips; c++) {
+    const base = 0x2000 + c * 0x1000 + st.wr * 32, at = 25 * c;
+    // a note preview's engine has one SID: the second one stays silent
+    for (let k = 0; k < 25; k++) be.setRAM(base + k, regs[at + k] | 0);
+    for (let v = 0; v < 3; v++) be.setRAM(base + 25 + v, st.prev[at + 7 * v + 4] & 0xFE);
+    be.setRAM(base + 28, (mask >> (3 * c)) & 7);
+  }
+  st.prev.fill(0);
+  st.prev.set(regs.subarray(0, st.prev.length));
   st.slotRows[st.wr] = rows && rows.length ? rows : null;
   st.wr = (st.wr + 1) & 63;
 }
@@ -53851,7 +54095,7 @@ function _sidStreamSilence() {
   st.wr = st.rd = _webSidBackend.getRAM(0x1F00) & 63;
   st.slotRows.fill(null);
   const regs = Uint8Array.from(st.prev);
-  for (let v = 0; v < 3; v++) regs[7 * v + 4] &= 0xFE;
+  for (let c = 0; c < st.chips; c++) for (let v = 0; v < 3; v++) regs[25 * c + 7 * v + 4] &= 0xFE;
   _sidStreamWrite(st, regs, 0, null);
   _webSidBackend.setRAM(0x1F01, st.wr);
 }
@@ -54985,6 +55229,223 @@ function _sidVizSetBands(n) {
   if (select) select.value = String(_sidVizBands);
   _sidVizSave({ bands: _sidVizBands });
 }
+/* ── SID Editor channel spectrum (#sid-ana) ──────────────────────────────
+ * One LED spectrum per voice. The audio output is one mix, so each voice's
+ * spectrum is computed from the registers the engine plays: the harmonics of its
+ * waveform at its frequency, an ADSR approximation, the filter and the volume.
+ * While the window is open the playing engine records its frames (e.snap); the
+ * row events, which follow the audio in every engine, say how far they have
+ * sounded. Note previews have no engine frames here and do not show. */
+var _sidAna = { raf: 0, env: [], levels: [], rowFrame: -1, rowAt: 0, last: null };
+
+const _SID_ANA_BANDS = 16;
+
+const _SID_ANA_ROWS = 10;
+
+const _SID_ANA_DB = 48;
+
+/* One 50 Hz frame of a voice's envelope: { env 0..1, st 0 release / 1 attack / 2 decay, gate }. */
+function _sidAnaEnvStep(s, regs, b, trig) {
+  const g = regs[b + 4] & 1;
+  if (g && (!s.gate || trig)) s.st = 1;
+  else if (!g && s.gate) s.st = 0;
+  s.gate = g;
+  const su = (regs[b + 6] >> 4) / 15;
+  if (s.st === 1) {
+    s.env += 20 / _SID_ATK[regs[b + 5] >> 4];
+    if (s.env >= 1) { s.env = 1; s.st = 2; }
+  } else if (s.st === 2) {
+    s.env = su + (s.env - su) * Math.exp(-92 / _SID_DCR[regs[b + 5] & 15]);
+  } else {
+    s.env *= Math.exp(-92 / _SID_DCR[regs[b + 6] & 15]);
+  }
+  return s.env;
+}
+
+// Gain of the SID filter at hz for a chip's registers, for a voice routed through it.
+function _sidAnaFilterGain(regs, at, hz) {
+  const mode = regs[at + 0x18];
+  const fc = Math.max(30, 30 + ((regs[at + 0x15] & 7) | (regs[at + 0x16] << 3)) * 5.8);
+  const r = hz / fc, r2 = r * r, den = Math.sqrt(1 + r2 * r2);
+  let gain = 0;
+  if (mode & 0x10) gain = Math.max(gain, 1 / den);
+  if (mode & 0x20) gain = Math.max(gain, r / den);
+  if (mode & 0x40) gain = Math.max(gain, r2 / den);
+  return gain;
+}
+
+/* Band levels 0..1 of one voice: at = the chip's first register, bit = its voice 0..2.
+   Combined waveforms sound like the AND of the two: the weaker harmonic counts. */
+function _sidAnaVoiceLevels(regs, at, bit, env, bands) {
+  const out = new Array(bands).fill(0);
+  const b = at + bit * 7, ctl = regs[b + 4], mode = regs[at + 0x18];
+  const hz = (regs[b] | (regs[b + 1] << 8)) * 985248 / 16777216;
+  const routed = (regs[at + 0x17] >> bit) & 1;
+  const vol = env * (mode & 15) / 15;
+  if (!(ctl & 0xF0) || (ctl & 8) || hz < 1 || vol <= 0 || (bit === 2 && !routed && (mode & 0x80))) return out;
+  const edges = _sidVizBandEdges(bands, 44100);
+  const duty = (regs[b + 2] | ((regs[b + 3] & 15) << 8)) / 4096;
+  const put = function(band, f, amp) {
+    const a = amp * vol * (routed ? _sidAnaFilterGain(regs, at, f) : 1);
+    if (a > 0) out[band] = Math.max(out[band], Math.min(1, 1 + 20 * Math.log10(a) / _SID_ANA_DB));
+  };
+  for (let n = 1; n * hz < edges[bands]; n++) {
+    const f = n * hz;
+    if (f < edges[0]) continue;
+    let band = 0;
+    while (band < bands - 1 && f >= edges[band + 1]) band++;
+    let amp = Infinity;
+    if (ctl & 0x10) amp = Math.min(amp, n & 1 ? 1 / (n * n) : 0);
+    if (ctl & 0x20) amp = Math.min(amp, 1 / n);
+    if (ctl & 0x40) amp = Math.min(amp, Math.abs(Math.sin(Math.PI * n * duty)) / n);
+    if (amp !== Infinity && !(ctl & 0x80)) put(band, f, amp);
+  }
+  // noise: flat up to about eight times the set frequency
+  if (ctl & 0x80) {
+    for (let k = 0; k < bands; k++) {
+      const f = Math.sqrt(edges[k] * edges[k + 1]);
+      if (f <= hz * 8) put(k, f, 0.35);
+    }
+  }
+  return out;
+}
+
+// A playing engine records its frames while the window is open.
+function _sidAnaAttach() {
+  const box = document.getElementById("sid-ana");
+  const on = !!box && !box.hidden;
+  if (_sidWaPlay && _sidWaPlay.e) {
+    if (on && !_sidWaPlay.e.snap) _sidWaPlay.e.snap = [];
+    if (!on) _sidWaPlay.e.snap = null;
+  }
+}
+
+function _sidAnaRow(ev) {
+  _sidAna.rowFrame = ev.frame || 0;
+  _sidAna.rowAt = performance.now();
+}
+
+/* Takes the recorded frames that have sounded by now (the frames of a row are 20 ms
+   apart, and at most one long row runs on from the last row event). */
+function _sidAnaAdvance(now) {
+  const e = _sidWaPlay && _sidWaPlay.e;
+  if (!e || !e.snap || _sidAna.rowFrame < 0) return;
+  const target = _sidAna.rowFrame + Math.min(255, Math.floor((now - _sidAna.rowAt) / 20));
+  while (e.snap.length && e.snap[0].frame <= target) {
+    const fr = e.snap.shift();
+    fr.trig.forEach(function(trig, v) {
+      const s = _sidAna.env[v] || (_sidAna.env[v] = { env: 0, st: 0, gate: 0 });
+      _sidAnaEnvStep(s, fr.regs, 25 * (v / 3 | 0) + 7 * (v % 3), trig);
+    });
+    _sidAna.last = fr.regs;
+  }
+}
+
+function _sidAnaDraw() {
+  const cv = document.getElementById("sid-ana-canvas");
+  if (!cv) return;
+  const dpr = window.devicePixelRatio || 1;
+  const W = Math.max(1, Math.round(cv.clientWidth * dpr)), H = Math.max(1, Math.round(cv.clientHeight * dpr));
+  if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
+  const ctx = cv.getContext("2d");
+  ctx.fillStyle = "#000";
+  ctx.fillRect(0, 0, W, H);
+  _sidAnaAdvance(performance.now());
+  const voices = _sidVoiceCount(), rows = voices / 3;
+  const bands = _SID_ANA_BANDS, led = _SID_ANA_ROWS;
+  const cellW = W / 3, cellH = H / rows, pad = 8 * dpr, label = 14 * dpr;
+  const playing = !!_sidWaPlay;
+  ctx.font = "700 " + Math.round(10 * dpr) + "px 'IBM Plex Mono', monospace";
+  ctx.textBaseline = "top";
+  for (let v = 0; v < voices; v++) {
+    const chip = v / 3 | 0, bit = v % 3, s = _sidAna.env[v];
+    const regs = _sidAna.last;
+    const raw = playing && regs && s && 25 * chip + 25 <= regs.length
+      ? _sidAnaVoiceLevels(regs, 25 * chip, bit, s.env, bands) : null;
+    const lv = _sidAna.levels[v] || (_sidAna.levels[v] = new Float32Array(bands));
+    const x0 = bit * cellW + pad, y0 = chip * cellH + pad;
+    ctx.fillStyle = _SID_ROLL_VOICE[v];
+    ctx.fillText(voices > 3 ? "S" + (chip + 1) + " V" + (bit + 1) : "V" + (bit + 1), x0, y0);
+    const colW = (cellW - pad * 2) / bands, rowH = (cellH - pad * 2 - label) / led;
+    for (let k = 0; k < bands; k++) {
+      // bars rise at once and fall smoothly, like the SID Player's analyzer
+      lv[k] = Math.max(raw ? raw[k] : 0, lv[k] - 0.035);
+      const lit = lv[k] * led;
+      for (let r = 0; r < led; r++) {
+        const on = Math.max(0, Math.min(1, lit - r));
+        ctx.fillStyle = "hsla(" + _sidVizRowHue(r, led) + ", 82%, 52%, " + Math.max(0.06, on).toFixed(3) + ")";
+        ctx.fillRect(x0 + k * colW + colW * 0.11, y0 + label + (led - 1 - r) * rowH + rowH * 0.09, colW * 0.78, rowH * 0.82);
+      }
+    }
+  }
+}
+
+function _sidAnaLoop() {
+  _sidAna.raf = 0;
+  const box = document.getElementById("sid-ana");
+  if (!box || box.hidden || !document.getElementById("sid-editor-dialog")?.open) return;
+  _sidAnaAttach();
+  _sidAnaDraw();
+  _sidAna.raf = requestAnimationFrame(_sidAnaLoop);
+}
+
+function _sidAnaState() {
+  try { return JSON.parse(localStorage.getItem("c64va-sid-ana") || "{}") || {}; } catch (_) { return {}; }
+}
+
+function _sidAnaSave(patch) {
+  try { localStorage.setItem("c64va-sid-ana", JSON.stringify(Object.assign(_sidAnaState(), patch))); } catch (_) {}
+}
+
+function _sidAnaShow(on) {
+  const box = document.getElementById("sid-ana");
+  if (!box) return;
+  box.hidden = !on;
+  const btn = document.getElementById("sid-ana-btn");
+  if (btn) { btn.classList.toggle("sid-metronome-on", !!on); btn.setAttribute("aria-pressed", String(!!on)); }
+  _sidAnaSave({ open: !!on });
+  _sidAnaAttach();
+  if (!on) return;
+  const st = _sidAnaState();
+  if (Number.isFinite(st.width)) box.style.width = st.width + "px";
+  if (Number.isFinite(st.height)) box.style.height = st.height + "px";
+  const x = Number.isFinite(st.left) ? st.left : 120, y = Number.isFinite(st.top) ? st.top : 160;
+  _sidPlaceFixed(box, x, y);
+  requestAnimationFrame(function() { _sidPlaceFixed(box, x, y); });
+  if (!_sidAna.raf) _sidAna.raf = requestAnimationFrame(_sidAnaLoop);
+}
+
+function _sidAnaRestore() {
+  if (_sidAnaState().open) _sidAnaShow(true);
+}
+
+function _sidSetupAna() {
+  const box = document.getElementById("sid-ana");
+  const hdr = box && box.querySelector(".sid-trk-float-hdr");
+  if (!box || !hdr) return;
+  document.getElementById("sid-ana-btn")?.addEventListener("click", function() { _sidAnaShow(box.hidden); });
+  document.getElementById("sid-ana-close")?.addEventListener("click", function() { _sidAnaShow(false); });
+  let move = null, sizeAtDown = null;
+  hdr.addEventListener("pointerdown", function(e) {
+    if (e.target.closest("button")) return;
+    const rect = box.getBoundingClientRect();
+    move = { dx: e.clientX - rect.left, dy: e.clientY - rect.top };
+    try { hdr.setPointerCapture(e.pointerId); } catch (_) {}
+    e.preventDefault();
+  });
+  hdr.addEventListener("pointermove", function(e) { if (move) _sidDragTo(move, box, e.clientX - move.dx, e.clientY - move.dy); });
+  const endMove = function() { _sidDragFlush(move, box); if (move && move.at) _sidAnaSave({ left: move.at.x, top: move.at.y }); move = null; };
+  hdr.addEventListener("pointerup", endMove);
+  hdr.addEventListener("pointercancel", endMove);
+  box.addEventListener("pointerdown", function() { sizeAtDown = { w: box.offsetWidth, h: box.offsetHeight }; });
+  window.addEventListener("pointerup", function() {
+    if (!sizeAtDown) return;
+    const w = box.offsetWidth, h = box.offsetHeight;
+    if (w > 0 && h > 0 && (w !== sizeAtDown.w || h !== sizeAtDown.h)) _sidAnaSave({ width: w, height: h });
+    sizeAtDown = null;
+  });
+}
+
 function setupSidVisualizer() {
   const dlg = document.getElementById("sid-viz-dialog");
   if (!dlg) return;
@@ -55102,15 +55563,17 @@ async function _vaSidPlayFileBytes(bytes, filename, song = 0) {
           model: _sidPreviewModel, frames: 20, skipMs: Math.max(0, Math.round(state.skipMs)), song: state.song };
         if (state.fileBytes) payload.fileBytes = state.fileBytes;
         state.queue = window.electronAPI.renderSidFile(payload);
-        const pcm = _sidDecodePcm16(await state.queue);
+        const rendered = await state.queue;
+        const pcm = _sidDecodePcm16(rendered.pcm);
         if (!state.active) return false;
         if (!pcm.length) throw new Error("Empty SID audio buffer.");
+        const samples = pcm.length / rendered.channels;
         state.fileBytes = null;
-        state.renderedMs += state.skipMs + pcm.length * 1000 / ac.sampleRate;
+        state.renderedMs += state.skipMs + samples * 1000 / ac.sampleRate;
         state.skipMs = 0;
         state.nextTime = Math.max(state.nextTime, ac.currentTime + 0.02);
-        _sidPlayBuffer(pcm, state.nextTime, _sidExtSources);
-        state.nextTime += pcm.length / ac.sampleRate;
+        _sidPlayBuffer(pcm, state.nextTime, _sidExtSources, rendered.channels);
+        state.nextTime += samples / ac.sampleRate;
         // A Web Audio szál előre ütemezett hangja UI-terhelés alatt is tovább szól.
       } while (state.active && !state.paused && (!state.seeking || force) && state.nextTime - ac.currentTime < aheadTarget);
       return true;
@@ -55204,7 +55667,7 @@ function _sidWaStart(audio) {
         if (_sidPlayMode !== "all") e.pat = td.song[0] | 0;
         _sidEngFrame(e);
         const rows = e.rows.splice(0);
-        return { regs: e.regs, mask: (e.trig[0] ? 1 : 0) | (e.trig[1] ? 2 : 0) | (e.trig[2] ? 4 : 0), rows: rows };
+        return { regs: e.regs, mask: e.trig.reduce(function(m, on, v) { return on ? m | (1 << v) : m; }, 0), rows: rows };
       };
       st.onRows = function(r) { if (_sidWaPlay === w) _sidWaShowRow(r); };
       // _sidTimer only marks the playback as running; _sidStreamPump feeds it
@@ -55287,6 +55750,7 @@ function _sidLcdIdle() {
 }
 function _sidWaShowRow(ev) {
   _sidRow = ev.row;
+  _sidAnaRow(ev);
   _sidLcdShow(_sidPlayMode === "all" ? ev.opos : _sidSongPos, ev.pat, ev.row, ev.frame || 0, true);
   if (_sidPlayMode === "all") {
     _sidSongPlayPos = ev.opos;
@@ -55310,6 +55774,7 @@ function _sidWaStop() {
   if (stopped && stopped.timer) clearInterval(stopped.timer);
   if (stopped && stopped.stream) _sidStreamSilence();
   _sidWaPlay = null;
+  _sidAna.rowFrame = -1; _sidAna.last = null; _sidAna.env = [];
   if (stopped && stopped.sidCoreSession && window.electronAPI?.releaseSidPreview) {
     stopped.coreQueue.finally(function() {
       window.electronAPI.releaseSidPreview(stopped.sidCoreSession).catch(function() {});
@@ -55328,8 +55793,14 @@ function _sidStop(preloadStream = true, stopExternal = false) {
   _sidWaStop();
   _sidStreamSilence();
   _sidPaused = false;
+  const editorOnWebSid = _sidPlaybackUsingWebSid;
   _sidPlaybackUsingWebSid = false;
   if (stopExternal) _webSidPause();
+  else if (editorOnWebSid) {
+    // not _webSidPause: that would also close the SID Player window
+    try { ScriptNodePlayer.getInstance()?.pause(); } catch (_) {}
+    _webSidActive = false;
+  }
   if (preloadStream) _sidStreamPreload();
   const t = document.getElementById("sid-tracker");
   if (t) t.querySelectorAll("tr.sid-playing").forEach(function(r){ r.classList.remove("sid-playing"); });
@@ -55445,7 +55916,8 @@ function _sidTuneData(opts) {
     a.itsp.push(o.tableSpeed);
     if (at < 0) steps.forEach(function(x){ a.tw.push(x[0]); a.tn.push(x[1]); a.ta.push(x[2]); });
   });
-  return { speed: speed, insts: insts, patterns: patterns, song: song.length ? song : [0], a: a };
+  const chips = patterns[0] && patterns[0].length > 3 ? 2 : 1;
+  return { speed: speed, insts: insts, patterns: patterns, song: song.length ? song : [0], a: a, chips: chips };
 }
 
 /* Cell → player bytes: note 1..96 (0 = none), instrument (out-of-range → 0), fx code, fx value. */
@@ -55458,17 +55930,22 @@ function _sidCellBytes(c, instCount) {
 
 /* ── JS engine: a frame-exact model of the exported 6502 player ─────────────
  * One _sidEngFrame call = one IRQ of the player (sid_frame). It keeps the SID
- * registers the player has written in e.regs; the Web Audio preview renders
- * them with _sidSynthRender, and the tests compare them with the 6502 code. */
+ * registers the player has written in e.regs (25 per SID, the second SID's
+ * after the first's); the Web Audio preview renders them with _sidSynthRender,
+ * and the tests compare them with the 6502 code. Filter and volume are per SID. */
 function _sidEngineNew(td) {
   const voice = function() {
     return { on:0, inst:0, note:0, gate:0, jon:0, ffr:0, ctl:0, sl:0, fvo:0, fvs:0, fvc:0,
       vdl:0, vcn:0, vdr:0, vof:0, vst:0, pw:0, pwd:0, tpos:0, tcnt:0, wav:0, nof:0, nab:0 };
   };
-  return { td: td, a: td.a, ft: _sidFreqTables(), regs: new Uint8Array(25), trig: [false, false, false],
+  const filter = function() {
+    return { own: 0xFF, cut: 0, spd: 0, tgt: 0, start: 0, end: 0, ping: 0, res: 0, mode: 0, route: 0 };
+  };
+  const chips = td.chips, voices = chips * 3;
+  return { td: td, a: td.a, ft: _sidFreqTables(), chips: chips, base: [0, 7, 14, 25, 32, 39].slice(0, voices),
+    regs: new Uint8Array(25 * chips), trig: new Array(voices).fill(false),
     tick: td.speed, spd: td.speed, row: 0, opos: 0, pat: td.song[0] | 0, frame: 0, rows: [],
-    v: [voice(), voice(), voice()], vol: 0,
-    f: { own: 0xFF, cut: 0, spd: 0, tgt: 0, start: 0, end: 0, ping: 0, res: 0, mode: 0, route: 0 } };
+    v: Array.from({ length: voices }, voice), vols: [0, 0], fs: [filter(), filter()] };
 }
 
 function _sidEngTab(e, s, k) {
@@ -55479,7 +55956,7 @@ function _sidEngTab(e, s, k) {
 }
 
 function _sidEngNoteOn(e, v, n, i) {
-  const a = e.a, s = e.v[v], f = e.f, base = 7 * v;
+  const a = e.a, s = e.v[v], chip = v / 3 | 0, f = e.fs[chip], base = e.base[v];
   s.ctl &= 0xFE;
   e.regs[base + 4] = s.ctl;
   e.trig[v] = true;
@@ -55497,22 +55974,22 @@ function _sidEngNoteOn(e, v, n, i) {
   if (a.itln[i]) _sidEngTab(e, s, a.itst[i]);
   e.regs[base + 5] = a.iad[i];
   e.regs[base + 6] = a.isr[i];
-  e.vol = a.ivol[i];
+  e.vols[chip] = a.ivol[i];
   if (a.ifl[i] & 1) {
     f.own = v;
     f.cut = f.start = a.icul[i] | (a.icuh[i] << 8);
     f.end = f.tgt = a.icel[i] | (a.iceh[i] << 8);
     f.spd = a.icsp[i]; f.ping = a.ifl[i] & 2; f.res = a.ires[i]; f.mode = a.imode[i];
-    f.route |= 1 << v;
+    f.route |= 1 << (v % 3);
   } else {
-    f.route &= ~(1 << v) & 0xFF;
+    f.route &= ~(1 << (v % 3)) & 0xFF;
   }
 }
 
 function _sidEngRow(e) {
   const td = e.td, pat = td.patterns[e.pat];
   e.rows.push({ frame: e.frame, row: e.row, opos: e.opos, pat: e.pat });
-  for (let v = 0; v < 3; v++) {
+  for (let v = 0; v < e.v.length; v++) {
     const b = _sidCellBytes(pat ? pat[v][e.row] : null, td.insts.length);
     const s = e.v[v];
     if (b[0]) _sidEngNoteOn(e, v, b[0] - 1, b[1]);
@@ -55542,7 +56019,7 @@ function _sidEngRow(e) {
    this voice the gate is cleared (and with hard restart ADSR is zeroed). */
 function _sidEngHr(e) {
   const a = e.a;
-  for (let v = 0; v < 3; v++) {
+  for (let v = 0; v < e.v.length; v++) {
     const s = e.v[v];
     if (!s.on) continue;
     const gt = a.igt[s.inst];
@@ -55550,16 +56027,16 @@ function _sidEngHr(e) {
     const pat = e.td.patterns[e.pat];
     if (!_sidCellBytes(pat ? pat[v][e.row] : null, e.td.insts.length)[0]) continue;
     s.gate = 0;
-    if (a.ihr[s.inst]) { e.regs[7 * v + 5] = 0; e.regs[7 * v + 6] = 0; }
+    if (a.ihr[s.inst]) { e.regs[e.base[v] + 5] = 0; e.regs[e.base[v] + 6] = 0; }
   }
 }
 
 function _sidEngUpdate(e) {
-  const a = e.a, f = e.f;
-  for (let v = 0; v < 3; v++) {
+  const a = e.a;
+  for (let v = 0; v < e.v.length; v++) {
     const s = e.v[v];
     if (!s.on) continue;
-    const i = s.inst, base = 7 * v;
+    const i = s.inst, base = e.base[v];
     let ctl;
     if (s.jon) {
       s.jon = 0;
@@ -55608,34 +56085,38 @@ function _sidEngUpdate(e) {
       }
     }
   }
-  e.regs[0x15] = f.cut & 7;
-  e.regs[0x16] = (f.cut >> 3) & 0xFF;
-  e.regs[0x17] = (f.res | f.route) & 0xFF;
-  e.regs[0x18] = (f.mode | e.vol) & 0xFF;
-  if (f.own !== 0xFF && f.spd) {
-    let reach;
-    if (f.spd < 0x80) {
-      f.cut = (f.cut + f.spd) & 0xFFFF;
-      reach = f.cut >= f.tgt;
-    } else {
-      const c = f.cut + f.spd - 256;
-      f.cut = c & 0xFFFF;
-      reach = c < 0 || c <= f.tgt;
-    }
-    if (reach) {
-      f.cut = f.tgt;
-      if (f.ping) { f.tgt = f.tgt === f.end ? f.start : f.end; f.spd = (256 - f.spd) & 0xFF; }
-      else f.spd = 0;
+  for (let c = 0; c < e.chips; c++) {
+    const f = e.fs[c], at = 25 * c;
+    e.regs[at + 0x15] = f.cut & 7;
+    e.regs[at + 0x16] = (f.cut >> 3) & 0xFF;
+    e.regs[at + 0x17] = (f.res | f.route) & 0xFF;
+    e.regs[at + 0x18] = (f.mode | e.vols[c]) & 0xFF;
+    if (f.own !== 0xFF && f.spd) {
+      let reach;
+      if (f.spd < 0x80) {
+        f.cut = (f.cut + f.spd) & 0xFFFF;
+        reach = f.cut >= f.tgt;
+      } else {
+        const cut = f.cut + f.spd - 256;
+        f.cut = cut & 0xFFFF;
+        reach = cut < 0 || cut <= f.tgt;
+      }
+      if (reach) {
+        f.cut = f.tgt;
+        if (f.ping) { f.tgt = f.tgt === f.end ? f.start : f.end; f.spd = (256 - f.spd) & 0xFF; }
+        else f.spd = 0;
+      }
     }
   }
 }
 
 function _sidEngFrame(e) {
-  e.trig[0] = e.trig[1] = e.trig[2] = false;
+  e.trig.fill(false);
   e.tick = (e.tick - 1) & 0xFF;
   if (!e.tick) { e.tick = e.spd; _sidEngRow(e); }
   _sidEngHr(e);
   _sidEngUpdate(e);
+  if (e.snap) e.snap.push({ frame: e.frame, regs: e.regs.slice(), trig: e.trig.slice() });
   e.frame++;
   return e.regs;
 }
@@ -55725,24 +56206,40 @@ function _sidSynthRender(sy, regs, trig, out, off, count) {
 /* Runs the engine for `frames` frames and renders the audio. hook(e, frame)
    runs before each frame (note previews trigger notes / release from it). */
 function _sidRenderEngine(e, frames, sr, hook) {
-  const sy = e.synth || (e.synth = _sidSynthNew(sr));
+  const synths = e.synths || (e.synths = Array.from({ length: e.chips }, function() { return _sidSynthNew(sr); }));
   const total = Math.ceil(frames * sr / 50);
-  const out = new Float32Array(total);
+  const parts = synths.map(function() { return new Float32Array(total); });
   let pos = 0, acc = 0;
   for (let k = 0; k < frames; k++) {
     if (hook) hook(e, k);
     _sidEngFrame(e);
     acc += sr / 50;
     const n = Math.min(total - pos, Math.floor(acc) - pos);
-    if (n > 0) { _sidSynthRender(sy, e.regs, e.trig, out, pos, n); pos += n; }
+    if (n > 0) {
+      synths.forEach(function(sy, c) {
+        _sidSynthRender(sy, e.regs.subarray(25 * c, 25 * c + 25), e.trig.slice(3 * c, 3 * c + 3), parts[c], pos, n);
+      });
+      pos += n;
+    }
   }
+  if (parts.length === 1) return parts[0];
+  // SID 1 left, SID 2 right
+  const out = new Float32Array(total * 2);
+  for (let i = 0; i < total; i++) { out[i * 2] = parts[0][i]; out[i * 2 + 1] = parts[1][i]; }
+  out.channels = 2;
   return out;
 }
 
-function _sidPlayBuffer(data, when, sources = _sidPreviewSources) {
+// channels: 1, or 2 for interleaved stereo (tunes with several SIDs)
+function _sidPlayBuffer(data, when, sources = _sidPreviewSources, channels = data.channels || 1) {
   const ac = _sidEnsureAudio();
-  const buf = ac.createBuffer(1, Math.max(1, data.length), ac.sampleRate);
-  buf.copyToChannel(data, 0);
+  const samples = Math.max(1, data.length / channels);
+  const buf = ac.createBuffer(channels, samples, ac.sampleRate);
+  for (let c = 0; c < channels; c++) {
+    const out = new Float32Array(samples);
+    for (let i = 0; i < samples; i++) out[i] = data[i * channels + c] || 0;
+    buf.copyToChannel(out, c);
+  }
   const src = ac.createBufferSource();
   src.buffer = buf;
   src.connect(_sidMasterGain || ac.destination);
@@ -55769,14 +56266,18 @@ function _sidDecodePcm16(base64) {
 function _sidRenderVaCoreFrames(frames, sampleRate, sessionId) {
   const payload = { sampleRate: Math.round(sampleRate), model: _sidPreviewModel, frames: frames };
   if (sessionId) payload.sessionId = sessionId;
-  return window.electronAPI.renderSidPreview(payload).then(_sidDecodePcm16);
+  return window.electronAPI.renderSidPreview(payload).then(function(base64) {
+    const pcm = _sidDecodePcm16(base64);
+    if (frames[0].length > 26) pcm.channels = 2;
+    return pcm;
+  });
 }
 
-/* One VA SID Core frame: the 25 registers + the voices whose note restarted
+/* One VA SID Core frame: the 25 registers per SID + the voices whose note restarted
    (the player clears and sets the gate within the frame; the core needs the edge). */
 function _sidVaCoreFrame(engine) {
   const out = Array.from(engine.regs);
-  out.push((engine.trig[0] ? 1 : 0) | (engine.trig[1] ? 2 : 0) | (engine.trig[2] ? 4 : 0));
+  out.push(engine.trig.reduce(function(m, on, v) { return on ? m | (1 << v) : m; }, 0));
   return out;
 }
 
@@ -55808,6 +56309,8 @@ function _sidInstBytes(ins) {
  * _sidDeserialize below reads the marker and picks the matching cell size. */
 /* 0xFD format (current): [0xFD][ni][np][speed], per instrument the 9 classic
  * bytes + the extension below + its name, then the 4-byte cells and the song.
+ * 0xFC is the same with 6 voices per pattern (a tune with a second SID), and a
+ * byte after the speed: the second SID's address as in a PSID header ($42 = $D420).
  * 0xFE (effect column, no extension) and the unmarked legacy layout still load. */
 function _sidInstExtBytes(ins) {
   const o = _sidInstNorm(ins);
@@ -55843,13 +56346,15 @@ function _sidReadInstExt(ins, src, p) {
   return p + nameLen;
 }
 function _sidSerialize() {
-  const out = [0xFD, _sidInsts.length, _sidPatterns.length, Math.max(1, Math.min(255, _sidSpeed | 0))];
+  const voices = _sidVoiceCount();
+  const out = [voices > 3 ? 0xFC : 0xFD, _sidInsts.length, _sidPatterns.length, Math.max(1, Math.min(255, _sidSpeed | 0))];
+  if (voices > 3) out.push((_sidSid2Addr - 0xD000) >> 4);
   _sidInsts.forEach(function(ins){
     _sidInstBytes(ins).forEach(function(b){ out.push(b & 0xFF); });
     _sidInstExtBytes(ins).forEach(function(b){ out.push(b & 0xFF); });
   });
   _sidPatterns.forEach(function(pat){
-    for (let v=0;v<3;v++) for (let r=0;r<_SID_ROWS;r++) {
+    for (let v=0;v<voices;v++) for (let r=0;r<_SID_ROWS;r++) {
       const c = pat[v][r];
       out.push(c.note==null?0:(c.note+1)&0xFF);
       out.push(c.inst&0xFF);
@@ -55869,7 +56374,8 @@ function _sidSerialize() {
 function _sidDeserialize(src) {
   _sidStop();
   let p = 0;
-  const extended = src[0] === 0xFD; // see the format comment above _sidSerialize
+  const extended = src[0] === 0xFD || src[0] === 0xFC; // see the format comment above _sidSerialize
+  const voices = src[0] === 0xFC ? 6 : 3;
   const versioned = extended || src[0] === 0xFE;
   if (versioned) p = 1;
   const ni = src[p++] || 0, np = src[p++] || 0;
@@ -55878,6 +56384,7 @@ function _sidDeserialize(src) {
     const speedEl = document.getElementById("sid-speed");
     if (speedEl) speedEl.value = String(_sidSpeed);
   }
+  _sidSid2Addr = voices > 3 ? 0xD000 + ((src[p++] || 0x42) << 4) : 0xD420;
   _sidInsts = [];
   for (let i=0;i<ni;i++) {
     const ctrl=src[p++], ad=src[p++], sr=src[p++], pwlo=src[p++], pwhi=src[p++], cutlo=src[p++], cuthi=src[p++], resfilt=src[p++], mv=src[p++];
@@ -55895,8 +56402,8 @@ function _sidDeserialize(src) {
   if (!_sidInsts.length) _sidInsts = [_sidNewInst()];
   _sidPatterns = [];
   for (let pi=0; pi<np; pi++) {
-    const pat = _sidNewPattern();
-    for (let v=0;v<3;v++) for (let r=0;r<_SID_ROWS;r++){
+    const pat = _sidNewPattern(voices);
+    for (let v=0;v<voices;v++) for (let r=0;r<_SID_ROWS;r++){
       const note=src[p++], inst=src[p++];
       let fx = null, fxval = 0;
       if (versioned) { fx = _SID_FX_NAMES[src[p++] || 0] || null; fxval = src[p++] || 0; }
@@ -55904,7 +56411,7 @@ function _sidDeserialize(src) {
     }
     _sidPatterns.push(pat);
   }
-  if (!_sidPatterns.length) _sidPatterns = [_sidNewPattern()];
+  if (!_sidPatterns.length) _sidPatterns = [_sidNewPattern(voices)];
   if (p < src.length) {
     const songLen = src[p++] || 0;
     _sidSong = [];
@@ -56217,7 +56724,9 @@ function _sidApplyGoatImport(bytes) {
    a legato pitch change; rows of L / L+1 frames start on the note ons (F effects
    carry the changes); pitch = the most common semitone of the main waveform.
    Instruments come from ADSR, the waveform / pitch steps of the whole note
-   (→ wave table), pulse and filter movement and the gate timing. */
+   (→ wave table), pulse and filter movement and the gate timing. A frame holds
+   26 bytes per SID (the registers + the gate edges): a tune with two SIDs becomes
+   six voices, and its second SID's address comes along as `sid2`. */
 const _SID_DUMP_MAX_INSTS = 128;
 const _SID_DUMP_TABLE_STEPS = 32;
 const _SID_DUMP_WINDOW = 128;
@@ -56240,12 +56749,12 @@ function _sidDumpImport(regs, meta) {
   const skip = function(key) { skipped[key] = (skipped[key] || 0) + 1; };
 
   // ── note ons per voice ──
-  const voices = [0, 1, 2].map(function(v) {
-    const ons = [];
+  const voices = Array.from({ length: Math.round(FB / 26) * 3 }, function(_, v) {
+    const at = 26 * (v / 3 | 0), bit = v % 3, ons = [];
     for (let f = 0; f < frames; f++) {
-      if ((R(f, 25) >> v) & 1) ons.push(f);
+      if ((R(f, at + 25) >> bit) & 1) ons.push(f);
     }
-    return { b: v * 7, ons: ons };
+    return { at: at, bit: bit, b: at + bit * 7, ons: ons };
   });
   // a gate edge within 2 frames of the previous one on the same voice retriggers the same note
   voices.forEach(function(vc) {
@@ -56336,7 +56845,7 @@ function _sidDumpImport(regs, meta) {
   if (totalRows > MAX_ROWS) { totalRows = MAX_ROWS; skip("length (cut)"); }
   totalRows = Math.ceil(totalRows / _SID_ROWS) * _SID_ROWS;
   const empty = function() { return { note: null, inst: 0, fx: null, fxval: 0 }; };
-  const cols = [0, 1, 2].map(function(){ return Array.from({ length: totalRows }, empty); });
+  const cols = voices.map(function(){ return Array.from({ length: totalRows }, empty); });
 
   // ── notes → cells, instruments by signature ──
   const insts = [], instKeys = {}, recs = [];
@@ -56349,10 +56858,10 @@ function _sidDumpImport(regs, meta) {
   };
   const same = function(a, c) { return a.w === c.w && a.n === c.n && a.abs === c.abs; };
   voices.forEach(function(vc, v) {
-    const b = vc.b;
+    const b = vc.b, at = vc.at;
     const freqAt = function(g) { return R(g, b) | (R(g, b + 1) << 8); };
     const pwAt = function(g) { return R(g, b + 2) | ((R(g, b + 3) & 15) << 8); };
-    const cutAt = function(g) { return (R(g, 0x15) & 7) | (R(g, 0x16) << 3); };
+    const cutAt = function(g) { return (R(g, at + 0x15) & 7) | (R(g, at + 0x16) << 3); };
     vc.ons.forEach(function(f, k) {
       const next = k + 1 < vc.ons.length ? vc.ons[k + 1] : frames;
       // the whole note up to the next one: after the gate off the release still sounds
@@ -56458,13 +56967,13 @@ function _sidDumpImport(regs, meta) {
       }
       if (dn && hi > lo) { ins.pwmSpeed = Math.min(255, Math.max(1, Math.round(dsum / dn))); ins.pwmMin = lo; ins.pwmMax = hi; }
       // filter: global registers, routed per voice
-      const mv = R(f, 0x18);
+      const mv = R(f, at + 0x18);
       ins.vol = mv & 15;
       ins.off3 = !!(mv & 0x80);
-      ins.filt = !!((R(f, 0x17) >> v) & 1);
+      ins.filt = !!((R(f, at + 0x17) >> vc.bit) & 1);
       if (ins.filt) {
         ins.lp = !!(mv & 0x10); ins.bp = !!(mv & 0x20); ins.hp = !!(mv & 0x40);
-        ins.res = R(f, 0x17) >> 4;
+        ins.res = R(f, at + 0x17) >> 4;
         ins.cut = cutAt(f);
         ins.cutEnd = cutAt(end - 1);
         let cs = 0, cn = 0, up = false, down = false;
@@ -56603,16 +57112,19 @@ function _sidDumpImport(regs, meta) {
     stored[JSON.stringify(ins.table)] = true;
     tableLeft -= ins.table.length;
   });
-  finalInsts.forEach(function(ins, i){ ins.name = "SID " + String(i + 1).padStart(2, "0"); });
+  finalInsts.forEach(function(ins){
+    const wave = [ins.tri && "TRI", ins.saw && "SAW", ins.pul && "PUL", ins.noi && "NOI"].filter(Boolean).join("+") || "---";
+    ins.name = wave + (ins.table && ins.table.length ? " TAB" : "");
+  });
 
   // ── row lengths: an F effect one row ahead sets the length of the next row ──
   for (let r = 0; r + 1 < totalRows; r++) {
     const val = Math.min(255, rowLen(r + 1));
     if (val === Math.min(255, rowLen(r))) continue;
     // timing wins over a note cut: a missed speed change would shift the rest of the song
-    let v = [0, 1, 2].find(function(k){ return !cols[k][r].fx; });
-    if (v === undefined) v = [0, 1, 2].find(function(k){ return cols[k][r].fx === "C"; });
-    if (v === undefined) { skip("speed changes"); continue; }
+    let v = cols.findIndex(function(col){ return !col[r].fx; });
+    if (v < 0) v = cols.findIndex(function(col){ return col[r].fx === "C"; });
+    if (v < 0) { skip("speed changes"); continue; }
     if (cols[v][r].fx === "C") skip("note cuts dropped");
     cols[v][r].fx = "F"; cols[v][r].fxval = val;
   }
@@ -56626,15 +57138,26 @@ function _sidDumpImport(regs, meta) {
     song.push(keys[key]);
   }
   return { name: meta.name || "", author: meta.author || "", insts: finalInsts, patterns: patterns, song: song,
-    speed: Math.max(1, Math.min(255, rowLen(0))), skipped: skipped };
+    speed: Math.max(1, Math.min(255, rowLen(0))), skipped: skipped, sid2: meta.sid2Addr || 0 };
 }
 
-function _sidApplyImportedTune(res) {
+function _sidSetTuneTitle(title) {
+  const el = document.getElementById("sid-tune-title");
+  if (el) el.textContent = title || "";
+  try {
+    if (title) localStorage.setItem("va-sid-tune-title", title);
+    else localStorage.removeItem("va-sid-tune-title");
+  } catch (_) {}
+}
+
+function _sidApplyImportedTune(res, title) {
   _sidStop();
+  _sidSetTuneTitle(title);
   _sidInsts = res.insts;
   _sidPatterns = res.patterns;
   _sidSong = res.song;
   _sidSpeed = res.speed;
+  if (res.sid2) _sidSid2Addr = res.sid2;
   const speedEl = document.getElementById("sid-speed");
   if (speedEl) speedEl.value = String(_sidSpeed);
   if (typeof _sidUpdateBpmDisplay === "function") _sidUpdateBpmDisplay();
@@ -56726,11 +57249,13 @@ async function _sidRunSidImport() {
     progress(null, "");
     busy(false);
     dlg.close();
+    const info = _sidHeaderInfo(_sidSidImportBytes);
     _sidSidImportBytes = null;
-    _sidApplyImportedTune(res);
+    _sidApplyImportedTune(res, info ? [info.name, info.author].filter(Boolean).join(" — ") : "");
     const skipped = Object.keys(res.skipped).map(function(k){ return k + " ×" + res.skipped[k]; });
     showViceToast(tf("sidImportSidDone", { insts: res.insts.length, pats: res.patterns.length, song: res.song.length, speed: res.speed }) +
-      (skipped.length ? " " + tf("sidGoatSkipped", { list: skipped.join(", ") }) : ""), false);
+      (skipped.length ? " " + tf("sidGoatSkipped", { list: skipped.join(", ") }) : "") +
+      (dump.sidCount > 2 ? " " + tf("sidImportSidFirstOnly", { count: dump.sidCount }) : ""), false);
   } catch (err) {
     progress(null, String((err && err.message) || err));
     busy(false);
@@ -56755,10 +57280,10 @@ function _sidExport(kind) {
   });
   _sidPatterns.forEach(function(pat, pi) {
     lines.push("REM PATTERN " + pi);
-    for (let v = 0; v < 3; v++) {
+    for (let v = 0; v < pat.length; v++) {
       const notes = [];
       for (let r = 0; r < _SID_ROWS; r++) { const c = pat[v][r]; notes.push(c.note==null ? 0 : (c.note+1)); }
-      lines.push((2000+pi*100+v*30) + " DATA " + dd(notes));
+      lines.push((2000+pi*(pat.length > 3 ? 200 : 100)+v*30) + " DATA " + dd(notes));
     }
   });
   const song = (_sidSong && _sidSong.length) ? _sidSong : [0];
@@ -56784,7 +57309,8 @@ function _sidExportDataOnly() {
   const exportedPatterns = Math.min(_sidPatterns.length, maxPatterns);
 
   lines.push("; SID music data (generated by Visual Assembler SID editor)");
-  lines.push("; " + exportedPatterns + " pattern(s), " + _SID_ROWS + " rows, 3 voices");
+  const nv = _sidPatterns[0] && _sidPatterns[0].length > 3 ? 6 : 3;
+  lines.push("; " + exportedPatterns + " pattern(s), " + _SID_ROWS + " rows, " + nv + " voices");
   lines.push("; ctrl, AD, SR, PWlo, PWhi, cut_lo, cut_hi, res/filt, mode/vol");
   lines.push("");
 
@@ -56800,7 +57326,7 @@ function _sidExportDataOnly() {
   });
   lines.push("");
 
-  for (let v = 0; v < 3; v++) {
+  for (let v = 0; v < nv; v++) {
     const notes = [], insts = [];
     for (let pi = 0; pi < exportedPatterns; pi++) {
       const pat = _sidPatterns[pi];
@@ -56832,6 +57358,8 @@ function _sidExportDataOnly() {
 
 const _SID_PLAYER_CODE_MAX = 0x900;
 
+const _SID_PLAYER_2SID_EXTRA = 0x500;
+
 function _sidExportAsmPlayable() {
   const lines = [];
   const L = function() { for (let i = 0; i < arguments.length; i++) lines.push(arguments[i].startsWith(";") || arguments[i].startsWith("*") || arguments[i].endsWith(":") || !arguments[i] ? arguments[i] : "    " + arguments[i]); };
@@ -56849,7 +57377,10 @@ function _sidExportAsmPlayable() {
   // Each pattern is addressed via a 16-bit pointer (base + patternIndex*32,
   // computed once per pattern by sid_load_pattern), so the pattern count is
   // not bounded by one 8-bit index across the song; 256 is a defensive cap.
-  const exportedPatterns = Math.min(_sidPatterns.length, 256);
+  // Six voices need twice the data, so fewer patterns fit below $A000.
+  const nv = _sidPatterns[0] && _sidPatterns[0].length > 3 ? 6 : 3;
+  const sid2 = nv > 3 ? _sidSid2Addr : 0xD420;
+  const exportedPatterns = Math.min(_sidPatterns.length, nv > 3 ? 46 : 256);
   const td = _sidTuneData({ patterns: _sidPatterns.slice(0, exportedPatterns) });
   const speed = td.speed;
   const exportedSong = td.song.slice(0, 255);
@@ -56857,7 +57388,7 @@ function _sidExportAsmPlayable() {
 
   L("; =========================================================",
     "; SID player + tune (generated by Visual Assembler SID editor)",
-    "; PAL 50 Hz IRQ-driven, 3 voices, " + _SID_ROWS + "-row patterns",
+    "; PAL 50 Hz IRQ-driven, " + (nv > 3 ? "6 voices (second SID at $" + sid2.toString(16).toUpperCase() + ")" : "3 voices") + ", " + _SID_ROWS + "-row patterns",
     "; Call JSR sid_init once to start playback; JSR sid_stop to silence.",
     "; Own IRQ instead: skip sid_init's IRQ setup and JSR sid_frame once per frame.",
     "; Speed: " + speed + " frames/row. " + exportedPatterns + " pattern(s) in the bank, " +
@@ -56875,6 +57406,8 @@ function _sidExportAsmPlayable() {
     ";   $02-$19  twelve pattern-relative pointers (v0/v1/v2 x notes/insts/fx/fxval)",
     ";   $1A SID_TMP2   $1B/$1C SID_OFFSET (pattern-index*32, 16-bit)",
     ";   $2F SID_SPEED_CUR (current frames/row; changed at runtime by the F effect)",
+    ...(nv > 3 ? [";   $50-$67  the same twelve pointers of v3/v4/v5 (second SID)",
+      ";   $68/$69  the current voice's SID registers"] : []),
     "; Everything else (voice, modulation and filter state) lives in sid_state.",
     ";",
     "; Every frame: per voice the wave/arpeggio table, instrument vibrato,",
@@ -56896,9 +57429,12 @@ function _sidExportAsmPlayable() {
 
   const STATE_V = ["on", "inst", "note", "gate", "jon", "ffr", "ctl", "sll", "slh", "fvol", "fvoh", "fvs", "fvc",
     "vdl", "vcn", "vdr", "vofl", "vofh", "vstl", "vsth", "pwl", "pwh", "pwd", "tpos", "tcnt", "wav", "nof", "nab"];
-  const STATE_G = ["fown", "fcl", "fch", "fspd", "ftl", "fth", "fsl", "fsh", "fel", "feh", "fping", "fres", "fmode",
-    "froute", "vol", "cv", "ci", "fxv", "tmp", "t0", "t1", "t3", "m0", "m1"];
-  const stateSize = STATE_V.length * 3 + STATE_G.length;
+  // filter and volume are per SID: the second SID's state has the suffix 2
+  const STATE_F = ["fown", "fcl", "fch", "fspd", "ftl", "fth", "fsl", "fsh", "fel", "feh", "fping", "fres", "fmode",
+    "froute", "vol"];
+  const STATE_G = STATE_F.concat(nv > 3 ? STATE_F.map(function(n){ return n + "2"; }) : [],
+    ["cv", "ci", "fxv", "tmp", "t0", "t1", "t3", "m0", "m1"]);
+  const stateSize = STATE_V.length * nv + STATE_G.length;
 
   // ---- sid_init / sid_stop / sid_irq -------------------------------------
   L("sid_init:",
@@ -56908,15 +57444,17 @@ function _sidExportAsmPlayable() {
     "LDX #$18",
     "sid_clr:",
     "STA $D400,X",
+    ...(nv > 3 ? ["STA $" + sid2.toString(16).toUpperCase() + ",X"] : []),
     "DEX",
     "BPL sid_clr",
-    "LDX #" + hx(stateSize - 1),
+    "LDX #" + hx(stateSize),
     "sid_clr_state:",
-    "STA sid_state,X",
     "DEX",
-    "BPL sid_clr_state",
+    "STA sid_state,X",
+    "BNE sid_clr_state",
     "LDA #$FF",
     "STA sid_fown",            // no voice owns the filter yet
+    ...(nv > 3 ? ["STA sid_fown2"] : []),
     "LDA #" + hx(speed),
     "STA $FB",                 // SID_TICK
     "STA $2F",                 // SID_SPEED_CUR (the F effect can change it later)
@@ -56952,6 +57490,7 @@ function _sidExportAsmPlayable() {
     "STA $D40B",
     "STA $D412",
     "STA $D418",
+    ...(nv > 3 ? [4, 11, 18, 24].map(function(r){ return "STA $" + (sid2 + r).toString(16).toUpperCase(); }) : []),
     "LDA #$81",
     "STA $DC0D",               // restore CIA1 timer A IRQ
     "LDA #$31",
@@ -56984,9 +57523,18 @@ function _sidExportAsmPlayable() {
   const voiceInfo = [
     { n: "v0", i: 0, notesPtr: "$02", instsPtr: "$04", fxPtr: "$0E", fxvalPtr: "$10", sid: 0xD400 },
     { n: "v1", i: 1, notesPtr: "$06", instsPtr: "$08", fxPtr: "$12", fxvalPtr: "$14", sid: 0xD407 },
-    { n: "v2", i: 2, notesPtr: "$0A", instsPtr: "$0C", fxPtr: "$16", fxvalPtr: "$18", sid: 0xD40E }
-  ];
+    { n: "v2", i: 2, notesPtr: "$0A", instsPtr: "$0C", fxPtr: "$16", fxvalPtr: "$18", sid: 0xD40E },
+    { n: "v3", i: 3, notesPtr: "$50", instsPtr: "$52", fxPtr: "$5C", fxvalPtr: "$5E", sid: sid2 },
+    { n: "v4", i: 4, notesPtr: "$54", instsPtr: "$56", fxPtr: "$60", fxvalPtr: "$62", sid: sid2 + 7 },
+    { n: "v5", i: 5, notesPtr: "$58", instsPtr: "$5A", fxPtr: "$64", fxvalPtr: "$66", sid: sid2 + 14 }
+  ].slice(0, nv);
   const h4 = function(n){ return "$" + n.toString(16).toUpperCase().padStart(4, "0"); };
+  // Voice registers: an index from $D400 with one SID. A second SID can be out of
+  // the index's reach, so with two SIDs they go through a pointer set per voice.
+  const vbase = nv > 3 ? "JSR sid_vptr" : "LDY sid_vbase,X";
+  const vreg = function(r) {
+    return nv > 3 ? ["LDY #" + hx(r), "STA ($68),Y"] : ["STA " + h4(0xD400 + r) + ",Y"];
+  };
   L("sid_play_row:");
   voiceInfo.forEach(function(vi) {
     L("LDY $FC",
@@ -57069,9 +57617,10 @@ function _sidExportAsmPlayable() {
     "LDA #$00",
     "STA $1C");
   for (let k = 0; k < 5; k++) L("ASL $1B", "ROL $1C");
-  [["$02", "sid_v0_notes"], ["$04", "sid_v0_insts"], ["$0E", "sid_v0_fx"], ["$10", "sid_v0_fxval"],
-   ["$06", "sid_v1_notes"], ["$08", "sid_v1_insts"], ["$12", "sid_v1_fx"], ["$14", "sid_v1_fxval"],
-   ["$0A", "sid_v2_notes"], ["$0C", "sid_v2_insts"], ["$16", "sid_v2_fx"], ["$18", "sid_v2_fxval"]].forEach(function(entry) {
+  voiceInfo.flatMap(function(vi) {
+    return [[vi.notesPtr, "sid_" + vi.n + "_notes"], [vi.instsPtr, "sid_" + vi.n + "_insts"],
+      [vi.fxPtr, "sid_" + vi.n + "_fx"], [vi.fxvalPtr, "sid_" + vi.n + "_fxval"]];
+  }).forEach(function(entry) {
     const zpHi = "$" + (parseInt(entry[0].slice(1), 16) + 1).toString(16).toUpperCase().padStart(2, "0");
     L("CLC", "LDA #<" + entry[1], "ADC $1B", "STA " + entry[0], "LDA #>" + entry[1], "ADC $1C", "STA " + zpHi);
   });
@@ -57148,11 +57697,11 @@ function _sidExportAsmPlayable() {
     "STA sid_tmp",             // note 0..95
     "STX sid_ci",
     "LDX sid_cv",
-    "LDY sid_vbase,X",
+    vbase,
     "LDA sid_ctl,X",
     "AND #$FE",
     "STA sid_ctl,X",
-    "STA $D404,Y",             // gate off: the gate on below retriggers the envelope
+    ...vreg(4),             // gate off: the gate on below retriggers the envelope
     "LDA sid_tmp",
     "STA sid_note,X",
     "LDA sid_ci",
@@ -57238,50 +57787,56 @@ function _sidExportAsmPlayable() {
     "LDA sid_iad,Y",
     "STA sid_t0",
     "LDA sid_isr,Y",
-    "LDY sid_vbase,X",
-    "STA $D406,Y",
+    vbase,
+    ...vreg(6),
     "LDA sid_t0",
-    "STA $D405,Y",
-    "LDY sid_ci",
-    "LDA sid_ivol,Y",
-    "STA sid_vol",
-    "LDA sid_ifl,Y",
-    "AND #$01",
-    "BEQ sid_sv_nofilt",
-    // this voice takes over the filter: cutoff sweep, resonance, mode
-    "STX sid_fown",
-    "LDA sid_icul,Y",
-    "STA sid_fcl",
-    "STA sid_fsl",
-    "LDA sid_icuh,Y",
-    "STA sid_fch",
-    "STA sid_fsh",
-    "LDA sid_icel,Y",
-    "STA sid_fel",
-    "STA sid_ftl",
-    "LDA sid_iceh,Y",
-    "STA sid_feh",
-    "STA sid_fth",
-    "LDA sid_icsp,Y",
-    "STA sid_fspd",
-    "LDA sid_ifl,Y",
-    "AND #$02",
-    "STA sid_fping",
-    "LDA sid_ires,Y",
-    "STA sid_fres",
-    "LDA sid_imode,Y",
-    "STA sid_fmode",
-    "LDA sid_vbit,X",
-    "ORA sid_froute",
-    "STA sid_froute",
-    "RTS",
-    "sid_sv_nofilt:",
-    "LDA sid_vbit,X",
-    "EOR #$FF",
-    "AND sid_froute",
-    "STA sid_froute",
-    "RTS",
-    "",
+    ...vreg(5),
+    "LDY sid_ci");
+  const takeFilter = function(s) {
+    L(
+      "LDA sid_ivol,Y",
+      "STA sid_vol" + s,
+      "LDA sid_ifl,Y",
+      "AND #$01",
+      "BEQ sid_sv_nofilt" + s,
+      // this voice takes over the filter: cutoff sweep, resonance, mode
+      "STX sid_fown" + s,
+      "LDA sid_icul,Y",
+      "STA sid_fcl" + s,
+      "STA sid_fsl" + s,
+      "LDA sid_icuh,Y",
+      "STA sid_fch" + s,
+      "STA sid_fsh" + s,
+      "LDA sid_icel,Y",
+      "STA sid_fel" + s,
+      "STA sid_ftl" + s,
+      "LDA sid_iceh,Y",
+      "STA sid_feh" + s,
+      "STA sid_fth" + s,
+      "LDA sid_icsp,Y",
+      "STA sid_fspd" + s,
+      "LDA sid_ifl,Y",
+      "AND #$02",
+      "STA sid_fping" + s,
+      "LDA sid_ires,Y",
+      "STA sid_fres" + s,
+      "LDA sid_imode,Y",
+      "STA sid_fmode" + s,
+      "LDA sid_vbit,X",
+      "ORA sid_froute" + s,
+      "STA sid_froute" + s,
+      "RTS",
+      "sid_sv_nofilt" + s + ":",
+      "LDA sid_vbit,X",
+      "EOR #$FF",
+      "AND sid_froute" + s,
+      "STA sid_froute" + s,
+      "RTS");
+  };
+  if (nv > 3) L("CPX #$03", "BCC sid_sv_sid1", "JMP sid_sv_sid2", "sid_sv_sid1:");
+  takeFilter("");
+  if (nv > 3) { L("sid_sv_sid2:"); takeFilter("2"); }
+  L("",
     "; A = table step, X = voice: waveform (0 = keep) and note offset",
     "sid_tab_apply:",
     "TAY",
@@ -57375,8 +57930,8 @@ function _sidExportAsmPlayable() {
     "ORA sid_gate,X",
     "sid_up_wctl:",
     "STA sid_ctl,X",
-    "LDY sid_vbase,X",
-    "STA $D404,Y",
+    vbase,
+    ...vreg(4),
     // note index: absolute table note, or note + signed offset, clamped 0..95
     "LDA sid_nab,X",
     "BEQ sid_up_rel",
@@ -57420,10 +57975,10 @@ function _sidExportAsmPlayable() {
     "STA sid_t0",
     "LDA sid_t1",
     "ADC sid_vofh,X",
-    "LDY sid_vbase,X",
-    "STA $D401,Y",
+    vbase,
+    ...vreg(1),
     "LDA sid_t0",
-    "STA $D400,Y",
+    ...vreg(0),
     // instrument vibrato: after the delay a triangle LFO, flipping every speed frames
     "LDY sid_ci",
     "LDA sid_ivsp,Y",
@@ -57463,11 +58018,11 @@ function _sidExportAsmPlayable() {
     "STA sid_vdr,X",
     "sid_up_novib:",
     // pulse width out, then the PWM sweep bouncing between min and max
-    "LDY sid_vbase,X",
+    vbase,
     "LDA sid_pwl,X",
-    "STA $D402,Y",
+    ...vreg(2),
     "LDA sid_pwh,X",
-    "STA $D403,Y",
+    ...vreg(3),
     "LDY sid_ci",
     "LDA sid_ipms,Y",
     "BEQ sid_up_next",
@@ -57520,106 +58075,130 @@ function _sidExportAsmPlayable() {
     "STA sid_pwd,X",
     "sid_up_next:",
     "INX",
-    "CPX #$03",
+    "CPX #" + hx(nv),
     "BCS sid_up_filter",
-    "JMP sid_up_loop",
-    // filter registers, then the cutoff sweep (bounce with ping-pong)
-    "sid_up_filter:",
-    "LDA sid_fcl",
-    "AND #$07",
-    "STA $D415",
-    "LDA sid_fch",
-    "STA sid_t1",
-    "LDA sid_fcl",
-    "LSR sid_t1",
-    "ROR",
-    "LSR sid_t1",
-    "ROR",
-    "LSR sid_t1",
-    "ROR",
-    "STA $D416",
-    "LDA sid_fres",
-    "ORA sid_froute",
-    "STA $D417",
-    "LDA sid_fmode",
-    "ORA sid_vol",
-    "STA $D418",
-    "LDA sid_fown",
-    "BMI sid_fl_ret",
-    "LDA sid_fspd",
-    "BNE sid_fl_go",
-    "sid_fl_ret:",
-    "RTS",
-    "sid_fl_go:",
-    "BMI sid_fl_neg",
-    "CLC",
-    "ADC sid_fcl",
-    "STA sid_fcl",
-    "LDA sid_fch",
-    "ADC #$00",
-    "STA sid_fch",
-    "CMP sid_fth",
-    "BCC sid_fl_ret",
-    "BNE sid_fl_reach",
-    "LDA sid_fcl",
-    "CMP sid_ftl",
-    "BCC sid_fl_ret",
-    "JMP sid_fl_reach",
-    "sid_fl_neg:",
-    "CLC",
-    "ADC sid_fcl",
-    "STA sid_fcl",
-    "LDA sid_fch",
-    "ADC #$FF",
-    "STA sid_fch",
-    "BMI sid_fl_reach",
-    "CMP sid_fth",
-    "BCC sid_fl_reach",
-    "BNE sid_fl_ret",
-    "LDA sid_fcl",
-    "CMP sid_ftl",
-    "BEQ sid_fl_reach",
-    "BCS sid_fl_ret",
-    "sid_fl_reach:",
-    "LDA sid_ftl",
-    "STA sid_fcl",
-    "LDA sid_fth",
-    "STA sid_fch",
-    "LDA sid_fping",
-    "BNE sid_fl_bounce",
-    "LDA #$00",
-    "STA sid_fspd",
-    "RTS",
-    "sid_fl_bounce:",
-    "LDA sid_ftl",
-    "CMP sid_fel",
-    "BNE sid_fl_toend",
-    "LDA sid_fth",
-    "CMP sid_feh",
-    "BNE sid_fl_toend",
-    "LDA sid_fsl",
-    "STA sid_ftl",
-    "LDA sid_fsh",
-    "STA sid_fth",
-    "JMP sid_fl_flip",
-    "sid_fl_toend:",
-    "LDA sid_fel",
-    "STA sid_ftl",
-    "LDA sid_feh",
-    "STA sid_fth",
-    "sid_fl_flip:",
-    "LDA #$00",
-    "SEC",
-    "SBC sid_fspd",
-    "STA sid_fspd",
-    "sid_fl_done:",
-    "RTS",
-    "");
+    "JMP sid_up_loop");
+  L("sid_up_filter:");
+  if (nv > 3) L("JSR sid_filter2");
+  // filter registers, then the cutoff sweep (bounce with ping-pong)
+  const filterUpdate = function(s, o) {
+    L(
+      "LDA sid_fcl" + s,
+      "AND #$07",
+      "STA " + h4(0xD415 + o),
+      "LDA sid_fch" + s,
+      "STA sid_t1",
+      "LDA sid_fcl" + s,
+      "LSR sid_t1",
+      "ROR",
+      "LSR sid_t1",
+      "ROR",
+      "LSR sid_t1",
+      "ROR",
+      "STA " + h4(0xD416 + o),
+      "LDA sid_fres" + s,
+      "ORA sid_froute" + s,
+      "STA " + h4(0xD417 + o),
+      "LDA sid_fmode" + s,
+      "ORA sid_vol" + s,
+      "STA " + h4(0xD418 + o),
+      "LDA sid_fown" + s,
+      "BMI sid_fl_ret" + s,
+      "LDA sid_fspd" + s,
+      "BNE sid_fl_go" + s,
+      "sid_fl_ret" + s + ":",
+      "RTS",
+      "sid_fl_go" + s + ":",
+      "BMI sid_fl_neg" + s,
+      "CLC",
+      "ADC sid_fcl" + s,
+      "STA sid_fcl" + s,
+      "LDA sid_fch" + s,
+      "ADC #$00",
+      "STA sid_fch" + s,
+      "CMP sid_fth" + s,
+      "BCC sid_fl_ret" + s,
+      "BNE sid_fl_reach" + s,
+      "LDA sid_fcl" + s,
+      "CMP sid_ftl" + s,
+      "BCC sid_fl_ret" + s,
+      "JMP sid_fl_reach" + s,
+      "sid_fl_neg" + s + ":",
+      "CLC",
+      "ADC sid_fcl" + s,
+      "STA sid_fcl" + s,
+      "LDA sid_fch" + s,
+      "ADC #$FF",
+      "STA sid_fch" + s,
+      "BMI sid_fl_reach" + s,
+      "CMP sid_fth" + s,
+      "BCC sid_fl_reach" + s,
+      "BNE sid_fl_ret" + s,
+      "LDA sid_fcl" + s,
+      "CMP sid_ftl" + s,
+      "BEQ sid_fl_reach" + s,
+      "BCS sid_fl_ret" + s,
+      "sid_fl_reach" + s + ":",
+      "LDA sid_ftl" + s,
+      "STA sid_fcl" + s,
+      "LDA sid_fth" + s,
+      "STA sid_fch" + s,
+      "LDA sid_fping" + s,
+      "BNE sid_fl_bounce" + s,
+      "LDA #$00",
+      "STA sid_fspd" + s,
+      "RTS",
+      "sid_fl_bounce" + s + ":",
+      "LDA sid_ftl" + s,
+      "CMP sid_fel" + s,
+      "BNE sid_fl_toend" + s,
+      "LDA sid_fth" + s,
+      "CMP sid_feh" + s,
+      "BNE sid_fl_toend" + s,
+      "LDA sid_fsl" + s,
+      "STA sid_ftl" + s,
+      "LDA sid_fsh" + s,
+      "STA sid_fth" + s,
+      "JMP sid_fl_flip" + s,
+      "sid_fl_toend" + s + ":",
+      "LDA sid_fel" + s,
+      "STA sid_ftl" + s,
+      "LDA sid_feh" + s,
+      "STA sid_fth" + s,
+      "sid_fl_flip" + s + ":",
+      "LDA #$00",
+      "SEC",
+      "SBC sid_fspd" + s,
+      "STA sid_fspd" + s,
+      "sid_fl_done" + s + ":",
+      "RTS");
+  };
+  filterUpdate("", 0);
+  if (nv > 3) {
+    L("sid_filter2:");
+    filterUpdate("2", sid2 - 0xD400);
+    L("; X = voice: $68/$69 = its SID registers (A is kept)",
+      "sid_vptr:",
+      "PHA",
+      "LDA sid_vbase,X",
+      "STA $68",
+      "LDA sid_vbaseh,X",
+      "STA $69",
+      "PLA",
+      "RTS");
+  }
+  L("");
 
   // ---- data ----------------------------------------------------------------
   const dataStart = lines.length;
-  chunk("sid_vbase", [0, 7, 14]);
-  chunk("sid_vbit", [1, 2, 4]);
+  if (nv > 3) {
+    const bases = voiceInfo.map(function(vi){ return vi.sid; });
+    chunk("sid_vbase", bases.map(function(x){ return x & 0xFF; }));
+    chunk("sid_vbaseh", bases.map(function(x){ return x >> 8; }));
+  } else {
+    chunk("sid_vbase", [0, 7, 14]);
+  }
+  chunk("sid_vbit", [1, 2, 4, 1, 2, 4].slice(0, nv));
   L("; Song/order list: which pattern plays at each step; a pattern may",
     "; appear more than once.");
   chunk("sid_order", exportedSong);
@@ -57645,7 +58224,7 @@ function _sidExportAsmPlayable() {
   L("");
 
   // notes + instrument + effect columns per voice, all patterns concatenated
-  for (let v = 0; v < 3; v++) {
+  for (let v = 0; v < nv; v++) {
     const notes = [], insts = [], fxs = [], fxvals = [];
     for (let pi = 0; pi < exportedPatterns; pi++) {
       for (let r = 0; r < _SID_ROWS; r++) {
@@ -57674,11 +58253,12 @@ function _sidExportAsmPlayable() {
     const m = /^\s*\.byte\s+(.*)$/.exec(l);
     return m ? n + m[1].split(",").length : n;
   }, 0);
-  const split = 0xC000 + _SID_PLAYER_CODE_MAX + dataBytes + stateSize > 0xD000;
+  const codeMax = nv > 3 ? _SID_PLAYER_CODE_MAX + _SID_PLAYER_2SID_EXTRA : _SID_PLAYER_CODE_MAX;
+  const split = 0xC000 + codeMax + dataBytes + stateSize > 0xD000;
   _sidExportAsmPlayable.dataOrg = split ? (0xA000 - dataBytes) & 0xFF00 : 0xC000;
   if (split) lines.length = dataStart;
   L("", "; Player state (cleared by sid_init)", "sid_state:");
-  STATE_V.forEach(function(n){ L("sid_" + n + ":", ".byte $00, $00, $00"); });
+  STATE_V.forEach(function(n){ L("sid_" + n + ":", ".byte " + new Array(nv).fill("$00").join(", ")); });
   STATE_G.forEach(function(n){ L("sid_" + n + ":", ".byte $00"); });
   if (split) {
     L("", "; Tune data (" + dataBytes + " bytes): too long for $C000-$CFFF next to the player",
@@ -57705,6 +58285,7 @@ function _sidExportUbBlock() {
   if (exportedPatterns < _sidPatterns.length) {
     lines.push("# NOTE: only the first " + exportedPatterns + " patterns are exported (" + _sidPatterns.length + " present).");
   }
+  if (_sidPatterns[0] && _sidPatterns[0].length > 3) lines.push("# NOTE: UltimateBasic plays one SID: only the first three voices are exported.");
   lines.push("tune");
   lines.push("  speed " + speed);
   _sidInsts.forEach(function(raw, i) {
@@ -57829,6 +58410,7 @@ function setupSidEditor() {
     // place the detached tracker before the first paint (no jump from the default spot)
     _sidRestoreTrackerFloat();
     _sidRollRestore();
+    _sidAnaRestore();
     if (_sidVkbdState().open) _sidOpenVirtualKeyboard(false);
     _sidStreamPreload();
   });
@@ -57911,6 +58493,20 @@ function setupSidEditor() {
 
   // tracker
   onId("sid-pat-sel", "change", function(e){ _sidSetPattern(parseInt(e.target.value,10), true); });
+  onId("sid-chip-count", "change", function(e){ _sidSetSidCount(Number(e.target.value) === 2 ? 2 : 1); });
+  const sid2Addr = document.getElementById("sid-chip-addr");
+  if (sid2Addr) {
+    _sidSid2Addrs().forEach(function(a) {
+      const o = document.createElement("option");
+      o.value = String(a); o.textContent = "$" + a.toString(16).toUpperCase();
+      sid2Addr.appendChild(o);
+    });
+    sid2Addr.value = String(_sidSid2Addr);
+    sid2Addr.addEventListener("change", function(e) {
+      _sidStop();
+      _sidSid2Addr = Number(e.target.value);
+    });
+  }
   onId("sid-pat-add", "click", function(){ _sidPatterns.push(_sidNewPattern()); _sidBuildPatSel(); _sidSetPattern(_sidPatterns.length-1, true); });
   onId("sid-song-add", "click", _sidSongInsert);
   onId("sid-song-del", "click", _sidSongRemove);
@@ -58004,8 +58600,9 @@ function setupSidEditor() {
     sidVkbdHdr.addEventListener("pointerup", endVkbdDrag);
     sidVkbdHdr.addEventListener("pointercancel", endVkbdDrag);
   }
-  onId("sid-tracker-detach", "click", function(){ _sidSetTrackerDetached(true); });
+  onId("sid-tracker-detach", "click", function(){ _sidSetTrackerDetached(!_sidTrackerIsDetached()); });
   _sidSetupRoll();
+  _sidSetupAna();
   onId("sid-inst-sel", "change", _sidRollSyncHeader);
   onId("sid-tracker-attach", "click", function(){ _sidSetTrackerDetached(false); });
   _sidSetupTrackerFloat();
@@ -58033,7 +58630,7 @@ function setupSidEditor() {
     const from = Math.min(0xC000, _sidExportAsmPlayable.dataOrg || 0xC000);
     if (load < from && prg.length > 2 + from - load) prg = Uint8Array.from([from & 0xFF, from >> 8, ...prg.slice(2 + from - load)]);
     // a lejátszó a sid_init-ben saját IRQ-t telepít ($C000), ezért playAddress = 0
-    _saveBinFile(_buildPsidBytes(prg, 0xC000, 0x0000, "VA SID tune", String(new Date().getFullYear())), "tune.sid");
+    _saveBinFile(_buildPsidBytes(prg, 0xC000, 0x0000, "VA SID tune", String(new Date().getFullYear()), _sidVoiceCount() > 3 ? _sidSid2Addr : 0), "tune.sid");
   });
   const sidBinFile = document.getElementById("sid-bin-file");
   onId("sid-load-bin", "click", function(){ if (sidBinFile) sidBinFile.click(); });
@@ -58046,6 +58643,11 @@ function setupSidEditor() {
     reader.readAsArrayBuffer(file); e.target.value = "";
   });
   const sidSidFile = document.getElementById("sid-sid-file");
+  const sidNewTune = async function(){
+    if (!(await _showConfirm(t("sidNewTuneConfirm")))) return;
+    _sidApplyImportedTune({ insts: [_sidNewInst()], patterns: [_sidNewPattern()], song: [0], speed: 6 }, "");
+  };
+  onId("sid-new-tune", "click", sidNewTune);
   onId("sid-import-sid", "click", function(){ if (sidSidFile) sidSidFile.click(); });
   if (sidSidFile) sidSidFile.addEventListener("change", function(e){
     const file = e.target.files && e.target.files[0]; if (!file) return;
@@ -58058,7 +58660,7 @@ function setupSidEditor() {
   if (sidBinFile) sidBinFile.addEventListener("change", function(e){
     const file = e.target.files && e.target.files[0]; if (!file) return;
     const reader = new FileReader();
-    reader.onload = function(){ _sidDeserialize(new Uint8Array(reader.result)); };
+    reader.onload = function(){ _sidStop(); _sidDeserialize(new Uint8Array(reader.result)); _sidSetTuneTitle(file.name); };
     reader.readAsArrayBuffer(file); e.target.value = "";
   });
 
@@ -58077,8 +58679,8 @@ function setupSidEditor() {
       if (e.shiftKey) { if (_sidSelAnchor === null) _sidSelAnchor = { voice: _sidSel.voice, row: _sidSel.row }; } else { _sidSelAnchor = null; }
       _sidSel.row = (_sidSel.row-1+_SID_ROWS)%_SID_ROWS; _sidRefreshSel(); e.preventDefault(); return;
     }
-    if (e.key === "ArrowLeft") { _sidSelAnchor = null; _sidSel.voice = (_sidSel.voice+2)%3; _sidRefreshSel(); e.preventDefault(); return; }
-    if (e.key === "ArrowRight") { _sidSelAnchor = null; _sidSel.voice = (_sidSel.voice+1)%3; _sidRefreshSel(); e.preventDefault(); return; }
+    if (e.key === "ArrowLeft") { _sidSelAnchor = null; const n = _sidVoiceCount(); _sidSel.voice = (_sidSel.voice+n-1)%n; _sidRefreshSel(); e.preventDefault(); return; }
+    if (e.key === "ArrowRight") { _sidSelAnchor = null; _sidSel.voice = (_sidSel.voice+1)%_sidVoiceCount(); _sidRefreshSel(); e.preventDefault(); return; }
     if (e.key === "Delete" || e.key === "Backspace" || k === ".") {
       _sidSelAnchor = null;
       _sidCurPat()[_sidSel.voice][_sidSel.row] = { note:null, inst:0 };
@@ -59168,6 +59770,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setupExpertLint();
   setupViceMonitor();
   setupWeb64();
+  setupUe2Debugger();
   setupMemoryFloat();
   setupDialogStacking();
   setupBugReport();
@@ -60706,6 +61309,7 @@ function _w64OnDialogClose() {
   const s = _w64S();
   _w64SavePref("open", false);
   _w64ExitFullscreen();
+  _w64ReleaseDebug();
   if (s.mod && !s.stopped && !s.mod._vice_web_pause_status()) {
     s.mod._vice_web_pause();
     s.pausedByClose = true;
@@ -60862,15 +61466,20 @@ async function _w64DebugBuild() {
   };
 }
 
+function _w64SessionLabels(session) {
+  const labels = new Map();
+  for (const sym of session.symbols || []) {
+    if (Number.isFinite(sym.address) && !labels.has(sym.address & 0xFFFF)) labels.set(sym.address & 0xFFFF, sym.name);
+  }
+  return labels;
+}
+
 async function _w64Debug() {
   const session = await _w64DebugBuild();
   if (!session) return;
   await _w64Show();
   const s = _w64S();
-  session.labels = new Map();
-  for (const sym of session.symbols || []) {
-    if (Number.isFinite(sym.address) && !session.labels.has(sym.address & 0xFFFF)) session.labels.set(sym.address & 0xFFFF, sym.name);
-  }
+  session.labels = _w64SessionLabels(session);
   s.session = session;
   s.manual = new Set();
   _w64ShowDebugPanel(true);
@@ -60882,8 +61491,8 @@ async function _w64Debug() {
   _w64RenderBreakpoints();
 }
 
-function _w64SourceAt(pc) {
-  const entries = _w64S().session?.entries;
+function _w64SourceAt(pc, session = _w64S().session) {
+  const entries = session?.entries;
   if (!entries?.length || pc < 0) return null;
   let best = null;
   for (const e of entries) {
@@ -60895,10 +61504,8 @@ function _w64SourceAt(pc) {
 
 // Breakpoint lines of the open tabs → addresses through the source map; plus the Block-mode
 // BREAKPOINT blocks and the ones set in the disassembly.
-function _w64BreakpointAddresses() {
-  const s = _w64S();
-  const session = s.session;
-  const out = new Set(s.manual);
+function _w64BreakpointAddresses(session = _w64S().session, manual = _w64S().manual) {
+  const out = new Set(manual);
   if (!session) return out;
   (session.blockBps || []).forEach(a => out.add(a & 0xFFFF));
   const kind = session.kind === "ub" ? "ub" : "expert";
@@ -60997,9 +61604,7 @@ function _w64Break() {
 }
 
 // The editor follows the CPU: the file of the stop is opened, its line marked.
-async function _w64ShowSource(pc) {
-  const s = _w64S();
-  const session = s.session;
+async function _w64ShowSource(pc, session = _w64S().session) {
   if (!session) return;
   if (session.blockAt && !expertMode && !ultimateBasicMode) {
     const id = session.blockAt(pc);
@@ -61010,7 +61615,7 @@ async function _w64ShowSource(pc) {
     }
     return;
   }
-  const src = _w64SourceAt(pc);
+  const src = _w64SourceAt(pc, session);
   if (!src) { _w64DebugLine = null; if (expertMode) _expertApplyHighlight(); return; }
   if (ultimateBasicMode) {
     const active = _normFilePath(_ubFilePath || _getActiveTab()?.filePath || "");
@@ -61047,6 +61652,24 @@ function _w64ShowDebugPanel(show) {
   if (show) _w64RenderDebug();
   _w64SyncButtons();
 }
+// Closing the debugger lets the program go: no breakpoints, and a CPU stopped in the monitor runs on.
+function _w64ReleaseDebug() {
+  const s = _w64S();
+  const stopped = !!(s.mod && s.stopped);
+  _w64EndDebugView();
+  s.manual = new Set();
+  if (s.session) s.session = null;
+  if (stopped) {
+    s.mod._vice_web_monitor_breakpoint_hit_clear();
+    s.mod._vice_web_monitor_continue();
+    clearTimeout(s.resumeTimer);
+    s.stopped = false;
+  }
+  _w64RenderDebug();
+  _w64SyncButtons();
+  return stopped;
+}
+
 function _w64EndDebugView() {
   const s = _w64S();
   s.tempBp = -1;
@@ -61070,11 +61693,16 @@ function _w64RenderRegisters() {
     el.innerHTML = `<div class="w64-muted">${_vcEsc(t("w64Running"))}</div>`;
     return;
   }
+  el.innerHTML = _w64RegsHtml(_w64Reg);
+}
+
+// Register id: 0 PC, 1 A, 2 X, 3 Y, 4 SP, 5 status.
+function _w64RegsHtml(read) {
   const regs = [["PC", 0, 4], ["A", 1, 2], ["X", 2, 2], ["Y", 3, 2], ["SP", 4, 2]];
-  const p = _w64Reg(5);
+  const p = read(5);
   const flags = ["N", "V", "-", "B", "D", "I", "Z", "C"];
-  el.innerHTML = regs.map(([name, id, w]) =>
-    `<label class="w64-reg"><span>${name}</span><input class="cg-text-in w64-reg-in" data-reg="${id}" data-w="${w}" value="${_w64Hex(_w64Reg(id), w).slice(1)}" spellcheck="false"></label>`).join("")
+  return regs.map(([name, id, w]) =>
+    `<label class="w64-reg"><span>${name}</span><input class="cg-text-in w64-reg-in" data-reg="${id}" data-w="${w}" value="${_w64Hex(read(id), w).slice(1)}" spellcheck="false"></label>`).join("")
     + `<div class="w64-flags">${flags.map((f, i) => {
       const bit = 7 - i;
       return `<button type="button" class="w64-flag${(p >> bit) & 1 ? " w64-flag--on" : ""}" data-bit="${bit}"${f === "-" ? " disabled" : ""}>${f}</button>`;
@@ -61087,34 +61715,36 @@ function _w64RenderDisassembly() {
   const s = _w64S();
   if (!el) return;
   if (!s.mod || !s.stopped) { el.innerHTML = ""; return; }
-  const pc = s.stopPc;
-  if (s.disasmFrom !== undefined) {
-    const kept = _disasmBytes(Array.from(_w64Peek(s.disasmFrom, 96)), s.disasmFrom).slice(0, 22);
+  const rows = _w64DisasmWindow(_w64Peek, s.stopPc, s.session?.entries, s.disasmFrom);
+  s.disasmFrom = rows[0]?.address;
+  const bps = _w64BreakpointAddresses();
+  el.innerHTML = _w64DisasmRowsHtml(rows, s.stopPc, s.session?.labels, a => s.applied.has(a) || bps.has(a));
+}
+
+// The rows to show: the previous window while the PC stays well inside it, else a new one.
+function _w64DisasmWindow(peek, pc, entries, keptFrom) {
+  if (keptFrom !== undefined) {
+    const kept = _disasmBytes(Array.from(peek(keptFrom, 96)), keptFrom).slice(0, 22);
     const i = kept.findIndex(l => l.address === pc);
-    if (i >= 1 && i <= 17) { _w64RenderDisasmRows(el, kept, pc); return; }
+    if (i >= 1 && i <= 17) return kept;
   }
-  const landsOnPc = (from) => _disasmBytes(Array.from(_w64Peek(from, pc - from + 3)), from).some(l => l.address === pc);
+  const landsOnPc = (from) => _disasmBytes(Array.from(peek(from, pc - from + 3)), from).some(l => l.address === pc);
   // known instruction starts of the source map first, then the nearest decodable start
-  const known = (s.session?.entries || []).map(e => e.start).filter(a => a < pc && pc - a <= 24).sort((a, b) => a - b);
+  const known = (entries || []).map(e => e.start).filter(a => a < pc && pc - a <= 24).sort((a, b) => a - b);
   let start = known.find(landsOnPc) ?? pc;
   if (start === pc) {
     for (let back = 1; back <= 12; back++) if (landsOnPc((pc - back) & 0xFFFF)) start = (pc - back) & 0xFFFF;
   }
-  const bytes = Array.from(_w64Peek(start, 96));
-  const all = _disasmBytes(bytes, start);
+  const all = _disasmBytes(Array.from(peek(start, 96)), start);
   const at = all.findIndex(l => l.address === pc);
-  const rows = all.slice(Math.max(0, at - 6), Math.max(0, at - 6) + 22);
-  s.disasmFrom = rows[0]?.address;
-  _w64RenderDisasmRows(el, rows, pc);
+  return all.slice(Math.max(0, at - 6), Math.max(0, at - 6) + 22);
 }
 
-function _w64RenderDisasmRows(el, rows, pc) {
-  const s = _w64S();
-  const labels = s.session?.labels || new Map();
-  el.innerHTML = rows.map(l => {
+function _w64DisasmRowsHtml(rows, pc, labels, isBreakpoint) {
+  return rows.map(l => {
     const a = l.address & 0xFFFF;
-    const label = labels.get(a);
-    const bp = s.applied.has(a) || _w64BreakpointAddresses().has(a);
+    const label = labels?.get(a);
+    const bp = isBreakpoint(a);
     return `<div class="w64-dline${a === pc ? " w64-dline--pc" : ""}" data-addr="${a}">`
       + `<button type="button" class="w64-bp${bp ? " w64-bp--on" : ""}" data-addr="${a}" aria-label="${_vcEsc(t("w64ToggleBreakpoint"))}"></button>`
       + `<span class="w64-daddr">${_w64Hex(a).slice(1)}</span>`
@@ -61130,7 +61760,10 @@ function _w64RenderMemory() {
   const s = _w64S();
   if (!el || !s.mod) return;
   const base = s.memAddr & 0xFFF8;
-  const bytes = _w64Peek(base, 128);
+  el.innerHTML = _w64MemHtml(base, _w64Peek(base, 128));
+}
+
+function _w64MemHtml(base, bytes) {
   const rows = [];
   for (let r = 0; r < 16; r++) {
     const row = bytes.subarray(r * 8, r * 8 + 8);
@@ -61143,19 +61776,23 @@ function _w64RenderMemory() {
     }).join("");
     rows.push(`<div class="w64-mline"><span class="w64-daddr">${_w64Hex(base + r * 8).slice(1)}</span><span class="w64-mhex">${hex}</span><span class="w64-mtxt">${text}</span></div>`);
   }
-  el.innerHTML = rows.join("");
+  return rows.join("");
 }
 
 function _w64RenderBreakpoints() {
   const el = document.getElementById("w64-bps");
   const s = _w64S();
   if (!el) return;
-  const list = [..._w64BreakpointAddresses()].sort((a, b) => a - b);
-  if (!list.length) { el.innerHTML = `<div class="w64-muted">${_vcEsc(t("w64NoBreakpoints"))}</div>`; return; }
-  el.innerHTML = list.map(a => {
-    const src = _w64SourceAt(a);
-    const where = src ? `${String(src.file).replace(/\\/g, "/").split("/").pop()}:${src.line}` : (s.session?.labels?.get(a) || "");
-    const manual = s.manual.has(a);
+  el.innerHTML = _w64BpsHtml(_w64BreakpointAddresses(), s.session, s.manual);
+}
+
+function _w64BpsHtml(addresses, session, manualSet) {
+  const list = [...addresses].sort((a, b) => a - b);
+  if (!list.length) return `<div class="w64-muted">${_vcEsc(t("w64NoBreakpoints"))}</div>`;
+  return list.map(a => {
+    const src = _w64SourceAt(a, session);
+    const where = src ? `${String(src.file).replace(/\\/g, "/").split("/").pop()}:${src.line}` : (session?.labels?.get(a) || "");
+    const manual = manualSet.has(a);
     return `<div class="w64-bpline"><span class="w64-bp w64-bp--on" aria-hidden="true"></span><span class="w64-daddr">${_w64Hex(a).slice(1)}</span>`
       + `<span class="w64-bpsrc">${_vcEsc(where)}</span>`
       + (manual ? `<button type="button" class="vc-row-tool vc-tool--danger" data-unbp="${a}" aria-label="${_vcEsc(t("w64RemoveBreakpoint"))}">×</button>` : "")
@@ -61163,12 +61800,11 @@ function _w64RenderBreakpoints() {
   }).join("");
 }
 
-function _w64ParseAddress(text) {
+function _w64ParseAddress(text, labels = _w64S().session?.labels) {
   const v = String(text || "").trim();
   if (/^\$[0-9a-f]{1,4}$/i.test(v)) return parseInt(v.slice(1), 16);
   if (/^[0-9a-f]{1,4}$/i.test(v) && /[a-f]/i.test(v)) return parseInt(v, 16);
   if (/^\d+$/.test(v)) return Number(v) & 0xFFFF;
-  const labels = _w64S().session?.labels;
   if (labels) for (const [addr, name] of labels) if (name.toLowerCase() === v.toLowerCase()) return addr;
   return NaN;
 }
@@ -61277,6 +61913,7 @@ function setupWeb64() {
   on("w64-debug-toggle", "click", () => {
     const show = !!document.getElementById("w64-debug")?.hidden;
     _w64SavePref("debug", show);
+    if (!show) _w64ReleaseDebug();
     _w64ShowDebugPanel(show);
   });
   on("w64-continue", "click", _w64Continue);
@@ -61413,6 +62050,278 @@ function setupWeb64() {
     };
     setTimeout(restore, 800);
   }
+}
+
+// ── Ultimate emulator debugger ──
+// The C64 runs in the emulator's own window, reached over its VICE binary monitor (ue2emu.rs).
+// The build, the source map, the editor line and the panels are those of the built-in debugger.
+const _ud = {
+  session: null, manual: new Set(), running: false, stopped: false, pc: -1, snap: null, memAddr: 0x0400,
+  tempBp: -1, disasmFrom: undefined, pollTimer: 0, resumeTimer: 0, generation: 0, busy: false, target: "ue2",
+};
+const _UD_REGISTERS = ["PC", "A", "X", "Y", "SP", "FL"];
+
+function _udBreakpoints() {
+  const list = _w64BreakpointAddresses(_ud.session, _ud.manual);
+  if (_ud.tempBp >= 0) list.add(_ud.tempBp);
+  return [...list];
+}
+
+function _udSetStatus(text, error = false) {
+  const el = document.getElementById("ud-status");
+  if (!el) return;
+  el.textContent = text;
+  el.classList.toggle("vm-status--err", error);
+}
+
+function _udSyncButtons() {
+  const set = (id, enabled) => {
+    const button = document.getElementById(id);
+    if (button) button.disabled = !enabled;
+  };
+  const stopped = _ud.running && _ud.stopped && !_ud.busy;
+  for (const id of ["ud-continue", "ud-step-into", "ud-step-over", "ud-step-out"]) set(id, stopped);
+  set("ud-break", _ud.running && !_ud.stopped && !_ud.busy);
+}
+
+function _udCodePeek(from, length) {
+  const snap = _ud.snap;
+  if (!snap) return [];
+  return snap.code.slice(Math.max(0, from - snap.codeStart), Math.max(0, from - snap.codeStart + length));
+}
+
+function _udRender() {
+  const regs = document.getElementById("ud-regs");
+  const disasm = document.getElementById("ud-disasm");
+  const mem = document.getElementById("ud-mem");
+  const snap = _ud.stopped ? _ud.snap : null;
+  if (regs) {
+    regs.innerHTML = snap
+      ? _w64RegsHtml(id => snap.registers[_UD_REGISTERS[id]] ?? 0)
+      : `<div class="w64-muted">${_vcEsc(t(_ud.running ? "w64Running" : "ue2DbgEnded"))}</div>`;
+  }
+  if (disasm) {
+    if (!snap) disasm.innerHTML = "";
+    else {
+      const rows = _w64DisasmWindow(_udCodePeek, _ud.pc, _ud.session?.entries, _ud.disasmFrom);
+      _ud.disasmFrom = rows[0]?.address;
+      const bps = new Set(_udBreakpoints());
+      disasm.innerHTML = _w64DisasmRowsHtml(rows, _ud.pc, _ud.session?.labels, a => bps.has(a));
+    }
+  }
+  if (mem) mem.innerHTML = snap ? _w64MemHtml(snap.memoryBase, Uint8Array.from(snap.memory)) : "";
+  _udRenderBreakpoints();
+  _udSyncButtons();
+}
+
+function _udRenderBreakpoints() {
+  const el = document.getElementById("ud-bps");
+  if (el) el.innerHTML = _w64BpsHtml(_w64BreakpointAddresses(_ud.session, _ud.manual), _ud.session, _ud.manual);
+}
+
+async function _udRefresh() {
+  const result = await window.electronAPI.dbgSnapshot(_ud.memAddr & 0xFFFF);
+  if (!result?.ok) { _udSetStatus(result?.error || "", true); return false; }
+  _ud.snap = result.value;
+  _ud.pc = result.value.registers.PC ?? _ud.pc;
+  return true;
+}
+
+async function _udOnStop(pc) {
+  clearTimeout(_ud.resumeTimer);
+  _ud.stopped = true;
+  _ud.pc = pc;
+  if (_ud.tempBp === pc) _ud.tempBp = -1;
+  await _udRefresh();
+  _udSetStatus(tf("w64StoppedAt", { addr: _w64Hex(_ud.pc) }));
+  _udRender();
+  await _w64ShowSource(_ud.pc, _ud.session);
+}
+
+function _udOnEnded() {
+  clearTimeout(_ud.pollTimer);
+  clearTimeout(_ud.resumeTimer);
+  _ud.generation++;
+  _ud.running = false;
+  _ud.stopped = false;
+  _ud.snap = null;
+  _w64DebugLine = null;
+  if (expertMode) _expertApplyHighlight();
+  _udSetStatus(t("ue2DbgEnded"));
+  _udRender();
+}
+
+async function _udPoll() {
+  clearTimeout(_ud.pollTimer);
+  if (!_ud.running) return;
+  const generation = _ud.generation;
+  const result = await window.electronAPI.dbgPoll();
+  if (generation !== _ud.generation || !_ud.running) return;
+  if (!result?.ok) { _udOnEnded(); return; }
+  if (result.value !== null && result.value !== undefined && !_ud.stopped && !_ud.busy) await _udOnStop(result.value);
+  _ud.pollTimer = setTimeout(_udPoll, 120);
+}
+
+// A step stops again at once: the panels only change if the CPU keeps running.
+async function _udResume(action) {
+  if (!_ud.running || !_ud.stopped || _ud.busy) return;
+  _ud.busy = true;
+  _ud.generation++;
+  _udSyncButtons();
+  const result = await action();
+  _ud.busy = false;
+  if (!result?.ok) { _udOnEnded(); _udSetStatus(result?.error || "", true); return; }
+  _ud.stopped = false;
+  clearTimeout(_ud.resumeTimer);
+  _ud.resumeTimer = setTimeout(() => {
+    if (_ud.stopped || !_ud.running) return;
+    _w64DebugLine = null;
+    if (expertMode) _expertApplyHighlight();
+    _udSetStatus(t("w64Running"));
+    _udRender();
+  }, 200);
+  _udSyncButtons();
+  _udPoll();
+}
+
+function _udContinue() {
+  return _udResume(() => window.electronAPI.dbgContinue(_udBreakpoints()));
+}
+function _udStep(mode) {
+  return _udResume(() => window.electronAPI.dbgStep(mode, _udBreakpoints()));
+}
+async function _udBreak() {
+  if (!_ud.running || _ud.stopped || _ud.busy) return;
+  _ud.busy = true;
+  _ud.generation++;
+  const result = await window.electronAPI.dbgBreak();
+  _ud.busy = false;
+  if (!result?.ok) { _udOnEnded(); _udSetStatus(result?.error || "", true); return; }
+  await _udOnStop(result.value ?? _ud.pc);
+  _udPoll();
+}
+
+// The Debug button: "va" = the Visual Assembler debugger on the machine of the run mode (VICE,
+// Ultimate emulator, built-in C64; the built-in C64 for the hardware modes), "retro" = RetroDebugger.
+// Unset: RetroDebugger when it is configured, as before; the old VICE choice means "va".
+function _debuggerChoice() {
+  let stored = null;
+  try {
+    stored = localStorage.getItem("c64va-debugger");
+    if (!stored && localStorage.getItem("c64va-debug-target") === "vice") stored = "va";
+  } catch (_) {}
+  if (stored === "va" || stored === "retro") return stored;
+  return debuggerPath ? "retro" : "va";
+}
+
+async function _udDebug(target = _ud.target) {
+  _ud.target = target === "vice" ? "vice" : "ue2";
+  const session = await _w64DebugBuild();
+  if (!session) return;
+  session.labels = _w64SessionLabels(session);
+  clearTimeout(_ud.pollTimer);
+  clearTimeout(_ud.resumeTimer);
+  _ud.generation++;
+  Object.assign(_ud, { session, manual: new Set(), running: false, stopped: false, snap: null, pc: -1, disasmFrom: undefined, busy: true });
+  // without any breakpoint the program stops at its first instruction
+  _ud.tempBp = _w64BreakpointAddresses(session, _ud.manual).size ? -1 : _w64SysAddress(session.bytes);
+  const dlg = document.getElementById("ue2-debug-dialog");
+  if (dlg && !dlg.open) {
+    dlg._applyPosition?.();
+    dlg.show();
+    document.getElementById("run-debugger")?.classList.add("main-tb-btn--active");
+  }
+  const onVice = _ud.target === "vice";
+  if (dlg) dlg.dataset.target = _ud.target;
+  const title = document.getElementById("ud-title");
+  if (title) title.textContent = t(onVice ? "viceDbgTitle" : "ue2DbgTitle");
+  _udSetStatus(t(onVice ? "viceDbgStarting" : "ue2DbgStarting"));
+  _udRender();
+  const start = onVice ? window.electronAPI?.viceDbgStart : window.electronAPI?.ue2DbgStart;
+  const result = await start?.(Array.from(session.bytes), _udBreakpoints());
+  _ud.busy = false;
+  if (!onVice) _ue2RefreshSettings();
+  if (!result?.ok) {
+    const message = onVice ? (result?.error || t("launchingViceFailed")) : _ue2ErrorText(result);
+    _udSetStatus(message, true);
+    _udSyncButtons();
+    showViceToast(message, true);
+    return;
+  }
+  _ud.running = true;
+  _udSetStatus(t("w64Running"));
+  _udRender();
+  _udPoll();
+}
+
+function setupUe2Debugger() {
+  const debuggerChoice = document.getElementById("debugger-choice");
+  if (debuggerChoice) {
+    debuggerChoice.value = _debuggerChoice();
+    debuggerChoice.addEventListener("change", () => {
+      try {
+        localStorage.setItem("c64va-debugger", debuggerChoice.value);
+        localStorage.removeItem("c64va-debug-target");
+      } catch (_) {}
+    });
+  }
+  const on = (id, event, handler) => document.getElementById(id)?.addEventListener(event, handler);
+  on("ud-restart", "click", () => _udDebug());
+  on("ud-continue", "click", _udContinue);
+  on("ud-break", "click", _udBreak);
+  on("ud-step-into", "click", () => _udStep(0));
+  on("ud-step-over", "click", () => _udStep(1));
+  on("ud-step-out", "click", () => _udStep(2));
+  on("ud-close", "click", () => document.getElementById("ue2-debug-dialog")?.close());
+  on("ue2-debug-dialog", "close", () => {
+    document.getElementById("run-debugger")?.classList.remove("main-tb-btn--active");
+    _udOnEnded();
+    window.electronAPI?.dbgEnd?.();
+  });
+  on("ud-disasm", "click", (e) => {
+    const button = e.target.closest(".w64-bp[data-addr]");
+    if (!button) return;
+    const address = Number(button.dataset.addr);
+    if (_ud.manual.has(address)) _ud.manual.delete(address); else _ud.manual.add(address);
+    _udRender();
+  });
+  on("ud-bps", "click", (e) => {
+    const button = e.target.closest("[data-unbp]");
+    if (!button) return;
+    _ud.manual.delete(Number(button.dataset.unbp));
+    _udRender();
+  });
+  on("ud-mem-form", "submit", async (e) => {
+    e.preventDefault();
+    const input = document.getElementById("ud-mem-addr");
+    const address = _w64ParseAddress(input?.value, _ud.session?.labels);
+    if (!Number.isFinite(address)) { input?.classList.add("tg-invalid"); return; }
+    input.classList.remove("tg-invalid");
+    _ud.memAddr = address & 0xFFFF;
+    if (_ud.stopped && await _udRefresh()) _udRender();
+  });
+  const setRegister = async (id, value) => {
+    await window.electronAPI.dbgSetRegister(_UD_REGISTERS[id], value);
+    if (await _udRefresh()) _udRender();
+  };
+  on("ud-regs", "change", (e) => {
+    const input = e.target.closest(".w64-reg-in");
+    if (!input || !_ud.stopped) return;
+    const value = parseInt(String(input.value).replace(/^\$/, ""), 16);
+    if (Number.isFinite(value)) setRegister(Number(input.dataset.reg), value);
+  });
+  on("ud-regs", "click", (e) => {
+    const flag = e.target.closest(".w64-flag[data-bit]");
+    if (!flag || !_ud.stopped || !_ud.snap) return;
+    setRegister(5, (_ud.snap.registers.FL ?? 0) ^ (1 << Number(flag.dataset.bit)));
+  });
+  // Also with the focus in the editor: the source line follows while stepping there.
+  document.addEventListener("keydown", (e) => {
+    if (!_ud.running || !document.getElementById("ue2-debug-dialog")?.open) return;
+    if (e.key === "F5") { e.preventDefault(); if (_ud.stopped) _udContinue(); else _udBreak(); }
+    else if (e.key === "F10") { e.preventDefault(); _udStep(1); }
+    else if (e.key === "F11") { e.preventDefault(); _udStep(e.shiftKey ? 2 : 0); }
+  }, true);
 }
 
 function _vmOpen() {
