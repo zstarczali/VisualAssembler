@@ -635,6 +635,7 @@ impl SidCore {
         }
     }
 
+    #[cfg(test)]
     pub fn new(sample_rate: u32, model: SidModel) -> Self {
         Self::new_with_clock(sample_rate, model, PAL_CLOCK)
     }
@@ -796,6 +797,7 @@ impl SidCore {
         }
     }
 
+    #[cfg(test)]
     /// Renders signed 16-bit mono samples from the current SID register state.
     pub fn render(&mut self, output: &mut [i16]) {
         let mut filled = 0;

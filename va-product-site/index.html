@@ -2192,7 +2192,7 @@
       </div>
     </div>
     <div class="hero-left">
-      <div class="badge">V2.7.1 — LATEST RELEASE</div>
+      <div class="badge">V2.7.2 — LATEST RELEASE</div>
       <h1 class="hero-title">WRITE C64 PROGRAMS<br><span>BLOCKS, MACRO-ASM OR ULTIMATE BASIC.</span></h1>
       <p class="hero-tagline">&ldquo;The best all-in-one, multiplatform Commodore 64 IDE.&rdquo;</p>
       <p class="hero-sub">A modern Commodore 64 IDE: drag-and-drop 6502 assembly blocks or switch to a full text editor
@@ -2215,6 +2215,10 @@
       <h2 class="sec-t" id="dark-chambers-release-title">DARK CHAMBERS<br><span style="color:var(--ylw)">IS OUT ON THE C64</span></h2>
       <div class="dc-release-grid">
         <div>
+          <figure style="margin:0 0 24px">
+            <img src="uploads/cv-logo-transparent.png" alt="Cool Valley Game Studio pixel-art mountain and valley logo" width="1536" height="1024" loading="lazy" style="display:block;width:100%;height:auto">
+            <figcaption style="margin-top:12px;font-size:12px;line-height:1.6">COOL VALLEY GAME STUDIO &mdash; DEVELOPERS OF THE C64 PORT</figcaption>
+          </figure>
           <p class="sec-d"><strong>Cool Valley Game Studio</strong>&rsquo;s Commodore 64 port of the Atari 7800 classic <strong>Dark Chambers</strong> is finished, ported with the help of <strong>Visual Assembler (VMA)</strong>. Fight your way down through 26 levels of monster-filled dungeons, alone or with a friend, then grab the disk image and play it on a real C64 or in an emulator.</p>
           <div class="feature-list">
             <div class="fi">
@@ -2258,6 +2262,10 @@
             <div class="kff2-cart-shot"><img src="uploads/dark-chambers-level-d.png" alt="Dark Chambers level D: golden stone dungeon" width="384" height="272" loading="lazy"></div>
             <div class="kff2-cart-shot"><img src="uploads/dark-chambers-level-e.png" alt="Dark Chambers level E: blue stone dungeon" width="384" height="272" loading="lazy"></div>
           </div>
+          <figure style="margin:24px 0 0">
+            <img src="uploads/dark-chambers-atari-7800-transparent.png" alt="Original Atari 7800 Dark Chambers game box and cartridge" width="1254" height="1254" loading="lazy" style="display:block;width:100%;height:auto">
+            <figcaption style="margin-top:12px;font-size:12px;line-height:1.6">THE ORIGINAL ATARI 7800 GAME &mdash; BOX AND CARTRIDGE</figcaption>
+          </figure>
         </div>
       </div>
     </div>
@@ -2265,25 +2273,15 @@
 
   <hr class="div">
 
-  <!-- STUDIO NEWS: DARK CHAMBERS -->
-  <section id="dark-chambers" style="background:var(--scr-dark);padding:80px 0" aria-labelledby="dark-chambers-title">
+  <!-- V2.7.2: RESID -->
+  <div id="release-272" style="background:var(--scr-darker);padding:80px 0">
     <div class="sec" style="padding-top:0;padding-bottom:0">
-      <div class="ub-tag">STUDIO NEWS &middot; <time datetime="2026-10-22">22 OCTOBER 2026</time></div>
-      <div class="sec-s">// MADE WITH VISUAL ASSEMBLER</div>
-      <h2 class="sec-t" id="dark-chambers-title">DARK CHAMBERS<br><span style="color:var(--ylw)">IS COMING TO THE C64</span></h2>
-      <p class="sec-d" style="max-width:760px"><strong>Cool Valley Game Studio</strong> is developing a Commodore 64 port of <strong>Dark Chambers</strong> in <strong>Visual Assembler</strong>, bringing the Atari 7800 game to the C64.</p>
-      <div class="studio-news-images">
-        <figure>
-          <img src="uploads/cv-logo-transparent.png" alt="Cool Valley Game Studio pixel-art mountain and valley logo" width="1536" height="1024" loading="lazy">
-          <figcaption>COOL VALLEY GAME STUDIO &mdash; DEVELOPING THE C64 PORT</figcaption>
-        </figure>
-        <figure>
-          <img src="uploads/dark-chambers-atari-7800-transparent.png" alt="Original Atari 7800 Dark Chambers game box and cartridge" width="1254" height="1254" loading="lazy">
-          <figcaption>THE ORIGINAL ATARI 7800 GAME &mdash; BOX AND CARTRIDGE</figcaption>
-        </figure>
-      </div>
+      <div class="ub-tag">NEW IN V2.7.2</div>
+      <div class="sec-s">// A NEW SID ENGINE</div>
+      <h2 class="sec-t">RESID<br><span style="color:var(--ylw)">IN PLACE OF WEBSID</span></h2>
+      <p class="sec-d" style="max-width:680px">The SID Player and the SID Editor now play on the native backend, on <a href="https://github.com/binaryfields/resid-rs" target="_blank" rel="noopener noreferrer">resid-rs</a>, a Rust port of reSID, or on VA SID Core, with the MOS 6581 or 8580. Seeking, stereo 2SID and 3SID tunes and the C64 core work with both.</p>
     </div>
-  </section>
+  </div>
 
   <hr class="div">
 
@@ -2317,11 +2315,11 @@
         </div>
         <div class="fi">
           <div class="fi-dot">&#9658;</div>
-          <div><b>SID Player:</b> <span>2SID and 3SID tunes in stereo on VA SID Core, and a 16-band spectrum for every voice in the SID Editor.</span></div>
+          <div><b>SID Player:</b> <span>2SID and 3SID tunes in stereo, and a 16-band spectrum for every voice in the SID Editor.</span></div>
         </div>
         <div class="fi">
           <div class="fi-dot">&#9658;</div>
-          <div><b>Fixes:</b> <span><i>D64 on hardware</i> works with C64 Ultimate firmware 1.1.0; WebSID loads the editor's previews again.</span></div>
+          <div><b>Fixes:</b> <span><i>D64 on hardware</i> works with C64 Ultimate firmware 1.1.0.</span></div>
         </div>
       </div>
     </div>
@@ -3708,7 +3706,7 @@
         <div class="fc">
           <div class="fc-ico">♫ SID</div>
           <div class="fc-t">SID MUSIC EDITOR</div>
-          <div class="fc-d">3-voice tracker with ADSR envelope, filter, waveform selection and cycle-exact WebSid WASM
+          <div class="fc-d">3-voice tracker with ADSR envelope, filter, waveform selection and cycle-accurate reSID / VA SID Core
             preview. Export as a full IRQ-driven C64 music player.</div>
         </div>
         <div class="fc">

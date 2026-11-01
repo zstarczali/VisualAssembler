@@ -8,7 +8,8 @@ use crate::c64::cia::{Cia, CiaModel};
 use crate::c64::pla::CpuPort;
 use crate::c64::vicii::{Vicii, ViciiModel};
 use crate::mos6510::{Bus, Cpu};
-use crate::sid_core::{SidCore, SidModel, NTSC_CLOCK, PAL_CLOCK, VERSION as SID_CORE_VERSION};
+use crate::sid_chip::{SidChip, SidEngine};
+use crate::sid_core::{SidModel, NTSC_CLOCK, PAL_CLOCK, VERSION as SID_CORE_VERSION};
 
 /// Driver addresses never executed by real code ($00/$01 are the CPU port):
 /// a JSR from the driver returns to CALL_RETURN, the IRQ vector of PSID tunes
@@ -55,7 +56,7 @@ fn kernal_stub() -> Box<[u8; 8192]> {
 /// A second or third chip of a PSID v3 / v4 tune, 32 registers at `base`.
 struct ExtraSid {
     base: u16,
-    core: SidCore,
+    core: SidChip,
     regs: [u8; 32],
     gate_on: u8,
 }
@@ -67,7 +68,7 @@ struct Machine {
     port: CpuPort,
     /// Machine cycles since power-on (for the CPU port's floating bits).
     clk: u64,
-    sid: SidCore,
+    sid: SidChip,
     extra_sids: Vec<ExtraSid>,
     cia1: Cia,
     cia2: Cia,
@@ -295,6 +296,10 @@ impl SidFilePlayer {
 
     /// `song` is 1-based; 0 selects the header's start song.
     pub fn with_song(bytes: &[u8], sample_rate: u32, model: SidModel, song: u16) -> Result<Self, String> {
+        Self::with_engine(bytes, sample_rate, model, song, SidEngine::VaCore)
+    }
+
+    pub fn with_engine(bytes: &[u8], sample_rate: u32, model: SidModel, song: u16, engine: SidEngine) -> Result<Self, String> {
         let rsid = bytes.len() >= 4 && &bytes[..4] == b"RSID";
         if bytes.len() < 0x76 || !(rsid || &bytes[..4] == b"PSID") {
             return Err(format!("VA SID Core {SID_CORE_VERSION}: not a PSID / RSID file."));
@@ -347,7 +352,7 @@ impl SidFilePlayer {
         let extra_sids = [(second_sid, 6), (third_sid, 8)]
             .into_iter()
             .filter_map(|(base, model_shift)| {
-                let core = SidCore::new_with_clock(sample_rate, extra_sid_model(flags, model_shift, model), clock_hz);
+                let core = SidChip::new_with_clock(engine, sample_rate, extra_sid_model(flags, model_shift, model), clock_hz);
                 base.map(|base| ExtraSid { base, core, regs: [0; 32], gate_on: 0 })
             })
             .collect();
@@ -358,7 +363,7 @@ impl SidFilePlayer {
             color: Box::new([0; 1024]),
             port: CpuPort::new(),
             clk: 0,
-            sid: SidCore::new_with_clock(sample_rate, model, clock_hz),
+            sid: SidChip::new_with_clock(engine, sample_rate, model, clock_hz),
             extra_sids,
             cia1: Cia::new(CiaModel::Mos6526A, clock_hz as u32, if ntsc { 60 } else { 50 }),
             cia2: Cia::new(CiaModel::Mos6526A, clock_hz as u32, if ntsc { 60 } else { 50 }),
@@ -641,6 +646,21 @@ mod tests {
         let mut file = psid(load, init, 0, 0, code);
         file[..4].copy_from_slice(b"RSID");
         file
+    }
+
+    #[test]
+    fn a_real_tune_plays_on_both_engines_at_the_same_pace() {
+        let bytes = include_bytes!("../../samples/Ikari_Intro.sid");
+        let pcm: Vec<Vec<i16>> = [SidEngine::VaCore, SidEngine::Resid]
+            .iter()
+            .map(|engine| {
+                let mut player = SidFilePlayer::with_engine(bytes, 44_100, SidModel::Mos6581, 0, *engine).unwrap();
+                player.render_frames(100).unwrap()
+            })
+            .collect();
+        assert!((pcm[0].len() as i64 - pcm[1].len() as i64).abs() <= 2, "{} / {}", pcm[0].len(), pcm[1].len());
+        let peak = |samples: &[i16]| samples.iter().map(|s| i32::from(*s).abs()).max().unwrap_or(0);
+        assert!(peak(&pcm[1]) > 2_000, "reSID sounds: peak {}", peak(&pcm[1]));
     }
 
     #[test]

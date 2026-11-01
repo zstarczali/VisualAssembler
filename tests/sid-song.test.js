@@ -51,7 +51,6 @@ function loadSongSandbox(initial) {
     _sidPat: initial.pat || 0,
     _sidTimer: null,
     _sidPaused: false,
-    _sidPlaybackUsingWebSid: false,
     _sidSongPlayPos: 0,
   };
   const ctx = loadFunctions(
@@ -62,7 +61,7 @@ function loadSongSandbox(initial) {
       get _sidSong() { return state._sidSong; }, set _sidSong(v) { state._sidSong = v; },
       get _sidSongPos() { return state._sidSongPos; }, set _sidSongPos(v) { state._sidSongPos = v; },
       get _sidPat() { return state._sidPat; }, set _sidPat(v) { state._sidPat = v; },
-      _sidTimer: null, _sidPaused: false, _sidPlaybackUsingWebSid: false,
+      _sidTimer: null, _sidPaused: false,
     }
   );
   return { ctx, state };
@@ -112,7 +111,7 @@ test("Song list: moving past either end is a no-op", () => {
 
 function loadSerdeSandbox() {
   return loadFunctions(
-    ["_sidInstFields", "_sidInstNorm", "_sidInstCtrl", "_sidInstExtBytes", "_sidReadInstExt", "_sidWaStop", "_sidStreamSilence", "_sidStreamPreload", "_sidInstBytes", "_sidWaveByte", "_sidNewInst", "_sidVoiceCount", "_sidNewPattern", "_sidSerialize", "_sidDeserialize", "_sidSyncPlayModeSel", "_sidBuildInstSel", "_sidLoadInstUI", "_sidBuildPatSel", "_sidBuildSongList", "_sidBuildTracker", "_sidStop", "_sidUpdatePauseButton", "_sidCurInst"],
+    ["_sidInstFields", "_sidInstNorm", "_sidInstCtrl", "_sidInstExtBytes", "_sidReadInstExt", "_sidWaStop", "_sidInstBytes", "_sidWaveByte", "_sidNewInst", "_sidVoiceCount", "_sidNewPattern", "_sidSerialize", "_sidDeserialize", "_sidSyncPlayModeSel", "_sidBuildInstSel", "_sidLoadInstUI", "_sidBuildPatSel", "_sidBuildSongList", "_sidBuildTracker", "_sidStop", "_sidUpdatePauseButton", "_sidCurInst"],
     {
       Uint8Array, Math, String, Array, TextEncoder, TextDecoder, _sidSpeed: 6, _sidWaPlay: null, _sidStream: null, _webSidLoadSeq: 0, setTimeout: () => 0, _sidPreviewSources: new Set(), _sidRenderTable: () => {},
       // _sidLoadInstUI assigns document.getElementById("sid-inst-name").value
@@ -123,7 +122,6 @@ function loadSerdeSandbox() {
       document: { getElementById: (id) => (id === "sid-inst-name" ? {} : null), querySelectorAll: () => [] },
       t: (k) => k,
       tf: () => "",
-      _webSidPause: () => {},
       // Canvas drawing is out of scope for a serialize/deserialize test;
       // _sidLoadInstUI calls it unconditionally, so stub it out rather than
       // extracting the real (canvas-dependent) implementation.
@@ -140,7 +138,6 @@ function loadSerdeSandbox() {
       _sidSongPlayPos: 0,
       _sidTimer: null,
       _sidPaused: false,
-      _sidPlaybackUsingWebSid: false,
     },
     `${extractConstLine("_SID_ROWS")}\n${extractConstLine("_SID_PLAYER_CODE_MAX")}\n${extractConstLine("_SID_FX_CODES")}\n${extractConstLine("_SID_FX_NAMES")}`
   );

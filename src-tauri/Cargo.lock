@@ -262,6 +262,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5e764a1d40d510daf35e07be9eb06e75770908c27d411ee6c92109c9840eaaf7"
 
 [[package]]
+name = "bit_field"
+version = "0.10.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1e4b40c7323adcfc0a41c4b88143ed58346ff65a288fc144329c5c45e05d70c6"
+
+[[package]]
 name = "bitflags"
 version = "1.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -363,11 +369,12 @@ dependencies = [
 
 [[package]]
 name = "c64-visual-assembler"
-version = "2.7.1"
+version = "2.7.2"
 dependencies = [
  "base64 0.22.1",
  "emulator_6502",
  "reqwest 0.12.28",
+ "resid-rs",
  "serde",
  "serde_json",
  "serialport",
@@ -3386,6 +3393,13 @@ dependencies = [
  "wasm-bindgen-futures",
  "wasm-streams",
  "web-sys",
+]
+
+[[package]]
+name = "resid-rs"
+version = "1.1.1"
+dependencies = [
+ "bit_field",
 ]
 
 [[package]]

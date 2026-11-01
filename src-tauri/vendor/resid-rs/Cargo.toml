@@ -1,0 +1,26 @@
+[package]
+edition = "2018"
+name = "resid-rs"
+version = "1.1.1"
+authors = ["Sebastian Jastrzebski <sebby2k@gmail.com>"]
+description = "Port of reSID, a MOS6581 SID emulator engine, to Rust"
+license = "GPL-3.0+"
+repository = "https://github.com/binaryfields/resid-rs"
+
+[lib]
+name = "resid"
+
+[dependencies.bit_field]
+version = "0.10"
+
+[dependencies.libm]
+version = "0.2.0"
+optional = true
+
+[features]
+alloc = []
+default = ["std"]
+std = ["alloc"]
+
+[lints.rust]
+unexpected_cfgs = "allow"

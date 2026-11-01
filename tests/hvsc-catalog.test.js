@@ -83,3 +83,35 @@ test("random: distinct entries, never more than the catalog", () => {
   assert.equal(h.random(entries, 50).length, 5);
   assert.equal(h.random([], 5).length, 0);
 });
+
+test("composer search: only the composer folder counts, sorted by composer", () => {
+  const h = loadHvsc();
+  const entries = h.parse([
+    "; /DEMOS/UNKNOWN/Ode_to_Galway.sid", "a=1:00",
+    "; /GAMES/S-Z/Wizball.sid", "b=1:00",
+    "; /MUSICIANS/H/Hubbard_Rob/Commando.sid", "c=1:00",
+    "; /MUSICIANS/G/Galway_Martin/Wizball.sid", "d=1:00",
+    "; /MUSICIANS/G/Gray_Rob/Zoo.sid", "e=1:00",
+    "; /MUSICIANS/P/Probe_Ann/Hubbard_Tribute.sid", "f=1:00",
+    "; /MUSICIANS/L/Laxity/Tune.sid", "g=1:00",
+    "; /MUSICIANS/D/Da-Vinci_Leo/Tune.sid", "h=1:00",
+  ].join("\n"));
+  const find = (q) => Array.from(h.search(entries, q, 300, "composer").items, (e) => e.a + "/" + e.t);
+  assert.deepEqual(find("galway"), ["Galway Martin/Wizball"], "not the title in DEMOS, not GAMES");
+  assert.deepEqual(find("hubbard"), ["Hubbard Rob/Commando"], "not the tune title of another composer");
+  assert.deepEqual(find("rob"), ["Gray Rob/Zoo", "Hubbard Rob/Commando"], "by composer, and not Probe");
+  assert.deepEqual(find("rob hubbard"), ["Hubbard Rob/Commando"]);
+  assert.deepEqual(find("HUBBARD_ROB"), ["Hubbard Rob/Commando"]);
+  assert.deepEqual(find("hubb"), ["Hubbard Rob/Commando"], "the start of a name is enough");
+  assert.deepEqual(find("vinci"), ["Da-Vinci Leo/Tune"]);
+  assert.deepEqual(find("commando"), [], "titles do not count");
+  assert.deepEqual(find("g"), [], "one character is too short");
+  assert.equal(h.search(entries, "ro", 1, "composer").total, 2);
+  assert.equal(h.search(entries, "ro", 1, "composer").items.length, 1);
+  assert.deepEqual(Array.from(h.search(entries, "galway").items, (e) => e.t), ["Ode to Galway", "Wizball"], "All still searches the path");
+});
+
+test("the composer field is on the page, next to the search box", () => {
+  const html = fs.readFileSync(path.join(__dirname, "..", "www", "index.html"), "utf8");
+  assert.match(html, /<select id="websid-hvsc-field"[^>]*>.*value="all".*value="composer".*<\/select>\s*<input id="websid-hvsc-search"/);
+});

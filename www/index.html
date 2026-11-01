@@ -14,7 +14,7 @@
     rel="stylesheet">
   <link rel="icon" type="image/png" href="assets/icon.png">
   <link rel="shortcut icon" href="favicon.ico">
-  <link rel="stylesheet" href="style.css?v=2.7.1">
+  <link rel="stylesheet" href="style.css?v=2.7.2">
 </head>
 
 <body>
@@ -1525,7 +1525,7 @@ PRINTABLE CHARACTERS
           <img src="assets/logo-about.png" alt="C64 Visual Assembler" width="200" height="160">
         </div>
         <h2 class="about-title">C64 Visual Assembler</h2>
-        <p class="about-version" id="about-version">v2.7.1</p>
+        <p class="about-version" id="about-version">v2.7.2</p>
         <p class="about-version" id="about-ub-version"><span id="about-ub-version-label">UltimateBasic:</span> <span id="about-ub-version-value">v?</span></p>
         <p class="about-version" id="about-vma-version"><span id="about-vma-version-label">VMA:</span> <span id="about-vma-version-value">v?</span></p>
       </div>
@@ -1538,7 +1538,7 @@ PRINTABLE CHARACTERS
           <p class="about-repo"><span>License:</span><br><a href="https://github.com/zstarczali/VisualAssembler/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">GNU General Public License v3.0</a></p>
           <p class="about-repo"><span>Visual Assembler website:</span><br><a href="https://www.c64va.pro" target="_blank" rel="noopener noreferrer">www.c64va.pro</a></p>
           <p class="about-repo" id="about-repo"><span id="about-repo-label">Visual Assembler GitHub repository:</span><br><a href="https://github.com/zstarczali/VisualAssembler" target="_blank" rel="noopener noreferrer">https://github.com/zstarczali/VisualAssembler</a></p>
-          <p class="about-sid-credit" id="about-sid-credit"><span id="about-sid-credit-label">Web SID player: WebSid (WebAudio version of Tiny'R'Sid) by Juergen Wothke. GitHub repository:</span> <a href="https://github.com/wothke/websid" target="_blank" rel="noopener noreferrer">https://github.com/wothke/websid</a><br><span id="about-sid-credit-license">(CC BY-NC-SA 4.0)</span></p>
+          <p class="about-sid-credit" id="about-sid-credit"><span id="about-sid-credit-label">SID emulation: reSID by Dag Lem, Rust port resid-rs by Sebastian Jastrzebski. GitHub repository:</span> <a href="https://github.com/binaryfields/resid-rs" target="_blank" rel="noopener noreferrer">https://github.com/binaryfields/resid-rs</a><br><span id="about-sid-credit-license">(GPLv3)</span></p>
         </div>
         <div class="about-col about-col-right">
           <div class="about-compilers">
@@ -1562,7 +1562,22 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.7.1</p>
+      <p class="whats-new-version">v2.7.2</p>
+      <ul class="whats-new-list">
+        <li>
+          <strong>reSID in place of WebSID:</strong> the SID Player and the SID Editor play on the backend, on resid-rs (the default) or VA SID Core, with the MOS 6581 or 8580. Settings → General → SID preview.
+        </li>
+        <li>
+          <strong>SID Player buffer:</strong> the setting now states how far ahead the tune is rendered: 10, 15, 20 or 30 s.
+        </li>
+        <li>
+          <strong>HVSC by composer:</strong> the search panel can search composer names only.
+        </li>
+        <li>
+          <strong>Tracker keys:</strong> the upper row of the keyboard played a semitone too high from R on, and F could not be entered from it.
+        </li>
+      </ul>
+      <p class="whats-new-previous">v2.7.1</p>
       <ul class="whats-new-list">
         <li>
           <strong>Debugger choice:</strong> <em>Settings → General → Debugger</em>: the Visual Assembler debugger works on the machine of the run mode (your own VICE, the Ultimate emulator or the built-in C64), with breakpoints, stepping, registers and memory; or RetroDebugger.
@@ -1580,7 +1595,7 @@ PRINTABLE CHARACTERS
           <strong>Channel spectrum:</strong> a separate analyzer for every voice during tracker playback in the SID Editor.
         </li>
         <li>
-          <strong>SID Editor:</strong> <em>Files → New tune</em>, the tune's title in the header, one button to detach and attach the tracker, and a tidier instrument list in the horizontal tracker. WebSID previews load again.
+          <strong>SID Editor:</strong> <em>Files → New tune</em>, the tune's title in the header, one button to detach and attach the tracker, and a tidier instrument list in the horizontal tracker.
         </li>
       </ul>
       <p class="whats-new-previous">v2.7.0</p>
@@ -3148,6 +3163,7 @@ PRINTABLE CHARACTERS
         </div>
         <section id="websid-hvsc" class="websid-hvsc" hidden>
           <div class="websid-hvsc-bar">
+            <select id="websid-hvsc-field" class="websid-hvsc-field" aria-label="Search in"><option value="all">All</option><option value="composer">Composer</option></select>
             <input id="websid-hvsc-search" class="websid-hvsc-search" type="search" spellcheck="false" autocomplete="off" placeholder="Search HVSC…">
             <div class="websid-play-tools">
               <button id="websid-hvsc-random" class="websid-play-tool" type="button" aria-label="Random tunes"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="2" width="12" height="12" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="5.3" cy="5.3" r="1.1" fill="currentColor"/><circle cx="8" cy="8" r="1.1" fill="currentColor"/><circle cx="10.7" cy="10.7" r="1.1" fill="currentColor"/></svg></button>
@@ -4013,13 +4029,13 @@ PRINTABLE CHARACTERS
             <label class="field compact-field hw-field">
               <span id="sid-preview-engine-lbl">SID engine</span>
               <select id="sid-preview-engine" class="sid-select">
-                <option value="websid">WebSID</option>
+                <option value="resid">reSID (resid-rs)</option>
                 <option value="va-core">VA SID Core (Rust) v1.2</option>
               </select>
             </label>
             <label class="field compact-field hw-field">
               <span id="sid-preview-model-lbl">SID chip</span>
-              <select id="sid-preview-model" class="sid-select" disabled>
+              <select id="sid-preview-model" class="sid-select">
                 <option value="8580">MOS 8580</option>
                 <option value="6581">MOS 6581</option>
               </select>
@@ -4034,13 +4050,13 @@ PRINTABLE CHARACTERS
             <label class="field compact-field hw-field">
               <span id="sid-player-buffer-lbl">SID Player buffer</span>
               <select id="sid-player-buffer" class="sid-select">
-                <option value="2048">2048 (46 ms)</option>
-                <option value="4096">4096 (93 ms)</option>
-                <option value="8192">8192 (186 ms)</option>
-                <option value="16384">16384 (372 ms)</option>
+                <option value="2048">10 s</option>
+                <option value="4096">15 s</option>
+                <option value="8192">20 s</option>
+                <option value="16384">30 s</option>
               </select>
             </label>
-            <p id="sid-player-buffer-note" class="menu-note">A larger buffer stops the crackle while the app is busy. WebSID: after a restart; VA SID Core renders 10 / 15 / 20 / 30 s ahead.</p>
+            <p id="sid-player-buffer-note" class="menu-note">A larger buffer stops the crackle while the app is busy: the tune is rendered 10 / 15 / 20 / 30 s ahead.</p>
           </section>
           <section class="hw-settings-section">
             <h3 class="hw-settings-section-label" id="debugger-choice-section">Debugger</h3>
@@ -4216,13 +4232,10 @@ PRINTABLE CHARACTERS
     </div>
   </div>
 
-  <script src="tauri-bridge.js?v=2.7.1"></script>
-  <script src="i18n.js?v=2.7.1"></script>
-  <script src="tutorial-data.js?v=2.7.1"></script>
-  <script>window.WASM_SEARCH_PATH = "lib/websid/";</script>
-  <script src="lib/websid/scriptprocessor_player.min.js"></script>
-  <script src="lib/websid/backend_websid.js"></script>
-  <script src="app.js?v=2.7.1"></script>
+  <script src="tauri-bridge.js?v=2.7.2"></script>
+  <script src="i18n.js?v=2.7.2"></script>
+  <script src="tutorial-data.js?v=2.7.2"></script>
+  <script src="app.js?v=2.7.2"></script>
 
 </body>
 

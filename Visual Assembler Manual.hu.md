@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**Verzió: 2.7.1**
+**Verzió: 2.7.2**
 
 Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasításblokkok fogd-és-vidd módszerrel történő elrendezésével építed fel, a generált assembly és gépi kód pedig valós időben frissül.
 
@@ -10,6 +10,7 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 
 ## Tartalomjegyzék
 
+- [A 2.7.2 verzió újdonságai](#a-272-verzió-újdonságai)
 - [A 2.7.1 verzió újdonságai](#a-271-verzió-újdonságai)
 - [A 2.7.0 verzió újdonságai](#a-270-verzió-újdonságai)
 - [A 2.6.9 verzió újdonságai](#a-269-verzió-újdonságai)
@@ -235,6 +236,11 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 
 ---
 
+## A 2.7.2 verzió újdonságai
+
+- **reSID a WebSID helyett** — a SID Player és a SID szerkesztő a backenden szól, a [resid-rs](https://github.com/binaryfields/resid-rs) motoron (a reSID Rust portja, ez az alapértelmezett) vagy a VA SID Core-on, mindkettő MOS 6581 vagy 8580 chippel. A **Beállítások → Általános → SID előnézet** alatt választható. A tekerés, a sztereó 2SID és 3SID dalok és a C64 mag mindkettővel működik. A WebSID kikerült.
+- **SID Player puffer** — a **Beállítások → Általános → SID előnézet → SID Player puffer** már azt mutatja, mennyire előre renderelődik a dal: 10, 15, 20 vagy 30 mp.
+
 ## A 2.7.1 verzió újdonságai
 
 - **Debugger VICE-hoz** — a **Beállítások → Általános → Debugger** választja ki a Debug gomb debuggerét: a **Visual Assembler** a futtatási mód gépén keres hibát (VICE, Ultimate emulátor, beépített C64), a **RetroDebugger** a külső programot nyitja. VICE-ban az ablak a saját VICE-odon dolgozik: töréspontok, lépés be / át / ki, regiszterek, disassembly és memória, a szerkesztő követi a CPU-t. Lásd: [Beépített C64 és debugger](#beépített-c64-és-debugger).
@@ -243,7 +249,7 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 - **SID Player: 2SID és 3SID dalok** — a VA SID Core sztereóban játssza őket: SID 1 balra, SID 2 jobbra, a harmadik SID középre. Lásd: [SID Player](#sid-player).
 - **Csatorna-spektrum** — a SID Editorban tracker-lejátszás közben minden hangnak külön, 16 sávos analizátora van.
 - **SID Editor** — **Files → New tune**, a dal címe a fejlécben, egy gomb a tracker kilógatásához és visszatételéhez, valamint rendezettebb hangszerlista a vízszintes trackerben.
-- **Javítások** — a **D64 on hardware** a csatolási kérésben elküldi a lemezkép típusát, amit a C64 Ultimate 1.1.0 firmware megkövetel. A WebSID nem tudta betölteni a szerkesztő előnézeteit és a **Play: All** teljes dalát; a szerkesztő leállítása már nem zárja be a SID Playert.
+- **Javítások** — a **D64 on hardware** a csatolási kérésben elküldi a lemezkép típusát, amit a C64 Ultimate 1.1.0 firmware megkövetel; a szerkesztő leállítása már nem zárja be a SID Playert.
 
 ---
 
@@ -4586,11 +4592,11 @@ Réteges tilemap szerkesztő statikus díszlethez, sprite spawn map-ekhez, ütk�
 
 ### SID Editor (3-voice tracker)
 
-Több-hangszeres 3-voice tracker. A SID Editor eszköztár-gombjával nyílik. A **Play: All** az exportált 6502 lejátszót futtatja a WebSid emulátorban; minden más előnézet (hangszer-előnézet, virtuális billentyűzet, hangbeírás, akkord / arpeggio, sor- és egy patternes lejátszás) is az emulált SID-en szól: ugyanannak a lejátszónak a frame-pontos JS modellje frame-enként a WebSid-be küldi a SID-regisztereit, és legfeljebb három előnézeti hang osztozik a három voice-on. A stream-lejátszó a szerkesztő megnyitásakor és Stop után betöltődik, így a hang azonnal szól; WebSid nélkül egy kis SID-szintetizátor szól helyette.
+Több-hangszeres 3-voice tracker. A SID Editor eszköztár-gombjával nyílik. A lejátszás és minden előnézet (**Play: All**, hangszer-előnézet, virtuális billentyűzet, hangbeírás, akkord / arpeggio, sor- és egy patternes lejátszás) az emulált SID-en szól: az exportált 6502 lejátszó frame-pontos JS modellje a backendnek küldi a SID-regisztereit, a hangot az rendereli. Az asztali appon kívül egy kis SID-szintetizátor szól helyette.
 
-**Előnézeti motor:** a **Beállítások → Általános → SID előnézet** alatt a **WebSID** vagy a **VA SID Core (Rust)** — az alkalmazás saját SID-emulációja — választható; VA SID Core esetén a chip is (MOS 6581 / 8580). A szerkesztő fejléce mutatja a használt motort (pl. *· VA SID Core v1.2 (MOS 8580)*). A hangszer-paraméterek tekerőgombokkal állíthatók.
+**Előnézeti motor:** a **Beállítások → Általános → SID előnézet** alatt a **reSID (resid-rs)**, ez az alapértelmezett, vagy a **VA SID Core (Rust)**, az alkalmazás saját SID-emulációja választható, és a chip (MOS 6581 / 8580). A szerkesztő fejléce mutatja a használt motort (pl. *· reSID (MOS 8580)*). A hangszer-paraméterek tekerőgombokkal állíthatók.
 
-**Két SID:** a tracker eszköztárán a **SID: 1 / 2** 3 és 6 hang között váltja a dalt. Két SID-nél a mellette lévő lista a második SID címét állítja: `$D420`–`$D7E0` vagy `$DE00`–`$DFE0`, `$20`-as lépésekben. Az oszlopok fejléce **S1 V1** … **S2 V3**. Mindkét SID-nek saját szűrője és hangereje van, és egy hang csak a saját chipjéét vezérli. A VA SID Core és a kis szintetizátor sztereóban játssza a két SID-et (SID 1 balra, SID 2 jobbra); a WebSID a PSID fejlécből kapja a második SID címét. A hang-előnézetek az első SID-en szólnak. Egy SID-re visszaváltva a második SID hangjai törlődnek, és ha van bennük valami, előbb rákérdez.
+**Két SID:** a tracker eszköztárán a **SID: 1 / 2** 3 és 6 hang között váltja a dalt. Két SID-nél a mellette lévő lista a második SID címét állítja: `$D420`–`$D7E0` vagy `$DE00`–`$DFE0`, `$20`-as lépésekben. Az oszlopok fejléce **S1 V1** … **S2 V3**. Mindkét SID-nek saját szűrője és hangereje van, és egy hang csak a saját chipjéét vezérli. A két SID sztereóban szól (SID 1 balra, SID 2 jobbra). A hang-előnézetek az első SID-en szólnak. Egy SID-re visszaváltva a második SID hangjai törlődnek, és ha van bennük valami, előbb rákérdez.
 
 **Hangszerenkénti vezérlők:**
 - Hullámforma jelölőnégyzetek (TRI / SAW / PUL / NOI) — több hullámforma a SID-hez hasonlóan ÉS-elődik —, plusz **RING** (a háromszög gyűrűmodulációja az előző hanggal: 1 ← 3, 2 ← 1, 3 ← 2) és **SYNC** (hard sync az előző hanghoz).
@@ -4638,7 +4644,7 @@ Az effektek soronként egyszer frissülnek (megegyezően az exportált lejátsz�
 - A tracker eszköztár végén lévő **LCD** lejátszás közben a song-pozíciót (POS), a patternt (PAT), a sort (ROW) és a lejátszási időt (TIME) mutatja, leállítva a szerkesztési pozíciót. A **Beállítások → Általános → SID előnézet → LCD színe** zöldre vagy pirosra állítja.
 - A tracker eszköztárán a **Csatorna-spektrum** gomb egy ablakot nyit, amelyben hangonként egy 16 sávos analizátor látszik (két SID-nél 6). A lejátszott SID-regiszterekből számolódik — frekvencia, hullámforma, pulzusszélesség, közelített ADSR, szűrő és hangerő —, nem a hangból, mert a kimenet egyetlen keverék. A gyűrűmoduláció, a sync és a szűrő rezonanciája nem látszik, és csak tracker-lejátszás közben mozog, hang-előnézetnél nem.
 - A billentyűzet eszköztár-gomb a **VA-VK**-t, egy nem-modális zongorát nyit (2, 3 vagy 4 oktáv; a helyét, a nyitott állapotát, az oktávot és az *Insert into tracker*-t megjegyzi) saját **Play / Stop** gombokkal, amely használható marad, míg a SID szerkesztő aktív. Húzd a fejlécét a fő alkalmazás fölé bárhova.
-- A VA-VK **Hangszer** tekerőgombja (húzás, görgő vagy nyílbillentyűk) választja ki a hangszert, a mellette lévő LCD a számát és a nevét mutatja; a szerkesztő hangszerlistáját követi. A VA-VK címe melletti jelvény a használt SID-emulációt mutatja (WebSID vagy VA SID Core a chip-modellel).
+- A VA-VK **Hangszer** tekerőgombja (húzás, görgő vagy nyílbillentyűk) választja ki a hangszert, a mellette lévő LCD a számát és a nevét mutatja; a szerkesztő hangszerlistáját követi. A VA-VK címe melletti jelvény a használt SID-emulációt mutatja (reSID vagy VA SID Core, a chip-modellel).
 - Engedélyezd az **Insert into tracker**-t, hogy minden lejátszott note az aktuális tracker-kurzorra íródjon, és a következő sorra lépjen. Kapcsold ki a note-ok meghallgatásához szerkesztés nélkül.
 - Az akkord- és arpeggio-előnézetek megvilágítják a megfelelő zongorabillentyűket, amikor a billentyűzet nyitva van.
 
@@ -4680,7 +4686,7 @@ Az effektek soronként egyszer frissülnek (megegyezően az exportált lejátsz�
 - A lejátszó és állapota `$C000`-n van. Ha a dal adata nem fér el mellettük `$D000` alatt, az adat külön szegmensbe kerül, amely `$A000` alatt végződik (az exportált asm-ben egy második `* =` sor); ne ütközzön a saját programoddal.
 - A két SID-es dalhoz kétszer annyi pattern-adat kell: a `.sid` és az assembly export legfeljebb 46 patternt tartalmaz, a többi kimarad, erről az assembly forrásban megjegyzés szól. A szerkesztőben a dal teljes marad. Az **Export to UltimateBasic** csak az első három hangot írja ki, megjegyzéssel.
 - A C64 `$D418` globális hangerő megosztott a voice-ok közt — a hangszerenkénti hangerő-csúszka informatív; a sustain szint (az ADSR `S`-e) a tényleges per-voice hangerő.
-- Amíg a **Play: All** valódi dala be van töltve (szüneteltetve is), a hang-előnézet a kis szintetizátoron szól, ami csak közelíti a SID chipet. Az előnézet kb. 0,1 mp-cel a hang előtt jut a WebSid-be.
+- A hang-előnézetet a backend rendereli, mielőtt megszólalna, ezért egy pillanattal a billentyű után indul. Minden előnézeti hangnak saját chipje van, így a hangok nem veszik el egymás voice-át.
 
 ---
 
@@ -4692,10 +4698,10 @@ A **SID Player** toolbar gomb egy lebegő ablakot nyit, amely `.sid` zenefájlok
 
 - **Lejátszási lista:** zenét az **Add .sid files…** gombbal vagy az ablakra húzva adhatsz hozzá, és kattintásra lejátszhatod; a **Remove** és a **Clear playlist** rendet tart. A **Save playlist…** / **Open playlist…** egy `.sidpl` fájlba írja és onnan olvassa a listát, a zenékkel együtt. A lista, az aktuális zene és az ablak nyitott állapota megmarad.
 - **Vezérlés:** Play, Pause, Stop, **Previous** / **Next** zene, több dalt tartalmazó fájloknál **Previous / Next subtune**, valamint időszámláló.
-- **Tekerés:** a pozíciósáv és a **Back / Forward 10 s** a VA SID Core motorral működik. A WebSID nem tud tekerni, ezért vele ezek a vezérlők le vannak tiltva.
+- **Tekerés:** a pozíciósáv és a **Back / Forward 10 s**; a kihagyott rész némán fut le.
 - **Hangerő:** a tekerőgomb közös a SID szerkesztő master hangerejével.
-- **Puffer:** **Beállítások → Általános → SID előnézet → SID Player puffer** (2048, 4096, 8192 vagy 16384 minta). Nagyobb pufferrel nem recseg a hang, ha az app épp dolgozik. A WebSID újraindítás után használja az új méretet, a VA SID Core a következő számtól 10 / 15 / 20 / 30 mp-et renderel előre.
-- **Motor:** az ablak kiírja, melyik motor szól (WebSID, vagy VA SID Core a verziójával és a SID chippel); a **Beállítások → Általános → SID előnézet** alatt választható. A VA SID Core natív Rust C64 magon futtatja a zenét: ciklusra pontos 6510 precíz interrupt-időzítéssel, CIA 6526A, VIC-II időzítés badline-okkal, sprite-DMA-val és raster interruptokkal, valamint a 6510 I/O port — így a raster IRQ-s, CIA-időzített és digi zenék is valódi gép időzítésével szólnak. A VA SID Core a 2SID és 3SID dalokat (PSID v3 / v4) is sztereóban játssza: SID 1 balra, SID 2 jobbra, a harmadik SID középre.
+- **Puffer:** **Beállítások → Általános → SID előnézet → SID Player puffer** (10, 15, 20 vagy 30 mp). Nagyobb pufferrel nem recseg a hang, ha az app épp dolgozik: a következő számtól ennyire előre renderelődik.
+- **Motor:** az ablak kiírja, melyik motor szól (reSID vagy VA SID Core, a SID chippel); a **Beállítások → Általános → SID előnézet** alatt választható. Mindkettő natív Rust C64 magon futtatja a zenét: ciklusra pontos 6510 precíz interrupt-időzítéssel, CIA 6526A, VIC-II időzítés badline-okkal, sprite-DMA-val és raster interruptokkal, valamint a 6510 I/O port — így a raster IRQ-s, CIA-időzített és digi zenék is valódi gép időzítésével szólnak. A 2SID és 3SID dalok (PSID v3 / v4) sztereóban szólnak: SID 1 balra, SID 2 jobbra, a harmadik SID középre.
 - **Véletlen lejátszás:** a **Next** melletti kapcsoló véletlen sorrendben játssza a listát — egy szám sem ismétlődik, amíg mind le nem ment, a **Previous** pedig a véletlen sorrendben lép vissza. A beállítást megjegyzi.
 - **Kedvencek:** a sorokban lévő ☆ / ★ megjelöli a számot; a mentett állapotban és a `.sidpl` lejátszási listákban is megmarad.
 
@@ -4704,6 +4710,7 @@ A **SID Player** toolbar gomb egy lebegő ablakot nyit, amely `.sid` zenefájlok
 A SID Player eszköztárának **HVSC** gombja keresőpanelt nyit a [High Voltage SID Collection](https://www.hvsc.c64.org/) mintegy 61 000 C64 dalához.
 
 - **Keresés:** írj be címet, zeneszerzőt vagy mappát (`hubbard commando`, `games/s-z`); minden szónak egyeznie kell. A **Véletlen dalok** 25 véletlenszerű dalt listáz.
+- **Zeneszerző:** a keresőmező melletti listában a **Minden** helyett a **Zeneszerző** csak a szerzők nevében keres (`hubbard`, `rob hubbard`, `galway`), és szerzők szerint rendezve listáz. A név a dal `MUSICIANS` alatti mappájából jön, ezért a szerzőt a mappa nevén találod meg, ami lehet művésznév is (`laxity`). A `GAMES` és `DEMOS` mappák kb. 4600 dalának nincs szerzői mappája: ezeket a **Minden** találja meg cím vagy mappa alapján.
 - **Lejátszás / hozzáadás / mentés:** kattintásra szól, a **+** a lejátszási listára teszi, a letöltés gomb elmenti a `.sid` fájlt. A **Minden találat a listára** legfeljebb 100 találatot vesz fel.
 - **Dalhosszak:** a HVSC minden aldal hosszát ismeri, ezért a pozíciósáv a valódi hosszt mutatja, és a lista az aldal végén lép tovább.
 - **Honnan jönnek a dalok:** a katalógus és az egyes dalok első használatkor egy HVSC tükörről töltődnek le, és az app gyorsítótárába kerülnek, így egyszer lejátszott dal offline is szól. A **Katalógus frissítése** a legújabb listát kéri le.

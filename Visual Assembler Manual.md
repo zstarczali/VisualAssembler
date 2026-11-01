@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.7.1**
+**Version 2.7.2**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -8,6 +8,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 
 ## Table of Contents
 
+- [Version 2.7.2 Highlights](#version-272-highlights)
 - [Version 2.7.1 Highlights](#version-271-highlights)
 - [Version 2.7.0 Highlights](#version-270-highlights)
 - [Version 2.6.9 Highlights](#version-269-highlights)
@@ -233,6 +234,11 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 
 ---
 
+## Version 2.7.2 Highlights
+
+- **reSID in place of WebSID** — the SID Player and the SID Editor play on the backend, on [resid-rs](https://github.com/binaryfields/resid-rs) (a Rust port of reSID, the default) or on VA SID Core, both with the MOS 6581 or 8580. **Settings → General → SID preview** chooses. Seeking, stereo 2SID and 3SID tunes and the C64 core work with both. WebSID is gone.
+- **SID Player buffer** — **Settings → General → SID preview → SID Player buffer** now states how far ahead the tune is rendered: 10, 15, 20 or 30 s.
+
 ## Version 2.7.1 Highlights
 
 - **Debugger for VICE** — **Settings → General → Debugger** chooses the Debug button's debugger: **Visual Assembler** debugs on the machine of the run mode (VICE, Ultimate emulator, built-in C64), **RetroDebugger** opens the external program. In VICE the window works on your own VICE: breakpoints, step into / over / out, registers, disassembly and memory, with the editor following the CPU. See [Built-in C64 and debugger](#built-in-c64-and-debugger).
@@ -241,7 +247,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 - **SID Player: 2SID and 3SID tunes** — VA SID Core plays them in stereo: SID 1 left, SID 2 right, a third SID in the centre. See [SID Player](#sid-player).
 - **Channel spectrum** — a separate 16-band analyzer for every voice during tracker playback in the SID Editor.
 - **SID Editor** — **Files → New tune**, the tune's title in the header, one button to detach and attach the tracker, and a tidier instrument list in the horizontal tracker.
-- **Fixed** — **D64 on hardware** sends the image type with the mount request, which C64 Ultimate firmware 1.1.0 requires. WebSID could not load the editor's previews and the full tune in **Play: All**; stopping the editor no longer closes the SID Player.
+- **Fixed** — **D64 on hardware** sends the image type with the mount request, which C64 Ultimate firmware 1.1.0 requires; stopping the editor no longer closes the SID Player.
 
 ---
 
@@ -4598,11 +4604,11 @@ Arranges **Map Editor screens** into one level — a vertical shooter, a car gam
 
 ### SID Editor (3-Voice Tracker)
 
-Multi-instrument 3-voice tracker. Open it with the SID Editor toolbar button. **Play: All** runs the exported 6502 player in the WebSid emulator; every other preview (instrument Preview, virtual keyboard, note entry, chord / arpeggio, row and single-pattern playback) also plays on the emulated SID: a JS model of the same player (frame for frame) streams its SID registers to WebSid every frame, and up to three preview notes share the three voices. The stream player is loaded when the editor opens and again after Stop, so notes sound at once; without WebSid a small SID synthesizer plays instead.
+Multi-instrument 3-voice tracker. Open it with the SID Editor toolbar button. Playback and every preview (**Play: All**, instrument Preview, virtual keyboard, note entry, chord / arpeggio, row and single-pattern playback) play on the emulated SID: a JS model of the exported 6502 player (frame for frame) sends its SID registers to the backend, which renders the sound. Outside the desktop app a small SID synthesizer plays instead.
 
-**Preview engine:** **Settings → General → SID preview** selects **WebSID** or **VA SID Core (Rust)**, the app's own SID emulation; with VA SID Core you also choose the chip (MOS 6581 / 8580). The editor's header shows the engine in use (e.g. *· VA SID Core v1.2 (MOS 8580)*). The instrument parameters are set with knobs.
+**Preview engine:** **Settings → General → SID preview** selects **reSID (resid-rs)**, the default, or **VA SID Core (Rust)**, the app's own SID emulation, and the chip (MOS 6581 / 8580). The editor's header shows the engine in use (e.g. *· reSID (MOS 8580)*). The instrument parameters are set with knobs.
 
-**Two SIDs:** **SID: 1 / 2** in the tracker toolbar switches the tune between 3 and 6 voices. With two SIDs, the list next to it sets the second SID's address: `$D420`–`$D7E0` or `$DE00`–`$DFE0`, in steps of `$20`. The columns are headed **S1 V1** … **S2 V3**. Each SID has its own filter and volume, and a voice controls only its own chip's. VA SID Core and the small synthesizer play the two SIDs in stereo (SID 1 left, SID 2 right); WebSID takes the second SID's address from the PSID header. Note previews play on the first SID. Switching back to one SID deletes the second SID's voices, and asks first if they hold anything.
+**Two SIDs:** **SID: 1 / 2** in the tracker toolbar switches the tune between 3 and 6 voices. With two SIDs, the list next to it sets the second SID's address: `$D420`–`$D7E0` or `$DE00`–`$DFE0`, in steps of `$20`. The columns are headed **S1 V1** … **S2 V3**. Each SID has its own filter and volume, and a voice controls only its own chip's. The two SIDs play in stereo (SID 1 left, SID 2 right). Note previews play on the first SID. Switching back to one SID deletes the second SID's voices, and asks first if they hold anything.
 
 **Per-instrument controls:**
 - Waveform checkboxes (TRI / SAW / PUL / NOI) — multiple waveforms are ANDed like on the SID — plus **RING** (ring modulation of the triangle by the previous voice: 1 ← 3, 2 ← 1, 3 ← 2) and **SYNC** (hard sync to the previous voice).
@@ -4650,7 +4656,7 @@ Effects update once per row (matching the exported player's timing), run identic
 - The **LCD** at the end of the tracker toolbar shows the song position (POS), pattern (PAT), row (ROW) and play time (TIME) during playback, and the edit position when stopped. **Settings → General → SID preview → LCD colour** makes it green or red.
 - The **Channel spectrum** button in the tracker toolbar opens a window with a 16-band analyzer per voice (6 with two SIDs). It is calculated from the SID registers being played — frequency, waveform, pulse width, approximated ADSR, filter and volume — not from the audio, because the output is one mix. Ring modulation, sync and filter resonance do not show, and it moves during tracker playback only, not for note previews.
 - The keyboard toolbar button opens **VA-VK**, a non-modal piano (2, 3 or 4 octaves; position, open state, octave and *Insert into tracker* are remembered) with its own **Play / Stop** buttons that remains usable while the SID editor is active. Drag its header to place it anywhere over the main application.
-- The **Instrument** knob on VA-VK (drag, mouse wheel or arrow keys) selects the instrument, shown with its number and name on the LCD next to it; it follows the instrument list of the editor. The badge next to the VA-VK title shows the SID emulation in use (WebSID, or VA SID Core with the chip model).
+- The **Instrument** knob on VA-VK (drag, mouse wheel or arrow keys) selects the instrument, shown with its number and name on the LCD next to it; it follows the instrument list of the editor. The badge next to the VA-VK title shows the SID emulation in use (reSID or VA SID Core, with the chip model).
 - Enable **Insert into tracker** to write each played note at the current tracker cursor and advance to the next row. Disable it to audition notes without editing.
 - Chord and arpeggio previews illuminate the corresponding piano keys when the keyboard is open.
 
@@ -4692,7 +4698,7 @@ Effects update once per row (matching the exported player's timing), run identic
 - The player and its state sit at `$C000`. When the tune data does not fit below `$D000` next to them, the data moves to its own segment ending below `$A000` (the exported asm has a second `* =` line); keep it clear of your own program.
 - A tune with two SIDs needs twice the pattern data: its `.sid` and assembly exports hold at most 46 patterns, and the rest are left out with a note in the assembly source. The tune stays whole in the editor. **Export to UltimateBasic** writes the first three voices only, with a note.
 - C64 `$D418` global volume is shared across voices — the per-instrument volume slider is informational; sustain level (`S` of ADSR) is the effective per-voice volume.
-- While **Play: All** has the real tune loaded (also when paused), note previews fall back to the small synthesizer, which only approximates the SID chip. Previews reach WebSid about 0.1 s ahead of the sound.
+- A note preview is rendered on the backend before it sounds, so it starts a moment after the key press. Every preview note has its own chip, so notes do not take voices from each other.
 
 ---
 
@@ -4704,10 +4710,10 @@ The **SID Player** toolbar button opens a floating window that plays `.sid` musi
 
 - **Playlist:** add tunes with **Add .sid files…** or by dropping them on the window, and click a tune to play it; **Remove** and **Clear playlist** tidy the list. **Save playlist…** / **Open playlist…** write and read a `.sidpl` file with the tunes embedded. The list, the current tune and whether the window is open are remembered.
 - **Transport:** Play, Pause, Stop, **Previous** / **Next** tune, **Previous / Next subtune** for files with several songs, and a time counter.
-- **Seek:** the position bar and **Back / Forward 10 s** work with the VA SID Core engine. WebSID cannot seek, so these controls are disabled with it.
+- **Seek:** the position bar and **Back / Forward 10 s**; the skipped part runs silently.
 - **Volume:** the knob is shared with the SID Editor's master volume.
-- **Buffer:** **Settings → General → SID preview → SID Player buffer** (2048, 4096, 8192 or 16384 samples). A larger buffer stops the crackle while the app is busy. WebSID uses the new size after a restart; VA SID Core renders 10 / 15 / 20 / 30 s ahead from the next tune on.
-- **Engine:** the window shows which engine is playing (WebSID, or VA SID Core with its version and SID chip); choose it in **Settings → General → SID preview**. VA SID Core runs the tune on a native Rust C64 core with a cycle-exact 6510, precise interrupt timing, CIA 6526A, VIC-II timing with bad lines, sprite DMA and raster interrupts, and the 6510 I/O port — so raster-IRQ, CIA-timed and digi tunes play with the timing of a real machine. VA SID Core also plays 2SID and 3SID tunes (PSID v3 / v4) in stereo: SID 1 left, SID 2 right, a third SID in the centre.
+- **Buffer:** **Settings → General → SID preview → SID Player buffer** (10, 15, 20 or 30 s). A larger buffer stops the crackle while the app is busy: the tune is rendered that far ahead, from the next tune on.
+- **Engine:** the window shows which engine is playing (reSID or VA SID Core, with the SID chip); choose it in **Settings → General → SID preview**. Both run the tune on a native Rust C64 core with a cycle-exact 6510, precise interrupt timing, CIA 6526A, VIC-II timing with bad lines, sprite DMA and raster interrupts, and the 6510 I/O port — so raster-IRQ, CIA-timed and digi tunes play with the timing of a real machine. 2SID and 3SID tunes play (PSID v3 / v4) in stereo: SID 1 left, SID 2 right, a third SID in the centre.
 - **Shuffle:** the shuffle button next to **Next** plays the playlist in random order — no tune repeats until every tune has played, and **Previous** steps back along the random order. The setting is remembered.
 - **Favourites:** the ☆ / ★ in each row marks a tune; it is kept in the saved state and in `.sidpl` playlists.
 
@@ -4716,6 +4722,7 @@ The **SID Player** toolbar button opens a floating window that plays `.sid` musi
 The **HVSC** button in the SID Player toolbar opens a search panel for the [High Voltage SID Collection](https://www.hvsc.c64.org/), about 61,000 C64 tunes.
 
 - **Search:** type a title, composer or folder (`hubbard commando`, `games/s-z`); every word has to match. **Random tunes** lists 25 random ones.
+- **Composer:** the list next to the search field switches from **All** to **Composer**, which searches composer names only (`hubbard`, `rob hubbard`, `galway`) and lists the tunes by composer. The name comes from the tune's folder under `MUSICIANS`, so a composer is found by the folder's name, which may be a handle (`laxity`). About 4,600 tunes in `GAMES` and `DEMOS` have no composer folder: **All** finds them by title or folder.
 - **Play / add / save:** click a tune to play it, **+** adds it to the playlist, the download button saves the `.sid` file. **Add all results** adds up to 100 found tunes.
 - **Tune lengths:** HVSC knows the length of every subtune, so the seek bar shows it and the playlist moves on when the subtune ends.
 - **Where tunes come from:** the catalog and single tunes are downloaded from an HVSC mirror on first use and kept in the app's cache, so a tune played once also plays offline. **Update catalog** fetches the newest list.
