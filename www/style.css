@@ -12926,6 +12926,7 @@ button.vm-prof-row:hover { outline: 1px solid var(--primary); }
 @media (max-width: 720px) { .te-body { grid-template-columns: 1fr; } .te-left { border-right: none; border-bottom: 1px solid var(--panel-border); } }
 
 /* ── Aktív nem modális ablak (_dlgMarkActive) ──────────────────────── */
+#sid-editor-dialog > .sid-card { position: relative; }
 dialog.dlg-active[open]:not(:modal) > :first-child,
 #sid-editor-dialog.dlg-active[open] > :first-child,
 .sid-vkbd-dialog.dlg-active > :first-child,
