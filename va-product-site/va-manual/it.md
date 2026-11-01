@@ -304,8 +304,8 @@ tempo reale il codice assembly e il codice macchina generati.
   modificabili, disassemblaggio intorno al PC, visualizzazione della memoria ed
   elenco dei breakpoint. I breakpoint provengono dall'editor, dalla modalità a
   blocchi e dal disassemblaggio, e l'editor segue la CPU. Il pulsante **Debug**
-  lo utilizza in questa modalità e ogni volta che non è impostato alcun
-  RetroDebugger.
+  lo utilizza in questa modalità e nelle modalità hardware reali quando
+  **Assemblatore visivo** è il debugger scelto.
 - **Impostazioni macchina** — PAL o NTSC, SID 6581 o 8580, reSID o FastSID, REU
   fino a 16 MB, porta joystick, warp e suono.
 - **I tuoi file** — il menu **File** carica un PRG e collega un D64 o una
@@ -6260,25 +6260,27 @@ La finestra può essere spostata tramite l'intestazione e ridimensionata
 nell'angolo in basso a destra. La sua posizione, dimensione, stato di apertura e
 impostazioni vengono ripristinate al successivo avvio.
 
-**Debug:** premere **Debug** mentre la modalità di esecuzione è **C64
-integrato**. Il pulsante Debug utilizza questo debugger anche quando non è
-impostato alcun RetroDebugger. Funziona con VMA, progetti Kick, ACME e Ultimate
-Basic. Il programma si ferma al primo breakpoint raggiunto, o alla sua prima
-istruzione se non ci sono breakpoint. Chiudendo la finestra o nascondendo il
-pannello del debugger si termina la sessione: i breakpoint vengono rimossi e un
-programma interrotto continua l'esecuzione (in una finestra chiusa una volta
-riaperta). Le finestre dell'emulatore Ultimate e del debugger VICE si comportano
-allo stesso modo quando vengono chiuse.
+**Debug:** premere **Debug** mentre la modalità di esecuzione è **Built-in
+C64**. Il pulsante Debug utilizza questo debugger anche nelle modalità hardware
+reali quando **Visual Assembler** è il debugger scelto. Funziona con VMA,
+progetti Kick, ACME e Ultimate Basic. Il programma si arresta al primo
+breakpoint raggiunto, o alla sua prima istruzione se non ci sono breakpoint.
+Chiudendo la finestra o nascondendo il pannello del debugger si termina la
+sessione: i breakpoint vengono rimossi e un programma arrestato continua
+l'esecuzione (in una finestra chiusa una volta riaperta). Le finestre
+dell'emulatore Ultimate e del debugger VICE si comportano allo stesso modo
+quando vengono chiuse.
 
 **Scelta del debugger:** **Impostazioni → Generale → Debugger → Pulsante Debug**
-è **Assemblatore visivo** o **RetroDebugger**. Se non impostato, è RetroDebugger
-quando è configurato, altrimenti Assembler visivo. **Assemblatore visivo**
-esegue il debug sulla macchina della modalità di esecuzione: nel tuo VICE
-(*Esegui come PRG*, *Esegui tramite D64*), sull'emulatore Ultimate o sul C64
-integrato (anche per le modalità hardware reali, C64 Ultimate e Kung Fu Flash
-2). **RetroDebugger** apre il programma esterno per le modalità VICE e hardware.
-Le modalità di esecuzione *Built-in C64* e *Ultimate emulator* utilizzano sempre
-il proprio debugger.
+è **Visual Assembler** o **RetroDebugger**. **RetroDebugger** può essere
+selezionato solo dopo aver impostato il suo percorso in **Impostazioni → File e
+percorsi**; se non viene mai scelto, è RetroDebugger quando è configurato,
+altrimenti Visual Assembler. **Visual Assembler** esegue il debug sulla macchina
+della modalità di esecuzione: nel tuo VICE (*Esegui come PRG*, *Esegui tramite
+D64*), sull'emulatore Ultimate o sul C64 integrato (anche per le modalità
+hardware reali, C64 Ultimate e Kung Fu Flash 2). **RetroDebugger** apre il
+programma esterno per le modalità VICE e hardware. Le modalità di esecuzione
+*C64 integrato* e *emulatore Ultimate* utilizzano sempre il proprio debugger.
 
 **Debug in VICE:** con **Assemblatore visivo** selezionato, **Debug** nelle
 modalità *Esegui come PRG* e *Esegui tramite D64* apre la stessa finestra di
@@ -6351,7 +6353,15 @@ Il pulsante **Esegui** della barra degli strumenti è un pulsante **diviso**:
 | **D64 sull'hardware**  | Crea un `.d64` (come Esegui tramite D64) e invialo al **1541 Ultimate / Ultimate 64**, che lo monta ed esegue.                                                                                                                                          |
 | **Kung Fu Flash 2**    | Assembla in formato PRG e caricalo tramite seriale USB su un vero C64/C128 con una cartuccia **Kung Fu Flash 2**. Vedi [Kung Fu Flash 2](#kung-fu-flash-2).                                                                                             |
 
-La modalità selezionata viene salvata tra una sessione e l'altra.
+Il menu elenca solo le modalità per le quali è impostato lo strumento: VICE per
+le prime due, l'indirizzo del dispositivo in **Impostazioni → Integrazioni** per
+C64 Ultimate, la porta (rilevata all'avvio o impostata lì) per Kung Fu Flash 2,
+la cartella del programma, del firmware e della ROM per l'emulatore Ultimate. Il
+**C64 integrato** è sempre presente.
+
+La modalità selezionata viene salvata tra una sessione e l'altra. Se lo
+strumento corrispondente non è presente, Run utilizza VICE o il C64 integrato, e
+la modalità salvata viene ripristinata una volta impostato lo strumento.
 
 ### Indirizzo di caricamento e punto di ingresso
 

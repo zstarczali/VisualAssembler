@@ -296,8 +296,8 @@ maskinkoden i realtid.
   **Bryt**, **Steg in i / över / ut**; redigerbara register och flaggor,
   demontering runt PC, minnesvy och brytpunktslista. Brytpunkter kommer från
   editorn, från blockläge och från demonteringen, och editorn följer CPU:n.
-  Knappen **Felsök** använder den i detta läge, och när ingen RetroDebugger är
-  inställd.
+  Knappen **Felsök** använder den i detta läge och i de verkliga hårdvarulägena
+  när **Visuell assembler** är den valda felsökaren.
 - **Maskininställningar** — PAL eller NTSC, SID 6581 eller 8580, reSID eller
   FastSID, REU upp till 16 MB, joystickport, warp och ljud.
 - **Dina egna filer** — menyn **Filer** laddar en PRG och ansluter en D64 eller
@@ -5615,23 +5615,26 @@ Esc eller ett annat dubbelklick lämnar den. Fönstret kan flyttas med hjälp av
 rubriken och ändra storlek i det nedre högra hörnet. Dess plats, storlek,
 öppningsläge och inställningar återställs vid nästa start.
 
-**Felsökning:** tryck på **Felsökning** medan körläget är **Inbyggd C64**.
-Felsökningsknappen använder också denna felsökare när ingen RetroDebugger är
-inställd. Den fungerar med både VMA, Kick-projekt, ACME och Ultimate Basic.
-Programmet stoppar vid den första brytpunkten det når, eller vid sin första
-instruktion om det inte finns några brytpunkter. Att stänga fönstret eller dölja
-felsökningspanelen avslutar sessionen: brytpunkterna försvinner och ett stoppat
-program körs vidare (i ett stängt fönster när det öppnas igen).
-Ultimate-emulatorn och VICE-felsökarfönstren gör detsamma när de stängs.
+**Felsökning:** tryck på **Felsökning** medan körläget är **Inbyggt C64**.
+Felsökningsknappen använder även denna felsökare i de verkliga hårdvarulägena
+när **Visual Assembler** är den valda felsökaren. Den fungerar med både VMA,
+Kick-projekt, ACME och Ultimate Basic. Programmet stoppar vid den första
+brytpunkten det når, eller vid sin första instruktion om det inte finns några
+brytpunkter. Att stänga fönstret eller dölja felsökarpanelen avslutar sessionen:
+brytpunkterna försvinner och ett stoppat program körs vidare (i ett stängt
+fönster när det öppnas igen). Ultimate-emulatorn och VICE-felsökarfönstren gör
+detsamma när de stängs.
 
 **Välja felsökare:** **Inställningar → Allmänt → Felsökare → Felsökningsknapp**
-är **Visual Assembler** eller **RetroDebugger**. Om den inte är inställd är det
-RetroDebugger när en sådan är konfigurerad, annars Visual Assembler. **Visual
-Assembler** felsöker på maskinen i körläget: i din egen VICE (*Kör som PRG*,
-*Kör via D64*), på Ultimate-emulatorn eller på den inbyggda C64 (även för de
-riktiga hårdvarulägena, C64 Ultimate och Kung Fu Flash 2). **RetroDebugger**
-öppnar det externa programmet för VICE- och hårdvarulägena. Körlägena *Inbyggda
-C64* och *Ultimate emulator* använder alltid sin egen felsökare.
+är **Visual Assembler** eller **RetroDebugger**. **RetroDebugger** kan bara
+väljas när dess sökväg är inställd i **Inställningar → Filer och sökvägar**;
+aldrig vald, det är RetroDebugger när en sådan är konfigurerad, annars Visual
+Assembler. **Visual Assembler** felsöker på maskinen i körläget: i din egen VICE
+(*Kör som PRG*, *Kör via D64*), på Ultimate-emulatorn eller på den inbyggda C64
+(även för de riktiga hårdvarulägena, C64 Ultimate och Kung Fu Flash 2).
+**RetroDebugger** öppnar det externa programmet för VICE- och hårdvarulägena.
+Körlägena *Inbyggda C64* och *Ultimate emulator* använder alltid sin egen
+felsökare.
 
 **Felsökning i VICE:** med **Visual Assembler** vald, **Felsökning** i lägena
 *Kör som PRG* och *Kör via D64* öppnar samma felsökningsfönster för din egen
@@ -5702,7 +5705,15 @@ Verktygsfältets **Kör**-knapp är en **delknapp**:
 | **D64 på hårdvara** | Bygg en `.d64` (som Kör via D64) och skicka den till **1541 Ultimate / Ultimate 64**, som monterar och kör den.                                                                                                             |
 | **Kung Fu Flash 2** | Montera till PRG och ladda upp den via USB-seriellt till en riktig C64/C128 med en **Kung Fu Flash 2**-pickup. Se [Kung Fu Flash 2](#kung-fu-flash-2).                                                                      |
 
-Det valda läget sparas mellan sessionerna.
+Menyn listar endast de lägen vars verktyg är inställt: VICE för de två första,
+enhetsadressen i **Inställningar → Integrationer ** för C64 Ultimate, porten
+(detekterad vid start, eller inställd där) för Kung Fu Flash 2, program-,
+firmware- och ROM-mappen för Ultimate-emulatorn. Den **inbyggda C64 ** finns
+alltid där.
+
+Det valda läget sparas mellan sessioner. Om dess verktyg saknas använder Run
+VICE eller den inbyggda C64, och det sparade läget återställs när verktyget är
+inställt.
 
 ### Ladda adress och startpunkt
 

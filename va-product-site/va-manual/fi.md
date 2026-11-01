@@ -303,8 +303,9 @@ reaaliajassa.
   **Break**, **Step into / over / out**; muokattavat rekisterit ja liput,
   purkaminen tietokoneen ympärille, muistinäkymä ja keskeytyskohtaluettelo.
   Keskeytyskohdat tulevat editorista, lohkotilasta ja purkamisesta, ja editori
-  seuraa suoritinta. **Debug** -painike käyttää sitä tässä tilassa ja aina, kun
-  RetroDebuggeria ei ole asetettu.
+  seuraa suoritinta. **Debug** -painike käyttää sitä tässä tilassa ja
+  reaaliaikaisissa laitteistotiloissa, kun **Visual Assembler** on valittu
+  debuggeri.
 - **Koneen asetukset** — PAL tai NTSC, SID 6581 tai 8580, reSID tai FastSID, REU
   jopa 16 Mt:iin asti, joystick-portti, warp ja ääni.
 - **Omat tiedostosi** — **Tiedostot** -valikko lataa PRG:n ja liittää D64:n tai
@@ -5819,25 +5820,27 @@ Ikkunaa voidaan siirtää sen otsikosta ja muuttaa sen kokoa oikeassa alakulmass
 Sen sijainti, koko, avaustila ja asetukset palautuvat seuraavan käynnistyksen
 yhteydessä.
 
-**Virheenkorjaus:** paina **Debug** suoritustilassa **Sisäänrakennettu C64**.
-Debug-painike käyttää tätä virheenkorjaajaa myös silloin, kun RetroDebuggeria ei
-ole asetettu. Se toimii sekä VMA:n, Kick-projektien, ACME:n että Ultimate
-Basicin kanssa. Ohjelma pysähtyy ensimmäiseen saavuttamaansa keskeytyspisteeseen
-tai ensimmäiseen käskyyn, jos keskeytyspisteitä ei ole. Ikkunan sulkeminen tai
-virheenkorjauspaneelin piilottaminen lopettaa istunnon: keskeytyspisteet
-poistuvat ja pysäytetty ohjelma jatkaa suoritusta (suljetussa ikkunassa, kun se
-avataan uudelleen). Ultimate-emulaattori ja VICE-virheenkorjausikkunat tekevät
-saman suljettaessa.
+**Virheenkorjaus:** paina **Debug** suoritustilassa **Built-in C64**.
+Debug-painike käyttää tätä virheenkorjaajaa myös oikeissa laitteistotiloissa,
+kun **Visual Assembler** on valittu virheenkorjaaja. Se toimii sekä VMA:n,
+Kick-projektien, ACME:n että Ultimate Basicin kanssa. Ohjelma pysähtyy
+ensimmäiseen saavuttamaansa keskeytyspisteeseen tai ensimmäiseen käskyyn, jos
+keskeytyspisteitä ei ole. Ikkunan sulkeminen tai virheenkorjauspaneelin
+piilottaminen lopettaa istunnon: keskeytyspisteet poistuvat ja pysäytetty
+ohjelma jatkaa suoritusta (suljetussa ikkunassa, kun se avataan uudelleen).
+Ultimate-emulaattori ja VICE-virheenkorjausikkunat tekevät saman suljettaessa.
 
 **Virheenkorjaajan valitseminen:** **Asetukset → Yleiset → Virheenkorjaaja →
-Virheenkorjauspainike** on **Visual Assembler** tai **RetroDebugger**. Jos
-painiketta ei ole asetettu, se on RetroDebugger, jos sellainen on konfiguroitu,
-muuten Visual Assembler. **Visual Assembler** suorittaa virheenkorjauksen
-suoritustilan koneella: omassa VICE-ympäristössäsi (*Suorita PRG:nä*, *Suorita
-D64:n kautta*), Ultimate-emulaattorissa tai sisäänrakennetussa C64:ssä (myös
-oikeissa laitteistotiloissa, C64 Ultimate ja Kung Fu Flash 2). **RetroDebugger**
-avaa ulkoisen ohjelman VICE- ja laitteistotiloja varten. Sisäänrakennetut *C64*-
-ja *Ultimate emulator* -ajotilat käyttävät aina omaa virheenkorjaajaansa.
+Virheenkorjauspainike** on **Visual Assembler** tai **RetroDebugger**.
+**RetroDebugger** voidaan valita vasta, kun sen polku on asetettu kohdassa
+**Asetukset → Tiedostot ja polut**; sitä ei koskaan valita, se on RetroDebugger,
+kun sellainen on konfiguroitu, muuten Visual Assembler. **Visual Assembler**
+suorittaa debuggausohjelman suoritustilan koneella: omassa VICE-ympäristössäsi
+(*Suorita PRG:nä*, *Suorita D64:n kautta*), Ultimate-emulaattorissa tai
+sisäänrakennetussa C64:ssä (myös oikeissa laitteistotiloissa, C64 Ultimate ja
+Kung Fu Flash 2). **RetroDebugger** avaa ulkoisen ohjelman VICE- ja
+laitteistotiloille. *Sisäänrakennettu C64* ja *Ultimate-emulaattori* -ajotilat
+käyttävät aina omaa debuggeriaan.
 
 **Virheenkorjaus VICE:ssä:** valittuna **Visual Assembler**, **Debug** *Run as
 PRG* ja *Run via D64* -tiloissa avaa saman virheenkorjausikkunan omalle
@@ -5907,7 +5910,15 @@ Työkalurivin **Suorita**-painike on **jaettu painike**:
 | **D64 laitteistossa**     | Rakenna `.d64` (kuten Run via D64) ja lähetä se **1541 Ultimate / Ultimate 64** -palvelimelle, joka asentaa ja suorittaa sen.                                                                                                 |
 | Kung Fu Flash 2           | Kokoa se PRG:ksi ja lataa se USB-sarjaliitännän kautta oikeaan C64/C128-tietokoneeseen, jossa on **Kung Fu Flash 2** -äänikortti. Katso [Kung Fu Flash 2](#kung-fu-flash-2).                                                  |
 
-Valittu tila tallennetaan istuntojen välillä.
+Valikossa luetellaan vain ne tilat, joiden työkalu on asetettu: VICE kahdelle
+ensimmäiselle, laiteosoite kohdassa **Asetukset → Integraatiot** C64
+Ultimatelle, portti (käynnistyksen yhteydessä havaittu tai siellä asetettu) Kung
+Fu Flash 2:lle, ohjelma, laiteohjelmisto ja ROM-kansio Ultimate-emulaattorille.
+Sisäänrakennettu **C64** on aina paikalla.
+
+Valittu tila tallennetaan istuntojen välillä. Jos sen työkalu puuttuu, Run
+käyttää VICE:tä tai sisäänrakennettua C64:ää, ja tallennettu tila palautuu, kun
+työkalu on asetettu.
 
 ### Kuormausosoite ja saapumispiste
 

@@ -300,11 +300,12 @@ w czasie rzeczywistym.
   Uruchom lub otwórz go przyciskiem na pasku narzędzi. Zobacz [Wbudowany C64 i
   debugger](#built-in-c64-and-debugger).
 - **Debuger** — zatrzymuje się przed instrukcją w punkcie przerwania;
-  **Kontynuuj**, **Przerwij**, **Przejdź do/na/wyjdź**; edytowalne rejestry i
+  **Kontynuuj**, **Przerwij**, **Przejdź do/nad/wyjdź**; edytowalne rejestry i
   flagi, dezasemblacja w obrębie komputera, widok pamięci i lista punktów
   przerwania. Punkty przerwania pochodzą z edytora, z trybu blokowego i z
   dezasemblacji, a edytor podąża za procesorem. Przycisk **Debug** używa go w
-  tym trybie oraz zawsze, gdy nie jest ustawiony RetroDebugger.
+  tym trybie oraz w trybach rzeczywistego sprzętu, gdy wybranym debuggerem jest
+  **Visual Assembler**.
 - **Ustawienia urządzenia** — PAL lub NTSC, SID 6581 lub 8580, reSID lub
   FastSID, REU do 16 MB, port joysticka, zniekształcenie obrazu i dźwięk.
 - **Twoje własne pliki** — menu **Pliki** ładuje plik PRG i podłącza dysk D64
@@ -5964,25 +5965,26 @@ opuszcza. Okno można przesuwać za pomocą nagłówka i zmieniać jego rozmiar 
 prawym dolnym rogu. Jego miejsce, rozmiar, stan otwarcia i ustawienia powracają
 przy następnym uruchomieniu.
 
-**Debugowanie: ** naciśnij **Debugowanie**, gdy trybem pracy jest **Wbudowany
-C64**. Przycisk Debugowanie również korzysta z tego debugera, gdy RetroDebugger
-nie jest ustawiony. Działa on zarówno z projektami VMA, Kick, ACME, jak i
-Ultimate Basic. Program zatrzymuje się po osiągnięciu pierwszego punktu
-przerwania lub po wykonaniu pierwszej instrukcji, jeśli nie ma punktów
-przerwania. Zamknięcie okna lub ukrycie panelu debugera kończy sesję: punkty
-przerwania znikają, a zatrzymany program działa dalej (w zamkniętym oknie po
-jego ponownym otwarciu). Okna emulatora Ultimate i debugera VICE robią to samo
-po zamknięciu.
+**Debugowanie: ** naciśnij **Debugowanie**, gdy trybem roboczym jest **Wbudowany
+C64**. Przycisk Debugowanie używa tego debugera również w trybach sprzętowych,
+gdy wybranym debugerem jest **Visual Assembler**. Działa on zarówno z projektami
+VMA, Kick, ACME, jak i Ultimate Basic. Program zatrzymuje się po osiągnięciu
+pierwszego punktu przerwania lub po wykonaniu pierwszej instrukcji, jeśli nie ma
+punktów przerwania. Zamknięcie okna lub ukrycie panelu debugera kończy sesję:
+punkty przerwania znikają, a zatrzymany program działa dalej (w zamkniętym oknie
+po jego ponownym otwarciu). Okna debugera Ultimate i VICE robią to samo po
+zamknięciu.
 
-**Wybór debugera: ** **Ustawienia → Ogólne → Debuger → Przycisk Debug** to
-**Visual Assembler** lub **RetroDebugger**. Nieustawione, to RetroDebugger, gdy
-jest skonfigurowane, w przeciwnym razie Visual Assembler. **Visual Assembler**
-debuguje na maszynie w trybie uruchamiania: w Twoim własnym VICE (*Uruchom jako
-PRG*, *Uruchom przez D64*), na emulatorze Ultimate lub na wbudowanym C64
-(również w trybach sprzętowych, C64 Ultimate i Kung Fu Flash 2).
-**RetroDebugger** otwiera program zewnętrzny dla trybów VICE i sprzętowego.
-Tryby pracy *Wbudowany C64* i *Emulator Ultimate* zawsze korzystają z własnego
-debugera.
+**Wybór debugera: ** **Ustawienia → Ogólne → Debuger → Przycisk debugowania** to
+**Visual Assembler** lub **RetroDebugger**. **RetroDebugger** można wybrać tylko
+po ustawieniu ścieżki w **Ustawienia → Pliki i ścieżki**; nigdy nie jest
+wybierany, jest to RetroDebugger, jeśli jest skonfigurowany, w przeciwnym razie
+Visual Assembler. **Visual Assembler** debuguje na maszynie w trybie
+uruchomieniowym: w Twoim własnym VICE (*Uruchom jako PRG*, *Uruchom przez D64*),
+na emulatorze Ultimate lub na wbudowanym C64 (również w trybach sprzętowych, C64
+Ultimate i Kung Fu Flash 2). **RetroDebugger** otwiera zewnętrzny program dla
+trybów VICE i sprzętowego. Tryby uruchomieniowe *Wbudowany C64* i *Emulator
+Ultimate* zawsze korzystają z własnego debugera.
 
 **Debugowanie w VICE: ** z wybranym **Visual Assembler**, **Debugowanie** w
 trybach *Uruchom jako PRG* i *Uruchom przez D64* otwiera to samo okno debugera
@@ -6054,7 +6056,14 @@ Przycisk **Uruchom** na pasku narzędzi jest **przyciskiem podzielonym**:
 | **D64 na sprzęcie**     | Zbuduj `.d64` (tak jak Run via D64) i wyślij go do **1541 Ultimate / Ultimate 64**, który go zamontuje i uruchomi.                                                                                                                                    |
 | **Kung Fu Flash 2**     | Zmontuj do formatu PRG i prześlij przez szeregowy port USB na prawdziwy komputer C64/C128 z kartridżem **Kung Fu Flash 2**. Zobacz [Kung Fu Flash 2](#kung-fu-flash-2).                                                                               |
 
-Wybrany tryb jest zapisywany pomiędzy sesjami.
+Menu wyświetla tylko tryby, dla których ustawiono narzędzie: VICE dla pierwszych
+dwóch, adres urządzenia w **Ustawienia → Integracje ** dla C64 Ultimate, port
+(wykryty podczas uruchamiania lub tam ustawiony) dla Kung Fu Flash 2, folder
+programu, oprogramowania układowego i ROM dla emulatora Ultimate. Wbudowany **
+C64 ** jest zawsze obecny.
+
+Wybrany tryb jest zapisywany między sesjami. Jeśli brakuje narzędzia, Run używa
+VICE lub wbudowanego C64, a zapisany tryb powraca po ustawieniu narzędzia.
 
 ### Adres załadunku i punkt wejścia
 

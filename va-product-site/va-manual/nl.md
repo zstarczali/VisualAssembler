@@ -296,11 +296,12 @@ gegenereerde assembly- en machinecode in realtime.
   C64** in het menu Uitvoeren, of open het met de knop in de werkbalk. Zie
   [Ingebouwde C64 en debugger](#built-in-c64-and-debugger).
 - **Debugger** — stopt vóór de instructie bij een breakpoint; **Doorgaan**,
-  **Break**, **Stap in/over/uit**; bewerkbare registers en vlaggen,
+  **Breek**, **Stap in/over/uit**; bewerkbare registers en vlaggen,
   disassembleren rond de programmateller (PC), geheugenweergave en
   breakpointlijst. Breakpoints komen uit de editor, uit de blokmodus en uit de
-  disassembler, en de editor volgt de CPU. De **Debug**-knop gebruikt deze in
-  deze modus, en wanneer er geen RetroDebugger is ingesteld.
+  disassembler, en de editor volgt de CPU. De knop **Debug** gebruikt deze in
+  deze modus, en in de echte hardwaremodi wanneer **Visuele Assembler** de
+  gekozen debugger is.
 - **Machine-instellingen** — PAL of NTSC, SID 6581 of 8580, reSID of FastSID,
   REU tot 16 MB, joystickpoort, warp en geluid.
 - **Uw eigen bestanden** — het **Bestanden** menu laadt een PRG en sluit een D64
@@ -6305,24 +6306,25 @@ grootte kan worden aangepast in de rechteronderhoek. De positie, grootte,
 geopende status en instellingen worden bij de volgende keer opstarten hersteld.
 
 **Debuggen:** druk op **Debug** terwijl de uitvoeringsmodus **Built-in C64** is.
-De Debug-knop gebruikt deze debugger ook wanneer er geen RetroDebugger is
-ingesteld. Het werkt met VMA-, Kick-projecten, ACME en Ultimate Basic. Het
-programma stopt bij het eerste breakpoint dat het bereikt, of bij de eerste
-instructie als er geen breakpoints zijn. Het sluiten van het venster of het
-verbergen van het debuggerpaneel beëindigt de sessie: de breakpoints verdwijnen
-en een gestopt programma wordt voortgezet (in een gesloten venster zodra het
-weer wordt geopend). De Ultimate-emulator en VICE-debuggervensters doen
-hetzelfde wanneer ze worden gesloten.
+De knop Debug gebruikt deze debugger ook in de echte hardwaremodi wanneer
+**Visual Assembler** de gekozen debugger is. Het werkt met VMA, Kick-projecten,
+ACME en Ultimate Basic. Het programma stopt bij het eerste breakpoint dat het
+bereikt, of bij de eerste instructie als er geen breakpoints zijn. Het sluiten
+van het venster of het verbergen van het debuggerpaneel beëindigt de sessie: de
+breakpoints verdwijnen en een gestopt programma wordt voortgezet (in een
+gesloten venster zodra het weer wordt geopend). De Ultimate-emulator en
+VICE-debuggervensters doen hetzelfde wanneer ze worden gesloten.
 
-**De debugger kiezen: ** **Instellingen → Algemeen → Debugger → Debug-knop ** is
-**Visual Assembler ** of **RetroDebugger **. Niet ingesteld, is het
-RetroDebugger als er een is geconfigureerd, anders Visual Assembler. **Visual
-Assembler ** debugt op de machine van de uitvoeringsmodus: in je eigen VICE
-(*Uitvoeren als PRG *, *Uitvoeren via D64 *), op de Ultimate-emulator of op de
-ingebouwde C64 (ook voor de echte hardwaremodi, C64 Ultimate en Kung Fu Flash
-2). **RetroDebugger** opent het externe programma voor de VICE- en hardwaremodi.
-De *Built-in C64* en *Ultimate emulator* uitvoeringsmodi gebruiken altijd hun
-eigen debugger.
+**De debugger kiezen:** **Instellingen → Algemeen → Debugger → Debug-knop** is
+**Visual Assembler** of **RetroDebugger**. **RetroDebugger** kan alleen worden
+geselecteerd als het pad is ingesteld in **Instellingen → Bestanden en paden**;
+als deze niet is geselecteerd, is het RetroDebugger wanneer deze is
+geconfigureerd, anders Visual Assembler. **Visual Assembler** debugt op de
+machine van de uitvoeringsmodus: in je eigen VICE (*Uitvoeren als PRG*,
+*Uitvoeren via D64*), op de Ultimate-emulator of op de ingebouwde C64 (ook voor
+de echte hardwaremodi, C64 Ultimate en Kung Fu Flash 2). **RetroDebugger** opent
+het externe programma voor de VICE- en hardwaremodi. De uitvoeringsmodi
+*Ingebouwde C64* en *Ultimate-emulator* gebruiken altijd hun eigen debugger.
 
 **Debuggen in VICE:** met **Visual Assembler** geselecteerd, **Debug** in de
 *Uitvoeren als PRG* en *Uitvoeren via D64* modi opent hetzelfde debugvenster
@@ -6394,7 +6396,15 @@ De knop **Uitvoeren** in de werkbalk is een **gesplitste knop**:
 | **D64 op hardware**       | Bouw een `.d64` (zoals Run via D64) en stuur het naar de **1541 Ultimate / Ultimate 64**, die het monteert en uitvoert.                                                                                                                                             |
 | **Kung Fu Flash 2**       | Compileer naar PRG en upload het via USB-serieel naar een echte C64/C128 met een **Kung Fu Flash 2** cartridge. Zie [Kung Fu Flash 2](#kung-fu-flash-2).                                                                                                            |
 
-De geselecteerde modus wordt tussen sessies opgeslagen.
+Het menu toont alleen de modi waarvan de tool is ingesteld: VICE voor de eerste
+twee, het apparaatadres in **Instellingen → Integraties** voor C64 Ultimate, de
+poort (gedetecteerd bij opstarten, of daar ingesteld) voor Kung Fu Flash 2, de
+programma-, firmware- en ROM-map voor de Ultimate-emulator. De **Ingebouwde
+C64** is er altijd.
+
+De geselecteerde modus wordt tussen sessies opgeslagen. Als de bijbehorende tool
+ontbreekt, gebruikt Run VICE of de ingebouwde C64, en de opgeslagen modus wordt
+hersteld zodra de tool is ingesteld.
 
 ### Laadadres en toegangspunt
 

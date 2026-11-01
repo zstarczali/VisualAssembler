@@ -301,8 +301,8 @@ időben tekintheti meg a létrehozott assembly és gépi kódot.
   **Break**, **Step into / over / out**; szerkeszthető regiszterek és jelzők, PC
   körüli szétszerelés, memória nézet és töréspont lista. A töréspontok a
   szerkesztőből, a Blokk módból és a szétszerelésből származnak, és a szerkesztő
-  követi a CPU-t. A **Debug** gomb ebben a módban, és akkor is használja, amikor
-  nincs beállítva RetroDebugger.
+  követi a CPU-t. A **Debug** gomb ebben a módban, valamint a valódi hardver
+  módokban használja, amikor a **Visual Assembler** a kiválasztott hibakereső.
 - **Gépbeállítások** — PAL vagy NTSC, SID 6581 vagy 8580, reSID vagy FastSID,
   REU akár 16 MB-ig, joystick port, warp és hang.
 - **Saját fájlok** — a **Fájlok** menü betölt egy PRG-t, és csatlakoztat egy
@@ -5890,22 +5890,25 @@ mozgatható és a jobb alsó sarkában átméretezhető. A helye, mérete, megny
 állapota és beállításai a következő indításkor visszatérnek.
 
 **Hibakeresés:** Nyomja meg a **Debug** gombot, miközben a futási mód **Built-in
-C64**. A Debug gomb ezt a hibakeresőt használja, ha nincs beállítva
-RetroDebugger. VMA, Kick projektekkel, ACME-vel és Ultimate Basic-kel egyaránt
-működik. A program az első elért töréspontnál leáll, vagy az első utasításnál,
-ha nincsenek töréspontok. Az ablak bezárása vagy a hibakereső panel elrejtése
-befejezi a munkamenetet: a töréspontok eltűnnek, és a leállított program tovább
-fut (egy bezárt ablakban, miután újra megnyitják). Az Ultimate emulátor és a
-VICE hibakereső ablakai ugyanezt teszik bezáráskor.
+C64**. A Debug gomb ezt a hibakeresőt használja a valódi hardver módokban is,
+amikor a **Visual Assembler** a kiválasztott hibakereső. VMA, Kick projektekkel,
+ACME és Ultimate Basic programmal egyaránt működik. A program az első elért
+töréspontnál megáll, vagy az első utasításnál, ha nincsenek töréspontok. Az
+ablak bezárása vagy a hibakereső panel elrejtése befejezi a munkamenetet: a
+töréspontok eltűnnek, és a leállított program tovább fut (egy bezárt ablakban,
+miután újra megnyitják). Az Ultimate emulátor és a VICE hibakereső ablakai
+ugyanezt teszik bezáráskor.
 
 **A hibakereső kiválasztása:** **Beállítások → Általános → Hibakereső →
-Hibakeresés gomb** a **Visual Assembler** vagy a **RetroDebugger**.
-Beállítatlanul RetroDebugger, ha konfigurálva van, egyébként Visual Assembler. A
-**Visual Assembler** a futási mód gépén végez hibakeresést: a saját VICE-ban
-(*Futtatás PRG-ként*, *Futtatás D64-en keresztül*), az Ultimate emulátoron vagy
-a beépített C64-en (valódi hardver módokban is, C64 Ultimate és Kung Fu Flash
-2). A **RetroDebugger** megnyitja a külső programot a VICE és hardver módokhoz.
-A beépített * C64* és * Ultimate emulator* futási módok mindig saját hibakeresőt
+Hibakeresés gomb** a **Visual Assembler** vagy a **RetroDebugger** gomb. A
+**RetroDebugger** csak akkor választható ki, ha az elérési útja be van állítva a
+**Beállítások → Fájlok és elérési utak** menüpontban; soha nem választható ki,
+RetroDebugger, ha konfigurálva van, egyébként Visual Assembler. A **Visual
+Assembler** a futási mód gépén hibakeres: a saját VICE-ban (*Futtatás PRG-ként*,
+*Futtatás D64-en keresztül*), az Ultimate emulátoron, vagy a beépített C64-en
+(szintén a valódi hardveres módokhoz, C64 Ultimate és Kung Fu Flash 2). A
+**RetroDebugger** megnyitja a külső programot a VICE és a hardveres módokhoz. A
+*Beépített C64* és az *Ultimate emulátor* futási módok mindig saját hibakeresőt
 használnak.
 
 **Hibakeresés VICE-ban:** a kiválasztott **Visual Assembler**, a **Debug** a
@@ -5979,7 +5982,15 @@ Az eszköztár **Futtatás** gombja egy **osztott gomb**:
 | **D64 hardveren**               | Készíts egy `.d64` fájlt (mint a Run via D64 parancs), és küldd el az **1541 Ultimate / Ultimate 64** szerverre, ami felcsatolja és futtatja azt.                                                                                         |
 | Kung Fu Flash 2 **              | Rakd össze PRG-re, majd töltsd fel USB soros porton keresztül egy igazi C64/C128-ra egy **Kung Fu Flash 2** patronnal. Lásd: [Kung Fu Flash 2]{1].                                                                                        |
 
-A kiválasztott mód a munkamenetek között mentésre kerül.
+A menü csak azokat a módokat listázza, amelyekhez beállított eszköz van: VICE az
+első kettőhöz, az eszközcím a **Beállítások → Integrációk** menüpontban a C64
+Ultimate-hez, a port (indításkor észlelt vagy ott beállított) a Kung Fu Flash
+2-höz, a program, firmware és ROM mappa az Ultimate emulátorhoz. A **Beépített
+C64** mindig ott van.
+
+A kiválasztott mód a munkamenetek között mentésre kerül. Ha a hozzá tartozó
+eszköz hiányzik, a Run a VICE-t vagy a beépített C64-et használja, és a mentett
+mód visszaáll, amint az eszköz be van állítva.
 
 ### Berakodási cím és belépési pont
 

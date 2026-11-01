@@ -303,9 +303,9 @@ generierten Assembler- und Maschinencode in Echtzeit.
   **Anhalten**, **Einzelschritt/Überspringen/Aussteigen**; bearbeitbare Register
   und Flags, Disassemblierung um den Programmzähler (PC), Speicheransicht und
   Haltepunktliste. Haltepunkte stammen aus dem Editor, dem Blockmodus und der
-  Disassemblierung, und der Editor folgt der CPU. Die Schaltfläche **Debuggen**
-  verwendet ihn in diesem Modus und immer dann, wenn kein RetroDebugger
-  eingestellt ist.
+  Disassemblierung, wobei der Editor der CPU folgt. Die Schaltfläche **Debug**
+  verwendet sie in diesem Modus sowie in den Hardware-Modi, wenn **Visueller
+  Assembler** als Debugger ausgewählt ist.
 - **Maschineneinstellungen** — PAL oder NTSC, SID 6581 oder 8580, reSID oder
   FastSID, REU bis zu 16 MB, Joystick-Anschluss, Warp und Sound.
 - **Eigene Dateien** – Das Menü **Dateien** lädt eine PRG-Datei und schließt
@@ -6299,25 +6299,28 @@ Position, Größe, Öffnungsstatus und Einstellungen werden beim nächsten Start
 wiederhergestellt.
 
 **Debugging:** Drücken Sie **Debug**, während der Ausführungsmodus auf
-**Integrierter C64** eingestellt ist. Die Schaltfläche „Debuggen“ verwendet
-diesen Debugger auch dann, wenn kein RetroDebugger eingestellt ist. Er
-funktioniert mit VMA, Kick-Projekten, ACME und Ultimate Basic gleichermaßen. Das
-Programm hält am ersten erreichten Haltepunkt oder, falls keine Haltepunkte
-vorhanden sind, an der ersten Anweisung an. Durch Schließen des Fensters oder
-Ausblenden des Debugger-Panels wird die Sitzung beendet: Die Haltepunkte werden
-gelöscht, und ein angehaltenes Programm wird (in einem geschlossenen Fenster,
-sobald es wieder geöffnet wird) fortgesetzt. Die Fenster des Ultimate-Emulators
-und des VICE-Debuggers verhalten sich beim Schließen genauso.
+**Integriertes C64** eingestellt ist. Die Schaltfläche „Debuggen“ verwendet
+diesen Debugger auch in den Hardware-Modi, wenn **Visual Assembler** als
+Debugger ausgewählt ist. Er funktioniert mit VMA, Kick-Projekten, ACME und
+Ultimate Basic gleichermaßen. Das Programm hält am ersten erreichten Haltepunkt
+oder, falls keine Haltepunkte vorhanden sind, an der ersten Anweisung an. Durch
+Schließen des Fensters oder Ausblenden des Debugger-Panels wird die Sitzung
+beendet: Die Haltepunkte werden gelöscht, und ein angehaltenes Programm wird (in
+einem geschlossenen Fenster, sobald es wieder geöffnet wird) fortgesetzt. Die
+Fenster des Ultimate-Emulators und des VICE-Debuggers verhalten sich beim
+Schließen genauso.
 
 **Auswahl des Debuggers:** **Einstellungen → Allgemein → Debugger → Schaltfläche
-„Debuggen“** ist **Visual Assembler** oder **RetroDebugger**. Wenn keiner der
-beiden konfiguriert ist, wird RetroDebugger verwendet, ansonsten Visual
-Assembler. **Visual Assembler** debuggt auf dem Rechner, auf dem der
-Ausführungsmodus läuft: in Ihrem eigenen VICE (*Als PRG ausführen*, *Über D64
-ausführen*), auf dem Ultimate-Emulator oder auf dem integrierten C64 (auch für
-die Hardware-Modi C64 Ultimate und Kung Fu Flash 2). **RetroDebugger** öffnet
-das externe Programm für die VICE- und Hardware-Modi. Die Laufzeitmodi *Built-in
-C64* und *Ultimate emulator* verwenden immer ihren eigenen Debugger.
+„Debuggen“** ist **Visueller Assembler** oder **RetroDebugger**.
+**RetroDebugger** kann nur ausgewählt werden, wenn sein Pfad unter
+**Einstellungen → Dateien und Pfade** festgelegt wurde; wird er nie ausgewählt,
+ist es RetroDebugger, wenn einer konfiguriert ist, ansonsten Visual Assembler.
+**Visual Assembler** debuggt auf dem Rechner des jeweiligen Ausführungsmodus: in
+Ihrem eigenen VICE (*Ausführen als PRG*, *Ausführen über D64*), auf dem
+Ultimate-Emulator oder auf dem integrierten C64 (auch für die Hardware-Modi C64
+Ultimate und Kung Fu Flash 2). **RetroDebugger** öffnet das externe Programm für
+die VICE- und Hardware-Modi. Die Ausführungsmodi *Integrierter C64* und
+*Ultimate-Emulator* verwenden immer ihren eigenen Debugger.
 
 Debuggen in VICE: Mit dem Visual Assembler (VA) als Programm, öffnet sich beim
 Debuggen in den Modi „Als PRG ausführen“ und „Über D64 ausführen“ dasselbe
@@ -6392,7 +6395,16 @@ Die Schaltfläche **Ausführen** in der Symbolleiste ist eine Schaltfläche
 | **D64 auf Hardware**       | Erstellen Sie eine `.d64` (wie Run via D64) und senden Sie sie an die **1541 Ultimate / Ultimate 64**, die sie einbindet und ausführt.                                                                                                           |
 | **Kung Fu Flash 2**        | Kompilieren Sie die Datei zu PRG und laden Sie sie über USB-Seriell auf einen echten C64/C128 mit einem **Kung Fu Flash 2**-Modul. Siehe [Kung Fu Flash 2](#kung-fu-flash-2).                                                                    |
 
-Der gewählte Modus wird zwischen den Sitzungen gespeichert.
+Das Menü listet nur die Modi auf, deren Tool ausgewählt ist: VICE für die ersten
+beiden, die Geräteadresse unter **Einstellungen → Integrationen** für C64
+Ultimate, der Port (beim Start automatisch erkannt oder dort eingestellt) für
+Kung Fu Flash 2 sowie der Programm-, Firmware- und ROM-Ordner für den
+Ultimate-Emulator. Der **Integrierte C64** ist immer verfügbar.
+
+Der gewählte Modus wird zwischen den Sitzungen gespeichert. Falls das
+entsprechende Werkzeug fehlt, verwendet Run VICE oder den integrierten
+C64-Prozessor; der gespeicherte Modus wird wiederhergestellt, sobald das
+Werkzeug ausgewählt ist.
 
 ### Ladeadresse und Einstiegspunkt
 

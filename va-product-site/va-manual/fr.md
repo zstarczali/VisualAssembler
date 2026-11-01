@@ -301,13 +301,14 @@ visualisez en temps réel le code assembleur et le code machine générés.
   Sélectionnez **C64 intégré** dans le menu Exécuter ou ouvrez-le via son bouton
   dans la barre d'outils. Voir [C64 intégré et
   débogueur](#built-in-c64-and-debugger).
-- **Débogueur** — arrête l'instruction avant un point d'arrêt ; **Continuer**,
-  **Interrompre**, **Pas à pas détaillé ** ; registres et indicateurs
-  modifiables, désassemblage autour du compteur de programme (PC), vue mémoire
-  et liste des points d'arrêt. Les points d'arrêt proviennent de l'éditeur, du
-  mode Bloc et du désassemblage, et l'éditeur suit le fonctionnement du
-  processeur. Le bouton **Déboguer** l'utilise dans ce mode, et lorsqu'aucun
-  RetroDebugger n'est configuré.
+- **Débogueur** — arrête l'exécution avant l'instruction à un point d'arrêt ;
+  **Continuer**, **Interrompre**, **Pas à pas détaillé ** ; registres et
+  indicateurs modifiables, désassemblage autour du compteur de programme (PC),
+  vue mémoire et liste des points d'arrêt. Les points d'arrêt proviennent de
+  l'éditeur, du mode Bloc et du désassemblage, et l'éditeur suit le comportement
+  du processeur. Le bouton **Déboguer** l'utilise dans ce mode, ainsi que dans
+  les modes matériels réels lorsque **Assembleur visuel** est le débogueur
+  sélectionné.
 - **Paramètres de la machine** — PAL ou NTSC, SID 6581 ou 8580, reSID ou
   FastSID, REU jusqu'à 16 Mo, port joystick, warp et son.
 - **Vos propres fichiers** — le menu **Fichiers** charge un PRG et connecte un
@@ -6569,25 +6570,28 @@ permet de le quitter. La fenêtre peut être déplacée par son en-tête et
 redimensionnée dans son coin inférieur droit. Sa position, sa taille, son état
 et ses paramètres sont restaurés au prochain démarrage.
 
-**Débogage : ** appuyez sur **Déboguer ** lorsque le mode d'exécution est **C64
-intégré **. Le bouton Déboguer utilise également ce débogueur lorsqu'aucun
-RetroDebugger n'est sélectionné. Il est compatible avec VMA, les projets Kick,
-ACME et Ultimate Basic. Le programme s'arrête au premier point d'arrêt atteint,
-ou à sa première instruction s'il n'y a pas de points d'arrêt. Fermer la fenêtre
-ou masquer le panneau du débogueur met fin à la session : les points d'arrêt
-disparaissent et le programme, une fois arrêté, continue de s'exécuter (dans une
-fenêtre fermée une fois celle-ci rouverte). Les fenêtres de l'émulateur Ultimate
-et du débogueur VICE fonctionnent de la même manière lorsqu'elles sont fermées.
+Débogage : appuyez sur Déboguer lorsque le mode d'exécution est C64 intégré. Le
+bouton Déboguer utilise également ce débogueur en mode matériel réel lorsque
+l'assembleur visuel est sélectionné. Il est compatible avec VMA, les projets
+Kick, ACME et Ultimate Basic. Le programme s'arrête au premier point d'arrêt
+atteint, ou à sa première instruction s'il n'y a pas de points d'arrêt. Fermer
+la fenêtre ou masquer le panneau du débogueur met fin à la session : les points
+d'arrêt disparaissent et le programme reprend son exécution (dans une fenêtre
+fermée une fois rouverte). Les fenêtres de l'émulateur Ultimate et du débogueur
+VICE se comportent de la même manière lorsqu'elles sont fermées.
 
 **Choix du débogueur : ** **Paramètres → Général → Débogueur → Bouton Déboguer
-** correspond à **Visual Assembler ** ou **RetroDebugger **. Si non défini, il
-s'agit de RetroDebugger ; s'il est configuré, c'est Visual Assembler qui est
-utilisé. **Visual Assembler ** permet de déboguer sur la machine du mode
-d'exécution : dans votre propre VICE (*Exécuter en tant que PRG *, *Exécuter via
-D64 *), sur l'émulateur Ultimate ou sur le C64 intégré (également pour les modes
-matériels réels, C64 Ultimate et Kung Fu Flash 2). **RetroDebugger** ouvre le
-programme externe pour les modes VICE et matériel. Les modes d'exécution *C64
-intégré* et *émulateur ultime* utilisent toujours leur propre débogueur.
+** correspond à **Visual Assembler ** ou **RetroDebugger **. **RetroDebugger **
+ne peut être sélectionné qu'une fois son chemin défini dans **Paramètres →
+Fichiers et chemins ** ; s'il n'est jamais sélectionné par défaut, c'est
+RetroDebugger qui est choisi lorsqu'il est configuré, sinon c'est Visual
+Assembler. L'assembleur visuel (X298X) débogue sur la machine du mode
+d'exécution : dans votre propre VICE (Exécuter en tant que PRG *, Exécuter via
+D64 *, *, Exécuter via D64 *), sur l'émulateur Ultimate ou sur le C64 intégré
+(également pour les modes matériels réels, C64 Ultimate et Kung Fu Flash 2).
+RetroDebugger (X525X) ouvre le programme externe pour les modes VICE et
+matériels. Les modes d'exécution C64 intégré (X607X) et émulateur Ultimate
+(X626X) utilisent toujours leur propre débogueur.
 
 Débogage dans VICE : avec l’assembleur visuel sélectionné, le débogage en mode «
 Exécuter comme PRG » et « Exécuter via D64 » ouvre la même fenêtre de débogage
@@ -6662,7 +6666,15 @@ Le bouton **Exécuter** de la barre d'outils est un bouton **fractionné** :
 | **D64 sur matériel**         | Créez un `.d64` (comme Run via D64) et envoyez-le au **1541 Ultimate / Ultimate 64**, qui le monte et l'exécute.                                                                                                                                                                  |
 | **Kung Fu Flash 2**          | Assemblez le fichier PRG et téléchargez-le via le port série USB sur un véritable C64/C128 équipé d'une cartouche **Kung Fu Flash 2**. Voir [Kung Fu Flash 2](#kung-fu-flash-2).                                                                                                  |
 
-Le mode sélectionné est enregistré entre les sessions.
+Le menu n'affiche que les modes dont l'outil est sélectionné : VICE pour les
+deux premiers, l'adresse du périphérique dans **Paramètres → Intégrations** pour
+C64 Ultimate, le port (détecté au démarrage ou défini à cet endroit) pour Kung
+Fu Flash 2, ainsi que le dossier du programme, du firmware et de la ROM pour
+l'émulateur Ultimate. Le **C64 intégré** est toujours présent.
+
+Le mode sélectionné est enregistré entre les sessions. Si l'outil correspondant
+est manquant, Run utilise VICE ou le C64 intégré, et le mode enregistré est
+rétabli une fois l'outil configuré.
 
 ### Adresse de chargement et point d'entrée
 
