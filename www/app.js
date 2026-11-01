@@ -19054,8 +19054,7 @@ async function loadViceConfig() {
   }
 
   const config = await window.electronAPI.getViceConfig();
-  vicePath = config?.vicePath || "";
-  updateVicePathPreview(vicePath);
+  updateVicePathPreview(config?.vicePath || "");
   updateEmulatorStatus();
 }
 
@@ -19070,7 +19069,9 @@ async function loadExomizerConfig() {
 }
 
 function updateVicePathPreview(nextPath) {
+  const changed = vicePath !== (nextPath || "");
   vicePath = nextPath || "";
+  if (changed) _runModeApply();
   if (vicePathInput) {
     // Shorten long paths for display
     let displayPath = vicePath;
@@ -19149,6 +19150,8 @@ async function loadDebuggerConfig() {
 
 function updateDebuggerPathPreview(nextPath) {
   debuggerPath = nextPath || "";
+  // the Debug button's debugger depends on the path, which arrives after the settings were set up
+  _debuggerChoiceSync();
   if (debuggerPathInput) {
     let displayPath = debuggerPath;
     if (displayPath.length > 50) {
@@ -19604,7 +19607,7 @@ async function runInDebugger() {
     await _udDebug("vice");
     return;
   }
-  if (runMode === "web64" || choice === "va" || !debuggerPath) {
+  if (runMode === "web64" || choice === "va") {
     await _w64Debug();
     return;
   }
@@ -19715,7 +19718,7 @@ function getProjectPayload() {
       zoom: blockScale,
       language: currentLanguage,
       theme: document.documentElement.dataset.theme || "light",
-      runMode: runMode,
+      runMode: _runModeWanted,
       assemblerSyntax
     },
     d64: {
@@ -20031,7 +20034,7 @@ function _buildSnapshotPayloadFromTab(tab) {
       zoom: blockScale,
       language: currentLanguage,
       theme: document.documentElement.dataset.theme || "light",
-      runMode: runMode
+      runMode: _runModeWanted
     },
     d64: {
       diskName: d64ExportState.diskName,
@@ -24577,6 +24580,28 @@ async function confirmD64Export() {
 // ── Run mode (PRG / D64) split button ─────────────────────────────────────────
 
 let runMode = "prg";
+// asked for by the user, the project or the last session; runMode is what can run now, so a mode
+// without its tool comes back by itself once the tool is set (the paths also load after startup)
+let _runModeWanted = "prg";
+let _ue2Ready = false;
+const _RUN_MODE_ITEMS = {
+  prg: "run-prg-mode",
+  d64: "run-d64-mode",
+  ultimate: "run-ultimate-mode",
+  "ultimate-d64": "run-ultimate-d64-mode",
+  kff2: "run-kff2-mode",
+  ue2: "run-ue2-mode",
+  "ue2-d64": "run-ue2-d64-mode",
+  web64: "run-web64-mode",
+};
+
+function _runModeAvailable(mode) {
+  if (mode === "prg" || mode === "d64") return !!vicePath;
+  if (mode === "ultimate" || mode === "ultimate-d64") return !!ultimateHost;
+  if (mode === "kff2") return !!kff2Port;
+  if (mode === "ue2" || mode === "ue2-d64") return _ue2Ready;
+  return true;
+}
 
 function getRunModeLabel(mode) {
   if (mode === "d64") return t("runViaD64");
@@ -24637,26 +24662,27 @@ function setupRunModeDropdown() {
   document.getElementById("run-web64-mode")?.addEventListener("click", () => { setRunMode("web64"); closeMenu(); });
 
   const saved = localStorage.getItem("runMode");
-  if (["prg", "d64", "ultimate", "ultimate-d64", "kff2", "ue2", "ue2-d64", "web64"].includes(saved)) setRunMode(saved);
+  if (["prg", "d64", "ultimate", "ultimate-d64", "kff2", "ue2", "ue2-d64", "web64"].includes(saved)) _runModeWanted = saved;
+  _runModeApply();
 }
 
 function setRunMode(mode) {
-  runMode = mode;
+  _runModeWanted = mode;
   localStorage.setItem("runMode", mode);
-  const prgBtn = document.getElementById("run-prg-mode");
-  const d64Btn = document.getElementById("run-d64-mode");
-  const ulBtn = document.getElementById("run-ultimate-mode");
-  const ulD64Btn = document.getElementById("run-ultimate-d64-mode");
-  const kff2Btn = document.getElementById("run-kff2-mode");
-  if (prgBtn) prgBtn.classList.toggle("active", mode === "prg");
-  if (d64Btn) d64Btn.classList.toggle("active", mode === "d64");
-  if (ulBtn) ulBtn.classList.toggle("active", mode === "ultimate");
-  if (ulD64Btn) ulD64Btn.classList.toggle("active", mode === "ultimate-d64");
-  if (kff2Btn) kff2Btn.classList.toggle("active", mode === "kff2");
-  document.getElementById("run-ue2-mode")?.classList.toggle("active", mode === "ue2");
-  document.getElementById("run-ue2-d64-mode")?.classList.toggle("active", mode === "ue2-d64");
+  _runModeApply();
+}
+
+function _runModeApply() {
+  const fallback = _runModeAvailable("prg") ? "prg" : "web64";
+  const mode = _runModeAvailable(_runModeWanted) ? _runModeWanted : fallback;
+  runMode = mode;
+  for (const [itemMode, id] of Object.entries(_RUN_MODE_ITEMS)) {
+    const item = document.getElementById(id);
+    if (!item) continue;
+    item.hidden = !_runModeAvailable(itemMode);
+    item.classList.toggle("active", itemMode === mode);
+  }
   window.electronAPI?.ue2SetMonitorTarget?.(mode === "ue2" || mode === "ue2-d64");
-  document.getElementById("run-web64-mode")?.classList.toggle("active", mode === "web64");
   const label = document.querySelector("#run-emulator .run-label");
   const runLabel = getRunModeLabel(mode);
   if (label) label.textContent = runLabel;
@@ -25366,6 +25392,7 @@ function setupUltimateSettings() {
     hostInput.addEventListener("change", () => {
       ultimateHost = hostInput.value.trim();
       localStorage.setItem("ultimateHost", ultimateHost);
+      _runModeApply();
     });
   }
   if (passInput) {
@@ -25386,6 +25413,7 @@ function setupKff2Settings() {
   portInput.addEventListener("change", () => {
     kff2Port = portInput.value.trim();
     localStorage.setItem("kff2Port", kff2Port);
+    _runModeApply();
   });
   detectBtn?.addEventListener("click", () => detectKff2Port());
   detectKff2Port();
@@ -25411,6 +25439,8 @@ function _ue2ErrorText(result) {
 
 function _ue2ApplyConfig(config) {
   if (!config) return;
+  _ue2Ready = !!(config.exe && config.firmware && config.roms);
+  _runModeApply();
   const setValue = (id, value) => {
     const input = document.getElementById(id);
     if (input) input.value = value ?? "";
@@ -25463,6 +25493,7 @@ function detectKff2Port() {
     kff2Port = result.port;
     if (portInput) portInput.value = result.port;
     localStorage.setItem("kff2Port", kff2Port);
+    _runModeApply();
     if (status) status.textContent = `KFF2: ${result.port}`;
   }).catch((error) => {
     if (status) status.textContent = String(error);
@@ -62204,14 +62235,25 @@ async function _udBreak() {
 // The Debug button: "va" = the Visual Assembler debugger on the machine of the run mode (VICE,
 // Ultimate emulator, built-in C64; the built-in C64 for the hardware modes), "retro" = RetroDebugger.
 // Unset: RetroDebugger when it is configured, as before; the old VICE choice means "va".
+// Without a RetroDebugger path it is always "va"; a stored "retro" comes back with the path.
 function _debuggerChoice() {
+  if (!debuggerPath) return "va";
   let stored = null;
   try {
     stored = localStorage.getItem("c64va-debugger");
     if (!stored && localStorage.getItem("c64va-debug-target") === "vice") stored = "va";
   } catch (_) {}
-  if (stored === "va" || stored === "retro") return stored;
-  return debuggerPath ? "retro" : "va";
+  return stored === "va" || stored === "retro" ? stored : "retro";
+}
+
+function _debuggerChoiceSync() {
+  const retro = document.getElementById("debugger-choice-retro");
+  if (retro) {
+    retro.disabled = !debuggerPath;
+    retro.textContent = debuggerPath ? t("debuggerChoiceRetro") : `${t("debuggerChoiceRetro")} (${t("debuggerNotConfiguredPlaceholder")})`;
+  }
+  const choice = document.getElementById("debugger-choice");
+  if (choice) choice.value = _debuggerChoice();
 }
 
 async function _udDebug(target = _ud.target) {
@@ -62257,7 +62299,7 @@ async function _udDebug(target = _ud.target) {
 function setupUe2Debugger() {
   const debuggerChoice = document.getElementById("debugger-choice");
   if (debuggerChoice) {
-    debuggerChoice.value = _debuggerChoice();
+    _debuggerChoiceSync();
     debuggerChoice.addEventListener("change", () => {
       try {
         localStorage.setItem("c64va-debugger", debuggerChoice.value);

@@ -889,6 +889,8 @@ html[data-theme="starlight"] .main-tb-debug:hover {
   transition: background 0.12s;
 }
 
+.run-mode-item[hidden] { display: none; }
+
 .run-mode-item:hover {
   background: var(--secondary-soft);
 }
