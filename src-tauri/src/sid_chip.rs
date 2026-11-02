@@ -37,6 +37,8 @@ pub struct ResidChip {
     sample: i16,
     bus_value: u8,
     bus_ttl: u32,
+    /// The idle level `settle_on_mixer` found, taken off every sample.
+    dc_trim: i16,
 }
 
 impl ResidChip {
@@ -65,7 +67,7 @@ impl ResidChip {
                 sid
             })
             .clone();
-        Self { sid, sample: 0, bus_value: 0, bus_ttl: 0 }
+        Self { sid, sample: 0, bus_value: 0, bus_ttl: 0, dc_trim: 0 }
     }
 
     fn write(&mut self, register: u8, value: u8) {
@@ -95,7 +97,7 @@ impl ResidChip {
         let mut buffer = [0i16; 1];
         let (samples, _) = self.sid.sample(1, &mut buffer, 1);
         if samples > 0 {
-            self.sample = buffer[0];
+            self.sample = buffer[0].saturating_sub(self.dc_trim);
         }
         samples > 0
     }
@@ -147,6 +149,23 @@ impl SidChip {
         match self {
             SidChip::VaCore(core) => core.output_sample(),
             SidChip::Resid(chip) => chip.sample,
+        }
+    }
+
+    /// Opens the chip on `$D415-$D418` (`mixer`, in register order) and lets the output
+    /// settle. In reSID the volume scales the output's DC level, and the external
+    /// filter turns that step into a click of about 10 ms. Its integer high-pass also
+    /// stops short of zero (up to 905 of 32768 on the 6581), a step at the start of a
+    /// buffer, so that idle level is taken off.
+    pub fn settle_on_mixer(&mut self, mixer: &[u8]) {
+        if let SidChip::Resid(chip) = self {
+            for (offset, value) in mixer.iter().enumerate() {
+                chip.write(0x15 + offset as u8, *value);
+            }
+            for _ in 0..RESID_SETTLE_CYCLES {
+                chip.clock();
+            }
+            chip.dc_trim = chip.sample;
         }
     }
 

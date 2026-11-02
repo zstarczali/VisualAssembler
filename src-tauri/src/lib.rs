@@ -19,6 +19,7 @@ use tauri_plugin_opener::OpenerExt;
 mod c64;
 mod debugger;
 mod hvsc;
+mod midi_permission;
 mod mos6510;
 mod sid_chip;
 mod sid_core;
@@ -695,7 +696,13 @@ fn render_sid_preview_blocking(payload: SidPreviewPayload) -> Result<String, Str
     };
     let engine = sid_chip::SidEngine::parse(&payload.engine);
     let new_chips = || -> Vec<PreviewChip> {
-        (0..chip_count).map(|_| (sid_chip::SidChip::new(engine, sample_rate, model), [0; 3])).collect()
+        (0..chip_count)
+            .map(|index| {
+                let mut sid = sid_chip::SidChip::new(engine, sample_rate, model);
+                sid.settle_on_mixer(&payload.frames[0][index * 0x19 + 0x15..index * 0x19 + 0x19]);
+                (sid, [0; 3])
+            })
+            .collect()
     };
     // mono, or interleaved stereo with SID 1 left and SID 2 right
     let render_frames = |chips: &mut [PreviewChip]| {
@@ -738,11 +745,28 @@ fn render_sid_preview_blocking(payload: SidPreviewPayload) -> Result<String, Str
         *last_used = Instant::now();
         render_frames(chips)
     } else {
-        render_frames(&mut new_chips())
+        let mut pcm = render_frames(&mut new_chips());
+        fade_buffer_end(&mut pcm, chip_count, sample_rate);
+        pcm
     };
 
     let bytes: Vec<u8> = pcm.iter().flat_map(|sample| sample.to_le_bytes()).collect();
     Ok(base64::engine::general_purpose::STANDARD.encode(bytes))
+}
+
+/// A one-shot preview plays as a buffer of its own: its end fades, so that whatever
+/// level the release left does not stop in a step.
+fn fade_buffer_end(pcm: &mut [i16], channels: usize, sample_rate: u32) {
+    let samples = pcm.len() / channels;
+    let fade = (sample_rate as usize / 200).min(samples);
+    for step in 0..fade {
+        let index = samples - fade + step;
+        let gain = (fade - 1 - step) as f32 / fade as f32;
+        for channel in 0..channels {
+            let sample = &mut pcm[index * channels + channel];
+            *sample = (f32::from(*sample) * gain) as i16;
+        }
+    }
 }
 
 #[tauri::command]
@@ -5923,6 +5947,9 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_shell::init())
         .setup(|app| {
+            if let Some(window) = app.get_webview_window("main") {
+                midi_permission::allow_without_prompt(&window);
+            }
             // Fallback: if the frontend never shows the main window, show it after 3 s.
             let handle = app.handle().clone();
             std::thread::spawn(move || {
@@ -6202,6 +6229,33 @@ mod sid_preview_tests {
         frame[at + 6] = 0xf0;
         frame[at + 0x18] = 0x0f;
         frame
+    }
+
+    /// Every note preview is a new chip, and its buffer plays on its own. With the
+    /// slowest attack the voice is silent in its first 10 ms, so whatever sounds there
+    /// is the click of the opening. The end of the buffer has to reach silence too.
+    #[test]
+    fn a_note_preview_on_resid_opens_and_ends_without_a_click() {
+        for model in ["6581", "8580"] {
+            for filter in [0x00, 0x1f] {
+                let mut frame = note_frame(0x1a, 0);
+                frame[5] = 0xf0;
+                frame[0x17] = filter;
+                frame[0x18] = 0x1f;
+                let pcm = render_sid_preview_blocking(SidPreviewPayload {
+                    engine: "resid".into(),
+                    sample_rate: 44_100,
+                    model: model.into(),
+                    session_id: None,
+                    frames: vec![frame; 2],
+                })
+                .map(|pcm| decode(&pcm))
+                .unwrap();
+                let peak = pcm[..441].iter().map(|sample| i32::from(*sample).abs()).max().unwrap();
+                assert!(peak < 50, "{model} filter {filter:#x}: click of {peak}");
+                assert_eq!(*pcm.last().unwrap(), 0, "{model} filter {filter:#x}");
+            }
+        }
     }
 
     #[test]

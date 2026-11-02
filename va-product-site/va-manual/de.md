@@ -1,6 +1,6 @@
 # C64 Visual Assembler – Benutzerhandbuch
 
-**Version 2.7.1**
+**Version 2.7.2**
 
 Ein visueller, blockbasierter 6502-Assembler für den Commodore 64. Erstellen Sie
 Programme durch Ziehen und Ablegen von Befehlsblöcken und sehen Sie den
@@ -10,6 +10,7 @@ generierten Assembler- und Maschinencode in Echtzeit.
 
 ## Inhaltsverzeichnis
 
+- [Version 2.7.2 Highlights](#version-272-highlights)
 - [Version 2.7.1 Highlights](#version-271-highlights)
 - [Version 2.7.0 Highlights](#version-270-highlights)
 - [Version 2.6.9 Highlights](#version-269-highlights)
@@ -248,6 +249,18 @@ generierten Assembler- und Maschinencode in Echtzeit.
 
 ---
 
+## Highlights der Version 2.7.2
+
+- **reSID anstelle von WebSID** – Der SID-Player und der SID-Editor laufen im
+  Hintergrund auf [resid-rs](https://github.com/binaryfields/resid-rs) (einer
+  Rust-Portierung von reSID, Standardeinstellung) oder auf dem VA SID Core,
+  jeweils mit dem MOS 6581 oder 8580. **Einstellungen → Allgemein →
+  SID-Vorschau** auswählen. Suchfunktion, Stereo-2SID- und 3SID-Tunes sowie der
+  C64-Core funktionieren mit beiden. WebSID ist nicht mehr verfügbar.
+- **SID Player buffer** — **Einstellungen → Allgemein → SID-Vorschau → SID
+  Player buffer** gibt jetzt an, wie weit im Voraus die Melodie gerendert wird:
+  10, 15, 20 oder 30 s.
+
 ## Highlights der Version 2.7.1
 
 - **Debugger für VICE** – **Einstellungen → Allgemein → Debugger** wählt den
@@ -285,10 +298,9 @@ generierten Assembler- und Maschinencode in Echtzeit.
 - **SID Editor** — **Dateien → Neues Stück**, der Titel des Stücks in der
   Kopfzeile, eine Schaltfläche zum Trennen und Verbinden des Trackers und eine
   übersichtlichere Instrumentenliste im horizontalen Tracker.
-- **Behoben** — **D64 auf Hardware** sendet den Image-Typ mit der Mount-Anfrage,
-  was die C64 Ultimate Firmware 1.1.0 erfordert. WebSID konnte die
-  Editor-Vorschauen und den vollständigen Song in **Wiedergabe: Alle** nicht
-  laden; das Beenden des Editors schließt den SID Player nicht mehr.
+- **Behoben** — **D64 auf Hardware** sendet den Image-Typ mit der
+  Mount-Anforderung, was die C64 Ultimate Firmware 1.1.0 erfordert; das Beenden
+  des Editors schließt den SID Player nicht mehr.
 
 ---
 
@@ -7075,21 +7087,19 @@ Ultimate Basic 1.6.1+, `map load "level.bin", $4000` und `map view px, py`
 
 ### SID-Editor (3-Stimmen-Tracker)
 
-Multiinstrument-Tracker mit 3 Stimmen. Öffnen Sie ihn über die Schaltfläche in
-der SID-Editor-Symbolleiste. **Play: All** startet den exportierten 6502-Player
-im WebSid-Emulator. Alle anderen Vorschauen (Instrumentenvorschau, virtuelle
-Tastatur, Noteneingabe, Akkord-/Arpeggio-, Zeilen- und Einzelmusterwiedergabe)
-werden ebenfalls über das emulierte SID wiedergegeben: Ein JS-Modell desselben
-Players (Frame für Frame) streamt seine SID-Register in jedem Frame an WebSid,
-und bis zu drei Vorschau-Noten teilen sich die drei Stimmen. Der Stream-Player
-wird beim Öffnen des Editors und nach dem Stoppen erneut geladen, sodass die
-Noten gleichzeitig erklingen. Ohne WebSid wird stattdessen ein kleiner
-SID-Synthesizer verwendet.
+Multiinstrumentaler 3-stimmiger Tracker. Öffnen Sie ihn über die Schaltfläche in
+der SID-Editor-Symbolleiste. Wiedergabe und alle Vorschauen (**Wiedergabe:
+Alle**, Instrumentenvorschau, virtuelle Tastatur, Noteneingabe,
+Akkord-/Arpeggio-Wiedergabe, Zeilen- und Einzelmusterwiedergabe) werden auf dem
+emulierten SID wiedergegeben: Ein JS-Modell des exportierten 6502-Players (Frame
+für Frame) sendet seine SID-Register an das Backend, das den Klang rendert.
+Außerhalb der Desktop-Anwendung wird stattdessen ein kleiner SID-Synthesizer
+abgespielt.
 
-**Vorschau-Engine:** **Einstellungen → Allgemein → SID-Vorschau** wählt
-**WebSID** oder **VA SID Core (Rust)**, die eigene SID-Emulation der App; bei VA
-SID Core wählen Sie auch den Chip (MOS 6581 / 8580). Die Kopfzeile des Editors
-zeigt die verwendete Engine an (z. B. *· VA SID Core v1.2 (MOS 8580)*). Die
+**Vorschau-Engine:** **Einstellungen → Allgemein → SID-Vorschau** wählt **reSID
+(resid-rs)**, die Standardeinstellung, oder **VA SID Core (Rust)**, die eigene
+SID-Emulation der Anwendung, und den Chip (MOS 6581 / 8580) aus. Die Kopfzeile
+des Editors zeigt die verwendete Engine an (z. B. *· reSID (MOS 8580)*). Die
 Instrumentenparameter werden über Drehregler eingestellt.
 
 **Zwei SIDs:** **SID: 1 / 2** In der Tracker-Symbolleiste kann die Melodie
@@ -7097,12 +7107,10 @@ zwischen 3 und 6 Stimmen umgeschaltet werden. Bei zwei SIDs legt die Liste
 daneben die Adresse der zweiten SID fest: `$D420`–`$D7E0` oder `$DE00`–`$DFE0`,
 in Schritten von `$20`. Die Spalten sind mit **S1 V1** … **S2 V3**
 überschrieben. Jede SID hat ihren eigenen Filter und ihre eigene Lautstärke, und
-eine Stimme steuert nur ihren eigenen Chip. VA SID Core und der kleine
-Synthesizer spielen die beiden SIDs in Stereo (SID 1 links, SID 2 rechts);
-WebSID liest die Adresse der zweiten SID aus dem PSID-Header. Notenvorschauen
-werden auf der ersten SID abgespielt. Beim Zurückschalten auf eine SID werden
-die Stimmen der zweiten SID gelöscht und zuvor geprüft, ob diese Daten
-enthalten.
+eine Stimme steuert nur ihren eigenen Chip. Die beiden SIDs werden in Stereo
+wiedergegeben (SID 1 links, SID 2 rechts). Die Notenvorschau wird auf dem ersten
+SID abgespielt. Beim Zurückschalten auf einen SID werden die Stimmen des zweiten
+SID ausgeblendet und es wird zunächst gefragt, ob etwas in der Hand liegt.
 
 **Instrumentenspezifische Steuerung:**
 - Wellenform-Kontrollkästchen (TRI / SAW / PUL / NOI) — mehrere Wellenformen
@@ -7227,11 +7235,11 @@ gespeichert/geladen.
   einfügen* werden gespeichert) mit eigenen **Wiedergabe-/Stopp-Schaltflächen**,
   das auch während der Nutzung des SID-Editors verwendet werden kann. Ziehen Sie
   die Kopfzeile an eine beliebige Stelle innerhalb der Hauptanwendung.
-- Mit dem **Instrument**-Regler am VA-VK (Ziehen, Mausrad oder Pfeiltasten) wird
-  das Instrument ausgewählt, dessen Nummer und Name auf dem daneben stehenden
-  LCD-Display angezeigt werden; es folgt der Instrumentenliste des Editors. Das
-  Symbol neben dem VA-VK-Titel zeigt die verwendete SID-Emulation an (WebSID
-  oder VA SID Core, abhängig vom Chipmodell).
+- Mit dem Drehknopf **Instrument** auf dem VA-VK (Ziehen, Mausrad oder
+  Pfeiltasten) wird das Instrument ausgewählt, dessen Nummer und Name auf dem
+  daneben stehenden LCD-Display angezeigt werden; es folgt der Instrumentenliste
+  des Editors. Das Symbol neben dem VA-VK-Titel zeigt die verwendete
+  SID-Emulation an (reSID oder VA SID Core, mit Angabe des Chipmodells).
 - Aktivieren Sie **In Tracker einfügen**, um jede gespielte Note an der
   aktuellen Tracker-Cursorposition zu speichern und zur nächsten Zeile zu
   wechseln. Deaktivieren Sie diese Funktion, um Noten ohne Bearbeitung
@@ -7321,6 +7329,15 @@ Konvertierung.
 - Eine Meldung listet auf, was angenähert wurde, beispielsweise Slides, die zu
   Halbtonschritten werden, oder Tabellen mit mehr als 32 Schritten.
   RSID-Melodien, die als BASIC-Programm beginnen, werden nicht unterstützt.
+- **Filter- und Pulsbewegung:** Ein Filter-Sweep zählt über die gesamte Note,
+  auch nachdem die Wellenform verstummt ist, und endet dort, wo eine andere Note
+  den Filter neu startet. Eine schnell abfallende Filtertabelle zählt bis zum
+  Erreichen dieses Punktes, innerhalb der vom Spieler festgelegten 127 pro
+  Frame. Ein Filter-LFO springt zwischen seinen Extremwerten hin und her. Ein
+  Instrument speichert den Pulsbereich aller seiner Noten. Puls und Filter
+  starten weiterhin bei jeder gerouteten Note neu, daher wird ein Sweep, der
+  frei über viele Noten läuft, nur angenähert, und Tonhöhen zwischen Halbtönen
+  werden auf den nächsten Halbton gerundet.
 - **Mehrere SIDs:** Eine Melodie mit 2 SIDs wird zu sechs Stimmen erweitert und
   übernimmt die Adresse ihrer zweiten SID. Eine Melodie mit 3 SIDs importiert
   ihre ersten beiden SIDs, was durch eine entsprechende Meldung signalisiert
@@ -7349,10 +7366,10 @@ aktuellen Stimme).
 - C64 `$D418` Die globale Lautstärke wird über alle Stimmen hinweg geteilt – der
   Lautstärkeregler pro Instrument dient nur der Information; der Sustain-Pegel
   (`S` von ADSR) ist die effektive Lautstärke pro Stimme.
-- Während **Play: All** die eigentliche Melodie lädt (auch im Pausenmodus),
-  greifen die Notenvorschauen auf den kleinen Synthesizer zurück, der den
-  SID-Chip nur annähernd simuliert. Die Vorschauen erreichen WebSID etwa 0,1
-  Sekunden vor dem eigentlichen Ton.
+- Eine Notenvorschau wird im Hintergrund gerendert, bevor die Note erklingt,
+  sodass sie einen Moment nach dem Tastendruck startet. Jede Vorschaunote hat
+  ihren eigenen Chip, sodass sich die Noten nicht gegenseitig die Stimmen
+  wegnehmen.
 
 ---
 
@@ -7376,26 +7393,23 @@ aus der HVSC-Sammlung.
 - **Transport:** Wiedergabe, Pause, Stopp, **Vorheriger** / **Nächster** Titel,
   **Vorheriger / Nächster Unterton** für Dateien mit mehreren Titeln und ein
   Zeitzähler.
-- **Suchen:** Die Positionsleiste und **Zurück/Vorwärts 10 s** funktionieren mit
-  der VA SID Core-Engine. WebSID unterstützt keine Suchfunktion, daher sind
-  diese Steuerelemente deaktiviert.
+- **Suchen:** Positionsleiste und **Zurück / Vorwärts 10 s**; der übersprungene
+  Teil läuft stumm ab.
 - **Lautstärke:** Der Regler wird mit der Master-Lautstärke des SID-Editors
   geteilt.
 - **Puffer:** **Einstellungen → Allgemein → SID-Vorschau → SID-Player-Puffer**
-  (2048, 4096, 8192 oder 16384 Samples). Ein größerer Puffer verhindert das
-  Knistern, während die Anwendung ausgelastet ist. WebSID verwendet nach einem
-  Neustart die neue Puffergröße; VA SID Core rendert 10/15/20/30 Sekunden im
-  Voraus ab dem nächsten Titel.
-- **Engine:** Das Fenster zeigt die aktuell abspielende Engine an (WebSID oder
-  VA SID Core mit Versionsnummer und SID-Chip). Die Auswahl erfolgt unter
-  **Einstellungen → Allgemein → SID-Vorschau**. VA SID Core spielt die Melodie
-  auf einem nativen Rust C64-Kern mit einem taktgenauen 6510, präzisem
-  Interrupt-Timing, CIA 6526A, VIC-II-Timing mit fehlerhaften Zeilen, Sprite-DMA
-  und Raster-Interrupts sowie dem 6510-I/O-Port ab. Raster-IRQ-, CIA-getaktete
-  und Digi-Melodien werden somit mit dem Timing einer echten Maschine
-  wiedergegeben. VA SID Core spielt außerdem 2SID- und 3SID-Melodien (PSID
-  v3/v4) in Stereo ab: SID 1 links, SID 2 rechts und eine dritte SID in der
-  Mitte.
+  (10, 15, 20 oder 30 s). Ein größerer Puffer verhindert das Knistern, während
+  die App ausgelastet ist: Die Melodie wird ab dem nächsten Titel entsprechend
+  weit im Voraus wiedergegeben.
+- **Engine:** Das Fenster zeigt die aktuell abspielende Engine an (reSID oder VA
+  SID Core mit dem SID-Chip). Die Auswahl erfolgt unter **Einstellungen →
+  Allgemein → SID-Vorschau**. Beide Engines spielen die Melodie auf einem
+  nativen Rust C64-Kern mit einem taktgenauen 6510, präzisem Interrupt-Timing,
+  CIA 6526A, VIC-II-Timing mit fehlerhaften Zeilen, Sprite-DMA und
+  Raster-Interrupts sowie dem 6510-I/O-Port ab. Raster-IRQ-, CIA-getaktete und
+  Digi-Melodien laufen somit mit dem Timing einer echten Maschine. 2SID- und
+  3SID-Melodien (PSID v3/v4) werden in Stereo wiedergegeben: SID 1 links, SID 2
+  rechts, ein dritter SID in der Mitte.
 - **Zufallswiedergabe:** Die Zufallswiedergabe-Taste neben **Nächster** spielt
   die Playlist in zufälliger Reihenfolge ab – kein Titel wird wiederholt, bis
   alle Titel abgespielt wurden. **Vorheriger** springt innerhalb der zufälligen
@@ -7412,6 +7426,13 @@ etwa 61.000 C64-Musikstücke umfasst.
 - **Suche:** Geben Sie einen Titel, Komponisten oder Ordner ein (`hubbard
   commando`, `games/s-z`); jedes Wort muss übereinstimmen. **Zufällige
   Melodien** listet 25 zufällige Melodien auf.
+- **Komponist:** Die Liste neben dem Suchfeld wechselt von **Alle** zu
+  **Komponist**. Letztere durchsucht ausschließlich Komponistennamen (`hubbard`,
+  `rob hubbard`, `galway`) und listet die Stücke nach Komponist auf. Der Name
+  stammt aus dem Ordner des Stücks unter `MUSIKER`. Ein Komponist wird also
+  anhand des Ordnernamens gefunden, der ein Benutzername sein kann (`laxity`).
+  Etwa 4.600 Musikstücke in `GAMES` und `DEMOS` haben keinen Komponistenordner:
+  **All** findet sie anhand des Titels oder des Ordners.
 - **Abspielen / Hinzufügen / Speichern: ** Klicken Sie auf einen Titel, um ihn
   abzuspielen. **+** Fügt ihn zur Wiedergabeliste hinzu. Mit dem Download-Button
   wird die Datei `.sid` gespeichert. **Alle Ergebnisse hinzufügen** Fügt bis zu

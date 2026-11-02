@@ -22,6 +22,7 @@ test("Stop leaves the SID Player's tune alone unless asked", () => {
   let externalStops = 0;
   const ctx = {
     _sidTimer: null,
+    _sidPlayReturn: null,
     _sidExternalCore: {},
     _sidWaStop() {},
     _sidExternalCoreStop() { externalStops++; },
@@ -62,7 +63,8 @@ test("the backend renders an external PSID in chunks", async () => {
     _sidPreviewSources: new Set(),
     _sidExtSources: new Set(),
     _sidStop() {},
-    _sidEnsureAudio() { return ac; },
+    _sidPlayerAudio() { return ac; },
+    _sidExtGain: null,
     _sidDecodePcm16() { return new Float32Array(4410); },
     _sidPlayBuffer(pcm, when) { calls.sources.push({ pcm, when }); },
     _sidPlayerShowTune(name, engine) { calls.shown.push(name); calls.engine = engine; },
@@ -113,7 +115,8 @@ test("a stereo .sid render is timed by its samples per channel", async () => {
     _sidExtSources: new Set(),
     _sidPlaylist: [],
     _sidStop() {},
-    _sidEnsureAudio() { return ac; },
+    _sidPlayerAudio() { return ac; },
+    _sidExtGain: null,
     _sidDecodePcm16() { return new Float32Array(8820); },
     _sidPlayBuffer(pcm, when, sources, channels) { buffers.push({ when, channels }); },
     _sidPlayerShowTune() {},
@@ -259,8 +262,8 @@ test("external SID dialog: pause freezes the counter, play resumes, stop resets 
     performance: { now: () => now },
     setInterval() { return 1; }, clearInterval() {},
     document: { getElementById: (id) => els[id] || null },
-    _sidAudio: { suspend() { calls.suspend++; } },
-    _sidEnsureAudio() { calls.resume++; },
+    _sidExtAudio: { suspend() { calls.suspend++; }, resume() { calls.resume++; } },
+    _sidPlayerAudio() { return ctx._sidExtAudio; },
     _sidExternalCore: { paused: false },
     _sidExternalCoreStop(keep) { calls.coreStop.push(keep); ctx._sidExternalCore = null; },
   };

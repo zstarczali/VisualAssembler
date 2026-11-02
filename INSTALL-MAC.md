@@ -1,5 +1,7 @@
 # macOS Installation Guide
-Version 2.7.2
+Version 2.7.3
+
+2.7.3: poly record from MIDI (held keys go to voices of their own), no more click on reSID before notes played live or on a tune's first note.
 
 2.7.2: reSID (resid-rs) replaces WebSID in the SID Player and the SID Editor, VA SID Core stays selectable (Settings -> General -> SID preview), SID Player buffer in seconds.
 
@@ -119,7 +121,7 @@ Both `sfx sys` (Run/Build with Exomizer toggle) and `mem` mode (per-file EXO in 
 
 ---
 
-**Version:** 2.7.2 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 2.7.3 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
 
 ## Building from source: macOS app icon
 

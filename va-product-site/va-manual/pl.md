@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Podręcznik użytkownika
 
-**Wersja 2.7.1**
+**Wersja 2.7.2**
 
 Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągając
 i upuszczając bloki instrukcji, i oglądaj generowany kod assemblera i maszynowy
@@ -10,6 +10,7 @@ w czasie rzeczywistym.
 
 ## Spis treści
 
+- [Najważniejsze cechy wersji 2.7.2](#version-272-highlights)
 - [Najważniejsze cechy wersji 2.7.1](#version-271-highlights)
 - [Najważniejsze cechy wersji 2.7.0](#version-270-highlights)
 - [Najważniejsze cechy wersji 2.6.9](#version-269-highlights)
@@ -250,6 +251,17 @@ w czasie rzeczywistym.
 
 ---
 
+## Najważniejsze cechy wersji 2.7.2
+
+- **reSID zamiast WebSID** — SID Player i SID Editor działają na backendzie, na
+  [resid-rs](https://github.com/binaryfields/resid-rs) (port reSID w Rust,
+  domyślny) lub na rdzeniu VA SID, oba z układem MOS 6581 lub 8580. **Ustawienia
+  → Ogólne → Podgląd SID** – wybór należy do Ciebie. W przypadku wyszukiwania,
+  utwory stereo 2SID i 3SID oraz rdzeń C64 działają z obydwoma. WebSID zniknął.
+- **Bufor odtwarzacza SID** — **Ustawienia → Ogólne → Podgląd SID → Bufor
+  odtwarzacza SID** teraz określa, jak daleko do przodu renderowany jest utwór:
+  10, 15, 20 lub 30 s.
+
 ## Najważniejsze cechy wersji 2.7.1
 
 - **Debugger dla VICE** — **Ustawienia → Ogólne → Debugger** wybiera debugger
@@ -286,10 +298,9 @@ w czasie rzeczywistym.
 - **Edytor SID** — **Pliki → Nowy utwór**, tytuł utworu w nagłówku, jeden
   przycisk do odłączania i podłączania trackera oraz bardziej uporządkowana
   lista instrumentów w poziomym trackerze.
-- **Naprawiono** — **D64 na sprzęcie** wysyła typ obrazu z żądaniem montowania,
-  co jest wymagane przez oprogramowanie układowe C64 Ultimate 1.1.0. WebSID nie
-  mógł załadować podglądów edytora ani pełnego utworu w **Odtwórz: Wszystko**;
-  zatrzymanie edytora nie powoduje już zamknięcia odtwarzacza SID.
+- **Naprawiono** — **D64 na sprzęcie** wysyła typ obrazu z żądaniem
+  zamontowania, którego wymaga oprogramowanie układowe C64 Ultimate w wersji
+  1.1.0; zatrzymanie edytora nie powoduje już zamknięcia odtwarzacza SID.
 
 ---
 
@@ -6708,31 +6719,25 @@ Basic 1.6.1+, `ładowanie mapy "level.bin", $4000` i `widok mapy px, py`
 ### Edytor SID (śledzenie 3-głosowe)
 
 Wieloinstrumentalny, 3-głosowy tracker. Otwórz go przyciskiem na pasku narzędzi
-edytora SID. **Odtwórz: Wszystko** uruchamia wyeksportowany odtwarzacz 6502 w
-emulatorze WebSid; każdy inny podgląd (podgląd instrumentu, klawiatura
-wirtualna, wprowadzanie nut, akord/arpeggio, wiersz i odtwarzanie pojedynczego
-wzorca) również odtwarzany jest na emulowanym SID: model JS tego samego
-odtwarzacza (klatka po klatce) przesyła strumieniowo swoje rejestry SID do
-WebSid w każdej klatce, a maksymalnie trzy nuty podglądu współdzielą trzy głosy.
-Odtwarzacz strumieniowy jest ładowany po otwarciu edytora i ponownie po
-zatrzymaniu, więc nuty brzmią jednocześnie; bez WebSid odtwarzany jest mały
+edytora SID. Odtwarzanie i każdy podgląd (**Odtwarzanie: Wszystkie**, Podgląd
+instrumentu, klawiatura wirtualna, wprowadzanie nut, akord/arpeggio, wiersz i
+odtwarzanie pojedynczego wzorca) są odtwarzane na emulowanym SID: model JS
+eksportowanego odtwarzacza 6502 (klatka po klatce) wysyła swoje rejestry SID do
+zaplecza, które renderuje dźwięk. Poza aplikacją desktopową odtwarzany jest mały
 syntezator SID.
 
-**Silnik podglądu: ** **Ustawienia → Ogólne → Podgląd SID** wybiera **WebSID**
-lub **VA SID Core (Rust)**, własną emulację SID aplikacji; w przypadku VA SID
-Core wybiera się również układ (MOS 6581/8580). Nagłówek edytora pokazuje
-używany silnik (np. *· VA SID Core v1.2 (MOS 8580)*). Parametry instrumentu
-ustawia się za pomocą pokręteł.
+**Silnik podglądu: ** **Ustawienia → Ogólne → Podgląd SID** wybiera **reSID
+(resid-rs)** (domyślny) lub **VA SID Core (Rust)** (emulację SID aplikacji) oraz
+układ (MOS 6581/8580). Nagłówek edytora pokazuje używany silnik (np. *· reSID
+(MOS 8580)*). Parametry instrumentu ustawia się za pomocą pokręteł.
 
 **Dwa SID-y: ** **SID: 1 / 2** na pasku narzędzi trackera przełącza melodię
 między 3 a 6 głosami. W przypadku dwóch SID-ów, lista obok nich ustawia adres
 drugiego SID-a: `$D420`–`$D7E0` lub `$DE00`–`$DFE0`, w krokach co `$20`. Kolumny
 mają nagłówki **S1 V1** … **S2 V3**. Każdy SID ma swój własny filtr i głośność,
-a głos steruje tylko własnym układem. VA SID Core i mały syntezator odtwarzają
-dwa SID-y w stereo (SID 1 lewy, SID 2 prawy); WebSID pobiera adres drugiego
-SID-a z nagłówka PSID. Podglądy nut są odtwarzane na pierwszym SID-zie. Powrót
-do jednego SID-a usuwa głosy drugiego SID-a i najpierw pyta, czy coś w nich
-jest.
+a głos steruje tylko własnym układem. Oba SID-y odtwarzają w stereo (SID 1 lewy,
+SID 2 prawy). Podgląd nut odtwarzany jest na pierwszym SID-zie. Powrót do
+jednego SID-a usuwa głosy drugiego SID-a i najpierw pyta, czy coś w nich jest.
 
 **Sterowanie na instrument:**
 - Pola wyboru przebiegów (TRI / SAW / PUL / NOI) — wiele przebiegów jest
@@ -6852,8 +6857,8 @@ eksporcie 6502 oraz są zapisywane/ładowane bezstratnie w wersjonowanym formaci
 - Pokrętło **Instrument** w VA-VK (przeciągnij, kółko myszy lub klawisze
   strzałek) wybiera instrument, którego numer i nazwa są wyświetlane na
   wyświetlaczu LCD obok niego; następuje to po liście instrumentów w edytorze.
-  Etykieta obok tytułu VA-VK wskazuje używaną emulację SID (WebSID lub VA SID
-  Core z modelem układu).
+  Etykieta obok tytułu VA-VK wskazuje używaną emulację SID (reSID lub VA SID
+  Core, w zależności od modelu układu).
 - Włącz opcję **Wstaw do trackera**, aby zapisać każdą zagraną nutę przy
   aktualnym kursorze trackera i przejść do następnego wiersza. Wyłącz tę opcję,
   aby odsłuchiwać nuty bez edycji.
@@ -6935,6 +6940,15 @@ po nagraniu, a następnie *Konwertowanie…* konwersja.
 - Komunikat zawiera listę przybliżonych wartości, na przykład slajdy, które
   stają się krokami półtonowymi lub tabele dłuższe niż 32 kroki. Utwory RSID
   uruchamiane jako programy w języku BASIC nie są obsługiwane.
+- **Przesuwanie filtra i impulsów: ** przemiatanie filtra obejmuje całą nutę,
+  również po wyciszeniu przebiegu, i kończy się w momencie, gdy kolejna nuta
+  ponownie uruchamia filtr. Tabela filtrów, która szybko opada, odlicza, gdy
+  osiągnie ten punkt, mieszczący się w granicach 127 sekund na klatkę. LFO
+  filtru przeskakuje między swoimi skrajnościami. Instrument utrzymuje zakres
+  impulsów wszystkich swoich nut. Przemiatanie i filtr nadal rozpoczynają się od
+  nowa przy każdej przemiatanej nucie, więc przemiatanie, które swobodnie
+  obejmuje wiele nut, jest jedynie przybliżone, a dźwięki znajdujące się między
+  półtonami są zaokrąglane do najbliższej wartości.
 - **Kilka SID-ów:** melodia 2SID staje się sześcioma głosami i zawiera adres
   swojego drugiego SID-a. Melodia 3SID importuje swoje pierwsze dwa SID-y, o
   czym informuje komunikat.
@@ -6960,10 +6974,9 @@ głosów 4–6) i `$68`/`$69` (rejestrów SID bieżącego głosu).
 - Globalna głośność C64 `$D418` jest współdzielona przez wszystkie głosy — suwak
   głośności dla każdego instrumentu ma charakter informacyjny; poziom
   podtrzymania (`S` ADSR) to efektywna głośność dla każdego głosu.
-- Podczas gdy w trybie **Play: All** wczytany jest prawdziwy utwór (również w
-  trybie pauzy), podglądy nut są przekierowywane do małego syntezatora, który
-  jedynie przybliża układ SID. Podglądy docierają do WebSid około 0,1 s przed
-  dźwiękiem.
+- Podgląd nuty jest renderowany w zapleczu przed jej wybrzmieniem, więc
+  rozpoczyna się chwilę po naciśnięciu klawisza. Każda nuta podglądu ma swój
+  własny chip, więc nuty nie przejmują głosów od siebie.
 
 ---
 
@@ -6986,24 +6999,22 @@ HVSC.
 - **Transport:** Odtwarzanie, pauza, stop, **Poprzednia** / **Następna**
   melodia, **Poprzednia / Następna podmelodia** w przypadku plików z kilkoma
   utworami i licznik czasu.
-- **Przeszukiwanie:** pasek pozycji i **Wstecz/Do przodu 10 s** działają z
-  silnikiem VA SID Core. WebSID nie obsługuje przeszukiwania, więc te elementy
-  sterujące są w nim wyłączone.
+- **Szukaj:** pasek pozycji i **Wstecz/Do przodu 10 s**; pominięta część jest
+  odtwarzana bezgłośnie.
 - **Głośność:** pokrętło jest współdzielone z głównym regulatorem głośności
   edytora SID.
 - **Bufor: ** **Ustawienia → Ogólne → Podgląd SID → Bufor odtwarzacza SID **
-  (2048, 4096, 8192 lub 16384 próbek). Większy bufor eliminuje trzaski, gdy
-  aplikacja jest zajęta. WebSID używa nowego rozmiaru po ponownym uruchomieniu;
-  rdzeń VA SID renderuje 10 / 15 / 20 / 30 s przed następnym utworem.
-- **Silnik:** okno pokazuje, który silnik odtwarza (WebSID lub VA SID Core wraz
-  z jego wersją i chipem SID); wybierz go w **Ustawienia → Ogólne → Podgląd
-  SID**. VA SID Core odtwarza utwór na natywnym rdzeniu Rust C64 z dokładnym pod
-  względem cyklu procesorem 6510, precyzyjnym taktowaniem przerwań, CIA 6526A,
-  taktowaniem VIC-II z błędnymi liniami, przerwaniami DMA i rastrowymi oraz
-  portem wejścia/wyjścia 6510 — dzięki czemu utwory rastrowe IRQ, taktowane
-  przez CIA i cyfrowe odtwarzają się z taktowaniem prawdziwej maszyny. VA SID
-  Core odtwarza również utwory 2SID i 3SID (PSID v3 / v4) w stereo: SID 1 po
-  lewej, SID 2 po prawej, trzeci SID na środku.
+  (10, 15, 20 lub 30 s). Większy bufor eliminuje trzaski, gdy aplikacja jest
+  zajęta: utwór jest odtwarzany z takim wyprzedzeniem, od następnego utworu.
+- **Silnik: ** okno pokazuje, który silnik odtwarza (reSID czy rdzeń VA SID z
+  chipem SID); wybierz go w **Ustawienia → Ogólne → Podgląd SID **. Oba działają
+  na natywnym rdzeniu Rust C64 z procesorem 6510 z dokładnością do cyklu,
+  precyzyjnym taktowaniem przerwań, CIA 6526A, taktowaniem VIC-II z błędnymi
+  liniami, przerwaniami DMA i rastrowymi dla sprite'ów oraz portem
+  wejścia/wyjścia 6510 — dzięki czemu dźwięki rastrowe IRQ, taktowane przez CIA
+  i cyfrowe odtwarzają się z taktowaniem prawdziwej maszyny. Dźwięki 2SID i 3SID
+  (PSID v3 / v4) odtwarzają się w stereo: SID 1 po lewej, SID 2 po prawej,
+  trzeci SID pośrodku.
 - **Losowo: ** przycisk losowania obok **Następny** odtwarza playlistę w
   kolejności losowej — żaden utwór nie powtarza się, dopóki nie zostaną
   odtworzone wszystkie utwory, a **Poprzedni** cofa się w kolejności losowej.
@@ -7020,6 +7031,13 @@ Collection](https://www.hvsc.c64.org/), zawierającej około 61 000 utworów C64
 - **Szukaj:** wpisz tytuł, kompozytora lub folder (`hubbard commando`,
   `games/s-z`); wszystkie słowa muszą pasować. **Losowe melodie** wyświetla 25
   losowych melodii.
+- **Kompozytor:** lista obok pola wyszukiwania zmienia się z **Wszyscy** na
+  **Kompozytor**, co powoduje wyszukiwanie tylko według nazwisk kompozytorów
+  (`hubbard`, `rob hubbard`, `galway`) i wyświetla utwory według kompozytora.
+  Nazwa pochodzi z folderu utworu w `MUZYCY`, więc kompozytora można znaleźć po
+  nazwie folderu, która może być uchwytem (`laxity`). Około 4600 utworów w
+  `GAMES` i `DEMOS` nie ma folderu kompozytora: **All** wyszukuje je według
+  tytułu lub folderu.
 - **Odtwórz/dodaj/zapisz:** kliknij melodię, aby ją odtworzyć, **+** dodaj ją do
   listy odtwarzania, przycisk pobierania zapisuje plik `.sid`. **Dodaj wszystkie
   wyniki** dodaje do 100 znalezionych melodii.

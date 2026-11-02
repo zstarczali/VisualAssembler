@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Manuale utente
 
-**Versione 2.7.1**
+**Versione 2.7.2**
 
 Un assembler visuale a blocchi per il Commodore 64, basato sul processore 6502.
 Crea programmi trascinando e rilasciando blocchi di istruzioni e visualizza in
@@ -10,6 +10,7 @@ tempo reale il codice assembly e il codice macchina generati.
 
 ## Sommario
 
+- [Punti salienti della versione 2.7.2](#version-272-highlights)
 - [Punti salienti della versione 2.7.1](#version-271-highlights)
 - [Punti salienti della versione 2.7.0](#version-270-highlights)
 - [Punti salienti della versione 2.6.9](#version-269-highlights)
@@ -250,6 +251,18 @@ tempo reale il codice assembly e il codice macchina generati.
 
 ---
 
+## Punti salienti della versione 2.7.2
+
+- **reSID al posto di WebSID** — il SID Player e il SID Editor funzionano sul
+  backend, su [resid-rs](https://github.com/binaryfields/resid-rs) (una versione
+  Rust di reSID, quella predefinita) o su VA SID Core, entrambi con MOS 6581 o
+  8580. **Impostazioni → Generale → Anteprima SID** sceglie. La ricerca, le
+  melodie stereo 2SID e 3SID e il core C64 funzionano con entrambi. WebSID non
+  c'è più.
+- **Buffer del lettore SID** — **Impostazioni → Generale → Anteprima SID →
+  Buffer del lettore SID** ora indica con quanto anticipo viene riprodotta la
+  melodia: 10, 15, 20 o 30 s.
+
 ## Novità principali della versione 2.7.1
 
 - **Debugger per VICE** — **Impostazioni → Generale → Debugger** sceglie il
@@ -287,9 +300,8 @@ tempo reale il codice assembly e il codice macchina generati.
   nell'intestazione, un pulsante per staccare e attaccare il tracker e un elenco
   di strumenti più ordinato nel tracker orizzontale.
 - **Risolto** — **D64 sull'hardware** invia il tipo di immagine con la richiesta
-  di montaggio, come richiesto dal firmware 1.1.0 di C64 Ultimate. WebSID non è
-  riuscito a caricare le anteprime dell'editor e la melodia completa in
-  **Riproduci: Tutto**; l'arresto dell'editor non chiude più SID Player.
+  di montaggio, come richiesto dal firmware 1.1.0 di C64 Ultimate; l'arresto
+  dell'editor non chiude più SID Player.
 
 ---
 
@@ -7021,32 +7033,28 @@ Ultimate Basic 1.6.1+, `map load "level.bin", $4000` e `map view px, py`
 
 ### SID Editor (Tracker a 3 voci)
 
-Tracker multi-strumento a 3 voci. Aprilo con il pulsante della barra degli
-strumenti dell'editor SID. **Riproduci: Tutto** esegue il player 6502 esportato
-nell'emulatore WebSid; ogni altra anteprima (anteprima strumento, tastiera
-virtuale, immissione nota, accordo/arpeggio, riproduzione riga e pattern
-singolo) viene riprodotta anche sul SID emulato: un modello JS dello stesso
-player (frame per frame) trasmette in streaming i suoi registri SID a WebSid ad
-ogni frame e fino a tre note di anteprima condividono le tre voci. Il player di
-streaming viene caricato all'apertura dell'editor e di nuovo dopo Stop, quindi
-le note suonano contemporaneamente; senza WebSid viene invece riprodotto un
-piccolo sintetizzatore SID.
+Tracker multi-strumento a 3 voci. Aprilo con il pulsante SID Editor nella barra
+degli strumenti. La riproduzione e ogni anteprima (**Riproduci: Tutto**,
+Anteprima strumento, tastiera virtuale, inserimento note, accordi/arpeggi,
+riproduzione di righe e pattern singoli) vengono riprodotte sul SID emulato: un
+modello JS del lettore 6502 esportato (frame per frame) invia i suoi registri
+SID al backend, che renderizza il suono. Al di fuori dell'applicazione desktop,
+viene riprodotto un piccolo sintetizzatore SID.
 
 **Motore di anteprima:** **Impostazioni → Generale → Anteprima SID** seleziona
-**WebSID** o **VA SID Core (Rust)**, l'emulazione SID proprietaria dell'app; con
-VA SID Core si sceglie anche il chip (MOS 6581 / 8580). L'intestazione
-dell'editor mostra il motore in uso (ad esempio *· VA SID Core v1.2 (MOS
-8580)*). I parametri dello strumento vengono impostati tramite manopole.
+**reSID (resid-rs)**, l'impostazione predefinita, oppure **VA SID Core (Rust)**,
+l'emulazione SID dell'app, e il chip (MOS 6581 / 8580). L'intestazione
+dell'editor mostra il motore in uso (ad esempio *· reSID (MOS 8580)*). I
+parametri dello strumento vengono impostati con le manopole.
 
 **Due SID:** **SID: 1 / 2** nella barra degli strumenti del tracker commuta la
 melodia tra 3 e 6 voci. Con due SID, l'elenco accanto imposta l'indirizzo del
 secondo SID: `$D420`–`$D7E0` o `$DE00`–`$DFE0`, a passi di `$20`. Le colonne
 sono intestate **S1 V1** … **S2 V3**. Ogni SID ha il proprio filtro e volume e
-una voce controlla solo il proprio chip. VA SID Core e il piccolo sintetizzatore
-riproducono i due SID in stereo (SID 1 a sinistra, SID 2 a destra); WebSID
-ricava l'indirizzo del secondo SID dall'intestazione PSID. Le anteprime delle
-note vengono riprodotte sul primo SID. Il passaggio a un solo SID elimina le
-voci del secondo SID e chiede prima se contengono qualcosa.
+una voce controlla solo il proprio chip. I due SID vengono riprodotti in stereo
+(SID 1 a sinistra, SID 2 a destra). Le anteprime delle note vengono riprodotte
+sul primo SID. Tornando a un solo SID, le voci del secondo SID vengono eliminate
+e viene chiesto prima se si tiene premuto qualcosa.
 
 **Comandi per strumento:**
 - Caselle di controllo della forma d'onda (TRI / SAW / PUL / NOI) — più forme
@@ -7172,7 +7180,7 @@ dati nel formato versionato `.bin`.
 - La manopola **Instrument** su VA-VK (trascinamento, rotellina del mouse o
   tasti freccia) seleziona lo strumento, visualizzato con il suo numero e nome
   sul display LCD accanto; segue l'elenco degli strumenti dell'editor. Il badge
-  accanto al titolo VA-VK mostra l'emulazione SID in uso (WebSID o VA SID Core
+  accanto al titolo VA-VK mostra l'emulazione SID in uso (reSID o VA SID Core,
   con il modello del chip).
 - Abilita **Inserisci nel tracker** per scrivere ogni nota suonata nella
   posizione corrente del cursore del tracker e passare alla riga successiva.
@@ -7258,6 +7266,15 @@ quindi *Conversione…* la conversione.
 - Un messaggio elenca gli elementi approssimati, ad esempio le transizioni che
   diventano intervalli di semitono o le tabelle più lunghe di 32 intervalli. Le
   melodie RSID che iniziano come programmi BASIC non sono supportate.
+- **Movimento del filtro e dell'impulso:** uno sweep del filtro conta
+  sull'intera nota, anche dopo che la forma d'onda è diventata silenziosa, e
+  termina dove un'altra nota riavvia il filtro. Una tabella del filtro che
+  scende velocemente conta quando la raggiunge, entro i 127 per frame del
+  giocatore. Un LFO del filtro rimbalza tra i suoi estremi. Uno strumento
+  mantiene l'intervallo di impulsi di tutte le sue note. Impulso e filtro si
+  riavviano comunque ad ogni nota instradata, quindi uno sweep che scorre
+  liberamente su molte note è solo approssimato e le altezze che si trovano tra
+  i semitoni vengono arrotondate al semitono più vicino.
 - **Diversi SID:** una melodia 2SID diventa sei voci e porta con sé l'indirizzo
   del suo secondo SID. Una melodia 3SID importa i suoi primi due SID e un
   messaggio lo indica.
@@ -7283,9 +7300,10 @@ delle voci 4–6) e `$68`/`$69` (i registri SID della voce corrente).
 - Il volume globale del C64 `$D418` è condiviso tra le voci: il cursore del
   volume per strumento è informativo; il livello di sustain (`S` di ADSR) è il
   volume effettivo per voce.
-- Mentre **Play: All** ha la melodia reale caricata (anche in pausa), le
-  anteprime delle note tornano al piccolo sintetizzatore, che approssima solo il
-  chip SID. Le anteprime raggiungono WebSid circa 0,1 s prima del suono.
+- L'anteprima di una nota viene generata in background prima che venga
+  riprodotta, quindi inizia un attimo dopo la pressione del tasto. Ogni nota di
+  anteprima ha il suo chip dedicato, in modo che le note non si sovrappongano
+  tra loro.
 
 ---
 
@@ -7308,24 +7326,22 @@ collezione HVSC.
 - **Trasporto:** Riproduci, Pausa, Stop, **Brano precedente** / **successivo**,
   **Sottobrano precedente / successivo** per file con più brani e un contatore
   del tempo.
-- **Ricerca:** la barra di posizione e **Indietro / Avanti 10 s** funzionano con
-  il motore VA SID Core. WebSID non può cercare, quindi questi controlli sono
-  disabilitati con esso.
+- **Cerca:** la barra di posizione e **Indietro / Avanti 10 s**; la parte
+  saltata viene eseguita silenziosamente.
 - **Volume:** la manopola è condivisa con il volume principale dell'editor SID.
 - **Buffer:** **Impostazioni → Generale → Anteprima SID → Buffer del lettore
-  SID** (2048, 4096, 8192 o 16384 campioni). Un buffer più grande elimina il
-  crepitio mentre l'app è occupata. WebSID utilizza la nuova dimensione dopo un
-  riavvio; VA SID Core esegue il rendering 10 / 15 / 20 / 30 s in anticipo
-  rispetto al brano successivo.
-- **Motore:** la finestra mostra quale motore è in riproduzione (WebSID o VA SID
-  Core con la sua versione e chip SID); selezionalo in **Impostazioni → Generale
-  → Anteprima SID**. VA SID Core esegue la melodia su un core Rust C64 nativo
-  con un 6510 a ciclo esatto, temporizzazione precisa degli interrupt, CIA
-  6526A, temporizzazione VIC-II con linee errate, DMA sprite e interrupt raster
-  e la porta I/O 6510, quindi le melodie raster-IRQ, temporizzate CIA e digitali
-  vengono riprodotte con la temporizzazione di una macchina reale. VA SID Core
-  riproduce anche melodie 2SID e 3SID (PSID v3 / v4) in stereo: SID 1 a
-  sinistra, SID 2 a destra, un terzo SID al centro.
+  SID** (10, 15, 20 o 30 s). Un buffer più grande interrompe il crepitio mentre
+  l'app è occupata: il brano viene riprodotto con un anticipo pari a quello, a
+  partire dal brano successivo.
+- **Motore:** la finestra mostra quale motore è in esecuzione (reSID o VA SID
+  Core, con il chip SID); selezionalo in **Impostazioni → Generale → Anteprima
+  SID**. Entrambi eseguono la melodia su un core Rust C64 nativo con un 6510 a
+  ciclo esatto, temporizzazione precisa degli interrupt, CIA 6526A,
+  temporizzazione VIC-II con linee errate, DMA sprite e interrupt raster e la
+  porta I/O 6510, quindi le melodie raster-IRQ, temporizzate CIA e digitali
+  vengono riprodotte con la temporizzazione di una macchina reale. Le melodie
+  2SID e 3SID vengono riprodotte (PSID v3 / v4) in stereo: SID 1 a sinistra, SID
+  2 a destra, un terzo SID al centro.
 - **Riproduzione casuale:** il pulsante di riproduzione casuale accanto a
   **Avanti** riproduce la playlist in ordine casuale: nessun brano si ripete
   finché non sono stati riprodotti tutti i brani, e **Precedente** torna
@@ -7342,6 +7358,13 @@ circa 61.000 brani per C64.
 - **Cerca:** digita un titolo, un compositore o una cartella (`hubbard
   commando`, `giochi/s-z`); ogni parola deve corrispondere. **Melodie casuali**
   elenca 25 brani casuali.
+- **Compositore:** l'elenco accanto al campo di ricerca passa da **Tutti** a
+  **Compositore**, che cerca solo i nomi dei compositori (`hubbard`, `rob
+  hubbard`, `galway`) ed elenca i brani per compositore. Il nome proviene dalla
+  cartella del brano in `MUSICISTI`, quindi un compositore viene trovato tramite
+  il nome della cartella, che può essere un handle (`laxity`). Circa 4.600 brani
+  in `GAMES` e `DEMOS` non hanno una cartella del compositore: **All** li trova
+  per titolo o cartella.
 - **Riproduci / aggiungi / salva:** fai clic su un brano per riprodurlo, **+**
   lo aggiunge alla playlist, il pulsante di download salva il file `.sid`.
   **Aggiungi tutti i risultati** aggiunge fino a 100 brani trovati.

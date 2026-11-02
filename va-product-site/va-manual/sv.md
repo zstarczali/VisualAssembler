@@ -1,6 +1,6 @@
 # C64 Visuell Assembler — Användarmanual
 
-**Version 2.7.1**
+**Version 2.7.2**
 
 En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom att
 dra och släppa instruktionsblock och se den genererade assemblern och
@@ -10,6 +10,7 @@ maskinkoden i realtid.
 
 ## Innehållsförteckning
 
+- [Höjdpunkter i version 2.7.2](#version-272-highlights)
 - [Höjdpunkter i version 2.7.1](#version-271-highlights)
 - [Höjdpunkter i version 2.7.0](#version-270-highlights)
 - [Höjdpunkter i version 2.6.9](#version-269-highlights)
@@ -244,6 +245,17 @@ maskinkoden i realtid.
 
 ---
 
+## Höjdpunkter i version 2.7.2
+
+- **reSID istället för WebSID** — SID-spelaren och SID-redigeraren spelar upp på
+  backend, på [resid-rs](https://github.com/binaryfields/resid-rs) (en Rust-port
+  av reSID, standard) eller på VA SID Core, båda med MOS 6581 eller 8580.
+  **Inställningar → Allmänt → SID-förhandsgranskning** väljer. Söker, stereo
+  2SID- och 3SID-låtar och C64-kärnan fungerar med båda. WebSID är borta.
+- **SID Player buffert** — **Inställningar → Allmänt → SID-förhandsvisning → SID
+  Player buffert** anger nu hur långt framåt låten återges: 10, 15, 20 eller 30
+  s.
+
 ## Höjdpunkter i version 2.7.1
 
 - **Felsökare för VICE** — **Inställningar → Allmänt → Felsökare** väljer
@@ -280,9 +292,8 @@ maskinkoden i realtid.
   att koppla loss och fästa spåraren och en mer prydlig instrumentlista i den
   horisontella spåraren.
 - **Åtgärdat** — **D64 på hårdvara** skickar bildtypen med monteringsbegäran,
-  vilket C64 Ultimate firmware 1.1.0 kräver. WebSID kunde inte ladda
-  redigerarens förhandsgranskningar och den fullständiga melodin i **Spela:
-  Alla**; att stoppa redigeraren stänger inte längre SID Player.
+  vilket C64 Ultimate firmware 1.1.0 kräver; att stoppa redigeraren stänger inte
+  längre SID Player.
 
 ---
 
@@ -6337,30 +6348,27 @@ Basic 1.6.1+, `map load "level.bin", $4000` och `map view px, py` (exempel
 ### SID-redigerare (3-röstsspårare)
 
 Tracker för flera instrument med 3 röster. Öppna den med verktygsfältsknappen i
-SID Editor. **Spela: Alla ** kör den exporterade 6502-spelaren i
-WebSid-emulatorn; alla andra förhandsvisningar (instrumentförhandsvisning,
-virtuellt tangentbord, notinmatning, ackord/arpeggio, rad- och uppspelning av
-ett enda mönster) spelas också upp på det emulerade SID:et: en JS-modell av
-samma spelare (bildruta för bildruta) streamar sina SID-register till WebSid
-varje bildruta, och upp till tre förhandsvisningsnoter delar de tre rösterna.
-Streamspelaren laddas när editorn öppnas och igen efter stopp, så noterna ljuder
-samtidigt; utan WebSid spelas en liten SID-synthesizer istället.
+SID Editor. Uppspelning och varje förhandsvisning (**Spela: Alla**,
+instrumentförhandsvisning, virtuellt tangentbord, notinmatning, ackord/arpeggio,
+rad- och uppspelning av ett enda mönster) spelas upp på det emulerade SID:et: en
+JS-modell av den exporterade 6502-spelaren (bildruta för bildruta) skickar sina
+SID-register till backend, som renderar ljudet. Utanför skrivbordsappen spelas
+istället en liten SID-synthesizer.
 
 **Förhandsgranskningsmotor:** **Inställningar → Allmänt →
-SID-förhandsgranskning** väljer **WebSID** eller **VA SID Core (Rust)**, appens
-egen SID-emulering; med VA SID Core väljer du även chipet (MOS 6581 / 8580).
-Redigerarens rubrik visar vilken motor som används (t.ex. *· VA SID Core v1.2
-(MOS 8580)*). Instrumentparametrarna ställs in med rattar.
+SID-förhandsgranskning** väljer **reSID (resid-rs)**, standardinställningen,
+eller **VA SID Core (Rust)**, appens egen SID-emulering och chipet (MOS 6581 /
+8580). Redigerarens rubrik visar vilken motor som används (t.ex. *· reSID (MOS
+8580)*). Instrumentparametrarna ställs in med rattar.
 
 **Två SID:** **SID: 1 / 2** i spårningsverktygsfältet växlar melodin mellan 3
 och 6 röster. Med två SID:er ställer listan bredvid in det andra SID:ts adress:
 `$D420`–`$D7E0` eller `$DE00`–`$DFE0`, i steg om `$20`. Kolumnerna har
 rubrikerna **S1 V1** … **S2 V3**. Varje SID har sitt eget filter och sin egen
-volym, och en röst styr bara sina egna chip. VA SID Core och den lilla
-synthesizern spelar de två SID:erna i stereo (SID 1 vänster, SID 2 höger);
-WebSID tar det andra SID:ets adress från PSID-rubriken. Förhandsvisningar av
-noter spelas upp på det första SID:et. Om man växlar tillbaka till ett SID
-raderas det andra SID:ets röster och först frågas om de innehåller något.
+volym, och en röst styr bara sina egna chip. De två SID:erna spelas i stereo
+(SID 1 vänster, SID 2 höger). Observera att förhandsvisningar spelas upp på det
+första SID:t. Om du växlar tillbaka till ett SID raderas det andra SID:ts röster
+och först frågas om de innehåller något.
 
 **Kontroller per instrument: **
 - Kryssrutor för vågformer (TRI / SAW / PUL / NOI) — flera vågformer
@@ -6473,8 +6481,8 @@ och sparas/läses förlustfritt i det versionerade `.bin`-formatet.
   helst över huvudapplikationen.
 - Med **Instrument**-ratten på VA-VK (dra, mushjul eller piltangenter) väljer du
   instrumentet, vilket visas med dess nummer och namn på LCD-skärmen bredvid;
-  det följer instrumentlistan i editorn. Märket bredvid VA-VK-titeln visar
-  vilken SID-emulering som används (WebSID eller VA SID Core med chipmodellen).
+  det följer redigerarens instrumentlista. Märket bredvid VA-VK-titeln visar
+  vilken SID-emulering som används (reSID eller VA SID Core, med chipmodellen).
 - Aktivera **Insert into tracker** för att skriva varje spelad not vid den
   aktuella tracker-markören och gå vidare till nästa rad. Inaktivera den för att
   lyssna på noter utan att redigera.
@@ -6554,6 +6562,14 @@ förloppsindikator följer inspelningen och sedan *Konverterar…* konverteringe
 - Ett meddelande listar vad som approximerades, till exempel diabilder som blir
   halvtonssteg eller tabeller längre än 32 steg. RSID-melodier som börjar som
   ett BASIC-program stöds inte.
+- **Filter- och pulsrörelse:** Ett filtersvep räknas över hela noten, även efter
+  att vågformen tystnat, och det slutar där en annan not startar om filtret. En
+  filtertabell som faller snabbt räknas när den når dit, inom spelarens 127 per
+  bildruta. Ett filter-LFO studsar mellan sina extremer. Ett instrument håller
+  pulsområdet för alla sina noter. Puls och filter startar fortfarande om vid
+  varje dirigerad not, så ett svep som löper fritt över många noter är bara
+  approximerat, och tonhöjder som ligger mellan halvtoner avrundas till
+  närmaste.
 - **Flera SID:er:** en 2SID-melodi blir sex röster och tar med sig sin andra
   SID:s adress. En 3SID-melodi importerar sina två första SID:er, och ett
   meddelande säger det.
@@ -6577,10 +6593,9 @@ SID-register).
   UltimateBasic** skriver endast de tre första rösterna, med en not.
 - C64 `$D418` global volym delas mellan röster — volymreglaget per instrument är
   informativt; sustainnivån (`S` för ADSR) är den effektiva volymen per röst.
-- Medan **Play: All** har den riktiga melodin laddad (även när den är pausad),
-  återgår tonförhandsvisningar till den lilla synthesizern, som bara
-  approximerar SID-chippet. Förhandsvisningar når WebSid cirka 0,1 s före
-  ljudet.
+- En förhandsvisning av en not renderas i backend-läge innan den ljuder, så den
+  börjar strax efter tangenttryckningen. Varje förhandsvisningsnot har sitt eget
+  chip, så noter tar inte emot röster från varandra.
 
 ---
 
@@ -6602,23 +6617,21 @@ Verktygsfältsknappen **SID Player** öppnar ett flytande fönster som spelar up
 - **Transport:** Spela upp, Pausa, Stopp, **Föregående** / **Nästa** melodi,
   **Föregående / Nästa undermelodi** för filer med flera låtar och en
   tidsräknare.
-- **Sök:** Positionsfältet och **Bakåt/Framåt 10 s** fungerar med VA SID
-  Core-motorn. WebSID kan inte söka, så dessa kontroller är inaktiverade med
-  den.
+- **Sök:** positionsfältet och **Bakåt/Framåt 10 s**; den överhoppade delen körs
+  tyst.
 - **Volym:** Ratten delas med SID-redigerarens huvudvolym.
-- **Buffert:** **Inställningar → Allmänt → SID-förhandsvisning → SID
-  Player-buffert** (2048, 4096, 8192 eller 16384 samplingar). En större buffert
-  stoppar knastrandet när appen är upptagen. WebSID använder den nya storleken
-  efter en omstart; VA SID Core renderar 10 / 15 / 20 / 30 s framåt från nästa
-  låt och framåt.
-- **Motor:** Fönstret visar vilken motor som spelar (WebSID, eller VA SID Core
-  med dess version och SID-chip); välj det i ** Inställningar → Allmänt →
-  SID-förhandsvisning**. VA SID Core kör melodin på en inbyggd Rust C64-kärna
-  med en cykelexakt 6510, exakt avbrottstiming, CIA 6526A, VIC-II-timing med
-  dåliga linjer, sprite DMA och rasteravbrott, och 6510 I/O-porten — så
-  raster-IRQ, CIA-tidsinställda och digitala melodier spelas med timingen hos en
-  riktig maskin. VA SID Core spelar även 2SID- och 3SID-melodier (PSID v3 / v4)
-  i stereo: SID 1 vänster, SID 2 höger, ett tredje SID i mitten.
+- **Buffert:** **Inställningar → Allmänt → SID-förhandsvisning → SID-spelarens
+  buffert** (10, 15, 20 eller 30 s). En större buffert stoppar knastrandet när
+  appen är upptagen: melodin återges så långt framåt, från nästa melodi och
+  framåt.
+- **Motor:** Fönstret visar vilken motor som spelar (reSID eller VA SID Core,
+  med SID-chippet); välj det i ** Inställningar → Allmänt →
+  SID-förhandsvisning**. Båda kör melodin på en inbyggd Rust C64-kärna med en
+  cykelexakt 6510, exakt avbrottstiming, CIA 6526A, VIC-II-timing med dåliga
+  linjer, sprite DMA och rasteravbrott, och 6510 I/O-porten — så raster-IRQ,
+  CIA-tidsinställda och digitala melodier spelas med timingen hos en riktig
+  maskin. 2SID- och 3SID-melodier spelas (PSID v3 / v4) i stereo: SID 1 vänster,
+  SID 2 höger, ett tredje SID i mitten.
 - **Slumpvis:** slumpmässig ordningsknappen bredvid **Nästa** spelar upp
   spellistan i slumpmässig ordning — ingen låt upprepas förrän varje låt har
   spelats, och **Föregående** går tillbaka i den slumpmässiga ordningen.
@@ -6634,6 +6647,13 @@ Voltage SID Collection](https://www.hvsc.c64.org/), cirka 61 000 C64-låtar.
 - **Sök:** skriv en titel, kompositör eller mapp (`hubbard commando`,
   `games/s-z`); varje ord måste matcha. **Slumpmässiga låtar** listar 25
   slumpmässiga låtar.
+- **Kompositör:** listan bredvid sökfältet växlar från **Alla** till
+  **Kompositör**, vilket endast söker efter kompositörsnamn (`hubbard`, `rob
+  hubbard`, `galway`) och listar låtarna efter kompositör. Namnet kommer från
+  låtens mapp under `MUSIKER`, så en kompositör hittas med hjälp av mappens
+  namn, vilket kan vara ett användarnamn (`laxity`). Omkring 4 600 låtar i
+  `GAMES` och `DEMOS` har ingen kompositörsmapp: **All** hittar dem efter titel
+  eller mapp.
 - **Spela / lägg till / spara:** klicka på en låt för att spela den, **+**
   lägger till den i spellistan, nedladdningsknappen sparar `.sid`-filen. **Lägg
   till alla resultat** lägger till upp till 100 funna låtar.
