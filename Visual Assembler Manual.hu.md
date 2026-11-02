@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**Verzió: 2.7.2**
+**Verzió: 2.7.3**
 
 Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasításblokkok fogd-és-vidd módszerrel történő elrendezésével építed fel, a generált assembly és gépi kód pedig valós időben frissül.
 
@@ -10,6 +10,7 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 
 ## Tartalomjegyzék
 
+- [A 2.7.3 verzió újdonságai](#a-273-verzió-újdonságai)
 - [A 2.7.2 verzió újdonságai](#a-272-verzió-újdonságai)
 - [A 2.7.1 verzió újdonságai](#a-271-verzió-újdonságai)
 - [A 2.7.0 verzió újdonságai](#a-270-verzió-újdonságai)
@@ -235,6 +236,15 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
   - [Számrendszer-átváltó](#számrendszer-átváltó)
 
 ---
+
+## A 2.7.3 verzió újdonságai
+
+- **MIDI csatlakoztatása kérdés nélkül** — Windowson a webnézet már nem kér engedélyt külön párbeszédablakban.
+- **.bin betöltése** — a tracker a kijelölt első song-lépésen nyílik meg: ha a dal nem a 0. patternnel kezdődött, eddig a 0. pattern látszott.
+- **SID Player szünet** — a Pause mostantól mindig megállít: az épp elkészült zenerészlet vagy a SID szerkesztő egy hangja eddig visszakapcsolhatta a hangot, miközben a lejátszó szünetet mutatott. A Pause újbóli megnyomása folytatja a lejátszást.
+- **Stop a „Play: All” módban** — a tracker visszaáll a lejátszás előtt megnyitott patternre, és nem marad az utoljára játszotton, miközben az első song-lépés van kijelölve.
+- **Polifon felvétel MIDI-ről** — bekapcsolt **Polifon felvétel** mellett (a MIDI bemenet mellett) a felvétel alatt lenyomva tartott billentyűk külön-külön hangra kerülnek, a kijelölt hangtól kezdve. A háromhangú akkord három hangra kerül, a billentyű felengedése note-offot ír.
+- **Nincs pattanás élő hangnál** — a billentyűzetről vagy a VA-VK-ról játszott hangok előtt reSID-en többé nincs pattanás, sem 6581-gyel, sem 8580-nal.
 
 ## A 2.7.2 verzió újdonságai
 
@@ -4651,7 +4661,7 @@ Az effektek soronként egyszer frissülnek (megegyezően az exportált lejátsz�
 **Felvétel, metronóm és MIDI:**
 - A **Record** (piros pont, a tracker eszköztárán és a VA-VK-n) ütemre beírja a játszott hangokat — VA-VK-ról, a számítógép billentyűzetéről vagy MIDI billentyűzetről — a kijelölt voice-ba, a kijelölt sortól, az aktuális Speed szerint. Ha a pattern betelt, az aktuális song-lépés után új, üres pattern jön, és ott folytatódik a felvétel. A Record újbóli megnyomása leállítja.
 - A **Metronóm** (tracker eszköztár és VA-VK) 4 soronként kattan, a 4 ütemes taktus első ütésén hangsúlyosan. A mellette lévő ütemlámpák lejátszás és felvétel közben minden ütésre felvillannak, kikapcsolt kattanással is.
-- **MIDI:** a hangszernév melletti **MIDI** listában válaszd ki a bemenetet, majd nyomd meg a **Connect MIDI** gombot; a hangok az aktuális hangszerrel szólnak (felvétel közben vagy *Insert into tracker* mellett a trackerbe is beíródnak). A gomb melletti lámpa minden beérkező MIDI üzenetre felvillan.
+- **MIDI:** a hangszernév melletti **MIDI** listában válaszd ki a bemenetet, majd nyomd meg a **Connect MIDI** gombot; a hangok az aktuális hangszerrel szólnak (felvétel közben vagy *Insert into tracker* mellett a trackerbe is beíródnak). A gomb melletti lámpa minden beérkező MIDI üzenetre felvillan. Bekapcsolt **Polifon felvétel** mellett a felvétel alatt lenyomva tartott billentyűk külön hangra kerülnek a kijelölt hangtól kezdve, a felengedés note-offot ír; ha minden hang foglalt, a legrégebbi billentyű adja át a hangját.
 - **Pattern törlése:** a **Pat +** melletti **−** gomb törli az aktuális patternt (ha van benne hang, előbb rákérdez). Az azt használó song-lépések kikerülnek, a többi átszámozódik; legalább egy pattern mindig megmarad.
 - A **master hangerő** tekerőgombja a VA-VK-n van.
 

@@ -2,9 +2,18 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.7.2**
+**Current version: v2.7.3**
 
 Visual Assembler is free and open source (GPLv3): every feature — editors, builds, hardware runs, languages and themes — works without a registration or serial. At most once a day the app sends an anonymous startup ping (version, OS, UI language, launch count, a random install ID) for the usage statistics; no email, project or source code is sent.
+
+## What's New in v2.7.3
+
+- **Connect MIDI without a question** — on Windows the web view no longer asks for permission in a dialog of its own.
+- **Loading a .bin** — the tracker opens on the selected first song step: a tune whose song does not start with pattern 0 showed pattern 0 instead.
+- **SID Player Pause** — it pauses every time now: a chunk of the tune rendered at that moment, or a note from the SID Editor, could switch the sound back on while the player showed Paused. Pressing Pause again continues.
+- **Stop in Play: All** — the tracker returns to the pattern that was open before playback, instead of staying on the last one played while the first song step stays selected.
+- **Poly record from MIDI** — with **Poly record** on (next to the MIDI input), the keys you hold while recording go to voices of their own, from the selected voice on. A chord of three lands on three voices, and releasing a key writes a note-off.
+- **No click on live notes** — notes played from the keyboard or VA-VK no longer click before they start on reSID, with either the 6581 or the 8580.
 
 ## What's New in v2.7.2
 

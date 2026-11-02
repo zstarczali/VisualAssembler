@@ -14,7 +14,7 @@
     rel="stylesheet">
   <link rel="icon" type="image/png" href="assets/icon.png">
   <link rel="shortcut icon" href="favicon.ico">
-  <link rel="stylesheet" href="style.css?v=2.7.2">
+  <link rel="stylesheet" href="style.css?v=2.7.3">
 </head>
 
 <body>
@@ -1525,7 +1525,7 @@ PRINTABLE CHARACTERS
           <img src="assets/logo-about.png" alt="C64 Visual Assembler" width="200" height="160">
         </div>
         <h2 class="about-title">C64 Visual Assembler</h2>
-        <p class="about-version" id="about-version">v2.7.2</p>
+        <p class="about-version" id="about-version">v2.7.3</p>
         <p class="about-version" id="about-ub-version"><span id="about-ub-version-label">UltimateBasic:</span> <span id="about-ub-version-value">v?</span></p>
         <p class="about-version" id="about-vma-version"><span id="about-vma-version-label">VMA:</span> <span id="about-vma-version-value">v?</span></p>
       </div>
@@ -1562,7 +1562,28 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.7.2</p>
+      <p class="whats-new-version">v2.7.3</p>
+      <ul class="whats-new-list">
+        <li>
+          <strong>Connect MIDI:</strong> on Windows the web view no longer asks for permission in a dialog of its own.
+        </li>
+        <li>
+          <strong>Loading a .bin:</strong> the tracker opens on the selected first song step.
+        </li>
+        <li>
+          <strong>SID Player Pause:</strong> it pauses every time now, and pressing it again continues.
+        </li>
+        <li>
+          <strong>Stop in Play: All:</strong> the tracker returns to the pattern that was open before playback.
+        </li>
+        <li>
+          <strong>Poly record from MIDI:</strong> with <em>Poly record</em> on, the keys you hold while recording go to voices of their own, and a release writes a note-off.
+        </li>
+        <li>
+          <strong>No click on live notes:</strong> notes played from the keyboard or VA-VK no longer click before they start on reSID, with either the 6581 or the 8580.
+        </li>
+      </ul>
+      <p class="whats-new-previous">v2.7.2</p>
       <ul class="whats-new-list">
         <li>
           <strong>reSID in place of WebSID:</strong> the SID Player and the SID Editor play on the backend, on resid-rs (the default) or VA SID Core, with the MOS 6581 or 8580. Settings → General → SID preview.
@@ -2710,14 +2731,15 @@ PRINTABLE CHARACTERS
           <button id="sid-preview" class="ce-tool-btn" type="button" aria-label="Preview">
             <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M11 3v6.6a2.4 2.4 0 1 1-1.2-2.08V4.5L7 5.2V11a2.4 2.4 0 1 1-1.2-2.08V4.2z" fill="currentColor"/></svg>
           </button>
-          <button id="sid-virtual-keyboard" class="ce-tool-btn" type="button" aria-label="Virtual keyboard">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1.5" y="3" width="13" height="10" rx="1.5"/><path d="M4 3v10M7 3v10M10 3v10M13 3v10"/><path d="M5.3 3v5M8.3 3v5M11.3 3v5"/></svg>
-          </button>
           <div class="sid-midi-wrap">
+            <button id="sid-virtual-keyboard" class="ce-tool-btn" type="button" aria-label="Virtual keyboard">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1.5" y="3" width="13" height="10" rx="1.5"/><path d="M4 3v10M7 3v10M10 3v10M13 3v10"/><path d="M5.3 3v5M8.3 3v5M11.3 3v5"/></svg>
+            </button>
             <span id="sid-midi-lbl" class="sid-mini-lbl">MIDI</span>
             <select id="sid-midi-input" class="sid-select sid-midi-input" aria-label="MIDI input"><option value="">No MIDI input</option></select>
             <button id="sid-midi-connect" class="sid-mini-btn" type="button">Connect MIDI</button>
             <span id="sid-midi-led" class="sid-midi-led" aria-hidden="true"></span>
+            <label class="me-check sid-midi-poly"><input type="checkbox" id="sid-midi-poly"> <span id="sid-midi-poly-label">Poly record</span></label>
           </div>
         </div>
         <div class="sid-row sid-wave-row">
@@ -4217,10 +4239,10 @@ PRINTABLE CHARACTERS
     </div>
   </div>
 
-  <script src="tauri-bridge.js?v=2.7.2"></script>
-  <script src="i18n.js?v=2.7.2"></script>
-  <script src="tutorial-data.js?v=2.7.2"></script>
-  <script src="app.js?v=2.7.2"></script>
+  <script src="tauri-bridge.js?v=2.7.3"></script>
+  <script src="i18n.js?v=2.7.3"></script>
+  <script src="tutorial-data.js?v=2.7.3"></script>
+  <script src="app.js?v=2.7.3"></script>
 
 </body>
 

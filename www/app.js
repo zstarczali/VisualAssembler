@@ -4372,6 +4372,7 @@ function _applyEditorTranslations() {
   setAttr("#sid-master-vol", t("sidMasterVolume"));
   setText("#sid-midi-lbl", t("sidMidi"));
   setText("#sid-midi-connect", t("sidMidiConnect"));
+  setText("#sid-midi-poly-label", t("sidMidiPoly"));
   setAttr("#sid-record", t("sidRecord"));
   setAttr("#sid-vkbd-record", t("sidRecord"));
   setText("#sid-preview-engine-lbl", t("sidPreviewEngine"));
@@ -51787,7 +51788,12 @@ let _sidSelAnchor = null;  // { voice, row } anchor for rectangular range select
 let _sidClipboard = null;  // copied voice column: array of 32 {note, inst}
 let _sidCellClip = null;   // cell-range clipboard: [{note,inst},...] from Ctrl+C
 let _sidAudio = null;
+// The SID Player's own context: its Pause suspends it, and nothing else may wake it up.
+// On the shared one every editor note and every rendered chunk undid the pause.
+let _sidExtAudio = null, _sidExtGain = null, _sidVizExt = null;
 var _sidTimer = null, _sidRow = 0, _sidPlayPat = 0;
+// "Play: All" follows the song in the tracker; Stop returns to what was open before it
+var _sidPlayReturn = null;
 // AudioBufferSourceNodes of the rendered preview (note previews and the
 // Web Audio pattern playback) — _sidStop stops them all.
 var _sidPreviewSources = new Set();
@@ -51814,6 +51820,7 @@ let _sidVkbdInsertMode = true;
 let _sidMidiAccess = null;
 let _sidMidiInputId = "";
 let _sidMidiHeld = new Set();
+var _sidMidiPoly; // no initializer: setupSidEditor loads it before this line runs
 let _sidRecording = null;
 
 // SID attack / decay-release time tables (ms) — approximate
@@ -52042,13 +52049,15 @@ function _sidMidiMessage(event) {
   const note = Math.max(0, Math.min(95, midiNote - 12)); // MIDI C-1 = SID C-0
   if (command === 0x80 || (command === 0x90 && velocity === 0)) {
     _sidMidiHeld.delete(midiNote);
+    _sidRecordPolyRelease(midiNote);
     return;
   }
   if (command !== 0x90 || _sidMidiHeld.has(midiNote)) return;
   _sidMidiHeld.add(midiNote);
   const dialog = document.getElementById("sid-editor-dialog");
   if (!dialog?.open || !_sidInited) return;
-  if (_sidRecording || _sidVkbdInsertMode) _sidInsertNoteAtSelection(note, true);
+  if (_sidRecording && _sidMidiPoly) _sidRecordPolyNote(note, midiNote);
+  else if (_sidRecording || _sidVkbdInsertMode) _sidInsertNoteAtSelection(note, true);
   else {
     _sidEnsureAudio();
     _sidPlayInst(_sidCurInst(), _sidNoteFreq(note), _sidAudio.currentTime + 0.01, 0.7);
@@ -53591,6 +53600,15 @@ function _sidEnsureAudio() {
   }
   return _sidAudio;
 }
+function _sidPlayerAudio() {
+  if (!_sidExtAudio) {
+    _sidExtAudio = new (window.AudioContext || window.webkitAudioContext)();
+    _sidExtGain = _sidExtAudio.createGain();
+    _sidExtGain.gain.value = _sidMasterVol;
+    _sidExtGain.connect(_sidExtAudio.destination);
+  }
+  return _sidExtAudio;
+}
 // Sets the shared SID volume (0-100) and keeps the SID Editor and the SID
 // player knobs in step; persisted as c64va-sid-master-vol.
 function _sidSetMasterVolume(pct, persist = true) {
@@ -53668,10 +53686,13 @@ function _sidLoadMasterVolume() {
   _sidSetMasterVolume(pct, false);
 }
 function _sidApplyMasterVolume() {
-  if (_sidMasterGain) {
-    try { _sidMasterGain.gain.setTargetAtTime(_sidMasterVol, _sidMasterGain.context.currentTime, 0.02); }
-    catch(_) { _sidMasterGain.gain.value = _sidMasterVol; }
-  }
+  [_sidMasterGain, _sidExtGain].forEach(function(node) {
+    if (!node) return;
+    // a suspended context's clock stands, so a ramp would wait for the resume
+    if (node.context.state === "suspended") { node.gain.value = _sidMasterVol; return; }
+    try { node.gain.setTargetAtTime(_sidMasterVol, node.context.currentTime, 0.02); }
+    catch(_) { node.gain.value = _sidMasterVol; }
+  });
 }
 /* Note preview: `inst` plays for holdSec, then the gate is released: one engine
    voice with the release tail, on the backend's SID or (no backend) the synth. */
@@ -53787,6 +53808,8 @@ function _sidRecordTick() {
   if (step === rec.lastStep) return;
   rec.lastStep = step;
   rec.row = rec.startRow + step;
+  rec.pendingOff.forEach(function(voice) { _sidRecordPolyOff(rec, voice); });
+  rec.pendingOff.clear();
   _sidSel.voice = rec.voice;
   _sidSel.row = rec.row;
   _sidRefreshSel();
@@ -53802,12 +53825,57 @@ function _sidRecordNote(note) {
   _sidFlashVirtualKeyboardNotes([note]);
   return true;
 }
+// Poly record (MIDI): every held key takes a voice of its own, from the selected voice on, and
+// its release writes a note-off, because a voice left alone would ring on. With all voices held
+// the oldest key gives up its voice. A voice with a release due on this row is the last choice,
+// so that a quick melody does not overwrite its own notes.
+const _SID_POLY_CHORD_MS = 40;
+function _sidRecordPolyVoice(rec) {
+  const held = Array.from(rec.held.values(), function(h) { return h.voice; });
+  const order = rec.pattern.map(function(_, i) { return (rec.voice + i) % rec.pattern.length; });
+  const free = order.filter(function(v) { return !held.includes(v); });
+  const ready = free.find(function(v) { return !rec.pendingOff.has(v); });
+  return ready ?? free[0] ?? held[0];
+}
+function _sidRecordPolyNote(note, midiNote) {
+  const rec = _sidRecording;
+  const voice = _sidRecordPolyVoice(rec);
+  rec.held.forEach(function(h, key) { if (h.voice === voice) rec.held.delete(key); });
+  rec.pendingOff.delete(voice);
+  // the keys of a chord may fall on both sides of a row boundary
+  const now = performance.now();
+  const inChord = rec.chord && rec.chord.pattern === rec.pattern && now - rec.chord.at < _SID_POLY_CHORD_MS;
+  if (!inChord) rec.chord = { pattern: rec.pattern, row: rec.row, at: now };
+  const row = rec.chord.row;
+  rec.pattern[voice][row] = { note: note, inst: rec.inst, fx: null, fxval: 0 };
+  _sidSetCellText(voice, row);
+  rec.held.set(midiNote, { voice: voice, pattern: rec.pattern, row: row });
+  _sidEnsureAudio();
+  _sidPlayInst(_sidInsts[rec.inst], _sidNoteFreq(note), _sidAudio.currentTime + 0.01, Math.max(0.08, rec.rowMs / 1000 * 0.9));
+  _sidFlashVirtualKeyboardNotes([note]);
+}
+function _sidRecordPolyOff(rec, voice) {
+  const cell = rec.pattern[voice][rec.row];
+  if (cell && (cell.note != null || cell.fx)) return;
+  rec.pattern[voice][rec.row] = { note: null, inst: 0, fx: "C", fxval: 0 };
+  _sidSetCellText(voice, rec.row);
+}
+function _sidRecordPolyRelease(midiNote) {
+  const rec = _sidRecording;
+  const held = rec && rec.held.get(midiNote);
+  if (!held) return;
+  rec.held.delete(midiNote);
+  // released on its own row: the note-off has to wait for the next one
+  if (held.pattern === rec.pattern && held.row === rec.row) rec.pendingOff.add(held.voice);
+  else _sidRecordPolyOff(rec, held.voice);
+}
 function _sidRecordStart() {
   if (!_sidPatterns) return;
   _sidStop();
   _sidRecording = {
     pattern: _sidCurPat(), voice: _sidSel.voice, inst: _sidInst, startRow: _sidSel.row,
-    row: _sidSel.row, rowMs: Math.max(1, _sidSpeed) * 20, startedAt: performance.now(), lastStep: -1, timer: null
+    row: _sidSel.row, rowMs: Math.max(1, _sidSpeed) * 20, startedAt: performance.now(), lastStep: -1, timer: null,
+    held: new Map(), pendingOff: new Set(), chord: null
   };
   _sidRecordTick();
   _sidRecording.timer = setInterval(_sidRecordTick, 16);
@@ -54013,7 +54081,7 @@ function _sidExtPlay() {
   if (_sidExtStatus === "paused") {
     if (_sidExternalCore) {
       _sidExternalCore.paused = false;
-      _sidEnsureAudio();
+      _sidPlayerAudio().resume();
     }
     _sidExtSetStatus("playing");
     return;
@@ -54022,10 +54090,11 @@ function _sidExtPlay() {
   else if (_sidExtFile) _sidExtStartFile(_sidExtFile.bytes, _sidExtFile.name, _sidExtFile.song);
 }
 function _sidExtPause() {
+  if (_sidExtStatus === "paused") { _sidExtPlay(); return; }
   if (_sidExtStatus !== "playing") return;
   if (_sidExternalCore) {
     _sidExternalCore.paused = true;
-    if (_sidAudio) _sidAudio.suspend();
+    if (_sidExtAudio) _sidExtAudio.suspend();
   }
   _sidExtSetStatus("paused");
 }
@@ -54848,18 +54917,24 @@ function _sidVizRowHue(row, rows) {
   return 125 - (row / Math.max(1, rows - 1)) * 100;
 }
 
+function _sidVizTap(gain) {
+  const an = gain.context.createAnalyser();
+  an.fftSize = 2048;
+  an.minDecibels = -90;
+  an.maxDecibels = -25;
+  an.smoothingTimeConstant = 0.55;
+  gain.connect(an);
+  return an;
+}
 function _sidVizAnalysers() {
   const list = [];
   if (_sidAudio && _sidMasterGain) {
-    if (!_sidVizVa) {
-      _sidVizVa = _sidAudio.createAnalyser();
-      _sidVizVa.fftSize = 2048;
-      _sidVizVa.minDecibels = -90;
-      _sidVizVa.maxDecibels = -25;
-      _sidVizVa.smoothingTimeConstant = 0.55;
-      _sidMasterGain.connect(_sidVizVa);
-    }
+    if (!_sidVizVa) _sidVizVa = _sidVizTap(_sidMasterGain);
     list.push(_sidVizVa);
+  }
+  if (_sidExtGain) {
+    if (!_sidVizExt) _sidVizExt = _sidVizTap(_sidExtGain);
+    list.push(_sidVizExt);
   }
   return list;
 }
@@ -55226,7 +55301,7 @@ function _sidExternalCoreStop(keepDialog = false) {
   if (state.timer) clearInterval(state.timer);
   _sidExtSources.forEach(function(src){ try { src.stop(); } catch (_) {} });
   _sidExtSources.clear();
-  if (state.paused && _sidAudio) _sidAudio.resume();
+  if (state.paused && _sidExtAudio) _sidExtAudio.resume();
   if (!keepDialog) _sidPlayerHideWindow();
   // released at once: a render still in flight finishes on its own session
   // lock, and waiting for it let stale sessions pile up on quick switches
@@ -55239,7 +55314,8 @@ async function _vaSidPlayFileBytes(bytes, filename, song = 0) {
     return false;
   }
   _sidStop(true);
-  const ac = _sidEnsureAudio();
+  const ac = _sidPlayerAudio();
+  if (ac.state === "suspended") ac.resume();
   // A renderer hosszú DOM-művelet alatt nem fut. Tíz másodpercnyi már az
   // AudioContext szálán ütemezett hang ezért akkor is folytatódik.
   const aheadTarget = _sidPlayerAheadSeconds(_sidPlayerBufferSize());
@@ -55268,7 +55344,7 @@ async function _vaSidPlayFileBytes(bytes, filename, song = 0) {
         state.renderedMs += state.skipMs + samples * 1000 / ac.sampleRate;
         state.skipMs = 0;
         state.nextTime = Math.max(state.nextTime, ac.currentTime + 0.02);
-        _sidPlayBuffer(pcm, state.nextTime, _sidExtSources, rendered.channels);
+        _sidPlayBuffer(pcm, state.nextTime, _sidExtSources, rendered.channels, _sidExtGain);
         state.nextTime += samples / ac.sampleRate;
         // A Web Audio szál előre ütemezett hangja UI-terhelés alatt is tovább szól.
       } while (state.active && !state.paused && (!state.seeking || force) && state.nextTime - ac.currentTime < aheadTarget);
@@ -55466,6 +55542,13 @@ function _sidStop(stopExternal = false) {
   const t = document.getElementById("sid-tracker");
   if (t) t.querySelectorAll("tr.sid-playing").forEach(function(r){ r.classList.remove("sid-playing"); });
   _sidUpdatePauseButton();
+  const back = _sidPlayReturn;
+  _sidPlayReturn = null;
+  if (back) {
+    // a song step picked during playback wins
+    const pat = back.songPos === _sidSongPos ? back.pat : _sidSong[_sidSongPos];
+    if (pat !== _sidPat) _sidSetPattern(pat, true);
+  }
   _sidBuildSongList();
   if (typeof _sidLcdIdle === "function") _sidLcdIdle();
 }
@@ -55476,9 +55559,11 @@ async function _sidPlay(resetPosition = true) {
   if (resetPosition) {
     _sidSongPlayPos = 0;
     if (playAll) {
+      if (!_sidPlayReturn) _sidPlayReturn = { pat: _sidPat, songPos: _sidSongPos };
       _sidPlayPat = (_sidSong && _sidSong.length) ? _sidSong[0] : 0;
       _sidSetPattern(_sidPlayPat, true);
     } else {
+      _sidPlayReturn = null;
       _sidPlayPat = _sidPat;
     }
     _sidRow = 0;
@@ -55869,8 +55954,9 @@ function _sidRenderEngine(e, frames, sr, hook) {
 }
 
 // channels: 1, or 2 for interleaved stereo (tunes with several SIDs)
-function _sidPlayBuffer(data, when, sources = _sidPreviewSources, channels = data.channels || 1) {
-  const ac = _sidEnsureAudio();
+// output: the node to play into, on a context of its own that must not be woken up here
+function _sidPlayBuffer(data, when, sources = _sidPreviewSources, channels = data.channels || 1, output = null) {
+  const ac = output ? output.context : _sidEnsureAudio();
   const samples = Math.max(1, data.length / channels);
   const buf = ac.createBuffer(channels, samples, ac.sampleRate);
   for (let c = 0; c < channels; c++) {
@@ -55880,7 +55966,7 @@ function _sidPlayBuffer(data, when, sources = _sidPreviewSources, channels = dat
   }
   const src = ac.createBufferSource();
   src.buffer = buf;
-  src.connect(_sidMasterGain || ac.destination);
+  src.connect(output || _sidMasterGain || ac.destination);
   src.start(Math.max(ac.currentTime, when));
   sources.add(src);
   src.onended = function() { sources.delete(src); };
@@ -56063,7 +56149,7 @@ function _sidDeserialize(src) {
   _sidSong = _sidSong.map(function(idx){ return Math.max(0, Math.min(_sidPatterns.length - 1, idx|0)); });
   _sidSongPos = 0;
   _sidSongPlayPos = 0;
-  _sidInst = 0; _sidPat = 0; _sidPlayPat = 0;
+  _sidInst = 0; _sidPat = _sidSong[0] || 0; _sidPlayPat = _sidPat;
   _sidSyncPlayModeSel();
   _sidBuildInstSel(); _sidLoadInstUI(); _sidBuildPatSel(); _sidBuildSongList(); _sidBuildTracker();
 }
@@ -56868,7 +56954,7 @@ function _sidApplyImportedTune(res, title) {
   if (speedEl) speedEl.value = String(_sidSpeed);
   if (typeof _sidUpdateBpmDisplay === "function") _sidUpdateBpmDisplay();
   _sidSongPos = 0; _sidSongPlayPos = 0;
-  _sidInst = 0; _sidPat = 0; _sidPlayPat = 0;
+  _sidInst = 0; _sidPat = _sidSong[0] || 0; _sidPlayPat = _sidPat;
   _sidSyncPlayModeSel();
   _sidBuildInstSel(); _sidLoadInstUI(); _sidBuildPatSel(); _sidBuildSongList(); _sidBuildTracker();
 }
@@ -58263,6 +58349,13 @@ function setupSidEditor() {
     _dlgRaisePanel(document.getElementById("sid-virtual-keyboard-dialog"));
   });
   onId("sid-midi-connect", "click", _sidMidiConnect);
+  try { _sidMidiPoly = localStorage.getItem("c64va-sid-midi-poly") === "1"; } catch (_) {}
+  const midiPoly = document.getElementById("sid-midi-poly");
+  if (midiPoly) midiPoly.checked = _sidMidiPoly;
+  onId("sid-midi-poly", "change", function(e) {
+    _sidMidiPoly = !!e.target.checked;
+    try { localStorage.setItem("c64va-sid-midi-poly", _sidMidiPoly ? "1" : "0"); } catch (_) {}
+  });
   onId("sid-midi-input", "change", function(e) { _sidMidiSetInput(e.target.value); });
   onId("sid-vkbd-close", "click", function(){
     _sidCloseVirtualKeyboard();

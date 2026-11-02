@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.7.2**
+**Version 2.7.3**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -8,6 +8,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 
 ## Table of Contents
 
+- [Version 2.7.3 Highlights](#version-273-highlights)
 - [Version 2.7.2 Highlights](#version-272-highlights)
 - [Version 2.7.1 Highlights](#version-271-highlights)
 - [Version 2.7.0 Highlights](#version-270-highlights)
@@ -233,6 +234,15 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
   - [Number Converter](#number-converter)
 
 ---
+
+## Version 2.7.3 Highlights
+
+- **Connect MIDI without a question** — on Windows the web view no longer asks for permission in a dialog of its own.
+- **Loading a .bin** — the tracker opens on the selected first song step: a tune whose song does not start with pattern 0 showed pattern 0 instead.
+- **SID Player Pause** — it pauses every time now: a chunk of the tune rendered at that moment, or a note from the SID Editor, could switch the sound back on while the player showed Paused. Pressing Pause again continues.
+- **Stop in Play: All** — the tracker returns to the pattern that was open before playback, instead of staying on the last one played while the first song step stays selected.
+- **Poly record from MIDI** — with **Poly record** on (next to the MIDI input), the keys you hold while recording go to voices of their own, from the selected voice on. A chord of three lands on three voices, and releasing a key writes a note-off.
+- **No click on live notes** — notes played from the keyboard or VA-VK no longer click before they start on reSID, with either the 6581 or the 8580.
 
 ## Version 2.7.2 Highlights
 
@@ -4663,7 +4673,7 @@ Effects update once per row (matching the exported player's timing), run identic
 **Recording, metronome and MIDI:**
 - **Record** (the red dot, in the tracker toolbar and on VA-VK) writes the notes you play — on VA-VK, the computer keyboard or a MIDI keyboard — in time into the selected voice, starting at the selected row, at the current Speed. When the pattern is full, a new empty pattern is added after the current song step and recording goes on there. Press Record again to stop.
 - **Metronome** (tracker toolbar and VA-VK) clicks every 4 rows, accented on the first beat of each 4-beat bar. The beat lamps next to it flash on every beat during playback and recording, even with the click off.
-- **MIDI:** choose the input in the **MIDI** list next to the instrument name and press **Connect MIDI**; notes play the current instrument (and are written into the tracker while recording or with *Insert into tracker*). The lamp next to the button flashes on every incoming MIDI message.
+- **MIDI:** choose the input in the **MIDI** list next to the instrument name and press **Connect MIDI**; notes play the current instrument (and are written into the tracker while recording or with *Insert into tracker*). The lamp next to the button flashes on every incoming MIDI message. With **Poly record** on, the keys held while recording go to voices of their own, from the selected voice on, and a release writes a note-off; when every voice is held, the oldest key gives up its voice.
 - **Pattern delete:** the **−** button next to **Pat +** deletes the current pattern (it asks first if the pattern has notes). The song steps that used it are removed and the others renumbered; at least one pattern always remains.
 - The **master volume** knob is on VA-VK.
 

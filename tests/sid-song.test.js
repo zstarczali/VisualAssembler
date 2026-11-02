@@ -113,7 +113,7 @@ function loadSerdeSandbox() {
   return loadFunctions(
     ["_sidInstFields", "_sidInstNorm", "_sidInstCtrl", "_sidInstExtBytes", "_sidReadInstExt", "_sidWaStop", "_sidInstBytes", "_sidWaveByte", "_sidNewInst", "_sidVoiceCount", "_sidNewPattern", "_sidSerialize", "_sidDeserialize", "_sidSyncPlayModeSel", "_sidBuildInstSel", "_sidLoadInstUI", "_sidBuildPatSel", "_sidBuildSongList", "_sidBuildTracker", "_sidStop", "_sidUpdatePauseButton", "_sidCurInst"],
     {
-      Uint8Array, Math, String, Array, TextEncoder, TextDecoder, _sidSpeed: 6, _sidWaPlay: null, _sidStream: null, _webSidLoadSeq: 0, setTimeout: () => 0, _sidPreviewSources: new Set(), _sidRenderTable: () => {},
+      Uint8Array, Math, String, Array, TextEncoder, TextDecoder, _sidSpeed: 6, _sidWaPlay: null, _sidPlayReturn: null, _sidStream: null, _webSidLoadSeq: 0, setTimeout: () => 0, _sidPreviewSources: new Set(), _sidRenderTable: () => {},
       // _sidLoadInstUI assigns document.getElementById("sid-inst-name").value
       // directly with no null-guard (unlike its other fields, which all go
       // through a guarded helper) — give that one id a real object so the
@@ -255,4 +255,16 @@ test("Exported ASM player: the song/order table encodes the given step sequence,
   const orderBlock = asm.slice(asm.indexOf("sid_order:"), asm.indexOf("; Instruments:"));
   const bytes = (orderBlock.match(/\$([0-9A-F]{2})/g) || []).map((h) => parseInt(h.slice(1), 16));
   assert.deepEqual(bytes, [0, 2, 1, 2]);
+});
+
+test("a loaded tune opens on its first song step, also when that is not pattern 0", () => {
+  const ctx = loadSerdeSandbox();
+  ctx._sidInsts = [ctx._sidNewInst("Lead")];
+  ctx._sidPatterns = [ctx._sidNewPattern(), ctx._sidNewPattern(), ctx._sidNewPattern()];
+  ctx._sidSong = [1, 2, 0];
+  const bytes = ctx._sidSerialize();
+  ctx._sidDeserialize(bytes);
+  assert.equal(vm.runInContext("_sidSongPos", ctx), 0);
+  assert.equal(vm.runInContext("_sidPat", ctx), 1, "the selected step's pattern, not the last step's");
+  assert.equal(vm.runInContext("_sidPlayPat", ctx), 1);
 });

@@ -1,5 +1,7 @@
 C64 Visual Assembler - Installation Guide
-Version 2.7.2
+Version 2.7.3
+
+2.7.3: poly record from MIDI (held keys go to voices of their own), no more click before each note played live on reSID.
 
 2.7.2: reSID (resid-rs) replaces WebSID in the SID Player and the SID Editor, VA SID Core stays selectable (Settings -> General -> SID preview), SID Player buffer in seconds.
 
@@ -85,7 +87,7 @@ Tested on Ubuntu 22.04 and 24.04.
 -----------------------
 Download the .deb package from the releases page and install:
 
-  sudo dpkg -i "c64-visual-assembler_2.7.2_amd64.deb"
+  sudo dpkg -i "c64-visual-assembler_2.7.3_amd64.deb"
   sudo apt-get install -f   # fix any missing dependencies
 
 Launch from the Applications menu or:
@@ -178,7 +180,7 @@ Requirements: macOS 11.0+, Apple Silicon (M1/M2/M3)
 
 1. C64 Visual Assembler
 -----------------------
-1. Download the 2.7.2 DMG for your architecture from the releases page
+1. Download the 2.7.3 DMG for your architecture from the releases page
 2. Mount the DMG and drag the app to /Applications
 3. First launch: Right-click the app -> "Open" (macOS will block double-click)
 4. Click "Open" in the security dialog
