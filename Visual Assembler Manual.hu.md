@@ -239,6 +239,7 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 
 ## A 2.7.3 verzió újdonságai
 
+- **Linux** — a SID Player és a SID szerkesztő néma maradt, ahol hiányoztak a GStreamer-pluginek: az AppImage már tartalmazza őket, a `.deb` és `.rpm` csomag pedig függ tőlük.
 - **Visszavonás / Mégis a SID szerkesztőben** — két új gomb a tracker eszköztárán, vagy Ctrl+Z és Ctrl+Y. A hangokra, hangszerekre, a songra, a tempóra és a dal betöltésére is érvényes, legfeljebb 100 lépésig. Egy teljes felvétel egy lépés.
 - **Tempó** — a tracker tempómezőjének neve most az, ami valójában: **Frame/sor**, a nagyobb szám lassabb. A mellette lévő **BPM** az ebből adódó tempót mutatja.
 - **Hangok mozgatása a vízszintes trackerben** — a hang törzsét húzva a hang időben és hangmagasságban is mozog. Megtartja a hosszát, a hangszerét és az effektjét, és egy sorral a sáv következő hangja előtt megáll.

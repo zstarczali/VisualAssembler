@@ -1,7 +1,7 @@
 C64 Visual Assembler - Installation Guide
 Version 2.7.3
 
-2.7.3: poly record from MIDI (held keys go to voices of their own), no more click on reSID before notes played live or on a tune's first note.
+2.7.3: Linux: sound in the AppImage; poly record from MIDI (held keys go to voices of their own), no more click on reSID before notes played live or on a tune's first note.
 
 2.7.2: reSID (resid-rs) replaces WebSID in the SID Player and the SID Editor, VA SID Core stays selectable (Settings -> General -> SID preview), SID Player buffer in seconds.
 
@@ -93,6 +93,17 @@ Download the .deb package from the releases page and install:
 Launch from the Applications menu or:
 
   c64-visual-assembler
+
+
+Troubleshooting:
+
+- Blank window, with "Failed to create GBM buffer" in the terminal: start the application with
+  WEBKIT_DMABUF_RENDERER_DISABLE_GBM=1, and if that does not help, with WEBKIT_DISABLE_DMABUF_RENDERER=1
+  in front of its command.
+
+- No sound, with "GStreamer element ... not found" in the terminal: install these packages:
+
+    sudo apt install gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-alsa gstreamer1.0-pulseaudio
 
 
 2. VICE Emulator

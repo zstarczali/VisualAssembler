@@ -30,6 +30,11 @@
   "bundle": {
     "active": true,
     "targets": "all",
+    "linux": {
+      "appimage": { "bundleMediaFramework": true },
+      "deb": { "depends": ["gstreamer1.0-plugins-base", "gstreamer1.0-plugins-good", "gstreamer1.0-alsa", "gstreamer1.0-pulseaudio"] },
+      "rpm": { "depends": ["gstreamer1-plugins-base", "gstreamer1-plugins-good"] }
+    },
     "icon": [
       "icons/icon.icns",
       "icons/icon.ico",
