@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Gebruikershandleiding
 
-**Versie 2.7.1**
+**Versie 2.7.2**
 
 Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw
 programma's door instructieblokken te slepen en neer te zetten, en bekijk de
@@ -10,6 +10,7 @@ gegenereerde assembly- en machinecode in realtime.
 
 ## Inhoudsopgave
 
+- [Hoogtepunten van versie 2.7.2](#version-272-highlights)
 - [Hoogtepunten van versie 2.7.1](#version-271-highlights)
 - [Hoogtepunten van versie 2.7.0](#version-270-highlights)
 - [Hoogtepunten van versie 2.6.9](#version-269-highlights)
@@ -245,6 +246,17 @@ gegenereerde assembly- en machinecode in realtime.
 
 ---
 
+## Hoogtepunten van versie 2.7.2
+
+- **reSID in plaats van WebSID** — de SID Player en de SID Editor spelen op de
+  backend, op [resid-rs](https://github.com/binaryfields/resid-rs) (een
+  Rust-port van reSID, de standaard) of op VA SID Core, beide met de MOS 6581 of
+  8580. **Instellingen → Algemeen → SID-voorbeeld** kiest. Zoeken, stereo 2SID
+  en 3SID-tuning en de C64-core werken met beide. WebSID is verdwenen.
+- **SID-spelerbuffer** — **Instellingen → Algemeen → SID-voorbeeld →
+  SID-spelerbuffer** geeft nu aan hoe ver vooruit de melodie wordt weergegeven:
+  10, 15, 20 of 30 seconden.
+
 ## Hoogtepunten van versie 2.7.1
 
 - **Debugger voor VICE** — **Instellingen → Algemeen → Debugger** kiest de
@@ -283,9 +295,8 @@ gegenereerde assembly- en machinecode in realtime.
   header, één knop om de tracker los te koppelen en weer vast te maken, en een
   overzichtelijkere instrumentenlijst in de horizontale tracker.
 - **Opgelost** — **D64 op hardware** stuurt het afbeeldingstype mee met het
-  mountverzoek, wat C64 Ultimate firmware 1.1.0 vereist. WebSID kon de previews
-  van de editor en de volledige melodie niet laden in **Afspelen: Alles**; het
-  stoppen van de editor sluit de SID Player niet langer af.
+  mountverzoek, wat C64 Ultimate firmware 1.1.0 vereist; het stoppen van de
+  editor sluit de SID Player niet langer af.
 
 ---
 
@@ -7062,31 +7073,27 @@ $4000` en `map view px, py` (voorbeeld `level_scroll_demo.ub`).
 ### SID-editor (3-stemmen tracker)
 
 Multi-instrument 3-stemmige tracker. Open deze met de knop SID Editor in de
-werkbalk. **Afspelen: Alles** start de geëxporteerde 6502-speler in de
-WebSid-emulator; elke andere preview (instrumentpreview, virtueel toetsenbord,
-nootinvoer, akkoord/arpeggio, rij- en enkelpatroonweergave) wordt ook afgespeeld
-op de geëmuleerde SID: een JS-model van dezelfde speler (frame voor frame)
-streamt zijn SID-registers elke frame naar WebSid, en maximaal drie previewnoten
-delen de drie stemmen. De streamspeler wordt geladen wanneer de editor wordt
-geopend en opnieuw na Stop, zodat noten direct klinken; zonder WebSid speelt er
-in plaats daarvan een kleine SID-synthesizer.
+werkbalk. Afspelen en elke preview (**Afspelen: Alles**, instrumentpreview,
+virtueel toetsenbord, noteninvoer, akkoord/arpeggio, rij- en
+enkelpatroonweergave) worden afgespeeld op de geëmuleerde SID: een JS-model van
+de geëxporteerde 6502-speler (frame voor frame) stuurt zijn SID-registers naar
+de backend, die het geluid rendert. Buiten de desktop-app speelt een kleine
+SID-synthesizer in plaats daarvan.
 
 **Voorbeeldweergave-engine:** **Instellingen → Algemeen → SID-voorbeeld**
-selecteert **WebSID** of **VA SID Core (Rust)**, de eigen SID-emulatie van de
-app; met VA SID Core kiest u ook de chip (MOS 6581 / 8580). De header van de
-editor toont de gebruikte engine (bijv. *· VA SID Core v1.2 (MOS 8580)*). De
+selecteert **reSID (resid-rs)**, de standaard, of **VA SID Core (Rust)**, de
+eigen SID-emulatie van de app, en de chip (MOS 6581 / 8580). De header van de
+editor toont de gebruikte engine (bijv. *· reSID (MOS 8580)*). De
 instrumentparameters worden ingesteld met draaiknoppen.
 
 **Twee SID's:** **SID: 1 / 2** In de tracker-werkbalk schakelt de melodie tussen
 3 en 6 stemmen. Met twee SID's stelt de lijst ernaast het adres van de tweede
 SID in: `$D420`–`$D7E0` of `$DE00`–`$DFE0`, in stappen van `$20`. De kolommen
 hebben de kopteksten **S1 V1** … **S2 V3**. Elke SID heeft zijn eigen filter en
-volume, en een stem bestuurt alleen die van zijn eigen chip. VA SID Core en de
-kleine synthesizer spelen de twee SID's in stereo af (SID 1 links, SID 2
-rechts); WebSID haalt het adres van de tweede SID uit de PSID-header.
-Nootvoorbeelden worden afgespeeld op de eerste SID. Bij het terugschakelen naar
-één SID worden de stemmen van de tweede SID verwijderd en wordt eerst gevraagd
-of ze nog iets bevatten.
+volume, en een stem bestuurt alleen die van zijn eigen chip. De twee SID's
+spelen in stereo (SID 1 links, SID 2 rechts). Notenvoorbeelden worden afgespeeld
+op de eerste SID. Bij het terugschakelen naar één SID worden de stemmen van de
+tweede SID verwijderd en wordt eerst gevraagd of ze iets vasthouden.
 
 ** Bedieningselementen per instrument: **
 - Golfvormselectievakjes (TRI / SAW / PUL / NOI) — meerdere golfvormen worden
@@ -7209,8 +7216,8 @@ in het versiebeheerde `.bin`-formaat.
 - Met de **Instrument**-knop op VA-VK (slepen, muiswiel of pijltjestoetsen)
   selecteert u het instrument, dat met zijn nummer en naam op het LCD-scherm
   ernaast wordt weergegeven; het volgt de instrumentenlijst van de editor. Het
-  label naast de titel VA-VK geeft de gebruikte SID-emulatie aan (WebSID of VA
-  SID Core, afhankelijk van het chipmodel).
+  label naast de titel VA-VK geeft de gebruikte SID-emulatie weer (reSID of VA
+  SID Core, met het chipmodel).
 - Schakel **Invoegen in tracker** in om elke gespeelde noot op de huidige
   trackercursor te schrijven en naar de volgende regel te gaan. Schakel deze
   functie uit om noten te beluisteren zonder ze te bewerken.
@@ -7293,6 +7300,14 @@ vervanging van het huidige nummer. Een voortgangsbalk volgt de opname, daarna
 - Een bericht geeft aan wat er is benaderd, bijvoorbeeld slides die halve
   toonstappen worden of tabellen langer dan 32 stappen. RSID-melodieën die als
   BASIC-programma starten, worden niet ondersteund.
+- **Filter- en pulsbeweging: ** Een filter sweep telt over de hele noot, ook
+  nadat de golfvorm stil is geworden, en eindigt waar een andere noot het filter
+  opnieuw start. Een filtertabel die snel daalt, telt door tot het punt bereikt
+  is, binnen de 127 per frame van de speler. Een filter-LFO stuitert tussen zijn
+  uitersten. Een instrument behoudt het pulsbereik van al zijn noten. Puls en
+  filter starten nog steeds opnieuw bij elke doorgestuurde noot, dus een sweep
+  die vrij over veel noten loopt, is slechts een benadering, en toonhoogtes die
+  tussen halve tonen liggen, worden afgerond naar de dichtstbijzijnde.
 - **Meerdere SIDs:** een 2SID-melodie wordt zes stemmen en neemt het adres van
   de tweede SID mee. Een 3SID-melodie importeert de eerste twee SIDs, en een
   bericht bevestigt dit.
@@ -7319,10 +7334,9 @@ gebruikt de speler ook `$50`–`$67` (de pointers van stemmen 4–6) en `$68`/`$
 - C64 `$D418` Het globale volume wordt gedeeld over alle stemmen — de
   volumeregelaar per instrument is informatief; het sustainniveau (`S` van ADSR)
   is het effectieve volume per stem.
-- Terwijl **Play: All** de echte melodie geladen heeft (ook wanneer gepauzeerd),
-  vallen de notenvoorbeelden terug op de kleine synthesizer, die slechts een
-  benadering is van de SID-chip. De voorbeelden bereiken WebSid ongeveer 0,1
-  seconde eerder dan het geluid.
+- Een voorbeeld van een noot wordt op de achtergrond weergegeven voordat deze
+  klinkt, dus het begint een moment na het indrukken van de toets. Elke
+  voorbeeldnoot heeft zijn eigen chip, zodat noten elkaar niet overstemmen.
 
 ---
 
@@ -7346,23 +7360,21 @@ HVSC-collectie.
 - **Transport:** Afspelen, Pauze, Stop, **Vorige** / **Volgende** melodie,
   **Vorige / Volgende submelodie** voor bestanden met meerdere nummers, en een
   tijdsteller.
-- **Zoeken:** de positiebalk en **Terug/Vooruit 10 s** werken met de VA SID
-  Core-engine. WebSID kan niet zoeken, dus deze bedieningselementen zijn daarmee
-  uitgeschakeld.
+- **Zoeken:** de positiebalk en **Terug/Vooruit 10 s**; het overgeslagen deel
+  wordt stil uitgevoerd.
 - **Volume:** De knop wordt gedeeld met het hoofdvolume van de SID Editor.
 - **Buffer:** **Instellingen → Algemeen → SID-voorbeeld → SID-spelerbuffer**
-  (2048, 4096, 8192 of 16384 samples). Een grotere buffer voorkomt het gekraak
-  terwijl de app bezig is. WebSID gebruikt de nieuwe grootte na een herstart; VA
-  SID Core rendert 10 / 15 / 20 / 30 seconden vooruit vanaf de volgende melodie.
-- **Engine:** Het venster toont welke engine wordt gebruikt (WebSID of VA SID
-  Core met de bijbehorende versie en SID-chip); kies deze in **Instellingen →
-  Algemeen → SID-voorbeeld**. VA SID Core voert de tune uit op een native Rust
-  C64-core met een cycle-exacte 6510, precieze interrupt-timing, CIA 6526A,
-  VIC-II-timing met foutlijnen, sprite DMA en raster-interrupts, en de 6510
-  I/O-poort — zodat raster-IRQ-, CIA-getimede en digitale tunes worden
-  afgespeeld met de timing van een echte machine. VA SID Core speelt ook 2SID-
-  en 3SID-tunes (PSID v3/v4) in stereo af: SID 1 links, SID 2 rechts, een derde
-  SID in het midden.
+  (10, 15, 20 of 30 s). Een grotere buffer voorkomt het gekraak terwijl de app
+  bezig is: de melodie wordt zo ver vooruit weergegeven, vanaf de volgende
+  melodie.
+- **Engine:** Het venster toont welke engine wordt gebruikt (reSID of VA SID
+  Core, met de SID-chip); kies deze in **Instellingen → Algemeen →
+  SID-voorbeeld**. Beide engines draaien de tune op een native Rust C64-core met
+  een cycle-exact 6510, precieze interrupt-timing, CIA 6526A, VIC-II-timing met
+  foutlijnen, sprite DMA en raster-interrupts, en de 6510 I/O-poort — dus
+  raster-IRQ, CIA-getimede en digi-tunes worden afgespeeld met de timing van een
+  echte machine. 2SID- en 3SID-tunes worden afgespeeld (PSID v3 / v4) in stereo:
+  SID 1 links, SID 2 rechts, een derde SID in het midden.
 - **Shuffle:** De shuffle-knop naast **Volgende** speelt de afspeellijst in
   willekeurige volgorde af — geen enkel nummer wordt herhaald totdat elk nummer
   is afgespeeld, en **Vorige** gaat terug in de willekeurige volgorde. De
@@ -7379,6 +7391,13 @@ C64-melodieën.
 - **Zoeken:** typ een titel, componist of map (`hubbard commando`, `games/s-z`);
   elk woord moet overeenkomen. **Willekeurige melodieën** geeft een lijst van 25
   willekeurige melodieën.
+- **Componist:** De lijst naast het zoekveld verandert van **Alles** naar
+  **Componist**, waarmee alleen gezocht wordt op namen van componisten
+  (`hubbard`, `rob hubbard`, `galway`) en de melodieën worden weergegeven op
+  componist. De naam komt uit de map van de melodie onder `MUSICIANS`, dus een
+  componist wordt gevonden aan de hand van de mapnaam, die een handle kan zijn
+  (`laxity`). Ongeveer 4600 melodieën in `GAMES` en `DEMOS` hebben geen map voor
+  componisten: **Alle** vindt ze op titel of map.
 - **Afspelen / toevoegen / opslaan: ** Klik op een nummer om het af te spelen,
   **+** voegt het toe aan de afspeellijst, de downloadknop slaat het `.sid`
   bestand op. **Alle resultaten toevoegen** voegt maximaal 100 gevonden nummers

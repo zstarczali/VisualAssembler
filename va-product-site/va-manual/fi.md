@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Käyttöopas
 
-**Versio 2.7.1**
+**Versio 2.7.2**
 
 Visuaalinen, lohkopohjainen 6502-assembler Commodore 64:lle. Voit luoda ohjelmia
 vetämällä ja pudottamalla käskylohkoja ja nähdä luodun assemblerin ja konekoodin
@@ -10,6 +10,7 @@ reaaliajassa.
 
 ## Sisällysluettelo
 
+- [Version 2.7.2 kohokohdat](#version-272-highlights)
 - [Version 2.7.1 kohokohdat](#version-271-highlights)
 - [Version 2.7.0 kohokohdat](#version-270-highlights)
 - [Version 2.6.9 kohokohdat](#version-269-highlights)
@@ -248,6 +249,17 @@ reaaliajassa.
 
 ---
 
+## Version 2.7.2 kohokohdat
+
+- **reSID WebSID:n tilalla** — SID Player ja SID Editor toistavat taustalla,
+  [resid-rs](https://github.com/binaryfields/resid-rs):ssä (reSID:n Rust-portti,
+  oletusarvo) tai VA SID Coressa, molemmissa MOS 6581- tai 8580-piirillä.
+  **Asetukset → Yleiset → SID-esikatselu** valitsee. Haku, stereo 2SID- ja
+  3SID-viritykset ja C64-ydin toimivat molemmissa. WebSID on poissa.
+- **SID Playerin puskuri** — **Asetukset → Yleiset → SID-esikatselu → SID
+  Playerin puskuri** ilmaisee nyt, kuinka kauas eteenpäin sävelmä renderöidään:
+  10, 15, 20 tai 30 sekuntia.
+
 ## Version 2.7.1 kohokohdat
 
 - **VICE-virheenkorjaus** — **Asetukset → Yleiset → Virheenkorjaus** valitsee
@@ -286,9 +298,8 @@ reaaliajassa.
   painike seurannan irrottamiseen ja kiinnittämiseen sekä siistimpi
   soitinluettelo vaakasuuntaisessa seurannassa.
 - **Korjattu** — **D64 laitteistossa** lähettää kuvatyypin liitospyynnön mukana,
-  mitä C64 Ultimate -laiteohjelmisto 1.1.0 vaatii. WebSID ei voinut ladata
-  editorin esikatseluja ja koko musiikkia **Toista: Kaikki** -kohdassa; editorin
-  pysäyttäminen ei enää sulje SID-soitinta.
+  mitä C64 Ultimate -laiteohjelmisto 1.1.0 vaatii; editorin pysäyttäminen ei
+  enää sulje SID-soitinta.
 
 ---
 
@@ -6569,31 +6580,28 @@ Basic 1.6.1+:ssa, `map load "level.bin", $4000` ja `map view px, py` (esimerkki
 
 ### SID-editori (3-ääninen seuranta)
 
-Moniinstrumenttinen 3-ääninen seurantalaite. Avaa se SID Editor -työkalupalkin
-painikkeella. **Soita: Kaikki** suorittaa viedyn 6502-soittimen
-WebSid-emulaattorissa; kaikki muut esikatselut (instrumentin esikatselu,
-virtuaalinäppäimistö, nuotin syöttö, sointu/arpeggio, rivi- ja yksittäisten
-kuvioiden toisto) toistetaan myös emuloidulla SID:llä: saman soittimen JS-malli
-(kehys kehykseltä) suoratoistaa SID-rekisterinsä WebSidiin joka kehys, ja jopa
-kolme esikatselunuottia jakaa kolme ääntä. Suoratoistosoitin latautuu, kun
-editori avautuu, ja uudelleen pysäytyspainikkeen jälkeen, joten nuotit soivat
-kerralla; ilman WebSidiä pieni SID-syntetisaattori soittaa sen sijaan.
+Moni-instrumenttinen 3-ääninen seuranta. Avaa se SID Editor -työkalupalkin
+painikkeella. Toisto ja jokainen esikatselu (**Soita: Kaikki**, instrumentin
+esikatselu, virtuaalinäppäimistö, nuotin syöttö, sointu/arpeggio, rivi- ja
+yksittäisten kuvioiden toisto) toistetaan emuloidulla SID:llä: viedyn
+6502-soittimen JS-malli (kehys kehykseltä) lähettää SID-rekisterinsä
+taustajärjestelmään, joka renderöi äänen. Työpöytäsovelluksen ulkopuolella pieni
+SID-syntetisaattori soittaa sen sijaan.
 
 **Esikatselumoottori:** **Asetukset → Yleiset → SID-esikatselu** valitsee
-**WebSID:n** tai **VA SID Coren (Rust)**, sovelluksen oman SID-emuloinnin; VA
-SID Coren kanssa valitaan myös siru (MOS 6581 / 8580). Editorin otsikko näyttää
-käytössä olevan moottorin (esim. *· VA SID Core v1.2 (MOS 8580)*).
-Instrumenttiparametrit asetetaan säätimillä.
+oletusarvoisen **reSID (resid-rs)** tai sovelluksen oman SID-emuloinnin **VA SID
+Core (Rust)** ja sirun (MOS 6581 / 8580). Editorin otsikko näyttää käytössä
+olevan moottorin (esim. *· reSID (MOS 8580)*). Instrumentin parametrit asetetaan
+säätimillä.
 
 **Kaksi SID:tä:** **SID: 1 / 2** seurantatyökalupalkissa vaihtaa sävelmän 3 ja 6
 äänen välillä. Kahdella SID:llä sen vieressä oleva lista asettaa toisen SID:n
 osoitteen: `$D420`–`$D7E0` tai `$DE00`–`$DFE0`, `$20` välein. Sarakkeet ovat
 otsikoilla **S1 V1** … **S2 V3**. Jokaisella SID:llä on oma suodattimensa ja
-äänenvoimakkuutensa, ja ääni ohjaa vain omaa siruaan. VA SID Core ja pieni
-syntetisaattori soittavat kaksi SID:tä stereona (SID 1 vasemmalla, SID 2
-oikealla); WebSID ottaa toisen SID:n osoitteen PSID-otsikosta. Nuottien
-esikatselut soivat ensimmäisellä SID:llä. Vaihtaminen takaisin yhteen SID:hen
-poistaa toisen SID:n äänet ja kysyy ensin, onko niissä mitään.
+äänenvoimakkuutensa, ja ääni ohjaa vain omaa siruaan. Kaksi SID:tä (SID 1 vasen,
+SID 2 oikea) soittavat stereona. Nuottien esikatselut soivat ensimmäisellä
+SID:llä. Vaihtaminen takaisin yhteen SID:hen poistaa toisen SID:n äänet ja kysyy
+ensin, onko niissä mitään.
 
 **Laitekohtaiset säätimet:**
 - Aaltomuodon valintaruudut (TRI / SAW / PUL / NOI) — useat aaltomuodot
@@ -6717,7 +6725,7 @@ ajoitusta), toimivat identtisesti Web Audio -esikatselussa ja käännetyssä
   nuolinäppäimillä) valitsee instrumentin, jonka numero ja nimi näkyvät sen
   vieressä olevassa LCD-näytössä. Se seuraa editorin instrumenttiluetteloa.
   VA-VK:n otsikon vieressä oleva merkki näyttää käytössä olevan SID-emuloinnin
-  (WebSID tai VA SID Core sirumallin kanssa).
+  (reSID tai VA SID Core, sirumallin kera).
 - Ota käyttöön **Lisää seurantaan** kirjoittaaksesi jokaisen soitetun nuotin
   nykyiseen seurantakursoriin ja siirtyäksesi seuraavalle riville. Poista se
   käytöstä kuunnellaksesi nuotteja ilman muokkausta.
@@ -6802,6 +6810,15 @@ tilalle. Edistymispalkki seuraa tallennusta ja sitten *Muunnetaan…* muunnosta.
 - Viestissä luetellaan, mitä on arvioitu, esimerkiksi diat, joista tulee
   puolisävelaskeleita, tai taulukot, jotka ovat pidempiä kuin 32 askelta.
   RSID-sävelmiä, jotka alkavat BASIC-ohjelmana, ei tueta.
+- **Suodattimen ja pulssin liike:** Suodattimen pyyhkäisy laskee koko nuotin
+  yli, myös aaltomuodon hiljentymisen jälkeen, ja se päättyy, kun toinen nuotti
+  käynnistää suodattimen uudelleen. Nopeasti laskeva suodintaulukko laskee, kun
+  se saavuttaa tavoitteen, soittajan 127 sekunnin puitteissa kehystä kohden.
+  Suodattimen LFO pomppii ääripäidensä välillä. Instrumentti säilyttää kaikkien
+  nuottiensa pulssialueen. Pulssi ja suodatin käynnistyvät edelleen uudelleen
+  jokaisella reititetyllä nuotilla, joten pyyhkäisy, joka kulkee vapaasti
+  useiden nuottien yli, on vain likimääräinen, ja puolisävelaskelmien välillä
+  olevat sävelkorkeudet pyöristetään lähimpään.
 - **Useita SID-tunnuksia:** 2SID-sävelmästä tulee kuusiääninen ja se tuo
   mukanaan toisen SID-osoitteensa. 3SID-sävelmä tuo kaksi ensimmäistä
   SID-tunnustaan, ja viesti ilmoittaa tästä.
@@ -6827,10 +6844,9 @@ osoittimet) ja `$68`/`$69` (nykyisen äänen SID-rekisterit).
 - C64 `$D418` globaali äänenvoimakkuus jaetaan eri äänien kesken —
   instrumenttikohtainen äänenvoimakkuuden liukusäädin on informatiivinen;
   sustain-taso (ADSR:n `S`) on efektiivinen äänenvoimakkuus äänittäin.
-- Vaikka **Play: All** lataa oikean sävelmän (myös tauolla), nuottien
-  esikatselut palautuvat pieneen syntetisaattoriin, joka vain likimääräisesti
-  vastaa SID-sirua. Esikatselut saapuvat WebSidiin noin 0,1 sekuntia ennen
-  ääntä.
+- Nuotin esikatselu renderöidään taustajärjestelmässä ennen sen soimista, joten
+  se alkaa hetken näppäimen painalluksen jälkeen. Jokaisella esikatselunuotilla
+  on oma sirunsa, joten nuotit eivät ota ääniä toisistaan.
 
 ---
 
@@ -6854,25 +6870,22 @@ osoitteella.
 - **Siirto:** Toista, Tauko, Pysäytä, **Edellinen** / **Seuraava** kappale,
   **Edellinen / Seuraava osakappale** useita kappaleita sisältäville
   tiedostoille ja aikalaskuri.
-- **Haku:** Sijaintipalkki ja **Takaisin/Eteenpäin 10 s** toimivat VA SID Core
-  -moottorin kanssa. WebSID ei voi hakea, joten nämä säätimet ovat siinä poissa
-  käytöstä.
+- **Haku:** sijaintipalkki ja **taaksepäin/eteenpäin 10 s**; ohitettu osa
+  toistuu äänettömästi.
 - **Äänenvoimakkuus:** tätä nuppia käytetään yhdessä SID Editorin
   äänenvoimakkuuden pääsäätimen kanssa.
-- **Puskuri:** **Asetukset → Yleiset → SID-esikatselu → SID Player -puskuri**
-  (2048, 4096, 8192 tai 16384 näytettä). Suurempi puskuri pysäyttää rätinän
-  sovelluksen ollessa käynnissä. WebSID käyttää uutta kokoa
-  uudelleenkäynnistyksen jälkeen; VA SID Core renderöi 10 / 15 / 20 / 30
-  sekuntia eteenpäin seuraavasta sävelmästä.
-- **Moottori:** ikkunassa näkyy, mitä moottoria toistetaan (WebSID tai VA SID
-  Core versioineen ja SID-siruineen); valitse se kohdasta **Asetukset → Yleiset
-  → SID-esikatselu**. VA SID Core suorittaa sävelmän natiivilla Rust C64
-  -ytimellä, jossa on syklintarkka 6510-prosessori, tarkka keskeytysajoitus, CIA
-  6526A, VIC-II-ajoitus huonoilla linjoilla, sprite DMA ja rasterikeskeytykset
-  sekä 6510 I/O -portti – joten rasteri-IRQ-, CIA-ajoitetut ja digitaaliset
-  sävelmät toistetaan oikean koneen ajoituksella. VA SID Core toistaa myös 2SID-
-  ja 3SID-sävelmiä (PSID v3 / v4) stereona: SID 1 vasemmalla, SID 2 oikealla,
-  kolmas SID keskellä.
+- **Puskuri:** **Asetukset → Yleiset → SID-esikatselu → SID-soittimen puskuri**
+  (10, 15, 20 tai 30 s). Suurempi puskuri pysäyttää rätinän sovelluksen ollessa
+  käynnissä: sävelmä renderöidään kyseisen ajan eteenpäin seuraavasta sävelmästä
+  alkaen.
+- **Soitin:** ikkunassa näkyy, kumpi äänitysmoottori on käynnissä (reSID tai VA
+  SID Core, jossa on SID-siru); valitse se kohdasta **Asetukset → Yleiset →
+  SID-esikatselu**. Molemmat suorittavat sävelmän natiivilla Rust C64 -ytimellä,
+  jossa on syklintarkka 6510-prosessori, tarkka keskeytysajoitus, CIA 6526A,
+  VIC-II-ajoitus huonoilla linjoilla, sprite DMA ja rasterikeskeytykset sekä
+  6510 I/O -portti – joten rasteri-IRQ-, CIA-ajoitetut ja digitaaliset sävelmät
+  toistetaan oikean koneen ajoituksella. 2SID- ja 3SID-sävelmät toistetaan (PSID
+  v3 / v4) stereona: SID 1 vasemmalla, SID 2 oikealla, kolmas SID keskellä.
 - **Satunnaistoisto:** Satunnaistoistopainike **Seuraava**-painikkeen vieressä
   toistaa soittolistan satunnaisessa järjestyksessä – mikään kappale ei toistu
   ennen kuin kaikki kappaleet on soitettu, ja **Edellinen** siirtyy taaksepäin
@@ -6889,6 +6902,13 @@ C64-sävelmää.
 - **Haku:** kirjoita otsikko, säveltäjä tai kansio (`hubbard commando`,
   `games/s-z`); jokaisen sanan on täsmäävä. **Satunnaiset sävelmät** listaa 25
   satunnaista kappaletta.
+- **Säveltäjä:** hakukentän vieressä oleva luettelo vaihtuu luettelosta
+  **Kaikki** luetteloon **Säveltäjä**, joka hakee vain säveltäjien nimien
+  perusteella (`hubbard`, `rob hubbard`, `galway`) ja listaa sävelmät säveltäjän
+  mukaan. Nimi tulee sävelmän kansiosta `MUUSIKOT` -kansiossa, joten säveltäjä
+  löytyy kansion nimen perusteella, joka voi olla kahva (`laxity`). Noin 4 600
+  kappaleella `GAMES`- ja `DEMOS`-tiedostoissa ei ole sävellyskansiota: **All**
+  löytää ne nimen tai kansion perusteella.
 - **Toista / lisää / tallenna:** toistaaksesi kappaleen napsauttamalla sitä,
   **+** lisää sen soittolistaan, latauspainike tallentaa `.sid`-tiedoston.
   **Lisää kaikki tulokset** lisää jopa 100 löydettyä kappaletta.
