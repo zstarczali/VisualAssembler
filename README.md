@@ -8,6 +8,7 @@ Visual Assembler is free and open source (GPLv3): every feature — editors, bui
 
 ## What's New in v2.7.3
 
+- **Undo / Redo in the SID Editor** — two new buttons in the tracker toolbar, or Ctrl+Z and Ctrl+Y. They cover the notes, instruments, song, tempo and loading a tune, up to 100 steps. A whole recording is one step.
 - **Tempo** — the tracker's tempo field is named for what it is, **Frames/row**: a higher number is slower. **BPM** next to it shows the resulting tempo.
 - **Moving notes in the horizontal tracker** — drag a note's body to move it in time and pitch. It keeps its length, instrument and effect, and stops a row short of the voice's next note.
 - **Note length in the horizontal tracker** — a note's right end is easy to catch now, even on a one-row note: the cursor turns into a double arrow and a bright bar marks the end. Drag it to stretch or shorten the note. It stops at the voice's next note, instead of deleting it.

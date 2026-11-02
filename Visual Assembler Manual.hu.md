@@ -239,6 +239,7 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 
 ## A 2.7.3 verzió újdonságai
 
+- **Visszavonás / Mégis a SID szerkesztőben** — két új gomb a tracker eszköztárán, vagy Ctrl+Z és Ctrl+Y. A hangokra, hangszerekre, a songra, a tempóra és a dal betöltésére is érvényes, legfeljebb 100 lépésig. Egy teljes felvétel egy lépés.
 - **Tempó** — a tracker tempómezőjének neve most az, ami valójában: **Frame/sor**, a nagyobb szám lassabb. A mellette lévő **BPM** az ebből adódó tempót mutatja.
 - **Hangok mozgatása a vízszintes trackerben** — a hang törzsét húzva a hang időben és hangmagasságban is mozog. Megtartja a hosszát, a hangszerét és az effektjét, és egy sorral a sáv következő hangja előtt megáll.
 - **Hanghossz a vízszintes trackerben** — a hang jobb vége könnyen megfogható, egysoros hangnál is: a kurzor dupla nyíllá válik, a hang végét világos sáv jelzi. Húzással a hang nyújtható vagy rövidíthető, és a hang megáll a sáv következő hangjánál, nem törli azt.
@@ -4632,6 +4633,7 @@ Több-hangszeres 3-voice tracker. A SID Editor eszköztár-gombjával nyílik. A
 - Arpeggio segéd: hallgasd meg vagy szúrd be a kiválasztott akkordból 4-, 8- vagy 16 lépéses note-futamokat fel, le vagy fel/le irányban.
 - A **Preview row** meghallgatja a kiválasztott sort az összes voice-on a pattern-lejátszás indítása nélkül.
 - A cella-tartomány beillesztés mostantól a kijelölt tartomány kezdőcellájánál kezdődik, és tisztán megáll a voice- és sor-határoknál, ahelyett hogy a következő oszlopba vagy sorba fordulna.
+- A **Visszavonás / Mégis** (a hang másolása előtti gombok, vagy Ctrl+Z és Ctrl+Y) végiglép a hangok, hangszerek, a song és a tempó változásain és a dal betöltésén, legfeljebb 100 lépésig. Egy tekerőgomb húzása vagy egy teljes felvétel egy lépés, a nézet a megváltozott hangszerre és patternre ugrik. A szövegmezők megtartják a saját Ctrl+Z-jüket.
 - A **Frame/sor** (1–255, tehát a nagyobb szám lassabb) beírható, vagy a mellette lévő − / + gombokkal léptethető; az `F` effekt lejátszás közben változtatja. A mellette lévő **BPM** az ebből adódó tempót mutatja: ütésenként 4 sorral, PAL-on 6 frame/sor = 125 BPM.
 
 **Song / sorrend lista:**

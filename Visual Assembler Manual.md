@@ -237,6 +237,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 
 ## Version 2.7.3 Highlights
 
+- **Undo / Redo in the SID Editor** — two new buttons in the tracker toolbar, or Ctrl+Z and Ctrl+Y. They cover the notes, instruments, song, tempo and loading a tune, up to 100 steps. A whole recording is one step.
 - **Tempo** — the tracker's tempo field is named for what it is, **Frames/row**: a higher number is slower. **BPM** next to it shows the resulting tempo.
 - **Moving notes in the horizontal tracker** — drag a note's body to move it in time and pitch. It keeps its length, instrument and effect, and stops a row short of the voice's next note.
 - **Note length in the horizontal tracker** — a note's right end is easy to catch now, even on a one-row note: the cursor turns into a double arrow and a bright bar marks the end. Drag it to stretch or shorten the note. It stops at the voice's next note, instead of deleting it.
@@ -4644,6 +4645,7 @@ Multi-instrument 3-voice tracker. Open it with the SID Editor toolbar button. Pl
 - Arpeggio helper: preview or insert 4-, 8-, or 16-step note runs from the selected chord in up, down, or up/down directions.
 - **Preview row** auditions the selected row across all voices without starting pattern playback.
 - Cell-range paste now starts at the selected range start cell and stops cleanly at voice and row boundaries instead of wrapping into the next column or row.
+- **Undo / Redo** (the buttons before the voice copy, or Ctrl+Z and Ctrl+Y) step through the changes of the notes, instruments, song and tempo and the loading of a tune, up to 100 steps. A knob's drag or a whole recording is one step, and the view jumps to the instrument and pattern that changed. Text fields keep their own Ctrl+Z.
 - **Frames/row** (1–255, so a higher number is slower) is typed in or stepped with the − / + buttons next to it; the `F` effect changes it during playback. **BPM** next to it shows the resulting tempo: with 4 rows per beat on PAL, 6 frames/row = 125 BPM.
 
 **Song / order list:**
