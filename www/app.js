@@ -77,54 +77,54 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "resid-272",
+  id: "sid-tools-273",
   url: "https://www.c64va.pro/docs.html",
   hu: {
-    eyebrow: "Újdonság a 2.7.2-ben",
+    eyebrow: "Újdonság a 2.7.3-ban",
     title: "Üdvözöl a Visual Assembler",
-    body: `<ul><li><strong>Új SID motor</strong>: a SID Player és a SID szerkesztő alapértelmezetten a reSID-en (resid-rs) szól, a WebSID kikerült.</li><li>A <strong>VA SID Core</strong> továbbra is választható, mindkét motor MOS 6581-gyel és 8580-nal, tekeréssel és sztereó 2SID / 3SID dalokkal. Beállítások → Általános → <em>SID előnézet</em>.</li></ul>`,
+    body: `<ul><li><strong>Polifon felvétel MIDI-ről</strong>: bekapcsolva a lenyomott billentyűk külön sávokra kerülnek, a felengedés note-offot ír.</li><li><strong>Vízszintes tracker</strong>: a hangok húzva mozgathatók időben és hangmagasságban, a jobb végüknél nyújthatók és rövidíthetők.</li><li><strong>SID Player</strong>: a Pause mostantól mindig megállít, újbóli megnyomására folytatja.</li><li><strong>reSID</strong>: nincs több pattanás az élőben játszott hangok előtt és a dal első hangjánál.</li><li><strong>MIDI</strong>: Windowson a csatlakozás már nem kér külön engedélyt. A tempó mezője most <em>Frame/sor</em>: a nagyobb szám lassabb, mellette a BPM látszik.</li></ul>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
-    eyebrow: "New in 2.7.2",
+    eyebrow: "New in 2.7.3",
     title: "Welcome to Visual Assembler",
-    body: `<ul><li><strong>New SID engine</strong>: the SID Player and the SID Editor play on reSID (resid-rs) by default; WebSID is gone.</li><li><strong>VA SID Core</strong> stays selectable. Both engines have the MOS 6581 and 8580, seeking and stereo 2SID / 3SID tunes. Settings → General → <em>SID preview</em>.</li></ul>`,
+    body: `<ul><li><strong>Poly record from MIDI</strong>: when on, the keys you hold go to voices of their own, and a release writes a note-off.</li><li><strong>Horizontal tracker</strong>: drag notes to move them in time and pitch, and drag their right end to stretch or shorten them.</li><li><strong>SID Player</strong>: Pause now pauses every time, and pressing it again continues.</li><li><strong>reSID</strong>: no more click before notes played live or on a tune's first note.</li><li><strong>MIDI</strong>: on Windows, connecting no longer asks for permission. The tempo field is now <em>Frames/row</em>: a higher number is slower, and BPM shows next to it.</li></ul>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
-    eyebrow: "Novedad en la 2.7.2",
+    eyebrow: "Novedad en la 2.7.3",
     title: "Bienvenido a Visual Assembler",
-    body: `<ul><li><strong>Nuevo motor SID</strong>: el SID Player y el SID Editor usan reSID (resid-rs) por defecto; WebSID se ha eliminado.</li><li><strong>VA SID Core</strong> sigue disponible. Ambos motores ofrecen MOS 6581 y 8580, búsqueda y temas 2SID / 3SID en estéreo. Ajustes → General → <em>SID preview</em>.</li></ul>`,
+    body: `<ul><li><strong>Grabación polifónica desde MIDI</strong>: si está activada, las teclas pulsadas van a voces separadas y al soltarlas se escribe un note-off.</li><li><strong>Tracker horizontal</strong>: arrastra las notas para moverlas en tiempo y tono, y su extremo derecho para alargarlas o acortarlas.</li><li><strong>SID Player</strong>: Pause ahora siempre detiene la reproducción; al pulsarlo de nuevo continúa.</li><li><strong>reSID</strong>: ya no hay chasquidos antes de las notas tocadas en directo ni en la primera nota de un tema.</li><li><strong>MIDI</strong>: en Windows, conectar ya no pide permiso. El campo de tempo ahora es <em>Frames/fila</em>: un número mayor es más lento, y al lado se muestra el BPM.</li></ul>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
-    eyebrow: "Neu in 2.7.2",
+    eyebrow: "Neu in 2.7.3",
     title: "Willkommen bei Visual Assembler",
-    body: `<ul><li><strong>Neue SID-Engine</strong>: SID Player und SID Editor spielen standardmäßig auf reSID (resid-rs); WebSID ist entfernt.</li><li><strong>VA SID Core</strong> bleibt wählbar. Beide Engines bieten MOS 6581 und 8580, Spulen und 2SID- / 3SID-Stücke in Stereo. Einstellungen → Allgemein → <em>SID preview</em>.</li></ul>`,
+    body: `<ul><li><strong>Polyphone Aufnahme über MIDI</strong>: Wenn aktiviert, gehen gehaltene Tasten auf eigene Stimmen, und das Loslassen schreibt ein Note-off.</li><li><strong>Horizontaler Tracker</strong>: Noten lassen sich per Ziehen in Zeit und Tonhöhe verschieben und am rechten Ende verlängern oder verkürzen.</li><li><strong>SID Player</strong>: Pause hält jetzt immer an, erneutes Drücken setzt fort.</li><li><strong>reSID</strong>: kein Knacken mehr vor live gespielten Noten und bei der ersten Note eines Stücks.</li><li><strong>MIDI</strong>: Unter Windows fragt das Verbinden nicht mehr nach einer Erlaubnis. Das Tempofeld heißt jetzt <em>Frames/Zeile</em>: Eine höhere Zahl ist langsamer, daneben steht der BPM-Wert.</li></ul>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
-    eyebrow: "Nieuw in 2.7.2",
+    eyebrow: "Nieuw in 2.7.3",
     title: "Welkom bij Visual Assembler",
-    body: `<ul><li><strong>Nieuwe SID-engine</strong>: de SID Player en de SID Editor spelen standaard op reSID (resid-rs); WebSID is verwijderd.</li><li><strong>VA SID Core</strong> blijft selecteerbaar. Beide engines hebben de MOS 6581 en 8580, spoelen en 2SID- / 3SID-nummers in stereo. Instellingen → Algemeen → <em>SID preview</em>.</li></ul>`,
+    body: `<ul><li><strong>Polyfone opname via MIDI</strong>: indien ingeschakeld gaan ingedrukte toetsen naar eigen stemmen, en loslaten schrijft een note-off.</li><li><strong>Horizontale tracker</strong>: sleep noten om ze in tijd en toonhoogte te verplaatsen, en sleep hun rechteruiteinde om ze langer of korter te maken.</li><li><strong>SID Player</strong>: Pause pauzeert nu altijd, en nogmaals drukken gaat verder.</li><li><strong>reSID</strong>: geen klik meer voor live gespeelde noten en bij de eerste noot van een nummer.</li><li><strong>MIDI</strong>: op Windows vraagt verbinden niet langer om toestemming. Het tempoveld heet nu <em>Frames/rij</em>: een hoger getal is langzamer, en ernaast staat de BPM.</li></ul>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
-    eyebrow: "Nowość w 2.7.2",
+    eyebrow: "Nowość w 2.7.3",
     title: "Witamy w Visual Assembler",
-    body: `<ul><li><strong>Nowy silnik SID</strong>: SID Player i SID Editor domyślnie grają na reSID (resid-rs); WebSID został usunięty.</li><li><strong>VA SID Core</strong> nadal można wybrać. Oba silniki mają MOS 6581 i 8580, przewijanie i utwory 2SID / 3SID w stereo. Ustawienia → Ogólne → <em>SID preview</em>.</li></ul>`,
+    body: `<ul><li><strong>Nagrywanie polifoniczne z MIDI</strong>: po włączeniu trzymane klawisze trafiają na osobne głosy, a puszczenie zapisuje note-off.</li><li><strong>Tracker poziomy</strong>: nuty można przeciągać w czasie i wysokości, a ich prawy koniec wydłuża je lub skraca.</li><li><strong>SID Player</strong>: Pause teraz zawsze zatrzymuje, a ponowne naciśnięcie wznawia.</li><li><strong>reSID</strong>: koniec z trzaskami przed nutami granymi na żywo i przy pierwszej nucie utworu.</li><li><strong>MIDI</strong>: w Windows łączenie nie wymaga już zgody. Pole tempa to teraz <em>Klatki/wiersz</em>: większa liczba oznacza wolniej, a obok widać BPM.</li></ul>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
-    eyebrow: "Novità nella 2.7.2",
+    eyebrow: "Novità nella 2.7.3",
     title: "Benvenuto in Visual Assembler",
-    body: `<ul><li><strong>Nuovo motore SID</strong>: SID Player e SID Editor suonano di default su reSID (resid-rs); WebSID è stato rimosso.</li><li><strong>VA SID Core</strong> resta selezionabile. Entrambi i motori hanno MOS 6581 e 8580, ricerca e brani 2SID / 3SID in stereo. Impostazioni → Generale → <em>SID preview</em>.</li></ul>`,
+    body: `<ul><li><strong>Registrazione polifonica da MIDI</strong>: se attiva, i tasti tenuti vanno su voci separate e il rilascio scrive un note-off.</li><li><strong>Tracker orizzontale</strong>: trascina le note per spostarle in tempo e altezza, e la loro estremità destra per allungarle o accorciarle.</li><li><strong>SID Player</strong>: Pause ora mette sempre in pausa, e premendolo di nuovo si riprende.</li><li><strong>reSID</strong>: niente più clic prima delle note suonate dal vivo e sulla prima nota di un brano.</li><li><strong>MIDI</strong>: su Windows la connessione non chiede più l'autorizzazione. Il campo del tempo ora è <em>Frame/riga</em>: un numero più alto è più lento, e accanto si vede il BPM.</li></ul>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
