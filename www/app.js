@@ -82,49 +82,49 @@ const CUSTOMER_MESSAGE = {
   hu: {
     eyebrow: "Újdonság a 2.7.3-ban",
     title: "Üdvözöl a Visual Assembler",
-    body: `<ul><li><strong>Polifon felvétel MIDI-ről</strong>: bekapcsolva a lenyomott billentyűk külön sávokra kerülnek, a felengedés note-offot ír.</li><li><strong>Vízszintes tracker</strong>: a hangok húzva mozgathatók időben és hangmagasságban, a jobb végüknél nyújthatók és rövidíthetők.</li><li><strong>SID Player</strong>: a Pause mostantól mindig megállít, újbóli megnyomására folytatja.</li><li><strong>reSID</strong>: nincs több pattanás az élőben játszott hangok előtt és a dal első hangjánál.</li><li><strong>MIDI</strong>: Windowson a csatlakozás már nem kér külön engedélyt. A tempó mezője most <em>Frame/sor</em>: a nagyobb szám lassabb, mellette a BPM látszik.</li></ul>`,
+    body: `<ul><li><strong>SID szerkesztő</strong>: Visszavonás és Mégis gomb, vagy Ctrl+Z és Ctrl+Y.</li><li><strong>Polifon felvétel MIDI-ről</strong>: bekapcsolva a lenyomott billentyűk külön sávokra kerülnek, a felengedés note-offot ír.</li><li><strong>Vízszintes tracker</strong>: a hangok húzva mozgathatók időben és hangmagasságban, a jobb végüknél nyújthatók és rövidíthetők.</li><li><strong>SID Player</strong>: a Pause mostantól mindig megállít, újbóli megnyomására folytatja.</li><li><strong>reSID</strong>: nincs több pattanás az élőben játszott hangok előtt és a dal első hangjánál.</li><li><strong>MIDI</strong>: Windowson a csatlakozás már nem kér külön engedélyt. A tempó mezője most <em>Frame/sor</em>: a nagyobb szám lassabb, mellette a BPM látszik.</li></ul>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
     eyebrow: "New in 2.7.3",
     title: "Welcome to Visual Assembler",
-    body: `<ul><li><strong>Poly record from MIDI</strong>: when on, the keys you hold go to voices of their own, and a release writes a note-off.</li><li><strong>Horizontal tracker</strong>: drag notes to move them in time and pitch, and drag their right end to stretch or shorten them.</li><li><strong>SID Player</strong>: Pause now pauses every time, and pressing it again continues.</li><li><strong>reSID</strong>: no more click before notes played live or on a tune's first note.</li><li><strong>MIDI</strong>: on Windows, connecting no longer asks for permission. The tempo field is now <em>Frames/row</em>: a higher number is slower, and BPM shows next to it.</li></ul>`,
+    body: `<ul><li><strong>SID Editor</strong>: Undo and Redo buttons, or Ctrl+Z and Ctrl+Y.</li><li><strong>Poly record from MIDI</strong>: when on, the keys you hold go to voices of their own, and a release writes a note-off.</li><li><strong>Horizontal tracker</strong>: drag notes to move them in time and pitch, and drag their right end to stretch or shorten them.</li><li><strong>SID Player</strong>: Pause now pauses every time, and pressing it again continues.</li><li><strong>reSID</strong>: no more click before notes played live or on a tune's first note.</li><li><strong>MIDI</strong>: on Windows, connecting no longer asks for permission. The tempo field is now <em>Frames/row</em>: a higher number is slower, and BPM shows next to it.</li></ul>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
     eyebrow: "Novedad en la 2.7.3",
     title: "Bienvenido a Visual Assembler",
-    body: `<ul><li><strong>Grabación polifónica desde MIDI</strong>: si está activada, las teclas pulsadas van a voces separadas y al soltarlas se escribe un note-off.</li><li><strong>Tracker horizontal</strong>: arrastra las notas para moverlas en tiempo y tono, y su extremo derecho para alargarlas o acortarlas.</li><li><strong>SID Player</strong>: Pause ahora siempre detiene la reproducción; al pulsarlo de nuevo continúa.</li><li><strong>reSID</strong>: ya no hay chasquidos antes de las notas tocadas en directo ni en la primera nota de un tema.</li><li><strong>MIDI</strong>: en Windows, conectar ya no pide permiso. El campo de tempo ahora es <em>Frames/fila</em>: un número mayor es más lento, y al lado se muestra el BPM.</li></ul>`,
+    body: `<ul><li><strong>SID Editor</strong>: botones Deshacer y Rehacer, o Ctrl+Z y Ctrl+Y.</li><li><strong>Grabación polifónica desde MIDI</strong>: si está activada, las teclas pulsadas van a voces separadas y al soltarlas se escribe un note-off.</li><li><strong>Tracker horizontal</strong>: arrastra las notas para moverlas en tiempo y tono, y su extremo derecho para alargarlas o acortarlas.</li><li><strong>SID Player</strong>: Pause ahora siempre detiene la reproducción; al pulsarlo de nuevo continúa.</li><li><strong>reSID</strong>: ya no hay chasquidos antes de las notas tocadas en directo ni en la primera nota de un tema.</li><li><strong>MIDI</strong>: en Windows, conectar ya no pide permiso. El campo de tempo ahora es <em>Frames/fila</em>: un número mayor es más lento, y al lado se muestra el BPM.</li></ul>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
     eyebrow: "Neu in 2.7.3",
     title: "Willkommen bei Visual Assembler",
-    body: `<ul><li><strong>Polyphone Aufnahme über MIDI</strong>: Wenn aktiviert, gehen gehaltene Tasten auf eigene Stimmen, und das Loslassen schreibt ein Note-off.</li><li><strong>Horizontaler Tracker</strong>: Noten lassen sich per Ziehen in Zeit und Tonhöhe verschieben und am rechten Ende verlängern oder verkürzen.</li><li><strong>SID Player</strong>: Pause hält jetzt immer an, erneutes Drücken setzt fort.</li><li><strong>reSID</strong>: kein Knacken mehr vor live gespielten Noten und bei der ersten Note eines Stücks.</li><li><strong>MIDI</strong>: Unter Windows fragt das Verbinden nicht mehr nach einer Erlaubnis. Das Tempofeld heißt jetzt <em>Frames/Zeile</em>: Eine höhere Zahl ist langsamer, daneben steht der BPM-Wert.</li></ul>`,
+    body: `<ul><li><strong>SID Editor</strong>: Schaltflächen Rückgängig und Wiederholen, oder Strg+Z und Strg+Y.</li><li><strong>Polyphone Aufnahme über MIDI</strong>: Wenn aktiviert, gehen gehaltene Tasten auf eigene Stimmen, und das Loslassen schreibt ein Note-off.</li><li><strong>Horizontaler Tracker</strong>: Noten lassen sich per Ziehen in Zeit und Tonhöhe verschieben und am rechten Ende verlängern oder verkürzen.</li><li><strong>SID Player</strong>: Pause hält jetzt immer an, erneutes Drücken setzt fort.</li><li><strong>reSID</strong>: kein Knacken mehr vor live gespielten Noten und bei der ersten Note eines Stücks.</li><li><strong>MIDI</strong>: Unter Windows fragt das Verbinden nicht mehr nach einer Erlaubnis. Das Tempofeld heißt jetzt <em>Frames/Zeile</em>: Eine höhere Zahl ist langsamer, daneben steht der BPM-Wert.</li></ul>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
     eyebrow: "Nieuw in 2.7.3",
     title: "Welkom bij Visual Assembler",
-    body: `<ul><li><strong>Polyfone opname via MIDI</strong>: indien ingeschakeld gaan ingedrukte toetsen naar eigen stemmen, en loslaten schrijft een note-off.</li><li><strong>Horizontale tracker</strong>: sleep noten om ze in tijd en toonhoogte te verplaatsen, en sleep hun rechteruiteinde om ze langer of korter te maken.</li><li><strong>SID Player</strong>: Pause pauzeert nu altijd, en nogmaals drukken gaat verder.</li><li><strong>reSID</strong>: geen klik meer voor live gespeelde noten en bij de eerste noot van een nummer.</li><li><strong>MIDI</strong>: op Windows vraagt verbinden niet langer om toestemming. Het tempoveld heet nu <em>Frames/rij</em>: een hoger getal is langzamer, en ernaast staat de BPM.</li></ul>`,
+    body: `<ul><li><strong>SID Editor</strong>: knoppen Ongedaan maken en Opnieuw, of Ctrl+Z en Ctrl+Y.</li><li><strong>Polyfone opname via MIDI</strong>: indien ingeschakeld gaan ingedrukte toetsen naar eigen stemmen, en loslaten schrijft een note-off.</li><li><strong>Horizontale tracker</strong>: sleep noten om ze in tijd en toonhoogte te verplaatsen, en sleep hun rechteruiteinde om ze langer of korter te maken.</li><li><strong>SID Player</strong>: Pause pauzeert nu altijd, en nogmaals drukken gaat verder.</li><li><strong>reSID</strong>: geen klik meer voor live gespeelde noten en bij de eerste noot van een nummer.</li><li><strong>MIDI</strong>: op Windows vraagt verbinden niet langer om toestemming. Het tempoveld heet nu <em>Frames/rij</em>: een hoger getal is langzamer, en ernaast staat de BPM.</li></ul>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
     eyebrow: "Nowość w 2.7.3",
     title: "Witamy w Visual Assembler",
-    body: `<ul><li><strong>Nagrywanie polifoniczne z MIDI</strong>: po włączeniu trzymane klawisze trafiają na osobne głosy, a puszczenie zapisuje note-off.</li><li><strong>Tracker poziomy</strong>: nuty można przeciągać w czasie i wysokości, a ich prawy koniec wydłuża je lub skraca.</li><li><strong>SID Player</strong>: Pause teraz zawsze zatrzymuje, a ponowne naciśnięcie wznawia.</li><li><strong>reSID</strong>: koniec z trzaskami przed nutami granymi na żywo i przy pierwszej nucie utworu.</li><li><strong>MIDI</strong>: w Windows łączenie nie wymaga już zgody. Pole tempa to teraz <em>Klatki/wiersz</em>: większa liczba oznacza wolniej, a obok widać BPM.</li></ul>`,
+    body: `<ul><li><strong>SID Editor</strong>: przyciski Cofnij i Ponów albo Ctrl+Z i Ctrl+Y.</li><li><strong>Nagrywanie polifoniczne z MIDI</strong>: po włączeniu trzymane klawisze trafiają na osobne głosy, a puszczenie zapisuje note-off.</li><li><strong>Tracker poziomy</strong>: nuty można przeciągać w czasie i wysokości, a ich prawy koniec wydłuża je lub skraca.</li><li><strong>SID Player</strong>: Pause teraz zawsze zatrzymuje, a ponowne naciśnięcie wznawia.</li><li><strong>reSID</strong>: koniec z trzaskami przed nutami granymi na żywo i przy pierwszej nucie utworu.</li><li><strong>MIDI</strong>: w Windows łączenie nie wymaga już zgody. Pole tempa to teraz <em>Klatki/wiersz</em>: większa liczba oznacza wolniej, a obok widać BPM.</li></ul>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
     eyebrow: "Novità nella 2.7.3",
     title: "Benvenuto in Visual Assembler",
-    body: `<ul><li><strong>Registrazione polifonica da MIDI</strong>: se attiva, i tasti tenuti vanno su voci separate e il rilascio scrive un note-off.</li><li><strong>Tracker orizzontale</strong>: trascina le note per spostarle in tempo e altezza, e la loro estremità destra per allungarle o accorciarle.</li><li><strong>SID Player</strong>: Pause ora mette sempre in pausa, e premendolo di nuovo si riprende.</li><li><strong>reSID</strong>: niente più clic prima delle note suonate dal vivo e sulla prima nota di un brano.</li><li><strong>MIDI</strong>: su Windows la connessione non chiede più l'autorizzazione. Il campo del tempo ora è <em>Frame/riga</em>: un numero più alto è più lento, e accanto si vede il BPM.</li></ul>`,
+    body: `<ul><li><strong>SID Editor</strong>: pulsanti Annulla e Ripeti, oppure Ctrl+Z e Ctrl+Y.</li><li><strong>Registrazione polifonica da MIDI</strong>: se attiva, i tasti tenuti vanno su voci separate e il rilascio scrive un note-off.</li><li><strong>Tracker orizzontale</strong>: trascina le note per spostarle in tempo e altezza, e la loro estremità destra per allungarle o accorciarle.</li><li><strong>SID Player</strong>: Pause ora mette sempre in pausa, e premendolo di nuovo si riprende.</li><li><strong>reSID</strong>: niente più clic prima delle note suonate dal vivo e sulla prima nota di un brano.</li><li><strong>MIDI</strong>: su Windows la connessione non chiede più l'autorizzazione. Il campo del tempo ora è <em>Frame/riga</em>: un numero più alto è più lento, e accanto si vede il BPM.</li></ul>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
@@ -4767,6 +4767,8 @@ function _applyEditorTranslations() {
   setAttr("#hg-paper", t("hgPaperTip"));
   setAttr("#sid-midi-input", t("sidMidiInputAria"));
   setAttr("#sid-bpm", t("sidBpmTip"));
+  setAttr("#sid-undo", t("sidUndo"));
+  setAttr("#sid-redo", t("sidRedo"));
   ["#sid-metronome", "#sid-roll-metronome", "#sid-vkbd-metronome"].forEach(sel => setAttr(sel, t("sidMetronome")));
   setAttr("#sid-roll .sid-roll-voices", t("sidRollVoice"));
   ["#cg-curve", "#cg-curve2"].forEach((sel) => {
@@ -52057,8 +52059,10 @@ function _sidMidiMessage(event) {
   const dialog = document.getElementById("sid-editor-dialog");
   if (!dialog?.open || !_sidInited) return;
   if (_sidRecording && _sidMidiPoly) _sidRecordPolyNote(note, midiNote);
-  else if (_sidRecording || _sidVkbdInsertMode) _sidInsertNoteAtSelection(note, true);
-  else {
+  else if (_sidRecording || _sidVkbdInsertMode) {
+    _sidInsertNoteAtSelection(note, true);
+    if (typeof _sidHistSchedule === "function") _sidHistSchedule();
+  } else {
     _sidEnsureAudio();
     _sidPlayInst(_sidCurInst(), _sidNoteFreq(note), _sidAudio.currentTime + 0.01, 0.7);
     _sidFlashVirtualKeyboardNotes([note]);
@@ -53646,6 +53650,86 @@ function _sidSetupRoll() {
   }, { passive: false });
 }
 
+/* Undo / redo of the SID Editor. The tune changes in too many places to mark each one, so after a
+ * user action the whole tune is compared with the last saved state: a knob's drag or a whole
+ * recording is one step. A pattern that did not change shares its string with the state before. */
+var _sidHist = { cur: null, undo: [], redo: [], timer: null };
+const _SID_HIST_MAX = 100;
+function _sidHistSnap(prev) {
+  const title = document.getElementById("sid-tune-title");
+  return {
+    insts: JSON.stringify(_sidInsts),
+    pats: _sidPatterns.map(function(pat, i) {
+      const text = JSON.stringify(pat);
+      return prev && prev.pats[i] === text ? prev.pats[i] : text;
+    }),
+    song: JSON.stringify(_sidSong), speed: _sidSpeed, sid2: _sidSid2Addr, title: title ? title.textContent : "",
+  };
+}
+function _sidHistSame(a, b) {
+  return a.insts === b.insts && a.song === b.song && a.speed === b.speed && a.sid2 === b.sid2 && a.title === b.title
+    && a.pats.length === b.pats.length && a.pats.every(function(text, i) { return text === b.pats[i]; });
+}
+function _sidHistRender() {
+  const set = function(id, on) { const el = document.getElementById(id); if (el) el.disabled = !on; };
+  set("sid-undo", _sidHist.undo.length > 0);
+  set("sid-redo", _sidHist.redo.length > 0);
+}
+function _sidHistCheck() {
+  clearTimeout(_sidHist.timer);
+  _sidHist.timer = null;
+  // a recording is one step: it is saved when it stops
+  if (!_sidPatterns || _sidRecording) return;
+  const h = _sidHist, now = _sidHistSnap(h.cur);
+  if (h.cur && _sidHistSame(h.cur, now)) return;
+  if (h.cur) {
+    h.undo.push(h.cur);
+    if (h.undo.length > _SID_HIST_MAX) h.undo.shift();
+    h.redo.length = 0;
+  }
+  h.cur = now;
+  _sidHistRender();
+}
+function _sidHistSchedule() {
+  if (!document.getElementById("sid-editor-dialog")?.open) return;
+  clearTimeout(_sidHist.timer);
+  _sidHist.timer = setTimeout(_sidHistCheck, 300);
+}
+// Shows what changed: the instrument and the pattern that differ, with the song step that plays it.
+function _sidHistApply(to, from) {
+  const parse = function(text) { return JSON.parse(text); };
+  const before = parse(from.insts);
+  _sidInsts = parse(to.insts);
+  _sidPatterns = to.pats.map(parse);
+  _sidSong = parse(to.song);
+  _sidSpeed = to.speed;
+  _sidSid2Addr = to.sid2;
+  const inst = _sidInsts.findIndex(function(x, i) { return JSON.stringify(x) !== JSON.stringify(before[i]); });
+  _sidInst = Math.max(0, Math.min(_sidInsts.length - 1, inst >= 0 ? inst : _sidInst));
+  const pat = to.pats.findIndex(function(text, i) { return text !== from.pats[i]; });
+  _sidPat = Math.max(0, Math.min(_sidPatterns.length - 1, pat >= 0 ? pat : _sidPat));
+  _sidSongPos = Math.max(0, Math.min(_sidSong.length - 1, _sidSongPos));
+  if (_sidSong[_sidSongPos] !== _sidPat && _sidSong.includes(_sidPat)) _sidSongPos = _sidSong.indexOf(_sidPat);
+  _sidSelAnchor = null;
+  const speed = document.getElementById("sid-speed");
+  if (speed) speed.value = String(_sidSpeed);
+  _sidUpdateBpmDisplay();
+  if (to.title !== from.title) _sidSetTuneTitle(to.title);
+  _sidBuildInstSel(); _sidLoadInstUI(); _sidBuildPatSel(); _sidBuildSongList(); _sidBuildTracker();
+}
+function _sidHistStep(from, into) {
+  if (_sidRecording) return;
+  _sidHistCheck();
+  if (!from.length) return;
+  const to = from.pop();
+  into.push(_sidHist.cur);
+  _sidHistApply(to, _sidHist.cur);
+  _sidHist.cur = _sidHistSnap(to);
+  _sidHistRender();
+}
+function _sidUndo() { _sidHistStep(_sidHist.undo, _sidHist.redo); }
+function _sidRedo() { _sidHistStep(_sidHist.redo, _sidHist.undo); }
+
 function _sidPreviewSelectedRow() {
   const pat = _sidCurPat();
   const row = Math.max(0, Math.min(_SID_ROWS - 1, _sidSel.row));
@@ -53976,6 +54060,7 @@ function _sidRecordStop() {
   if (rec.timer) clearInterval(rec.timer);
   _sidRecording = null;
   _sidRecordRender();
+  if (typeof _sidHistSchedule === "function") _sidHistSchedule();
 }
 function _sidToggleRecord() { if (_sidRecording) _sidRecordStop(); else _sidRecordStart(); }
 
@@ -56270,6 +56355,7 @@ function _sidDeserialize(src) {
   _sidInst = 0; _sidPat = _sidSong[0] || 0; _sidPlayPat = _sidPat;
   _sidSyncPlayModeSel();
   _sidBuildInstSel(); _sidLoadInstUI(); _sidBuildPatSel(); _sidBuildSongList(); _sidBuildTracker();
+  if (typeof _sidHistSchedule === "function") _sidHistSchedule();
 }
 /* ── GoatTracker 2 (.sng, GTS3–GTS5) import ─────────────────────────────────
  * Lossy conversion to the editor's model. The per-channel order lists (with
@@ -57075,6 +57161,7 @@ function _sidApplyImportedTune(res, title) {
   _sidInst = 0; _sidPat = _sidSong[0] || 0; _sidPlayPat = _sidPat;
   _sidSyncPlayModeSel();
   _sidBuildInstSel(); _sidLoadInstUI(); _sidBuildPatSel(); _sidBuildSongList(); _sidBuildTracker();
+  if (typeof _sidHistSchedule === "function") _sidHistSchedule();
 }
 
 let _sidSidImportBytes = null;
@@ -58316,7 +58403,7 @@ function setupSidEditor() {
   onId("sid-editor-btn", "click", function() {
     const cm = document.querySelector(".control-menu"); if (cm) cm.removeAttribute("open");
     dialog._applyPosition?.();
-    _sidInit(); _sidEditorEngineSync(); _sidLcdIdle(); dialog.showModal();
+    _sidInit(); if (!_sidHist.cur) _sidHistCheck(); _sidEditorEngineSync(); _sidLcdIdle(); dialog.showModal();
     // place the detached tracker before the first paint (no jump from the default spot)
     _sidRestoreTrackerFloat();
     _sidRollRestore();
@@ -58623,6 +58710,27 @@ function setupSidEditor() {
     if (k === "+" || k === "*" || e.key === "PageUp")   { _sidSetOctave(_sidOctave+1); e.preventDefault(); }
     if (k === "-" || k === "/" || e.key === "PageDown") { _sidSetOctave(_sidOctave-1); e.preventDefault(); }
   });
+
+  // Undo / redo. Text fields keep their own Ctrl+Z.
+  onId("sid-undo", "click", _sidUndo);
+  onId("sid-redo", "click", _sidRedo);
+  ["pointerup", "keyup", "change", "input", "wheel"].forEach(function(type) {
+    window.addEventListener(type, _sidHistSchedule, { capture: true, passive: true });
+  });
+  // on the window: a button that has just gone disabled leaves the focus outside the dialog
+  window.addEventListener("keydown", function(e) {
+    if (!dialog.open || !(e.ctrlKey || e.metaKey)) return;
+    const k = e.key.toLowerCase();
+    if (k !== "z" && k !== "y") return;
+    const el = e.target;
+    const inDialog = el.closest && el.closest("dialog");
+    if (inDialog && inDialog !== dialog) return;
+    if (el instanceof HTMLTextAreaElement || el.isContentEditable) return;
+    if (el instanceof HTMLInputElement && !["checkbox", "radio", "range", "button"].includes(el.type)) return;
+    e.preventDefault();
+    e.stopPropagation();
+    if (k === "y" || e.shiftKey) _sidRedo(); else _sidUndo();
+  }, true);
 
   // Voice copy/paste
   onId("sid-voice-copy", "click", function(){
