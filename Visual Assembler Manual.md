@@ -237,6 +237,9 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 
 ## Version 2.7.3 Highlights
 
+- **Tempo** — the tracker's tempo field is named for what it is, **Frames/row**: a higher number is slower. **BPM** next to it shows the resulting tempo.
+- **Moving notes in the horizontal tracker** — drag a note's body to move it in time and pitch. It keeps its length, instrument and effect, and stops a row short of the voice's next note.
+- **Note length in the horizontal tracker** — a note's right end is easy to catch now, even on a one-row note: the cursor turns into a double arrow and a bright bar marks the end. Drag it to stretch or shorten the note. It stops at the voice's next note, instead of deleting it.
 - **Connect MIDI without a question** — on Windows the web view no longer asks for permission in a dialog of its own.
 - **Loading a .bin** — the tracker opens on the selected first song step: a tune whose song does not start with pattern 0 showed pattern 0 instead.
 - **SID Player Pause** — it pauses every time now: a chunk of the tune rendered at that moment, or a note from the SID Editor, could switch the sound back on while the player showed Paused. Pressing Pause again continues.
@@ -4641,7 +4644,7 @@ Multi-instrument 3-voice tracker. Open it with the SID Editor toolbar button. Pl
 - Arpeggio helper: preview or insert 4-, 8-, or 16-step note runs from the selected chord in up, down, or up/down directions.
 - **Preview row** auditions the selected row across all voices without starting pattern playback.
 - Cell-range paste now starts at the selected range start cell and stops cleanly at voice and row boundaries instead of wrapping into the next column or row.
-- **Speed** (frames between rows, 1–255) is typed in or stepped with the − / + buttons next to it; the `F` effect changes it during playback.
+- **Frames/row** (1–255, so a higher number is slower) is typed in or stepped with the − / + buttons next to it; the `F` effect changes it during playback. **BPM** next to it shows the resulting tempo: with 4 rows per beat on PAL, 6 frames/row = 125 BPM.
 
 **Song / order list:**
 - Patterns are arranged through a song/order list layered on top of the raw pattern bank — the same pattern can repeat, and the song can be longer than the number of stored patterns.
@@ -4671,7 +4674,7 @@ Effects update once per row (matching the exported player's timing), run identic
 - Chord and arpeggio previews illuminate the corresponding piano keys when the keyboard is open.
 
 **Recording, metronome and MIDI:**
-- **Record** (the red dot, in the tracker toolbar and on VA-VK) writes the notes you play — on VA-VK, the computer keyboard or a MIDI keyboard — in time into the selected voice, starting at the selected row, at the current Speed. When the pattern is full, a new empty pattern is added after the current song step and recording goes on there. Press Record again to stop.
+- **Record** (the red dot, in the tracker toolbar and on VA-VK) writes the notes you play — on VA-VK, the computer keyboard or a MIDI keyboard — in time into the selected voice, starting at the selected row, at the current tempo. When the pattern is full, a new empty pattern is added after the current song step and recording goes on there. Press Record again to stop.
 - **Metronome** (tracker toolbar and VA-VK) clicks every 4 rows, accented on the first beat of each 4-beat bar. The beat lamps next to it flash on every beat during playback and recording, even with the click off.
 - **MIDI:** choose the input in the **MIDI** list next to the instrument name and press **Connect MIDI**; notes play the current instrument (and are written into the tracker while recording or with *Insert into tracker*). The lamp next to the button flashes on every incoming MIDI message. With **Poly record** on, the keys held while recording go to voices of their own, from the selected voice on, and a release writes a note-off; when every voice is held, the oldest key gives up its voice.
 - **Pattern delete:** the **−** button next to **Pat +** deletes the current pattern (it asks first if the pattern has notes). The song steps that used it are removed and the others renumbered; at least one pattern always remains.

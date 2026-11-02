@@ -53235,12 +53235,79 @@ function _sidRollHit(cv, ev) {
   if (x < g.keyW || y < g.rulerH) return null;
   const row = Math.floor(_sidRollView.row0 + (x - g.keyW) / g.colW);
   const pitch = _sidRollView.lo + _sidRollView.span - 1 - Math.floor((y - g.rulerH) / g.rowH);
-  return { row: row, pitch: Math.max(0, Math.min(95, pitch)), x: x, y: y, g: g };
+  return { row: row, rowX: _sidRollView.row0 + (x - g.keyW) / g.colW, pitch: Math.max(0, Math.min(95, pitch)), x: x, y: y, g: g };
 }
 function _sidRollNoteAt(notes, hit) {
   // the active voice first, then any voice
   const on = function(n) { return n.note === hit.pitch && hit.row >= n.start && hit.row < n.end; };
   return notes.find(function(n) { return n.v === _sidRollView.voice && on(n); }) || notes.find(on) || null;
+}
+// What a press would take hold of: the right end of a note (length), or its body (moving it). The end's
+// zone reaches a little past the note and takes up to half of a short one, so a one-row note can
+// be caught; a note starting right there keeps its own body.
+function _sidRollGrab(notes, hit) {
+  const g = hit.g, body = _sidRollNoteAt(notes, hit);
+  const atEnd = function(n) {
+    if (n.note !== hit.pitch || (hit.row >= n.end && body)) return false;
+    const xEnd = g.keyW + (n.end - _sidRollView.row0) * g.colW;
+    const inside = Math.min(Math.max(6, g.colW * 0.35), (n.end - n.start) * g.colW / 2);
+    return hit.x >= xEnd - inside && hit.x <= xEnd + Math.min(4, g.colW * 0.3);
+  };
+  const ends = notes.filter(atEnd);
+  const end = ends.find(function(n) { return n.v === _sidRollView.voice; }) || ends[0];
+  if (end) return { note: end, kind: "len" };
+  return body ? { note: body, kind: "move" } : null;
+}
+// a note grows up to the voice's next note, and does not eat it
+function _sidRollNoteLimit(notes, n) {
+  return notes.reduce(function(limit, x) { return x.v === n.v && x.start > n.start ? Math.min(limit, x.start) : limit; }, _sidRollTotalRows());
+}
+function _sidRollDragEnd(d, hit) {
+  const want = d.fresh ? hit.row + 1 : Math.round(hit.rowX);
+  return Math.max(d.note.start + 1, Math.min(d.limit, want));
+}
+// Moving a note in time: the voice's rows are saved when the drag starts, and each step starts from
+// them, so whatever the note passes over comes back behind it. It stops one row short of the next
+// note (shortened there, and its length returns on the way back) and can cut into the previous one.
+function _sidRollMoveStart(notes, n, hit) {
+  const same = notes.filter(function(x) { return x.v === n.v; });
+  const prev = same.filter(function(x) { return x.start < n.start; }).reduce(function(a, x) { return !a || x.start > a.start ? x : a; }, null);
+  const limit = _sidRollNoteLimit(notes, n);
+  const from = prev ? prev.start : 0, rows = [];
+  for (let g = from; g <= limit && g < _sidRollTotalRows(); g++) {
+    const at = _sidRollCell(n.v, g);
+    rows.push(at && at.cell ? Object.assign({}, at.cell) : null);
+  }
+  const first = _sidRollCell(n.v, n.start);
+  return {
+    kind: "move", note: n, limit: limit, grabRow: hit.row, origStart: n.start, length: n.end - n.start, origEnd: n.end,
+    prevEnd: prev ? prev.end : -1, min: prev ? prev.start + 1 : 0, max: limit - 1, from: from, rows: rows,
+    cell: Object.assign({}, first.cell),
+  };
+}
+function _sidRollMoveTo(d, start) {
+  const n = d.note, total = _sidRollTotalRows();
+  d.rows.forEach(function(cell, i) { if (cell) _sidRollWrite(n.v, d.from + i, cell); });
+  _sidRollWrite(n.v, d.origStart, {});
+  const clearOff = function(g) {
+    const at = g < total ? _sidRollCell(n.v, g) : null;
+    if (at && at.cell && at.cell.note == null && at.cell.fx === "C") _sidRollWrite(n.v, g, {});
+  };
+  clearOff(d.origEnd);
+  // the previous note keeps its end: a note-off in place of the note that ended it, none under this one
+  if (d.prevEnd >= 0) {
+    if (d.prevEnd === d.origStart && start > d.origStart) _sidRollWrite(n.v, d.origStart, { fx: "C" });
+    else if (start < d.prevEnd) clearOff(d.prevEnd);
+  }
+  const end = Math.min(start + d.length, d.limit);
+  const target = _sidRollCell(n.v, start);
+  _sidRollWrite(n.v, start, Object.assign({}, d.cell, { fx: d.cell.fx || (target && target.cell && target.cell.fx !== "C" ? target.cell.fx : null), fxval: d.cell.fx ? d.cell.fxval : (target && target.cell && target.cell.fx !== "C" ? target.cell.fxval : 0) }));
+  if (end < total) {
+    const at = _sidRollCell(n.v, end);
+    if (at && at.cell && at.cell.note == null && !at.cell.fx) _sidRollWrite(n.v, end, { fx: "C" });
+  }
+  n.start = start;
+  n.end = end;
 }
 function _sidRollPreview(inst, note) {
   try {
@@ -53259,6 +53326,11 @@ function _sidRollSetEnd(n, end) {
   if (end < total) {
     const at = _sidRollCell(n.v, end);
     if (at && at.cell && at.cell.note == null && !at.cell.fx) _sidRollWrite(n.v, end, { fx: "C" });
+  }
+  // shortened: the old note-off is not needed any more
+  if (end < n.end && n.end < total) {
+    const old = _sidRollCell(n.v, n.end);
+    if (old && old.cell && old.cell.note == null && old.cell.fx === "C") _sidRollWrite(n.v, n.end, {});
   }
   n.end = end;
 }
@@ -53344,6 +53416,7 @@ function _sidRollDraw() {
   ctx.fillRect(xOf(curRow), g.rulerH, g.colW, g.H - g.rulerH);
   const notes = _sidRollNotes();
   const live = [];
+  const edge = view.drag ? (view.drag.kind === "len" ? view.drag.note : null) : view.edge;
   notes.forEach(function(n) {
     const x0 = Math.max(g.keyW, xOf(n.start)), x1 = Math.min(g.W, xOf(n.end));
     if (x1 <= x0 || n.note < view.lo || n.note >= view.lo + view.span) return;
@@ -53359,6 +53432,10 @@ function _sidRollDraw() {
     ctx.lineWidth = sounding ? 1.5 : 1;
     ctx.strokeRect(x0 + 0.5, y + 0.5, x1 - x0 - 2, h - 1);
     ctx.lineWidth = 1;
+    if (edge && edge.v === n.v && edge.start === n.start) {
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(x1 - 3, y, 2, h);
+    }
     if (x1 - x0 > 30 && h >= 9) {
       ctx.fillStyle = "#0b1020";
       ctx.font = Math.min(10, Math.floor(h - 1)) + "px monospace";
@@ -53499,10 +53576,10 @@ function _sidSetupRoll() {
     const n = _sidRollNoteAt(notes, hit);
     if (e.button === 2) { if (n) _sidRollDelete(n); return; }
     if (e.button !== 0) return;
-    if (n) {
-      const g = hit.g, xEnd = g.keyW + (n.end - _sidRollView.row0) * g.colW;
-      _sidRollView.drag = { kind: hit.x > xEnd - Math.max(5, g.colW * 0.35) ? "len" : "pitch", note: n };
-      _sidRollView.voice = n.v;
+    const grab = _sidRollGrab(notes, hit);
+    if (grab) {
+      _sidRollView.drag = grab.kind === "move" ? _sidRollMoveStart(notes, grab.note, hit) : { kind: "len", note: grab.note, limit: _sidRollNoteLimit(notes, grab.note) };
+      _sidRollView.voice = grab.note.v;
       _sidRollSyncHeader();
     } else {
       const v = _sidRollView.voice;
@@ -53511,8 +53588,9 @@ function _sidSetupRoll() {
       // the new note ends where the voice's next note (or note-off) already was
       const next = notes.filter(function(x) { return x.v === v && x.start > hit.row; }).sort(function(p, q) { return p.start - q.start; })[0];
       nn.end = next ? next.start : _sidRollTotalRows();
+      const limit = nn.end;
       _sidRollSetEnd(nn, hit.row + 1);
-      _sidRollView.drag = { kind: "len", note: nn, fresh: true };
+      _sidRollView.drag = { kind: "len", note: nn, fresh: true, limit: limit };
       _sidRollPreview(_sidInst, hit.pitch);
     }
     try { cv.setPointerCapture(e.pointerId); } catch (_) {}
@@ -53522,14 +53600,25 @@ function _sidSetupRoll() {
     const hit = _sidRollHit(cv, e);
     _sidRollView.hover = hit;
     const d = _sidRollView.drag;
-    if (!d || !hit) return;
-    if (d.kind === "pitch" && hit.pitch !== d.note.note) {
-      const at = _sidRollCell(d.note.v, d.note.start);
-      _sidRollWrite(d.note.v, d.note.start, Object.assign({}, at.cell, { note: hit.pitch }));
-      d.note.note = hit.pitch;
-      _sidRollPreview(d.note.inst, hit.pitch);
+    if (!d) {
+      const grab = hit && hit.row < _sidRollTotalRows() ? _sidRollGrab(_sidRollNotes(), hit) : null;
+      _sidRollView.edge = grab && grab.kind === "len" ? grab.note : null;
+      cv.style.cursor = grab ? (grab.kind === "len" ? "ew-resize" : "move") : "";
+      return;
+    }
+    if (!hit) return;
+    if (d.kind === "move") {
+      const start = Math.max(d.min, Math.min(d.max, d.origStart + hit.row - d.grabRow));
+      if (hit.pitch !== d.note.note) {
+        d.cell.note = hit.pitch;
+        d.note.note = hit.pitch;
+        const at = _sidRollCell(d.note.v, d.note.start);
+        _sidRollWrite(d.note.v, d.note.start, Object.assign({}, at.cell, { note: hit.pitch }));
+        _sidRollPreview(d.note.inst, hit.pitch);
+      }
+      if (start !== d.note.start) _sidRollMoveTo(d, start);
     } else if (d.kind === "len") {
-      const end = Math.max(d.note.start + 1, hit.row + 1);
+      const end = _sidRollDragEnd(d, hit);
       if (end !== d.note.end) _sidRollSetEnd(d.note, end);
     }
   });
@@ -53539,7 +53628,7 @@ function _sidSetupRoll() {
   };
   cv.addEventListener("pointerup", endDrag);
   cv.addEventListener("pointercancel", endDrag);
-  cv.addEventListener("pointerleave", function() { _sidRollView.hover = null; });
+  cv.addEventListener("pointerleave", function() { _sidRollView.hover = null; _sidRollView.edge = null; });
   // wheel: scroll in time, Shift = pitch, Ctrl = zoom
   cv.addEventListener("wheel", function(e) {
     e.preventDefault();

@@ -239,6 +239,9 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 
 ## A 2.7.3 verzió újdonságai
 
+- **Tempó** — a tracker tempómezőjének neve most az, ami valójában: **Frame/sor**, a nagyobb szám lassabb. A mellette lévő **BPM** az ebből adódó tempót mutatja.
+- **Hangok mozgatása a vízszintes trackerben** — a hang törzsét húzva a hang időben és hangmagasságban is mozog. Megtartja a hosszát, a hangszerét és az effektjét, és egy sorral a sáv következő hangja előtt megáll.
+- **Hanghossz a vízszintes trackerben** — a hang jobb vége könnyen megfogható, egysoros hangnál is: a kurzor dupla nyíllá válik, a hang végét világos sáv jelzi. Húzással a hang nyújtható vagy rövidíthető, és a hang megáll a sáv következő hangjánál, nem törli azt.
 - **MIDI csatlakoztatása kérdés nélkül** — Windowson a webnézet már nem kér engedélyt külön párbeszédablakban.
 - **.bin betöltése** — a tracker a kijelölt első song-lépésen nyílik meg: ha a dal nem a 0. patternnel kezdődött, eddig a 0. pattern látszott.
 - **SID Player szünet** — a Pause mostantól mindig megállít: az épp elkészült zenerészlet vagy a SID szerkesztő egy hangja eddig visszakapcsolhatta a hangot, miközben a lejátszó szünetet mutatott. A Pause újbóli megnyomása folytatja a lejátszást.
@@ -4629,7 +4632,7 @@ Több-hangszeres 3-voice tracker. A SID Editor eszköztár-gombjával nyílik. A
 - Arpeggio segéd: hallgasd meg vagy szúrd be a kiválasztott akkordból 4-, 8- vagy 16 lépéses note-futamokat fel, le vagy fel/le irányban.
 - A **Preview row** meghallgatja a kiválasztott sort az összes voice-on a pattern-lejátszás indítása nélkül.
 - A cella-tartomány beillesztés mostantól a kijelölt tartomány kezdőcellájánál kezdődik, és tisztán megáll a voice- és sor-határoknál, ahelyett hogy a következő oszlopba vagy sorba fordulna.
-- A **Speed** (frame-ek a sorok közt, 1–255) beírható vagy a mellette lévő − / + gombbal léptethető; az `F` effekt lejátszás közben változtatja.
+- A **Frame/sor** (1–255, tehát a nagyobb szám lassabb) beírható, vagy a mellette lévő − / + gombokkal léptethető; az `F` effekt lejátszás közben változtatja. A mellette lévő **BPM** az ebből adódó tempót mutatja: ütésenként 4 sorral, PAL-on 6 frame/sor = 125 BPM.
 
 **Song / sorrend lista:**
 - A patternek elrendezése egy song/sorrend listán keresztül történik a nyers pattern-bank fölött — ugyanaz a pattern ismétlődhet, és a dal hosszabb is lehet, mint a tárolt patternek száma.
@@ -4659,7 +4662,7 @@ Az effektek soronként egyszer frissülnek (megegyezően az exportált lejátsz�
 - Az akkord- és arpeggio-előnézetek megvilágítják a megfelelő zongorabillentyűket, amikor a billentyűzet nyitva van.
 
 **Felvétel, metronóm és MIDI:**
-- A **Record** (piros pont, a tracker eszköztárán és a VA-VK-n) ütemre beírja a játszott hangokat — VA-VK-ról, a számítógép billentyűzetéről vagy MIDI billentyűzetről — a kijelölt voice-ba, a kijelölt sortól, az aktuális Speed szerint. Ha a pattern betelt, az aktuális song-lépés után új, üres pattern jön, és ott folytatódik a felvétel. A Record újbóli megnyomása leállítja.
+- A **Record** (piros pont, a tracker eszköztárán és a VA-VK-n) ütemre beírja a játszott hangokat — VA-VK-ról, a számítógép billentyűzetéről vagy MIDI billentyűzetről — a kijelölt voice-ba, a kijelölt sortól, az aktuális tempó szerint. Ha a pattern betelt, az aktuális song-lépés után új, üres pattern jön, és ott folytatódik a felvétel. A Record újbóli megnyomása leállítja.
 - A **Metronóm** (tracker eszköztár és VA-VK) 4 soronként kattan, a 4 ütemes taktus első ütésén hangsúlyosan. A mellette lévő ütemlámpák lejátszás és felvétel közben minden ütésre felvillannak, kikapcsolt kattanással is.
 - **MIDI:** a hangszernév melletti **MIDI** listában válaszd ki a bemenetet, majd nyomd meg a **Connect MIDI** gombot; a hangok az aktuális hangszerrel szólnak (felvétel közben vagy *Insert into tracker* mellett a trackerbe is beíródnak). A gomb melletti lámpa minden beérkező MIDI üzenetre felvillan. Bekapcsolt **Polifon felvétel** mellett a felvétel alatt lenyomva tartott billentyűk külön hangra kerülnek a kijelölt hangtól kezdve, a felengedés note-offot ír; ha minden hang foglalt, a legrégebbi billentyű adja át a hangját.
 - **Pattern törlése:** a **Pat +** melletti **−** gomb törli az aktuális patternt (ha van benne hang, előbb rákérdez). Az azt használó song-lépések kikerülnek, a többi átszámozódik; legalább egy pattern mindig megmarad.
