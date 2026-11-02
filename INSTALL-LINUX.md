@@ -1,7 +1,7 @@
 # Linux Installation Guide (Ubuntu / Debian)
 Version 2.7.3
 
-2.7.3: poly record from MIDI (held keys go to voices of their own), no more click on reSID before notes played live or on a tune's first note.
+2.7.3: Linux: sound in the AppImage; poly record from MIDI (held keys go to voices of their own), no more click on reSID before notes played live or on a tune's first note.
 
 2.7.2: reSID (resid-rs) replaces WebSID in the SID Player and the SID Editor, VA SID Core stays selectable (Settings -> General -> SID preview), SID Player buffer in seconds.
 
@@ -193,5 +193,10 @@ c64-visual-assembler
 The app propagates `DISPLAY`, `WAYLAND_DISPLAY`, `XDG_RUNTIME_DIR`, `DBUS_SESSION_BUS_ADDRESS`, and `GDK_BACKEND` to the VICE process automatically.
 
 ---
+
+## Troubleshooting
+
+- **Blank window, with `Failed to create GBM buffer` in the terminal:** start the application with `WEBKIT_DMABUF_RENDERER_DISABLE_GBM=1`, and if that does not help, with `WEBKIT_DISABLE_DMABUF_RENDERER=1` in front of its command.
+- **No sound, with `GStreamer element ... not found` in the terminal:** the SID Player seems to run, but stays silent. Install the plugins: `sudo apt install gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-alsa gstreamer1.0-pulseaudio`.
 
 **Version:** 2.7.3 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64

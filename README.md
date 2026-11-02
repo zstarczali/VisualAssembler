@@ -8,6 +8,7 @@ Visual Assembler is free and open source (GPLv3): every feature — editors, bui
 
 ## What's New in v2.7.3
 
+- **Linux** — the SID Player and the SID Editor stayed silent where the GStreamer plugins were missing: the AppImage now carries them, and the `.deb` and `.rpm` packages depend on them.
 - **Undo / Redo in the SID Editor** — two new buttons in the tracker toolbar, or Ctrl+Z and Ctrl+Y. They cover the notes, instruments, song, tempo and loading a tune, up to 100 steps. A whole recording is one step.
 - **Tempo** — the tracker's tempo field is named for what it is, **Frames/row**: a higher number is slower. **BPM** next to it shows the resulting tempo.
 - **Moving notes in the horizontal tracker** — drag a note's body to move it in time and pitch. It keeps its length, instrument and effect, and stops a row short of the voice's next note.
