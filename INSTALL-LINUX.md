@@ -1,7 +1,7 @@
 # Linux Installation Guide (Ubuntu / Debian)
 Version 2.7.3
 
-2.7.3: poly record from MIDI (held keys go to voices of their own), no more click before each note played live on reSID.
+2.7.3: poly record from MIDI (held keys go to voices of their own), no more click on reSID before notes played live or on a tune's first note.
 
 2.7.2: reSID (resid-rs) replaces WebSID in the SID Player and the SID Editor, VA SID Core stays selectable (Settings -> General -> SID preview), SID Player buffer in seconds.
 

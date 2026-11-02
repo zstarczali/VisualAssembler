@@ -247,7 +247,7 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 - **SID Player szünet** — a Pause mostantól mindig megállít: az épp elkészült zenerészlet vagy a SID szerkesztő egy hangja eddig visszakapcsolhatta a hangot, miközben a lejátszó szünetet mutatott. A Pause újbóli megnyomása folytatja a lejátszást.
 - **Stop a „Play: All” módban** — a tracker visszaáll a lejátszás előtt megnyitott patternre, és nem marad az utoljára játszotton, miközben az első song-lépés van kijelölve.
 - **Polifon felvétel MIDI-ről** — bekapcsolt **Polifon felvétel** mellett (a MIDI bemenet mellett) a felvétel alatt lenyomva tartott billentyűk külön-külön hangra kerülnek, a kijelölt hangtól kezdve. A háromhangú akkord három hangra kerül, a billentyű felengedése note-offot ír.
-- **Nincs pattanás élő hangnál** — a billentyűzetről vagy a VA-VK-ról játszott hangok előtt reSID-en többé nincs pattanás, sem 6581-gyel, sem 8580-nal.
+- **Nincs pattanás reSID-en** — sem a billentyűzetről vagy a VA-VK-ról játszott hangok előtt, sem a nem az első sorban kezdődő dal első hangjánál, sem 6581-gyel, sem 8580-nal.
 
 ## A 2.7.2 verzió újdonságai
 

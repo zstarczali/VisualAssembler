@@ -55502,9 +55502,7 @@ function _sidWaTune() {
   const playAll = _sidPlayMode === "all";
   return _sidTuneData({ song: playAll ? ((_sidSong && _sidSong.length) ? _sidSong : [0]) : [_sidPat] });
 }
-function _sidWaStart(audio) {
-  if (audio) _sidEnsureAudio();
-  const td = _sidWaTune();
+function _sidWaEngine(td, audio) {
   const e = _sidEngineNew(td);
   if (_sidPlayMode === "all") {
     e.opos = Math.max(0, Math.min(td.song.length - 1, _sidSongPlayPos | 0));
@@ -55513,7 +55511,37 @@ function _sidWaStart(audio) {
   // the 6502 player reads row 0 `speed` frames after init; the previews start
   // the engine one frame before row 0 instead
   if (audio) e.tick = 1;
-  _sidWaPlay = { e: e, audio: !!audio, core: !!audio && _sidUsesNativeCore(), sidCoreSession: audio && _sidUsesNativeCore() ? crypto.randomUUID() : null, coreQueue: Promise.resolve(), events: [], next: 0, timer: null };
+  return e;
+}
+// The engine's volume is 0 until the first note, and on reSID that step is a loud click on the
+// first note (the backend settles the chip on the first frame). The registers the first note
+// will set, per chip, from a dry run: the frames before it carry them.
+function _sidWaOpeningMixer(td) {
+  const e = _sidWaEngine(td, true);
+  const open = new Array(e.chips).fill(null);
+  for (let k = 0; k < 6000 && open.includes(null); k++) {
+    _sidEngFrame(e);
+    open.forEach(function(regs, c) {
+      const at = 25 * c;
+      if (!regs && (e.regs[at + 0x18] & 15)) open[c] = Array.from(e.regs.subarray(at + 0x15, at + 0x19));
+    });
+  }
+  return open;
+}
+function _sidWaOpenFrame(w, frame) {
+  w.open.forEach(function(regs, c) {
+    if (!regs) return;
+    const at = 25 * c;
+    if (frame[at + 0x18] & 15) { w.open[c] = null; return; }
+    regs.forEach(function(value, i) { frame[at + 0x15 + i] = value; });
+  });
+  return frame;
+}
+function _sidWaStart(audio) {
+  if (audio) _sidEnsureAudio();
+  const td = _sidWaTune();
+  const e = _sidWaEngine(td, audio);
+  _sidWaPlay = { e: e, audio: !!audio, core: !!audio && _sidUsesNativeCore(), sidCoreSession: audio && _sidUsesNativeCore() ? crypto.randomUUID() : null, coreQueue: Promise.resolve(), events: [], next: 0, timer: null, open: audio && _sidUsesNativeCore() && _sidPreviewEngine === "resid" ? _sidWaOpeningMixer(td) : null };
   _sidWaPlay.next = _sidWaClock(_sidWaPlay) + 0.05;
   _sidWaSchedule();
   _sidWaPlay.timer = setInterval(_sidWaSchedule, 20);
@@ -55537,7 +55565,8 @@ function _sidWaSchedule() {
         const frames = [];
         for (let k = 0; k < chunk; k++) {
           _sidEngFrame(e);
-          frames.push(_sidNativeFrame(e));
+          const frame = _sidNativeFrame(e);
+          frames.push(w.open ? _sidWaOpenFrame(w, frame) : frame);
         }
         const playAt = w.next;
         w.coreQueue = w.coreQueue.then(function() {

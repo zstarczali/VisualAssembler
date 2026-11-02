@@ -245,7 +245,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 - **SID Player Pause** — it pauses every time now: a chunk of the tune rendered at that moment, or a note from the SID Editor, could switch the sound back on while the player showed Paused. Pressing Pause again continues.
 - **Stop in Play: All** — the tracker returns to the pattern that was open before playback, instead of staying on the last one played while the first song step stays selected.
 - **Poly record from MIDI** — with **Poly record** on (next to the MIDI input), the keys you hold while recording go to voices of their own, from the selected voice on. A chord of three lands on three voices, and releasing a key writes a note-off.
-- **No click on live notes** — notes played from the keyboard or VA-VK no longer click before they start on reSID, with either the 6581 or the 8580.
+- **No click on reSID** — notes played from the keyboard or VA-VK no longer click before they start, and neither does the first note of a tune that does not begin on the first row, with either the 6581 or the 8580.
 
 ## Version 2.7.2 Highlights
 
