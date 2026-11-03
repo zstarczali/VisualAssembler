@@ -30,13 +30,14 @@ function setup() {
     var _sidSong = [0, 1, 2], _sidSpeed = 6, _sidSid2Addr = 0xD420, _sidInst = 0, _sidPat = 0, _sidSongPos = 0, _sidSelAnchor = null, _sidRecording = null;
     var built = 0;
     function _sidUpdateBpmDisplay() {}
+    function _sidParamKnobSync() {}
     function _sidSetTuneTitle(t) { document.getElementById("sid-tune-title").textContent = t; }
     function _sidBuildInstSel() {}
     function _sidLoadInstUI() {}
     function _sidBuildPatSel() {}
     function _sidBuildSongList() {}
     function _sidBuildTracker() { built++; }
-    ${["_sidVol", "_sidIsNtsc", "_sidSetSongVol", "_sidSetNtsc", "_sidHistSnap", "_sidHistSame", "_sidHistRender", "_sidHistCheck", "_sidHistSchedule", "_sidHistApply", "_sidHistStep", "_sidUndo", "_sidRedo"].map(fn).join("\n")}
+    ${["_sidVol", "_sidVol2", "_sidIsNtsc", "_sidSetSongVol", "_sidSetSongVol2", "_sidSetNtsc", "_sidHistSnap", "_sidHistSame", "_sidHistRender", "_sidHistCheck", "_sidHistSchedule", "_sidHistApply", "_sidHistStep", "_sidUndo", "_sidRedo"].map(fn).join("\n")}
     _sidHistCheck();
   `, ctx);
   return ctx;

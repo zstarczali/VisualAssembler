@@ -85,9 +85,10 @@ test("delete unused: only instruments no note plays, one always stays", () => {
 
 test("the buttons, the menu item and the seven languages are in place", () => {
   const html = fs.readFileSync(path.join(www, "index.html"), "utf8");
-  ["sid-inst-del", "sid-inst-unused", "sid-vol-song", "sid-song-vol", "sid-video"].forEach((id) => assert.ok(html.includes(`id="${id}"`), id));
+  ["sid-inst-del", "sid-inst-unused", "sid-song-vol", "sid-song-vol2", "sid-video"].forEach((id) => assert.ok(html.includes(`id="${id}"`), id));
   const i18n = fs.readFileSync(path.join(www, "i18n.js"), "utf8");
-  ["sidDeleteInstrument", "sidDeleteInstrumentUsed", "sidRemoveUnused", "sidRemoveUnusedDone", "sidRemoveUnusedNone", "sidSongVol", "sidSongVolTip", "sidVolSong", "sidVolSongTip", "sidVideoTip"]
+  ["sidDeleteInstrument", "sidDeleteInstrumentUsed", "sidRemoveUnused", "sidRemoveUnusedDone", "sidRemoveUnusedNone", "sidSongVol", "sidSongVolTip", "sidSongVol1", "sidSongVol2", "sidSongVol2Tip", "sidVideoTip"]
     .forEach((k) => assert.equal(i18n.split(`"${k}"`).length - 1, 7, k));
-  assert.match(source, /var _sidSongVol;\r?\nvar _sidNtsc;/, "set before these lines run: no initializer");
+  assert.ok(!html.includes('id="sid-vol"') && !html.includes('id="sid-vol-song"'), "an instrument has no volume of its own to set");
+  assert.match(source, /var _sidSongVol;\r?\nvar _sidSongVol2;\r?\nvar _sidNtsc;/, "set before these lines run: no initializer");
 });

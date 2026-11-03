@@ -106,7 +106,7 @@ test("cell text renders the effect column alongside note+instrument", () => {
 
 function loadSerdeSandbox() {
   return loadFunctions(
-    ["_sidInstFields", "_sidInstNorm", "_sidInstCtrl", "_sidInstExtBytes", "_sidReadInstExt", "_sidVol", "_sidIsNtsc", "_sidSetSongVol", "_sidSetNtsc", "_sidFps", "_sidComputeBpm", "_sidUpdateBpmDisplay", "_sidVolSongSync", "_sidWaStop", "_sidInstBytes", "_sidWaveByte", "_sidNewInst", "_sidVoiceCount", "_sidNewPattern", "_sidSerialize", "_sidDeserialize",
+    ["_sidInstFields", "_sidInstNorm", "_sidInstCtrl", "_sidInstExtBytes", "_sidReadInstExt", "_sidVol", "_sidVol2", "_sidIsNtsc", "_sidSetSongVol", "_sidSetSongVol2", "_sidSetNtsc", "_sidParamKnobSync", "_sidFps", "_sidComputeBpm", "_sidUpdateBpmDisplay", "_sidWaStop", "_sidInstBytes", "_sidWaveByte", "_sidNewInst", "_sidVoiceCount", "_sidNewPattern", "_sidSerialize", "_sidDeserialize",
      "_sidSyncPlayModeSel", "_sidBuildInstSel", "_sidLoadInstUI", "_sidBuildPatSel", "_sidBuildSongList",
      "_sidBuildTracker", "_sidStop", "_sidUpdatePauseButton", "_sidCurInst"],
     {
@@ -202,7 +202,7 @@ test("deserialize reads pre-effect-column saves (no marker, 2 bytes/cell) with n
 
 function loadExportSandbox() {
   return loadFunctions(
-    ["_sidNewInst", "_sidInstNorm", "_sidInstCtrl", "_sidFreqTables", "_sidClockHz", "_sidIsNtsc", "_sidVol", "_sidFps", "_sidTuneData", "_sidCellBytes", "_sidExportAsmPlayable", "_sidWaveByte"],
+    ["_sidNewInst", "_sidInstNorm", "_sidInstCtrl", "_sidFreqTables", "_sidClockHz", "_sidIsNtsc", "_sidVol", "_sidVol2", "_sidFps", "_sidTuneData", "_sidCellBytes", "_sidExportAsmPlayable", "_sidWaveByte"],
     { Math, String, Array, t: (k) => k },
     `${extractConstLine("_SID_ROWS")}\n${extractConstLine("_SID_PLAYER_CODE_MAX")}\n${extractConstLine("_SID_FX_CODES")}\n${extractConstLine("_SID_FX_NAMES")}`
   );
@@ -291,18 +291,28 @@ test("the song volume, the timing and the instruments' song-volume flag survive 
   ctx._sidInsts = [ctx._sidNewInst("Lead"), Object.assign(ctx._sidNewInst("Own"), { songVol: false, vol: 9 })];
   ctx._sidPatterns = [ctx._sidNewPattern()];
   ctx._sidSong = [0];
-  ctx._sidSongVol = 7; ctx._sidNtsc = true;
+  ctx._sidSongVol = 7; ctx._sidSongVol2 = 12; ctx._sidNtsc = true;
   const bytes = ctx._sidSerialize();
-  assert.equal(JSON.stringify(Array.from(bytes.slice(-3))), "[165,7,1]", "the trailer after the song list");
-  ctx._sidSongVol = 15; ctx._sidNtsc = false;
+  assert.equal(JSON.stringify(Array.from(bytes.slice(-4))), "[166,7,1,12]", "the trailer after the song list");
+  ctx._sidSongVol = 15; ctx._sidSongVol2 = 15; ctx._sidNtsc = false;
   ctx._sidDeserialize(bytes);
   assert.equal(ctx._sidSongVol, 7);
+  assert.equal(ctx._sidSongVol2, 12);
   assert.equal(ctx._sidNtsc, true);
   assert.equal(JSON.stringify(ctx._sidInsts.map((i) => [i.songVol, i.vol])), "[[true,15],[false,9]]");
-  // a save from before: no trailer, the instruments set the chip's volume
-  ctx._sidDeserialize(bytes.slice(0, -3));
-  assert.equal(ctx._sidSongVol, 15);
+  // a save from before: no trailer; the first instrument's volume becomes the tune's
+  ctx._sidInsts = [Object.assign(ctx._sidNewInst("A"), { songVol: false, vol: 11 }), Object.assign(ctx._sidNewInst("B"), { songVol: false, vol: 4 })];
+  const old = ctx._sidSerialize();
+  ctx._sidDeserialize(old.slice(0, -4));
+  assert.equal(ctx._sidSongVol, 11);
+  assert.equal(ctx._sidSongVol2, 11, "both SIDs on it");
   assert.equal(ctx._sidNtsc, false);
+  assert.equal(JSON.stringify(ctx._sidInsts.map((i) => i.songVol)), "[true,true]");
+  // a save of the first song-volume build ($A5): its volume is replaced the same way
+  const a5 = Uint8Array.from(old.slice(0, -1)); a5[a5.length - 3] = 0xA5; a5[a5.length - 1] = 1;
+  ctx._sidDeserialize(a5);
+  assert.equal(ctx._sidSongVol, 11);
+  assert.equal(ctx._sidNtsc, true);
 });
 
 test("instruments from older saves set the chip's volume, new ones use the song's", () => {

@@ -7,7 +7,9 @@ use std::sync::{Mutex, OnceLock};
 
 use resid::{ChipModel, SamplingMethod, Sid};
 
-use crate::sid_core::{SidCore, SidModel, PAL_CLOCK};
+use crate::sid_core::{SidCore, SidModel};
+#[cfg(test)]
+use crate::sid_core::PAL_CLOCK;
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum SidEngine {
@@ -109,6 +111,8 @@ pub enum SidChip {
 }
 
 impl SidChip {
+    // PAL; the app chooses the clock with `new_with_clock`
+    #[cfg(test)]
     pub fn new(engine: SidEngine, sample_rate: u32, model: SidModel) -> Self {
         Self::new_with_clock(engine, sample_rate, model, PAL_CLOCK)
     }

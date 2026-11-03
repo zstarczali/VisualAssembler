@@ -244,7 +244,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 - **Undo / Redo in the horizontal tracker** — the two buttons of the tracker toolbar are in its header too.
 - **Cleaner edits** — deleting a note keeps the end of the note before it, and a paste over a longer note leaves no stray note-off behind.
 - **Deleting instruments** — **−** next to **+** deletes the current instrument, and Files → **Delete unused instruments** removes the ones no note plays.
-- **Song volume** — **Vol** in the tracker toolbar is the tune's volume; instruments with **Song** checked leave the chip on it.
+- **Song volume** — **Vol**, a knob in the tracker toolbar, is the tune's volume (one per chip with two SIDs); instruments no longer set the chip's volume themselves.
 - **PAL / NTSC** — the tune's timing: NTSC runs 60 frames a second on the NTSC clock, with its own note table and `.sid` header.
 
 ## Version 2.7.3 Highlights
@@ -4700,7 +4700,7 @@ Multi-instrument 3-voice tracker. Open it with the SID Editor toolbar button. Pl
 - **Preview row** auditions the selected row across all voices without starting pattern playback.
 - Cell-range paste now starts at the selected range start cell and stops cleanly at voice and row boundaries instead of wrapping into the next column or row.
 - Deleting instruments: **−** next to **+** deletes the current instrument (the notes that play it switch to the one before it, after a question), and Files → **Delete unused instruments** removes every instrument no note plays. The numbers in the tracker follow; Undo brings them back.
-- Song volume: the tracker toolbar's **Vol** (0–15) is the tune's volume, and the chip starts on it. An instrument with **Song** checked next to its **Vol** leaves the chip's volume alone, so instruments no longer fight over it; new instruments have it on. Unchecked, the instrument sets the chip's volume as before (tunes saved earlier keep working that way).
+- Song volume: **Vol**, a knob in the tracker toolbar (0–15), is the tune's volume: the SID's master volume for all three voices. A two-SID tune has a knob for each chip (**SID 1**, **SID 2**). An instrument has no volume of its own (use sustain for the level of one voice), and a tune saved earlier takes its first instrument's volume.
 - PAL / NTSC: the switch next to BPM sets the machine the tune is for. NTSC plays 60 frames a second on the NTSC clock: the preview, the BPM, the exported player's note table and the `.sid` header follow it.
 - **Quantize** (in the tracker toolbar): the grid is 2, 4, 8 or 16 rows. In the horizontal tracker, **Q** or its button moves the selected notes to the nearest grid row and keeps their lengths; with **On record** checked, the notes of a recording are quantized the same way when it stops.
 - **Selection in the horizontal tracker:** Shift+drag a frame (Ctrl+Shift+drag adds to the selection), Ctrl+click a note, Ctrl+A for all, Esc to clear. Ctrl+X / C / V and Del, or the buttons in its header, cut, copy, paste and delete. A paste goes to the row under the mouse, or else to the tracker cursor, and writes over what is there. Deleting a note keeps the end of the note before it. The header has **Undo** and **Redo** as well.

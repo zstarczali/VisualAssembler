@@ -23,7 +23,7 @@ function constLine(name) {
   return m[0];
 }
 
-const FNS = ["_sidNewInst", "_sidInstNorm", "_sidInstCtrl", "_sidWaveByte", "_sidFreqTables", "_sidClockHz", "_sidIsNtsc", "_sidVol", "_sidFps", "_sidTuneData", "_sidCellBytes",
+const FNS = ["_sidNewInst", "_sidInstNorm", "_sidInstCtrl", "_sidWaveByte", "_sidFreqTables", "_sidClockHz", "_sidIsNtsc", "_sidVol", "_sidVol2", "_sidFps", "_sidTuneData", "_sidCellBytes",
   "_sidEngineNew", "_sidEngTab", "_sidEngNoteOn", "_sidEngRow", "_sidEngHr", "_sidEngUpdate", "_sidEngFrame",
   "_sidExportAsmPlayable", "_sidInstExtBytes", "_sidReadInstExt"];
 
@@ -31,9 +31,9 @@ function sandbox(state) {
   const ctx = { Math, TextEncoder, TextDecoder, Uint8Array, t: (k) => k };
   vm.createContext(ctx);
   vm.runInContext(`${constLine("_SID_ROWS")} ${constLine("_SID_PLAYER_CODE_MAX")} ${constLine("_SID_PLAYER_2SID_EXTRA")}
-    var _sidInsts = null, _sidPatterns = null, _sidSong = null, _sidSpeed = 6, _sidSid2Addr = 0xD420, _sidSongVol, _sidNtsc;
+    var _sidInsts = null, _sidPatterns = null, _sidSong = null, _sidSpeed = 6, _sidSid2Addr = 0xD420, _sidSongVol, _sidSongVol2, _sidNtsc;
     ${FNS.map(fnSource).join("\n")}
-    this.api = { set(s) { _sidInsts = s.insts; _sidPatterns = s.patterns; _sidSong = s.song; _sidSpeed = s.speed; _sidSid2Addr = s.sid2 || 0xD420; _sidSongVol = s.vol; _sidNtsc = !!s.ntsc; },
+    this.api = { set(s) { _sidInsts = s.insts; _sidPatterns = s.patterns; _sidSong = s.song; _sidSpeed = s.speed; _sidSid2Addr = s.sid2 || 0xD420; _sidSongVol = s.vol; _sidSongVol2 = s.vol2; _sidNtsc = !!s.ntsc; },
       ${FNS.join(", ")} };`, ctx);
   ctx.api.set(state);
   return ctx.api;
@@ -314,4 +314,21 @@ test("NTSC: the note table is for the NTSC clock, and the player says so", () =>
   assert.equal(freq(ntsc), Math.round(440 * 16777216 / 1022730));
   assert.match(ntsc._sidExportAsmPlayable(), /NTSC 60 Hz IRQ-driven/);
   assert.match(pal._sidExportAsmPlayable(), /PAL 50 Hz IRQ-driven/);
+});
+
+test("two SIDs: each chip starts on its own volume", () => {
+  const api = sandbox(Object.assign(twoSidTune(), { vol: 5, vol2: 12 }));
+  const { mem, labels } = assemble(api._sidExportAsmPlayable());
+  cpu(mem).call(labels.sid_init);
+  assert.deepEqual([mem[labels.sid_vol], mem[labels.sid_vol2]], [5, 12]);
+  // instruments of the song volume keep them; the player matches the engine
+  const tune = twoSidTune();
+  tune.insts = tune.insts.map((i) => Object.assign({}, i, { songVol: true }));
+  const api2 = sandbox(Object.assign(tune, { vol: 5, vol2: 12 }));
+  const frames = 32 * 4 + 10;
+  const { out } = runTwoSidPlayer(api2, frames);
+  assert.deepEqual(out, runEngine(api2, frames));
+  out.forEach((f, k) => assert.deepEqual([f[0x18] & 15, f[25 + 0x18] & 15], [5, 12], `frame ${k}`));
+  const e = api._sidEngineNew(api._sidTuneData());
+  assert.deepEqual(Array.from(e.vols), [5, 12]);
 });

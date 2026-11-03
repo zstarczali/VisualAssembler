@@ -13,7 +13,7 @@ Visual Assembler is free and open source (GPLv3): every feature — editors, bui
 - **Undo / Redo in the horizontal tracker** — the two buttons of the tracker toolbar are in its header too.
 - **Cleaner edits** — deleting a note keeps the end of the note before it, and a paste over a longer note leaves no stray note-off behind.
 - **Deleting instruments** — **−** next to **+** deletes the current instrument, and Files → **Delete unused instruments** removes the ones no note plays.
-- **Song volume** — **Vol** in the tracker toolbar is the tune's volume; instruments with **Song** checked leave the chip on it.
+- **Song volume** — **Vol**, a knob in the tracker toolbar, is the tune's volume (one per chip with two SIDs); instruments no longer set the chip's volume themselves.
 - **PAL / NTSC** — the tune's timing: NTSC runs 60 frames a second on the NTSC clock, with its own note table and `.sid` header.
 
 ## What's New in v2.7.3

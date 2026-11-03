@@ -145,7 +145,7 @@ test("the engine records frames only while asked to", () => {
   const ctx = { Math, Array, Uint8Array, t: (k) => k };
   vm.createContext(ctx);
   vm.runInContext(`const _SID_ROWS = 32;
-    ${["_sidNewInst", "_sidInstNorm", "_sidInstCtrl", "_sidFreqTables", "_sidClockHz", "_sidIsNtsc", "_sidVol", "_sidFps", "_sidTuneData", "_sidCellBytes", "_sidEngineNew", "_sidEngTab", "_sidEngNoteOn", "_sidEngRow", "_sidEngHr", "_sidEngUpdate", "_sidEngFrame"].map(fnSource).join("\n")}
+    ${["_sidNewInst", "_sidInstNorm", "_sidInstCtrl", "_sidFreqTables", "_sidClockHz", "_sidIsNtsc", "_sidVol", "_sidVol2", "_sidFps", "_sidTuneData", "_sidCellBytes", "_sidEngineNew", "_sidEngTab", "_sidEngNoteOn", "_sidEngRow", "_sidEngHr", "_sidEngUpdate", "_sidEngFrame"].map(fnSource).join("\n")}
     this.make = () => _sidEngineNew(_sidTuneData({ insts: [{}], patterns: [[0,1,2].map(() => Array.from({ length: 32 }, (_, r) => ({ note: r ? null : 48, inst: 0, fx: null, fxval: 0 })))], song: [0], speed: 1 }));
     this.frame = _sidEngFrame;`, ctx);
   const e = ctx.make();

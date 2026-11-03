@@ -1580,7 +1580,7 @@ PRINTABLE CHARACTERS
           <strong>Deleting instruments:</strong> − next to + deletes the current instrument; Files → Delete unused instruments removes the ones no note plays.
         </li>
         <li>
-          <strong>Song volume:</strong> Vol in the tracker toolbar is the tune's volume, and instruments with Song checked no longer override it.
+          <strong>Song volume:</strong> Vol, a knob in the tracker toolbar, is the tune's volume; instruments no longer override it.
         </li>
         <li>
           <strong>PAL / NTSC:</strong> the tune's timing, with the NTSC clock, note table and 60 frames a second.
@@ -2785,8 +2785,6 @@ PRINTABLE CHARACTERS
               <div class="sid-slider-row"><span class="sid-sl-lbl" id="sid-cut-lbl">Cut:</span><input type="range" id="sid-cut" min="0" max="2047" value="1400" class="sid-range"><span id="sid-cut-val" class="sid-num sid-num--w">1400</span></div>
               <div class="sid-slider-row"><span class="sid-sl-lbl" id="sid-cut-speed-lbl">Sweep:</span><input type="range" id="sid-cut-speed" min="0" max="127" value="0" class="sid-range"><span id="sid-cut-speed-val" class="sid-num sid-num--w">0</span>
                 <label class="sid-check sid-check--mini" id="sid-cut-ping-wrap"><input type="checkbox" id="sid-cut-ping"> <span id="sid-cut-ping-lbl">Ping-pong</span></label></div>
-              <div class="sid-slider-row"><span class="sid-sl-lbl" id="sid-vol-lbl">Vol:</span><input type="range" id="sid-vol" min="0" max="15" value="15" class="sid-range"><span id="sid-vol-val" class="sid-num sid-num--w">15</span>
-                <label class="sid-check sid-check--mini" id="sid-vol-song-wrap" aria-label="The instrument uses the tune's volume and leaves the chip's alone"><input type="checkbox" id="sid-vol-song"> <span id="sid-vol-song-lbl">Song</span></label></div>
             </div>
             <div class="sid-filter-col sid-filter-col--sep">
               <div class="sid-slider-row"><span class="sid-sl-lbl" id="sid-cut-end-lbl">End:</span><input type="range" id="sid-cut-end" min="0" max="2047" value="1400" class="sid-range"><span id="sid-cut-end-val" class="sid-num sid-num--w">1400</span></div>
@@ -2868,19 +2866,20 @@ PRINTABLE CHARACTERS
           <span class="sid-mini-lbl" id="sid-chip-lbl">SID:</span>
           <select id="sid-chip-count" class="sid-select"><option value="1">1</option><option value="2">2</option></select>
           <select id="sid-chip-addr" class="sid-select" hidden></select>
-          <span class="sid-mini-lbl">Speed:</span>
+          <span class="sid-tb-group"><span class="sid-mini-lbl">Speed:</span>
           <button id="sid-speed-down" class="sid-mini-btn" type="button" aria-label="Speed down">−</button>
           <input id="sid-speed" class="sid-input sid-speed" type="number" min="1" max="255" value="6">
-          <button id="sid-speed-up" class="sid-mini-btn" type="button" aria-label="Speed up">+</button>
+          <button id="sid-speed-up" class="sid-mini-btn" type="button" aria-label="Speed up">+</button></span>
           <span class="sid-bpm-wrap"><span class="sid-mini-lbl" id="sid-bpm-lbl">BPM:</span>
           <span id="sid-bpm" class="sid-num" aria-label="Beats per minute (4 rows per beat)">125</span></span>
+          <span class="sid-tb-sep" aria-hidden="true"></span>
           <select id="sid-video" class="sid-select sid-video" aria-label="Timing: a PAL (50 Hz) or NTSC (60 Hz) machine — the frame rate, the note table and the BPM follow it"><option value="pal">PAL</option><option value="ntsc">NTSC</option></select>
-          <span class="sid-mini-lbl" id="sid-song-vol-lbl">Vol:</span>
-          <input id="sid-song-vol" class="sid-input sid-speed" type="number" min="0" max="15" value="15" aria-label="The tune's volume (0–15): the chip starts on it, and every instrument set to »Song« volume uses it">
-          <span class="sid-mini-lbl">Oct:</span>
+          <span class="sid-tb-group"><span class="sid-mini-lbl" id="sid-song-vol-lbl">Vol:</span>
+          <input id="sid-song-vol" class="sid-range" type="range" min="0" max="15" value="15" aria-label="The tune's volume (0–15): the SID's master volume, for all three voices together"><span id="sid-song-vol-val" class="sid-num">15</span></span><span class="sid-tb-group" id="sid-song-vol2-group" hidden><span class="sid-mini-lbl" id="sid-song-vol2-lbl">SID 2:</span><input id="sid-song-vol2" class="sid-range" type="range" min="0" max="15" value="15" aria-label="The second SID's volume (0–15), for voices 4–6"><span id="sid-song-vol2-val" class="sid-num">15</span><span class="sid-tb-sep" aria-hidden="true"></span></span>
+          <span class="sid-tb-group"><span class="sid-mini-lbl">Oct:</span>
           <button id="sid-oct-down" class="sid-mini-btn" type="button" aria-label="Octave down">−</button>
           <span id="sid-oct-val" class="sid-num">4</span>
-          <button id="sid-oct-up" class="sid-mini-btn" type="button" aria-label="Octave up">+</button>
+          <button id="sid-oct-up" class="sid-mini-btn" type="button" aria-label="Octave up">+</button></span>
           <button id="sid-row-preview" class="ce-tool-btn" type="button" aria-label="Preview row">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6v4h3l4 3V3L6 6H3z"/><path d="M12 6a3 3 0 010 4"/></svg>
           </button>
@@ -2915,10 +2914,11 @@ PRINTABLE CHARACTERS
             <span class="sid-lcd-cell"><i id="sid-lcd-row-lbl">ROW</i><b id="sid-lcd-row">00</b></span>
             <span class="sid-lcd-cell"><i id="sid-lcd-time-lbl">TIME</i><b id="sid-lcd-time">0:00.0</b></span>
           </div>
-          <span class="sid-tb-sep" aria-hidden="true"></span>
+          <span class="sid-tb-break" aria-hidden="true"></span>
           <span class="sid-mini-lbl" id="sid-quantize-lbl">Quantize:</span>
           <select id="sid-quantize" class="sid-select sid-quantize" aria-label="The quantize grid in rows: Q in the horizontal tracker moves the selected notes onto it, and with »On record« on, the notes of a recording when it stops"><option value="2">2 rows</option><option value="4" selected>4 rows</option><option value="8">8 rows</option><option value="16">16 rows</option></select>
           <label class="me-check sid-quantize-rec"><input type="checkbox" id="sid-quantize-rec"> <span id="sid-quantize-rec-label">On record</span></label>
+          <span class="sid-tb-sep" aria-hidden="true"></span>
           <button id="sid-record" class="ce-tool-btn sid-record-btn" type="button" aria-label="Record" aria-pressed="false">
             <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="4.3" fill="currentColor"/></svg>
           </button>
