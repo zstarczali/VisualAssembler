@@ -217,6 +217,7 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
   - [Exomizer](#exomizer)
   - [Retro Debugger](#retro-debugger)
   - [C64 Ultimate / 1541 Ultimate](#c64-ultimate--1541-ultimate)
+  - [Az Ultimate emulátor telepítése lépésről lépésre](#az-ultimate-emulátor-telepítése-lépésről-lépésre)
   - [Kung Fu Flash 2](#kung-fu-flash-2)
   - [Verziókezelés (git)](#verziókezelés-git)
 - [14. Vizuális szerkesztők (Toolkit)](#14-vizuális-szerkesztők-toolkit)
@@ -4399,11 +4400,52 @@ Lefordított PRG-ket futtass közvetlenül valódi hardveren a helyi hálózaton
 3. Válaszd a **Run on hardware**-t az osztott run menüből.
 4. Kattints a **▶ Run**-ra — a PRG lefordul, és HTTP POST-tal a `/v1/runners:run_prg`-re kerül. Az eszköz azonnal betölti és futtatja a C64-en.
 
-**Hardver nélkül:** az osztott run menü **Ultimate emulátor** pontja az [UE2-C64U-Emulator](https://github.com/Jondalar/UE2-C64U-Emulator) emulátoron futtat, amely a változatlan Ultimate firmware-t futtatja a számítógépeden. Külön kell telepíteni, majd a **Beállítások → Integrációk → Ultimate emulátor (UE2)** alatt három dolgot kell megadni: az `ue2emu` programot, egy firmware-t (`.ue2`, `.elf` vagy `.app`, nincs mellékelve) és a ROM-mappát (egy [1541ultimate](https://github.com/GideonZ/1541ultimate) klón `roms/` mappája). A mappából csak a `chars.bin` kötelező (2048 bájt, a menü betűkészlete), a Commodore firmware a saját C64 ROM-jaival bootol. Az első futtatás a `.ue2`-t egy flash-képbe telepíti, firmware-enként külön, az app konfigurációs mappájában, és minden indítás bekapcsolja a firmware webszolgáltatását, amely a Commodore firmware-ben alapból ki van kapcsolva. Az emulátor az első futtatáskor indul, és nyitva marad a következőkhöz; a REST API-ja a `127.0.0.1` címen, a **REST port**on figyel (alapból 8064). Az appal együtt vagy az **Emulátor leállítása** gombbal zárul. Ugyanebben a menüben a **D64 az Ultimate emulátoron** D64-et csomagol (ehhez a VICE `c1541`-e kell), az A meghajtóra csatolja, és futtatja az első programot. Amíg e két futtatási mód egyike van kiválasztva, a **VICE Monitor** ablak (hot reload, élő változók, profiler) a VICE helyett az emulátorhoz kapcsolódik. Ezekben a módokban a **Debug** az emulátor debuggerét nyitja meg: regiszterek, disassembly, memória és töréspontok külön ablakban, a kép az emulátor ablakában. A program az első elért töréspontnál áll meg, töréspont nélkül az első utasításánál; a szerkesztő sora követi a CPU-t, az F5, F10, F11 és Shift+F11 akkor is működik, ha a szerkesztőben van a fókusz. Engedélyezett megszakításoknál egy timer IRQ a lépést a KERNAL-ba viheti, mint a VICE monitorában. A VA az emulátor flash-képében a **Turbo Control**-t is a turbó-regiszterekre állítja, így a program a `$D031`-gyel állíthatja a CPU sebességét (reset után `$00`, azaz 1 MHz).
+**Hardver nélkül:** az osztott run menü **Ultimate emulátor** pontja az [UE2-C64U-Emulator](https://github.com/Jondalar/UE2-C64U-Emulator) emulátoron futtat, amely a változatlan Ultimate firmware-t futtatja a számítógépeden. Külön kell telepíteni (lásd [Az Ultimate emulátor telepítése lépésről lépésre](#az-ultimate-emulátor-telepítése-lépésről-lépésre)), majd a **Beállítások → Integrációk → Ultimate emulátor (UE2)** alatt három dolgot kell megadni: az `ue2emu` programot, egy firmware-t (`.ue2`, `.elf` vagy `.app`, nincs mellékelve) és a ROM-mappát (egy [1541ultimate](https://github.com/GideonZ/1541ultimate) klón `roms/` mappája). A mappából csak a `chars.bin` kötelező (2048 bájt, a menü betűkészlete), a Commodore firmware a saját C64 ROM-jaival bootol. Az első futtatás a `.ue2`-t egy flash-képbe telepíti, firmware-enként külön, az app konfigurációs mappájában, és minden indítás bekapcsolja a firmware webszolgáltatását, amely a Commodore firmware-ben alapból ki van kapcsolva. Az emulátor az első futtatáskor indul, és nyitva marad a következőkhöz; a REST API-ja a `127.0.0.1` címen, a **REST port**on figyel (alapból 8064). Az appal együtt vagy az **Emulátor leállítása** gombbal zárul. Ugyanebben a menüben a **D64 az Ultimate emulátoron** D64-et csomagol (ehhez a VICE `c1541`-e kell), az A meghajtóra csatolja, és futtatja az első programot. Amíg e két futtatási mód egyike van kiválasztva, a **VICE Monitor** ablak (hot reload, élő változók, profiler) a VICE helyett az emulátorhoz kapcsolódik. Ezekben a módokban a **Debug** az emulátor debuggerét nyitja meg: regiszterek, disassembly, memória és töréspontok külön ablakban, a kép az emulátor ablakában. A program az első elért töréspontnál áll meg, töréspont nélkül az első utasításánál; a szerkesztő sora követi a CPU-t, az F5, F10, F11 és Shift+F11 akkor is működik, ha a szerkesztőben van a fókusz. Engedélyezett megszakításoknál egy timer IRQ a lépést a KERNAL-ba viheti, mint a VICE monitorában. A VA az emulátor flash-képében a **Turbo Control**-t is a turbó-regiszterekre állítja, így a program a `$D031`-gyel állíthatja a CPU sebességét (reset után `$00`, azaz 1 MHz).
 
 Minta: **Ultimate turbó demo (64 sprite)** (`samples/ultimate-turbo-demo.asm`) — a sebesség 3 másodpercenként vált 1 és 64 MHz között; 1 MHz-en golyók tűnnek el és csökken a képkockaszám, 4 MHz-től mind a 64 sprite 50 fps-sel fut. Csak bekapcsolt turbó-regiszterű Ultimate-en fut, máshol ezt írja ki. Az **Ultimate turbó kocka** (`samples/ultimate-box-demo.asm`) ugyanezt teszi a box minta kockájával: minél gyorsabb a CPU, annál gyorsabban forog a kocka (1 MHz-en 5, 16 MHz-től 50 képkocka másodpercenként).
 
 > **Tipp:** nem kell USB kábel vagy driver — a REST API be van építve az Ultimate firmware-be. A számítógépednek és az eszköznek ugyanazon a helyi hálózaton kell lennie.
+
+### Az Ultimate emulátor telepítése lépésről lépésre
+
+Az **Ultimate emulátor** és a **D64 az Ultimate emulátoron** futtatási módhoz három dolog kell, ami nem része a Visual Assemblernek: maga az emulátor, egy Ultimate firmware és egy ROM-mappa. Ezeket egyszer kell beállítani, a következő módon.
+
+**1. Telepítsd az emulátort** ([UE2-C64U-Emulator](https://github.com/Jondalar/UE2-C64U-Emulator)):
+
+- **Windows:** töltsd le az emulátor [Releases oldaláról](https://github.com/Jondalar/UE2-C64U-Emulator/releases) az `ue2emu-<verzió>-windows-x86_64.zip` fájlt, és csomagold ki egy maradandó mappába, például `C:\Tools\ue2emu`. A fájlok maradjanak együtt: az `ue2emu.exe`-nek kellenek a mellette lévő DLL-ek.
+- **macOS:** telepítsd Homebrew-val. A Visual Assembler ott magától megtalálja:
+
+  ```
+  brew install jondalar/ue2emu/ue2emu
+  ```
+
+- **Linux:** kész csomag még nincs; az emulátor dokumentációja szerint forrásból kell fordítani (Rust és libslirp kell hozzá).
+
+**2. Szerezz egy firmware-t.** Az emulátor egy **C64 Ultimate** vagy **Ultimate 64 Elite II** firmware-ét futtatja változatlanul: a frissítőfájlt (`.ue2`), amelyet az eszközre is telepítenél, vagy egy saját fordítású `ultimate.elf`-et. Sem a Visual Assembler, sem az emulátor nem tartalmaz ilyet. A C64 Ultimate 1.1.0-s firmware-ével biztosan működik.
+
+**3. Szerezd be a ROM-mappát.** Töltsd le a GitHubról az [1541ultimate](https://github.com/GideonZ/1541ultimate) tárolót (**Code → Download ZIP**, vagy `git clone`), és csomagold ki. Ebből a `roms` mappa kell. A Visual Assembler csak a benne lévő `chars.bin`-t ellenőrzi (2048 bájt, a menü betűkészlete).
+
+**4. Töltsd ki a beállításokat.** Nyisd meg a **Beállítások → Integrációk → Ultimate emulátor (UE2)** részt:
+
+| Gomb | Mit válassz |
+|---|---|
+| **ue2emu kiválasztása** | Az 1. lépés `ue2emu.exe`-jét. Ha az emulátor a `PATH`-on van, vagy Homebrew-val telepítetted, a mező már ki van töltve. |
+| **Firmware kiválasztása** | A 2. lépés `.ue2` (vagy `.elf`) fájlját. |
+| **ROM-mappa kiválasztása** | Magát a `roms` mappát, ne a fölötte lévő tároló-mappát. |
+| **REST port** | Maradjon **8064**, hacsak nem foglalt. Az emulátor a következő két portot is használja (vezérlés és VICE monitor). |
+
+**5. Futtasd.** Válaszd az osztott run menüben az **Ultimate emulátor**-t (a beállítások kitöltése után jelenik meg), és nyomd meg a **▶ Run**-t. Az első futtatás `.ue2` esetén a firmware-t egy saját flash-képbe telepíti, ez kicsit tovább tart; utána megnyílik az emulátor ablaka, és elindul a programod. A beállítások alatti állapotsor ezt mutatja: **Fut, REST: 127.0.0.1:8064**.
+
+**6. Dolgozz tovább.** A következő futtatások a nyitva hagyott emulátort használják. A beállításokban az **Emulátor leállítása** zárja be, és a Visual Assembler bezárása is; közben a flash-kép elmentődik, így a firmware saját beállításai megmaradnak.
+
+**Ha valami nem működik:**
+
+| Üzenet | Teendő |
+|---|---|
+| *Ultimate emulátor: nincs beállítva a Beállításokban: …* | 4. lépés: az üzenetben megnevezett elem üres, vagy a fájl már nincs a helyén. |
+| *Ultimate emulátor: hiányzik a ROM-mappából: chars.bin* | A tároló-mappát vagy egy fölötte lévő kicsomagolt ZIP-mappát választottad: magát a `roms` mappát válaszd. |
+| *Az Ultimate emulátor REST API-ja nem válaszolt időben* | Egy másik program használja a portot: állíts be másik **REST port**ot. |
+| A **D64 az Ultimate emulátoron** nem tudja elkészíteni a lemezképet | Ez a mód a VICE `c1541`-ével csomagolja a D64-et: add meg a VICE útvonalát a **Beállítások → Fájlok és útvonalak** alatt. Maga az **Ultimate emulátor** mód nem igényel VICE-t. |
 
 ### Kung Fu Flash 2
 

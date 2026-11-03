@@ -80,7 +80,7 @@ Support: https://zstarczali.itch.io/visual-assembler-commodore-64
 
 ==========================================================================
 LINUX (Ubuntu / Debian)
-Tested on Ubuntu 22.04 and 24.04.
+Built on Ubuntu 22.04, so it runs there and on newer distributions; tested on Ubuntu 22.04 and 24.04.
 ==========================================================================
 
 1. C64 Visual Assembler
