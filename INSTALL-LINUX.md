@@ -71,7 +71,7 @@ Version 2.7.3
 
 2.3.5: CHARDEF and BOX_HIT are now syntax-highlighted in the Expert editor; the Ultimate Basic editor matches the Expert editor (Format cursor fix, consistent Tab and cursor tracking); UB font size is remembered across sessions; the startup welcome dialog gains an Ultimate Basic manual button that opens the same manual as the editor's manual button.
 
-Tested on Ubuntu 22.04 and 24.04.
+Built on Ubuntu 22.04, so it runs there and on newer distributions; tested on Ubuntu 22.04 and 24.04.
 
 ---
 

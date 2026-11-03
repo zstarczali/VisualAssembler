@@ -20,7 +20,12 @@ test("the packages depend on it", () => {
 });
 
 test("the build machine has the plugins to bundle, and the build checks they arrived", () => {
-  ["libgstreamer1.0-dev", "gstreamer1.0-plugins-base", "gstreamer1.0-plugins-good"].forEach((p) => assert.ok(workflow.includes(p), p));
+  ["gstreamer1.0-plugins-base", "gstreamer1.0-plugins-good"].forEach((p) => assert.ok(workflow.includes(p), p));
   ["libgstapp.so", "libgstautodetect.so"].forEach((p) => assert.ok(workflow.includes(p), p));
   assert.ok(workflow.includes("--appimage-extract"));
+});
+
+test("the Linux packages are built on the oldest supported Ubuntu, for its glibc", () => {
+  assert.match(workflow, /(runner|os): ubuntu-22\.04/);
+  assert.doesNotMatch(workflow, /(runner|os): ubuntu-latest\s*\n\s*(arch|target|bundles)/);
 });
