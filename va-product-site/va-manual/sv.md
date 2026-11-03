@@ -1,6 +1,6 @@
 # C64 Visuell Assembler — Användarmanual
 
-**Version 2.7.3**
+**Version 2.7.4**
 
 En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom att
 dra och släppa instruktionsblock och se den genererade assemblern och
@@ -10,6 +10,7 @@ maskinkoden i realtid.
 
 ## Innehållsförteckning
 
+- [Höjdpunkter i version 2.7.4](#version-274-highlights)
 - [Höjdpunkter i version 2.7.3](#version-273-highlights)
 - [Höjdpunkter i version 2.7.2](#version-272-highlights)
 - [Höjdpunkter i version 2.7.1](#version-271-highlights)
@@ -247,6 +248,27 @@ maskinkoden i realtid.
   - [Nummeromvandlare](#number-converter)
 
 ---
+
+## Höjdpunkter i version 2.7.4
+
+- **Markering i den horisontella spåraren** — Skift+dra en ram eller Ctrl+klicka
+  på anteckningar för att markera dem, klipp sedan ut, kopiera, klistra in (med
+  musen eller markören) eller radera dem med de nya rubrikknapparna eller Ctrl+X
+  / C / V och Del.
+- **Kvantisera** — **Q** eller den nya knappen flyttar de valda noterna till
+  närmaste rad i rutnätet (2, 4, 8 eller 16 rader i spårningsverktygsfältet) och
+  behåller deras längder. Med **Vid inspelning** markerad kvantiseras en
+  inspelning när den stoppas.
+- **Ångra / Gör om i den horisontella spåraren** — de två knapparna i spårarens
+  verktygsfält finns också i dess rubrik.
+- **Renare redigeringar** — om du tar bort en not behålls slutet av noten före
+  den, och om du klistrar in den över en längre not lämnas inga lösa noter kvar.
+- **Radera instrument** — **−** bredvid **+** raderar det aktuella instrumentet,
+  och Filer → **Radera oanvända instrument** tar bort de som ingen not spelar.
+- **Låtvolym** — **Volym** i spårningsverktygsfältet är låtens volym; instrument
+  med **Låt** markerat lämnar chipet kvar.
+- **PAL / NTSC** — låtens timing: NTSC kör 60 bildrutor per sekund på
+  NTSC-klockan, med en egen nottabell och `.sid`-rubrik.
 
 ## Höjdpunkter i version 2.7.3
 
@@ -6538,6 +6560,30 @@ och först frågas om de innehåller något.
 - Inklistring av cellintervall börjar nu vid den valda intervallets startcell
   och stoppar tydligt vid röst- och radgränser istället för att radbrytas till
   nästa kolumn eller rad.
+- Ta bort instrument: **−** bredvid **+** tar bort det aktuella instrumentet
+  (tonerna som spelar det växlar till det föregående, efter en fråga), och Filer
+  → **Ta bort oanvända instrument** tar bort alla instrument som ingen ton
+  spelas. Numren i spåraren följer; Ångra tar tillbaka dem.
+- Låtvolym: **Vol** (0–15) i spårningsverktygsfältet är låtens volym, och chipet
+  börjar på den. Ett instrument med **Song** markerat bredvid dess **Vol**
+  lämnar chipets volym oförändrad, så instrumenten slåss inte längre om den; nya
+  instrument har den på. Om den inte markeras ställer instrumentet in chipets
+  volym som tidigare (låtar som sparats tidigare fortsätter att fungera på det
+  sättet).
+- PAL / NTSC: knappen bredvid BPM ställer in vilken maskin melodin är avsedd
+  för. NTSC spelar 60 bildrutor per sekund på NTSC-klockan: förhandsvisningen,
+  BPM, den exporterade spelarens nottabell och rubriken `.sid` följer efter den.
+- **Kvantisera** (i spårarens verktygsfält): rutnätet är 2, 4, 8 eller 16 rader.
+  I den horisontella spåraren flyttar **Q** eller dess knapp de valda noterna
+  till närmaste rutnätsrad och behåller deras längder; med **Vid inspelning**
+  markerad kvantiseras noterna i en inspelning på samma sätt när den stoppas.
+- **Markering i den horisontella spåraren:** Skift+dra en ram (Ctrl+Skift+dra
+  lägger till i markeringen), Ctrl+klicka på en anteckning, Ctrl+A för alla, Esc
+  för att rensa. Ctrl+X / C / V och Del, eller knapparna i dess rubrik, klipp
+  ut, kopiera, klistra in och radera. En inklistring går till raden under musen,
+  eller till spårningsmarkören, och skriver över det som finns där. Om du tar
+  bort en anteckning behålls slutet av anteckningen före den. Rubriken har även
+  **Ångra** och **Gör om**.
 - **Ångra / Gör om** (knapparna före röstkopieringen, eller Ctrl+Z och Ctrl+Y)
   stegar igenom ändringarna av noter, instrument, låt och tempo samt laddningen
   av en melodi, upp till 100 steg. Att dra en ratt eller en hel inspelning är

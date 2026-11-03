@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Podręcznik użytkownika
 
-**Wersja 2.7.3**
+**Wersja 2.7.4**
 
 Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągając
 i upuszczając bloki instrukcji, i oglądaj generowany kod assemblera i maszynowy
@@ -10,6 +10,7 @@ w czasie rzeczywistym.
 
 ## Spis treści
 
+- [Najważniejsze cechy wersji 2.7.4](#version-274-highlights)
 - [Najważniejsze cechy wersji 2.7.3](#version-273-highlights)
 - [Najważniejsze cechy wersji 2.7.2](#version-272-highlights)
 - [Najważniejsze cechy wersji 2.7.1](#version-271-highlights)
@@ -253,6 +254,28 @@ w czasie rzeczywistym.
   - [Konwerter liczb](#number-converter)
 
 ---
+
+## Najważniejsze cechy wersji 2.7.4
+
+- **Zaznaczanie w poziomym śledzeniu** — naciśnij klawisz Shift i przeciągnij
+  ramkę lub naciśnij klawisz Ctrl i kliknij notatki, aby je zaznaczyć, a
+  następnie wytnij, skopiuj, wklej (przy myszy lub kursorze) lub usuń je za
+  pomocą nowych przycisków nagłówka lub kombinacji klawiszy Ctrl+X / C / V i
+  Del.
+- **Kwantyzacja** — **Q** lub nowy przycisk przenosi zaznaczone nuty do
+  najbliższego wiersza siatki (wiersze 2, 4, 8 lub 16, na pasku narzędzi
+  trackera), zachowując ich długość. Po zaznaczeniu opcji **Na nagraniu**
+  nagranie jest kwantyzowane po zatrzymaniu.
+- **Cofnij/Ponów w poziomym trackerze** — dwa przyciski paska narzędzi trackera
+  znajdują się również w jego nagłówku.
+- **Czystsze edycje** — usunięcie nuty powoduje zachowanie jej końca, a
+  wklejenie dłuższej nuty nie pozostawia żadnych odstępstw.
+- **Usuwanie instrumentów** — **−** obok **+** usuwa bieżący instrument, a Pliki
+  → **Usuń nieużywane instrumenty** usuwa te, które nie grają żadnych nut.
+- **Głośność utworu** — **Głośność** na pasku narzędzi trackera to głośność
+  utworu; instrumenty z zaznaczoną opcją **Utwór** pozostawiają na nim chip.
+- **PAL / NTSC** — taktowanie utworu: NTSC odtwarza 60 klatek na sekundę na
+  zegarze NTSC, z własną tabelą nut i nagłówkiem `.sid`.
 
 ## Najważniejsze cechy wersji 2.7.3
 
@@ -6914,6 +6937,31 @@ jednego SID-a usuwa głosy drugiego SID-a i najpierw pyta, czy coś w nich jest.
 - Wklejanie zakresu komórek rozpoczyna się teraz od wybranej komórki początkowej
   zakresu i kończy się na granicach wiersza lub głosu, zamiast przechodzić do
   następnej kolumny lub wiersza.
+- Usuwanie instrumentów: **−** obok **+** usuwa aktualny instrument (nuty, które
+  go grają, przełączają się na poprzedni po pytaniu), a Pliki → **Usuń
+  nieużywane instrumenty** usuwa każdy instrument, na którym nie gra żadna nuta.
+  Następnie następują numery w trackerze; opcja Cofnij przywraca je.
+- Głośność utworu: **Vol** (0–15) na pasku narzędzi trackera to głośność utworu,
+  na której układ zaczyna pracę. Instrument z zaznaczoną opcją **Song** obok
+  **Vol** pozostawia głośność układu bez zmian, więc instrumenty nie kłócą się
+  już o nią; nowe instrumenty mają ją włączoną. Bez zaznaczenia, instrument
+  ustawia głośność układu jak poprzednio (utwory zapisane wcześniej nadal
+  działają w ten sposób).
+- PAL / NTSC: przełącznik obok BPM ustawia maszynę, dla której przeznaczony jest
+  utwór. NTSC odtwarza 60 klatek na sekundę na zegarze NTSC: po nim następuje
+  podgląd, BPM, wyeksportowana tabela nut odtwarzacza i nagłówek `.sid`.
+- **Kwantyzacja** (na pasku narzędzi trackera): siatka ma 2, 4, 8 lub 16
+  wierszy. W trackerze poziomym przycisk **Q** lub odpowiadający mu przycisk
+  przenosi zaznaczone nuty do najbliższego wiersza siatki i zachowuje ich
+  długości; po zaznaczeniu opcji **Na nagraniu** nuty nagrania są kwantyzowane w
+  ten sam sposób po jego zatrzymaniu.
+- **Zaznaczenie w poziomym trackerze: ** Shift+przeciągnij ramkę
+  (Ctrl+Shift+przeciągnij dodaje zaznaczenie), Ctrl+kliknij notatkę, Ctrl+A dla
+  wszystkich, Esc dla wyczyszczenia. Ctrl+X / C / V i Del lub przyciski w
+  nagłówku umożliwiają wycinanie, kopiowanie, wklejanie i usuwanie. Wklejenie
+  przechodzi do wiersza pod myszą lub do kursora trackera i zapisuje to, co się
+  tam znajduje. Usunięcie notatki powoduje pozostawienie jej końca. Nagłówek
+  zawiera również **Cofnij** i **Ponów**.
 - **Cofnij/Ponów** (przyciski przed kopiowaniem głosu lub Ctrl+Z i Ctrl+Y)
   umożliwiają prześledzenie zmian nut, instrumentów, utworu i tempa oraz
   załadowanie melodii, do 100 kroków. Przeciągnięcie pokrętła lub całego

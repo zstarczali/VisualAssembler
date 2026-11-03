@@ -1,6 +1,6 @@
 # C64 Visual Assembler – Benutzerhandbuch
 
-**Version 2.7.3**
+**Version 2.7.4**
 
 Ein visueller, blockbasierter 6502-Assembler für den Commodore 64. Erstellen Sie
 Programme durch Ziehen und Ablegen von Befehlsblöcken und sehen Sie den
@@ -10,6 +10,7 @@ generierten Assembler- und Maschinencode in Echtzeit.
 
 ## Inhaltsverzeichnis
 
+- [Version 2.7.4 Highlights](#version-274-highlights)
 - [Version 2.7.3 Highlights](#version-273-highlights)
 - [Version 2.7.2 Highlights](#version-272-highlights)
 - [Version 2.7.1 Highlights](#version-271-highlights)
@@ -251,6 +252,31 @@ generierten Assembler- und Maschinencode in Echtzeit.
   - [Zahlenkonverter](#number-converter)
 
 ---
+
+## Highlights der Version 2.7.4
+
+- **Auswahl im horizontalen Tracker** — Ziehen Sie einen Frame mit gedrückter
+  Shift-Taste oder klicken Sie mit gedrückter Strg-Taste auf die Notizen, um sie
+  auszuwählen. Anschließend können Sie sie mit den neuen Kopfzeilenschaltflächen
+  oder mit Strg+X / C / V und Entf ausschneiden, kopieren, einfügen (mit der
+  Maus oder dem Cursor) oder löschen.
+- **Quantisieren** – **Q** oder die neue Schaltfläche verschiebt die
+  ausgewählten Noten in die nächstgelegene Zeile des Rasters (2, 4, 8 oder 16
+  Zeilen in der Tracker-Symbolleiste), wobei ihre Längen erhalten bleiben. Wenn
+  **Bei Aufnahme** aktiviert ist, wird eine Aufnahme beim Stoppen quantisiert.
+- **Rückgängig / Wiederherstellen im horizontalen Tracker** — die beiden
+  Schaltflächen der Tracker-Symbolleiste befinden sich auch in deren Kopfzeile.
+- **Sauberere Bearbeitungen** — Beim Löschen einer Notiz bleibt das Ende der
+  vorherigen Notiz erhalten, und beim Einfügen über eine längere Notiz bleiben
+  keine überflüssigen Notizreste zurück.
+- **Instrumente löschen** — **−** neben **+** löscht das aktuelle Instrument,
+  und Dateien → **Nicht verwendete Instrumente löschen** entfernt diejenigen,
+  von denen keine Note gespielt wird.
+- **Song volume** — **Vol** in der Tracker-Symbolleiste ist die Lautstärke des
+  Titels; Instrumente, bei denen **Song** aktiviert ist, lassen den Chip
+  eingeschaltet.
+- **PAL / NTSC** — Timing der Melodie: NTSC läuft mit 60 Bildern pro Sekunde auf
+  dem NTSC-Takt, mit eigener Notentabelle und `.sid`-Header.
 
 ## Highlights der Version 2.7.3
 
@@ -7297,6 +7323,35 @@ SID ausgeblendet und es wird zunächst gefragt, ob etwas in der Hand liegt.
 - Beim Einfügen von Zellbereichen beginnt die Einfügung nun an der Startzelle
   des ausgewählten Bereichs und endet sauber an den Zeilen- und Bereichsgrenzen,
   anstatt in die nächste Spalte oder Zeile umzubrechen.
+- Instrumente löschen: **−** neben **+** löscht das aktuelle Instrument (die
+  Noten, die es spielen, wechseln nach einer Frage zum vorherigen Instrument),
+  und Datei → **Nicht verwendete Instrumente löschen** entfernt alle
+  Instrumente, von denen keine Note gespielt wird. Die Nummern im Tracker
+  bleiben erhalten; mit „Rückgängig“ werden sie wiederhergestellt.
+- Songlautstärke: Die Lautstärke des Musikstücks wird in der
+  Tracker-Symbolleiste unter **Vol** (0–15) festgelegt und ist die
+  Standardeinstellung des Chips. Bei einem Instrument, bei dem neben **Vol** die
+  Option **Song** aktiviert ist, bleibt die Chip-Lautstärke unverändert, sodass
+  es keine Konflikte mehr zwischen den Instrumenten gibt; neue Instrumente
+  verwenden diese Option automatisch. Ist die Option deaktiviert, stellt das
+  Instrument die Chip-Lautstärke wie zuvor ein (zuvor gespeicherte Musikstücke
+  funktionieren weiterhin so).
+- PAL/NTSC: Der Schalter neben BPM legt das System fest, für das das Stück
+  bestimmt ist. NTSC gibt 60 Bilder pro Sekunde im NTSC-Takt wieder: Vorschau,
+  BPM, die exportierte Notentabelle des Players und der Header `.sid` folgen.
+- **Quantisieren** (in der Tracker-Symbolleiste): Das Raster besteht aus 2, 4, 8
+  oder 16 Zeilen. Im horizontalen Tracker verschiebt **Q** oder die zugehörige
+  Schaltfläche die ausgewählten Noten in die nächstgelegene Rasterzeile und
+  behält ihre Länge bei. Ist **Bei Aufnahme** aktiviert, werden die Noten einer
+  Aufnahme beim Stoppen auf dieselbe Weise quantisiert.
+- **Auswahl im horizontalen Tracker:** Mit Shift+Ziehen einen Frame ziehen
+  (Strg+Umschalt+Ziehen erweitert die Auswahl), Strg+Klick auf eine Note, Strg+A
+  für alle, Esc zum Löschen. Strg+X / C / V und Entf oder die Schaltflächen in
+  der Kopfzeile: Ausschneiden, Kopieren, Einfügen und Löschen. Beim Einfügen
+  wird der Inhalt in die Zeile unter dem Mauszeiger oder an die Cursorposition
+  im Tracker eingefügt und überschrieben. Beim Löschen einer Note bleibt das
+  Ende der vorherigen Note erhalten. Die Kopfzeile enthält außerdem
+  **Rückgängig** und **Wiederherstellen**.
 - **Rückgängig / Wiederherstellen** (die Schaltflächen vor der Sprachkopie oder
   Strg+Z und Strg+Y) ermöglichen das schrittweise Durchlaufen der Änderungen von
   Noten, Instrumenten, Song und Tempo sowie das Laden einer Melodie, bis zu 100

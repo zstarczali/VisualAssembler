@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**2.7.3-as verzió**
+**2.7.4-es verzió**
 
 Vizuális, blokk alapú 6502 assembler a Commodore 64-hez. Programokat hozhat
 létre húzással és elengedéssel (fogd és vidd) utasításblokkokkal, és valós
@@ -10,6 +10,7 @@ időben tekintheti meg a létrehozott assembly és gépi kódot.
 
 ## Tartalomjegyzék
 
+- [2.7.4-es verzió – kiemelt funkciók](#version-274-highlights)
 - [2.7.3-as verzió kiemelt funkciói](#version-273-highlights)
 - [2.7.2-es verzió – kiemelt funkciók](#version-272-highlights)
 - [2.7.1-es verzió – kiemelt funkciók](#version-271-highlights)
@@ -250,6 +251,30 @@ időben tekintheti meg a létrehozott assembly és gépi kódot.
   - [Számátváltó](#number-converter)
 
 ---
+
+## A 2.7.4-es verzió legfontosabb elemei
+
+- **Kijelölés a vízszintes követőben** — A Shift billentyűt lenyomva tartva
+  húzzon egy keretet, vagy Ctrl billentyűt lenyomva kattintson a hangjegyekre a
+  kiválasztásukhoz, majd a fejlécgombokkal vagy a Ctrl+X / C / V és Del
+  billentyűkombinációval kivághatja, másolja, beillesztheti (az egérrel vagy a
+  kurzorral) vagy törölheti őket.
+- **Kvantálás** — Az **Q** vagy az új gomb a kiválasztott hangjegyeket a rács
+  legközelebbi sorába mozgatja (2, 4, 8 vagy 16 sor, a követő eszköztáron),
+  megtartva azok hosszát. Ha az **Felvételre** be van jelölve, a felvétel
+  leállításakor kvantálódik.
+- **Visszavonás / Újra végrehajtás a vízszintes követőben** — a követő eszköztár
+  két gombja a fejlécében is megtalálható.
+- **Letisztultabb szerkesztések** – egy hangjegy törlésekor a vége a hangjegy
+  előtt marad, és egy hosszabb hangjegyre való beillesztés nem hagy maga után
+  eltévedt hangjegyeket.
+- A **Hangszerek törlése** — **−** a **+** mellett törli az aktuális hangszert,
+  a Fájlok → **Nem használt hangszerek törlése** pedig azokat távolítja el,
+  amelyeken nincs lejátszott hang.
+- **Dal hangereje** — A követő eszköztáron található **Vol** a dallam hangerejét
+  jelzi; a **Dal** jelölésű hangszereken a chip rajta marad.
+- **PAL / NTSC** — a dallam időzítése: az NTSC másodpercenként 60 képkockát
+  futtat az NTSC órán, saját hangtáblázattal és `.sid` fejléccel.
 
 ## A 2.7.3-as verzió legfontosabb elemei
 
@@ -6859,6 +6884,33 @@ azokban van-e hang.
 - A cellatartomány-beillesztés mostantól a kiválasztott tartomány
   kezdőcellájánál kezdődik, és tisztán megáll a hang- és sorhatároknál,
   ahelyett, hogy a következő oszlopba vagy sorba folyatódna.
+- Hangszerek törlése: Az **−** az **+** mellett törli az aktuális hangszert (a
+  hangjegyek, amelyeken játszik, egy kérdés után az előzőre váltanak), a Fájlok
+  → **Nem használt hangszerek törlése** pedig minden olyan hangszert eltávolít,
+  amelyen nem szólal meg hangjegy. A követőben a számok ezt követik; a
+  Visszavonás visszaállítja őket.
+- Dal hangereje: a követő eszköztár **Vol** (0–15) paramétere a dallam
+  hangerejét állítja be, és a chip ezen a paraméteren indul. Egy olyan hangszer,
+  amelynél a **Vol** opció be van jelölve, a chip hangerejét nem változtatja,
+  így a hangszerek már nem veszekednek érte; az új hangszereknél be van
+  kapcsolva. Ha nincs bejelölve, a hangszer a korábbiakra állítja be a chip
+  hangerejét (a korábban mentett dallamok továbbra is így működnek).
+- PAL / NTSC: a BPM melletti kapcsoló állítja be, hogy melyik géphez szól a
+  dallam. Az NTSC másodpercenként 60 képkockát játszik le az NTSC óráján: az
+  előnézet, a BPM, az exportált játékos hangjegytáblázata és az `.sid` fejléc
+  követi ezt.
+- **Kvantálás** (a követő eszköztáron): a rács 2, 4, 8 vagy 16 soros. A
+  vízszintes követőben az **Q** vagy annak gombja a kiválasztott hangjegyeket a
+  legközelebbi rácssorba mozgatja, és megtartja azok hosszát; ha az **On
+  record** be van jelölve, a felvétel hangjai ugyanúgy kvantálódnak, amikor
+  leállítja.
+- **Kijelölés a vízszintes követőben:** Shift+húzás egy kerethez (a
+  Ctrl+Shift+húzás hozzáadja a kijelölést), Ctrl+kattintás egy jegyzetre, Ctrl+A
+  az összeshez, Esc a törléshez. Ctrl+X / C / V és Del, vagy a fejlécben lévő
+  gombok: kivágás, másolás, beillesztés és törlés. A beillesztés az egér alatti
+  sorba, vagy a követő kurzorra kerül, és átírja az ott lévőket. Egy jegyzet
+  törlésekor a jegyzet vége megőrződik előtte. A fejlécben található a
+  **Visszavonás** és az **Újra** gomb is.
 - **Visszavonás / Újraindítás** (a hangmásolat előtti gombok, vagy a Ctrl+Z és
   Ctrl+Y) végigléptetnek a hangjegyek, hangszerek, dal és tempó változásain,
   valamint egy dallam betöltésén, akár 100 lépésben. Egy gomb húzása vagy egy

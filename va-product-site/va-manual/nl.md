@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Gebruikershandleiding
 
-**Versie 2.7.3**
+**Versie 2.7.4**
 
 Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw
 programma's door instructieblokken te slepen en neer te zetten, en bekijk de
@@ -10,6 +10,7 @@ gegenereerde assembly- en machinecode in realtime.
 
 ## Inhoudsopgave
 
+- [Hoogtepunten van versie 2.7.4](#version-274-highlights)
 - [Hoogtepunten van versie 2.7.3](#version-273-highlights)
 - [Hoogtepunten van versie 2.7.2](#version-272-highlights)
 - [Hoogtepunten van versie 2.7.1](#version-271-highlights)
@@ -248,6 +249,28 @@ gegenereerde assembly- en machinecode in realtime.
   - [Nummeromzetter](#number-converter)
 
 ---
+
+## Hoogtepunten van versie 2.7.4
+
+- **Selectie in de horizontale tracker** — Sleep een kader met Shift of klik met
+  Ctrl om notities te selecteren. Knip, kopieer, plak (met de muis of cursor) of
+  verwijder ze met de nieuwe koptekstknoppen of Ctrl+X/C/V en Del.
+- **Kwantiseren** — **Kwantiseren** of de nieuwe knop verplaatst de
+  geselecteerde noten naar de dichtstbijzijnde rij van het raster (2, 4, 8 of 16
+  rijen in de tracker-werkbalk), waarbij hun lengte behouden blijft. Als
+  **Opnemen** is aangevinkt, wordt een opname gekwantiseerd wanneer deze stopt.
+- **Ongedaan maken / Herhalen in de horizontale tracker** — de twee knoppen van
+  de tracker-werkbalk bevinden zich ook in de koptekst.
+- **Schonere bewerkingen** — bij het verwijderen van een noot blijft het einde
+  van de noot ervoor behouden, en bij het plakken over een langere noot blijven
+  er geen losse noten achter.
+- **Instrumenten verwijderen** — **−** naast **+** verwijdert het huidige
+  instrument, en Bestanden → **Ongebruikte instrumenten verwijderen** verwijdert
+  de instrumenten waar geen noot op wordt gespeeld.
+- **Songvolume** — **Vol** in de tracker-werkbalk is het volume van de melodie;
+  instrumenten waarbij **Song** is aangevinkt, laten de chip erop staan.
+- **PAL / NTSC** — de timing van de melodie: NTSC draait 60 frames per seconde
+  op de NTSC-klok, met een eigen notentabel en `.sid`-header.
 
 ## Hoogtepunten van versie 2.7.3
 
@@ -7277,6 +7300,33 @@ tweede SID verwijderd en wordt eerst gevraagd of ze iets vasthouden.
 - Het plakken binnen een celbereik begint nu bij de geselecteerde begincel van
   het bereik en stopt netjes bij de grenzen van stemmen en rijen, in plaats van
   door te lopen naar de volgende kolom of rij.
+- Instrumenten verwijderen: **−** naast **+** verwijdert het huidige instrument
+  (de noten die het spelen, veranderen na een vraag naar het instrument ervoor),
+  en Bestanden → **Ongebruikte instrumenten verwijderen** verwijdert elk
+  instrument dat geen noot speelt. De nummers in de tracker blijven behouden;
+  Ongedaan maken zet ze terug.
+- Songvolume: de **Vol** (0–15) op de tracker-werkbalk is het volume van de
+  melodie, en de chip start hiermee. Een instrument met **Song** aangevinkt
+  naast **Vol** laat het volume van de chip ongewijzigd, waardoor instrumenten
+  er niet langer om strijden; nieuwe instrumenten hebben het ingeschakeld. Als
+  het niet is aangevinkt, stelt het instrument het volume van de chip in zoals
+  voorheen (eerder opgeslagen melodieën blijven op deze manier werken).
+- PAL / NTSC: de schakelaar naast BPM stelt de machine in waarvoor de melodie
+  bedoeld is. NTSC speelt 60 frames per seconde af op de NTSC-klok: de preview,
+  de BPM, de geëxporteerde notentabel van de speler en de `.sid`-header volgen
+  hierop.
+- **Kwantiseren** (in de tracker-werkbalk): het raster bestaat uit 2, 4, 8 of 16
+  rijen. In de horizontale tracker verplaatst **Q** of de bijbehorende knop de
+  geselecteerde noten naar de dichtstbijzijnde rasterrij en behoudt hun lengte;
+  met **Opnemen** aangevinkt, worden de noten van een opname op dezelfde manier
+  gekwantiseerd wanneer deze stopt.
+- **Selectie in de horizontale tracker: ** Shift+slepen om een frame te
+  selecteren (Ctrl+Shift+slepen om aan de selectie toe te voegen), Ctrl+klikken
+  op een noot, Ctrl+A voor alles, Esc om te wissen. Ctrl+X / C / V en Del, of de
+  knoppen in de header, knippen, kopiëren, plakken en verwijderen. Plakken gaat
+  naar de rij onder de muis, of naar de trackercursor, en overschrijft wat daar
+  staat. Bij het verwijderen van een noot blijft het einde van de noot ervoor
+  behouden. De header bevat ook **Ongedaan maken** en **Herhalen**.
 - **Ongedaan maken / Herhalen** (de knoppen vóór de spraakkopie, of Ctrl+Z en
   Ctrl+Y) bladeren door de wijzigingen van de noten, instrumenten, het nummer en
   het tempo en het laden van een melodie, tot maximaal 100 stappen. Het slepen

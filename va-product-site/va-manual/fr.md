@@ -1,6 +1,6 @@
 # Manuel d'utilisation de l'assembleur visuel C64
 
-**Version 2.7.3**
+**Version 2.7.4**
 
 Un assembleur 6502 visuel et basé sur des blocs pour le Commodore 64. Créez des
 programmes en faisant glisser et en déposant des blocs d'instructions, et
@@ -10,6 +10,7 @@ visualisez en temps réel le code assembleur et le code machine générés.
 
 ## Table des matières
 
+- [Points saillants de la version 2.7.4](#version-274-highlights)
 - [Points saillants de la version 2.7.3](#version-273-highlights)
 - [Points saillants de la version 2.7.2](#version-272-highlights)
 - [Points saillants de la version 2.7.1](#version-271-highlights)
@@ -253,6 +254,30 @@ visualisez en temps réel le code assembleur et le code machine générés.
   - [Convertisseur de nombres](#number-converter)
 
 ---
+
+## Points forts de la version 2.7.4
+
+- **Sélection dans le tracker horizontal** — Maj+glisser un cadre ou
+  Ctrl+cliquer sur les notes pour les sélectionner, puis couper, copier, coller
+  (à la souris ou au curseur) ou les supprimer avec les nouveaux boutons
+  d'en-tête ou Ctrl+X / C / V et Suppr.
+- **Quantifier** — **Q** ou le nouveau bouton déplace les notes sélectionnées
+  vers la ligne la plus proche de la grille (2, 4, 8 ou 16 lignes, dans la barre
+  d'outils du tracker), en conservant leur durée. Si **Enregistrement** est
+  coché, l'enregistrement est quantifié à l'arrêt.
+- **Annuler / Rétablir dans le tracker horizontal** — les deux boutons de la
+  barre d'outils du tracker se trouvent également dans son en-tête.
+- **Modifications plus propres** — la suppression d'une note conserve la fin de
+  la note précédente, et un collage sur une note plus longue ne laisse aucune
+  note égarée.
+- **Suppression des instruments** — **−** à côté de **+** supprime l'instrument
+  actuel, et Fichiers → **Supprimer les instruments inutilisés** supprime ceux
+  sur lesquels aucune note n'est jouée.
+- **Volume de la chanson** — **Vol** dans la barre d'outils du tracker
+  correspond au volume du morceau ; les instruments avec **Chanson** coché
+  laissent la puce dessus.
+- **PAL / NTSC** — le timing du morceau : NTSC fonctionne à 60 images par
+  seconde sur l'horloge NTSC, avec sa propre table de notes et `.sid` en-tête.
 
 ## Points saillants de la version 2.7.3
 
@@ -7583,6 +7608,34 @@ quelque chose à me dire ? »
 - Le collage par plage de cellules commence désormais à la cellule de début de
   la plage sélectionnée et s'arrête proprement aux limites de la ligne et de la
   colonne au lieu de passer à la ligne ou à la colonne suivante.
+- Suppression d'instruments : **−** à côté de **+** supprime l'instrument actuel
+  (les notes qui le jouent passent à l'instrument précédent après une question).
+  Fichiers → **Supprimer les instruments inutilisés** supprime tous les
+  instruments qui ne jouent aucune note. Les numéros dans le suivi s'affichent ;
+  Annuler les rétablit.
+- Volume du morceau : le volume du morceau (0–15) est défini par l’option
+  **Vol** de la barre d’outils du tracker. Si l’option **Song** est cochée à
+  côté de **Vol**, le volume du morceau n’est pas modifié, évitant ainsi les
+  conflits entre instruments. Cette option est activée par défaut pour les
+  nouveaux instruments. Si elle est décochée, l’instrument conserve son volume
+  initial (les morceaux enregistrés précédemment restent inchangés).
+- PAL/NTSC : le commutateur situé à côté de BPM permet de sélectionner la
+  machine pour laquelle le morceau est destiné. En NTSC, la lecture se fait à 60
+  images par seconde sur l’horloge NTSC : l’aperçu, le BPM, la table de notes
+  exportée du lecteur et l’en-tête `.sid` s’affichent ensuite.
+- **Quantifier** (dans la barre d'outils du tracker) : la grille comporte 2, 4,
+  8 ou 16 lignes. Dans le tracker horizontal, **Q** ou son bouton déplace les
+  notes sélectionnées vers la ligne de grille la plus proche tout en conservant
+  leur durée ; si **À l'enregistrement** est coché, les notes d'un
+  enregistrement sont quantifiées de la même manière à l'arrêt de celui-ci.
+- **Sélection dans le tracker horizontal : ** Maj + glisser pour sélectionner
+  une image (Ctrl + Maj + glisser pour agrandir la sélection), Ctrl + clic sur
+  une note, Ctrl + A pour tout sélectionner, Échap pour effacer. Ctrl + X / C /
+  V et Suppr, ou les boutons de son en-tête, permettent de couper, copier,
+  coller et supprimer. Un collage s'effectue sur la ligne sous le curseur, ou
+  sur le tracker, et écrase le contenu existant. La suppression d'une note
+  conserve la fin de la note précédente. L'en-tête contient également les
+  fonctions Annuler ** et Rétablir **.
 - **Annuler / Rétablir** (les boutons situés avant la copie vocale, ou Ctrl+Z et
   Ctrl+Y) permettent de parcourir les modifications des notes, des instruments,
   du morceau et du tempo, ainsi que le chargement d'un morceau, jusqu'à 100

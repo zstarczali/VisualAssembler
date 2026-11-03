@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Käyttöopas
 
-**Versio 2.7.3**
+**Versio 2.7.4**
 
 Visuaalinen, lohkopohjainen 6502-assembler Commodore 64:lle. Voit luoda ohjelmia
 vetämällä ja pudottamalla käskylohkoja ja nähdä luodun assemblerin ja konekoodin
@@ -10,6 +10,7 @@ reaaliajassa.
 
 ## Sisällysluettelo
 
+- [Version 2.7.4 kohokohdat](#version-274-highlights)
 - [Version 2.7.3 kohokohdat](#version-273-highlights)
 - [Version 2.7.2 kohokohdat](#version-272-highlights)
 - [Version 2.7.1 kohokohdat](#version-271-highlights)
@@ -251,6 +252,30 @@ reaaliajassa.
   - [Numeronmuunnin](#number-converter)
 
 ---
+
+## Version 2.7.4 kohokohdat
+
+- **Valinta vaakasuuntaisessa seurantajärjestelmässä** — Valitse nuotit
+  painamalla Shift-näppäintä ja vetämällä kehystä tai Ctrl-näppäintä ja
+  napsauttamalla niitä. Leikkaa, kopioi, liitä (hiirellä tai kursorilla) tai
+  poista ne uusilla otsikkopainikkeilla tai Ctrl+X / C / V ja Del
+  -näppäinyhdistelmällä.
+- **Kvantisoi** — **Q** tai uusi-painike siirtää valitut nuotit ruudukon
+  lähimpään riviin (2, 4, 8 tai 16 riviä seurantapalkissa) säilyttäen niiden
+  pituudet. Kun **Äänitettynä** on valittuna, äänitys kvantisoidaan, kun se
+  pysähtyy.
+- **Kumoa / Tee uudelleen vaakasuuntaisessa seurannassa** — seurannan
+  työkalupalkin kaksi painiketta ovat myös sen otsikossa.
+- **Siistimmät muokkaukset** — nuotin poistaminen pitää nuotin lopun ennen sitä,
+  ja pidemmän nuotin päälle liittäminen ei jätä jälkeensä irtonaisia nuotteja.
+- **Soittimien poistaminen** — **−** painikkeiden **+** vieressä poistaa
+  nykyisen soittimen, ja Tiedostot → **Poista käyttämättömät soittimet** poistaa
+  ne soittimet, joilla ei ole nuottia.
+- **Kappaleen äänenvoimakkuus** — Seurantapalkin **Vol** on sävelmän
+  äänenvoimakkuus; soittimet, joissa on **Kappale** valittuna, jättävät sirun
+  siihen.
+- **PAL / NTSC** — sävelmän ajoitus: NTSC pyörii 60 kehystä sekunnissa
+  NTSC-kellolla, omalla nuottitaulukolla ja `.sid`-otsikkomerkillä.
 
 ## Version 2.7.3 kohokohdat
 
@@ -6782,6 +6807,31 @@ ensin, onko niissä mitään.
 - Solualueen liittäminen alkaa nyt valitusta alueen aloitussolusta ja pysähtyy
   siististi ääni- ja rivirajoihin sen sijaan, että rivitys jatkuisi seuraavaan
   sarakkeeseen tai riviin.
+- Soittimien poistaminen: **−** **+** vieressä poistaa nykyisen soittimen (sitä
+  soittavat nuotit vaihtuvat sitä edeltävään kysymyksen jälkeen), ja Tiedostot →
+  **Poista käyttämättömät soittimet** poistaa kaikki soittimet, joilla ei ole
+  soitettuja nuotteja. Seurantaohjelman numerot seuraavat perässä;
+  Kumoa-toiminto palauttaa ne.
+- Kappaleen äänenvoimakkuus: seurantapalkin **Vol** (0–15) on sävelmän
+  äänenvoimakkuus, ja siru käynnistyy siitä. Instrumentti, jonka **Song** on
+  valittuna sen **Vol** -kohdan vieressä, jättää sirun äänenvoimakkuuden
+  ennalleen, joten soittimet eivät enää kiistele siitä; uusissa soittimissa se
+  on käytössä. Valitsemattomana instrumentti asettaa sirun äänenvoimakkuuden
+  ennalleen (aiemmin tallennetut sävelmät toimivat edelleen näin).
+- PAL / NTSC: BPM-kohdan vieressä oleva kytkin asettaa laitteen, jolle sävelmä
+  on tarkoitettu. NTSC toistaa 60 kuvaa sekunnissa NTSC-kellolla: esikatselu,
+  BPM, viety soittajan nuottitaulukko ja `.sid` -otsikkotiedot seuraavat sitä.
+- **Kvantisoi** (seurantapalkissa): ruudukko on 2, 4, 8 tai 16 riviä.
+  Vaakasuuntaisessa seurannassa **Q** tai sen painike siirtää valitut nuotit
+  lähimpään ruudukon riviin ja säilyttää niiden pituudet; kun **Äänitettynä** on
+  valittuna, äänitteen nuotit kvantisoidaan samalla tavalla, kun se pysäytetään.
+- **Valinta vaakasuuntaisessa seurantapalkissa:** Shift+vedä kehystä
+  (Ctrl+Shift+vedä lisää valintaa), Ctrl+napsauta muistiinpanoa, Ctrl+A
+  kaikille, Esc tyhjentääksesi. Ctrl+X / C / V ja Del tai sen otsikon painikkeet
+  leikkaavat, kopioivat, liittävät ja poistavat. Liitä siirtyy hiiren alla
+  olevalle riville tai seurantakursoriin ja kirjoittaa sen päälle. Muistiinpanon
+  poistaminen säilyttää muistiinpanon lopun sitä edeltävänä. Ylätunnisteessa on
+  myös **Kumoa** ja **Tee uudelleen**.
 - **Kumoa / Tee uudelleen** (äänikopion edessä olevat painikkeet tai Ctrl+Z ja
   Ctrl+Y) selaavat nuotteja, instrumentteja, kappaletta ja tempoa sekä sävelmän
   latausta askel kerrallaan jopa 100 askeleen verran. Nupin vetäminen tai koko

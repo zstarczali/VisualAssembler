@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Manuale utente
 
-**Versione 2.7.3**
+**Versione 2.7.4**
 
 Un assembler visuale a blocchi per il Commodore 64, basato sul processore 6502.
 Crea programmi trascinando e rilasciando blocchi di istruzioni e visualizza in
@@ -10,6 +10,7 @@ tempo reale il codice assembly e il codice macchina generati.
 
 ## Sommario
 
+- [Punti salienti della versione 2.7.4](#version-274-highlights)
 - [Punti salienti della versione 2.7.3](#version-273-highlights)
 - [Punti salienti della versione 2.7.2](#version-272-highlights)
 - [Punti salienti della versione 2.7.1](#version-271-highlights)
@@ -253,6 +254,31 @@ tempo reale il codice assembly e il codice macchina generati.
   - [Convertitore di numeri](#number-converter)
 
 ---
+
+## Punti salienti della versione 2.7.4
+
+- **Selezione nel tracker orizzontale** — Maiusc+trascina un riquadro o
+  Ctrl+clic sulle note per selezionarle, quindi taglia, copia, incolla (con il
+  mouse o il cursore) o eliminale con i nuovi pulsanti dell'intestazione o
+  Ctrl+X / C / V e Canc.
+- **Quantizza** — **Q** o il nuovo pulsante sposta le note selezionate alla riga
+  più vicina della griglia (2, 4, 8 o 16 righe, nella barra degli strumenti del
+  tracker), mantenendone la durata. Con **In registrazione** selezionata, una
+  registrazione viene quantizzata quando si interrompe.
+- **Annulla/Ripristina nel tracker orizzontale** — i due pulsanti della barra
+  degli strumenti del tracker si trovano anche nella sua intestazione.
+- **Modifiche più pulite** — l'eliminazione di una nota mantiene la fine della
+  nota precedente e l'incollaggio su una nota più lunga non lascia tracce di
+  note fuori posto.
+- **Elimina strumenti** — **−** accanto a **+** elimina lo strumento corrente e
+  File → **Elimina strumenti non utilizzati** rimuove quelli in cui non viene
+  riprodotta alcuna nota.
+- **Volume del brano** — **Vol** nella barra degli strumenti del tracker è il
+  volume del brano; gli strumenti con **Brano** selezionato lasciano il chip
+  attivo.
+- **PAL / NTSC** — la temporizzazione del brano: NTSC funziona a 60 fotogrammi
+  al secondo sul clock NTSC, con la propria tabella delle note e l'intestazione
+  `.sid`.
 
 ## Punti salienti della versione 2.7.3
 
@@ -7238,6 +7264,34 @@ e viene chiesto prima se si tiene premuto qualcosa.
 - L'incolla di intervalli di celle ora inizia dalla cella iniziale
   dell'intervallo selezionato e termina in modo pulito ai limiti di riga e di
   voce, invece di andare a capo nella colonna o riga successiva.
+- Eliminazione degli strumenti: **−** accanto a **+** elimina lo strumento
+  corrente (le note che lo suonano passano a quella precedente, dopo una
+  domanda), e File → **Elimina strumenti non utilizzati** rimuove tutti gli
+  strumenti che non suonano note. I numeri nel tracker rimangono; Annulla li
+  ripristina.
+- Volume del brano: il **Vol** (0–15) della barra degli strumenti del tracker
+  rappresenta il volume del brano e il chip si avvia con questo valore. Uno
+  strumento con **Song** selezionato accanto al suo **Vol** non modifica il
+  volume del chip, quindi gli strumenti non entrano più in conflitto per esso; i
+  nuovi strumenti lo hanno attivo. Se la casella non è selezionata, lo strumento
+  imposta il volume del chip come prima (i brani salvati in precedenza
+  continuano a funzionare in questo modo).
+- PAL / NTSC: l'interruttore accanto a BPM imposta la macchina per cui è
+  destinata la melodia. NTSC riproduce 60 fotogrammi al secondo con l'orologio
+  NTSC: l'anteprima, il BPM, la tabella delle note del lettore esportato e
+  l'intestazione `.sid` lo seguono.
+- **Quantizza** (nella barra degli strumenti del tracker): la griglia è composta
+  da 2, 4, 8 o 16 righe. Nel tracker orizzontale, **Q** o il relativo pulsante
+  spostano le note selezionate alla riga della griglia più vicina mantenendone
+  la durata; con **In registrazione** selezionata, le note di una registrazione
+  vengono quantizzate allo stesso modo quando questa si interrompe.
+- **Selezione nel tracker orizzontale:** Maiusc+trascina un frame
+  (Ctrl+Maiusc+trascina aggiunge alla selezione), Ctrl+clic su una nota, Ctrl+A
+  per tutto, Esc per cancellare. Ctrl+X / C / V e Canc, o i pulsanti nella sua
+  intestazione, taglia, copia, incolla ed elimina. Un'operazione di incolla va
+  alla riga sotto il mouse, oppure al cursore del tracker, e sovrascrive ciò che
+  è presente. Eliminando una nota si mantiene la fine della nota precedente.
+  L'intestazione include anche **Annulla** e **Ripristina**.
 - **Annulla / Ripeti** (i pulsanti prima della copia vocale, o Ctrl+Z e Ctrl+Y)
   consentono di scorrere le modifiche di note, strumenti, brano e tempo e il
   caricamento di una melodia, fino a 100 passaggi. Il trascinamento di una
