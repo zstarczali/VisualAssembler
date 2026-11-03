@@ -14,7 +14,7 @@
     rel="stylesheet">
   <link rel="icon" type="image/png" href="assets/icon.png">
   <link rel="shortcut icon" href="favicon.ico">
-  <link rel="stylesheet" href="style.css?v=2.7.3">
+  <link rel="stylesheet" href="style.css?v=2.7.4">
 </head>
 
 <body>
@@ -1525,7 +1525,7 @@ PRINTABLE CHARACTERS
           <img src="assets/logo-about.png" alt="C64 Visual Assembler" width="200" height="160">
         </div>
         <h2 class="about-title">C64 Visual Assembler</h2>
-        <p class="about-version" id="about-version">v2.7.3</p>
+        <p class="about-version" id="about-version">v2.7.4</p>
         <p class="about-version" id="about-ub-version"><span id="about-ub-version-label">UltimateBasic:</span> <span id="about-ub-version-value">v?</span></p>
         <p class="about-version" id="about-vma-version"><span id="about-vma-version-label">VMA:</span> <span id="about-vma-version-value">v?</span></p>
       </div>
@@ -1562,7 +1562,22 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.7.3</p>
+      <p class="whats-new-version">v2.7.4</p>
+      <ul class="whats-new-list">
+        <li>
+          <strong>Selection in the horizontal tracker:</strong> Shift+drag a frame or Ctrl+click notes, then cut, copy, paste or delete them with the new header buttons or Ctrl+X / C / V and Del.
+        </li>
+        <li>
+          <strong>Quantize:</strong> Q or the new button moves the selected notes to the grid (2, 4, 8 or 16 rows, in the tracker toolbar). With On record checked, a recording is quantized when it stops.
+        </li>
+        <li>
+          <strong>Undo / Redo in the horizontal tracker:</strong> the two buttons are in its header too.
+        </li>
+        <li>
+          <strong>Cleaner edits:</strong> deleting a note keeps the end of the note before it, and a paste over a longer note leaves no stray note-off.
+        </li>
+      </ul>
+      <p class="whats-new-previous">v2.7.3</p>
       <ul class="whats-new-list">
         <li>
           <strong>Linux:</strong> sound in the AppImage, where the GStreamer plugins were missing.
@@ -1617,51 +1632,6 @@ PRINTABLE CHARACTERS
         </li>
         <li>
           <strong>SID Editor windows:</strong> the active one has a highlighted frame and header and comes to the front: the editor, the detached tracker, the horizontal tracker, the channel spectrum or VA-VK. The VA-VK button brings it back from behind the editor.
-        </li>
-      </ul>
-      <p class="whats-new-previous">v2.7.1</p>
-      <ul class="whats-new-list">
-        <li>
-          <strong>Debugger choice:</strong> <em>Settings → General → Debugger</em>: the Visual Assembler debugger works on the machine of the run mode (your own VICE, the Ultimate emulator or the built-in C64), with breakpoints, stepping, registers and memory; or RetroDebugger.
-        </li>
-        <li>
-          <strong>Ultimate emulator:</strong> run your program on the C64 Ultimate firmware on your computer (UE2-C64U-Emulator), as a PRG or from a D64, with a debugger and the VICE Monitor window. Set it up in <em>Settings → Integrations</em>. New examples: <em>Ultimate turbo demo (64 sprites)</em> and <em>Ultimate turbo cube</em>, the CPU speed changing from 1 to 64 MHz.
-        </li>
-        <li>
-          <strong>SID Editor, two SIDs:</strong> 3 or 6 voices with a selectable address for the second SID. Preview, save, .sid and assembly export and .sid import handle both chips.
-        </li>
-        <li>
-          <strong>SID Player, 2SID and 3SID tunes:</strong> VA SID Core plays them in stereo.
-        </li>
-        <li>
-          <strong>Channel spectrum:</strong> a separate analyzer for every voice during tracker playback in the SID Editor.
-        </li>
-        <li>
-          <strong>SID Editor:</strong> <em>Files → New tune</em>, the tune's title in the header, one button to detach and attach the tracker, and a tidier instrument list in the horizontal tracker.
-        </li>
-      </ul>
-      <p class="whats-new-previous">v2.7.0</p>
-      <ul class="whats-new-list">
-        <li>
-          <strong>Built-in C64:</strong> VICE 3.10 (x64sc) now runs inside the app, nothing to install. Choose <em>Built-in C64</em> in the Run menu, or open it with its toolbar button.
-        </li>
-        <li>
-          <strong>Debugger:</strong> it stops before the instruction at a breakpoint; Continue, Break, Step into / over / out; editable registers and flags, disassembly, memory view and breakpoint list. Breakpoints come from the editor, Block mode and the disassembly, and the editor follows the CPU. The <em>Debug</em> button uses it in this mode, and whenever no RetroDebugger is set.
-        </li>
-        <li>
-          <strong>Machine settings:</strong> PAL or NTSC, SID 6581 or 8580, reSID or FastSID, REU up to 16 MB, joystick port, warp and sound.
-        </li>
-        <li>
-          <strong>Your own files:</strong> the <em>Files</em> menu loads a PRG and attaches a D64 or a cartridge (.crt). The status bar shows the drive LED and track, and a blinking LED shows as a drive error, for example when a file cannot be found.
-        </li>
-        <li>
-          <strong>Display:</strong> a CRT filter with scanlines, full screen (button or double click, Esc leaves) and a resizable window. The window and its settings come back on the next start.
-        </li>
-        <li>
-          <strong>Hi-Res Editor:</strong> multicolor cells are limited to the paper plus 3 colours, cells over the limit are marked in red and the export warns about them; drawing past the edge of the picture with the pixel grid on no longer raises errors.
-        </li>
-        <li>
-          <strong>Editor right-click menu:</strong> Cut, Copy, Paste, Select all, and UPPERCASE / lowercase for the selected text in the Expert and Ultimate Basic editors.
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
@@ -2931,6 +2901,9 @@ PRINTABLE CHARACTERS
             <span class="sid-lcd-cell"><i id="sid-lcd-time-lbl">TIME</i><b id="sid-lcd-time">0:00.0</b></span>
           </div>
           <span class="sid-tb-sep" aria-hidden="true"></span>
+          <span class="sid-mini-lbl" id="sid-quantize-lbl">Quantize:</span>
+          <select id="sid-quantize" class="sid-select sid-quantize" aria-label="The quantize grid in rows: Q in the horizontal tracker moves the selected notes onto it, and with »On record« on, the notes of a recording when it stops"><option value="2">2 rows</option><option value="4" selected>4 rows</option><option value="8">8 rows</option><option value="16">16 rows</option></select>
+          <label class="me-check sid-quantize-rec"><input type="checkbox" id="sid-quantize-rec"> <span id="sid-quantize-rec-label">On record</span></label>
           <button id="sid-record" class="ce-tool-btn sid-record-btn" type="button" aria-label="Record" aria-pressed="false">
             <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="4.3" fill="currentColor"/></svg>
           </button>
@@ -3047,6 +3020,19 @@ PRINTABLE CHARACTERS
         <div class="sid-roll-tools">
           <button id="sid-roll-vzoom-out" class="ce-tool-btn" type="button" aria-label="Zoom out vertically"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 1.5v4M6 3.5l2 2 2-2M8 14.5v-4M6 12.5l2-2 2 2M4 8h8"/></svg></button>
           <button id="sid-roll-vzoom-in" class="ce-tool-btn" type="button" aria-label="Zoom in vertically"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 5.5v-4M6 3.5l2-2 2 2M8 10.5v4M6 12.5l2 2 2-2M4 8h8"/></svg></button>
+        </div>
+        <div class="sid-roll-tools">
+          <button id="sid-roll-undo" class="ce-tool-btn" type="button" aria-label="Undo (Ctrl+Z)" disabled>
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3.5L3 6.5l3 3"/><path d="M3 6.5h6.5a3.5 3.5 0 0 1 0 7H7"/></svg>
+          </button>
+          <button id="sid-roll-redo" class="ce-tool-btn" type="button" aria-label="Redo (Ctrl+Y)" disabled>
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3.5l3 3-3 3"/><path d="M13 6.5H6.5a3.5 3.5 0 0 0 0 7H9"/></svg>
+          </button>
+          <button id="sid-roll-cut" class="ce-tool-btn" type="button" aria-label="Cut (Ctrl+X)" disabled><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="4.5" cy="12" r="2"/><circle cx="11.5" cy="12" r="2"/><path d="M6 10.5L12 2.5M10 10.5L4 2.5"/></svg></button>
+          <button id="sid-roll-copy" class="ce-tool-btn" type="button" aria-label="Copy (Ctrl+C)" disabled><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1"/><path d="M10.5 5.5V3.5a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2"/></svg></button>
+          <button id="sid-roll-paste" class="ce-tool-btn" type="button" aria-label="Paste at the mouse or the cursor (Ctrl+V)" disabled><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3" width="9" height="11" rx="1"/><path d="M6 3V2h4v1"/><path d="M6 7h4M6 9.5h4"/></svg></button>
+          <button id="sid-roll-delete" class="ce-tool-btn" type="button" aria-label="Delete (Del)" disabled><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4.5h10M6.5 4.5V3h3v1.5M4.5 4.5l.7 9h5.6l.7-9"/></svg></button>
+          <button id="sid-roll-quantize" class="ce-tool-btn" type="button" aria-label="Quantize selected (Q)" disabled><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" aria-hidden="true"><path d="M2.5 2.5v11M8 2.5v11M13.5 2.5v11" stroke-dasharray="1.5 1.5"/><rect x="3.5" y="6.5" width="4" height="3" fill="currentColor" stroke="none"/></svg></button>
         </div>
         <span id="sid-roll-inst" class="sid-roll-inst"></span>
         <button id="sid-roll-close" class="sid-xbtn sid-trk-attach" type="button" aria-label="Close">×</button>
@@ -4260,10 +4246,10 @@ PRINTABLE CHARACTERS
     </div>
   </div>
 
-  <script src="tauri-bridge.js?v=2.7.3"></script>
-  <script src="i18n.js?v=2.7.3"></script>
-  <script src="tutorial-data.js?v=2.7.3"></script>
-  <script src="app.js?v=2.7.3"></script>
+  <script src="tauri-bridge.js?v=2.7.4"></script>
+  <script src="i18n.js?v=2.7.4"></script>
+  <script src="tutorial-data.js?v=2.7.4"></script>
+  <script src="app.js?v=2.7.4"></script>
 
 </body>
 

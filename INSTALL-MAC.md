@@ -1,5 +1,7 @@
 # macOS Installation Guide
-Version 2.7.3
+Version 2.7.4
+
+2.7.4: selection with cut / copy / paste / delete in the horizontal tracker, quantize (Q for the selected notes, and recordings with On record), Undo / Redo in the horizontal tracker's header.
 
 2.7.3: undo and redo in the SID Editor (Ctrl+Z / Ctrl+Y), poly record from MIDI (held keys go to voices of their own), notes moved and stretched by dragging in the horizontal tracker, no more click on reSID before live notes or on a tune's first note, SID Player Pause works every time, tempo field named Frames/row, MIDI on Windows without a permission question, Linux: sound in the AppImage and packages built on Ubuntu 22.04, step-by-step Ultimate emulator setup in the manual.
 
@@ -121,7 +123,7 @@ Both `sfx sys` (Run/Build with Exomizer toggle) and `mem` mode (per-file EXO in 
 
 ---
 
-**Version:** 2.7.3 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 2.7.4 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
 
 ## Building from source: macOS app icon
 

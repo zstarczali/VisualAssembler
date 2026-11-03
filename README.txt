@@ -1,5 +1,7 @@
 C64 Visual Assembler - Installation Guide
-Version 2.7.3
+Version 2.7.4
+
+2.7.4: selection with cut / copy / paste / delete in the horizontal tracker, quantize (Q for the selected notes, and recordings with On record), Undo / Redo in the horizontal tracker's header.
 
 2.7.3: undo and redo in the SID Editor (Ctrl+Z / Ctrl+Y), poly record from MIDI (held keys go to voices of their own), notes moved and stretched by dragging in the horizontal tracker, no more click on reSID before live notes or on a tune's first note, SID Player Pause works every time, tempo field named Frames/row, MIDI on Windows without a permission question, Linux: sound in the AppImage and packages built on Ubuntu 22.04, step-by-step Ultimate emulator setup in the manual.
 
@@ -87,7 +89,7 @@ Built on Ubuntu 22.04, so it runs there and on newer distributions; tested on Ub
 -----------------------
 Download the .deb package from the releases page and install:
 
-  sudo dpkg -i "c64-visual-assembler_2.7.3_amd64.deb"
+  sudo dpkg -i "c64-visual-assembler_2.7.4_amd64.deb"
   sudo apt-get install -f   # fix any missing dependencies
 
 Launch from the Applications menu or:
@@ -191,7 +193,7 @@ Requirements: macOS 11.0+, Apple Silicon (M1/M2/M3)
 
 1. C64 Visual Assembler
 -----------------------
-1. Download the 2.7.3 DMG for your architecture from the releases page
+1. Download the 2.7.4 DMG for your architecture from the releases page
 2. Mount the DMG and drag the app to /Applications
 3. First launch: Right-click the app -> "Open" (macOS will block double-click)
 4. Click "Open" in the security dialog

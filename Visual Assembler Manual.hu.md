@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**Verzió: 2.7.3**
+**Verzió: 2.7.4**
 
 Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasításblokkok fogd-és-vidd módszerrel történő elrendezésével építed fel, a generált assembly és gépi kód pedig valós időben frissül.
 
@@ -10,6 +10,7 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 
 ## Tartalomjegyzék
 
+- [A 2.7.4 verzió újdonságai](#a-274-verzió-újdonságai)
 - [A 2.7.3 verzió újdonságai](#a-273-verzió-újdonságai)
 - [A 2.7.2 verzió újdonságai](#a-272-verzió-újdonságai)
 - [A 2.7.1 verzió újdonságai](#a-271-verzió-újdonságai)
@@ -237,6 +238,13 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
   - [Számrendszer-átváltó](#számrendszer-átváltó)
 
 ---
+
+## A 2.7.4 verzió újdonságai
+
+- **Kijelölés a vízszintes trackerben** — Shift+húzással kerettel vagy Ctrl+kattintással jelölhetők ki a hangok, majd a fejléc új gombjaival vagy Ctrl+X / C / V és Del billentyűvel kivághatók, másolhatók, beilleszthetők (az egér vagy a kurzor helyére) és törölhetők.
+- **Kvantálás** — a **Q** vagy az új gomb a kijelölt hangokat a rács legközelebbi sorára teszi (2, 4, 8 vagy 16 sor, a tracker eszköztárán), a hosszuk megmarad. Bekapcsolt **Felvételnél** mellett a felvétel a leállításkor kvantálódik.
+- **Visszavonás / Mégis a vízszintes trackerben** — a tracker eszköztárának két gombja a fejlécében is megvan.
+- **Tisztább szerkesztés** — egy hang törlése után az előtte lévő hang megtartja a végét, és egy hosszabb hangra illesztés nem hagy maga után kóbor note-offot.
 
 ## A 2.7.3 verzió újdonságai
 
@@ -4676,6 +4684,8 @@ Több-hangszeres 3-voice tracker. A SID Editor eszköztár-gombjával nyílik. A
 - Arpeggio segéd: hallgasd meg vagy szúrd be a kiválasztott akkordból 4-, 8- vagy 16 lépéses note-futamokat fel, le vagy fel/le irányban.
 - A **Preview row** meghallgatja a kiválasztott sort az összes voice-on a pattern-lejátszás indítása nélkül.
 - A cella-tartomány beillesztés mostantól a kijelölt tartomány kezdőcellájánál kezdődik, és tisztán megáll a voice- és sor-határoknál, ahelyett hogy a következő oszlopba vagy sorba fordulna.
+- **Kvantálás** (a tracker eszköztárán): a rács 2, 4, 8 vagy 16 sor. A vízszintes trackerben a **Q** vagy a gombja a kijelölt hangokat a legközelebbi rácssorra teszi, a hosszuk megmarad; bekapcsolt **Felvételnél** mellett a felvett hangok a felvétel végén ugyanígy kvantálódnak.
+- **Kijelölés a vízszintes trackerben:** Shift+húzás: keret (Ctrl+Shift+húzás: hozzáadás a kijelöléshez), Ctrl+kattintás egy hangon, Ctrl+A: mind, Esc: törli a kijelölést. A Ctrl+X / C / V és a Del, vagy a fejléc gombjai kivágnak, másolnak, beillesztenek és törölnek. A beillesztés az egér alatti sorra kerül, egyébként a tracker kurzorához, és felülírja, ami ott van. Egy hang törlése után az előtte lévő hang megtartja a végét. A fejlécben **Visszavonás** és **Mégis** gomb is van.
 - A **Visszavonás / Mégis** (a hang másolása előtti gombok, vagy Ctrl+Z és Ctrl+Y) végiglép a hangok, hangszerek, a song és a tempó változásain és a dal betöltésén, legfeljebb 100 lépésig. Egy tekerőgomb húzása vagy egy teljes felvétel egy lépés, a nézet a megváltozott hangszerre és patternre ugrik. A szövegmezők megtartják a saját Ctrl+Z-jüket.
 - A **Frame/sor** (1–255, tehát a nagyobb szám lassabb) beírható, vagy a mellette lévő − / + gombokkal léptethető; az `F` effekt lejátszás közben változtatja. A mellette lévő **BPM** az ebből adódó tempót mutatja: ütésenként 4 sorral, PAL-on 6 frame/sor = 125 BPM.
 

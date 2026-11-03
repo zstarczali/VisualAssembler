@@ -150,6 +150,8 @@ test("the undo does not stay on the state a rebuild may have touched", () => {
 test("buttons, keys and the seven languages are in place", () => {
   const html = fs.readFileSync(path.join(www, "index.html"), "utf8");
   assert.ok(html.includes('id="sid-undo"') && html.includes('id="sid-redo"'));
+  assert.ok(html.includes('id="sid-roll-undo"') && html.includes('id="sid-roll-redo"'), "the horizontal tracker has them too");
+  assert.ok(source.includes('onId("sid-roll-undo", "click", _sidUndo);') && source.includes('set("sid-roll-redo", _sidHist.redo.length > 0);'));
   const i18n = fs.readFileSync(path.join(www, "i18n.js"), "utf8");
   assert.equal(i18n.split('"sidUndo"').length - 1, 7);
   assert.equal(i18n.split('"sidRedo"').length - 1, 7);

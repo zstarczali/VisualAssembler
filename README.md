@@ -2,9 +2,16 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.7.3**
+**Current version: v2.7.4**
 
 Visual Assembler is free and open source (GPLv3): every feature — editors, builds, hardware runs, languages and themes — works without a registration or serial. At most once a day the app sends an anonymous startup ping (version, OS, UI language, launch count, a random install ID) for the usage statistics; no email, project or source code is sent.
+
+## What's New in v2.7.4
+
+- **Selection in the horizontal tracker** — Shift+drag a frame or Ctrl+click notes to select them, then cut, copy, paste (at the mouse or the cursor) or delete them with the new header buttons or Ctrl+X / C / V and Del.
+- **Quantize** — **Q** or the new button moves the selected notes to the nearest row of the grid (2, 4, 8 or 16 rows, in the tracker toolbar), keeping their lengths. With **On record** checked, a recording is quantized when it stops.
+- **Undo / Redo in the horizontal tracker** — the two buttons of the tracker toolbar are in its header too.
+- **Cleaner edits** — deleting a note keeps the end of the note before it, and a paste over a longer note leaves no stray note-off behind.
 
 ## What's New in v2.7.3
 
