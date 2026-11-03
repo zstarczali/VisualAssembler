@@ -53539,10 +53539,12 @@ function _sidRecordQuantize(rec, grid) {
   _sidRollQuantizeNotes(notes, grid);
   return notes.length;
 }
-// The paste point: the row last clicked in the roll (marked there), else the tracker cursor.
-function _sidRollPasteRow() {
-  const m = _sidRollView.mark;
-  return m != null && m < _sidRollTotalRows() ? m : _sidSongPos * _SID_ROWS + _sidSel.row;
+// The paste point: with Ctrl+V the row under the mouse, else the row last clicked in the roll
+// (marked there), else the tracker cursor.
+function _sidRollPasteRow(atMouse) {
+  const total = _sidRollTotalRows(), hv = _sidRollView.hover, m = _sidRollView.mark;
+  if (atMouse && hv && hv.row >= 0 && hv.row < total) return hv.row;
+  return m != null && m < total ? m : _sidSongPos * _SID_ROWS + _sidSel.row;
 }
 function _sidRollSyncTools() {
   const has = _sidRollView.sel.size > 0;
@@ -53920,10 +53922,10 @@ function _sidSetupRoll() {
   cv.addEventListener("pointercancel", endDrag);
   cv.addEventListener("pointerleave", function() { _sidRollView.hover = null; _sidRollView.edge = null; });
   cv.tabIndex = 0;
-  const rollCommand = function(what) {
+  const rollCommand = function(what, atMouse) {
     if (what === "cut") _sidRollCutSelected();
     else if (what === "copy") _sidRollCopySelected();
-    else if (what === "paste") _sidRollPasteAt(_sidRollPasteRow());
+    else if (what === "paste") _sidRollPasteAt(_sidRollPasteRow(atMouse));
     else if (what === "delete") _sidRollDeleteSelected();
     else if (what === "quantize") _sidRollQuantizeSelected();
     _sidRollAfterEdit();
@@ -53951,7 +53953,7 @@ function _sidSetupRoll() {
     } else return;
     e.preventDefault();
     e.stopPropagation();
-    if (what) rollCommand(what);
+    if (what) rollCommand(what, true);
   });
   // wheel: scroll in time, Shift = pitch, Ctrl = zoom
   cv.addEventListener("wheel", function(e) {

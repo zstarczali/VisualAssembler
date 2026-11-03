@@ -135,13 +135,16 @@ test("a take with no grid set stays as played", () => {
   assert.deepEqual(run(c, "notes(0)"), [[0, 40, 1, 32]]);
 });
 
-test("paste goes to the marked row, or else to the tracker cursor", () => {
+test("Ctrl+V pastes under the mouse, the button at the mark, else at the tracker cursor", () => {
   const c = setup([0, 1], 2);
   act(c, "_sidSongPos = 1; _sidSel.row = 3;");
   assert.equal(run(c, "_sidRollPasteRow()"), 35);
-  act(c, "_sidRollView.hover = { row: 7 };");
-  assert.equal(run(c, "_sidRollPasteRow()"), 35);
+  assert.equal(run(c, "_sidRollPasteRow(true)"), 35);
   act(c, "_sidRollView.mark = 9;");
+  assert.equal(run(c, "_sidRollPasteRow()"), 9);
+  assert.equal(run(c, "_sidRollPasteRow(true)"), 9);
+  act(c, "_sidRollView.hover = { row: 7 };");
+  assert.equal(run(c, "_sidRollPasteRow(true)"), 7);
   assert.equal(run(c, "_sidRollPasteRow()"), 9);
 });
 
