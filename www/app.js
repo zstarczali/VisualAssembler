@@ -53266,7 +53266,7 @@ function _sidSetCellText(v, r) {
  * an edit shows at every song step that uses the pattern. */
 const _SID_ROLL_COLORS = ["#ffb347", "#7c9cff", "#ff6b6b", "#4ade80", "#f7d154", "#c084fc", "#38d6ff", "#ff8fd8", "#a3e635", "#fb923c", "#2dd4bf", "#e879f9"];
 const _SID_ROLL_VOICE = ["#38d6ff", "#ff5ccf", "#4ade80", "#ffb020", "#a78bfa", "#f87171"];
-var _sidRollView = { row0: 0, colW: 14, rowPx: 11, lo: 36, span: 48, voice: 0, raf: 0, drag: null, hover: null, follow: true, sel: new Set(), band: null };
+var _sidRollView = { row0: 0, colW: 14, rowPx: 11, lo: 36, span: 48, voice: 0, raf: 0, drag: null, hover: null, follow: true, sel: new Set(), band: null, mark: null };
 function _sidRollState() {
   try { return JSON.parse(localStorage.getItem("c64va-sid-roll") || "{}") || {}; } catch (_) { return {}; }
 }
@@ -53499,6 +53499,9 @@ function _sidRollPasteAt(row) {
   if (!_sidRollClip || !_sidRollClip.length) return 0;
   const keys = _sidRollPlace(_sidRollClip.map(function(c) { return Object.assign({}, c, { start: row + c.start }); }));
   _sidRollView.sel = new Set(keys);
+  // the paste point moves past the pasted notes, so a second paste follows them
+  const span = Math.max.apply(null, _sidRollClip.map(function(c) { return c.start + (c.len || 1); }));
+  _sidRollView.mark = Math.min(_sidRollTotalRows() - 1, row + span);
   return keys.length;
 }
 // Each note's start to the nearest multiple of grid rows, its length kept. Returns the keys after.
@@ -53536,9 +53539,12 @@ function _sidRecordQuantize(rec, grid) {
   _sidRollQuantizeNotes(notes, grid);
   return notes.length;
 }
-function _sidRollPasteRow() {
-  const hv = _sidRollView.hover;
-  return hv && hv.row < _sidRollTotalRows() ? hv.row : _sidSongPos * _SID_ROWS + _sidSel.row;
+// The paste point: with Ctrl+V the row under the mouse, else the row last clicked in the roll
+// (marked there), else the tracker cursor.
+function _sidRollPasteRow(atMouse) {
+  const total = _sidRollTotalRows(), hv = _sidRollView.hover, m = _sidRollView.mark;
+  if (atMouse && hv && hv.row >= 0 && hv.row < total) return hv.row;
+  return m != null && m < total ? m : _sidSongPos * _SID_ROWS + _sidSel.row;
 }
 function _sidRollSyncTools() {
   const has = _sidRollView.sel.size > 0;
@@ -53690,6 +53696,19 @@ function _sidRollDraw() {
   }
   ctx.fillStyle = "#0b1020";
   ctx.fillRect(0, 0, g.keyW, g.rulerH);
+  const mark = view.mark;
+  if (mark != null && mark < total) {
+    const x = Math.round(xOf(mark));
+    if (x >= g.keyW && x <= g.W) {
+      ctx.fillStyle = "#ffd34d";
+      ctx.globalAlpha = 0.55;
+      ctx.fillRect(x, g.rulerH, 1, g.H - g.rulerH);
+      ctx.globalAlpha = 1;
+      ctx.beginPath();
+      ctx.moveTo(x - 5, 0); ctx.lineTo(x + 5, 0); ctx.lineTo(x, g.rulerH - 1); ctx.closePath();
+      ctx.fill();
+    }
+  }
   if (playRow != null) {
     const x = Math.round(xOf(playRow + 0.5));
     if (x >= g.keyW) { ctx.fillStyle = "rgba(255,255,255,0.9)"; ctx.fillRect(x, g.rulerH, 1, g.H - g.rulerH); }
@@ -53799,10 +53818,19 @@ function _sidSetupRoll() {
   cv.addEventListener("contextmenu", function(e) { e.preventDefault(); });
   cv.addEventListener("pointerdown", function(e) {
     const hit = _sidRollHit(cv, e);
-    if (!hit || hit.row >= _sidRollTotalRows()) return;
+    cv.focus({ preventScroll: true });
+    if (!hit) {
+      // a click on the ruler only sets the paste point
+      const g = _sidRollGeom(cv), rect = cv.getBoundingClientRect();
+      const x = e.clientX - rect.left, y = e.clientY - rect.top;
+      const row = Math.floor(_sidRollView.row0 + (x - g.keyW) / g.colW);
+      if (e.button === 0 && x >= g.keyW && y < g.rulerH && row < _sidRollTotalRows()) { _sidRollView.mark = row; e.preventDefault(); }
+      return;
+    }
+    if (hit.row >= _sidRollTotalRows()) return;
     const notes = _sidRollNotes();
     const n = _sidRollNoteAt(notes, hit);
-    cv.focus({ preventScroll: true });
+    if (e.button === 0) _sidRollView.mark = hit.row;
     if (e.button === 2) {
       if (n) { _sidRollView.sel.delete(_sidRollKey(n)); _sidRollDelete(n); _sidRollAfterEdit(); }
       return;
@@ -53816,6 +53844,7 @@ function _sidSetupRoll() {
       e.preventDefault();
       return;
     }
+    if (mod && !e.shiftKey) { e.preventDefault(); return; }
     if (e.shiftKey) {
       // a frame: it selects every note it touches, Ctrl+Shift adds to the selection
       _sidRollView.band = { r0: hit.rowX, p0: hit.pitch, r1: hit.rowX, p1: hit.pitch, add: mod };
@@ -53893,18 +53922,21 @@ function _sidSetupRoll() {
   cv.addEventListener("pointercancel", endDrag);
   cv.addEventListener("pointerleave", function() { _sidRollView.hover = null; _sidRollView.edge = null; });
   cv.tabIndex = 0;
-  const rollCommand = function(what) {
+  const rollCommand = function(what, atMouse) {
     if (what === "cut") _sidRollCutSelected();
     else if (what === "copy") _sidRollCopySelected();
-    else if (what === "paste") _sidRollPasteAt(_sidRollPasteRow());
+    else if (what === "paste") _sidRollPasteAt(_sidRollPasteRow(atMouse));
     else if (what === "delete") _sidRollDeleteSelected();
     else if (what === "quantize") _sidRollQuantizeSelected();
     _sidRollAfterEdit();
   };
   ["cut", "copy", "paste", "delete", "quantize"].forEach(function(what) {
-    document.getElementById("sid-roll-" + what)?.addEventListener("click", function() { rollCommand(what); });
+    document.getElementById("sid-roll-" + what)?.addEventListener("click", function() { rollCommand(what); cv.focus({ preventScroll: true }); });
   });
-  cv.addEventListener("keydown", function(e) {
+  // on the whole window: after a header button the focus is not on the canvas
+  roll.addEventListener("keydown", function(e) {
+    const el = e.target;
+    if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement || el instanceof HTMLSelectElement || el.isContentEditable) return;
     const mod = e.ctrlKey || e.metaKey, k = e.key.toLowerCase();
     let what = null;
     if (mod && k === "x") what = "cut";
@@ -53921,7 +53953,7 @@ function _sidSetupRoll() {
     } else return;
     e.preventDefault();
     e.stopPropagation();
-    if (what) rollCommand(what);
+    if (what) rollCommand(what, true);
   });
   // wheel: scroll in time, Shift = pitch, Ctrl = zoom
   cv.addEventListener("wheel", function(e) {
