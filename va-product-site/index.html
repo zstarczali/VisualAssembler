@@ -2192,7 +2192,7 @@
       </div>
     </div>
     <div class="hero-left">
-      <div class="badge">V2.7.3 — LATEST RELEASE</div>
+      <div class="badge">V2.7.4 — LATEST RELEASE</div>
       <h1 class="hero-title">WRITE C64 PROGRAMS<br><span>BLOCKS, MACRO-ASM OR ULTIMATE BASIC.</span></h1>
       <p class="hero-tagline">&ldquo;The best all-in-one, multiplatform Commodore 64 IDE.&rdquo;</p>
       <p class="hero-sub">A modern Commodore 64 IDE: drag-and-drop 6502 assembly blocks or switch to a full text editor
@@ -2261,6 +2261,7 @@
             <div class="kff2-cart-shot"><img src="uploads/dark-chambers-level-c.png" alt="Dark Chambers level C: yellow brick dungeon" width="384" height="272" loading="lazy"></div>
             <div class="kff2-cart-shot"><img src="uploads/dark-chambers-level-d.png" alt="Dark Chambers level D: golden stone dungeon" width="384" height="272" loading="lazy"></div>
             <div class="kff2-cart-shot"><img src="uploads/dark-chambers-level-e.png" alt="Dark Chambers level E: blue stone dungeon" width="384" height="272" loading="lazy"></div>
+            <div class="kff2-cart-shot"><img src="uploads/dark-chambers-select-look.png" alt="Dark Chambers: select the look, C64 style or Atari 7800 style" width="384" height="272" loading="lazy" style="image-rendering:auto"></div>
           </div>
           <figure style="margin:24px 0 0">
             <img src="uploads/dark-chambers-atari-7800-transparent.png" alt="Original Atari 7800 Dark Chambers game box and cartridge" width="1254" height="1254" loading="lazy" style="display:block;width:100%;height:auto">
@@ -2270,6 +2271,102 @@
       </div>
     </div>
   </section>
+
+  <hr class="div">
+
+  <!-- V2.7.4: HORIZONTAL TRACKER EDITING -->
+  <div id="release-274" style="background:var(--scr-darker);padding:80px 0">
+    <div class="sec" style="padding-top:0;padding-bottom:0">
+      <div class="ub-tag">NEW IN V2.7.4</div>
+      <div class="sec-s">// EDIT NOTES IN BULK</div>
+      <h2 class="sec-t">SELECT, COPY, PASTE<br><span style="color:var(--ylw)">AND QUANTIZE</span></h2>
+      <p class="sec-d" style="max-width:680px">Version 2.7.4 lets you work on many notes at once in the SID Editor's horizontal tracker, and puts played notes on the beat.</p>
+      <div class="feature-list fl-2col">
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>Selection:</b> <span>Shift+drag a frame or Ctrl+click notes; Ctrl+A selects all, Esc clears.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>Cut, copy, paste, delete:</b> <span>with the new header buttons or Ctrl+X / C / V and Del. A paste goes to the row under the mouse, or to the tracker cursor.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>Quantize:</b> <span>Q or its button moves the selected notes to the nearest row of a 2, 4, 8 or 16 row grid, keeping their lengths. With <i>On record</i>, a recording is quantized when it stops.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>Undo / Redo:</b> <span>the two buttons are in the horizontal tracker's header too.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>Delete instruments:</b> <span>one by one with the new − button, or every unused one from the Files menu.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>Song volume:</b> <span>a knob for the tune's volume; instruments no longer override each other's.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>PAL / NTSC:</b> <span>the tune's timing: NTSC plays 60 frames a second on the NTSC clock, with its own note table and .sid header.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="div">
+
+  <!-- V2.7.3: SID EDITOR TOOLS -->
+  <div id="release-273" style="background:var(--scr-darker);padding:80px 0">
+    <div class="sec" style="padding-top:0;padding-bottom:0">
+      <div class="ub-tag">NEW IN V2.7.3</div>
+      <div class="sec-s">// A BETTER SID EDITOR</div>
+      <h2 class="sec-t">UNDO, POLY RECORD<br><span style="color:var(--ylw)">AND A HANDIER TRACKER</span></h2>
+      <p class="sec-d" style="max-width:680px">Version 2.7.3 makes the SID Editor easier to work with: undo and redo, chords recorded from a MIDI keyboard, notes you can drag in the horizontal tracker, and a cleaner sound on reSID.</p>
+      <div class="feature-list fl-2col">
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>Undo / Redo:</b> <span>two new buttons in the tracker toolbar, or Ctrl+Z and Ctrl+Y, for notes, instruments, song, tempo and loading a tune, up to 100 steps.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>Poly record from MIDI:</b> <span>with <i>Poly record</i> on, the keys you hold go to voices of their own, so a chord of three lands on three voices; releasing a key writes a note-off.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>Horizontal tracker:</b> <span>drag a note to move it in time and pitch, or drag its right end to stretch or shorten it, even a one-row note. It stops at the voice's next note.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>No click on reSID:</b> <span>neither before notes played live, nor on the first note of a tune that does not begin on the first row.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>SID Player Pause:</b> <span>it pauses every time now, and pressing it again continues.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>Tempo:</b> <span>the tempo field is called <i>Frames/row</i> now: a higher number is slower, and BPM shows next to it.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>MIDI on Windows:</b> <span>connecting a MIDI keyboard no longer asks for permission.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>Linux:</b> <span>the AppImage carries the GStreamer plugins, so the SID Player and the SID Editor are no longer silent, and the packages are built on Ubuntu 22.04 again, so they run on older distributions too.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>Fixed:</b> <span>Stop in <i>Play: All</i> returns to the pattern open before playback, and loading a <code>.bin</code> opens the selected first song step.</span></div>
+        </div>
+        <div class="fi">
+          <div class="fi-dot">&#9658;</div>
+          <div><b>Manual:</b> <span>a step-by-step guide to installing the Ultimate emulator.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <hr class="div">
 

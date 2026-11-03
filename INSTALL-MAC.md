@@ -1,7 +1,9 @@
 # macOS Installation Guide
-Version 2.7.3
+Version 2.7.4
 
-2.7.3: Linux: sound in the AppImage; poly record from MIDI (held keys go to voices of their own), no more click on reSID before notes played live or on a tune's first note.
+2.7.4: selection with cut / copy / paste / delete in the horizontal tracker, quantize (Q for the selected notes, and recordings with On record), Undo / Redo in the horizontal tracker's header, deleting instruments (one by one or every unused one), the tune's own volume, PAL / NTSC timing.
+
+2.7.3: undo and redo in the SID Editor (Ctrl+Z / Ctrl+Y), poly record from MIDI (held keys go to voices of their own), notes moved and stretched by dragging in the horizontal tracker, no more click on reSID before live notes or on a tune's first note, SID Player Pause works every time, tempo field named Frames/row, MIDI on Windows without a permission question, Linux: sound in the AppImage and packages built on Ubuntu 22.04, step-by-step Ultimate emulator setup in the manual.
 
 2.7.2: reSID (resid-rs) replaces WebSID in the SID Player and the SID Editor, VA SID Core stays selectable (Settings -> General -> SID preview), SID Player buffer in seconds.
 
@@ -121,7 +123,7 @@ Both `sfx sys` (Run/Build with Exomizer toggle) and `mem` mode (per-file EXO in 
 
 ---
 
-**Version:** 2.7.3 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 2.7.4 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
 
 ## Building from source: macOS app icon
 

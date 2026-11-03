@@ -20,7 +20,7 @@ function fn(name) {
 test("BPM follows frames per row, and is only shown", () => {
   const ctx = {};
   vm.createContext(ctx);
-  vm.runInContext(`const _SID_ROWS_PER_BEAT = 4; var _sidSpeed = 6; ${fn("_sidComputeBpm")}`, ctx);
+  vm.runInContext(`const _SID_ROWS_PER_BEAT = 4; var _sidSpeed = 6; ${fn("_sidIsNtsc")} ${fn("_sidFps")} ${fn("_sidComputeBpm")}`, ctx);
   const bpm = (speed) => vm.runInContext(`_sidSpeed = ${speed}; _sidComputeBpm()`, ctx);
   assert.deepEqual([4, 5, 6, 7, 8].map(bpm), [188, 150, 125, 107, 94]);
   const html = fs.readFileSync(path.join(www, "index.html"), "utf8");

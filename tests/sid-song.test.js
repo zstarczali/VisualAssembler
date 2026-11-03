@@ -111,7 +111,7 @@ test("Song list: moving past either end is a no-op", () => {
 
 function loadSerdeSandbox() {
   return loadFunctions(
-    ["_sidInstFields", "_sidInstNorm", "_sidInstCtrl", "_sidInstExtBytes", "_sidReadInstExt", "_sidWaStop", "_sidInstBytes", "_sidWaveByte", "_sidNewInst", "_sidVoiceCount", "_sidNewPattern", "_sidSerialize", "_sidDeserialize", "_sidSyncPlayModeSel", "_sidBuildInstSel", "_sidLoadInstUI", "_sidBuildPatSel", "_sidBuildSongList", "_sidBuildTracker", "_sidStop", "_sidUpdatePauseButton", "_sidCurInst"],
+    ["_sidInstFields", "_sidInstNorm", "_sidInstCtrl", "_sidInstExtBytes", "_sidReadInstExt", "_sidVol", "_sidVol2", "_sidIsNtsc", "_sidSetSongVol", "_sidSetSongVol2", "_sidSetNtsc", "_sidParamKnobSync", "_sidFps", "_sidComputeBpm", "_sidUpdateBpmDisplay", "_sidWaStop", "_sidInstBytes", "_sidWaveByte", "_sidNewInst", "_sidVoiceCount", "_sidNewPattern", "_sidSerialize", "_sidDeserialize", "_sidSyncPlayModeSel", "_sidBuildInstSel", "_sidLoadInstUI", "_sidBuildPatSel", "_sidBuildSongList", "_sidBuildTracker", "_sidStop", "_sidUpdatePauseButton", "_sidCurInst"],
     {
       Uint8Array, Math, String, Array, TextEncoder, TextDecoder, _sidSpeed: 6, _sidWaPlay: null, _sidPlayReturn: null, _sidStream: null, _webSidLoadSeq: 0, setTimeout: () => 0, _sidPreviewSources: new Set(), _sidRenderTable: () => {},
       // _sidLoadInstUI assigns document.getElementById("sid-inst-name").value
@@ -183,7 +183,7 @@ test("SID deserialize falls back to a 0..N-1 song for saves made before the orde
 
 function loadExportSandbox() {
   return loadFunctions(
-    ["_sidNewInst", "_sidInstNorm", "_sidInstCtrl", "_sidFreqTables", "_sidTuneData", "_sidCellBytes", "_sidExportAsmPlayable", "_sidWaveByte"],
+    ["_sidNewInst", "_sidInstNorm", "_sidInstCtrl", "_sidFreqTables", "_sidClockHz", "_sidIsNtsc", "_sidVol", "_sidVol2", "_sidFps", "_sidTuneData", "_sidCellBytes", "_sidExportAsmPlayable", "_sidWaveByte"],
     { Math, String, Array, t: (k) => k },
     `${extractConstLine("_SID_ROWS")}\n${extractConstLine("_SID_PLAYER_CODE_MAX")}\n${extractConstLine("_SID_FX_CODES")}\n${extractConstLine("_SID_FX_NAMES")}`
   );

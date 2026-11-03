@@ -631,6 +631,9 @@ struct SidPreviewPayload {
     engine: String,
     #[serde(default)]
     session_id: Option<String>,
+    /// NTSC timing: the NTSC clock and 60 frames a second (PAL: 50)
+    #[serde(default)]
+    ntsc: bool,
     frames: Vec<Vec<u8>>,
 }
 
@@ -695,10 +698,11 @@ fn render_sid_preview_blocking(payload: SidPreviewPayload) -> Result<String, Str
         sid_core::SidModel::Mos8580
     };
     let engine = sid_chip::SidEngine::parse(&payload.engine);
+    let (clock, fps) = if payload.ntsc { (sid_core::NTSC_CLOCK, 60) } else { (sid_core::PAL_CLOCK, 50) };
     let new_chips = || -> Vec<PreviewChip> {
         (0..chip_count)
             .map(|index| {
-                let mut sid = sid_chip::SidChip::new(engine, sample_rate, model);
+                let mut sid = sid_chip::SidChip::new_with_clock(engine, sample_rate, model, clock);
                 sid.settle_on_mixer(&payload.frames[0][index * 0x19 + 0x15..index * 0x19 + 0x19]);
                 (sid, [0; 3])
             })
@@ -706,11 +710,11 @@ fn render_sid_preview_blocking(payload: SidPreviewPayload) -> Result<String, Str
     };
     // mono, or interleaved stereo with SID 1 left and SID 2 right
     let render_frames = |chips: &mut [PreviewChip]| {
-        let mut pcm = Vec::<i16>::with_capacity((payload.frames.len() * sample_rate as usize) / 50 * chip_count + 2);
+        let mut pcm = Vec::<i16>::with_capacity((payload.frames.len() * sample_rate as usize) / fps * chip_count + 2);
         let mut rendered = 0usize;
         for (frame_index, registers) in payload.frames.iter().enumerate() {
             let restart = registers.get(0x19 * chip_count).copied().unwrap_or(0);
-            let target = ((frame_index + 1) * sample_rate as usize) / 50;
+            let target = ((frame_index + 1) * sample_rate as usize) / fps;
             let samples = target.saturating_sub(rendered);
             let mut chunks = Vec::with_capacity(chips.len());
             for (index, (sid, last_ctl)) in chips.iter_mut().enumerate() {
@@ -6216,6 +6220,7 @@ mod sid_preview_tests {
             sample_rate: 44_100,
             model: "8580".into(),
             session_id: None,
+            ntsc: false,
             frames,
         })
         .map(|pcm| decode(&pcm))
@@ -6247,6 +6252,7 @@ mod sid_preview_tests {
                     sample_rate: 44_100,
                     model: model.into(),
                     session_id: None,
+                    ntsc: false,
                     frames: vec![frame; 2],
                 })
                 .map(|pcm| decode(&pcm))

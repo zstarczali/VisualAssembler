@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Gebruikershandleiding
 
-**Versie 2.7.2**
+**Versie 2.7.4**
 
 Een visuele, blokgebaseerde 6502-assembler voor de Commodore 64. Bouw
 programma's door instructieblokken te slepen en neer te zetten, en bekijk de
@@ -10,6 +10,8 @@ gegenereerde assembly- en machinecode in realtime.
 
 ## Inhoudsopgave
 
+- [Hoogtepunten van versie 2.7.4](#version-274-highlights)
+- [Hoogtepunten van versie 2.7.3](#version-273-highlights)
 - [Hoogtepunten van versie 2.7.2](#version-272-highlights)
 - [Hoogtepunten van versie 2.7.1](#version-271-highlights)
 - [Hoogtepunten van versie 2.7.0](#version-270-highlights)
@@ -225,6 +227,8 @@ gegenereerde assembly- en machinecode in realtime.
   - [Exomizer](#exomizer)
   - [Retro Debugger](#retro-debugger)
   - [C64 Ultimate / 1541 Ultimate](#c64-ultimate--1541-ultimate)
+  - [De Ultimate-emulator installeren, stap voor
+    stap](#installing-the-ultimate-emulator-step-by-step)
   - [Kung Fu Flash 2](#kung-fu-flash-2)
   - [Versiebeheer (git)](#version-control-git)
 - [14. Visuele editors (toolkit)](#14-visual-editors-toolkit)
@@ -245,6 +249,70 @@ gegenereerde assembly- en machinecode in realtime.
   - [Nummeromzetter](#number-converter)
 
 ---
+
+## Hoogtepunten van versie 2.7.4
+
+- **Selectie in de horizontale tracker** — Sleep een kader met Shift of klik met
+  Ctrl om notities te selecteren. Knip, kopieer, plak (met de muis of cursor) of
+  verwijder ze met de nieuwe koptekstknoppen of Ctrl+X/C/V en Del.
+- **Kwantiseren** — **Kwantiseren** of de nieuwe knop verplaatst de
+  geselecteerde noten naar de dichtstbijzijnde rij van het raster (2, 4, 8 of 16
+  rijen in de tracker-werkbalk), waarbij hun lengte behouden blijft. Als
+  **Opnemen** is aangevinkt, wordt een opname gekwantiseerd wanneer deze stopt.
+- **Ongedaan maken / Herhalen in de horizontale tracker** — de twee knoppen van
+  de tracker-werkbalk bevinden zich ook in de koptekst.
+- **Schonere bewerkingen** — bij het verwijderen van een noot blijft het einde
+  van de noot ervoor behouden, en bij het plakken over een langere noot blijven
+  er geen losse noten achter.
+- **Instrumenten verwijderen** — **−** naast **+** verwijdert het huidige
+  instrument, en Bestanden → **Ongebruikte instrumenten verwijderen** verwijdert
+  de instrumenten waar geen noot op wordt gespeeld.
+- **Songvolume** — **Vol** in de tracker-werkbalk is het volume van de melodie;
+  instrumenten waarbij **Song** is aangevinkt, laten de chip erop staan.
+- **PAL / NTSC** — de timing van de melodie: NTSC draait 60 frames per seconde
+  op de NTSC-klok, met een eigen notentabel en `.sid`-header.
+
+## Hoogtepunten van versie 2.7.3
+
+- **Linux** — de SID Player en de SID Editor bleven stil waar de
+  GStreamer-plugins ontbraken: de AppImage bevat ze nu, en de `.deb` en `.rpm`
+  pakketten zijn ervan afhankelijk.
+- **Ongedaan maken/Herhalen in de SID-editor** — twee nieuwe knoppen in de
+  tracker-werkbalk, of Ctrl+Z en Ctrl+Y. Ze omvatten de noten, instrumenten, het
+  nummer, het tempo en het laden van een melodie, tot 100 stappen. Een volledige
+  opname is één stap.
+- **Tempo** — het tempo-veld van de tracker is genoemd naar wat het is,
+  **Frames/rij**: een hoger getal betekent langzamer. **BPM** ernaast toont het
+  resulterende tempo.
+- **Noten verplaatsen in de horizontale tracker** — sleep de kern van een noot
+  om deze in tijd en toonhoogte te verplaatsen. De lengte, het instrument en het
+  effect blijven behouden en de noot stopt een regel voor de volgende noot van
+  de stem.
+- **Nootlengte in de horizontale tracker** — het rechtereinde van een noot is nu
+  gemakkelijk te herkennen, zelfs bij een noot op één regel: de cursor verandert
+  in een dubbele pijl en een heldere balk markeert het einde. Sleep deze om de
+  noot te verlengen of te verkorten. Hij stopt bij de volgende noot van de stem,
+  in plaats van deze te verwijderen.
+- **MIDI verbinden zonder vragen** — op Windows vraagt de webweergave niet
+  langer om toestemming in een eigen dialoogvenster.
+- **Een .bin-bestand laden** — de tracker opent bij de geselecteerde eerste
+  songstap: een melodie waarvan het nummer niet met patroon 0 begint, toonde in
+  plaats daarvan patroon 0.
+- **SID Player Pause** — het pauzeert nu elke keer: een deel van de melodie dat
+  op dat moment wordt weergegeven, of een noot uit de SID Editor, kan het geluid
+  weer inschakelen terwijl de speler 'Gepauzeerd' aangeeft. Door nogmaals op
+  Pauze te drukken, wordt het afspelen hervat.
+- **Stop in Play: All** — de tracker keert terug naar het patroon dat geopend
+  was vóór het afspelen, in plaats van op het laatst afgespeelde patroon te
+  blijven terwijl de eerste songstap geselecteerd blijft.
+- **Poly opnemen vanuit MIDI** — met **Poly opnemen** ingeschakeld (naast de
+  MIDI-ingang), krijgen de toetsen die je ingedrukt houdt tijdens het opnemen
+  hun eigen stemmen, vanaf de geselecteerde stem. Een akkoord van drie noten
+  landt op drie stemmen en het loslaten van een toets schrijft een noot-off.
+- **Geen klik op reSID** — noten die vanaf het klavier of VA-VK worden gespeeld,
+  klikken niet langer voordat ze beginnen, en dat geldt ook voor de eerste noot
+  van een melodie die niet op de eerste rij begint, met zowel de 6581 als de
+  8580.
 
 ## Hoogtepunten van versie 2.7.2
 
@@ -6742,36 +6810,38 @@ Teksteditor.
    apparaat verzonden naar `/v1/runners:run_prg`. Het apparaat laadt en voert
    het direct uit op de C64.
 
-**Zonder hardware:** selecteer **Ultimate emulator** in het gesplitste
-uitvoeringsmenu om
-[UE2-C64U-Emulator](https://github.com/Jondalar/UE2-C64U-Emulator) uit te
-voeren, die de ongewijzigde Ultimate-firmware op uw computer uitvoert.
-Installeer deze apart en stel vervolgens drie dingen in in **Instellingen →
-Integraties → Ultimate emulator (UE2)**: het `ue2emu`-programma, een firmware
-(`.ue2`, `.elf` of `.app`, niet inbegrepen) en de ROM-map (`roms/` van een
+**Zonder hardware:** selecteer **Ultimate-emulator** in het gesplitste
+uitvoeringsmenu om te draaien op
+[UE2-C64U-Emulator](https://github.com/Jondalar/UE2-C64U-Emulator), die de
+ongewijzigde Ultimate-firmware op uw computer uitvoert. Installeer het apart
+(zie [De Ultimate-emulator installeren, stap voor
+stap](#installing-the-ultimate-emulator-step-by-step)), stel vervolgens drie
+dingen in in **Instellingen → Integraties → Ultimate-emulator (UE2)**: het
+`ue2emu`-programma, een firmware (`.ue2`, `.elf` of `.app`, niet inbegrepen) en
+de ROM-map (`roms/` van een
 [1541ultimate](https://github.com/GideonZ/1541ultimate)-checkout). Alleen
-`chars.bin` (2048 bytes, het menu-lettertype) is nodig vanuit die map; de
+`chars.bin` (2048 bytes, het menulettertype) is nodig vanuit die map; de
 Commodore-firmware start op met zijn eigen C64-ROM's. Bij de eerste keer
 opstarten wordt een `.ue2` geïnstalleerd in een flash-image die per firmware in
-de configuratiemap van de app wordt bewaard, en elke keer dat de app wordt
-gestart, wordt de webservice van de firmware ingeschakeld, die standaard is
-uitgeschakeld in de Commodore-firmware. De emulator start bij de eerste keer
-opstarten en blijft open voor de volgende keren; de REST API luistert op
-`127.0.0.1` op de **REST-poort** (standaard 8064). De emulator sluit met de app
-of met **Stop emulator**. **D64 op Ultimate emulator** in hetzelfde menu verpakt
-een D64 (hiervoor is VICE's `c1541` nodig), koppelt deze aan schijf A en voert
-het eerste programma uit. Zolang een van deze twee uitvoeringsmodi is
-geselecteerd, maakt het **VICE Monitor**-venster (hot reload, live watch,
-profiler) verbinding met de emulator in plaats van met VICE. **Debug** opent in
-deze uitvoeringsmodi de debugger van de emulator: registers, disassembler,
-geheugen en breakpoints in een eigen venster, de afbeelding in het venster van
-de emulator. Het programma stopt bij het eerste breakpoint dat het bereikt, of
-bij de eerste instructie als er geen zijn; de editorregel volgt de CPU en F5,
-F10, F11 en Shift+F11 werken ook met de focus in de editor. Een timer-IRQ kan
-een stap in de kernel uitvoeren, zoals in de monitor van VICE, wanneer
-interrupts zijn ingeschakeld. VA stelt ook **Turbo Control** in op de
-turboregisters in het flashgeheugen van de emulator, zodat een programma de
-CPU-snelheid kan wijzigen via `$D031` (het leest `$00`, 1 MHz, na een reset).
+de configuratiemap van de app wordt bewaard. Elke keer dat de app wordt gestart,
+wordt de webservice van de firmware ingeschakeld, die standaard is uitgeschakeld
+in de Commodore-firmware. De emulator start bij de eerste keer opstarten en
+blijft open voor de volgende keren; de REST API luistert op `127.0.0.1` op de
+**REST-poort** (standaard 8064). De emulator sluit af met de app of met **Stop
+emulator**. **D64 op Ultimate emulator** in hetzelfde menu verpakt een D64
+(hiervoor is VICE's `c1541` nodig), koppelt deze aan schijf A en voert het
+eerste programma uit. Wanneer een van deze twee uitvoeringsmodi is geselecteerd,
+maakt het **VICE Monitor**-venster (hot reload, live watch, profiler) verbinding
+met de emulator in plaats van met VICE. **Debug** opent in deze uitvoeringsmodi
+de debugger van de emulator: registers, disassembler, geheugen en breakpoints in
+een eigen venster, de afbeelding in het venster van de emulator. Het programma
+stopt bij het eerste breakpoint dat het bereikt, of bij de eerste instructie als
+er geen zijn; de editorregel volgt de CPU en F5, F10, F11 en Shift+F11 werken
+ook met de focus in de editor. Een timer-IRQ kan een stap in de kernel
+uitvoeren, net als in de VICE-monitor, wanneer interrupts zijn ingeschakeld. VA
+stelt ook **Turbo Control** in op de turboregisters in het flashgeheugen van de
+emulator, zodat een programma de CPU-snelheid kan wijzigen via `$D031` (het
+leest `$00`, 1 MHz, na een reset).
 
 Voorbeeld: **Ultimate turbo demo (64 sprites)**
 (`samples/ultimate-turbo-demo.asm`) — de snelheid verandert elke 3 seconden van
@@ -6785,6 +6855,75 @@ seconde bij 1 MHz, 50 bij 16 MHz).
 > **Tip:** Geen USB-kabel of stuurprogramma nodig — de REST API is ingebouwd in
 > de Ultimate-firmware. Uw computer en het apparaat moeten zich op hetzelfde
 > lokale netwerk bevinden.
+
+### De Ultimate-emulator installeren, stap voor stap.
+
+De **Ultimate-emulator** en **D64 op Ultimate-emulator**-uitvoeringsmodi
+vereisen drie dingen die niet standaard bij Visual Assembler worden geleverd: de
+emulator zelf, een Ultimate-firmware en een ROM-map. Stel deze eenmalig in,
+zoals hieronder beschreven.
+
+**1. Installeer de emulator**
+([UE2-C64U-Emulator](https://github.com/Jondalar/UE2-C64U-Emulator)):
+
+- **Windows:** download `ue2emu-<version>-windows-x86_64.zip` van de
+  [Releases-pagina](https://github.com/Jondalar/UE2-C64U-Emulator/releases) van
+  de emulator en pak het uit in een map die je bewaart, bijvoorbeeld
+  `C:\Tools\ue2emu`. Houd de bestanden bij elkaar: `ue2emu.exe` heeft de DLL's
+  ernaast nodig.
+- **macOS:** Installeer het met Homebrew. Visual Assembler vindt het daar
+  vanzelf:
+
+  ```
+  brouwen installeer jondalar/ue2emu/ue2emu
+  ```
+
+- **Linux:** Er is nog geen kant-en-klaar pakket beschikbaar; compileer het
+  vanuit de broncode zoals beschreven in de documentatie van de emulator (Rust
+  en libslirp zijn vereist).
+
+**2. Download een firmware.** De emulator draait de firmware van een **C64
+Ultimate** of een **Ultimate 64 Elite II** ongewijzigd: het updatebestand
+(`.ue2`) dat je op het apparaat zou installeren, of een `ultimate.elf` van je
+eigen build. Noch Visual Assembler, noch de emulator bevat er een. De C64
+Ultimate firmware 1.1.0 werkt gegarandeerd.
+
+**3. Haal de ROM-map op.** Download de
+[1541ultimate](https://github.com/GideonZ/1541ultimate) repository van GitHub
+(**Code → Download ZIP**, of `git clone`) en pak deze uit. Wat je nodig hebt is
+de `roms` map. Visual Assembler controleert alleen `chars.bin` daarin (2048
+bytes, het menu-lettertype).
+
+**4. Vul de instellingen in.** Open **Instellingen → Integraties → Ultimate
+emulator (UE2)**:
+
+| Knop                  | Kiezen                                                                                                                                        |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Kies ue2emu**       | `ue2emu.exe` uit stap 1. Wanneer de emulator zich in het `PATH` bevindt of is geïnstalleerd met Homebrew, is het veld al ingevuld.            |
+| ** Firmware kiezen ** | De `.ue2` (of `.elf`) uit stap 2.                                                                                                             |
+| ** ROM-map kiezen **  | De map `roms` zelf, niet de repository-map erboven.                                                                                           |
+| **REST-poort**        | Laat het op **8064** staan, tenzij die poort al in gebruik is. De emulator gebruikt ook de volgende twee poorten (besturing en VICE-monitor). |
+
+**5. Uitvoeren.** Selecteer **Ultimate emulator** in het gesplitste
+uitvoeringsmenu (dit verschijnt zodra de instellingen zijn voltooid) en druk op
+**▶ Uitvoeren**. De eerste keer dat je `.ue2` uitvoert, installeert de firmware
+in een eigen flash-image, wat iets langer duurt; daarna opent het venster van de
+emulator en start je programma. De statusregel onder de instellingen toont
+**Actief, REST: 127.0.0.1:8064**.
+
+**6. Blijf doorwerken.** Bij latere uitvoeringen wordt de geopende emulator
+hergebruikt. **Stop emulator** in de instellingen sluit deze, net als het
+afsluiten van Visual Assembler; de flash-image wordt onderweg opgeslagen, zodat
+de eigen instellingen van de firmware behouden blijven.
+
+**Als er iets misgaat:**
+
+| Bericht                                                       | Wat te doen                                                                                                                                                          |
+| ------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| *Ultieme emulator: niet ingesteld in Instellingen: …*         | Stap 4: het item dat in het bericht wordt genoemd, is leeg of het bestand bestaat niet meer.                                                                         |
+| *Ultieme emulator: ontbreekt in de ROM-map: chars.bin*        | Je hebt de repositorymap of een uitgepakte ZIP-map erboven gekozen: kies de map `roms` zelf.                                                                         |
+| *De REST API van de Ultimate-emulator reageerde niet op tijd* | Een ander programma gebruikt de poort: stel een andere **REST-poort in **.                                                                                           |
+| **D64 op Ultimate emulator** kan de schijfkopie niet maken    | Die modus vult de D64 met VICE's `c1541`: stel het VICE-pad in via **Instellingen → Bestanden en paden**. De **Ultimate-emulator**-modus zelf heeft geen VICE nodig. |
 
 ### Tekenset Canvas Editor
 
@@ -7161,8 +7300,43 @@ tweede SID verwijderd en wordt eerst gevraagd of ze iets vasthouden.
 - Het plakken binnen een celbereik begint nu bij de geselecteerde begincel van
   het bereik en stopt netjes bij de grenzen van stemmen en rijen, in plaats van
   door te lopen naar de volgende kolom of rij.
-- **Speed** (frames tussen rijen, 1–255) wordt ingevoerd of aangepast met de − /
-  + knoppen ernaast; het `F`-effect wijzigt dit tijdens het afspelen.
+- Instrumenten verwijderen: **−** naast **+** verwijdert het huidige instrument
+  (de noten die het spelen, veranderen na een vraag naar het instrument ervoor),
+  en Bestanden → **Ongebruikte instrumenten verwijderen** verwijdert elk
+  instrument dat geen noot speelt. De nummers in de tracker blijven behouden;
+  Ongedaan maken zet ze terug.
+- Songvolume: de **Vol** (0–15) op de tracker-werkbalk is het volume van de
+  melodie, en de chip start hiermee. Een instrument met **Song** aangevinkt
+  naast **Vol** laat het volume van de chip ongewijzigd, waardoor instrumenten
+  er niet langer om strijden; nieuwe instrumenten hebben het ingeschakeld. Als
+  het niet is aangevinkt, stelt het instrument het volume van de chip in zoals
+  voorheen (eerder opgeslagen melodieën blijven op deze manier werken).
+- PAL / NTSC: de schakelaar naast BPM stelt de machine in waarvoor de melodie
+  bedoeld is. NTSC speelt 60 frames per seconde af op de NTSC-klok: de preview,
+  de BPM, de geëxporteerde notentabel van de speler en de `.sid`-header volgen
+  hierop.
+- **Kwantiseren** (in de tracker-werkbalk): het raster bestaat uit 2, 4, 8 of 16
+  rijen. In de horizontale tracker verplaatst **Q** of de bijbehorende knop de
+  geselecteerde noten naar de dichtstbijzijnde rasterrij en behoudt hun lengte;
+  met **Opnemen** aangevinkt, worden de noten van een opname op dezelfde manier
+  gekwantiseerd wanneer deze stopt.
+- **Selectie in de horizontale tracker: ** Shift+slepen om een frame te
+  selecteren (Ctrl+Shift+slepen om aan de selectie toe te voegen), Ctrl+klikken
+  op een noot, Ctrl+A voor alles, Esc om te wissen. Ctrl+X / C / V en Del, of de
+  knoppen in de header, knippen, kopiëren, plakken en verwijderen. Plakken gaat
+  naar de rij onder de muis, of naar de trackercursor, en overschrijft wat daar
+  staat. Bij het verwijderen van een noot blijft het einde van de noot ervoor
+  behouden. De header bevat ook **Ongedaan maken** en **Herhalen**.
+- **Ongedaan maken / Herhalen** (de knoppen vóór de spraakkopie, of Ctrl+Z en
+  Ctrl+Y) bladeren door de wijzigingen van de noten, instrumenten, het nummer en
+  het tempo en het laden van een melodie, tot maximaal 100 stappen. Het slepen
+  van een knop of een hele opname telt als één stap, en de weergave springt naar
+  het instrument en patroon dat is gewijzigd. Tekstvelden behouden hun eigen
+  Ctrl+Z.
+- **Frames/rij** (1–255, dus een hoger getal betekent langzamer) wordt ingevoerd
+  of aangepast met de − / + knoppen ernaast; het `F`-effect verandert dit
+  tijdens het afspelen. **BPM** ernaast toont het resulterende tempo: met 4
+  rijen per beat op PAL, 6 frames/rij = 125 BPM.
 
 ** Nummer / volgordelijst: **
 - De patronen worden geordend via een lijst met nummers/volgordes die bovenop de
@@ -7228,17 +7402,21 @@ in het versiebeheerde `.bin`-formaat.
 - **Record** (de rode stip in de tracker-werkbalk en op VA-VK) schrijft de noten
   die je speelt – op VA-VK, het computertoetsenbord of een MIDI-keyboard –
   synchroon in de geselecteerde stem, beginnend bij de geselecteerde regel, met
-  de huidige snelheid. Wanneer het patroon vol is, wordt er na de huidige
-  songstap een nieuw, leeg patroon toegevoegd en gaat de opname daar verder.
-  Druk nogmaals op Record om te stoppen.
+  het huidige tempo. Wanneer het patroon vol is, wordt er na de huidige songstap
+  een nieuw, leeg patroon toegevoegd en gaat de opname daar verder. Druk
+  nogmaals op Record om te stoppen.
 - **Metronoom** (tracker-werkbalk en VA-VK) klikt elke 4 regels, met de nadruk
   op de eerste tel van elke maat van 4 tellen. De tel-lampjes ernaast knipperen
   bij elke tel tijdens het afspelen en opnemen, zelfs als de klik is
   uitgeschakeld.
 - **MIDI:** Kies de ingang in de **MIDI**-lijst naast de instrumentnaam en druk
-  op **MIDI verbinden**; noten worden gespeeld door het huidige instrument (en
-  worden in de tracker geschreven tijdens het opnemen of met *Invoegen in
-  tracker*). Het lampje naast de knop knippert bij elk inkomend MIDI-bericht.
+  op **MIDI verbinden**; noten spelen het huidige instrument (en worden in de
+  tracker geschreven tijdens het opnemen of met *Invoegen in tracker*). Het
+  lampje naast de knop knippert bij elk binnenkomend MIDI-bericht. Met **Poly
+  opnemen** ingeschakeld, krijgen de toetsen die tijdens het opnemen worden
+  ingedrukt hun eigen stemmen, vanaf de geselecteerde stem, en bij loslaten
+  wordt een noot-uit geschreven; wanneer alle stemmen worden ingedrukt, geeft de
+  oudste toets zijn stem op.
 - **Patroon verwijderen:** De **−**-knop naast **Patroon +** verwijdert het
   huidige patroon (er wordt eerst gevraagd of het patroon noten bevat). De
   songstappen die het patroon gebruikten, worden verwijderd en de andere worden

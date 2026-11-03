@@ -1,7 +1,9 @@
 # Linux Installation Guide (Ubuntu / Debian)
-Version 2.7.3
+Version 2.7.4
 
-2.7.3: Linux: sound in the AppImage; poly record from MIDI (held keys go to voices of their own), no more click on reSID before notes played live or on a tune's first note.
+2.7.4: selection with cut / copy / paste / delete in the horizontal tracker, quantize (Q for the selected notes, and recordings with On record), Undo / Redo in the horizontal tracker's header, deleting instruments (one by one or every unused one), the tune's own volume, PAL / NTSC timing.
+
+2.7.3: undo and redo in the SID Editor (Ctrl+Z / Ctrl+Y), poly record from MIDI (held keys go to voices of their own), notes moved and stretched by dragging in the horizontal tracker, no more click on reSID before live notes or on a tune's first note, SID Player Pause works every time, tempo field named Frames/row, MIDI on Windows without a permission question, Linux: sound in the AppImage and packages built on Ubuntu 22.04, step-by-step Ultimate emulator setup in the manual.
 
 2.7.2: reSID (resid-rs) replaces WebSID in the SID Player and the SID Editor, VA SID Core stays selectable (Settings -> General -> SID preview), SID Player buffer in seconds.
 
@@ -80,7 +82,7 @@ Built on Ubuntu 22.04, so it runs there and on newer distributions; tested on Ub
 Download the `.deb` package from the releases page and install:
 
 ```bash
-  sudo dpkg -i "c64-visual-assembler_2.7.3_amd64.deb"
+  sudo dpkg -i "c64-visual-assembler_2.7.4_amd64.deb"
 sudo apt-get install -f   # fix any missing dependencies
 ```
 
@@ -199,4 +201,4 @@ The app propagates `DISPLAY`, `WAYLAND_DISPLAY`, `XDG_RUNTIME_DIR`, `DBUS_SESSIO
 - **Blank window, with `Failed to create GBM buffer` in the terminal:** start the application with `WEBKIT_DMABUF_RENDERER_DISABLE_GBM=1`, and if that does not help, with `WEBKIT_DISABLE_DMABUF_RENDERER=1` in front of its command.
 - **No sound, with `GStreamer element ... not found` in the terminal:** the SID Player seems to run, but stays silent. Install the plugins: `sudo apt install gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-alsa gstreamer1.0-pulseaudio`.
 
-**Version:** 2.7.3 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 2.7.4 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64

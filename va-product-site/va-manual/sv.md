@@ -1,6 +1,6 @@
 # C64 Visuell Assembler — Användarmanual
 
-**Version 2.7.2**
+**Version 2.7.4**
 
 En visuell, blockbaserad 6502-assembler för Commodore 64. Bygg program genom att
 dra och släppa instruktionsblock och se den genererade assemblern och
@@ -10,6 +10,8 @@ maskinkoden i realtid.
 
 ## Innehållsförteckning
 
+- [Höjdpunkter i version 2.7.4](#version-274-highlights)
+- [Höjdpunkter i version 2.7.3](#version-273-highlights)
 - [Höjdpunkter i version 2.7.2](#version-272-highlights)
 - [Höjdpunkter i version 2.7.1](#version-271-highlights)
 - [Höjdpunkter i version 2.7.0](#version-270-highlights)
@@ -225,6 +227,8 @@ maskinkoden i realtid.
   - [Exomizer](#exomizer)
   - [Retro-felsökare](#retro-debugger)
   - [C64 Ultimate / 1541 Ultimate](#c64-ultimate--1541-ultimate)
+  - [Installera Ultimate-emulatorn, steg för
+    steg](#installing-the-ultimate-emulator-step-by-step)
   - [Kung Fu Flash 2](#kung-fu-flash-2)
   - [Versionskontroll (git)](#version-control-git)
 - [14. Visuella redigerare (verktygslåda)](#14-visual-editors-toolkit)
@@ -244,6 +248,63 @@ maskinkoden i realtid.
   - [Nummeromvandlare](#number-converter)
 
 ---
+
+## Höjdpunkter i version 2.7.4
+
+- **Markering i den horisontella spåraren** — Skift+dra en ram eller Ctrl+klicka
+  på anteckningar för att markera dem, klipp sedan ut, kopiera, klistra in (med
+  musen eller markören) eller radera dem med de nya rubrikknapparna eller Ctrl+X
+  / C / V och Del.
+- **Kvantisera** — **Q** eller den nya knappen flyttar de valda noterna till
+  närmaste rad i rutnätet (2, 4, 8 eller 16 rader i spårningsverktygsfältet) och
+  behåller deras längder. Med **Vid inspelning** markerad kvantiseras en
+  inspelning när den stoppas.
+- **Ångra / Gör om i den horisontella spåraren** — de två knapparna i spårarens
+  verktygsfält finns också i dess rubrik.
+- **Renare redigeringar** — om du tar bort en not behålls slutet av noten före
+  den, och om du klistrar in den över en längre not lämnas inga lösa noter kvar.
+- **Radera instrument** — **−** bredvid **+** raderar det aktuella instrumentet,
+  och Filer → **Radera oanvända instrument** tar bort de som ingen not spelar.
+- **Låtvolym** — **Volym** i spårningsverktygsfältet är låtens volym; instrument
+  med **Låt** markerat lämnar chipet kvar.
+- **PAL / NTSC** — låtens timing: NTSC kör 60 bildrutor per sekund på
+  NTSC-klockan, med en egen nottabell och `.sid`-rubrik.
+
+## Höjdpunkter i version 2.7.3
+
+- **Linux** — SID Player och SID Editor förblev tysta där
+  GStreamer-insticksprogrammen saknades: AppImage innehåller dem nu, och paketen
+  `.deb` och `.rpm` är beroende av dem.
+- **Ångra / Gör om i SID-redigeraren** — två nya knappar i
+  spårningsverktygsfältet, eller Ctrl+Z och Ctrl+Y. De täcker noter, instrument,
+  låt, tempo och laddning av en melodi, upp till 100 steg. En hel inspelning är
+  ett steg.
+- **Tempo** — spårarens tempofält är namngivet efter vad det är, **Frames/row**:
+  ett högre tal är långsammare. **BPM** bredvid visas det resulterande tempot.
+- **Flytta toner i den horisontella spåraren** — dra en nots kropp för att
+  flytta den i takt och tonhöjd. Den behåller sin längd, instrument och effekt
+  och stoppar en rad före röstens nästa ton.
+- **Notlängd i den horisontella spåraren** — en nots högra ände är nu lätt att
+  uppfatta, även på en enradig not: markören förvandlas till en dubbelpil och
+  ett ljust streck markerar slutet. Dra den för att sträcka ut eller förkorta
+  noten. Den stannar vid röstens nästa not, istället för att radera den.
+- **Anslut MIDI utan en fråga** — i Windows frågar webbvyn inte längre om
+  behörighet i en egen dialogruta.
+- **Laddar en .bin** — spåraren öppnas vid det valda första låtsteget: en melodi
+  vars låt inte börjar med mönster 0 visade mönster 0 istället.
+- **SID-spelarens paus** — den pausar nu varje gång: en del av melodin som
+  spelas upp just då, eller en ton från SID-redigeraren, kan slå på ljudet igen
+  medan spelaren visar Pausad. Om du trycker på Paus igen fortsätter det.
+- **Stopp i uppspelning: Alla** — spåraren återgår till mönstret som var öppet
+  före uppspelning, istället för att stanna kvar på det senast spelade medan det
+  första låtsteget förblir valt.
+- **Poly-inspelning från MIDI** — med **Poly-inspelning** på (bredvid
+  MIDI-ingången) går tangenterna du håller nere under inspelningen till egna
+  ljud, från det valda ljudet och framåt. Ett ackord på tre landar på tre ljud,
+  och om du släpper en tangent skriver du en avslutningsnot.
+- **Inget klick på reSID** — toner som spelas från keyboardet eller VA-VK
+  klickar inte längre innan de börjar, och inte heller den första tonen i en
+  melodi som inte börjar på första raden, med vare sig 6581 eller 8580.
 
 ## Höjdpunkter i version 2.7.2
 
@@ -6032,10 +6093,12 @@ Teckenredigerare.
 
 **Utan hårdvara:** välj **Ultimate emulator** från split run-menyn för att köra
 på [UE2-C64U-Emulator](https://github.com/Jondalar/UE2-C64U-Emulator), som kör
-den omodifierade Ultimate-firmwaren på din dator. Installera den separat och
-ställ sedan in tre saker i **Inställningar → Integrationer → Ultimate emulator
-(UE2)**: programmet `ue2emu`, en firmware (`.ue2`, `.elf` eller `.app`, ingår
-ej) och ROM-mappen (`roms/` för en
+den omodifierade Ultimate-firmwaren på din dator. Installera den separat (se
+[Installera Ultimate-emulatorn, steg för
+steg](#installing-the-ultimate-emulator-step-by-step)), ställ sedan in tre saker
+i **Inställningar → Integrationer → Ultimate emulator (UE2)**: programmet
+`ue2emu`, en firmware (`.ue2`, `.elf` eller `.app`, ingår ej) och ROM-mappen
+(`roms/` för en
 [1541ultimate](https://github.com/GideonZ/1541ultimate)-utcheckning). Endast
 `chars.bin` (2048 byte, menytypsnittet) krävs från den mappen;
 Commodore-firmwaren startar från sina egna C64-ROM. Den första körningen
@@ -6069,6 +6132,71 @@ snabbare processorn är, desto snabbare snurrar kuben (5 bildrutor per sekund vi
 
 > **Tips:** Ingen USB-kabel eller drivrutin behövs – REST API är inbyggt i
 > Ultimate-firmwaren. Din dator och enheten måste vara på samma lokala nätverk.
+
+### Installera Ultimate-emulatorn, steg för steg
+
+Körlägena **Ultimate emulator** och **D64 på Ultimate emulator** behöver tre
+saker som inte följer med Visual Assembler: själva emulatorn, en
+Ultimate-firmware och en ROM-mapp. Konfigurera dem en gång, enligt följande.
+
+**1. Installera emulatorn **
+([UE2-C64U-Emulator](https://github.com/Jondalar/UE2-C64U-Emulator)):
+
+- **Windows:** ladda ner `ue2emu-<version>-windows-x86_64.zip` från emulatorns
+  [Releases page](https://github.com/Jondalar/UE2-C64U-Emulator/releases) och
+  packa upp den till en mapp du behåller, till exempel `C:\Tools\ue2emu`. Spara
+  filerna tillsammans: `ue2emu.exe` behöver DLL-filerna bredvid sig.
+- **macOS:** installera det med Homebrew. Visual Assembler hittar det där av sig
+  själv:
+
+  ```
+  brygg installera jondalar/ue2emu/ue2emu
+  ```
+
+- **Linux:** det finns inget färdigt paket ännu; bygg det från källkoden enligt
+  emulatorns dokumentation (Rust och libslirp behövs).
+
+**2. Hämta en firmware.** Emulatorn kör firmware för en **C64 Ultimate** eller
+en **Ultimate 64 Elite II** omodifierad: uppdateringsfilen (`.ue2`) som du
+skulle installera på enheten, eller en `ultimate.elf` av din egen version.
+Varken Visual Assembler eller emulatorn innehåller någon. C64 Ultimate firmware
+1.1.0 är känd för att fungera.
+
+**3. Hämta ROM-mappen.** Ladda ner
+[1541ultimate](https://github.com/GideonZ/1541ultimate)-repositoriet från GitHub
+(**Code → Download ZIP**, or `git clone`) och packa upp det. Det du behöver är
+dess `roms`-mappen. Visual Assembler kontrollerar bara `chars.bin` i den (2048
+byte, menytypsnittet).
+
+**4. Fyll i inställningarna.** Öppna **Inställningar → Integrationer → Ultimate
+emulator (UE2)**:
+
+| Knapp             | Välja                                                                                                                                  |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| **Välj ue2emu**   | `ue2emu.exe` från steg 1. När emulatorn finns på `PATH` eller installerad med Homebrew är fältet redan ifyllt.                         |
+| **Välj firmware** | `.ue2` (eller `.elf`) från steg 2.                                                                                                     |
+| **Välj ROM-mapp** | Själva mappen `roms`, inte arkivmappen ovanför den.                                                                                    |
+| **REST-port**     | Låt den vara på **8064** om inte den porten är upptagen. Emulatorn använder även de två följande portarna (kontroll och VICE-monitor). |
+
+**5. Kör.** Välj **Ultimate emulator** i split run-menyn (den visas när
+inställningarna är klara) och tryck på **▶ Kör**. Den första körningen med en
+`.ue2` installerar firmware i en egen flash-avbildning, vilket tar lite längre
+tid; sedan öppnas emulatorns fönster och ditt program startar. Statusraden under
+inställningarna visar **Running, REST: 127.0.0.1:8064**.
+
+**6. Fortsätt arbeta.** Senare körningar återanvänd den öppna emulatorn.
+**Stoppa emulatorn** i inställningarna stänger den, och det gör även att avsluta
+Visual Assembler; flash-avbildningen sparas under tiden, så firmwares egna
+inställningar behålls.
+
+**Om något går fel:**
+
+| Meddelande                                                    | Vad man ska göra                                                                                                                                                |
+| ------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| *Ultimat emulator: inte inställd i Inställningar: …*          | Steg 4: objektet som nämns i meddelandet är tomt, eller så finns filen inte längre där.                                                                         |
+| *Ultimate emulator: saknas i ROM-mappen: chars.bin*           | Du valde arkivmappen eller en uppackad ZIP-mapp ovanför den: välj själva mappen `roms`.                                                                         |
+| *Ultimate-emulatorns REST API svarade inte i tid*             | Ett annat program använder porten: ange en annan **REST-port**.                                                                                                 |
+| **D64 på Ultimate emulatorn** kan inte bygga diskavbildningen | Det läget packar D64 med VICE:s `c1541`: ställ in VICE-sökvägen i **Inställningar → Filer och sökvägar**. Själva läget **Ultimate emulator** behöver inte VICE. |
 
 ### Teckenuppsättning Canvas-redigeraren
 
@@ -6432,8 +6560,39 @@ och först frågas om de innehåller något.
 - Inklistring av cellintervall börjar nu vid den valda intervallets startcell
   och stoppar tydligt vid röst- och radgränser istället för att radbrytas till
   nästa kolumn eller rad.
-- **Speed** (bildrutor mellan rader, 1–255) matas in eller stegas med − / +
-  knapparna bredvid; `F` effekten ändrar den under uppspelning.
+- Ta bort instrument: **−** bredvid **+** tar bort det aktuella instrumentet
+  (tonerna som spelar det växlar till det föregående, efter en fråga), och Filer
+  → **Ta bort oanvända instrument** tar bort alla instrument som ingen ton
+  spelas. Numren i spåraren följer; Ångra tar tillbaka dem.
+- Låtvolym: **Vol** (0–15) i spårningsverktygsfältet är låtens volym, och chipet
+  börjar på den. Ett instrument med **Song** markerat bredvid dess **Vol**
+  lämnar chipets volym oförändrad, så instrumenten slåss inte längre om den; nya
+  instrument har den på. Om den inte markeras ställer instrumentet in chipets
+  volym som tidigare (låtar som sparats tidigare fortsätter att fungera på det
+  sättet).
+- PAL / NTSC: knappen bredvid BPM ställer in vilken maskin melodin är avsedd
+  för. NTSC spelar 60 bildrutor per sekund på NTSC-klockan: förhandsvisningen,
+  BPM, den exporterade spelarens nottabell och rubriken `.sid` följer efter den.
+- **Kvantisera** (i spårarens verktygsfält): rutnätet är 2, 4, 8 eller 16 rader.
+  I den horisontella spåraren flyttar **Q** eller dess knapp de valda noterna
+  till närmaste rutnätsrad och behåller deras längder; med **Vid inspelning**
+  markerad kvantiseras noterna i en inspelning på samma sätt när den stoppas.
+- **Markering i den horisontella spåraren:** Skift+dra en ram (Ctrl+Skift+dra
+  lägger till i markeringen), Ctrl+klicka på en anteckning, Ctrl+A för alla, Esc
+  för att rensa. Ctrl+X / C / V och Del, eller knapparna i dess rubrik, klipp
+  ut, kopiera, klistra in och radera. En inklistring går till raden under musen,
+  eller till spårningsmarkören, och skriver över det som finns där. Om du tar
+  bort en anteckning behålls slutet av anteckningen före den. Rubriken har även
+  **Ångra** och **Gör om**.
+- **Ångra / Gör om** (knapparna före röstkopieringen, eller Ctrl+Z och Ctrl+Y)
+  stegar igenom ändringarna av noter, instrument, låt och tempo samt laddningen
+  av en melodi, upp till 100 steg. Att dra en ratt eller en hel inspelning är
+  ett steg, och vyn hoppar till instrumentet och mönstret som ändrades. Textfält
+  behåller sina egna Ctrl+Z.
+- **Bildrutor/rad** (1–255, så ett högre nummer är långsammare) matas in eller
+  stegas med − / + knapparna bredvid; `F`-effekten ändrar den under uppspelning.
+  **BPM** bredvid visar det resulterande tempot: med 4 rader per slag på PAL, 6
+  bildrutor/rad = 125 BPM.
 
 **Låt / beställningslista:**
 - Mönster är ordnade genom en låt-/ordningslista som placeras ovanpå den råa
@@ -6492,18 +6651,22 @@ och sparas/läses förlustfritt i det versionerade `.bin`-formatet.
 **Inspelning, metronom och MIDI: **
 - **Record** (den röda pricken, i spårningsverktygsfältet och på VA-VK) skriver
   in noterna du spelar – på VA-VK, datorns keyboard eller ett MIDI-keyboard – i
-  takt till det valda ljudet, med början på den valda raden, med aktuell
-  hastighet. När mönstret är fullt läggs ett nytt tomt mönster till efter det
-  aktuella låtsteget och inspelningen fortsätter där. Tryck på Record igen för
-  att stoppa.
+  takt till det valda ljudet, med början vid den valda raden, i aktuellt tempo.
+  När mönstret är fullt läggs ett nytt tomt mönster till efter det aktuella
+  låtsteget och inspelningen fortsätter där. Tryck på Record igen för att
+  stoppa.
 - **Metronomen** (trackerverktygsfältet och VA-VK) klickar var fjärde rad, med
   accent på det första slaget i varje 4-taktstakt. Taktslagslamporna bredvid
   blinkar vid varje slag under uppspelning och inspelning, även när klicket är
   avstängt.
 - **MIDI:** välj ingången i **MIDI**-listan bredvid instrumentnamnet och tryck
-  på **Anslut MIDI**; noter spelar det aktuella instrumentet (och skrivs in i
+  på **Connect MIDI**; toner spelar det aktuella instrumentet (och skrivs in i
   trackern under inspelning eller med *Insert into tracker*). Lampan bredvid
-  knappen blinkar vid varje inkommande MIDI-meddelande.
+  knappen blinkar vid varje inkommande MIDI-meddelande. Med **Poly record**
+  påslagen går tangenterna som hålls nere under inspelningen till egna ljud,
+  från det valda ljudet och framåt, och en nedsläppning skriver en
+  tonavstängning; när varje ljud hålls nere ger den äldsta tangenten upp sin
+  röst.
 - **Mönsterborttagning:** knappen **−** bredvid **Pat +** raderar det aktuella
   mönstret (den frågar först om mönstret har noter). Låtstegen som använde det
   tas bort och de andra numreras om; minst ett mönster finns alltid kvar.

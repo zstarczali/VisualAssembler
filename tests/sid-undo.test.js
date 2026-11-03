@@ -30,13 +30,14 @@ function setup() {
     var _sidSong = [0, 1, 2], _sidSpeed = 6, _sidSid2Addr = 0xD420, _sidInst = 0, _sidPat = 0, _sidSongPos = 0, _sidSelAnchor = null, _sidRecording = null;
     var built = 0;
     function _sidUpdateBpmDisplay() {}
+    function _sidParamKnobSync() {}
     function _sidSetTuneTitle(t) { document.getElementById("sid-tune-title").textContent = t; }
     function _sidBuildInstSel() {}
     function _sidLoadInstUI() {}
     function _sidBuildPatSel() {}
     function _sidBuildSongList() {}
     function _sidBuildTracker() { built++; }
-    ${["_sidHistSnap", "_sidHistSame", "_sidHistRender", "_sidHistCheck", "_sidHistSchedule", "_sidHistApply", "_sidHistStep", "_sidUndo", "_sidRedo"].map(fn).join("\n")}
+    ${["_sidVol", "_sidVol2", "_sidIsNtsc", "_sidSetSongVol", "_sidSetSongVol2", "_sidSetNtsc", "_sidHistSnap", "_sidHistSame", "_sidHistRender", "_sidHistCheck", "_sidHistSchedule", "_sidHistApply", "_sidHistStep", "_sidUndo", "_sidRedo"].map(fn).join("\n")}
     _sidHistCheck();
   `, ctx);
   return ctx;
@@ -150,6 +151,8 @@ test("the undo does not stay on the state a rebuild may have touched", () => {
 test("buttons, keys and the seven languages are in place", () => {
   const html = fs.readFileSync(path.join(www, "index.html"), "utf8");
   assert.ok(html.includes('id="sid-undo"') && html.includes('id="sid-redo"'));
+  assert.ok(html.includes('id="sid-roll-undo"') && html.includes('id="sid-roll-redo"'), "the horizontal tracker has them too");
+  assert.ok(source.includes('onId("sid-roll-undo", "click", _sidUndo);') && source.includes('set("sid-roll-redo", _sidHist.redo.length > 0);'));
   const i18n = fs.readFileSync(path.join(www, "i18n.js"), "utf8");
   assert.equal(i18n.split('"sidUndo"').length - 1, 7);
   assert.equal(i18n.split('"sidRedo"').length - 1, 7);

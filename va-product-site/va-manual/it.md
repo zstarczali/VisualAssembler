@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Manuale utente
 
-**Versione 2.7.2**
+**Versione 2.7.4**
 
 Un assembler visuale a blocchi per il Commodore 64, basato sul processore 6502.
 Crea programmi trascinando e rilasciando blocchi di istruzioni e visualizza in
@@ -10,6 +10,8 @@ tempo reale il codice assembly e il codice macchina generati.
 
 ## Sommario
 
+- [Punti salienti della versione 2.7.4](#version-274-highlights)
+- [Punti salienti della versione 2.7.3](#version-273-highlights)
 - [Punti salienti della versione 2.7.2](#version-272-highlights)
 - [Punti salienti della versione 2.7.1](#version-271-highlights)
 - [Punti salienti della versione 2.7.0](#version-270-highlights)
@@ -229,6 +231,8 @@ tempo reale il codice assembly e il codice macchina generati.
   - [Esoizer](#exomizer)
   - [Retro Debugger](#retro-debugger)
   - [C64 Ultimate / 1541 Ultimate](#c64-ultimate--1541-ultimate)
+  - [Installazione dell'emulatore Ultimate, passo dopo
+    passo](#installing-the-ultimate-emulator-step-by-step)
   - [Kung Fu Flash 2](#kung-fu-flash-2)
   - [Controllo versione (git)](#version-control-git)
 - [14. Editor visivi (Toolkit)](#14-visual-editors-toolkit)
@@ -250,6 +254,73 @@ tempo reale il codice assembly e il codice macchina generati.
   - [Convertitore di numeri](#number-converter)
 
 ---
+
+## Punti salienti della versione 2.7.4
+
+- **Selezione nel tracker orizzontale** — Maiusc+trascina un riquadro o
+  Ctrl+clic sulle note per selezionarle, quindi taglia, copia, incolla (con il
+  mouse o il cursore) o eliminale con i nuovi pulsanti dell'intestazione o
+  Ctrl+X / C / V e Canc.
+- **Quantizza** — **Q** o il nuovo pulsante sposta le note selezionate alla riga
+  più vicina della griglia (2, 4, 8 o 16 righe, nella barra degli strumenti del
+  tracker), mantenendone la durata. Con **In registrazione** selezionata, una
+  registrazione viene quantizzata quando si interrompe.
+- **Annulla/Ripristina nel tracker orizzontale** — i due pulsanti della barra
+  degli strumenti del tracker si trovano anche nella sua intestazione.
+- **Modifiche più pulite** — l'eliminazione di una nota mantiene la fine della
+  nota precedente e l'incollaggio su una nota più lunga non lascia tracce di
+  note fuori posto.
+- **Elimina strumenti** — **−** accanto a **+** elimina lo strumento corrente e
+  File → **Elimina strumenti non utilizzati** rimuove quelli in cui non viene
+  riprodotta alcuna nota.
+- **Volume del brano** — **Vol** nella barra degli strumenti del tracker è il
+  volume del brano; gli strumenti con **Brano** selezionato lasciano il chip
+  attivo.
+- **PAL / NTSC** — la temporizzazione del brano: NTSC funziona a 60 fotogrammi
+  al secondo sul clock NTSC, con la propria tabella delle note e l'intestazione
+  `.sid`.
+
+## Punti salienti della versione 2.7.3
+
+- **Linux** — SID Player e SID Editor sono rimasti in silenzio laddove mancavano
+  i plugin GStreamer: ora AppImage li include e i pacchetti `.deb` e `.rpm`
+  dipendono da essi.
+- **Annulla/Ripristina nell'editor SID** — due nuovi pulsanti nella barra degli
+  strumenti del tracker, oppure Ctrl+Z e Ctrl+Y. Controllano note, strumenti,
+  brano, tempo e caricamento di una melodia, fino a 100 passi. Un'intera
+  registrazione corrisponde a un passo.
+- **Tempo** — il campo tempo del tracker prende il nome da ciò che rappresenta,
+  **Fotogrammi/riga**: un numero più alto indica una velocità inferiore. **BPM**
+  accanto ad esso mostra il tempo risultante.
+- **Spostamento delle note nel tracker orizzontale** — trascina il corpo di una
+  nota per spostarla nel tempo e nell'altezza. Mantiene la sua durata, lo
+  strumento e l'effetto, e si ferma una riga prima della nota successiva della
+  voce.
+- **Lunghezza della nota nel tracker orizzontale** — ora è facile individuare la
+  fine destra di una nota, anche su una nota su una riga: il cursore si
+  trasforma in una doppia freccia e una barra luminosa ne indica la fine.
+  Trascinala per allungare o accorciare la nota. Si ferma alla nota successiva
+  della voce, invece di cancellarla.
+- **Connetti MIDI senza domande** — su Windows la visualizzazione web non
+  richiede più l'autorizzazione in una finestra di dialogo separata.
+- **Caricamento di un .bin** — il tracker si apre sul primo passo del brano
+  selezionato: una melodia il cui brano non inizia con il pattern 0 ha mostrato
+  invece il pattern 0.
+- **SID Player Pausa** — ora si mette in pausa ogni volta: un frammento del
+  brano riprodotto in quel momento, o una nota dall'Editor SID, potrebbe
+  riattivare l'audio mentre il lettore mostra Pausa. Premendo nuovamente Pausa
+  si riprende.
+- **Interrompi riproduzione: tutto** — il tracker torna al pattern che era
+  aperto prima della riproduzione, invece di rimanere sull'ultimo riprodotto
+  mentre il primo passo della canzone rimane selezionato.
+- **Registrazione polifonica da MIDI** — con **Registrazione polifonica** attiva
+  (accanto all'ingresso MIDI), i tasti che tieni premuti durante la
+  registrazione vengono assegnati a voci proprie, a partire dalla voce
+  selezionata. Un accordo di tre note viene assegnato a tre voci e rilasciando
+  un tasto si scrive una nota di pausa.
+- **Nessun clic su reSID** — le note suonate dalla tastiera o da VA-VK non
+  emettono più un clic prima di iniziare, e nemmeno la prima nota di una melodia
+  che non inizia sulla prima riga, né con il 6581 né con l'8580.
 
 ## Punti salienti della versione 2.7.2
 
@@ -6706,29 +6777,31 @@ Editor di caratteri 8×8 con supporto per 256 caratteri. Apribile tramite Toolki
    immediatamente sul C64.
 
 **Senza hardware:**seleziona **emulatore Ultimate** dal menu di esecuzione
-divisa per eseguire
+diviso per eseguire
 [UE2-C64U-Emulator](https://github.com/Jondalar/UE2-C64U-Emulator), che esegue
-il firmware Ultimate non modificato sul tuo computer. Installalo separatamente,
-quindi imposta tre cose in **Impostazioni → Integrazioni → Emulatore Ultimate
-(UE2)**: il programma `ue2emu`, un firmware (`.ue2`, `.elf` o `.app`, non
-inclusi) e la cartella ROM (`roms/` di un checkout di
-[1541ultimate](https://github.com/GideonZ/1541ultimate)). Solo il file
-`chars.bin` (2048 byte, il font del menu) è richiesto da quella cartella; il
-firmware Commodore si avvia sulle proprie ROM C64. La prima esecuzione installa
-un `.ue2` in un'immagine flash conservata per ogni firmware nella cartella di
-configurazione dell'app, e ogni avvio attiva il servizio web del firmware, che
-il firmware Commodore fornisce disabilitato. L'emulatore si avvia alla prima
-esecuzione e rimane aperto per le successive; la sua API REST è in ascolto su
-`127.0.0.1` alla **porta REST** (predefinita 8064). Si chiude con l'app o con
-**Stop emulator**. **D64 sull'emulatore Ultimate** nello stesso menu impacchetta
-un D64 (questo richiede `c1541` di VICE), lo monta sull'unità A ed esegue il
-primo programma. Mentre è selezionata una di queste due modalità di esecuzione,
-la finestra **VICE Monitor** (hot reload, live watch, profiler) si connette
+il firmware Ultimate non modificato sul tuo computer. Installalo separatamente
+(vedi [Installazione dell'emulatore Ultimate, passo
+passo](#installing-the-ultimate-emulator-step-by-step)), quindi imposta tre cose
+in **Impostazioni → Integrazioni → Emulatore Ultimate (UE2)**: il programma
+`ue2emu`, un firmware (`.ue2`, `.elf` o `.app`, non inclusi) e la cartella ROM
+(`roms/` di un checkout di
+[1541ultimate](https://github.com/GideonZ/1541ultimate)). Da quella cartella è
+richiesto solo `chars.bin` (2048 byte, il font del menu); il firmware Commodore
+si avvia sulle proprie ROM C64. La prima esecuzione installa un `.ue2` in
+un'immagine flash conservata per ogni firmware nella cartella di configurazione
+dell'app e ogni avvio attiva il servizio web del firmware, che il firmware
+Commodore fornisce disabilitato. L'emulatore si avvia alla prima esecuzione e
+rimane aperto per le successive; la sua API REST è in ascolto su `127.0.0.1`
+sulla **porta REST** (predefinita 8064). Si chiude con l'app o con **Stop
+emulator**. **D64 sull'emulatore Ultimate** nello stesso menu impacchetta un D64
+(questo richiede `c1541` di VICE), lo monta sull'unità A ed esegue il primo
+programma. Quando è selezionata una di queste due modalità di esecuzione, la
+finestra **VICE Monitor** (hot reload, live watch, profiler) si connette
 all'emulatore invece che a VICE. **Debug** in queste modalità di esecuzione apre
 il debugger dell'emulatore: registri, disassemblaggio, memoria e breakpoint in
 una finestra separata, l'immagine nella finestra dell'emulatore. Il programma si
 arresta al primo breakpoint raggiunto, o alla sua prima istruzione se non ce ne
-sono; la riga dell'editor segue la CPU e F5, F10, F11 e Maiusc+F11 funzionano
+sono; la riga dell'editor segue la CPU e F5, F10, F11 e Shift+F11 funzionano
 anche con il focus nell'editor. Un IRQ del timer può eseguire un passo nel
 KERNAL, come nel monitor di VICE, quando gli interrupt sono attivi. VA imposta
 anche **Turbo Control** sui registri turbo nella memoria flash dell'emulatore,
@@ -6747,6 +6820,74 @@ secondo a 1 MHz, 50 da 16 MHz).
 > **Suggerimento:** Non sono necessari cavi USB o driver: l'API REST è integrata
 > nel firmware Ultimate. Il computer e il dispositivo devono trovarsi sulla
 > stessa rete locale.
+
+### Installazione dell'emulatore Ultimate, passo dopo passo
+
+Le modalità di esecuzione **Ultimate emulator** e **D64 su Ultimate emulator**
+richiedono tre elementi non inclusi in Visual Assembler: l'emulatore stesso, un
+firmware Ultimate e una cartella ROM. Configurali una sola volta, come segue.
+
+**1. Installa l'emulatore**
+([UE2-C64U-Emulator](https://github.com/Jondalar/UE2-C64U-Emulator)):
+
+- **Windows:** Scarica `ue2emu-<versione>-windows-x86_64.zip` dalla [pagina
+  delle release](https://github.com/Jondalar/UE2-C64U-Emulator/releases)
+  dell'emulatore e decomprimilo in una cartella che tieni, ad esempio
+  `C:\Tools\ue2emu`. Mantieni i file insieme: `ue2emu.exe` ha bisogno delle DLL
+  accanto.
+- **macOS:** installalo con Homebrew. Visual Assembler lo trova lì
+  automaticamente:
+
+  ```
+  brew installa jondalar/ue2emu/ue2emu
+  ```
+
+- **Linux:** non esiste ancora un pacchetto pronto; compilalo dai sorgenti come
+  descritto nella documentazione dell'emulatore (sono necessari Rust e
+  libslirp).
+
+**2. Ottieni un firmware.** L'emulatore esegue il firmware di un **C64
+Ultimate** o di un **Ultimate 64 Elite II** non modificato: il file di
+aggiornamento (`.ue2`) che installeresti sul dispositivo, oppure un
+`ultimate.elf` di tua creazione. Né Visual Assembler né l'emulatore ne includono
+uno. È noto che il firmware 1.1.0 del C64 Ultimate funziona.
+
+**3. Ottieni la cartella ROM.** Scarica il repository
+[1541ultimate](https://github.com/GideonZ/1541ultimate) da GitHub (**Codice →
+Scarica ZIP** o `git clone`) e decomprimilo. Ciò di cui hai bisogno è la sua
+cartella `roms`. Visual Assembler controlla solo `chars.bin` al suo interno
+(2048 byte, il font del menu).
+
+**4. Inserisci le impostazioni.** Apri **Impostazioni → Integrazioni → Emulatore
+Ultimate (UE2)**:
+
+| Pulsante                   | Scegliere                                                                                                                                         |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Scegli ue2emu**          | `ue2emu.exe` dal passaggio 1. Quando l'emulatore è presente nel `PATH` o installato con Homebrew, il campo è già compilato.                       |
+| **Scegli il firmware**     | Il `.ue2` (o `.elf`) dal passaggio 2.                                                                                                             |
+| **Scegli la cartella ROM** | La cartella `roms` stessa, non la cartella repository sopra di essa.                                                                              |
+| **Porta REST**             | Lascialo su **8064** a meno che quella porta non sia già occupata. L'emulatore utilizza anche le due porte successive (controllo e monitor VICE). |
+
+**5. Esegui.** Seleziona **Ultimate emulator** nel menu di esecuzione divisa
+(appare una volta completate le impostazioni) e premi **▶ Esegui**. La prima
+esecuzione con un `.ue2` installa il firmware in un'immagine flash propria,
+operazione che richiede un po' più di tempo; quindi si apre la finestra
+dell'emulatore e il programma si avvia. La riga di stato sotto le impostazioni
+mostra **In esecuzione, REST: 127.0.0.1:8064**.
+
+**6. Continua a lavorare.** Le esecuzioni successive riutilizzano l'emulatore
+aperto. **Interrompi l'emulatore** nelle impostazioni lo chiude, così come
+uscire da Visual Assembler; l'immagine flash viene salvata durante il processo,
+quindi vengono mantenute le impostazioni del firmware.
+
+**Se qualcosa va storto:**
+
+| Messaggio                                                                | Cosa fare                                                                                                                                                                                   |
+| ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| *Emulatore definitivo: non impostato in Impostazioni: …*                 | Passaggio 4: l'elemento indicato nel messaggio è vuoto oppure il file non esiste più.                                                                                                       |
+| *Emulatore definitivo: mancante dalla cartella ROM: chars.bin*           | Hai scelto la cartella del repository o una cartella ZIP decompressa al di sopra di essa: scegli la cartella `roms` stessa.                                                                 |
+| *L'API REST dell'emulatore definitivo non ha risposto in tempo*          | Un altro programma utilizza la porta: imposta una porta REST diversa ** **.                                                                                                                 |
+| **D64 sull'emulatore Ultimate** non riesce a creare l'immagine del disco | Questa modalità carica il D64 con il `c1541` di VICE: imposta il percorso di VICE in **Impostazioni → File e percorsi**. La modalità **Ultimate emulator** di per sé non necessita di VICE. |
 
 ### Editor di tela Charset
 
@@ -7123,9 +7264,44 @@ e viene chiesto prima se si tiene premuto qualcosa.
 - L'incolla di intervalli di celle ora inizia dalla cella iniziale
   dell'intervallo selezionato e termina in modo pulito ai limiti di riga e di
   voce, invece di andare a capo nella colonna o riga successiva.
-- **La velocità** (fotogrammi tra le righe, 1–255) si imposta tramite
-  digitazione o a passi con i pulsanti − / + accanto; l'effetto `F` la modifica
-  durante la riproduzione.
+- Eliminazione degli strumenti: **−** accanto a **+** elimina lo strumento
+  corrente (le note che lo suonano passano a quella precedente, dopo una
+  domanda), e File → **Elimina strumenti non utilizzati** rimuove tutti gli
+  strumenti che non suonano note. I numeri nel tracker rimangono; Annulla li
+  ripristina.
+- Volume del brano: il **Vol** (0–15) della barra degli strumenti del tracker
+  rappresenta il volume del brano e il chip si avvia con questo valore. Uno
+  strumento con **Song** selezionato accanto al suo **Vol** non modifica il
+  volume del chip, quindi gli strumenti non entrano più in conflitto per esso; i
+  nuovi strumenti lo hanno attivo. Se la casella non è selezionata, lo strumento
+  imposta il volume del chip come prima (i brani salvati in precedenza
+  continuano a funzionare in questo modo).
+- PAL / NTSC: l'interruttore accanto a BPM imposta la macchina per cui è
+  destinata la melodia. NTSC riproduce 60 fotogrammi al secondo con l'orologio
+  NTSC: l'anteprima, il BPM, la tabella delle note del lettore esportato e
+  l'intestazione `.sid` lo seguono.
+- **Quantizza** (nella barra degli strumenti del tracker): la griglia è composta
+  da 2, 4, 8 o 16 righe. Nel tracker orizzontale, **Q** o il relativo pulsante
+  spostano le note selezionate alla riga della griglia più vicina mantenendone
+  la durata; con **In registrazione** selezionata, le note di una registrazione
+  vengono quantizzate allo stesso modo quando questa si interrompe.
+- **Selezione nel tracker orizzontale:** Maiusc+trascina un frame
+  (Ctrl+Maiusc+trascina aggiunge alla selezione), Ctrl+clic su una nota, Ctrl+A
+  per tutto, Esc per cancellare. Ctrl+X / C / V e Canc, o i pulsanti nella sua
+  intestazione, taglia, copia, incolla ed elimina. Un'operazione di incolla va
+  alla riga sotto il mouse, oppure al cursore del tracker, e sovrascrive ciò che
+  è presente. Eliminando una nota si mantiene la fine della nota precedente.
+  L'intestazione include anche **Annulla** e **Ripristina**.
+- **Annulla / Ripeti** (i pulsanti prima della copia vocale, o Ctrl+Z e Ctrl+Y)
+  consentono di scorrere le modifiche di note, strumenti, brano e tempo e il
+  caricamento di una melodia, fino a 100 passaggi. Il trascinamento di una
+  manopola o di un'intera registrazione corrisponde a un passaggio e la
+  visualizzazione passa allo strumento e al pattern che sono stati modificati. I
+  campi di testo mantengono il proprio Ctrl+Z.
+- **Fotogrammi/riga** (1–255, quindi un numero più alto è più lento) viene
+  digitato o modificato con i pulsanti − / + accanto; l'effetto `F` lo modifica
+  durante la riproduzione. **BPM** accanto mostra il tempo risultante: con 4
+  righe per battito su PAL, 6 fotogrammi/riga = 125 BPM.
 
 **Elenco brani/ordini:**
 - I pattern sono organizzati tramite un elenco di brani/ordini sovrapposto alla
@@ -7190,10 +7366,10 @@ dati nel formato versionato `.bin`.
 
 **Registrazione, metronomo e MIDI:**
 - **Registra** (il punto rosso, nella barra degli strumenti del tracker e su
-  VA-VK) scrive le note che suoni — su VA-VK, sulla tastiera del computer o su
+  VA-VK) registra le note che suoni — su VA-VK, sulla tastiera del computer o su
   una tastiera MIDI — a tempo nella voce selezionata, a partire dalla riga
-  selezionata, alla velocità corrente. Quando il pattern è pieno, viene aggiunto
-  un nuovo pattern vuoto dopo il passo corrente del brano e la registrazione
+  selezionata, al tempo corrente. Quando il pattern è pieno, viene aggiunto un
+  nuovo pattern vuoto dopo il passo corrente del brano e la registrazione
   continua lì. Premi di nuovo Registra per interrompere.
 - **Il metronomo** (barra degli strumenti del tracker e VA-VK) emette un clic
   ogni 4 righe, accentuato sul primo battito di ogni battuta di 4 battiti. Le
@@ -7203,7 +7379,10 @@ dati nel formato versionato `.bin`.
   strumento e premi **Connetti MIDI**; le note vengono riprodotte dallo
   strumento corrente (e vengono scritte nel tracker durante la registrazione o
   con *Inserisci nel tracker*). La spia accanto al pulsante lampeggia ad ogni
-  messaggio MIDI in arrivo.
+  messaggio MIDI in arrivo. Con **Registrazione polifonica** attiva, i tasti
+  tenuti premuti durante la registrazione passano a voci proprie, a partire
+  dalla voce selezionata, e il rilascio scrive una nota di fine; quando tutte le
+  voci sono tenute premute, il tasto più vecchio cede la sua voce.
 - **Elimina pattern:** il pulsante **−** accanto a **Pat +** elimina il pattern
   corrente (chiede prima se il pattern ha delle note). I passaggi della canzone
   che lo utilizzavano vengono rimossi e gli altri rinumerati; almeno un pattern
