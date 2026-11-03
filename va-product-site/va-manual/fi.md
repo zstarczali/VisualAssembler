@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Käyttöopas
 
-**Versio 2.7.2**
+**Versio 2.7.3**
 
 Visuaalinen, lohkopohjainen 6502-assembler Commodore 64:lle. Voit luoda ohjelmia
 vetämällä ja pudottamalla käskylohkoja ja nähdä luodun assemblerin ja konekoodin
@@ -10,6 +10,7 @@ reaaliajassa.
 
 ## Sisällysluettelo
 
+- [Version 2.7.3 kohokohdat](#version-273-highlights)
 - [Version 2.7.2 kohokohdat](#version-272-highlights)
 - [Version 2.7.1 kohokohdat](#version-271-highlights)
 - [Version 2.7.0 kohokohdat](#version-270-highlights)
@@ -226,6 +227,8 @@ reaaliajassa.
   - [Exomizer](#exomizer)
   - [Retro-virheenkorjaaja](#retro-debugger)
   - [C64 Ultimate / 1541 Ultimate](#c64-ultimate--1541-ultimate)
+  - [Ultimate-emulaattorin asentaminen vaihe
+    vaiheelta](#installing-the-ultimate-emulator-step-by-step)
   - [Kung Fu Flash 2](#kung-fu-flash-2)
   - [Versiohallinta (git)](#version-control-git)
 - [14. Visuaaliset editorit (työkalupakki)](#14-visual-editors-toolkit)
@@ -248,6 +251,46 @@ reaaliajassa.
   - [Numeronmuunnin](#number-converter)
 
 ---
+
+## Version 2.7.3 kohokohdat
+
+- **Linux** — SID Player ja SID Editor pysyivät hiljaa siellä, missä
+  GStreamer-lisäosat puuttuivat: AppImage sisältää ne nyt, ja `.deb`- ja
+  `.rpm`-paketit ovat niistä riippuvaisia.
+- **Kumoa / Tee uudelleen SID-editorissa** — kaksi uutta painiketta
+  seurantatyökalupalkissa eli Ctrl+Z ja Ctrl+Y. Ne kattavat nuotit, soittimet,
+  kappaleen, tempon ja sävelmän latauksen jopa 100 askeleeseen asti. Koko äänite
+  on yksi askel.
+- **Tempo** — seurantalaitteen tempo-kenttä on nimetty sen mukaan,
+  **Kehyksiä/rivi**: suurempi luku on hitaampi. Sen vieressä oleva **BPM**
+  näyttää tuloksena olevan tempon.
+- **Nuottien siirtäminen vaakasuuntaisessa seurantajärjestelmässä** — nuotin
+  runkoa vetämällä voit siirtää sitä ajassa ja sävelkorkeudessa. Se säilyttää
+  nuotin pituuden, instrumentin ja efektin ja pysäyttää rivin ennen äänen
+  seuraavaa nuottia.
+- **Nuotin pituus vaakasuuntaisessa seurantajärjestelmässä** — nuotin oikea pää
+  on nyt helppo havaita jopa yksirivisessä nuotissa: kursori muuttuu
+  kaksoisnuoleksi ja kirkas palkki merkitsee lopun. Vedä sitä venyttääksesi tai
+  lyhentääksesi nuottia. Se pysähtyy äänen seuraavan nuotin kohdalle sen
+  poistamisen sijaan.
+- **Yhdistä MIDI ilman kysymystä** — Windowsissa verkkonäkymä ei enää kysy lupaa
+  omassa valintaikkunassaan.
+- **Ladataan .bin-tiedostoa** — seuranta avautuu valitun ensimmäisen kappaleen
+  vaiheessa: kappale, jonka kappale ei ala kuviolla 0, näytti sen sijaan kuvion
+  0.
+- **SID-soittimen tauko** — se pysähtyy nyt joka kerta: sillä hetkellä soitettu
+  melodianpätkä tai SID-editorin nuotti voi kytkeä äänen takaisin päälle, kun
+  soittimessa näkyy tauko. Tauko-painikkeen painaminen uudelleen jatkaa.
+- **Pysäytä toistossa: Kaikki** — seurantalaite palaa ennen toistoa avoinna
+  olleeseen kuvioon sen sijaan, että se pysyisi viimeksi toistetussa kuviossa
+  ensimmäisen kappalevaiheen pysyessä valittuna.
+- **Poly-äänitys MIDI:stä** — kun **Poly-äänitys** on päällä (MIDI-tulon
+  vieressä), äänityksen aikana painetut näppäimet siirtyvät omiin ääniinsä
+  valitusta äänestä alkaen. Kolmen sointu osuu kolmeen ääneen, ja näppäimen
+  vapauttaminen kirjoittaa nuotinvaihdon.
+- **Ei klikkausta reSID:ssä** — koskettimilta tai VA-VK:lta soitetut nuotit
+  eivät enää klikkaa ennen alkuaan, eikä myöskään sellaisen sävelmän ensimmäinen
+  nuotti, joka ei ala ensimmäiseltä riviltä, sekä 6581- että 8580-malleissa.
 
 ## Version 2.7.2 kohokohdat
 
@@ -6260,17 +6303,19 @@ Katso täydellinen debuggerin dokumentaatio kohdasta [Osio
 emulator** suorittaaksesi sen
 [UE2-C64U-Emulator](https://github.com/Jondalar/UE2-C64U-Emulator):llä, joka
 suorittaa muokkaamattoman Ultimate-laiteohjelmiston tietokoneellasi. Asenna se
-erikseen ja aseta sitten kolme asiaa kohdassa **Asetukset → Integraatiot →
-Ultimate emulator (UE2)**: `ue2emu`-ohjelma, laiteohjelmisto (`.ue2`, `.elf` tai
-`.app`, ei sisälly toimitukseen) ja ROM-kansio (`roms/`
-[1541ultimate](https://github.com/GideonZ/1541ultimate) -kassalla). Vain
-`chars.bin` (2048 tavua, valikon fontti) tarvitaan kyseisestä kansiosta;
-Commodoren laiteohjelmisto käynnistyy omilta C64 ROM -muisteiltaan.
-Ensimmäisellä käynnistyskerralla asennetaan `.ue2` flash-kuvaan, jota
-laiteohjelmisto säilyttää sovelluksen asetuskansiossa, ja jokainen käynnistys
-käynnistää laiteohjelmiston web-palvelun, joka Commodoren laiteohjelmistossa on
-poistettu käytöstä. Emulaattori käynnistyy ensimmäisellä käynnistyskerralla ja
-pysyy auki seuraavia käynnistyksiä varten; sen REST API kuuntelee `127.0.0.1`
+erikseen (katso [Ultimate-emulaattorin asentaminen,
+vaiheittainen](#installing-the-ultimate-emulator-step-by-step)) ja aseta sitten
+kolme asiaa kohdassa **Asetukset → Integraatiot → Ultimate emulator (UE2)**:
+`ue2emu`-ohjelma, laiteohjelmisto (`.ue2`, `.elf` tai `.app`, ei sisälly
+toimitukseen) ja ROM-kansio (`roms/`
+[1541ultimate](https://github.com/GideonZ/1541ultimate) -kassalla). Kyseisestä
+kansiosta tarvitaan vain `chars.bin` (2048 tavua, valikon fontti); Commodoren
+laiteohjelmisto käynnistyy omilta C64 ROM -muisteiltaan. Ensimmäisellä
+käynnistyskerralla asennetaan `.ue2` flash-kuvaan, jota laiteohjelmisto
+säilyttää sovelluksen asetuskansiossa, ja jokainen käynnistys käynnistää
+laiteohjelmiston web-palvelun, joka Commodoren laiteohjelmistossa on poistettu
+käytöstä. Emulaattori käynnistyy ensimmäisellä käynnistyskerralla ja pysyy auki
+seuraavia käynnistyksiä varten; sen REST API kuuntelee `127.0.0.1` -porttia
 **REST-portissa** (oletusarvo 8064). Se sulkeutuu sovelluksen käynnistyessä tai
 komennolla **Stop emulator**. **D64 Ultimate emulatorissa** samassa valikossa
 pakkaa D64:n (tämä tarvitsee VICE:n `c1541`), asentaa sen asemalle A ja
@@ -6299,6 +6344,73 @@ alkaen 16 MHz:llä).
 > **Vinkki:** USB-kaapelia tai ajuria ei tarvita – REST API on sisäänrakennettu
 > Ultimate-laiteohjelmistoon. Tietokoneesi ja laitteen on oltava samassa
 > lähiverkossa.
+
+### Ultimate-emulaattorin asentaminen vaihe vaiheelta
+
+**Ultimate-emulaattorin** ja **D64:n käyttö Ultimate-emulaattorissa**
+tarvitsevat kolme asiaa, joita ei tule Visual Assemblerin mukana: itse
+emulaattorin, Ultimate-laiteohjelmiston ja ROM-kansion. Asenna ne kerran
+seuraavasti.
+
+**1. Asenna emulaattori**
+([UE2-C64U-Emulator](https://github.com/Jondalar/UE2-C64U-Emulator)):
+
+- **Windows:** lataa `ue2emu-<versio>-windows-x86_64.zip` emulaattorin
+  [Julkaisut-sivulta](https://github.com/Jondalar/UE2-C64U-Emulator/releases) ja
+  pura se omaan kansioon, esimerkiksi `C:\Tools\ue2emu`. Pidä tiedostot yhdessä:
+  `ue2emu.exe` tarvitsee viereensä DLL-tiedostot.
+- **macOS:** asenna se Homebrew'lla. Visual Assembler löytää sen sieltä
+  itsekseen:
+
+  ```
+  brew asentaa jondalar/ue2emu/ue2emu
+  ```
+
+- **Linux:** valmista pakettia ei ole vielä olemassa; käännä se lähdekoodista
+  emulaattorin dokumentaation ohjeiden mukaisesti (tarvitaan Rust ja libslirp).
+
+**2. Hanki laiteohjelmisto.** Emulaattori käyttää muokkaamatonta **C64
+Ultimate**- tai **Ultimate 64 Elite II** -laitteen laiteohjelmistoa: laitteeseen
+asentamasi päivitystiedosto (`.ue2`) tai itse rakentamasi ` ultimate.elf`
+-tiedosto. Visual Assembler tai emulaattori eivät sisällä sellaista. C64
+Ultimate -laiteohjelmiston version 1.1.0 tiedetään toimivan.
+
+**3. Hae ROM-kansio.** Lataa
+[1541ultimate](https://github.com/GideonZ/1541ultimate)-arkisto GitHubista
+(**Code → Download ZIP** tai `git clone`) ja pura se. Tarvitset sen
+`roms`-kansion. Visual Assembler tarkistaa vain `chars.bin`-tiedoston siitä
+(2048 tavua, valikon fontti).
+
+**4. Täytä asetukset.** Avaa **Asetukset → Integraatiot → Ultimate emulator
+(UE2)**:
+
+| Painike                     | Valita                                                                                                                                            |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Valitse ue2emu**          | `ue2emu.exe` vaiheesta 1. Kun emulaattori on `PATH`-polulla tai asennettu Homebrew-ohjelmalla, kenttä on jo täytetty.                             |
+| **Valitse laiteohjelmisto** | Vaiheen 2 `.ue2` (tai `.elf`).                                                                                                                    |
+| **Valitse ROM-kansio**      | Itse `roms`-kansio, ei sen yläpuolella oleva arkistokansio.                                                                                       |
+| **REST-portti**             | Jätä se portiksi **8064**, ellei kyseinen portti ole jo varattu. Emulaattori käyttää myös kahta seuraavaa porttia (ohjaus- ja VICE-näyttöportti). |
+
+**5. Suorita.** Valitse jaetun suorituksen valikosta **Ultimate emulator** (se
+tulee näkyviin, kun asetukset ovat valmiit) ja paina **▶ Suorita**. Ensimmäinen
+suoritus tiedostolla `.ue2` asentaa laiteohjelmiston omaan flash-levykuvaan,
+mikä kestää hieman kauemmin; sitten emulaattorin ikkuna avautuu ja ohjelma
+käynnistyy. Asetusten alla olevalla tilarivillä näkyy **Running, REST:
+127.0.0.1:8064**.
+
+**6. Jatka työskentelyä.** Myöhemmät suoritukset käyttävät avoinna olevaa
+emulaattoria uudelleen. Asetuksissa komennon **Stop emulator** sulkeminen sulkee
+sen, samoin kuin Visual Assemblerin sulkeminen; flash-kuva tallennetaan matkan
+varrella, joten laiteohjelmiston omat asetukset säilyvät.
+
+**Jos jokin menee pieleen:**
+
+| Viesti                                                        | Mitä tehdä                                                                                                                                                        |
+| ------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| *Ultimate-emulaattori: ei asetettu asetuksissa: …*            | Vaihe 4: viestissä nimetty kohde on tyhjä tai tiedostoa ei enää ole.                                                                                              |
+| * Ultimate-emulaattori: puuttuu ROM-kansiosta: chars.bin*     | Valitsit arkistokansion tai sen yläpuolella olevan pakkaamattoman zip-kansion: valitse itse `roms`-kansio.                                                        |
+| * Ultimate-emulaattorin REST-rajapinta ei vastannut ajoissa.* | Toinen ohjelma käyttää porttia: aseta eri **REST-portti **.                                                                                                       |
+| **D64 Ultimate-emulaattorissa** ei voi rakentaa levykuvaa     | Tuossa tilassa D64:ssä on VICE:n `c1541`: aseta VICE-polku kohdassa **Asetukset → Tiedostot ja polut**. **Ultimate emulator** -tila itsessään ei tarvitse VICE:a. |
 
 ### Merkistöpohjan editori
 
@@ -6670,9 +6782,15 @@ ensin, onko niissä mitään.
 - Solualueen liittäminen alkaa nyt valitusta alueen aloitussolusta ja pysähtyy
   siististi ääni- ja rivirajoihin sen sijaan, että rivitys jatkuisi seuraavaan
   sarakkeeseen tai riviin.
-- **Nopeus** (rivien väliset ruudut, 1–255) kirjoitetaan tai sitä porrastetaan
-  sen vieressä olevilla − / + -painikkeilla; `F` -tehoste muuttaa sitä toiston
-  aikana.
+- **Kumoa / Tee uudelleen** (äänikopion edessä olevat painikkeet tai Ctrl+Z ja
+  Ctrl+Y) selaavat nuotteja, instrumentteja, kappaletta ja tempoa sekä sävelmän
+  latausta askel kerrallaan jopa 100 askeleen verran. Nupin vetäminen tai koko
+  äänite on yksi askel, ja näkymä hyppää muuttuneeseen instrumenttiin ja
+  kuvioon. Tekstikentissä on edelleen omat Ctrl+Z-näppäinyhdistelmänsä.
+- **Frames/row** (1–255, joten suurempi luku on hitaampi) kirjoitetaan tai sitä
+  askelletaan sen vieressä olevilla − / + -painikkeilla; `F` -tehoste muuttaa
+  sitä toiston aikana. Sen vieressä oleva **BPM** näyttää tuloksena olevan
+  tempon: 4 riviä iskua kohden PAL-äänessä, 6 kuvaa/rivi = 125 BPM.
 
 **Kappale-/tilauslista:**
 - Patternit on järjestetty kappale-/järjestysluettelon avulla, joka on
@@ -6733,20 +6851,24 @@ ajoitusta), toimivat identtisesti Web Audio -esikatselussa ja käännetyssä
   koskettimet ovat auki.
 
 **Äänitys, metronomi ja MIDI:**
-- **Äänitä** (punainen piste seurantapalkissa ja VA-VK:ssa) tallentaa soittamasi
-  nuotit – VA-VK:lla, tietokoneen näppäimistöllä tai MIDI-näppäimistöllä –
-  tahtiin valittuun ääneen valitulta riviltä alkaen nykyisellä nopeudella. Kun
-  kuvio on täynnä, uusi tyhjä kuvio lisätään nykyisen kappaleen vaiheen jälkeen
-  ja tallennus jatkuu siitä. Pysäytä painamalla Äänitä uudelleen.
+- **Äänitä** (punainen piste seurantapalkissa ja VA-VK:ssa) kirjoittaa
+  soittamasi nuotit – VA-VK:lla, tietokoneen näppäimistöllä tai
+  MIDI-näppäimistöllä – tahtiin valittuun ääneen valitulta riviltä alkaen
+  nykyisessä tempossa. Kun kuvio on täynnä, uusi tyhjä kuvio lisätään nykyisen
+  kappaleen vaiheen jälkeen ja tallennus jatkuu siitä. Pysäytä painamalla Äänitä
+  uudelleen.
 - **Metronomi** (seurantatyökalurivi ja VA-VK) napsahtaa joka neljäs rivi,
   painottuen jokaisen neljän iskun tahdin ensimmäiseen iskuun. Sen vieressä
   olevat iskuvalot vilkkuvat jokaisella iskulla toiston ja tallennuksen aikana,
   vaikka napsahdus olisi pois päältä.
-- **MIDI:** valitse tulo **MIDI** -luettelosta instrumentin nimen vierestä ja
+- **MIDI:** valitse tulo **MIDI**-luettelosta instrumentin nimen vierestä ja
   paina **Connect MIDI**; nuotit soittavat nykyistä instrumenttia (ja ne
-  kirjoitetaan seurantalaitteeseen äänityksen aikana tai *Insert into tracker*
-  -komennolla). Painikkeen vieressä oleva merkkivalo vilkkuu jokaisen saapuvan
-  MIDI-viestin yhteydessä.
+  kirjoitetaan seurantaan äänityksen aikana tai *Insert into tracker*
+  -toiminnolla). Painikkeen vieressä oleva merkkivalo vilkkuu jokaisen saapuvan
+  MIDI-viestin yhteydessä. Kun **Poly record** on käytössä, äänityksen aikana
+  painetut koskettimet siirtyvät omiin ääniinsä valitusta äänestä alkaen, ja
+  vapautus kirjoittaa nuotinvaihdon; kun jokainen ääni pidetään painettuna,
+  vanhin kosketin luovuttaa äänensä.
 - **Kuviota poistamalla:** **−**-painike **Pat +** -kohdan vieressä poistaa
   nykyisen kuvion (se kysyy ensin, onko kuviossa nuotteja). Sitä käyttäneet
   kappaleen vaiheet poistetaan ja muut numeroidaan uudelleen; vähintään yksi

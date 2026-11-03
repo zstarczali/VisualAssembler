@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Podręcznik użytkownika
 
-**Wersja 2.7.2**
+**Wersja 2.7.3**
 
 Wizualny, blokowy assembler 6502 dla Commodore 64. Twórz programy, przeciągając
 i upuszczając bloki instrukcji, i oglądaj generowany kod assemblera i maszynowy
@@ -10,6 +10,7 @@ w czasie rzeczywistym.
 
 ## Spis treści
 
+- [Najważniejsze cechy wersji 2.7.3](#version-273-highlights)
 - [Najważniejsze cechy wersji 2.7.2](#version-272-highlights)
 - [Najważniejsze cechy wersji 2.7.1](#version-271-highlights)
 - [Najważniejsze cechy wersji 2.7.0](#version-270-highlights)
@@ -228,6 +229,8 @@ w czasie rzeczywistym.
   - [Exomizer](#exomizer)
   - [Retro Debugger](#retro-debugger)
   - [C64 Ultimate / 1541 Ultimate](#c64-ultimate--1541-ultimate)
+  - [Instalacja emulatora Ultimate, krok po
+    kroku](#installing-the-ultimate-emulator-step-by-step)
   - [Kung Fu Flash 2](#kung-fu-flash-2)
   - [Kontrola wersji (git)](#version-control-git)
 - [14. Edytory wizualne (zestaw narzędzi)](#14-visual-editors-toolkit)
@@ -250,6 +253,44 @@ w czasie rzeczywistym.
   - [Konwerter liczb](#number-converter)
 
 ---
+
+## Najważniejsze cechy wersji 2.7.3
+
+- **Linux** — SID Player i SID Editor nie obsługiwały wtyczek GStreamer: teraz
+  są one dostępne w AppImage, a pakiety `.deb` i `.rpm` są od nich zależne.
+- **Cofnij/Ponów w edytorze SID** — dwa nowe przyciski na pasku narzędzi
+  trackera, dostępne po naciśnięciu Ctrl+Z i Ctrl+Y. Obejmują one nuty,
+  instrumenty, utwór, tempo i wczytywanie melodii, do 100 kroków. Całe nagranie
+  to jeden krok.
+- **Tempo** — pole tempa trackera ma nazwę odpowiadającą temu, czym jest,
+  **Klatki/wiersz**: wyższa liczba oznacza wolniejsze. **BPM** obok pokazuje
+  wynikowe tempo.
+- **Przesuwanie nut w śledzeniu poziomym ** — przeciągnij korpus nuty, aby
+  przesunąć ją w tempie i wysokości. Zachowuje ona długość, instrument i efekt,
+  a także zatrzymuje się o wiersz przed następną nutą w głosie.
+- **Długość nuty w śledzeniu poziomym** — teraz łatwo wychwycić prawy koniec
+  nuty, nawet w przypadku nuty jednowierszowej: kursor zmienia się w podwójną
+  strzałkę, a jasny pasek oznacza koniec. Przeciągnij go, aby rozciągnąć lub
+  skrócić nutę. Zatrzyma się na następnej nucie głosu, zamiast ją usunąć.
+- **Podłącz MIDI bez pytania** — w systemie Windows widok sieciowy nie pyta już
+  o pozwolenie w osobnym oknie dialogowym.
+- **Ładowanie pliku .bin** — tracker otwiera się na pierwszym wybranym kroku
+  utworu: utwór, którego utwór nie zaczyna się od wzorca 0, zamiast niego
+  wyświetla się wzorzec 0.
+- **Pauza odtwarzacza SID** — teraz za każdym razem się zatrzymuje: fragment
+  utworu wyrenderowany w danym momencie lub nuta z edytora SID mogły ponownie
+  włączyć dźwięk, gdy odtwarzacz był w trybie pauzy. Ponowne naciśnięcie
+  przycisku pauzy kontynuuje odtwarzanie.
+- **Zatrzymaj w odtwarzaniu: Wszystko** — tracker powraca do wzoru, który był
+  otwarty przed odtwarzaniem, zamiast zatrzymywać się na ostatnio odtwarzanym
+  wzorze, podczas gdy pierwszy krok utworu pozostaje wybrany.
+- **Nagrywanie wielogłosowe z MIDI** — z włączoną funkcją **Nagrywanie
+  wielogłosowe** (obok wejścia MIDI) klawisze przytrzymywane podczas nagrywania
+  są przypisywane do własnych głosów, od wybranego głosu. Akord trójkowy trafia
+  do trzech głosów, a zwolnienie klawisza powoduje zapisanie nuty.
+- **Brak kliknięcia na reSID** — nuty grane z klawiatury lub VA-VK nie klikają
+  już przed rozpoczęciem, podobnie jak pierwsza nuta melodii, która nie zaczyna
+  się w pierwszym wierszu, zarówno w przypadku 6581, jak i 8580.
 
 ## Najważniejsze cechy wersji 2.7.2
 
@@ -6392,35 +6433,37 @@ Edytor znaków 8×8 o pojemności 256 znaków. Otwórz przez Toolkit → Edytor 
    pomocą protokołu HTTP POST na adres `/v1/runners:run_prg`. Urządzenie
    natychmiast go załaduje i uruchomi na komputerze C64.
 
-**Bez sprzętu: ** wybierz **Emulator Ultimate** z menu uruchamiania, aby
-uruchomić [UE2-C64U-Emulator](https://github.com/Jondalar/UE2-C64U-Emulator),
-który uruchamia niezmodyfikowane oprogramowanie układowe Ultimate na Twoim
-komputerze. Zainstaluj go osobno, a następnie skonfiguruj trzy rzeczy w
-**Ustawienia → Integracje → Emulator Ultimate (UE2)**: program `ue2emu`,
-oprogramowanie układowe (`.ue2`, `.elf` lub `.app`, brak w zestawie) oraz folder
-ROM (`roms/` w [1541ultimate](https://github.com/GideonZ/1541ultimate)). Z tego
-folderu wymagany jest tylko plik `chars.bin` (2048 bajtów, czcionka menu);
-oprogramowanie układowe Commodore uruchamia się na własnych ROM-ach C64.
-Pierwsze uruchomienie instaluje plik `.ue2` w obrazie flash przechowywanym dla
+**Bez sprzętu: ** wybierz **Ultimate emulator** z podzielonego menu
+uruchamiania, aby uruchomić
+[UE2-C64U-Emulator](https://github.com/Jondalar/UE2-C64U-Emulator), który
+uruchamia niezmodyfikowane oprogramowanie układowe Ultimate na twoim komputerze.
+Zainstaluj go osobno (zobacz [Instalowanie emulatora Ultimate krok po
+kroku](#installing-the-ultimate-emulator-step-by-step)), a następnie ustaw trzy
+rzeczy w **Ustawienia → Integracje → Emulator Ultimate (UE2)**: program
+`ue2emu`, oprogramowanie układowe (`.ue2`, `.elf` lub `.app`, brak w zestawie) i
+folder ROM (`roms/` w [1541ultimate](https://github.com/GideonZ/1541ultimate)).
+Z tego folderu wymagany jest tylko plik `chars.bin` (2048 bajtów, czcionka
+menu); oprogramowanie układowe Commodore uruchamia się na własnych ROM-ach C64.
+Pierwsze uruchomienie instaluje `.ue2` w obrazie flash przechowywanym dla
 oprogramowania układowego w folderze konfiguracyjnym aplikacji, a każde
-uruchomienie uruchamia usługę sieciową oprogramowania układowego, która w
-oprogramowaniu układowym Commodore jest domyślnie wyłączona. Emulator uruchamia
-się podczas pierwszego uruchomienia i pozostaje otwarty podczas kolejnych
-uruchomień; jego interfejs API REST nasłuchuje na porcie `127.0.0.1` **REST**
-(domyślnie 8064). Zamyka się wraz z aplikacją lub poleceniem **Stop emulator**.
-**D64 na emulatorze Ultimate ** w tym samym menu pakuje D64 (wymaga to `c1541`
-VICE), montuje go na dysku A i uruchamia pierwszy program. Gdy wybrany jest
-jeden z tych dwóch trybów uruchamiania, okno **Monitora VICE ** (gorące
-przeładowanie, podgląd na żywo, profiler) łączy się z emulatorem zamiast z VICE.
-**Debugowanie ** w tych trybach uruchamiania otwiera debuger emulatora:
-rejestry, deasemblacja, pamięć i punkty przerwania w osobnym oknie, obraz w
-oknie emulatora. Program zatrzymuje się na pierwszym osiągniętym punkcie
-przerwania lub na pierwszej instrukcji, jeśli ich nie ma; linia edytora podąża
-za procesorem, a klawisze F5, F10, F11 i Shift+F11 działają również z fokusem w
-edytorze. Przerwanie IRQ z timerem może wykonać krok do KERNALU, jak w monitorze
-VICE, gdy przerwania są włączone. VA ustawia również **Turbo Control** na
-rejestry turbo w pamięci flash emulatora, dzięki czemu program może zmienić
-prędkość procesora za pomocą `$D031` (odczytuje `$00`, 1 MHz, po resecie).
+uruchomienie włącza usługę sieciową oprogramowania układowego, która w
+oprogramowaniu Commodore jest wyłączona. Emulator uruchamia się przy pierwszym
+uruchomieniu i pozostaje otwarty podczas kolejnych uruchomień; jego interfejs
+API REST nasłuchuje na porcie `127.0.0.1` **REST** (domyślnie 8064). Zamyka się
+z aplikacją lub poleceniem **Stop emulator**. **D64 na emulatorze Ultimate** w
+tym samym menu pakuje D64 (wymaga to pliku VICE `c1541`), montuje go na dysku A
+i uruchamia pierwszy program. Gdy wybrany jest jeden z tych dwóch trybów pracy,
+okno monitora **VICE Monitor** (przeładowanie na gorąco, podgląd na żywo,
+profiler) łączy się z emulatorem zamiast z VICE. W tych trybach pracy debuger
+**Debug** otwiera debugger emulatora: rejestry, deasemblacja, pamięć i punkty
+przerwania znajdują się we własnym oknie, a obraz w oknie emulatora. Program
+zatrzymuje się na pierwszym osiągniętym punkcie przerwania lub na pierwszej
+instrukcji, jeśli ich nie ma; wiersz edytora podąża za procesorem, a klawisze
+F5, F10, F11 i Shift+F11 działają również z fokusem w edytorze. Przerwanie IRQ
+timera może wykonać krok do jądra, tak jak w monitorze VICE, gdy przerwania są
+włączone. VA ustawia również **Turbo Control** na rejestry turbo w pamięci flash
+emulatora, dzięki czemu program może zmienić prędkość procesora za pomocą
+`$D031` (po resecie odczytuje `$00`, 1 MHz).
 
 Przykład: **Ultimate turbo demo (64 sprite'y)**
 (`samples/ultimate-turbo-demo.asm`) — prędkość zmienia się co 3 sekundy od 1 do
@@ -6434,6 +6477,73 @@ obraca się sześcian (5 klatek na sekundę przy 1 MHz, 50 przy 16 MHz).
 > **Wskazówka: ** Nie potrzebujesz kabla USB ani sterownika — interfejs API REST
 > jest wbudowany w oprogramowanie układowe Ultimate. Twój komputer i urządzenie
 > muszą być w tej samej sieci lokalnej.
+
+### Instalacja emulatora Ultimate krok po kroku
+
+Tryby uruchamiania emulatorów **Ultimate ** i **D64 na emulatorze Ultimate **
+wymagają trzech elementów, których nie ma w Visual Assemblerze: samego
+emulatora, oprogramowania układowego Ultimate i folderu ROM. Skonfiguruj je raz,
+wykonując następujące czynności.
+
+**1. Zainstaluj emulator **
+([UE2-C64U-Emulator](https://github.com/Jondalar/UE2-C64U-Emulator)):
+
+- **Windows:** pobierz `ue2emu-<wersja>-windows-x86_64.zip` ze [strony
+  Wydania](https://github.com/Jondalar/UE2-C64U-Emulator/releases) emulatora i
+  rozpakuj go do folderu, który chcesz zachować, na przykład `C:\Tools\ue2emu`.
+  Zachowaj pliki razem: obok pliku `ue2emu.exe` znajdują się biblioteki DLL.
+- **macOS:** zainstaluj go za pomocą Homebrew. Visual Assembler znajdzie go tam
+  samodzielnie:
+
+  ```
+  napar zainstaluj jondalar/ue2emu/ue2emu
+  ```
+
+- **Linux:** nie ma jeszcze gotowego pakietu; zbuduj go ze źródeł zgodnie z
+  dokumentacją emulatora (potrzebne są Rust i libslirp).
+
+**2. Pobierz oprogramowanie układowe. ** Emulator uruchamia oprogramowanie
+układowe **C64 Ultimate** lub **Ultimate 64 Elite II** w niezmodyfikowanej
+wersji: plik aktualizacji (`.ue2`), który można zainstalować na urządzeniu, lub
+plik `ultimate.elf` własnej kompilacji. Ani Visual Assembler, ani emulator nie
+zawierają takiego oprogramowania. Wiadomo, że oprogramowanie układowe C64
+Ultimate w wersji 1.1.0 działa.
+
+**3. Pobierz folder ROM.** Pobierz repozytorium
+[1541ultimate](https://github.com/GideonZ/1541ultimate) z GitHub (**Kod →
+Pobierz ZIP** lub `git clone`) i rozpakuj je. Potrzebujesz folderu `roms`.
+Visual Assembler sprawdza w nim tylko `chars.bin` (2048 bajtów, czcionka menu).
+
+**4. Wypełnij ustawienia.** Otwórz **Ustawienia → Integracje → Ultimate emulator
+(UE2)**:
+
+| Przycisk                            | Wybierać                                                                                                                                  |
+| ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| **Wybierz ue2emu**                  | `ue2emu.exe` z kroku 1. Jeśli emulator znajduje się w ścieżce `PATH` lub jest zainstalowany za pomocą Homebrew, pole jest już wypełnione. |
+| **Wybierz oprogramowanie układowe** | `.ue2` (lub `.elf`) z kroku 2.                                                                                                            |
+| **Wybierz folder ROM**              | Sam folder `roms`, a nie folder repozytorium znajdujący się nad nim.                                                                      |
+| **Port REST**                       | Pozostaw **8064**, chyba że ten port jest zajęty. Emulator używa również dwóch kolejnych portów (sterującego i monitora VICE).            |
+
+**5. Uruchom.** Wybierz **Ultimate emulator** w menu podzielonego uruchamiania
+(pojawi się ono po zakończeniu ustawień) i naciśnij **▶ Uruchom**. Pierwsze
+uruchomienie z `.ue2` instaluje oprogramowanie układowe w osobnym obrazie flash,
+co trwa nieco dłużej; następnie otwiera się okno emulatora i uruchamia program.
+W wierszu stanu pod ustawieniami wyświetla się **Uruchomione, REST:
+127.0.0.1:8064**.
+
+**6. Kontynuuj pracę.** Późniejsze uruchomienia ponownie wykorzystują otwarty
+emulator. Polecenie **Zatrzymaj emulator** w ustawieniach zamyka go, podobnie
+jak zamknięcie programu Visual Assembler. Obraz flash jest zapisywany w trakcie
+pracy, więc ustawienia oprogramowania sprzętowego zostają zachowane.
+
+**Jeśli coś pójdzie nie tak:**
+
+| Wiadomość                                                      | Co robić                                                                                                                                                 |
+| -------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| *Emulator Ultimate: nie ustawiono w Ustawieniach: …*           | Krok 4: element podany w wiadomości jest pusty lub plik już nie istnieje.                                                                                |
+| *Emulator Ultimate: brakuje w folderze ROM: chars.bin*         | Wybierasz folder repozytorium lub rozpakowany folder ZIP powyżej: wybierasz sam folder `roms`.                                                           |
+| *API REST emulatora Ultimate nie odpowiedziało na czas*        | Inny program używa tego portu: ustaw inny port **REST**.                                                                                                 |
+| **D64 na emulatorze Ultimate ** nie może zbudować obrazu dysku | W tym trybie D64 jest wyposażony w VICE `c1541`: ustaw ścieżkę VICE w **Ustawienia → Pliki i ścieżki**. Sam tryb emulatora **Ultimate** nie wymaga VICE. |
 
 ### Edytor płótna zestawu znaków
 
@@ -6804,8 +6914,16 @@ jednego SID-a usuwa głosy drugiego SID-a i najpierw pyta, czy coś w nich jest.
 - Wklejanie zakresu komórek rozpoczyna się teraz od wybranej komórki początkowej
   zakresu i kończy się na granicach wiersza lub głosu, zamiast przechodzić do
   następnej kolumny lub wiersza.
-- **Prędkość** (klatki między wierszami, 1–255) wpisuje się lub zmienia skokowo
-  za pomocą przycisków − / + obok; efekt `F` zmienia ją podczas odtwarzania.
+- **Cofnij/Ponów** (przyciski przed kopiowaniem głosu lub Ctrl+Z i Ctrl+Y)
+  umożliwiają prześledzenie zmian nut, instrumentów, utworu i tempa oraz
+  załadowanie melodii, do 100 kroków. Przeciągnięcie pokrętła lub całego
+  nagrania to jeden krok, a widok przeskakuje do zmienionego instrumentu i
+  wzoru. Pola tekstowe zachowują swoje własne Ctrl+Z.
+- **Klatki/wiersz** (1–255, więc wyższa liczba oznacza wolniejszy czas
+  odtwarzania) wpisuje się lub zmienia skokowo za pomocą przycisków − / + obok;
+  efekt `F` zmienia ją podczas odtwarzania. **BPM** obok pokazuje tempo
+  wynikowe: przy 4 wierszach na uderzenie w systemie PAL, 6 klatek/wiersz = 125
+  BPM.
 
 **Lista utworów / kolejności:**
 - Wzory są ustalane na podstawie listy piosenek/kolejności umieszczonej na
@@ -6867,18 +6985,21 @@ eksporcie 6502 oraz są zapisywane/ładowane bezstratnie w wersjonowanym formaci
 
 **Nagrywanie, metronom i MIDI:**
 - **Record** (czerwona kropka na pasku narzędzi trackera i na VA-VK) zapisuje
-  nuty grane na VA-VK, klawiaturze komputera lub MIDI w tempie wybranego głosu,
-  zaczynając od wybranego wiersza i z aktualną prędkością. Po zapełnieniu
-  schematu, po bieżącym kroku utworu dodawany jest nowy, pusty schemat i tam
-  rozpoczyna się nagrywanie. Naciśnij ponownie przycisk Record, aby zatrzymać.
+  nuty grane na VA-VK, klawiaturze komputera lub MIDI w wybranym brzmieniu,
+  zaczynając od wybranego wiersza i w aktualnym tempie. Po zapełnieniu schematu,
+  po bieżącym kroku utworu dodawany jest nowy, pusty schemat i tam rozpoczyna
+  się nagrywanie. Naciśnij ponownie przycisk Record, aby zatrzymać.
 - **Metronom** (pasek narzędzi trackera i VA-VK) klika co 4 wiersze, akcentując
   pierwsze uderzenie każdego 4-uderzenia taktu. Lampki uderzeń obok niego migają
   przy każdym uderzeniu podczas odtwarzania i nagrywania, nawet gdy klik jest
   wyłączony.
 - **MIDI:** wybierz wejście z listy **MIDI** obok nazwy instrumentu i naciśnij
-  **Połącz MIDI**; nuty będą odtwarzane przez bieżący instrument (i zapisywane w
-  trackerze podczas nagrywania lub za pomocą *Wstaw do trackera*). Lampka obok
-  przycisku będzie migać przy każdej przychodzącej wiadomości MIDI.
+  **Connect MIDI**; nuty odtwarzają bieżący instrument (i są zapisywane w
+  trackerze podczas nagrywania lub za pomocą *Insert into tracker*). Lampka obok
+  przycisku miga przy każdej przychodzącej wiadomości MIDI. Po włączeniu **Poly
+  record** klawisze przytrzymywane podczas nagrywania są przypisywane do
+  własnych głosów, od wybranego głosu, a zwolnienie zapisuje nutę-off; gdy
+  wszystkie głosy są przytrzymywane, najstarszy klawisz oddaje swój głos.
 - **Usuwanie wzoru:** przycisk **−** obok **Pat +** usuwa bieżący wzór (najpierw
   pyta, czy wzór zawiera nuty). Kroki utworu, które go używały, są usuwane, a
   pozostałe numerowane ponownie; zawsze pozostaje co najmniej jeden wzór.

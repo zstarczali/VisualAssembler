@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.7.2**
+**Version 2.7.3**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -8,6 +8,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 
 ## Table of Contents
 
+- [Version 2.7.3 Highlights](#version-273-highlights)
 - [Version 2.7.2 Highlights](#version-272-highlights)
 - [Version 2.7.1 Highlights](#version-271-highlights)
 - [Version 2.7.0 Highlights](#version-270-highlights)
@@ -214,6 +215,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
   - [Exomizer](#exomizer)
   - [Retro Debugger](#retro-debugger)
   - [C64 Ultimate / 1541 Ultimate](#c64-ultimate--1541-ultimate)
+  - [Installing the Ultimate emulator, step by step](#installing-the-ultimate-emulator-step-by-step)
   - [Kung Fu Flash 2](#kung-fu-flash-2)
   - [Version control (git)](#version-control-git)
 - [14. Visual Editors (Toolkit)](#14-visual-editors-toolkit)
@@ -233,6 +235,20 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
   - [Number Converter](#number-converter)
 
 ---
+
+## Version 2.7.3 Highlights
+
+- **Linux** — the SID Player and the SID Editor stayed silent where the GStreamer plugins were missing: the AppImage now carries them, and the `.deb` and `.rpm` packages depend on them.
+- **Undo / Redo in the SID Editor** — two new buttons in the tracker toolbar, or Ctrl+Z and Ctrl+Y. They cover the notes, instruments, song, tempo and loading a tune, up to 100 steps. A whole recording is one step.
+- **Tempo** — the tracker's tempo field is named for what it is, **Frames/row**: a higher number is slower. **BPM** next to it shows the resulting tempo.
+- **Moving notes in the horizontal tracker** — drag a note's body to move it in time and pitch. It keeps its length, instrument and effect, and stops a row short of the voice's next note.
+- **Note length in the horizontal tracker** — a note's right end is easy to catch now, even on a one-row note: the cursor turns into a double arrow and a bright bar marks the end. Drag it to stretch or shorten the note. It stops at the voice's next note, instead of deleting it.
+- **Connect MIDI without a question** — on Windows the web view no longer asks for permission in a dialog of its own.
+- **Loading a .bin** — the tracker opens on the selected first song step: a tune whose song does not start with pattern 0 showed pattern 0 instead.
+- **SID Player Pause** — it pauses every time now: a chunk of the tune rendered at that moment, or a note from the SID Editor, could switch the sound back on while the player showed Paused. Pressing Pause again continues.
+- **Stop in Play: All** — the tracker returns to the pattern that was open before playback, instead of staying on the last one played while the first song step stays selected.
+- **Poly record from MIDI** — with **Poly record** on (next to the MIDI input), the keys you hold while recording go to voices of their own, from the selected voice on. A chord of three lands on three voices, and releasing a key writes a note-off.
+- **No click on reSID** — notes played from the keyboard or VA-VK no longer click before they start, and neither does the first note of a tune that does not begin on the first row, with either the 6581 or the 8580.
 
 ## Version 2.7.2 Highlights
 
@@ -4396,11 +4412,52 @@ Run assembled PRGs directly on real hardware over the local network using the Ul
 3. Select **Run on hardware** from the split run menu.
 4. Click **▶ Run** — the PRG is compiled and sent to the device via HTTP POST to `/v1/runners:run_prg`. The device loads and runs it on the C64 immediately.
 
-**Without hardware:** select **Ultimate emulator** from the split run menu to run on [UE2-C64U-Emulator](https://github.com/Jondalar/UE2-C64U-Emulator), which runs the unmodified Ultimate firmware on your computer. Install it separately, then set three things in **Settings → Integrations → Ultimate emulator (UE2)**: the `ue2emu` program, a firmware (`.ue2`, `.elf` or `.app`, not included) and the ROM folder (`roms/` of a [1541ultimate](https://github.com/GideonZ/1541ultimate) checkout). Only `chars.bin` (2048 bytes, the menu font) is required from that folder; the Commodore firmware boots on its own C64 ROMs. The first run installs a `.ue2` into a flash image kept per firmware in the app's config folder, and every start turns on the firmware's web service, which the Commodore firmware ships disabled. The emulator starts on the first run and stays open for the next ones; its REST API listens on `127.0.0.1` at the **REST port** (default 8064). It closes with the app or with **Stop emulator**. **D64 on Ultimate emulator** in the same menu packages a D64 (this needs VICE's `c1541`), mounts it on drive A and runs the first program. While one of these two run modes is selected, the **VICE Monitor** window (hot reload, live watch, profiler) connects to the emulator instead of VICE. **Debug** in these run modes opens the emulator debugger: registers, disassembly, memory and breakpoints in a window of their own, the picture in the emulator's window. The program stops at the first breakpoint it reaches, or at its first instruction if there are none; the editor line follows the CPU, and F5, F10, F11 and Shift+F11 work with the focus in the editor too. A timer IRQ can take a step into the KERNAL, as in VICE's monitor, when interrupts are on. VA also sets **Turbo Control** to the turbo registers in the emulator's flash, so a program can change the CPU speed through `$D031` (it reads `$00`, 1 MHz, after a reset).
+**Without hardware:** select **Ultimate emulator** from the split run menu to run on [UE2-C64U-Emulator](https://github.com/Jondalar/UE2-C64U-Emulator), which runs the unmodified Ultimate firmware on your computer. Install it separately (see [Installing the Ultimate emulator, step by step](#installing-the-ultimate-emulator-step-by-step)), then set three things in **Settings → Integrations → Ultimate emulator (UE2)**: the `ue2emu` program, a firmware (`.ue2`, `.elf` or `.app`, not included) and the ROM folder (`roms/` of a [1541ultimate](https://github.com/GideonZ/1541ultimate) checkout). Only `chars.bin` (2048 bytes, the menu font) is required from that folder; the Commodore firmware boots on its own C64 ROMs. The first run installs a `.ue2` into a flash image kept per firmware in the app's config folder, and every start turns on the firmware's web service, which the Commodore firmware ships disabled. The emulator starts on the first run and stays open for the next ones; its REST API listens on `127.0.0.1` at the **REST port** (default 8064). It closes with the app or with **Stop emulator**. **D64 on Ultimate emulator** in the same menu packages a D64 (this needs VICE's `c1541`), mounts it on drive A and runs the first program. While one of these two run modes is selected, the **VICE Monitor** window (hot reload, live watch, profiler) connects to the emulator instead of VICE. **Debug** in these run modes opens the emulator debugger: registers, disassembly, memory and breakpoints in a window of their own, the picture in the emulator's window. The program stops at the first breakpoint it reaches, or at its first instruction if there are none; the editor line follows the CPU, and F5, F10, F11 and Shift+F11 work with the focus in the editor too. A timer IRQ can take a step into the KERNAL, as in VICE's monitor, when interrupts are on. VA also sets **Turbo Control** to the turbo registers in the emulator's flash, so a program can change the CPU speed through `$D031` (it reads `$00`, 1 MHz, after a reset).
 
 Sample: **Ultimate turbo demo (64 sprites)** (`samples/ultimate-turbo-demo.asm`) — the speed changes every 3 seconds from 1 to 64 MHz; at 1 MHz balls go missing and the frame rate drops, from 4 MHz all 64 sprites run at 50 fps. It runs only on an Ultimate with the turbo registers on; anywhere else it says so. **Ultimate turbo cube** (`samples/ultimate-box-demo.asm`) does the same with the cube of the box sample: the faster the CPU, the faster the cube turns (5 frames a second at 1 MHz, 50 from 16 MHz).
 
 > **Tip:** No USB cable or driver needed — the REST API is built into the Ultimate firmware. Your computer and the device must be on the same local network.
+
+### Installing the Ultimate emulator, step by step
+
+The **Ultimate emulator** and **D64 on Ultimate emulator** run modes need three things that do not come with Visual Assembler: the emulator itself, an Ultimate firmware and a ROM folder. Set them up once, as follows.
+
+**1. Install the emulator** ([UE2-C64U-Emulator](https://github.com/Jondalar/UE2-C64U-Emulator)):
+
+- **Windows:** download `ue2emu-<version>-windows-x86_64.zip` from the emulator's [Releases page](https://github.com/Jondalar/UE2-C64U-Emulator/releases) and unzip it into a folder you keep, for example `C:\Tools\ue2emu`. Keep the files together: `ue2emu.exe` needs the DLLs next to it.
+- **macOS:** install it with Homebrew. Visual Assembler finds it there on its own:
+
+  ```
+  brew install jondalar/ue2emu/ue2emu
+  ```
+
+- **Linux:** there is no ready package yet; build it from source as the emulator's documentation describes (Rust and libslirp are needed).
+
+**2. Get a firmware.** The emulator runs the firmware of a **C64 Ultimate** or an **Ultimate 64 Elite II** unmodified: the update file (`.ue2`) that you would install on the device, or an `ultimate.elf` of your own build. Neither Visual Assembler nor the emulator includes one. The C64 Ultimate firmware 1.1.0 is known to work.
+
+**3. Get the ROM folder.** Download the [1541ultimate](https://github.com/GideonZ/1541ultimate) repository from GitHub (**Code → Download ZIP**, or `git clone`) and unpack it. What you need is its `roms` folder. Visual Assembler checks only `chars.bin` in it (2048 bytes, the menu font).
+
+**4. Fill in the settings.** Open **Settings → Integrations → Ultimate emulator (UE2)**:
+
+| Button | Choose |
+|---|---|
+| **Choose ue2emu** | `ue2emu.exe` from step 1. When the emulator is on the `PATH` or installed with Homebrew, the field is filled in already. |
+| **Choose firmware** | The `.ue2` (or `.elf`) from step 2. |
+| **Choose ROM folder** | The `roms` folder itself, not the repository folder above it. |
+| **REST port** | Leave it at **8064** unless that port is taken. The emulator also uses the next two ports (control and VICE monitor). |
+
+**5. Run.** Select **Ultimate emulator** in the split run menu (it appears once the settings are complete) and press **▶ Run**. The first run with a `.ue2` installs the firmware into a flash image of its own, which takes a little longer; then the emulator's window opens and your program starts. The status line under the settings shows **Running, REST: 127.0.0.1:8064**.
+
+**6. Keep working.** Later runs reuse the open emulator. **Stop emulator** in the settings closes it, and so does quitting Visual Assembler; the flash image is saved on the way, so the firmware's own settings are kept.
+
+**If something goes wrong:**
+
+| Message | What to do |
+|---|---|
+| *Ultimate emulator: not set in Settings: …* | Step 4: the item named in the message is empty, or the file is no longer there. |
+| *Ultimate emulator: missing from the ROM folder: chars.bin* | You chose the repository folder or an unpacked ZIP folder above it: choose the `roms` folder itself. |
+| *The Ultimate emulator's REST API did not respond in time* | Another program uses the port: set a different **REST port**. |
+| **D64 on Ultimate emulator** cannot build the disk image | That mode packs the D64 with VICE's `c1541`: set the VICE path in **Settings → Files and paths**. The **Ultimate emulator** mode itself does not need VICE. |
 
 ### Kung Fu Flash 2
 
@@ -4631,7 +4688,8 @@ Multi-instrument 3-voice tracker. Open it with the SID Editor toolbar button. Pl
 - Arpeggio helper: preview or insert 4-, 8-, or 16-step note runs from the selected chord in up, down, or up/down directions.
 - **Preview row** auditions the selected row across all voices without starting pattern playback.
 - Cell-range paste now starts at the selected range start cell and stops cleanly at voice and row boundaries instead of wrapping into the next column or row.
-- **Speed** (frames between rows, 1–255) is typed in or stepped with the − / + buttons next to it; the `F` effect changes it during playback.
+- **Undo / Redo** (the buttons before the voice copy, or Ctrl+Z and Ctrl+Y) step through the changes of the notes, instruments, song and tempo and the loading of a tune, up to 100 steps. A knob's drag or a whole recording is one step, and the view jumps to the instrument and pattern that changed. Text fields keep their own Ctrl+Z.
+- **Frames/row** (1–255, so a higher number is slower) is typed in or stepped with the − / + buttons next to it; the `F` effect changes it during playback. **BPM** next to it shows the resulting tempo: with 4 rows per beat on PAL, 6 frames/row = 125 BPM.
 
 **Song / order list:**
 - Patterns are arranged through a song/order list layered on top of the raw pattern bank — the same pattern can repeat, and the song can be longer than the number of stored patterns.
@@ -4661,9 +4719,9 @@ Effects update once per row (matching the exported player's timing), run identic
 - Chord and arpeggio previews illuminate the corresponding piano keys when the keyboard is open.
 
 **Recording, metronome and MIDI:**
-- **Record** (the red dot, in the tracker toolbar and on VA-VK) writes the notes you play — on VA-VK, the computer keyboard or a MIDI keyboard — in time into the selected voice, starting at the selected row, at the current Speed. When the pattern is full, a new empty pattern is added after the current song step and recording goes on there. Press Record again to stop.
+- **Record** (the red dot, in the tracker toolbar and on VA-VK) writes the notes you play — on VA-VK, the computer keyboard or a MIDI keyboard — in time into the selected voice, starting at the selected row, at the current tempo. When the pattern is full, a new empty pattern is added after the current song step and recording goes on there. Press Record again to stop.
 - **Metronome** (tracker toolbar and VA-VK) clicks every 4 rows, accented on the first beat of each 4-beat bar. The beat lamps next to it flash on every beat during playback and recording, even with the click off.
-- **MIDI:** choose the input in the **MIDI** list next to the instrument name and press **Connect MIDI**; notes play the current instrument (and are written into the tracker while recording or with *Insert into tracker*). The lamp next to the button flashes on every incoming MIDI message.
+- **MIDI:** choose the input in the **MIDI** list next to the instrument name and press **Connect MIDI**; notes play the current instrument (and are written into the tracker while recording or with *Insert into tracker*). The lamp next to the button flashes on every incoming MIDI message. With **Poly record** on, the keys held while recording go to voices of their own, from the selected voice on, and a release writes a note-off; when every voice is held, the oldest key gives up its voice.
 - **Pattern delete:** the **−** button next to **Pat +** deletes the current pattern (it asks first if the pattern has notes). The song steps that used it are removed and the others renumbered; at least one pattern always remains.
 - The **master volume** knob is on VA-VK.
 

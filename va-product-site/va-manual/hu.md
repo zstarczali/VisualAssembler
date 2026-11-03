@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**2.7.2-es verzió**
+**2.7.3-as verzió**
 
 Vizuális, blokk alapú 6502 assembler a Commodore 64-hez. Programokat hozhat
 létre húzással és elengedéssel (fogd és vidd) utasításblokkokkal, és valós
@@ -10,6 +10,7 @@ időben tekintheti meg a létrehozott assembly és gépi kódot.
 
 ## Tartalomjegyzék
 
+- [2.7.3-as verzió kiemelt funkciói](#version-273-highlights)
 - [2.7.2-es verzió – kiemelt funkciók](#version-272-highlights)
 - [2.7.1-es verzió – kiemelt funkciók](#version-271-highlights)
 - [2.7.0 verzió – kiemelt funkciók](#version-270-highlights)
@@ -226,6 +227,8 @@ időben tekintheti meg a létrehozott assembly és gépi kódot.
   - [Exomizer](#exomizer)
   - [Retro hibakereső](#retro-debugger)
   - [C64 Végső / 1541 Végső](#c64-ultimate--1541-ultimate)
+  - [Az Ultimate emulátor telepítése, lépésről
+    lépésre](#installing-the-ultimate-emulator-step-by-step)
   - [Kung Fu Villám 2](#kung-fu-flash-2)
   - [Verziókövetés (git)](#version-control-git)
 - [14. Vizuális szerkesztők (Eszköztár)](#14-visual-editors-toolkit)
@@ -247,6 +250,47 @@ időben tekintheti meg a létrehozott assembly és gépi kódot.
   - [Számátváltó](#number-converter)
 
 ---
+
+## A 2.7.3-as verzió legfontosabb elemei
+
+- **Linux** — az SID Player és az SID Editor néma maradt ott, ahol a GStreamer
+  bővítmények hiányoztak: az AppImage mostantól hordozza őket, és az `.deb` és
+  `.rpm` csomagok ezektől függenek.
+- **Visszavonás / Újrafelvétel a SID szerkesztőben** — két új gomb a követő
+  eszköztáron, vagy Ctrl+Z és Ctrl+Y. Ezek lefedik a hangjegyeket, hangszereket,
+  dalt, tempót és egy dallam betöltését, akár 100 lépésig. Egy teljes felvétel
+  egyetlen lépés.
+- **Tempo** — a nyomkövető tempó mezője a nevét **Képkockák/sor**-nek nevezi: a
+  nagyobb szám lassabb. A mellette lévő **BPM** mutatja az eredményül kapott
+  tempót.
+- **Hangjegyek mozgatása a vízszintes követőben** — a hangjegy törzsének
+  húzásával mozgatható az idő és a hangmagasság szerint. Megőrzi a hosszát, a
+  hangszerét és a hatását, és egy sorral megáll a következő hangjegy előtt.
+- **Hangjegy hossza a vízszintes követőben** — egy hangjegy jobb vége mostantól
+  könnyen észrevehető, még egysoros hangjegyeknél is: a kurzor dupla nyíllá
+  változik, és egy világos sáv jelzi a végét. Húzd a kurzort a hangjegy
+  nyújtásához vagy rövidítéséhez. A hangjegy következő hangjánál megáll,
+  ahelyett, hogy törölné azt.
+- **MIDI csatlakoztatása kérdés nélkül** — Windows rendszeren a webes nézet már
+  nem kér engedélyt saját párbeszédpanelen.
+- ** .bin fájl betöltése** — a követő a kiválasztott első dallépésnél nyílik
+  meg: egy olyan dallam, amelynek a dala nem a 0. mintával kezdődik, ehelyett a
+  0. mintát mutatta.
+- **SID lejátszó szüneteltetése** — mostantól minden alkalommal szünetel: a
+  dallam egy adott pillanatban elővett részlete, vagy egy hang a SID
+  szerkesztőből visszakapcsolhatja a hangot, miközben a lejátszó szüneteltetést
+  mutatott. A szünet ismételt megnyomásával folytatható.
+- **Lejátszás leállítása: Összes** — a nyomkövető visszatér a lejátszás előtt
+  megnyitott mintához, ahelyett, hogy az utoljára lejátszott mintánál maradna,
+  miközben az első dallépés kijelölve marad.
+- **Poly felvétel MIDI-ből** — bekapcsolt **Poly felvétel** esetén (a MIDI
+  bemenet mellett), a felvétel közben lenyomva tartott billentyűk a kiválasztott
+  hangszíntől kezdve a saját hangszíneikre váltanak. Egy hármas akkord három
+  hangszínre ér, egy billentyű elengedésekor pedig egy hangváltás történik.
+- **Nincs kattanás a reSID-en** — a billentyűzetről vagy VA-VK-ról lejátszott
+  hangok már nem kattannak a kezdésük előtt, és a dallamok első hangja sem
+  kattan, ha azok nem az első sorban kezdődnek, sem a 6581-es, sem a 8580-as
+  modellel.
 
 ## A 2.7.2-es verzió főbb jellemzői
 
@@ -6329,22 +6373,24 @@ Karakterszerkesztő menüpontban.
    POST-on keresztül elküldésre kerül az eszközre a `/v1/runners:run_prg` címre.
    Az eszköz azonnal betölti és futtatja a C64-en.
 
-**Hardver nélkül:** válaszd az **Ultimate emulator** elemet az osztott futtatás
-menüből, hogy az
+**Hardver nélkül:** válaszd az **Ultimate emulator** elemet a megosztott
+futtatás menüből, hogy az
 [UE2-C64U-Emulator](https://github.com/Jondalar/UE2-C64U-Emulator) eszközön
 fusson, amely a módosítatlan Ultimate firmware-t futtatja a számítógépeden.
-Telepítsd külön, majd állíts be három dolgot a **Beállítások → Integrációk →
-Ultimate emulator (UE2)** menüpontban: az `ue2emu` programot, egy firmware-t
-(`.ue2`, `.elf` vagy `.app`, nem tartozék) és a ROM mappát (`roms/` egy
-[1541ultimate](https://github.com/GideonZ/1541ultimate) pénztárnál). Csak a(z)
+Telepítsd külön (lásd: [Az Ultimate emulátor telepítése, lépésről
+lépésre](#installing-the-ultimate-emulator-step-by-step)), majd állíts be három
+dolgot a **Beállítások → Integrációk → Ultimate emulator (UE2)** menüpontban: az
+`ue2emu` programot, egy firmware-t (`.ue2`, `.elf` vagy `.app`, nem tartozék) és
+a ROM mappát (`roms/` egy
+[1541ultimate](https://github.com/GideonZ/1541ultimate) pénztárnál). Csak a
 `chars.bin` fájlra (2048 bájt, a menü betűtípusa) van szükség ebből a mappából;
 a Commodore firmware a saját C64 ROM-jairól indul. Az első futtatáskor egy
 `.ue2` fájlt telepít egy flash képfájlba, amelyet firmware-enként tárolnak az
 alkalmazás konfigurációs mappájában, és minden indításkor bekapcsolja a firmware
 webszolgáltatását, amelyet a Commodore firmware letiltva szállít. Az emulátor az
 első futtatáskor elindul, és nyitva marad a további futtatásokhoz; a REST API-ja
-a(z) `127.0.0.1` címen figyel a(z) **REST porton** (alapértelmezett: 8064). Az
-alkalmazással vagy a(z) **Stop emulator** paranccsal bezár. Az **D64 az Ultimate
+a `127.0.0.1` címen figyel a **REST porton** (alapértelmezett 8064). Az
+alkalmazással vagy a **Stop emulator** paranccsal bezár. Az **D64 az Ultimate
 emulator** ugyanebben a menüben egy D64-et csomagol (ehhez VICE `c1541`
 könyvtárára van szükség), felcsatolja azt az A meghajtóra és futtatja az első
 programot. Amíg e két futási mód egyike ki van választva, a **VICE Monitor**
@@ -6358,7 +6404,7 @@ mellett is működik. Egy időzítő IRQ lépést tehet a KERNAL-ba, mint a VICE
 monitorában, amikor a megszakítások be vannak kapcsolva. A VA a **Turbo
 Control** értéket is beállítja az emulátor flash memóriájában található turbó
 regiszterekre, így egy program a `$D031` paraméteren keresztül módosíthatja a
-CPU sebességét (reset után `$00` értéket olvas, 1 MHz).
+CPU sebességét (reset után `$00` értéket olvas ki, 1 MHz).
 
 Példa: **Ultimate turbo demo (64 sprite)** (`samples/ultimate-turbo-demo.asm`) —
 a sebesség 3 másodpercenként változik 1-ről 64 MHz-re; 1 MHz-nél golyók tűnnek
@@ -6371,6 +6417,73 @@ kocka (5 képkocka/másodperc 1 MHz-en, 50 16 MHz-től).
 > **Tipp:** Nincs szükség USB-kábelre vagy illesztőprogramra – a REST API be van
 > építve az Ultimate firmware-be. A számítógépnek és az eszköznek ugyanazon a
 > helyi hálózaton kell lennie.
+
+### Az Ultimate emulátor telepítése lépésről lépésre
+
+Az **Ultimate emulator** és az **D64 az Ultimate emulator** futási módjaihoz
+három dologra van szükség, amelyek nem részei a Visual Assemblernek: magára az
+emulátorra, egy Ultimate firmware-re és egy ROM mappára. Ezeket egyszer kell
+beállítani az alábbiak szerint.
+
+**1. Telepítse az emulátort**
+([UE2-C64U-Emulator](https://github.com/Jondalar/UE2-C64U-Emulator)):
+
+- **Windows:** töltsd le az `ue2emu-<verzió>-windows-x86_64.zip` fájlt az
+  emulátor [Kiadások
+  oldaláról](https://github.com/Jondalar/UE2-C64U-Emulator/releases), és
+  csomagold ki egy saját mappába, például az `C:\Tools\ue2emu` mappába. Tartsd
+  együtt a fájlokat: Az `ue2emu.exe` fájlnak szüksége van a DLL-ekre.
+- **macOS:** Telepítsd Homebrew-vel. A Visual Assembler magától megtalálja ott:
+
+  ```
+  brew install jondalar/ue2emu/ue2emu
+  ```
+
+- **Linux:** még nincs kész csomag; fordítsd le forrásból az emulátor
+  dokumentációjában leírtak szerint (Rust és libslirp szükséges).
+
+**2. Firmware beszerzése.** Az emulátor egy **C64 Ultimate** vagy egy **Ultimate
+64 Elite II** firmware-jét futtatja módosítatlanul: a frissítőfájlt (`.ue2`),
+amelyet az eszközre telepítenél, vagy egy saját készítésű `ultimate.elf` fájlt.
+Sem a Visual Assembler, sem az emulátor nem tartalmaz ilyet. A C64 Ultimate
+firmware 1.1.0 verziója ismerten működik.
+
+**3. Szerezd meg a ROM mappát.** Töltsd le a
+[1541ultimate](https://github.com/GideonZ/1541ultimate) repositoryt a GitHubról
+(**Code → Download ZIP**, vagy `git clone`) és csomagold ki. Amire szükséged
+van, az a `roms` mappa. A Visual Assembler csak a `chars.bin` fájlt ellenőrzi
+benne (2048 bájt, a menü betűtípusa).
+
+**4. Töltsd ki a beállításokat.** Nyisd meg a **Beállítások → Integrációk →
+Ultimate emulator (UE2)** menüpontot:
+
+| Gomb                       | Válasszon                                                                                                                              |
+| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| **Válaszd az ue2emu-t**    | `ue2emu.exe` fájlt az 1. lépésből. Ha az emulátor a `PATH` útvonalon van, vagy Homebrew-vel van telepítve, a mező már ki van töltve.   |
+| **Válasszon firmware-t**   | A 2. lépésből származó `.ue2` (vagy `.elf`).                                                                                           |
+| **ROM mappa kiválasztása** | Maga az `roms` mappa, nem a felette lévő repository mappa.                                                                             |
+| **REST port**              | Hagyd a **8064** porton, kivéve, ha az foglalt. Az emulátor a következő két portot is használja (a vezérlő és a VICE monitor portját). |
+
+**5. Futtatás.** Válaszd ki az **Ultimate emulator** lehetőséget a megosztott
+futtatás menüben (a beállítások elvégzése után jelenik meg), majd nyomd meg az
+**▶ Futtatás** gombot. Az első futtatás egy `.ue2` fájllal telepíti a firmware-t
+egy saját flash képfájlba, ami egy kicsit tovább tart; ezután megnyílik az
+emulátor ablaka, és elindul a program. A beállítások alatti állapotsorban a
+következő látható: **Running, REST: 127.0.0.1:8064**.
+
+**6. Folytasd a munkát.** A későbbi futtatások újra felhasználják a megnyitott
+emulátort. A beállításokban a **Stop emulator** paranccsal bezárhatod, akárcsak
+a Visual Assembler bezárásával; a flash képfájl mentésre kerül menet közben, így
+a firmware saját beállításai megmaradnak.
+
+**Ha valami rosszul sül el:**
+
+| Üzenet                                                                | Mit kell tenni                                                                                                                                                                                                    |
+| --------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| *Végső emulátor: nincs beállítva a beállításokban: …*                 | 4. lépés: az üzenetben megnevezett elem üres, vagy a fájl már nem létezik.                                                                                                                                        |
+| *Ultimate emulator: hiányzik a ROM mappából: chars.bin*               | A repository mappát vagy a felette lévő kicsomagolt ZIP mappát választottad: válaszd ki magát az `roms` mappát.                                                                                                   |
+| *Az Ultimate emulátor REST API-ja nem válaszolt időben.*              | Egy másik program használja a portot: állítson be egy másik **REST portot **.                                                                                                                                     |
+| A(z) **D64 az Ultimate emulátoron** nem tudja felépíteni a lemezképet | Ez a mód a D64-et a VICE `c1541` verziójával látja el: a VICE elérési útját a **Beállítások → Fájlok és elérési utak** menüpontban állíthatja be. Magának az **Ultimate emulator** módnak nincs szüksége VICE-ra. |
 
 ### Karakterkészlet-vászonszerkesztő
 
@@ -6746,9 +6859,15 @@ azokban van-e hang.
 - A cellatartomány-beillesztés mostantól a kiválasztott tartomány
   kezdőcellájánál kezdődik, és tisztán megáll a hang- és sorhatároknál,
   ahelyett, hogy a következő oszlopba vagy sorba folyatódna.
-- A **Speed** (sorok közötti képkockák, 1–255) paramétert a mellette lévő − / +
-  gombokkal lehet beírni vagy léptetni; az `F` effektus lejátszás közben
-  megváltoztatja ezt a sebességet.
+- **Visszavonás / Újraindítás** (a hangmásolat előtti gombok, vagy a Ctrl+Z és
+  Ctrl+Y) végigléptetnek a hangjegyek, hangszerek, dal és tempó változásain,
+  valamint egy dallam betöltésén, akár 100 lépésben. Egy gomb húzása vagy egy
+  egész felvétel egy lépés, és a nézet a megváltozott hangszerre és mintára
+  ugrik. A szövegmezők megtartják a saját Ctrl+Z billentyűkombinációjukat.
+- Az **Frames/row** (1–255, tehát a nagyobb szám lassabb) értékét a mellette
+  lévő − / + gombokkal lehet beírni vagy léptetni; az `F` effekt lejátszás
+  közben megváltoztatja ezt. A mellette lévő **BPM** mutatja az eredményül
+  kapott tempót: 4 sor/ütem esetén PAL-on, 6 képkocka/sor = 125 BPM.
 
 **Dal / rendelési lista:**
 - A mintákat egy dal/sorrend lista szerint rendezik el, amely a nyers pattern
@@ -6812,19 +6931,22 @@ formátumban.
 **Felvétel, metronóm és MIDI:**
 - A **Record** (a piros pont a követő eszköztáron és a VA-VK-n) a lejátszott
   hangokat – a VA-VK-n, a számítógép billentyűzetén vagy egy MIDI billentyűzeten
-  – a kiválasztott hangszínre írja be a kiválasztott sortól kezdve, az aktuális
-  sebességgel. Amikor a pattern megtelik, egy új üres pattern kerül hozzáadásra
-  az aktuális dallépés után, és a felvétel onnan folytatódik. A leállításhoz
-  nyomja meg ismét a Record gombot.
+  – a kiválasztott hangszínbe írja be a kiválasztott sortól kezdve, az aktuális
+  tempóban. Amikor a pattern megtelik, egy új üres pattern kerül hozzáadásra az
+  aktuális dallépés után, és a felvétel onnan folytatódik. A leállításhoz nyomja
+  meg ismét a Record gombot.
 - A **Metronóm** (követő eszköztár és VA-VK) 4 sorban kattan, minden 4 ütemes
   sáv első ütemére helyezve a hangsúlyt. A mellette lévő ütemjelzők minden
   ütemnél villognak lejátszás és felvétel közben, még kikapcsolt kattanás
   mellett is.
 - **MIDI:** válaszd ki a bemenetet a hangszer neve melletti **MIDI** listában,
-  majd nyomd meg a **MIDI csatlakoztatása** gombot; a hangjegyek az aktuális
-  hangszert játsszák (és felvétel közben, vagy a *MIDI beszúrása* gombbal
-  beíródnak a trackerbe). A gomb melletti lámpa minden bejövő MIDI üzenetnél
-  villog.
+  majd nyomd meg a **MIDI Connect** gombot; a hangjegyek az aktuális hangszert
+  játsszák (és felvétel közben, illetve az *Insert into tracker* gombbal a
+  trackerbe íródnak). A gomb melletti lámpa minden bejövő MIDI üzenetnél villog.
+  Ha a **Poly record** be van kapcsolva, a felvétel közben lenyomva tartott
+  billentyűk a kiválasztott hangtól kezdve a saját hangjukra váltanak, és egy
+  elengedéskor egy hangfelvételt ír ki; amikor minden hangot lenyomva tartasz, a
+  legrégebbi billentyű feladja a hangját.
 - **Pattern törlése:** A **−** gomb a **Pat +** mellett törli az aktuális
   pattern-t (először megkérdezi, hogy a pattern tartalmaz-e hangjegyeket). A
   pattern-t használó dallépések eltávolításra kerülnek, a többi pedig
