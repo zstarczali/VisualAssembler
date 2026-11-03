@@ -25,7 +25,7 @@ function load() {
     function t(k) { return k; }
     ${extractFunctionSource("_sidNewInst")}
     ${extractFunctionSource("_sidInstNorm")}
-    ${extractFunctionSource("_sidFreqTables")}
+    ${["_sidFreqTables", "_sidClockHz", "_sidIsNtsc"].map(extractFunctionSource).join(";")}
     ${extractFunctionSource("_sidGoatImport")}
     this.imp = _sidGoatImport;
   `, ctx);

@@ -36,7 +36,7 @@ function setup() {
     function _sidBuildPatSel() {}
     function _sidBuildSongList() {}
     function _sidBuildTracker() { built++; }
-    ${["_sidHistSnap", "_sidHistSame", "_sidHistRender", "_sidHistCheck", "_sidHistSchedule", "_sidHistApply", "_sidHistStep", "_sidUndo", "_sidRedo"].map(fn).join("\n")}
+    ${["_sidVol", "_sidIsNtsc", "_sidSetSongVol", "_sidSetNtsc", "_sidHistSnap", "_sidHistSame", "_sidHistRender", "_sidHistCheck", "_sidHistSchedule", "_sidHistApply", "_sidHistStep", "_sidUndo", "_sidRedo"].map(fn).join("\n")}
     _sidHistCheck();
   `, ctx);
   return ctx;

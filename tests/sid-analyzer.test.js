@@ -23,7 +23,7 @@ function load() {
   vm.createContext(ctx);
   vm.runInContext(`${constLine("_SID_ATK")} ${constLine("_SID_DCR")} ${constLine("_SID_ANA_DB")}
     var _sidWaPlay = null, _sidAna = { env: [], rowFrame: -1, rowAt: 0, last: null };
-    ${["_sidVizBandEdges", "_sidAnaEnvStep", "_sidAnaFilterGain", "_sidAnaVoiceLevels", "_sidAnaAdvance", "_sidAnaRow"].map(fnSource).join("\n")}
+    ${["_sidVizBandEdges", "_sidAnaEnvStep", "_sidAnaFilterGain", "_sidAnaVoiceLevels", "_sidClockHz", "_sidIsNtsc", "_sidAnaAdvance", "_sidAnaRow"].map(fnSource).join("\n")}
     this.api = { step: _sidAnaEnvStep, levels: _sidAnaVoiceLevels, edges: _sidVizBandEdges, advance: _sidAnaAdvance, row: _sidAnaRow,
       setPlay(w) { _sidWaPlay = w; }, state() { return _sidAna; } };`, ctx);
   ctx.api.now = 0;
@@ -145,7 +145,7 @@ test("the engine records frames only while asked to", () => {
   const ctx = { Math, Array, Uint8Array, t: (k) => k };
   vm.createContext(ctx);
   vm.runInContext(`const _SID_ROWS = 32;
-    ${["_sidNewInst", "_sidInstNorm", "_sidInstCtrl", "_sidFreqTables", "_sidTuneData", "_sidCellBytes", "_sidEngineNew", "_sidEngTab", "_sidEngNoteOn", "_sidEngRow", "_sidEngHr", "_sidEngUpdate", "_sidEngFrame"].map(fnSource).join("\n")}
+    ${["_sidNewInst", "_sidInstNorm", "_sidInstCtrl", "_sidFreqTables", "_sidClockHz", "_sidIsNtsc", "_sidVol", "_sidFps", "_sidTuneData", "_sidCellBytes", "_sidEngineNew", "_sidEngTab", "_sidEngNoteOn", "_sidEngRow", "_sidEngHr", "_sidEngUpdate", "_sidEngFrame"].map(fnSource).join("\n")}
     this.make = () => _sidEngineNew(_sidTuneData({ insts: [{}], patterns: [[0,1,2].map(() => Array.from({ length: 32 }, (_, r) => ({ note: r ? null : 48, inst: 0, fx: null, fxval: 0 })))], song: [0], speed: 1 }));
     this.frame = _sidEngFrame;`, ctx);
   const e = ctx.make();

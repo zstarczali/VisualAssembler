@@ -245,6 +245,9 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 - **Kvantálás** — a **Q** vagy az új gomb a kijelölt hangokat a rács legközelebbi sorára teszi (2, 4, 8 vagy 16 sor, a tracker eszköztárán), a hosszuk megmarad. Bekapcsolt **Felvételnél** mellett a felvétel a leállításkor kvantálódik.
 - **Visszavonás / Mégis a vízszintes trackerben** — a tracker eszköztárának két gombja a fejlécében is megvan.
 - **Tisztább szerkesztés** — egy hang törlése után az előtte lévő hang megtartja a végét, és egy hosszabb hangra illesztés nem hagy maga után kóbor note-offot.
+- **Hangszerek törlése** — a **+** melletti **−** törli az aktuális hangszert, a Files → **Nem használt hangszerek törlése** a hang nélkülieket.
+- **A dal hangereje** — a tracker eszköztárának **Hangerő** mezője a dalé; a **Dal** jelölésű hangszerek nem állítják át a chipét.
+- **PAL / NTSC** — a dal időzítése: NTSC-n 60 frame másodpercenként az NTSC órajelén, saját hangjegytáblával és `.sid` fejléccel.
 
 ## A 2.7.3 verzió újdonságai
 
@@ -4684,6 +4687,9 @@ Több-hangszeres 3-voice tracker. A SID Editor eszköztár-gombjával nyílik. A
 - Arpeggio segéd: hallgasd meg vagy szúrd be a kiválasztott akkordból 4-, 8- vagy 16 lépéses note-futamokat fel, le vagy fel/le irányban.
 - A **Preview row** meghallgatja a kiválasztott sort az összes voice-on a pattern-lejátszás indítása nélkül.
 - A cella-tartomány beillesztés mostantól a kijelölt tartomány kezdőcellájánál kezdődik, és tisztán megáll a voice- és sor-határoknál, ahelyett hogy a következő oszlopba vagy sorba fordulna.
+- Hangszerek törlése: a **+** melletti **−** törli az aktuális hangszert (a hangjai kérdés után az előtte lévőt játsszák), a Files → **Nem használt hangszerek törlése** pedig minden olyat, amelyet egy hang sem játszik. A tracker számai követik; a Visszavonás visszahozza őket.
+- A dal hangereje: a tracker eszköztárának **Hangerő** mezője (0–15) a dalé, a chip ezzel indul. Ha egy hangszer **Vol** gombja mellett be van pipálva a **Dal**, a hangszer nem állítja át a chip hangerejét, így a hangszerek már nem írják felül egymásét; az új hangszereken ez alapból be van kapcsolva. Kikapcsolva a hangszer a régi módon a chip hangerejét állítja (a korábban mentett dalok így szólnak tovább).
+- PAL / NTSC: a BPM melletti kapcsoló adja meg, melyik gépre szól a dal. NTSC-n másodpercenként 60 frame fut az NTSC órajelén: ehhez igazodik az előnézet, a BPM, az exportált lejátszó hangjegytáblája és a `.sid` fejléce.
 - **Kvantálás** (a tracker eszköztárán): a rács 2, 4, 8 vagy 16 sor. A vízszintes trackerben a **Q** vagy a gombja a kijelölt hangokat a legközelebbi rácssorra teszi, a hosszuk megmarad; bekapcsolt **Felvételnél** mellett a felvett hangok a felvétel végén ugyanígy kvantálódnak.
 - **Kijelölés a vízszintes trackerben:** Shift+húzás: keret (Ctrl+Shift+húzás: hozzáadás a kijelöléshez), Ctrl+kattintás egy hangon, Ctrl+A: mind, Esc: törli a kijelölést. A Ctrl+X / C / V és a Del, vagy a fejléc gombjai kivágnak, másolnak, beillesztenek és törölnek. A beillesztés az egér alatti sorra kerül, egyébként a tracker kurzorához, és felülírja, ami ott van. Egy hang törlése után az előtte lévő hang megtartja a végét. A fejlécben **Visszavonás** és **Mégis** gomb is van.
 - A **Visszavonás / Mégis** (a hang másolása előtti gombok, vagy Ctrl+Z és Ctrl+Y) végiglép a hangok, hangszerek, a song és a tempó változásain és a dal betöltésén, legfeljebb 100 lépésig. Egy tekerőgomb húzása vagy egy teljes felvétel egy lépés, a nézet a megváltozott hangszerre és patternre ugrik. A szövegmezők megtartják a saját Ctrl+Z-jüket.

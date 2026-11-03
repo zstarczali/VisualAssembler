@@ -106,7 +106,7 @@ test("cell text renders the effect column alongside note+instrument", () => {
 
 function loadSerdeSandbox() {
   return loadFunctions(
-    ["_sidInstFields", "_sidInstNorm", "_sidInstCtrl", "_sidInstExtBytes", "_sidReadInstExt", "_sidWaStop", "_sidInstBytes", "_sidWaveByte", "_sidNewInst", "_sidVoiceCount", "_sidNewPattern", "_sidSerialize", "_sidDeserialize",
+    ["_sidInstFields", "_sidInstNorm", "_sidInstCtrl", "_sidInstExtBytes", "_sidReadInstExt", "_sidVol", "_sidIsNtsc", "_sidSetSongVol", "_sidSetNtsc", "_sidFps", "_sidComputeBpm", "_sidUpdateBpmDisplay", "_sidVolSongSync", "_sidWaStop", "_sidInstBytes", "_sidWaveByte", "_sidNewInst", "_sidVoiceCount", "_sidNewPattern", "_sidSerialize", "_sidDeserialize",
      "_sidSyncPlayModeSel", "_sidBuildInstSel", "_sidLoadInstUI", "_sidBuildPatSel", "_sidBuildSongList",
      "_sidBuildTracker", "_sidStop", "_sidUpdatePauseButton", "_sidCurInst"],
     {
@@ -202,7 +202,7 @@ test("deserialize reads pre-effect-column saves (no marker, 2 bytes/cell) with n
 
 function loadExportSandbox() {
   return loadFunctions(
-    ["_sidNewInst", "_sidInstNorm", "_sidInstCtrl", "_sidFreqTables", "_sidTuneData", "_sidCellBytes", "_sidExportAsmPlayable", "_sidWaveByte"],
+    ["_sidNewInst", "_sidInstNorm", "_sidInstCtrl", "_sidFreqTables", "_sidClockHz", "_sidIsNtsc", "_sidVol", "_sidFps", "_sidTuneData", "_sidCellBytes", "_sidExportAsmPlayable", "_sidWaveByte"],
     { Math, String, Array, t: (k) => k },
     `${extractConstLine("_SID_ROWS")}\n${extractConstLine("_SID_PLAYER_CODE_MAX")}\n${extractConstLine("_SID_FX_CODES")}\n${extractConstLine("_SID_FX_NAMES")}`
   );
@@ -284,4 +284,29 @@ test("exported ASM: no effects at all still produces valid, complete fx tables o
   const fxBytes = (fxBlockV0.match(/\$[0-9A-F]{2}/g) || []).map((s) => parseInt(s.slice(1), 16));
   assert.equal(fxBytes.length, 32);
   assert.ok(fxBytes.every((b) => b === 0));
+});
+
+test("the song volume, the timing and the instruments' song-volume flag survive a save", () => {
+  const ctx = loadSerdeSandbox();
+  ctx._sidInsts = [ctx._sidNewInst("Lead"), Object.assign(ctx._sidNewInst("Own"), { songVol: false, vol: 9 })];
+  ctx._sidPatterns = [ctx._sidNewPattern()];
+  ctx._sidSong = [0];
+  ctx._sidSongVol = 7; ctx._sidNtsc = true;
+  const bytes = ctx._sidSerialize();
+  assert.equal(JSON.stringify(Array.from(bytes.slice(-3))), "[165,7,1]", "the trailer after the song list");
+  ctx._sidSongVol = 15; ctx._sidNtsc = false;
+  ctx._sidDeserialize(bytes);
+  assert.equal(ctx._sidSongVol, 7);
+  assert.equal(ctx._sidNtsc, true);
+  assert.equal(JSON.stringify(ctx._sidInsts.map((i) => [i.songVol, i.vol])), "[[true,15],[false,9]]");
+  // a save from before: no trailer, the instruments set the chip's volume
+  ctx._sidDeserialize(bytes.slice(0, -3));
+  assert.equal(ctx._sidSongVol, 15);
+  assert.equal(ctx._sidNtsc, false);
+});
+
+test("instruments from older saves set the chip's volume, new ones use the song's", () => {
+  const ctx = loadSerdeSandbox();
+  assert.equal(ctx._sidInstNorm({ vol: 8 }).songVol, false);
+  assert.equal(ctx._sidInstNorm(ctx._sidNewInst("x")).songVol, true);
 });

@@ -1576,6 +1576,15 @@ PRINTABLE CHARACTERS
         <li>
           <strong>Cleaner edits:</strong> deleting a note keeps the end of the note before it, and a paste over a longer note leaves no stray note-off.
         </li>
+        <li>
+          <strong>Deleting instruments:</strong> − next to + deletes the current instrument; Files → Delete unused instruments removes the ones no note plays.
+        </li>
+        <li>
+          <strong>Song volume:</strong> Vol in the tracker toolbar is the tune's volume, and instruments with Song checked no longer override it.
+        </li>
+        <li>
+          <strong>PAL / NTSC:</strong> the tune's timing, with the NTSC clock, note table and 60 frames a second.
+        </li>
       </ul>
       <p class="whats-new-previous">v2.7.3</p>
       <ul class="whats-new-list">
@@ -2688,6 +2697,7 @@ PRINTABLE CHARACTERS
             <button id="sid-new-tune" type="button">New tune</button>
             <button id="sid-load-bin" type="button">Load .bin…</button>
             <button id="sid-save-bin" type="button">Save .bin…</button>
+            <button id="sid-inst-unused" type="button">Delete unused instruments</button>
             <button id="sid-import-goat" type="button">Import GoatTracker .sng…</button>
             <button id="sid-import-sid" type="button">Import .sid…</button>
             <div class="ed-file-sep"></div>
@@ -2712,6 +2722,7 @@ PRINTABLE CHARACTERS
           <span class="sid-lbl">INSTRUMENT</span>
           <select id="sid-inst-sel" class="sid-select"></select>
           <button id="sid-inst-add" class="sid-mini-btn" type="button" aria-label="Add instrument">+</button>
+          <button id="sid-inst-del" class="sid-mini-btn" type="button" aria-label="Delete instrument">−</button>
           <input id="sid-inst-name" class="sid-input" type="text" value="New Sound">
           <button id="sid-preview" class="ce-tool-btn" type="button" aria-label="Preview">
             <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M11 3v6.6a2.4 2.4 0 1 1-1.2-2.08V4.5L7 5.2V11a2.4 2.4 0 1 1-1.2-2.08V4.2z" fill="currentColor"/></svg>
@@ -2774,7 +2785,8 @@ PRINTABLE CHARACTERS
               <div class="sid-slider-row"><span class="sid-sl-lbl" id="sid-cut-lbl">Cut:</span><input type="range" id="sid-cut" min="0" max="2047" value="1400" class="sid-range"><span id="sid-cut-val" class="sid-num sid-num--w">1400</span></div>
               <div class="sid-slider-row"><span class="sid-sl-lbl" id="sid-cut-speed-lbl">Sweep:</span><input type="range" id="sid-cut-speed" min="0" max="127" value="0" class="sid-range"><span id="sid-cut-speed-val" class="sid-num sid-num--w">0</span>
                 <label class="sid-check sid-check--mini" id="sid-cut-ping-wrap"><input type="checkbox" id="sid-cut-ping"> <span id="sid-cut-ping-lbl">Ping-pong</span></label></div>
-              <div class="sid-slider-row"><span class="sid-sl-lbl" id="sid-vol-lbl">Vol:</span><input type="range" id="sid-vol" min="0" max="15" value="15" class="sid-range"><span id="sid-vol-val" class="sid-num sid-num--w">15</span></div>
+              <div class="sid-slider-row"><span class="sid-sl-lbl" id="sid-vol-lbl">Vol:</span><input type="range" id="sid-vol" min="0" max="15" value="15" class="sid-range"><span id="sid-vol-val" class="sid-num sid-num--w">15</span>
+                <label class="sid-check sid-check--mini" id="sid-vol-song-wrap" aria-label="The instrument uses the tune's volume and leaves the chip's alone"><input type="checkbox" id="sid-vol-song"> <span id="sid-vol-song-lbl">Song</span></label></div>
             </div>
             <div class="sid-filter-col sid-filter-col--sep">
               <div class="sid-slider-row"><span class="sid-sl-lbl" id="sid-cut-end-lbl">End:</span><input type="range" id="sid-cut-end" min="0" max="2047" value="1400" class="sid-range"><span id="sid-cut-end-val" class="sid-num sid-num--w">1400</span></div>
@@ -2862,6 +2874,9 @@ PRINTABLE CHARACTERS
           <button id="sid-speed-up" class="sid-mini-btn" type="button" aria-label="Speed up">+</button>
           <span class="sid-bpm-wrap"><span class="sid-mini-lbl" id="sid-bpm-lbl">BPM:</span>
           <span id="sid-bpm" class="sid-num" aria-label="Beats per minute (4 rows per beat)">125</span></span>
+          <select id="sid-video" class="sid-select sid-video" aria-label="Timing: a PAL (50 Hz) or NTSC (60 Hz) machine — the frame rate, the note table and the BPM follow it"><option value="pal">PAL</option><option value="ntsc">NTSC</option></select>
+          <span class="sid-mini-lbl" id="sid-song-vol-lbl">Vol:</span>
+          <input id="sid-song-vol" class="sid-input sid-speed" type="number" min="0" max="15" value="15" aria-label="The tune's volume (0–15): the chip starts on it, and every instrument set to »Song« volume uses it">
           <span class="sid-mini-lbl">Oct:</span>
           <button id="sid-oct-down" class="sid-mini-btn" type="button" aria-label="Octave down">−</button>
           <span id="sid-oct-val" class="sid-num">4</span>

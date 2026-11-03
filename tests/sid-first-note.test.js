@@ -10,7 +10,9 @@ const app = fs.existsSync(path.join(www, "sid-editor.js")) ? null : require("./h
 // The frames "Play" sends, in the app's own engine (the Visual Assembler's whole app is loadable).
 function framesOf(setup, count = 60, engine = "resid") {
   const code = `(function(){
-    _sidInsts = [_sidNewInst("a"), Object.assign(_sidNewInst("b"), { filt: true, lp: true, cut: 700, res: 9, vol: 9 })];
+    // instruments that set the chip's volume themselves, on a tune whose volume is 0 (as before the song volume)
+    _sidInsts = [Object.assign(_sidNewInst("a"), { songVol: false }), Object.assign(_sidNewInst("b"), { filt: true, lp: true, cut: 700, res: 9, vol: 9, songVol: false })];
+    _sidSongVol = 0;
     _sidPatterns = [_sidNewPattern()];
     _sidSong = [0]; _sidSpeed = 6; _sidPat = 0; _sidPlayPat = 0; _sidPlayMode = "all"; _sidSongPlayPos = 0;
     _sidPreviewEngine = "${engine}";
@@ -81,6 +83,11 @@ test("two SIDs open separately", { skip: !app }, () => {
 test("a tune with no notes stays as it is", { skip: !app }, () => {
   const { frames } = framesOf("", 30);
   frames.forEach((f) => assert.equal(f[0x18] & 15, 0));
+});
+
+test("with the song volume the chip is on it from the first frame", { skip: !app }, () => {
+  const { frames } = framesOf("_sidSongVol = 11; _sidInsts.forEach((i) => { i.songVol = true; });" + note(0, 4), 30, "va-core");
+  frames.forEach((f, k) => assert.equal(f[0x18] & 15, 11, `frame ${k}`));
 });
 
 test("both apps wire it into the player, for reSID only", () => {

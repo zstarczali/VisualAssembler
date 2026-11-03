@@ -23,7 +23,7 @@ function constLine(name) {
   return m[0];
 }
 
-const FNS = ["_sidNewInst", "_sidInstNorm", "_sidInstCtrl", "_sidWaveByte", "_sidFreqTables", "_sidTuneData", "_sidCellBytes",
+const FNS = ["_sidNewInst", "_sidInstNorm", "_sidInstCtrl", "_sidWaveByte", "_sidFreqTables", "_sidClockHz", "_sidIsNtsc", "_sidVol", "_sidFps", "_sidTuneData", "_sidCellBytes",
   "_sidEngineNew", "_sidEngTab", "_sidEngNoteOn", "_sidEngRow", "_sidEngHr", "_sidEngUpdate", "_sidEngFrame",
   "_sidExportAsmPlayable", "_sidInstExtBytes", "_sidReadInstExt"];
 
@@ -31,9 +31,9 @@ function sandbox(state) {
   const ctx = { Math, TextEncoder, TextDecoder, Uint8Array, t: (k) => k };
   vm.createContext(ctx);
   vm.runInContext(`${constLine("_SID_ROWS")} ${constLine("_SID_PLAYER_CODE_MAX")} ${constLine("_SID_PLAYER_2SID_EXTRA")}
-    var _sidInsts = null, _sidPatterns = null, _sidSong = null, _sidSpeed = 6, _sidSid2Addr = 0xD420;
+    var _sidInsts = null, _sidPatterns = null, _sidSong = null, _sidSpeed = 6, _sidSid2Addr = 0xD420, _sidSongVol, _sidNtsc;
     ${FNS.map(fnSource).join("\n")}
-    this.api = { set(s) { _sidInsts = s.insts; _sidPatterns = s.patterns; _sidSong = s.song; _sidSpeed = s.speed; _sidSid2Addr = s.sid2 || 0xD420; },
+    this.api = { set(s) { _sidInsts = s.insts; _sidPatterns = s.patterns; _sidSong = s.song; _sidSpeed = s.speed; _sidSid2Addr = s.sid2 || 0xD420; _sidSongVol = s.vol; _sidNtsc = !!s.ntsc; },
       ${FNS.join(", ")} };`, ctx);
   ctx.api.set(state);
   return ctx.api;
@@ -262,6 +262,9 @@ test("two SIDs: the player code fits the reserved size and sid_init clears all t
   const expected = new Array(size).fill(0);
   expected[labels.sid_fown - labels.sid_state] = 0xFF;
   expected[labels.sid_fown2 - labels.sid_state] = 0xFF;
+  // both chips start on the tune's volume
+  expected[labels.sid_vol - labels.sid_state] = 15;
+  expected[labels.sid_vol2 - labels.sid_state] = 15;
   assert.deepEqual(Array.from(mem.slice(labels.sid_state, labels.sid_m1 + 1)), expected);
 });
 
@@ -284,4 +287,31 @@ test("two SIDs: a long tune stays out of I/O and ROM and keeps playing like the 
 test("a one-SID tune exports without any second-SID code", () => {
   const asm = sandbox(richTune())._sidExportAsmPlayable();
   assert.doesNotMatch(asm, /\$D42|\$D43|sid_filter2|sid_v3_|\(\$50\)/);
+});
+
+test("the song volume: the chip starts on it, and only instruments with their own Vol change it", () => {
+  const p = emptyPattern();
+  p[0][0] = { note: 48, inst: 0, fx: null, fxval: 0 };   // song volume
+  p[1][8] = { note: 52, inst: 1, fx: null, fxval: 0 };   // its own Vol 9
+  p[2][16] = { note: 55, inst: 0, fx: null, fxval: 0 };  // the chip keeps 9
+  const insts = [{ pul: true, songVol: true, vol: 3 }, { saw: true, pul: false, vol: 9 }];
+  for (const ntsc of [false, true]) {
+    const api = sandbox({ insts, patterns: [p], song: [0], speed: 2, vol: 6, ntsc });
+    const frames = 32 * 2 + 4;
+    const cpuOut = runPlayer(api, frames).out;
+    assert.deepEqual(cpuOut, runEngine(api, frames), ntsc ? "NTSC" : "PAL");
+    assert.deepEqual([0, 15, 17, 40].map((k) => cpuOut[k][0x18] & 15), [6, 6, 9, 9]);
+  }
+});
+
+test("NTSC: the note table is for the NTSC clock, and the player says so", () => {
+  const p = emptyPattern();
+  p[0][0] = { note: 57, inst: 0, fx: null, fxval: 0 };
+  const pal = sandbox({ insts: [{ pul: true }], patterns: [p], song: [0], speed: 6 });
+  const ntsc = sandbox({ insts: [{ pul: true }], patterns: [p], song: [0], speed: 6, ntsc: true });
+  const freq = (api) => { const o = runPlayer(api, 12).out[11]; return o[0] | (o[1] << 8); };
+  assert.equal(freq(pal), Math.round(440 * 16777216 / 985248));
+  assert.equal(freq(ntsc), Math.round(440 * 16777216 / 1022730));
+  assert.match(ntsc._sidExportAsmPlayable(), /NTSC 60 Hz IRQ-driven/);
+  assert.match(pal._sidExportAsmPlayable(), /PAL 50 Hz IRQ-driven/);
 });

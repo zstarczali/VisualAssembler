@@ -12295,6 +12295,7 @@ dialog :is(.compile-error-list, .vc-output, .vc-diff-body, .template-preview,
 .sid-roll-hdr { gap: 10px; }
 .sid-roll-canvas:focus { outline: none; }
 .sid-quantize-rec { white-space: nowrap; }
+.sid-slider-row--off .sid-range, .sid-slider-row--off .sid-param-knob, .sid-slider-row--off #sid-vol-val { opacity: 0.4; pointer-events: none; }
 .sid-roll-voices { display: inline-flex; gap: 2px; padding: 2px; background: var(--control-bg); border: 1px solid var(--panel-border); border-radius: 2px; }
 .sid-roll-vbtn { height: 22px; min-height: 0; padding: 0 8px; border: none; border-radius: 2px; background: transparent; color: var(--secondary); font: 700 0.7rem "IBM Plex Mono", monospace; cursor: pointer; }
 .sid-roll-vbtn[data-voice="0"].active { background: #38d6ff; color: #0b1020; }

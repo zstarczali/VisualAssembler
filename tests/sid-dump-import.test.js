@@ -32,7 +32,7 @@ function load() {
     ${constLine("_SID_DUMP_TABLE_STEPS")}
     ${constLine("_SID_DUMP_WINDOW")}
     function t(k) { return k; }
-    ${["_sidNewInst", "_sidInstNorm", "_sidInstCtrl", "_sidFreqTables", "_sidDumpImport", "_sidHeaderInfo"].map(extractFunctionSource).join("\n")}
+    ${["_sidNewInst", "_sidInstNorm", "_sidInstCtrl", "_sidFreqTables", "_sidClockHz", "_sidIsNtsc", "_sidVol", "_sidFps", "_sidDumpImport", "_sidHeaderInfo"].map(extractFunctionSource).join("\n")}
     this.imp = _sidDumpImport;
     this.header = _sidHeaderInfo;
     this.freq = _sidFreqTables;
@@ -170,7 +170,7 @@ function engineFrames(res, frames) {
   vm.runInContext(`
     const _SID_ROWS = 32;
     function t(k) { return k; }
-    ${["_sidNewInst", "_sidInstNorm", "_sidInstCtrl", "_sidFreqTables", "_sidTuneData", "_sidCellBytes",
+    ${["_sidNewInst", "_sidInstNorm", "_sidInstCtrl", "_sidFreqTables", "_sidClockHz", "_sidIsNtsc", "_sidVol", "_sidFps", "_sidTuneData", "_sidCellBytes",
       "_sidEngineNew", "_sidEngTab", "_sidEngNoteOn", "_sidEngRow", "_sidEngHr", "_sidEngUpdate", "_sidEngFrame"].map(extractFunctionSource).join("\n")}
     this.run = function(res, n) {
       const e = _sidEngineNew(_sidTuneData({ insts: res.insts, patterns: res.patterns, song: res.song, speed: res.speed }));
@@ -291,7 +291,7 @@ test("instruments with the same wave table store it once in the player data", ()
   const ctx = {};
   vm.createContext(ctx);
   vm.runInContext(`const _SID_ROWS = 32; function t(k) { return k; }
-    ${["_sidNewInst", "_sidInstNorm", "_sidInstCtrl", "_sidTuneData"].map(extractFunctionSource).join("\n")}
+    ${["_sidNewInst", "_sidInstNorm", "_sidInstCtrl", "_sidVol", "_sidTuneData"].map(extractFunctionSource).join("\n")}
     this.td = _sidTuneData;`, ctx);
   const table = [{ w: 0x81, n: 70, abs: true }, { w: 0x41, n: 0 }];
   const td = ctx.td({ insts: [{ table }, { a: 9, table }, { table: [table[1]] }], patterns: [], song: [0], speed: 6 });

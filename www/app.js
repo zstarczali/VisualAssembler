@@ -82,49 +82,49 @@ const CUSTOMER_MESSAGE = {
   hu: {
     eyebrow: "Újdonság a 2.7.4-ben",
     title: "Üdvözöl a Visual Assembler",
-    body: `<ul><li><strong>Vízszintes tracker</strong>: Shift+húzással vagy Ctrl+kattintással kijelölt hangok kivághatók, másolhatók, beilleszthetők és törölhetők (gombokkal vagy Ctrl+X / C / V és Del).</li><li><strong>Kvantálás</strong>: a Q vagy a gomb a kijelölt hangokat a rácsra teszi (2, 4, 8 vagy 16 sor). A »Felvételnél« bekapcsolva a felvétel a leállításkor kvantálódik.</li><li><strong>Visszavonás / Mégis</strong> a vízszintes tracker fejlécében is.</li></ul>`,
+    body: `<ul><li><strong>Vízszintes tracker</strong>: Shift+húzással vagy Ctrl+kattintással kijelölt hangok kivághatók, másolhatók, beilleszthetők és törölhetők (gombokkal vagy Ctrl+X / C / V és Del).</li><li><strong>Kvantálás</strong>: a Q vagy a gomb a kijelölt hangokat a rácsra teszi (2, 4, 8 vagy 16 sor). A »Felvételnél« bekapcsolva a felvétel a leállításkor kvantálódik.</li><li><strong>Visszavonás / Mégis</strong> a vízszintes tracker fejlécében is.</li><li><strong>Hangszerek</strong>: egyenként vagy a nem használtak egyszerre törölhetők; a dal saját hangereje és PAL / NTSC időzítése.</li></ul>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
     eyebrow: "New in 2.7.4",
     title: "Welcome to Visual Assembler",
-    body: `<ul><li><strong>Horizontal tracker</strong>: select notes with Shift+drag or Ctrl+click, then cut, copy, paste or delete them (buttons, or Ctrl+X / C / V and Del).</li><li><strong>Quantize</strong>: Q or the button moves the selected notes onto the grid (2, 4, 8 or 16 rows). With »On record« checked, a recording is quantized when it stops.</li><li><strong>Undo / Redo</strong> in the horizontal tracker's header too.</li></ul>`,
+    body: `<ul><li><strong>Horizontal tracker</strong>: select notes with Shift+drag or Ctrl+click, then cut, copy, paste or delete them (buttons, or Ctrl+X / C / V and Del).</li><li><strong>Quantize</strong>: Q or the button moves the selected notes onto the grid (2, 4, 8 or 16 rows). With »On record« checked, a recording is quantized when it stops.</li><li><strong>Undo / Redo</strong> in the horizontal tracker's header too.</li><li><strong>Instruments</strong> can be deleted one by one or all unused at once; the tune has its own volume and PAL / NTSC timing.</li></ul>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
     eyebrow: "Novedad en la 2.7.4",
     title: "Bienvenido a Visual Assembler",
-    body: `<ul><li><strong>Tracker horizontal</strong>: selecciona notas con Mayús+arrastrar o Ctrl+clic y córtalas, cópialas, pégalas o bórralas (botones, o Ctrl+X / C / V y Supr).</li><li><strong>Cuantizar</strong>: Q o el botón mueve las notas seleccionadas a la cuadrícula (2, 4, 8 o 16 filas). Con »Al grabar« activado, la grabación se cuantiza al detenerla.</li><li><strong>Deshacer / Rehacer</strong> también en la cabecera del tracker horizontal.</li></ul>`,
+    body: `<ul><li><strong>Tracker horizontal</strong>: selecciona notas con Mayús+arrastrar o Ctrl+clic y córtalas, cópialas, pégalas o bórralas (botones, o Ctrl+X / C / V y Supr).</li><li><strong>Cuantizar</strong>: Q o el botón mueve las notas seleccionadas a la cuadrícula (2, 4, 8 o 16 filas). Con »Al grabar« activado, la grabación se cuantiza al detenerla.</li><li><strong>Deshacer / Rehacer</strong> también en la cabecera del tracker horizontal.</li><li>Los <strong>instrumentos</strong> se pueden eliminar uno a uno o todos los no usados; la canción tiene volumen propio y temporización PAL / NTSC.</li></ul>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
     eyebrow: "Neu in 2.7.4",
     title: "Willkommen bei Visual Assembler",
-    body: `<ul><li><strong>Horizontaler Tracker</strong>: Noten mit Umschalt+Ziehen oder Strg+Klick auswählen, dann ausschneiden, kopieren, einfügen oder löschen (Schaltflächen oder Strg+X / C / V und Entf).</li><li><strong>Quantisieren</strong>: Q oder die Schaltfläche rückt die ausgewählten Noten aufs Raster (2, 4, 8 oder 16 Zeilen). Mit »Beim Aufnehmen« wird eine Aufnahme beim Stoppen quantisiert.</li><li><strong>Rückgängig / Wiederholen</strong> auch im Kopf des horizontalen Trackers.</li></ul>`,
+    body: `<ul><li><strong>Horizontaler Tracker</strong>: Noten mit Umschalt+Ziehen oder Strg+Klick auswählen, dann ausschneiden, kopieren, einfügen oder löschen (Schaltflächen oder Strg+X / C / V und Entf).</li><li><strong>Quantisieren</strong>: Q oder die Schaltfläche rückt die ausgewählten Noten aufs Raster (2, 4, 8 oder 16 Zeilen). Mit »Beim Aufnehmen« wird eine Aufnahme beim Stoppen quantisiert.</li><li><strong>Rückgängig / Wiederholen</strong> auch im Kopf des horizontalen Trackers.</li><li><strong>Instrumente</strong> lassen sich einzeln oder alle unbenutzten auf einmal löschen; der Song hat eine eigene Lautstärke und PAL-/NTSC-Timing.</li></ul>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
     eyebrow: "Nieuw in 2.7.4",
     title: "Welkom bij Visual Assembler",
-    body: `<ul><li><strong>Horizontale tracker</strong>: selecteer noten met Shift+slepen of Ctrl+klik en knip, kopieer, plak of verwijder ze (knoppen, of Ctrl+X / C / V en Del).</li><li><strong>Kwantiseren</strong>: Q of de knop zet de geselecteerde noten op het raster (2, 4, 8 of 16 rijen). Met »Bij opname« aan wordt een opname bij het stoppen gekwantiseerd.</li><li><strong>Ongedaan maken / Opnieuw</strong> ook in de kop van de horizontale tracker.</li></ul>`,
+    body: `<ul><li><strong>Horizontale tracker</strong>: selecteer noten met Shift+slepen of Ctrl+klik en knip, kopieer, plak of verwijder ze (knoppen, of Ctrl+X / C / V en Del).</li><li><strong>Kwantiseren</strong>: Q of de knop zet de geselecteerde noten op het raster (2, 4, 8 of 16 rijen). Met »Bij opname« aan wordt een opname bij het stoppen gekwantiseerd.</li><li><strong>Ongedaan maken / Opnieuw</strong> ook in de kop van de horizontale tracker.</li><li><strong>Instrumenten</strong> zijn één voor één of alle ongebruikte tegelijk te verwijderen; het nummer heeft een eigen volume en PAL- / NTSC-timing.</li></ul>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
     eyebrow: "Nowość w 2.7.4",
     title: "Witamy w Visual Assembler",
-    body: `<ul><li><strong>Tracker poziomy</strong>: zaznacz nuty przez Shift+przeciągnij lub Ctrl+klik, potem wytnij, skopiuj, wklej lub usuń je (przyciski albo Ctrl+X / C / V i Del).</li><li><strong>Kwantyzacja</strong>: Q lub przycisk przesuwa zaznaczone nuty na siatkę (2, 4, 8 lub 16 wierszy). Z włączonym »Przy nagrywaniu« nagranie jest kwantyzowane po zatrzymaniu.</li><li><strong>Cofnij / Ponów</strong> także w nagłówku trackera poziomego.</li></ul>`,
+    body: `<ul><li><strong>Tracker poziomy</strong>: zaznacz nuty przez Shift+przeciągnij lub Ctrl+klik, potem wytnij, skopiuj, wklej lub usuń je (przyciski albo Ctrl+X / C / V i Del).</li><li><strong>Kwantyzacja</strong>: Q lub przycisk przesuwa zaznaczone nuty na siatkę (2, 4, 8 lub 16 wierszy). Z włączonym »Przy nagrywaniu« nagranie jest kwantyzowane po zatrzymaniu.</li><li><strong>Cofnij / Ponów</strong> także w nagłówku trackera poziomego.</li><li><strong>Instrumenty</strong> można usuwać pojedynczo lub wszystkie nieużywane naraz; utwór ma własną głośność i taktowanie PAL / NTSC.</li></ul>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
     eyebrow: "Novità nella 2.7.4",
     title: "Benvenuto in Visual Assembler",
-    body: `<ul><li><strong>Tracker orizzontale</strong>: seleziona le note con Maiusc+trascina o Ctrl+clic, poi tagliale, copiale, incollale o eliminale (pulsanti, oppure Ctrl+X / C / V e Canc).</li><li><strong>Quantizza</strong>: Q o il pulsante sposta le note selezionate sulla griglia (2, 4, 8 o 16 righe). Con »In registrazione« attivo, la registrazione viene quantizzata all'arresto.</li><li><strong>Annulla / Ripeti</strong> anche nell'intestazione del tracker orizzontale.</li></ul>`,
+    body: `<ul><li><strong>Tracker orizzontale</strong>: seleziona le note con Maiusc+trascina o Ctrl+clic, poi tagliale, copiale, incollale o eliminale (pulsanti, oppure Ctrl+X / C / V e Canc).</li><li><strong>Quantizza</strong>: Q o il pulsante sposta le note selezionate sulla griglia (2, 4, 8 o 16 righe). Con »In registrazione« attivo, la registrazione viene quantizzata all'arresto.</li><li><strong>Annulla / Ripeti</strong> anche nell'intestazione del tracker orizzontale.</li><li>Gli <strong>strumenti</strong> si possono eliminare uno alla volta o tutti quelli non usati; il brano ha un volume proprio e la temporizzazione PAL / NTSC.</li></ul>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
@@ -4558,6 +4558,13 @@ function _applyEditorTranslations() {
   }
   setText(".sid-inst-row .sid-lbl", t("sidInstrumentLabel"));
   setAttr("#sid-inst-add", t("sidAddInstrument"));
+  setAttr("#sid-inst-del", t("sidDeleteInstrument"));
+  setText("#sid-inst-unused", t("sidRemoveUnused"));
+  setText("#sid-song-vol-lbl", t("sidSongVol"));
+  setAttr("#sid-song-vol", t("sidSongVolTip"));
+  setText("#sid-vol-song-lbl", t("sidVolSong"));
+  setAttr("#sid-vol-song-wrap", t("sidVolSongTip"));
+  setAttr("#sid-video", t("sidVideoTip"));
   setAttr("#sid-preview", t("sidPreview"));
   const sidWaveLbl = document.querySelector(".sid-wave-row .sid-lbl");
   if (sidWaveLbl) sidWaveLbl.textContent = t("sidWaveformLabel");
@@ -51841,7 +51848,7 @@ const _SID_DCR = [6,24,48,72,114,168,204,240,300,750,1500,2400,3000,9000,15000,2
 
 function _sidNewInst(name) {
   return { name: name || t("sidNewInstrumentName"), tri:false, saw:false, pul:true, noi:false, ring:false, sync:false,
-           pw:2048, a:2, d:8, s:6, r:4, lp:false, bp:false, hp:false, cut:1400, res:0, vol:15,
+           pw:2048, a:2, d:8, s:6, r:4, lp:false, bp:false, hp:false, cut:1400, res:0, vol:15, songVol:true,
            // filter: route this voice, voice 3 off, cutoff sweep toward cutEnd (cutSpeed/frame, 0 = static)
            filt:false, off3:false, cutEnd:1400, cutSpeed:0, cutPing:false,
            // instrument vibrato (LFO) and pulse width modulation, both per frame
@@ -51864,8 +51871,10 @@ function _sidInstNorm(ins) {
   }
   if (src.filt === undefined) o.filt = !!(o.lp || o.bp || o.hp);
   if (src.cutEnd === undefined) o.cutEnd = o.cut;
+  // instruments from before the song volume set the chip's volume themselves
+  if (src.songVol === undefined) o.songVol = false;
   const cl = function(v, lo, hi) { v = Number(v) | 0; return v < lo ? lo : v > hi ? hi : v; };
-  ["tri","saw","pul","noi","ring","sync","lp","bp","hp","filt","off3","cutPing","hr"].forEach(function(k){ o[k] = !!o[k]; });
+  ["tri","saw","pul","noi","ring","sync","lp","bp","hp","filt","off3","cutPing","hr","songVol"].forEach(function(k){ o[k] = !!o[k]; });
   o.pw = cl(o.pw, 0, 4095); o.a = cl(o.a, 0, 15); o.d = cl(o.d, 0, 15); o.s = cl(o.s, 0, 15); o.r = cl(o.r, 0, 15);
   o.cut = cl(o.cut, 0, 2047); o.cutEnd = cl(o.cutEnd, 0, 2047); o.cutSpeed = cl(o.cutSpeed, 0, 127);
   o.res = cl(o.res, 0, 15); o.vol = cl(o.vol, 0, 15);
@@ -52019,7 +52028,16 @@ function _sidNoteName(n) {
   if (n == null) return "...";
   return _SID_NOTE_NAMES[n % 12] + Math.floor(n / 12);
 }
-function _sidNoteFreq(n) { return 440 * Math.pow(2, (n - 57) / 12); } // n: 0 = C-0
+function _sidNoteFreq(n) { return 440 * Math.pow(2, (n - 57) / 12); }
+
+// The tune's volume (0-15) and timing (NTSC = 60 Hz frames, the NTSC clock). No initializer:
+// setupSidEditor runs before these lines; undefined reads as the default.
+var _sidSongVol;
+var _sidNtsc;
+function _sidVol() { return typeof _sidSongVol === "number" ? _sidSongVol : 15; }
+function _sidIsNtsc() { return typeof _sidNtsc !== "undefined" && !!_sidNtsc; }
+function _sidFps() { return _sidIsNtsc() ? 60 : 50; }
+function _sidClockHz() { return _sidIsNtsc() ? 1022730 : 985248; } // n: 0 = C-0
 function _sidMidiRefreshInputs() {
   const select = document.getElementById("sid-midi-input");
   if (!select || !_sidMidiAccess) return;
@@ -52394,7 +52412,7 @@ function _sidPreviewArpeggio() {
   if (_sidUsesNativeCore()) {
     const td = _sidTuneData({ insts: [_sidCurInst()], patterns: [], song: [0], speed: 255 });
     const engine = _sidEngineNew(td);
-    const stepFrames = Math.round(stepDur * 50);
+    const stepFrames = Math.round(stepDur * _sidFps());
     const tail = Math.min(150, Math.ceil(_SID_DCR[td.insts[0].r] / 20) + 6);
     // Egyetlen voice és puffer: az IPC késése nem tolhatja egymásra a hangokat.
     _sidRenderNative(engine, length * stepFrames + tail, _sidAudio.sampleRate, function(eng, frame) {
@@ -52457,7 +52475,7 @@ function _sidInstFields() { return [
   ["sid-filt", "filt", "check"], ["sid-lp", "lp", "check"], ["sid-bp", "bp", "check"], ["sid-hp", "hp", "check"], ["sid-off3", "off3", "check"],
   ["sid-cut", "cut", "range", "sid-cut-val"], ["sid-cut-end", "cutEnd", "range", "sid-cut-end-val"],
   ["sid-cut-speed", "cutSpeed", "range", "sid-cut-speed-val"], ["sid-cut-ping", "cutPing", "check"],
-  ["sid-res", "res", "range", "sid-res-val"], ["sid-vol", "vol", "range", "sid-vol-val"],
+  ["sid-res", "res", "range", "sid-res-val"], ["sid-vol", "vol", "range", "sid-vol-val"], ["sid-vol-song", "songVol", "check"],
   ["sid-vib-delay", "vibDelay", "range", "sid-vib-delay-val"], ["sid-vib-speed", "vibSpeed", "range", "sid-vib-speed-val"],
   ["sid-vib-depth", "vibDepth", "range", "sid-vib-depth-val"],
   ["sid-pwm-speed", "pwmSpeed", "range", "sid-pwm-speed-val"], ["sid-pwm-min", "pwmMin", "range", "sid-pwm-min-val"],
@@ -52525,8 +52543,62 @@ function _sidLoadInstUI() {
     fw.value = String(inst.firstWave);
   }
   const ts = document.getElementById("sid-table-speed"); if (ts) ts.value = inst.tableSpeed;
+  _sidVolSongSync();
   _sidRenderTable();
   _sidDrawADSR();
+}
+
+// With the song volume the instrument's own Vol does nothing: it is greyed out.
+function _sidVolSongSync() {
+  const on = !!_sidCurInst().songVol, vol = document.getElementById("sid-vol");
+  if (!vol) return;
+  vol.disabled = on;
+  vol.closest(".sid-slider-row")?.classList.toggle("sid-slider-row--off", on);
+}
+
+/* Deletes instruments (a Set of indices; one always stays). The notes of a deleted one
+   play the nearest kept instrument before it, the later numbers move down. */
+function _sidInstRemove(drop) {
+  const keep = _sidInsts.map(function(_, i) { return i; }).filter(function(i) { return !drop.has(i); });
+  if (!keep.length) keep.push(0);
+  const remap = _sidInsts.map(function(_, i) {
+    let k = keep.length - 1;
+    while (k > 0 && keep[k] > i) k--;
+    return k;
+  });
+  _sidPatterns.forEach(function(pat) {
+    pat.forEach(function(col) { col.forEach(function(c) { c.inst = remap[c.inst] != null ? remap[c.inst] : 0; }); });
+  });
+  _sidInsts = keep.map(function(i) { return _sidInsts[i]; });
+  _sidInst = Math.min(remap[_sidInst] != null ? remap[_sidInst] : 0, _sidInsts.length - 1);
+  _sidBuildInstSel(); _sidLoadInstUI(); _sidBuildTracker();
+  if (typeof _sidRollDraw === "function") _sidRollDraw();
+  _sidHistSchedule();
+  return _sidInsts.length;
+}
+// How many notes play each instrument.
+function _sidInstUse() {
+  const use = _sidInsts.map(function() { return 0; });
+  _sidPatterns.forEach(function(pat) {
+    pat.forEach(function(col) { col.forEach(function(c) { if (c.note != null && use[c.inst] != null) use[c.inst]++; }); });
+  });
+  return use;
+}
+async function _sidInstDeleteCurrent() {
+  if (_sidInsts.length < 2) return;
+  const n = _sidInstUse()[_sidInst];
+  if (n) {
+    const into = _sidInsts[_sidInst ? _sidInst - 1 : 1];
+    if (!(await _showConfirm(tf("sidDeleteInstrumentUsed", { n: n, name: into.name })))) return;
+  }
+  _sidInstRemove(new Set([_sidInst]));
+}
+function _sidInstRemoveUnused() {
+  const use = _sidInstUse();
+  const drop = new Set(use.map(function(n, i) { return n ? -1 : i; }).filter(function(i) { return i >= 0; }));
+  if (drop.size === _sidInsts.length) drop.delete(0);
+  if (drop.size) _sidInstRemove(drop);
+  return drop.size;
 }
 
 /* ── Wave / arpeggio table editor ── */
@@ -53879,10 +53951,12 @@ function _sidHistSnap(prev) {
       return prev && prev.pats[i] === text ? prev.pats[i] : text;
     }),
     song: JSON.stringify(_sidSong), speed: _sidSpeed, sid2: _sidSid2Addr, title: title ? title.textContent : "",
+    vol: _sidVol(), ntsc: _sidIsNtsc(),
   };
 }
 function _sidHistSame(a, b) {
   return a.insts === b.insts && a.song === b.song && a.speed === b.speed && a.sid2 === b.sid2 && a.title === b.title
+    && a.vol === b.vol && a.ntsc === b.ntsc
     && a.pats.length === b.pats.length && a.pats.every(function(text, i) { return text === b.pats[i]; });
 }
 function _sidHistRender() {
@@ -53921,6 +53995,8 @@ function _sidHistApply(to, from) {
   _sidSong = parse(to.song);
   _sidSpeed = to.speed;
   _sidSid2Addr = to.sid2;
+  _sidSetSongVol(to.vol);
+  _sidSetNtsc(to.ntsc);
   const inst = _sidInsts.findIndex(function(x, i) { return JSON.stringify(x) !== JSON.stringify(before[i]); });
   _sidInst = Math.max(0, Math.min(_sidInsts.length - 1, inst >= 0 ? inst : _sidInst));
   const pat = to.pats.findIndex(function(text, i) { return text !== from.pats[i]; });
@@ -53952,7 +54028,7 @@ function _sidPreviewSelectedRow() {
   const row = Math.max(0, Math.min(_SID_ROWS - 1, _sidSel.row));
   _sidEnsureAudio();
   const when = _sidAudio.currentTime + 0.02;
-  const rowSec = Math.max(_sidSpeed, 1) / 50;
+  const rowSec = Math.max(_sidSpeed, 1) / _sidFps();
   const notes = [];
   for (let v = 0; v < pat.length; v++) {
     const cell = pat[v]?.[row];
@@ -54091,7 +54167,7 @@ function _sidPlayNote(inst, note, when, holdSec) {
   const td = _sidTuneData({ insts: [inst], patterns: [], song: [0], speed: 255 });
   const e = _sidEngineNew(td);
   const ins = td.insts[0];
-  const hold = Math.max(2, Math.round(Math.max(0.04, holdSec) * 50));
+  const hold = Math.max(2, Math.round(Math.max(0.04, holdSec) * _sidFps()));
   const tail = Math.min(150, Math.ceil(_SID_DCR[ins.r] / 20) + 6);
   if (_sidUsesNativeCore()) {
     _sidRenderNative(e, hold + tail, ac.sampleRate, function(eng, k) {
@@ -54116,16 +54192,28 @@ function _sidPlayInst(inst, freq, when, holdSec) {
 }
 
 /* ── Metronome + BPM helpers ─────────────────────────────────────────────
- * BPM derives from the frames-per-row Speed input: PAL 50 Hz, 4 rows/beat.
+ * BPM derives from the frames-per-row Speed input: 50 Hz (PAL) or 60 Hz (NTSC), 4 rows/beat.
  * The metronome runs off the same setInterval tick that drives the tracker
  * row highlight, so it stays in phase with the preview. */
 function _sidComputeBpm() {
-  const rowSec = Math.max(_sidSpeed, 1) / 50;
+  const rowSec = Math.max(_sidSpeed, 1) / _sidFps();
   return Math.round(60 / (rowSec * _SID_ROWS_PER_BEAT));
 }
 function _sidUpdateBpmDisplay() {
   const el = document.getElementById("sid-bpm");
   if (el) el.textContent = String(_sidComputeBpm());
+}
+
+function _sidSetSongVol(vol) {
+  _sidSongVol = Math.max(0, Math.min(15, Number(vol) | 0));
+  const el = document.getElementById("sid-song-vol");
+  if (el) el.value = String(_sidSongVol);
+}
+function _sidSetNtsc(on) {
+  _sidNtsc = !!on;
+  const el = document.getElementById("sid-video");
+  if (el) el.value = _sidNtsc ? "ntsc" : "pal";
+  _sidUpdateBpmDisplay();
 }
 function _sidPlayMetronomeClick(accent) {
   if (!_sidMetronomeEnabled) return;
@@ -54266,7 +54354,7 @@ function _sidRecordStart() {
   _sidStop();
   _sidRecording = {
     pattern: _sidCurPat(), voice: _sidSel.voice, inst: _sidInst, startRow: _sidSel.row,
-    row: _sidSel.row, rowMs: Math.max(1, _sidSpeed) * 20, startedAt: performance.now(), lastStep: -1, timer: null,
+    row: _sidSel.row, rowMs: Math.max(1, _sidSpeed) * 1000 / _sidFps(), startedAt: performance.now(), lastStep: -1, timer: null,
     held: new Map(), pendingOff: new Set(), chord: null, taken: [], songPos0: _sidSongPos
   };
   _sidRecordTick();
@@ -54322,8 +54410,8 @@ function _buildPsidBytes(prgBytes, initAddr, playAddr, name, released = "2026", 
   wStr(0x16, name || "Visual Assembler preview", 32);
   wStr(0x36, "Visual Assembler", 32);
   wStr(0x56, released, 32);
-  // Flags: bit2..3 = PAL (01), bit4..5 = 6581 (01) → 0x14
-  out[0x76]=0x00; out[0x77]=0x14;
+  // Flags: bit2..3 = PAL (01) or NTSC (10), bit4..5 = 6581 (01) → 0x14 / 0x18
+  out[0x76]=0x00; out[0x77]=_sidIsNtsc() ? 0x18 : 0x14;
   // startPage, pageLength, secondSIDAddress = 0; PSID v3 for a second SID
   if (secondSid) { out[5]=0x03; out[0x7A]=(secondSid - 0xD000) >> 4; }
   out.set(prgBytes, HEADER_LEN);
@@ -55494,7 +55582,7 @@ function _sidAnaFilterGain(regs, at, hz) {
 function _sidAnaVoiceLevels(regs, at, bit, env, bands) {
   const out = new Array(bands).fill(0);
   const b = at + bit * 7, ctl = regs[b + 4], mode = regs[at + 0x18];
-  const hz = (regs[b] | (regs[b + 1] << 8)) * 985248 / 16777216;
+  const hz = (regs[b] | (regs[b + 1] << 8)) * _sidClockHz() / 16777216;
   const routed = (regs[at + 0x17] >> bit) & 1;
   const vol = env * (mode & 15) / 15;
   if (!(ctl & 0xF0) || (ctl & 8) || hz < 1 || vol <= 0 || (bit === 2 && !routed && (mode & 0x80))) return out;
@@ -55888,10 +55976,10 @@ function _sidWaSchedule() {
     }
     for (let k = from; k < e.rows.length; k++) {
       const r = e.rows[k];
-      w.events.push({ time: w.next + (r.frame - first) / 50, row: r.row, opos: r.opos, pat: r.pat, frame: r.frame });
+      w.events.push({ time: w.next + (r.frame - first) / _sidFps(), row: r.row, opos: r.opos, pat: r.pat, frame: r.frame });
     }
     e.rows.length = 0;
-    w.next += chunk / 50;
+    w.next += chunk / _sidFps();
   }
   while (w.events.length && w.events[0].time <= now) _sidWaShowRow(w.events.shift());
 }
@@ -56017,14 +56105,15 @@ function _sidPauseToggle() {
  * (indexed by instrument number), the wave/arpeggio tables are concatenated
  * (at most 255 steps in all). */
 function _sidFreqTables() {
-  if (_sidFreqTables.cache) return _sidFreqTables.cache;
+  const clock = _sidClockHz();
+  if (_sidFreqTables.cache && _sidFreqTables.cache.clock === clock) return _sidFreqTables.cache;
   const f = [], semi = [];
   for (let n = 0; n < 96; n++) {
     const hz = 440 * Math.pow(2, (n - 57) / 12);
-    f.push(Math.min(0xFFFF, Math.round(hz * 16777216 / 985248)));
+    f.push(Math.min(0xFFFF, Math.round(hz * 16777216 / clock)));
   }
   for (let n = 0; n < 96; n++) semi.push(Math.max(0, f[Math.min(95, n + 1)] - f[n]) || (n ? semi[n - 1] : 0));
-  _sidFreqTables.cache = { f: f, semi: semi };
+  _sidFreqTables.cache = { f: f, semi: semi, clock: clock };
   return _sidFreqTables.cache;
 }
 
@@ -56046,7 +56135,7 @@ function _sidTuneData(opts) {
     // the sweep runs from cut toward cutEnd: the sign of the per-frame step follows the direction
     a.icsp.push(!o.cutSpeed ? 0 : o.cutEnd >= o.cut ? o.cutSpeed : (256 - o.cutSpeed) & 0xFF);
     a.ifl.push((o.filt ? 1 : 0) | (o.cutPing ? 2 : 0)); a.ires.push(o.res << 4);
-    a.imode.push((o.lp?0x10:0) | (o.bp?0x20:0) | (o.hp?0x40:0) | (o.off3?0x80:0)); a.ivol.push(o.vol);
+    a.imode.push((o.lp?0x10:0) | (o.bp?0x20:0) | (o.hp?0x40:0) | (o.off3?0x80:0)); a.ivol.push(o.songVol ? 0x10 : o.vol); // $10 = the song's
     a.ivdl.push(o.vibDelay); a.ivsp.push(o.vibSpeed); a.ivdp.push(o.vibDepth);
     const pmin = Math.min(o.pwmMin, o.pwmMax), pmax = Math.max(o.pwmMin, o.pwmMax);
     a.ipms.push(o.pwmSpeed); a.ipmnl.push(pmin & 0xFF); a.ipmnh.push(pmin >> 8); a.ipmxl.push(pmax & 0xFF); a.ipmxh.push(pmax >> 8);
@@ -56064,7 +56153,8 @@ function _sidTuneData(opts) {
     if (at < 0) steps.forEach(function(x){ a.tw.push(x[0]); a.tn.push(x[1]); a.ta.push(x[2]); });
   });
   const chips = patterns[0] && patterns[0].length > 3 ? 2 : 1;
-  return { speed: speed, insts: insts, patterns: patterns, song: song.length ? song : [0], a: a, chips: chips };
+  const vol = Math.max(0, Math.min(15, (opts.vol !== undefined ? opts.vol : _sidVol()) | 0));
+  return { speed: speed, vol: vol, insts: insts, patterns: patterns, song: song.length ? song : [0], a: a, chips: chips };
 }
 
 /* Cell → player bytes: note 1..96 (0 = none), instrument (out-of-range → 0), fx code, fx value. */
@@ -56092,7 +56182,7 @@ function _sidEngineNew(td) {
   return { td: td, a: td.a, ft: _sidFreqTables(), chips: chips, base: [0, 7, 14, 25, 32, 39].slice(0, voices),
     regs: new Uint8Array(25 * chips), trig: new Array(voices).fill(false),
     tick: td.speed, spd: td.speed, row: 0, opos: 0, pat: td.song[0] | 0, frame: 0, rows: [],
-    v: Array.from({ length: voices }, voice), vols: [0, 0], fs: [filter(), filter()] };
+    v: Array.from({ length: voices }, voice), vols: [td.vol | 0, td.vol | 0], fs: [filter(), filter()] };
 }
 
 function _sidEngTab(e, s, k) {
@@ -56121,7 +56211,7 @@ function _sidEngNoteOn(e, v, n, i) {
   if (a.itln[i]) _sidEngTab(e, s, a.itst[i]);
   e.regs[base + 5] = a.iad[i];
   e.regs[base + 6] = a.isr[i];
-  e.vols[chip] = a.ivol[i];
+  if (a.ivol[i] < 0x10) e.vols[chip] = a.ivol[i];
   if (a.ifl[i] & 1) {
     f.own = v;
     f.cut = f.start = a.icul[i] | (a.icuh[i] << 8);
@@ -56278,7 +56368,7 @@ function _sidSynthNew(sr) {
 }
 
 function _sidSynthRender(sy, regs, trig, out, off, count) {
-  const sr = sy.sr, dt = 1 / sr, clk = 985248 / 16777216 / sr;
+  const sr = sy.sr, dt = 1 / sr, clk = _sidClockHz() / 16777216 / sr;
   const fr = [0, 0, 0], pw = [0, 0, 0], ctl = [0, 0, 0], at = [0, 0, 0], kd = [1, 1, 1], su = [0, 0, 0], kr = [1, 1, 1];
   for (let v = 0; v < 3; v++) {
     const b = 7 * v;
@@ -56353,13 +56443,13 @@ function _sidSynthRender(sy, regs, trig, out, off, count) {
    runs before each frame (note previews trigger notes / release from it). */
 function _sidRenderEngine(e, frames, sr, hook) {
   const synths = e.synths || (e.synths = Array.from({ length: e.chips }, function() { return _sidSynthNew(sr); }));
-  const total = Math.ceil(frames * sr / 50);
+  const total = Math.ceil(frames * sr / _sidFps());
   const parts = synths.map(function() { return new Float32Array(total); });
   let pos = 0, acc = 0;
   for (let k = 0; k < frames; k++) {
     if (hook) hook(e, k);
     _sidEngFrame(e);
-    acc += sr / 50;
+    acc += sr / _sidFps();
     const n = Math.min(total - pos, Math.floor(acc) - pos);
     if (n > 0) {
       synths.forEach(function(sy, c) {
@@ -56411,7 +56501,7 @@ function _sidDecodePcm16(base64) {
 }
 
 function _sidRenderNativeFrames(frames, sampleRate, sessionId) {
-  const payload = { sampleRate: Math.round(sampleRate), model: _sidPreviewModel, engine: _sidPreviewEngine, frames: frames };
+  const payload = { sampleRate: Math.round(sampleRate), model: _sidPreviewModel, engine: _sidPreviewEngine, ntsc: _sidIsNtsc(), frames: frames };
   if (sessionId) payload.sessionId = sessionId;
   return window.electronAPI.renderSidPreview(payload).then(function(base64) {
     const pcm = _sidDecodePcm16(base64);
@@ -56461,7 +56551,7 @@ function _sidInstBytes(ins) {
  * 0xFE (effect column, no extension) and the unmarked legacy layout still load. */
 function _sidInstExtBytes(ins) {
   const o = _sidInstNorm(ins);
-  const flags = (o.filt?0x04:0) | (o.off3?0x08:0) | (o.hr?0x10:0) | (o.cutPing?0x20:0);
+  const flags = (o.filt?0x04:0) | (o.off3?0x08:0) | (o.hr?0x10:0) | (o.cutPing?0x20:0) | (o.songVol?0x40:0);
   const out = [flags, o.cutEnd & 0xFF, o.cutEnd >> 8, o.cutSpeed, o.vibDelay, o.vibSpeed, o.vibDepth,
     o.pwmSpeed, o.pwmMin & 0xFF, o.pwmMin >> 8, o.pwmMax & 0xFF, o.pwmMax >> 8,
     o.gateTimer, o.firstWave, o.tableSpeed, o.tableLoop < 0 ? 0xFF : o.tableLoop, o.table.length];
@@ -56472,7 +56562,7 @@ function _sidInstExtBytes(ins) {
 }
 function _sidReadInstExt(ins, src, p) {
   const flags = src[p++] || 0;
-  ins.filt = !!(flags & 0x04); ins.off3 = !!(flags & 0x08); ins.hr = !!(flags & 0x10); ins.cutPing = !!(flags & 0x20);
+  ins.filt = !!(flags & 0x04); ins.off3 = !!(flags & 0x08); ins.hr = !!(flags & 0x10); ins.cutPing = !!(flags & 0x20); ins.songVol = !!(flags & 0x40);
   ins.cutEnd = (src[p++] || 0) | ((src[p++] || 0) << 8);
   ins.cutSpeed = src[p++] || 0;
   ins.vibDelay = src[p++] || 0; ins.vibSpeed = src[p++] || 0; ins.vibDepth = src[p++] || 0;
@@ -56516,6 +56606,8 @@ function _sidSerialize() {
   const song = (_sidSong && _sidSong.length) ? _sidSong : [0];
   out.push(Math.min(255, song.length) & 0xFF);
   song.slice(0, 255).forEach(function(idx){ out.push(idx & 0xFF); });
+  // trailer: $A5, the tune's volume, timing flags (bit 0 = NTSC); older saves end before it
+  out.push(0xA5, _sidVol(), _sidIsNtsc() ? 1 : 0);
   return Uint8Array.from(out);
 }
 function _sidDeserialize(src) {
@@ -56569,6 +56661,9 @@ function _sidDeserialize(src) {
     // storage order" behavior as an explicit order list.
     _sidSong = _sidPatterns.map(function(_, i){ return i; });
   }
+  const trailer = src[p] === 0xA5;
+  _sidSetSongVol(trailer ? src[p + 1] & 15 : 15);
+  _sidSetNtsc(trailer ? !!(src[p + 2] & 1) : false);
   _sidSong = _sidSong.map(function(idx){ return Math.max(0, Math.min(_sidPatterns.length - 1, idx|0)); });
   _sidSongPos = 0;
   _sidSongPlayPos = 0;
@@ -56649,7 +56744,7 @@ function _sidGoatImport(bytes) {
       ins.firstWave = g.fw >= 0xFE ? 0 : g.fw;
       ins.gateTimer = (g.gt & 0x40) ? 0 : Math.min(15, g.gt & 0x3F);
       ins.hr = ins.gateTimer > 0 && !(g.gt & 0x80);
-      ins.vol = 15;
+      ins.vol = 15; ins.songVol = false;
       // wavetable → table steps (one step per frame)
       const W = 0, steps = [], seen = {};
       let ptr = g.wp, loop = -1, prev = { w: 0, n: 0, abs: false }, gateOff = -1, guard = 0;
@@ -57127,7 +57222,7 @@ function _sidDumpImport(regs, meta) {
       if (hi > lo) { ins.pwmSpeed = Math.min(255, movement(pwAt, pf, end)); ins.pwmMin = lo; ins.pwmMax = hi; }
       // filter: global registers, routed per voice
       const mv = R(f, at + 0x18);
-      ins.vol = mv & 15;
+      ins.vol = mv & 15; ins.songVol = false;
       ins.off3 = !!(mv & 0x80);
       ins.filt = !!((R(f, at + 0x17) >> vc.bit) & 1);
       if (ins.filt) {
@@ -57373,6 +57468,8 @@ function _sidApplyImportedTune(res, title) {
   _sidPatterns = res.patterns;
   _sidSong = res.song;
   _sidSpeed = res.speed;
+  _sidSetSongVol(res.vol != null ? res.vol : 15);
+  _sidSetNtsc(!!res.ntsc);
   if (res.sid2) _sidSid2Addr = res.sid2;
   const speedEl = document.getElementById("sid-speed");
   if (speedEl) speedEl.value = String(_sidSpeed);
@@ -57491,7 +57588,7 @@ function _sidExport(kind) {
     const ad = (ins.a<<4) | ins.d;
     const sr = (ins.s<<4) | ins.r;
     const resFilt = (ins.res<<4) | 0;
-    const modeVol = ((ins.lp?0x10:0)|(ins.bp?0x20:0)|(ins.hp?0x40:0)) | ins.vol;
+    const modeVol = ((ins.lp?0x10:0)|(ins.bp?0x20:0)|(ins.hp?0x40:0)) | (ins.songVol ? _sidVol() : ins.vol);
     const bytes = [ctrl, ad, sr, ins.pw&0xFF, (ins.pw>>8)&0x0F, ins.cut&0x07, (ins.cut>>3)&0xFF, resFilt, modeVol];
     lines.push((1000+i*10) + " DATA " + dd(bytes) + " : REM " + ins.name);
   });
@@ -57605,7 +57702,7 @@ function _sidExportAsmPlayable() {
 
   L("; =========================================================",
     "; SID player + tune (generated by Visual Assembler SID editor)",
-    "; PAL 50 Hz IRQ-driven, " + (nv > 3 ? "6 voices (second SID at $" + sid2.toString(16).toUpperCase() + ")" : "3 voices") + ", " + _SID_ROWS + "-row patterns",
+    "; " + (_sidIsNtsc() ? "NTSC 60" : "PAL 50") + " Hz IRQ-driven, " + (nv > 3 ? "6 voices (second SID at $" + sid2.toString(16).toUpperCase() + ")" : "3 voices") + ", " + _SID_ROWS + "-row patterns",
     "; Call JSR sid_init once to start playback; JSR sid_stop to silence.",
     "; Own IRQ instead: skip sid_init's IRQ setup and JSR sid_frame once per frame.",
     "; Speed: " + speed + " frames/row. " + exportedPatterns + " pattern(s) in the bank, " +
@@ -57672,6 +57769,9 @@ function _sidExportAsmPlayable() {
     "LDA #$FF",
     "STA sid_fown",            // no voice owns the filter yet
     ...(nv > 3 ? ["STA sid_fown2"] : []),
+    "LDA #" + hx(td.vol),
+    "STA sid_vol",             // the tune's volume
+    ...(nv > 3 ? ["STA sid_vol2"] : []),
     "LDA #" + hx(speed),
     "STA $FB",                 // SID_TICK
     "STA $2F",                 // SID_SPEED_CUR (the F effect can change it later)
@@ -58012,7 +58112,10 @@ function _sidExportAsmPlayable() {
   const takeFilter = function(s) {
     L(
       "LDA sid_ivol,Y",
+      "CMP #$10",                // $10 = the song's volume: the chip keeps it
+      "BCS sid_sv_vol" + s,
       "STA sid_vol" + s,
+      "sid_sv_vol" + s + ":",
       "LDA sid_ifl,Y",
       "AND #$01",
       "BEQ sid_sv_nofilt" + s,
@@ -58457,7 +58560,7 @@ function _sidExportAsmPlayable() {
   L("");
 
   const ft = _sidFreqTables();
-  L("; PAL frequency table (note 0 = C-0, note 95 = B-7) and semitone steps");
+  L("; " + (_sidIsNtsc() ? "NTSC" : "PAL") + " frequency table (note 0 = C-0, note 95 = B-7) and semitone steps");
   chunk("sid_freq_lo", ft.f.map(function(x){ return x & 0xFF; }));
   chunk("sid_freq_hi", ft.f.map(function(x){ return x >> 8; }));
   chunk("sid_semi_lo", ft.semi.map(function(x){ return x & 0xFF; }));
@@ -58509,7 +58612,7 @@ function _sidExportUbBlock() {
     const ins = _sidInstNorm(raw);
     // any routing bit in resfilt = "route the voice that plays this instrument"
     const resFilt = (ins.res<<4) | (ins.filt ? 0x07 : 0x00);
-    const modeVol = ((ins.lp?0x10:0)|(ins.bp?0x20:0)|(ins.hp?0x40:0)|(ins.off3?0x80:0)) | ins.vol;
+    const modeVol = ((ins.lp?0x10:0)|(ins.bp?0x20:0)|(ins.hp?0x40:0)|(ins.off3?0x80:0)) | (ins.songVol ? _sidVol() : ins.vol);
     lines.push("  inst " + [i, hx(_sidWaveByte(ins), 2), hx((ins.a<<4)|ins.d, 2), hx((ins.s<<4)|ins.r, 2),
       hx(ins.pw & 0xFFF, 4), hx(ins.cut & 0x7FF, 4), hx(resFilt, 2), hx(modeVol, 2)].join(", ") +
       "   # " + String(ins.name || "").replace(/[\r\n]+/g, " "));
@@ -58729,6 +58832,20 @@ function setupSidEditor() {
   onId("sid-song-up", "click", function(){ _sidSongMove(-1); });
   onId("sid-song-down", "click", function(){ _sidSongMove(1); });
   onId("sid-play-mode", "change", function(e){ _sidPlayMode = e.target.value === "current" ? "current" : "all"; if(_sidTimer){ _sidPlay(); } });
+  onId("sid-song-vol", "input", function(e){
+    _sidSongVol = Math.max(0, Math.min(15, parseInt(e.target.value, 10) || 0));
+    if (_sidTimer) { _sidPlay(); }
+  });
+  onId("sid-video", "change", function(e){
+    _sidSetNtsc(e.target.value === "ntsc");
+    if (_sidTimer) { _sidPlay(); }
+  });
+  onId("sid-inst-del", "click", _sidInstDeleteCurrent);
+  onId("sid-inst-unused", "click", function(){
+    const n = _sidInstRemoveUnused();
+    showViceToast(n ? tf("sidRemoveUnusedDone", { n: n }) : t("sidRemoveUnusedNone"), false, true);
+  });
+  onId("sid-vol-song", "change", _sidVolSongSync);
   onId("sid-speed", "input", function(e){
     _sidSpeed = Math.max(1, Math.min(255, parseInt(e.target.value,10)||6));
     _sidUpdateBpmDisplay();
