@@ -871,7 +871,7 @@ swatch-konténert vegyél fel a `_setEditorPalette` listájába, RGB-cache-t ott
 ## 16. Jelenlegi verzió
 
 `2.7.4` — `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html`
-What's New dialógus, `README.md`, `README.txt`, `INSTALL-MAC.md`, `INSTALL-LINUX.md`, `Visual Assembler Manual.md`, `Visual Assembler Manual.hu.md`, `AGENTS.md`, és ez a fájl + copilot-instructions.md.
+What's New dialógus, `README.md`, `README.txt`, `install.txt` (verziósor + telepítő-fájlnevek), `INSTALL-MAC.md`, `INSTALL-LINUX.md`, `Visual Assembler Manual.md`, `Visual Assembler Manual.hu.md`, `AGENTS.md`, és ez a fájl + copilot-instructions.md.
 
 > **Kézikönyv-szinkron:** a `Visual Assembler Manual.md` (angol, forrás) mellett van egy
 > `Visual Assembler Manual.hu.md` (magyar fordítás). Ha az egyiket szerkezetileg módosítod
