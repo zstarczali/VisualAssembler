@@ -9,6 +9,14 @@ $downloads = [
     'va-linux-appimage' => ['downloads/VA/C64 Visual Assembler_*_amd64.AppImage', 'c64-visual-assembler-linux-x64.AppImage'],
     'va-linux-deb' => ['downloads/VA/C64 Visual Assembler_*_amd64.deb', 'c64-visual-assembler-linux-x64.deb'],
     'va-linux-rpm' => ['downloads/VA/C64 Visual Assembler-*-1.x86_64.rpm', 'c64-visual-assembler-linux-x64.rpm'],
+    // VA SID Studio: up to the version released on the dashboard (register/release-studio.php)
+    'sids-windows-x64' => ['downloads/SIDS/VA SID Studio_*_x64-setup.exe', 'va-sid-studio-windows-x64-setup.exe'],
+    'sids-windows-arm64' => ['downloads/SIDS/VA SID Studio_*_arm64-setup.exe', 'va-sid-studio-windows-arm64-setup.exe'],
+    'sids-macos-x64' => ['downloads/SIDS/VA SID Studio_*_x64.dmg', 'va-sid-studio-macos-intel.dmg'],
+    'sids-macos-arm64' => ['downloads/SIDS/VA SID Studio_*_aarch64.dmg', 'va-sid-studio-macos-apple-silicon.dmg'],
+    'sids-linux-appimage' => ['downloads/SIDS/VA SID Studio_*_amd64.AppImage', 'va-sid-studio-linux-x64.AppImage'],
+    'sids-linux-deb' => ['downloads/SIDS/VA SID Studio_*_amd64.deb', 'va-sid-studio-linux-x64.deb'],
+    'sids-linux-rpm' => ['downloads/SIDS/VA SID Studio-*-1.x86_64.rpm', 'va-sid-studio-linux-x64.rpm'],
     // VMA CLI: the newest uploaded version (vma-<ver>-<platform>.*), no dashboard release; name = the file's own
     'vma-windows-x64' => ['downloads/VMA/vma-*-windows-x64.zip', null],
     'vma-windows-arm64' => ['downloads/VMA/vma-*-windows-arm64.zip', null],
@@ -35,6 +43,12 @@ if (strncmp($key, 'va-', 3) === 0) {
         $approved = vaUpdateApproved(vaDb());
     } catch (Throwable $e) {
         $approved = VA_UPDATE_DEFAULT;
+    }
+} elseif (strncmp($key, 'sids-', 5) === 0) {
+    try {
+        $approved = vaStudioUpdateApproved(vaDb());
+    } catch (Throwable $e) {
+        $approved = VA_STUDIO_UPDATE_DEFAULT;
     }
 }
 $files = array_values(array_filter(

@@ -22,7 +22,10 @@ function fakeContext(all) {
     state: "running", currentTime: 0, sampleRate: 1000, destination: {}, resumes: 0, played: [],
     resume() { ac.state = "running"; ac.resumes++; return Promise.resolve(); },
     suspend() { ac.state = "suspended"; return Promise.resolve(); },
-    createGain() { return { context: ac, gain: { value: 0, setTargetAtTime(v) { this.value = v; } }, connect() {} }; },
+    createGain() {
+      return { context: ac, gain: { value: 0, setTargetAtTime(v) { this.value = v; }, setValueAtTime(v) { this.value = v; }, cancelScheduledValues() {} },
+        connect(node) { this.to = node; } };
+    },
     createAnalyser() { return { context: ac }; },
     createBuffer() { return { copyToChannel() {} }; },
     createBufferSource() { return { connect(node) { ac.played.push(node); }, start() {}, stop() {} }; },
@@ -52,6 +55,8 @@ function setup() {
   vm.createContext(ctx);
   vm.runInContext(`
     var _sidAudio = null, _sidMasterGain = null, _sidMasterVol = 0.6, _sidExtAudio = null, _sidExtGain = null, _sidVizVa = null, _sidVizExt = null;
+    const _PLAYER_NORM_TARGET_DB = -18, _PLAYER_NORM_MAX_DB = 12;
+    var _playerNormalize = false, _playerNormNode = null;
     var _sidExternalCore = null, _sidExtSources = new Set(), _sidPreviewSources = new Set(), _sidPreviewModel = "8580", _sidPreviewEngine = "resid";
     var _sidExtStatus = "playing", _sidExtStarting = false, _sidExtFile = null, _sidPlaylist = [], _sidPlaylistIndex = -1;
     function _sidStop() {}
@@ -64,7 +69,8 @@ function setup() {
     function showViceToast() {}
     function _sidExtStop() {}
     function _sidExtSetStatus(s) { _sidExtStatus = s; }
-    ${["_sidEnsureAudio", "_sidPlayerAudio", "_sidPlayBuffer", "_sidDecodePcm16", "_sidExternalCoreStop", "_sidExtPlay", "_sidExtPause", "_sidApplyMasterVolume", "_sidVizTap", "_sidVizAnalysers"].map(fn).join("\n")}
+    ${["_sidEnsureAudio", "_sidPlayerAudio", "_sidPlayBuffer", "_sidDecodePcm16", "_sidExternalCoreStop", "_sidExtPlay", "_sidExtPause", "_sidApplyMasterVolume", "_sidVizTap", "_sidVizAnalysers",
+      "_normMeterNew", "_normMeterAdd", "_normLoudness", "_playerNormGain", "_playerNormOutput", "_playerNormApply"].map(fn).join("\n")}
     async ${fn("_vaSidPlayFileBytes")}
     this.api = {
       start: () => _vaSidPlayFileBytes([1, 2, 3], "t.sid"),
@@ -118,7 +124,8 @@ test("the player's chunks go to the player's own gain, and a tune is on its own 
   renders[0]();
   await tick();
   assert.equal(contexts.length, 1, "no shared context is needed for a tune");
-  assert.equal(api.player().played[0], api.gain());
+  // through the normalization stage, which feeds the player's gain
+  assert.equal(api.player().played[0].to, api.gain());
 });
 
 test("Pause pressed again continues, as does Play", async () => {

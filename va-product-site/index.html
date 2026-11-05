@@ -2164,6 +2164,7 @@
     </button>
     <div class="nav-links" id="nav-links">
       <a class="nav-link" href="#home">HOME</a>
+      <a class="nav-link" href="#va-sid-studio">SID STUDIO</a>
       <a class="nav-link" href="#ultimate-basic">ULTIMATE BASIC</a>
       <a class="nav-link" href="#build-crt">BUILD CRT</a>
       <a class="nav-link" href="#features">FEATURES</a>
@@ -2206,6 +2207,62 @@
       <span class="hero-logo"><img class="hero-box-img" src="uploads/visual_assembler_transparent.webp" alt="Visual Assembler logo" width="900" height="900"><img class="hero-logo-shine" src="uploads/visual_assembler_transparent.webp" alt="" aria-hidden="true" width="900" height="900"></span>
     </div>
   </section>
+
+  <!-- BLOG: VA SID STUDIO -->
+  <section id="va-sid-studio" style="background:var(--scr-darker);padding:80px 0" aria-labelledby="va-sid-studio-title">
+    <div class="sec" style="padding-top:0;padding-bottom:0">
+      <div class="ub-tag">STUDIO NEWS &middot; <time datetime="2026-11-05">5 NOVEMBER 2026</time></div>
+      <div class="sec-s">// OUT NOW &mdash; FREE ON WINDOWS, MACOS AND LINUX</div>
+      <h2 class="sec-t" id="va-sid-studio-title">VA SID STUDIO<br><span style="color:var(--ylw)">THE SID EDITOR ON ITS OWN</span></h2>
+      <div class="dc-release-grid">
+        <div>
+          <p class="sec-d">The SID Editor and the SID Player of Visual Assembler now also come as a separate desktop app, for everyone who just wants to listen to C64 music or write it, without an assembler around it. <strong>VA SID Studio 1.4.0</strong> is free and open source (GPLv3).</p>
+          <p class="sec-d">It opens as an empty workspace: the player, the editor and the other windows float in it, and can stay open side by side.</p>
+          <div class="feature-list">
+            <div class="fi">
+              <div class="fi-dot">&#9658;</div>
+              <div><b>SID Editor:</b> <span>a 3-voice tracker, or 6 voices with a second SID, with instruments, wave and arpeggio tables, effects, a horizontal tracker, a virtual keyboard, MIDI and recording.</span></div>
+            </div>
+            <div class="fi">
+              <div class="fi-dot">&#9658;</div>
+              <div><b>The real sound:</b> <span>playback and preview on reSID or VA SID Core, both with a cycle-exact C64 core, as a 6581 or an 8580.</span></div>
+            </div>
+            <div class="fi">
+              <div class="fi-dot">&#9658;</div>
+              <div><b>SID Player:</b> <span>playlists, a spectrum analyzer and 2SID / 3SID tunes. Search the High Voltage SID Collection and play any tune from it.</span></div>
+            </div>
+            <div class="fi">
+              <div class="fi-dot">&#9658;</div>
+              <div><b>Amiga and tracker modules:</b> <span>the player also searches the Modland collection, about 177,000 playable modules, and plays dropped .mod, .xm, .s3m, .it and .med files.</span></div>
+            </div>
+            <div class="fi">
+              <div class="fi-dot">&#9658;</div>
+              <div><b>Top 50 and Normalize:</b> <span>the 50 most popular C64 tunes and 50 Amiga tunes in one click, and every tune at about the same loudness.</span></div>
+            </div>
+            <div class="fi">
+              <div class="fi-dot">&#9658;</div>
+              <div><b>Import and export:</b> <span>GoatTracker .sng and .sid in; .bin, 6502 assembly, Ultimate Basic and .sid (PSID) out.</span></div>
+            </div>
+            <div class="fi">
+              <div class="fi-dot">&#9658;</div>
+              <div><b>Updates:</b> <span>the app checks for a new version at start, or with its toolbar button, and installs it itself.</span></div>
+            </div>
+          </div>
+          <div style="margin-top:28px">
+            <a class="btn btn-y" href="#download-studio">&#9658; DOWNLOAD VA SID STUDIO</a>
+          </div>
+          <p class="sec-d" style="margin-top:20px;font-size:12px">macOS: the app is not notarized. After copying it to Applications, run once: <code style="text-transform:none;font-family:monospace">xattr -cr "/Applications/VA SID Studio.app"</code></p>
+        </div>
+        <div>
+          <figure style="margin:0">
+            <img src="uploads/va-sid-studio.webp" alt="VA SID Studio, C64 SID music editor, available on Windows, macOS and Linux: a pixel-art Commodore 64 with a SID chip and a waveform on its screen" width="1448" height="1086" loading="lazy" style="display:block;width:100%;height:auto">
+          </figure>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="div">
 
   <!-- STUDIO NEWS: DARK CHAMBERS RELEASED -->
   <section id="darkchambers" style="background:var(--scr-darker);padding:80px 0" aria-labelledby="dark-chambers-release-title">
@@ -4099,6 +4156,31 @@
                 <a class="download-item" href="download.php?file=va-linux-appimage">APPIMAGE X64</a>
                 <a class="download-item" href="download.php?file=va-linux-deb">DEBIAN / UBUNTU X64</a>
                 <a class="download-item" href="download.php?file=va-linux-rpm">FEDORA / RPM X64</a>
+              </div>
+            </div>
+          </div>
+          <div class="download-group" id="download-studio">
+            <div class="download-group-title">VA SID STUDIO</div>
+            <div class="download-picker" data-download-picker>
+              <p class="download-picker-label">1. SELECT YOUR PLATFORM</p>
+              <div class="platform-choices" role="group" aria-label="VA SID Studio platform">
+                <button class="platform-choice" type="button" data-platform="windows" aria-pressed="true">WINDOWS</button>
+                <button class="platform-choice" type="button" data-platform="macos" aria-pressed="false">MACOS</button>
+                <button class="platform-choice" type="button" data-platform="linux" aria-pressed="false">LINUX</button>
+              </div>
+              <p class="download-picker-label">2. SELECT YOUR PROCESSOR / PACKAGE</p>
+              <div class="download-variant is-active" data-platform="windows">
+                <a class="download-item" href="download.php?file=sids-windows-x64">INTEL / AMD X64 INSTALLER</a>
+                <a class="download-item" href="download.php?file=sids-windows-arm64">WINDOWS ARM64 INSTALLER</a>
+              </div>
+              <div class="download-variant" data-platform="macos">
+                <a class="download-item" href="download.php?file=sids-macos-x64">INTEL MAC DMG</a>
+                <a class="download-item" href="download.php?file=sids-macos-arm64">APPLE SILICON DMG</a>
+              </div>
+              <div class="download-variant" data-platform="linux">
+                <a class="download-item" href="download.php?file=sids-linux-appimage">APPIMAGE X64</a>
+                <a class="download-item" href="download.php?file=sids-linux-deb">DEBIAN / UBUNTU X64</a>
+                <a class="download-item" href="download.php?file=sids-linux-rpm">FEDORA / RPM X64</a>
               </div>
             </div>
           </div>

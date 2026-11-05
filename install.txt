@@ -1,0 +1,398 @@
+C64 VISUAL ASSEMBLER - INSTALLATION GUIDE
+Version 2.7.4
+==========================================================================
+
+Download: https://www.c64va.pro/
+
+Contents
+
+  PART 1  INSTALLING THE APP
+          1.1 Windows
+          1.2 macOS
+          1.3 Linux
+  PART 2  TOOLS
+          2.1 VICE (C64 emulator, also c1541 for D64 images)
+          2.2 Exomizer (optional)
+          2.3 ACME (optional)
+          2.4 RetroDebugger (optional)
+          2.5 Git (optional)
+  PART 3  WHERE YOUR PROGRAM RUNS
+          3.1 Built-in C64
+          3.2 VICE
+          3.3 Ultimate emulator (UE2-C64U-Emulator)
+          3.4 C64 Ultimate / 1541 Ultimate (real hardware)
+          3.5 Kung Fu Flash 2 (real hardware)
+  PART 4  TROUBLESHOOTING
+
+Nothing else is needed to write and run programs: the app includes its
+assembler, the Ultimate Basic compiler and a built-in C64. Every tool in
+PART 2 and every target in PART 3 except the built-in C64 is optional.
+All paths are set in Menu -> Settings (tabs: General, Files and paths,
+Integrations). Later versions install from Menu -> Check for Update.
+
+
+==========================================================================
+PART 1  INSTALLING THE APP
+==========================================================================
+
+1.1 Windows
+-----------
+Requirements: Windows 10 or 11, x64 or ARM64.
+
+1. Download the installer for your system:
+     C64 Visual Assembler_2.7.4_x64-setup.exe    (Intel / AMD)
+     C64 Visual Assembler_2.7.4_arm64-setup.exe  (ARM64)
+2. Run it and follow the installer.
+3. Launch C64 Visual Assembler from the Start menu.
+
+If SmartScreen shows "Windows protected your PC", click "More info", then
+"Run anyway".
+
+The app uses the Microsoft Edge WebView2 Runtime, which Windows 10 and 11
+normally have. If it is missing, the installer downloads it; offline,
+install the Evergreen Runtime from:
+https://developer.microsoft.com/en-us/microsoft-edge/webview2/
+
+
+1.2 macOS
+---------
+Requirements: macOS 11 or newer, Apple Silicon or Intel.
+
+1. Download the DMG for your Mac:
+     C64 Visual Assembler_2.7.4_aarch64.dmg  (Apple Silicon: M1, M2, M3 ...)
+     C64 Visual Assembler_2.7.4_x64.dmg      (Intel)
+2. Open the DMG and drag C64 Visual Assembler into Applications.
+3. Remove the quarantine flag once, in Terminal:
+
+     xattr -cr "/Applications/C64 Visual Assembler.app"
+
+4. Launch the app from Applications.
+
+Why step 3: the app is not signed with an Apple Developer ID and is not
+notarized (it has an ad-hoc signature only). macOS therefore quarantines
+the download and says the app "is damaged and can't be opened" or that it
+"cannot be verified". Instead of xattr you can also open System Settings
+-> Privacy & Security and click "Open Anyway" next to the message about
+the app, then confirm with "Open".
+
+After an in-app update (Menu -> Check for Update) the new app is not
+quarantined, so step 3 is needed only after a manual download.
+
+
+1.3 Linux
+---------
+Requirements: x86_64. The packages are built on Ubuntu 22.04, so they run
+there and on newer distributions (tested on Ubuntu 22.04 and 24.04).
+WebKitGTK 4.1 and GTK 3 are needed at runtime; the .deb and .rpm packages
+pull them in.
+
+Debian / Ubuntu (.deb):
+
+  sudo apt update
+  sudo apt install "./C64 Visual Assembler_2.7.4_amd64.deb"
+
+Fedora (.rpm):
+
+  sudo dnf install "./C64 Visual Assembler-2.7.4-1.x86_64.rpm"
+
+Use the file name you actually downloaded. Launch the app from the
+Applications menu or with:
+
+  c64-visual-assembler
+
+AppImage (no installation):
+
+  chmod +x "./C64 Visual Assembler_2.7.4_amd64.AppImage"
+  "./C64 Visual Assembler_2.7.4_amd64.AppImage"
+
+If the AppImage fails with a FUSE error, start it with
+--appimage-extract-and-run after the file name.
+
+Sound: the Linux web view plays audio through GStreamer. The .deb and
+.rpm packages ask for the needed plugins and the AppImage carries them.
+If there is no sound, see PART 4.
+
+
+==========================================================================
+PART 2  TOOLS
+==========================================================================
+
+2.1 VICE (C64 emulator)
+-----------------------
+Needed for the "Run as PRG" and "Run via D64" run modes, for Build D64 /
+Export to D64 (VICE's c1541 builds the disk image), the D64 Editor and the
+"D64 on Ultimate emulator" run mode. Not needed for the built-in C64.
+Use x64sc, the cycle-exact C64 emulator.
+
+Windows:
+  1. Download VICE for Windows (GTK3, 64-bit): https://vice-emu.sourceforge.io/
+  2. Unzip it into a folder you keep, for example C:\Tools\VICE
+  3. Menu -> Settings -> Files and paths -> Choose VICE -> bin\x64sc.exe
+  Choose the x64sc.exe in the bin folder, next to its DLLs, not a copy or
+  a shortcut elsewhere. c1541.exe is found next to it.
+
+macOS:
+  1. Download VICE for macOS (GTK3; the ARM64 build for Apple Silicon)
+     from https://vice-emu.sourceforge.io/
+  2. Copy it to /Applications
+  3. Menu -> Settings -> Files and paths -> Choose VICE -> x64sc.app
+  The VICE app is not notarized either; if macOS blocks it, use
+  xattr -cr on it as in 1.2.
+
+Linux:
+  1. sudo apt install vice        (Fedora: sudo dnf install vice)
+  2. Menu -> Settings -> Files and paths -> Choose VICE -> /usr/bin/x64sc
+
+  The Debian / Ubuntu vice package does NOT include the C64 ROMs
+  (copyright). Without them VICE stops with "Cannot open kernal ROM".
+  Copy these files into ~/.local/share/vice/C64/ :
+
+    kernal     C64 KERNAL ROM (8 KB)
+    basic      C64 BASIC 2.0 ROM (8 KB)
+    chargen    character generator ROM (4 KB)
+    dos1541    1541 drive ROM        (only for "Run via D64")
+    d1541-II   1541-II drive ROM     (only for "Run via D64", preferred)
+
+    mkdir -p ~/.local/share/vice/C64
+    cp kernal basic chargen dos1541 d1541-II ~/.local/share/vice/C64/
+
+  Take them from a real C64 / 1541-II or from a VICE installation on
+  another system. Check what VICE finds:
+
+    x64sc -config /dev/null 2>&1 | grep -i "rom\|error" | head -20
+
+  On Linux the app starts PRGs with -autostartprgmode 1 (direct inject),
+  so "Run as PRG" works without the drive ROMs.
+
+Optional: Settings -> Files and paths -> "VICE remote monitor" starts VICE with
+its binary monitor (port 6502). The VICE Monitor window (hot reload, live
+watch, profiler) and the Visual Assembler debugger on VICE need it.
+
+
+2.2 Exomizer (optional)
+-----------------------
+Crunches the PRG into a smaller self-extracting file.
+
+Windows:
+  Download the pre-built win32\exomizer.exe from
+  https://bitbucket.org/magli143/exomizer/wiki/Home or
+  https://csdb.dk/release/?id=244342 and keep it in a folder of its own.
+
+macOS:
+  brew install exomizer
+  (installs to /opt/homebrew/bin/exomizer on Apple Silicon,
+   /usr/local/bin/exomizer on Intel)
+
+Linux (not in the Ubuntu repository, build it from source):
+  sudo apt install -y build-essential wget unzip
+  wget https://bitbucket.org/magli143/exomizer/wiki/downloads/exomizer-3.1.2.zip
+  unzip exomizer-3.1.2.zip -d exomizer_source
+  cd exomizer_source/src && make
+  sudo cp exomizer /usr/local/bin/
+
+Then: Menu -> Settings -> Files and paths -> Choose Exomizer, and switch on
+"Run with Exomizer" in Settings -> General -> Program. Run and Build then
+crunch every PRG.
+
+
+2.3 ACME (optional)
+-------------------
+Only for ACME mode (Settings -> General -> Assembler mode -> ACME), where
+the Expert editor's source is ACME 0.97 text. The default VMA mode does not
+need it.
+
+Windows:  download ACME from https://sourceforge.net/projects/acme-crossass/
+          and keep acme.exe in a folder of its own.
+macOS:    brew install acme
+Linux:    sudo apt install acme
+
+Then: Menu -> Settings -> Files and paths -> Choose ACME. The ACME tab of
+"New project from template" appears once ACME is set.
+
+
+2.4 RetroDebugger (optional)
+----------------------------
+An external C64 debugger. Visual Assembler has its own debugger (on VICE,
+on the Ultimate emulator and on the built-in C64), so RetroDebugger is
+needed only if you prefer it.
+
+1. Download it for your system: https://github.com/slajerek/RetroDebugger
+2. Menu -> Settings -> Files and paths -> Retro Debugger -> choose the
+   RetroDebugger program.
+3. Settings -> General -> Debugger -> Debug button: RetroDebugger.
+
+
+2.5 Git (optional)
+------------------
+The Version control window has a built-in history that needs nothing. With
+git it also works on git repositories (commit, branches, merge, stash,
+pull, push).
+
+Windows:  https://git-scm.com/download/win
+macOS:    xcode-select --install     (or: brew install git)
+Linux:    sudo apt install git       (Fedora: sudo dnf install git)
+
+The app finds git on the PATH and in the usual folders (Settings -> Files
+and paths -> git -> Auto-detect); choose git(.exe) by hand otherwise.
+
+
+==========================================================================
+PART 3  WHERE YOUR PROGRAM RUNS
+==========================================================================
+
+Choose the target in the split Run menu (the arrow next to Run). The menu
+lists only the targets whose tool or device is set up. Debug uses the
+same target.
+
+3.1 Built-in C64
+----------------
+VICE x64sc built into the app (WebAssembly). Nothing to install; always
+available, with its own debugger. Choose "Built-in C64" in the Run menu.
+
+
+3.2 VICE
+--------
+"Run as PRG" and "Run via D64" start your own VICE (see 2.1).
+
+
+3.3 Ultimate emulator (UE2-C64U-Emulator)
+-----------------------------------------
+The "Ultimate emulator" and "D64 on Ultimate emulator" run modes run your
+program on UE2-C64U-Emulator, the unmodified C64 Ultimate firmware on your
+computer, through the same REST API as the real device:
+https://github.com/Jondalar/UE2-C64U-Emulator
+
+Step 1 - install the emulator
+
+  Windows:
+    Download ue2emu-<version>-windows-x86_64.zip from
+    https://github.com/Jondalar/UE2-C64U-Emulator/releases
+    and unzip it into a folder you keep, for example C:\Tools\ue2emu.
+    Keep the files together: ue2emu.exe needs the DLLs next to it.
+
+  macOS:
+    brew install jondalar/ue2emu/ue2emu
+    Visual Assembler finds it there on its own.
+
+  Linux:
+    There is no ready package yet: build ue2emu from source as the
+    emulator's README describes. It needs Rust (https://rustup.rs) and
+    libslirp, for example:
+      sudo apt install build-essential pkg-config libslirp-dev
+
+Step 2 - get a firmware
+  The emulator runs the firmware of a C64 Ultimate or an Ultimate 64
+  Elite II: the update file (.ue2) you would install on the device, or an
+  ultimate.elf of your own build. Neither Visual Assembler nor the
+  emulator includes one. The C64 Ultimate firmware 1.1.0 is known to work.
+
+Step 3 - get the ROM folder
+  Download the 1541ultimate repository
+  (https://github.com/GideonZ/1541ultimate, Code -> Download ZIP, or
+  git clone) and unpack it. You need its roms folder; Visual Assembler
+  checks only chars.bin in it (2048 bytes, the menu font).
+
+Step 4 - fill in the settings
+  Menu -> Settings -> Integrations -> Ultimate emulator (UE2):
+
+    Choose ue2emu       the ue2emu program from step 1 (filled in already
+                        when it is on the PATH or installed with Homebrew)
+    Choose firmware     the .ue2 (or .elf) from step 2
+    Choose ROM folder   the roms folder itself, not the folder above it
+    REST port           leave it at 8064 unless that port is taken; the
+                        emulator also uses the next two ports (control
+                        and VICE monitor)
+
+Step 5 - run
+  Select "Ultimate emulator" in the Run menu and press Run. The first run
+  installs the .ue2 into a flash image of its own, so it takes a little
+  longer; then the emulator's window opens and the program starts. The
+  status line under the settings shows "Running, REST: 127.0.0.1:8064".
+  Later runs reuse the open emulator. "Stop emulator" in the settings, or
+  quitting Visual Assembler, closes it and saves the flash image.
+
+"D64 on Ultimate emulator" packs the disk image with VICE's c1541, so it
+also needs the VICE path (2.1). The "Ultimate emulator" mode does not.
+
+If something goes wrong:
+  "Ultimate emulator: not set in Settings: ..."
+      The item named in the message is empty, or the file is gone (step 4).
+  "Ultimate emulator: missing from the ROM folder: chars.bin"
+      You chose the folder above roms: choose the roms folder itself.
+  "The Ultimate emulator's REST API did not respond in time"
+      Another program uses the port: set a different REST port.
+
+
+3.4 C64 Ultimate / 1541 Ultimate (real hardware)
+------------------------------------------------
+Runs the PRG on a C64 Ultimate, Ultimate 64 or 1541 Ultimate over the
+local network, through the device's REST API. No cable or driver needed.
+
+1. Connect the device to the same local network as your computer.
+2. Menu -> Settings -> Integrations -> C64 Ultimate: enter its IP address
+   (for example 192.168.1.100) and the password if the device has one.
+3. Select "Run on hardware" in the Run menu and press Run.
+   ("D64 on hardware" mounts a D64 on drive A and runs its first program;
+   it needs VICE's c1541, see 2.1.)
+
+
+3.5 Kung Fu Flash 2 (real hardware)
+-----------------------------------
+Uploads the PRG over USB to a real C64 or C128 with a Kung Fu Flash 2
+cartridge.
+
+1. Firmware v2.07 or newer on the cartridge:
+   https://codeberg.org/KimJorgensen/KungFuFlash2/releases/
+2. Fit the cartridge, power the C64 on, plug the USB cable into the
+   computer. It shows up as a serial port (COM4, /dev/cu.usbmodem...,
+   /dev/ttyACM0 ...).
+3. Menu -> Settings -> Integrations -> Kung Fu Flash 2: the port is found
+   by its USB ID (0483:5740) at startup; press "Detect USB" or type it
+   if not.
+4. Select "Kung Fu Flash 2" in the Run menu and press Run.
+
+Linux: your user must be allowed to open the serial port. On Debian /
+Ubuntu add yourself to the dialout group, then log out and in again:
+
+  sudo usermod -aG dialout $USER
+
+
+==========================================================================
+PART 4  TROUBLESHOOTING
+==========================================================================
+
+Windows
+  - VICE does not start / "program not found":
+    choose bin\x64sc.exe inside the VICE folder (2.1), not a shortcut.
+  - The window stays blank: install or repair the WebView2 Runtime (1.1).
+
+macOS
+  - "C64 Visual Assembler is damaged and can't be opened":
+    xattr -cr "/Applications/C64 Visual Assembler.app"   (see 1.2)
+  - The same for VICE: xattr -cr on the VICE app.
+
+Linux
+  - Blank window, with "Failed to create GBM buffer" in the terminal:
+    start the app with WEBKIT_DMABUF_RENDERER_DISABLE_GBM=1 in front of its
+    command, and if that does not help, with WEBKIT_DISABLE_DMABUF_RENDERER=1:
+
+      WEBKIT_DMABUF_RENDERER_DISABLE_GBM=1 c64-visual-assembler
+
+  - No sound, with "GStreamer element ... not found" in the terminal:
+
+      sudo apt install gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-alsa gstreamer1.0-pulseaudio
+
+  - VICE fails to start from the app: start the app from a terminal to see
+    VICE's error output. The app passes DISPLAY, WAYLAND_DISPLAY,
+    XDG_RUNTIME_DIR, DBUS_SESSION_BUS_ADDRESS and GDK_BACKEND to VICE.
+  - "Cannot open kernal ROM": the VICE ROMs are missing (2.1).
+  - Kung Fu Flash 2 port cannot be opened: dialout group (3.5).
+
+All systems
+  - "Run with Exomizer" is on but Exomizer is not set: an error message
+    says so; set the path (2.2) or switch the option off.
+  - A Run target is missing from the Run menu: its tool or device is not
+    set up yet (PART 2 / PART 3).
+
+Full documentation: the Visual Assembler Manual (Menu -> Help, or
+https://www.c64va.pro/docs.html).
