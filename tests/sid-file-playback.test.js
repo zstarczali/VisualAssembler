@@ -18,6 +18,11 @@ function fnSource(name) {
   throw new Error(`Could not parse ${name}`);
 }
 
+// a GainNode stand-in for the player's normalization stage
+function fakeGain() {
+  return { connect() {}, context: this, gain: { value: 1, setValueAtTime() {}, cancelScheduledValues() {}, setTargetAtTime() {} } };
+}
+
 test("Stop leaves the SID Player's tune alone unless asked", () => {
   let externalStops = 0;
   const ctx = {
@@ -48,9 +53,9 @@ test(".sid files are played only from the toolbar SID player, on the backend", (
 
 test("the backend renders an external PSID in chunks", async () => {
   const calls = { render: [], release: [], shown: [], sources: [] };
-  const ac = { currentTime: 0, sampleRate: 44100 };
+  const ac = { currentTime: 0, sampleRate: 44100, createGain: fakeGain };
   const ctx = {
-    Uint8Array, Float32Array, Promise, Array,
+    Uint8Array, Float32Array, Promise, Array, Math,
     crypto: { randomUUID() { return "sid-session-1"; } },
     window: { electronAPI: {
       renderSidFile(payload) { calls.render.push(payload); return Promise.resolve({ channels: 1, pcm: "AAAAAA==" }); },
@@ -74,7 +79,7 @@ test("the backend renders an external PSID in chunks", async () => {
     clearInterval() {},
   };
   vm.createContext(ctx);
-  vm.runInContext(`${fnSource("_sidIsNtsc")}; ${fnSource("_sidFps")}; ${fnSource("_sidExternalCoreStop")}; ${fnSource("_sidEngineLabel")}; ${fnSource("_sidPlayerAheadSeconds")}; ${fnSource("_sidPlayerBufferSize")}; ${fnSource("_vaSidPlayFileBytes")}; this.play = _vaSidPlayFileBytes; this.stop = _sidExternalCoreStop;`, ctx);
+  vm.runInContext(`const _PLAYER_NORM_TARGET_DB = -18, _PLAYER_NORM_MAX_DB = 12; var _playerNormalize = false, _playerNormNode = null; ${["_normMeterNew", "_normMeterAdd", "_normLoudness", "_playerNormGain", "_playerNormOutput", "_playerNormApply"].map(fnSource).join("\n")}; ${fnSource("_sidIsNtsc")}; ${fnSource("_sidFps")}; ${fnSource("_sidExternalCoreStop")}; ${fnSource("_sidEngineLabel")}; ${fnSource("_sidPlayerAheadSeconds")}; ${fnSource("_sidPlayerBufferSize")}; ${fnSource("_vaSidPlayFileBytes")}; this.play = _vaSidPlayFileBytes; this.stop = _sidExternalCoreStop;`, ctx);
   const bytes = new Uint8Array([80, 83, 73, 68]);
   assert.equal(await ctx.play(bytes, "example.sid"), true);
   assert.ok(calls.render.length > 1);
@@ -100,9 +105,9 @@ test("the backend renders an external PSID in chunks", async () => {
 
 test("a stereo .sid render is timed by its samples per channel", async () => {
   const buffers = [];
-  const ac = { currentTime: 0, sampleRate: 44100 };
+  const ac = { currentTime: 0, sampleRate: 44100, createGain: fakeGain };
   const ctx = {
-    Uint8Array, Float32Array, Promise, Array,
+    Uint8Array, Float32Array, Promise, Array, Math,
     crypto: { randomUUID() { return "sid-session-2"; } },
     window: { electronAPI: {
       renderSidFile() { return Promise.resolve({ channels: 2, pcm: "" }); },
@@ -126,7 +131,7 @@ test("a stereo .sid render is timed by its samples per channel", async () => {
     clearInterval() {},
   };
   vm.createContext(ctx);
-  vm.runInContext(`${fnSource("_sidIsNtsc")}; ${fnSource("_sidFps")}; ${fnSource("_sidExternalCoreStop")}; ${fnSource("_sidEngineLabel")}; ${fnSource("_sidPlayerAheadSeconds")}; ${fnSource("_sidPlayerBufferSize")}; ${fnSource("_vaSidPlayFileBytes")}; this.play = _vaSidPlayFileBytes; this.stop = _sidExternalCoreStop;`, ctx);
+  vm.runInContext(`const _PLAYER_NORM_TARGET_DB = -18, _PLAYER_NORM_MAX_DB = 12; var _playerNormalize = false, _playerNormNode = null; ${["_normMeterNew", "_normMeterAdd", "_normLoudness", "_playerNormGain", "_playerNormOutput", "_playerNormApply"].map(fnSource).join("\n")}; ${fnSource("_sidIsNtsc")}; ${fnSource("_sidFps")}; ${fnSource("_sidExternalCoreStop")}; ${fnSource("_sidEngineLabel")}; ${fnSource("_sidPlayerAheadSeconds")}; ${fnSource("_sidPlayerBufferSize")}; ${fnSource("_vaSidPlayFileBytes")}; this.play = _vaSidPlayFileBytes; this.stop = _sidExternalCoreStop;`, ctx);
   assert.equal(await ctx.play(new Uint8Array([80, 83, 73, 68]), "stereo.sid"), true);
   assert.ok(buffers.length > 1);
   assert.equal(buffers[0].channels, 2);
@@ -224,7 +229,7 @@ test("the audio buffer takes its channel count from the rendered data", () => {
 test("VA arpeggio renders one voice once and schedules notes after a delayed render", async () => {
   let finish;
   const calls = { notes: [], buffers: [], timers: [] };
-  const ac = { currentTime: 0, sampleRate: 44100 };
+  const ac = { currentTime: 0, sampleRate: 44100, createGain: fakeGain };
   const ctx = {
     document: { getElementById: () => null },
     _sidGetChordNotes: () => [48, 52, 55], _sidEnsureAudio() {}, _sidAudio: ac,

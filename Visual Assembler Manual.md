@@ -4790,6 +4790,7 @@ The **SID Player** toolbar button opens a floating window that plays `.sid` musi
 - **Buffer:** **Settings → General → SID preview → SID Player buffer** (10, 15, 20 or 30 s). A larger buffer stops the crackle while the app is busy: the tune is rendered that far ahead, from the next tune on.
 - **Engine:** the window shows which engine is playing (reSID or VA SID Core, with the SID chip); choose it in **Settings → General → SID preview**. Both run the tune on a native Rust C64 core with a cycle-exact 6510, precise interrupt timing, CIA 6526A, VIC-II timing with bad lines, sprite DMA and raster interrupts, and the 6510 I/O port — so raster-IRQ, CIA-timed and digi tunes play with the timing of a real machine. 2SID and 3SID tunes play (PSID v3 / v4) in stereo: SID 1 left, SID 2 right, a third SID in the centre.
 - **Shuffle:** the shuffle button next to **Next** plays the playlist in random order — no tune repeats until every tune has played, and **Previous** steps back along the random order. The setting is remembered.
+- **Normalize volume:** the button next to the spectrum analyzer plays every tune at about the same loudness: raised or lowered towards one level, by at most 12 dB, without clipping. A tune is measured on its first two seconds, then the level follows it slowly. The setting is remembered.
 - **Favourites:** the ☆ / ★ in each row marks a tune; it is kept in the saved state and in `.sidpl` playlists.
 
 #### HVSC (High Voltage SID Collection)

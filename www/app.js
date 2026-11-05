@@ -4429,6 +4429,7 @@ function _applyEditorTranslations() {
   _teApplyTranslations();
   setAttr("#websid-play-hvsc", t("sidHvsc"));
   setAttr("#websid-play-viz", t("sidVizOpen"));
+  setAttr("#websid-play-normalize", t("sidPlayerNormalize"));
   setText("#sid-viz-title", t("sidVizTitle"));
   setText("#sid-viz-bands-lbl", t("sidVizBands"));
   setAttr("#websid-hvsc-random", t("sidHvscRandom"));
@@ -48687,6 +48688,7 @@ function setupSidPlayer() {
   on("websid-play-prev", "click", _sidPlayerPrev);
   on("websid-play-next", "click", _sidPlayerNext);
   on("websid-play-shuffle", "click", function() { _sidPlayerSetShuffle(!_sidShuffle); });
+  on("websid-play-normalize", "click", function() { _playerSetNormalize(!_playerNormalize); });
   on("websid-play-song-prev", "click", function() { _sidPlayerSong(-1); });
   on("websid-play-song-next", "click", function() { _sidPlayerSong(1); });
   on("websid-play-rew", "click", function() { _sidExtSeek(_sidExtElapsedMs() - 10000); });
@@ -48798,6 +48800,7 @@ function setupSidPlayer() {
   // runs before the _sidPlaylist state is declared (TDZ), so restore after the script has loaded
   setTimeout(function() {
     _sidLoadMasterVolume();
+    try { _playerSetNormalize(localStorage.getItem(_PLAYER_NORM_STORE) === "1"); } catch (_) {}
     _sidPlayerRestore();
     _hvscRestore();
     setupSidVisualizer();
@@ -55896,9 +55899,27 @@ async function _vaSidPlayFileBytes(bytes, filename, song = 0) {
   const state = {
     sessionId: crypto.randomUUID(), active: true, busy: false, timer: null,
     queue: Promise.resolve(), nextTime: ac.currentTime + 0.08, fileBytes: Array.from(bytes),
-    tuneBytes: Array.from(bytes), renderedMs: 0, skipMs: 0, seeking: false, song
+    tuneBytes: Array.from(bytes), renderedMs: 0, skipMs: 0, seeking: false, song,
+    // with Normalize on the first 2 s wait for their measurement; the meter always runs,
+    // so switching it on later finds a level
+    meter: _normMeterNew(), normGain: 1, held: [], warm: !_playerNormalize
   };
   _sidExternalCore = state;
+  const output = _playerNormOutput(ac);
+  _playerNormApply(false);
+  // the measured gain from here on, gliding (2 s) from the start of the audio it was measured on
+  const follow = function(at) {
+    const gain = _playerNormGain({ loudness: _normLoudness(state.meter.blocks), peak: state.meter.peak });
+    if (Math.abs(gain - state.normGain) < 0.005) return;
+    state.normGain = gain;
+    if (_playerNormalize && _playerNormNode) _playerNormNode.gain.setTargetAtTime(gain, Math.max(at, ac.currentTime), 2);
+  };
+  const schedule = function(pcm, channels) {
+    const samples = pcm.length / channels;
+    state.nextTime = Math.max(state.nextTime, ac.currentTime + 0.02);
+    _sidPlayBuffer(pcm, state.nextTime, _sidExtSources, channels, output);
+    state.nextTime += samples / ac.sampleRate;
+  };
   const pump = async function(force) {
     if (!state.active || state.busy || (state.seeking && !force)) return false;
     state.busy = true;
@@ -55916,9 +55937,21 @@ async function _vaSidPlayFileBytes(bytes, filename, song = 0) {
         state.fileBytes = null;
         state.renderedMs += state.skipMs + samples * 1000 / ac.sampleRate;
         state.skipMs = 0;
-        state.nextTime = Math.max(state.nextTime, ac.currentTime + 0.02);
-        _sidPlayBuffer(pcm, state.nextTime, _sidExtSources, rendered.channels, _sidExtGain);
-        state.nextTime += samples / ac.sampleRate;
+        _normMeterAdd(state.meter, pcm, rendered.channels, ac.sampleRate);
+        if (!state.warm) {
+          // so the tune starts at its level
+          state.held.push({ pcm, channels: rendered.channels });
+          if (state.meter.frames < ac.sampleRate * 2) continue;
+          state.warm = true;
+          state.normGain = _playerNormGain({ loudness: _normLoudness(state.meter.blocks), peak: state.meter.peak });
+          _playerNormApply(false);
+          state.held.forEach(function(h) { schedule(h.pcm, h.channels); });
+          state.held = [];
+          continue;
+        }
+        const at = state.nextTime;
+        schedule(pcm, rendered.channels);
+        follow(at);
         // A Web Audio szál előre ütemezett hangja UI-terhelés alatt is tovább szól.
       } while (state.active && !state.paused && (!state.seeking || force) && state.nextTime - ac.currentTime < aheadTarget);
       return true;
@@ -55959,6 +55992,7 @@ async function _vaSidSeek(state, targetMs) {
     if (!state.active) return;
     _sidExtSources.forEach(function(src){ try { src.stop(); } catch (_) {} });
     _sidExtSources.clear();
+    _playerNormApply(false);
     if (targetMs >= state.renderedMs) {
       state.skipMs = Math.round(targetMs - state.renderedMs);
     } else {
@@ -55973,6 +56007,91 @@ async function _vaSidSeek(state, targetMs) {
   } finally {
     state.seeking = false;
   }
+}
+
+/* Volume normalization in the SID Player (the Normalize button): each tune gets the gain
+ * that brings its loudness to one target, at most 12 dB up or down, and never so much
+ * that its peak would clip. A tune, rendered as it plays, is measured by _normMeter* on
+ * its first seconds, and the gain follows the measurement slowly while it plays. */
+const _PLAYER_NORM_STORE = "c64va-sid-normalize";
+
+const _PLAYER_NORM_TARGET_DB = -18;
+
+const _PLAYER_NORM_MAX_DB = 12;
+
+let _playerNormalize = false;
+
+let _playerNormNode = null;
+
+function _playerNormGain(info) {
+  if (!info || !Number.isFinite(info.loudness)) return 1;
+  const db = Math.max(-_PLAYER_NORM_MAX_DB, Math.min(_PLAYER_NORM_MAX_DB, _PLAYER_NORM_TARGET_DB - info.loudness));
+  let gain = Math.pow(10, db / 20);
+  // the peak is measured at 11 kHz, so it is kept well under full scale
+  if (info.peak > 0) gain = Math.min(gain, Math.max(1, 0.9 / info.peak));
+  return gain;
+}
+
+// Loudness of audio rendered piece by piece, measured as the
+// mono mix in 0.4 s blocks; silent blocks (below -60 dB) and those 10 dB under the
+// average are left out. _normLoudness gives dB, or null for silence.
+function _normMeterNew() {
+  return { blocks: [], sum: 0, n: 0, block: 0, peak: 0, frames: 0 };
+}
+
+function _normMeterAdd(meter, pcm, channels, rate) {
+  if (!meter.block) meter.block = Math.max(1, Math.round(rate * 0.4));
+  const frames = Math.floor(pcm.length / channels);
+  for (let i = 0; i < frames; i++) {
+    let mix = 0;
+    for (let c = 0; c < channels; c++) {
+      const v = pcm[i * channels + c];
+      mix += v;
+      if (v > meter.peak) meter.peak = v; else if (-v > meter.peak) meter.peak = -v;
+    }
+    mix /= channels;
+    meter.sum += mix * mix;
+    if (++meter.n === meter.block) { meter.blocks.push(meter.sum / meter.block); meter.sum = 0; meter.n = 0; }
+  }
+  meter.frames += frames;
+}
+
+function _normLoudness(blocks) {
+  const loud = blocks.filter(function(p) { return p > 1e-6; });
+  if (!loud.length) return null;
+  const mean = loud.reduce(function(a, p) { return a + p; }, 0) / loud.length;
+  const kept = loud.filter(function(p) { return p >= mean * 0.1; });
+  return 10 * Math.log10(kept.reduce(function(a, p) { return a + p; }, 0) / kept.length);
+}
+
+// The player's normalization gain stage, in front of its master gain.
+function _playerNormOutput(ac) {
+  if (!_playerNormNode || _playerNormNode.context !== ac) {
+    _playerNormNode = ac.createGain();
+    _playerNormNode.connect(_sidExtGain);
+  }
+  return _playerNormNode;
+}
+
+function _playerNormApply(smooth) {
+  const state = _sidExternalCore;
+  if (!_playerNormNode || !state) return;
+  const value = _playerNormalize ? state.normGain || 1 : 1;
+  const param = _playerNormNode.gain, now = _playerNormNode.context.currentTime;
+  param.cancelScheduledValues(now);
+  if (smooth) { param.setValueAtTime(param.value, now); param.setTargetAtTime(value, now, 0.25); }
+  else param.setValueAtTime(value, now);
+}
+
+function _playerSetNormalize(on) {
+  _playerNormalize = !!on;
+  try { localStorage.setItem(_PLAYER_NORM_STORE, _playerNormalize ? "1" : "0"); } catch (_) {}
+  const btn = document.getElementById("websid-play-normalize");
+  if (btn) {
+    btn.classList.toggle("websid-play-tool--active", _playerNormalize);
+    btn.setAttribute("aria-pressed", String(_playerNormalize));
+  }
+  _playerNormApply(true);
 }
 
 /* Tracker playback driven by the JS engine. The engine yields the frame of
