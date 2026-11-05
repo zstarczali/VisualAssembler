@@ -6,7 +6,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>C64 Visual Assembler</title>
-  <script>(function(){var t=localStorage.getItem('c64-block-theme')||'light';document.documentElement.dataset.theme=t;document.documentElement.style.background={'dark':'#1a1b26','oled':'#0d0d12','black':'#000000','commodore77':'#0a0a08','starlight':'#f4f1fa','beige':'#e4ddd0','c64':'#7869c4','light':'#e8ecf1'}[t]||'#e8ecf1';})();</script>
+  <script>(function(){var t=localStorage.getItem('c64-block-theme')||'light',d=new Date();if(t==='christmas'&&d.getMonth()!==11){t=localStorage.getItem('c64-block-theme-before-christmas')||'light';localStorage.setItem('c64-block-theme',t);}document.documentElement.dataset.theme=t;document.documentElement.style.background={'dark':'#1a1b26','oled':'#0d0d12','black':'#000000','commodore77':'#0a0a08','starlight':'#f4f1fa','beige':'#e4ddd0','c64':'#7869c4','christmas':'#0b2a5b','light':'#e8ecf1'}[t]||'#e8ecf1';})();</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -184,6 +184,10 @@
                     <button class="secondary theme-option" data-theme-opt="c64" type="button">
                       <span class="theme-option-dot" data-theme-opt="c64" aria-hidden="true"></span>
                       <span>Commodore 64</span>
+                    </button>
+                    <button class="secondary theme-option" data-theme-opt="christmas" type="button" hidden>
+                      <span class="theme-option-dot" data-theme-opt="christmas" aria-hidden="true"></span>
+                      <span>Christmas</span>
                     </button>
                   </div>
                 </details>
@@ -3205,6 +3209,7 @@ PRINTABLE CHARACTERS
           <div class="websid-hvsc-status"><span id="websid-hvsc-status"></span><button id="websid-hvsc-link" class="websid-hvsc-link" type="button">hvsc.c64.org</button></div>
           <ol id="websid-hvsc-list" class="websid-play-list websid-hvsc-list"></ol>
         </section>
+        <div id="websid-play-list-name" class="websid-play-list-name" hidden></div>
         <ol id="websid-play-list" class="websid-play-list"></ol>
         <div id="websid-play-drop-hint" class="websid-play-drop-hint">Drop .sid files here</div>
         <div class="websid-play-note" id="websid-play-note" hidden>

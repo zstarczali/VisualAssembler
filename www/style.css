@@ -11506,6 +11506,16 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .websid-play-item-fav:hover { opacity: 1; color: var(--text); }
 .websid-play-item-fav--on, .websid-play-item:hover .websid-play-item-fav--on { opacity: 1; color: #f5c518; }
 .websid-play-item-del:hover { color: var(--text); }
+.websid-play-list-name {
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--secondary);
+  padding: 0 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.websid-play-list-name[hidden] { display: none; }
 .websid-play-drop-hint {
   padding: 10px;
   text-align: center;
@@ -13062,4 +13072,216 @@ dialog.dlg-active[open]:not(:modal) > :first-child > :first-child,
   font-weight: 700;
   letter-spacing: 0.08em;
   color: var(--secondary);
+}
+
+/* Christmas theme: night blue and pine green, white text, every accent in an ornament's colour. */
+html[data-theme="christmas"] {
+  color-scheme: dark;
+  background-color: #0b2a5b;
+  --xm-red: #ff3b4e;
+  --xm-gold: #ffd23f;
+  --xm-blue: #3fa9ff;
+  --xm-green: #2fe07a;
+  --xm-pink: #ff5fc4;
+  --xm-cyan: #3fe8e0;
+  --xm-garland: repeating-linear-gradient(90deg, #ff3b4e 0 22px, #ffd23f 22px 44px, #2fe07a 44px 66px, #3fa9ff 66px 88px, #ff5fc4 88px 110px, #ffffff 110px 132px);
+  --hl-comment:   #8fb8e8;
+  --hl-directive: #ff5fc4;
+  --hl-mnem:      #ffffff;
+  --hl-number:    #ffd23f;
+  --hl-string:    #2fe07a;
+  --hl-label:     #3fe8e0;
+  --hl-macro:     #ff7a86;
+  --hl-macro-param: #ffb46b;
+  --expert-editor-bg: #0a2350;
+  --ub-editor-bg: #0a2350;
+  --ub-chrome-bg: rgba(9, 58, 44, 0.98);
+  --ub-side-bg: rgba(10, 40, 84, 0.98);
+  --ub-selection-bg: rgba(63, 169, 255, 0.34);
+  --cg-canvas-bg: #0a2350;
+  --bg: #0b2a5b;
+  --bg-accent: #0d5a3e;
+  --panel: rgba(11, 42, 91, 0.97);
+  --panel-strong: rgba(10, 74, 54, 0.99);
+  --panel-border: rgba(255, 255, 255, 0.28);
+  --text: #ffffff;
+  --muted: #bcd6f5;
+  --primary: #ff3b4e;
+  --primary-deep: #d81f34;
+  --secondary: #ffd23f;
+  --secondary-soft: rgba(255, 210, 63, 0.16);
+  --surface-soft: rgba(255, 255, 255, 0.07);
+  --control-bg: rgba(8, 32, 72, 0.98);
+  --active-bg: #2fe07a;
+  --active-fg: #06281b;
+  --shadow: 0 2px 12px rgba(2, 12, 34, 0.55);
+  --input-bg: rgba(6, 26, 60, 0.98);
+  --output-bg: #0a2350;
+  --output-text: #ffffff;
+  --monitor-text: #2fe07a;
+  --error: #ff8a95;
+  --accent: var(--primary);
+  --asm-mnemonic: #ffffff;
+  --asm-directive: #ff5fc4;
+  --asm-macro: #3fe8e0;
+  --asm-comment: #8fb8e8;
+  --asm-label: #3fe8e0;
+  --asm-number: #ffd23f;
+  --asm-region: #2fe07a;
+  --asm-operand: #ffb46b;
+}
+html[data-theme="christmas"] body {
+  background-color: #0b2a5b;
+  background-image:
+    radial-gradient(circle at 12% 18%, rgba(255, 59, 78, 0.30), transparent 26%),
+    radial-gradient(circle at 86% 14%, rgba(255, 210, 63, 0.24), transparent 24%),
+    radial-gradient(circle at 74% 82%, rgba(255, 95, 196, 0.24), transparent 28%),
+    radial-gradient(circle at 22% 86%, rgba(47, 224, 122, 0.30), transparent 30%),
+    radial-gradient(circle at 50% 46%, rgba(63, 169, 255, 0.26), transparent 36%),
+    radial-gradient(circle at 18% 42%, #ffffff 0 1.5px, transparent 2px),
+    radial-gradient(circle at 63% 27%, #ffffff 0 2px, transparent 2.5px),
+    radial-gradient(circle at 39% 71%, #ffffff 0 1.5px, transparent 2px),
+    radial-gradient(circle at 88% 58%, #ffffff 0 2px, transparent 2.5px),
+    radial-gradient(circle at 7% 83%, #ffffff 0 1px, transparent 1.5px),
+    radial-gradient(circle at 52% 12%, #ffffff 0 1.5px, transparent 2px),
+    radial-gradient(circle at 74% 91%, #ffffff 0 1px, transparent 1.5px),
+    radial-gradient(circle at 29% 16%, #ffffff 0 1px, transparent 1.5px);
+  background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 431px 487px, 587px 663px, 353px 399px, 709px 801px, 283px 320px, 653px 738px, 223px 252px, 797px 901px;
+}
+html[data-theme="christmas"] body::after {
+  content: "";
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 5px;
+  background: var(--xm-garland);
+  pointer-events: none;
+  z-index: 2;
+}
+html[data-theme="christmas"] .main-toolbar {
+  background: linear-gradient(90deg, #0d5a3e, #0b2a5b 55%, #0d5a3e);
+  border-bottom: 3px solid transparent;
+  border-image: var(--xm-garland) 1;
+}
+html[data-theme="christmas"] .main-toolbar > .main-tb-btn:nth-of-type(6n+1) { color: var(--xm-red); }
+html[data-theme="christmas"] .main-toolbar > .main-tb-btn:nth-of-type(6n+2) { color: var(--xm-gold); }
+html[data-theme="christmas"] .main-toolbar > .main-tb-btn:nth-of-type(6n+3) { color: var(--xm-green); }
+html[data-theme="christmas"] .main-toolbar > .main-tb-btn:nth-of-type(6n+4) { color: var(--xm-blue); }
+html[data-theme="christmas"] .main-toolbar > .main-tb-btn:nth-of-type(6n+5) { color: var(--xm-pink); }
+html[data-theme="christmas"] .main-toolbar > .main-tb-btn:nth-of-type(6n) { color: var(--xm-cyan); }
+html[data-theme="christmas"] .main-toolbar > .main-tb-btn--active,
+html[data-theme="christmas"] .main-toolbar > .main-tb-btn--active:hover {
+  background: #ffffff;
+}
+html[data-theme="christmas"] :is(.ce-hdr, .cc-hdr, .me-hdr, .nc-hdr, .hg-hdr, .se-hdr, .de-hdr, .dbe-hdr, .sid-hdr, .cg-hdr, .sid-trk-float-hdr, .sid-vkbd-hdr, .ps-hdr, .template-hdr, .support-hdr, .te-hdr, .project-snapshot-hdr, .websid-play-header) {
+  background: linear-gradient(90deg, #0d5a3e, #0b2a5b);
+  border-bottom: 2px solid transparent;
+  border-image: var(--xm-garland) 1;
+}
+html[data-theme="christmas"] .primary {
+  background: linear-gradient(135deg, #ff3b4e 0%, #ff5fc4 100%);
+  color: #ffffff;
+  font-weight: 700;
+  border-color: #ffffff;
+  box-shadow: none;
+}
+html[data-theme="christmas"] .primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #ff5e6e 0%, #ff85d3 100%);
+}
+html[data-theme="christmas"] .websid-play-tools .websid-play-tool:nth-child(6n+1) { color: var(--xm-red); }
+html[data-theme="christmas"] .websid-play-tools .websid-play-tool:nth-child(6n+2) { color: var(--xm-green); }
+html[data-theme="christmas"] .websid-play-tools .websid-play-tool:nth-child(6n+3) { color: var(--xm-gold); }
+html[data-theme="christmas"] .websid-play-tools .websid-play-tool:nth-child(6n+4) { color: var(--xm-blue); }
+html[data-theme="christmas"] .websid-play-tools .websid-play-tool:nth-child(6n+5) { color: var(--xm-pink); }
+html[data-theme="christmas"] .websid-play-tools .websid-play-tool:nth-child(6n) { color: var(--xm-cyan); }
+html[data-theme="christmas"] .ce-tool-btn:nth-child(6n+1) { color: var(--xm-red); }
+html[data-theme="christmas"] .ce-tool-btn:nth-child(6n+2) { color: var(--xm-gold); }
+html[data-theme="christmas"] .ce-tool-btn:nth-child(6n+3) { color: var(--xm-green); }
+html[data-theme="christmas"] .ce-tool-btn:nth-child(6n+4) { color: var(--xm-blue); }
+html[data-theme="christmas"] .ce-tool-btn:nth-child(6n+5) { color: var(--xm-pink); }
+html[data-theme="christmas"] .ce-tool-btn:nth-child(6n) { color: var(--xm-cyan); }
+html[data-theme="christmas"] .theme-toggle-glyph::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: conic-gradient(#ff3b4e, #ffd23f, #2fe07a, #3fa9ff, #ff5fc4, #ff3b4e);
+  box-shadow: 0 0 0 1px #ffffff;
+}
+.theme-option[hidden] { display: none; }
+.theme-option-dot[data-theme-opt="christmas"] {
+  background: conic-gradient(#ff3b4e, #ffd23f, #2fe07a, #3fa9ff, #ffffff, #ff5fc4, #ff3b4e);
+  border-color: #2fe07a;
+}
+html[data-theme="christmas"] ::selection {
+  background: rgba(47, 224, 122, 0.45);
+  color: #ffffff;
+}
+html[data-theme="christmas"] .websid-play-item--current,
+html[data-theme="christmas"] .websid-play-item--current:hover {
+  background: linear-gradient(90deg, #ff3b4e, #ff5fc4 45%, #3fa9ff);
+  color: #ffffff;
+  font-weight: 700;
+}
+html[data-theme="christmas"] .websid-play-item--current .websid-play-item-no,
+html[data-theme="christmas"] .websid-play-item--current .websid-play-item-fav:not(.websid-play-item-fav--on),
+html[data-theme="christmas"] .websid-play-item--current .websid-play-item-del {
+  color: #ffffff;
+}
+html[data-theme="christmas"] .splash-loader-bar { background: var(--xm-garland); }
+html[data-theme="christmas"] :is(.cc-tool, .cg-tool, .dbe-tool, .de-tool, .hg-tool, .me-tool, .se-tool, .vc-tool):nth-child(6n+1) { color: var(--xm-red); }
+html[data-theme="christmas"] :is(.cc-tool, .cg-tool, .dbe-tool, .de-tool, .hg-tool, .me-tool, .se-tool, .vc-tool):nth-child(6n+2) { color: var(--xm-gold); }
+html[data-theme="christmas"] :is(.cc-tool, .cg-tool, .dbe-tool, .de-tool, .hg-tool, .me-tool, .se-tool, .vc-tool):nth-child(6n+3) { color: var(--xm-green); }
+html[data-theme="christmas"] :is(.cc-tool, .cg-tool, .dbe-tool, .de-tool, .hg-tool, .me-tool, .se-tool, .vc-tool):nth-child(6n+4) { color: var(--xm-blue); }
+html[data-theme="christmas"] :is(.cc-tool, .cg-tool, .dbe-tool, .de-tool, .hg-tool, .me-tool, .se-tool, .vc-tool):nth-child(6n+5) { color: var(--xm-pink); }
+html[data-theme="christmas"] :is(.cc-tool, .cg-tool, .dbe-tool, .de-tool, .hg-tool, .me-tool, .se-tool, .vc-tool):nth-child(6n) { color: var(--xm-cyan); }
+html[data-theme="christmas"] .main-toolbar {
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-bottom: 3px solid transparent;
+  border-image: var(--xm-garland) 1;
+}
+html[data-theme="christmas"] .emulator-actions .primary,
+html[data-theme="christmas"] .emulator-actions .link-button.primary {
+  background: linear-gradient(135deg, #ff3b4e 0%, #ff5fc4 100%);
+  color: #ffffff;
+  font-weight: 700;
+  border-color: #ffffff;
+  box-shadow: none;
+}
+html[data-theme="christmas"] .monitor-output {
+  background: #0a2350 !important;
+  color: #2fe07a !important;
+  border-color: #3fa9ff !important;
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.25);
+}
+html[data-theme="christmas"] .splash-panel .splash-loader-bar { background: var(--xm-garland); }
+html[data-theme="christmas"] #add-selected {
+  background: var(--active-bg);
+  color: var(--active-fg);
+  border-color: #ffffff;
+}
+html[data-theme="christmas"] #add-selected:hover { background: #63eb9b; }
+html[data-theme="christmas"] .asm-block:has(.bp-toggle.bp-active) {
+  background: rgba(255, 59, 78, 0.28) !important;
+  border-color: rgba(255, 120, 130, 0.7) !important;
+}
+html[data-theme="christmas"] .expert-err-line {
+  background: color-mix(in srgb, #ff3b4e 26%, transparent);
+}
+html[data-theme="christmas"] .expert-hl mark.hl-find-match {
+  background: color-mix(in srgb, #ffd23f 35%, transparent);
+}
+html[data-theme="christmas"] .expert-hl mark.hl-find-current {
+  background: color-mix(in srgb, #ffd23f 75%, transparent);
+  color: #0b2a5b;
+  outline-color: #ffd23f;
+}
+html[data-theme="christmas"] .eyebrow { color: #ffd23f; }
+html[data-theme="christmas"] .hero-copy,
+html[data-theme="christmas"] .memory-strip-axis { color: #ffffff; }
+html[data-theme="christmas"] .editor-mode-indicator {
+  border-color: #2fe07a;
+  background: #0d5a3e;
+  color: #ffffff;
 }

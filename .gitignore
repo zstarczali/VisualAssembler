@@ -39,6 +39,10 @@ samples/*.snapshots.json
 /va-product-site/downloads/VA/*
 !/va-product-site/downloads/VA/index.php
 !/va-product-site/downloads/VA/.htaccess
+!/va-product-site/downloads/SIDS/
+/va-product-site/downloads/SIDS/*
+!/va-product-site/downloads/SIDS/index.php
+!/va-product-site/downloads/SIDS/.htaccess
 /va-product-site/register/config.php
 /va-product-site/register/geoip-data/
 /out

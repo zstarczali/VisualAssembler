@@ -310,15 +310,36 @@ function vaUpdateApproved(PDO $db, bool $supporter = false): string
 const VA_HOTFIX_SETTING_PREFIX = 'update_hotfix_';
 
 /** A verzió hotfix-száma (0 = nincs); $bump = true eggyel növeli és az újat adja. */
-function vaUpdateHotfix(PDO $db, string $version, bool $bump = false): int
+function vaUpdateHotfix(PDO $db, string $version, bool $bump = false, string $prefix = VA_HOTFIX_SETTING_PREFIX): int
 {
-    $key = VA_HOTFIX_SETTING_PREFIX . $version;
+    $key = $prefix . $version;
     $level = (int) vaSetting($db, $key);
     if ($bump) {
         $level++;
         vaSetting($db, $key, (string) $level);
     }
     return $level;
+}
+
+// VA SID Studio frissítése: a telepítők és a lista a downloads/SIDS/ mappában, saját kiadás
+// (release-studio.php) és hotfix-szám. Az első kiadásig semmit nem kínál.
+const VA_STUDIO_UPDATE_SETTING = 'studio_update_approved_version';
+const VA_STUDIO_UPDATE_DEFAULT = '0.0.0';
+const VA_STUDIO_HOTFIX_SETTING_PREFIX = 'studio_update_hotfix_';
+const VA_STUDIO_INSTALLER_PATTERNS = [
+    'WIN X64' => 'VA SID Studio_*_x64-setup.exe',
+    'WIN ARM64' => 'VA SID Studio_*_arm64-setup.exe',
+    'MAC X64' => 'VA SID Studio_*_x64.dmg',
+    'MAC ARM' => 'VA SID Studio_*_aarch64.dmg',
+    'APPIMAGE' => 'VA SID Studio_*_amd64.AppImage',
+    'DEB' => 'VA SID Studio_*_amd64.deb',
+    'RPM' => 'VA SID Studio-*-1.x86_64.rpm',
+];
+
+function vaStudioUpdateApproved(PDO $db): string
+{
+    $v = vaSetting($db, VA_STUDIO_UPDATE_SETTING);
+    return $v !== '' ? $v : VA_STUDIO_UPDATE_DEFAULT;
 }
 
 /** A telepítő fájlnevéből a verzió ("2.6.2"), vagy null. */
@@ -328,10 +349,10 @@ function vaInstallerVersion(string $name): ?string
 }
 
 /** A downloads/VA mappa telepítői: [fájlnév => platform]. */
-function vaInstallers(string $dir): array
+function vaInstallers(string $dir, array $patterns = VA_INSTALLER_PATTERNS): array
 {
     $out = [];
-    foreach (VA_INSTALLER_PATTERNS as $platform => $pattern) {
+    foreach ($patterns as $platform => $pattern) {
         foreach (glob($dir . DIRECTORY_SEPARATOR . $pattern) ?: [] as $file) {
             $out[basename($file)] = $platform;
         }

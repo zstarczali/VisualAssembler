@@ -133,6 +133,7 @@ function vaAdminPage(string $title, string $body): void
             . '<a class="nav-link' . $cur('messages.php') . '" href="messages.php">MESSAGES</a>'
             . '<a class="nav-link' . $cur('geoip.php') . '" href="geoip.php">GEOIP</a>'
             . '<a class="nav-link' . $cur('release.php') . '" href="release.php">RELEASE</a>'
+            . '<a class="nav-link' . $cur('release-studio.php') . '" href="release-studio.php">STUDIO</a>'
             . '<a class="nav-link' . $cur('lessons.php') . '" href="lessons.php">LESSONS' . ($lessons ? ' <span class="nav-bugs">' . $lessons . '</span>' : '') . '</a>'
             . '<a class="nav-link' . $cur('inbox.php') . '" id="nav-support" href="inbox.php" data-unread="' . $support . '" data-msgs="' . $supportMsgs . '">SUPPORT'
             . ' <span class="nav-badge"' . ($support ? '' : ' hidden') . '>' . $support . '</span></a>'

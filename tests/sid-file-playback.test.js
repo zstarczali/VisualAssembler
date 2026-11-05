@@ -564,3 +564,22 @@ test("SID player shuffle: every tune once per round, Previous steps back along t
   assert.equal(started.length, 6, "a new round starts after every tune has played");
 });
 
+test("an opened or saved playlist shows its file name above the list; Clear removes it", () => {
+  const ctx = { String };
+  vm.createContext(ctx);
+  vm.runInContext(`var _sidPlaylistName = "", _sidPlaylist = [1], _sidPlaylistIndex = 0, _sidShuffleHistory = [], _sidExtFile = null;
+    function _sidExtStop() {} function _sidPlayerRenderList() {} function _sidPlayerPersist() {} function showViceToast() {} function tf() { return ""; }
+    function _sidPlaylistFromJson(json) { return json && json.ok ? { entries: [], current: 0 } : null; }
+    function _sidPlayerAdd() {}
+    ${["_sidPlaylistBaseName", "_sidPlayerClear", "_sidPlayerLoadPlaylist"].map(fnSource).join("\n")}
+    this.api = { base: _sidPlaylistBaseName, load: _sidPlayerLoadPlaylist, clear: _sidPlayerClear, name: () => _sidPlaylistName };`, ctx);
+  assert.equal(ctx.api.base(String.raw`C:\Music\My Favourites.sidpl`), "My Favourites");
+  assert.equal(ctx.api.base("/home/x/hubbard.SIDPL"), "hubbard");
+  assert.equal(ctx.api.base("list.json"), "list.json");
+  assert.equal(ctx.api.load({ ok: true }, "Galway best.sidpl"), true);
+  assert.equal(ctx.api.name(), "Galway best");
+  assert.equal(ctx.api.load(null, "broken.sidpl"), false);
+  assert.equal(ctx.api.name(), "Galway best", "a file that is no playlist leaves the name");
+  ctx.api.clear();
+  assert.equal(ctx.api.name(), "");
+});

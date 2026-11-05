@@ -1291,6 +1291,8 @@ function initPalette() {
     saveUiSettings();
   });
   baseInputs.forEach((input) => input.addEventListener("change", handleBaseChange));
+  _christmasThemeSync();
+  document.getElementById("theme-picker")?.addEventListener("toggle", _christmasThemeSync);
   document.querySelectorAll(".theme-option").forEach(btn => {
     btn.addEventListener("click", () => {
       setTheme(btn.dataset.themeOpt);
@@ -4706,6 +4708,7 @@ function _applyEditorTranslations() {
   setAttr("#palette-search", t("paletteSearchLabel"));
   setText('.theme-option[data-theme-opt="light"] span:not(.theme-option-dot)', t("themeLight"));
   setText('.theme-option[data-theme-opt="dark"] span:not(.theme-option-dot)', t("themeDark"));
+  setText('.theme-option[data-theme-opt="christmas"] span:not(.theme-option-dot)', t("themeChristmas"));
   setAttr("#hires-editor-btn", t("hiresEditorBtn"));
   setAttr("#sprite-editor-btn", t("spriteEditorBtn"));
   setAttr("#sid-editor-btn", t("sidEditorBtn"));
@@ -18996,12 +18999,25 @@ function applySavedTheme() {
   });
 }
 
+// The Christmas theme is offered in December only; after it the head script of index.html
+// goes back to the theme it replaced.
+function _isChristmasThemeDay(date = new Date()) {
+  return date.getMonth() === 11;
+}
+
+function _christmasThemeSync() {
+  const option = document.querySelector('.theme-option[data-theme-opt="christmas"]');
+  if (option) option.hidden = !_isChristmasThemeDay();
+}
+
 function toggleTheme() {
   const next = { light: "dark", dark: "oled", oled: "black", black: "commodore77", commodore77: "starlight", starlight: "beige", beige: "c64", c64: "light" };
   setTheme(next[document.documentElement.dataset.theme] || "dark");
 }
 
 function setTheme(theme) {
+  const previous = document.documentElement.dataset.theme;
+  if (theme === "christmas" && previous && previous !== "christmas") localStorage.setItem("c64-block-theme-before-christmas", previous);
   document.documentElement.dataset.theme = theme;
   // The head script paints the start-up theme's background inline (no flash on load); drop it so
   // the html[data-theme] background of the new theme shows where the page is wider than the body.
@@ -54702,6 +54718,13 @@ let _sidPlaylistIndex = -1;
 // until every entry has played and Previous steps back along the random order
 let _sidShuffle = false;
 let _sidShuffleHistory = [];
+
+// The name of the .sidpl file the list was opened from or saved to, shown above the list.
+var _sidPlaylistName = "";
+
+function _sidPlaylistBaseName(name) {
+  return String(name || "").replace(/^.*[\\/]/, "").replace(/\.sidpl$/i, "");
+}
 let _sidSeekDragging = false;
 
 function _sidPsidInfo(bytes) {
@@ -54831,6 +54854,7 @@ function _sidPlayerClear() {
   _sidPlaylistIndex = -1;
   _sidShuffleHistory = [];
   _sidExtFile = null;
+  _sidPlaylistName = "";
   _sidPlayerRenderList();
   _sidPlayerPersist();
 }
@@ -54946,6 +54970,11 @@ function _sidPlayerRenderList() {
   if (songNext) songNext.disabled = !current || current.song >= current.info.songs;
   const hint = document.getElementById("websid-play-drop-hint");
   if (hint) hint.hidden = _sidPlaylist.length > 0;
+  const listName = document.getElementById("websid-play-list-name");
+  if (listName) {
+    listName.hidden = !_sidPlaylistName;
+    listName.textContent = _sidPlaylistName ? tf("sidPlayerListName", { name: _sidPlaylistName }) : "";
+  }
   _sidPlayerTickUi();
 }
 function _sidPlayerSyncButton() {
@@ -55022,6 +55051,7 @@ function _sidPlayerLoadPlaylist(json, sourceName) {
   const list = _sidPlaylistFromJson(json);
   if (!list) { showViceToast(tf("sidPlayerBadPlaylist", { name: sourceName }), true); return false; }
   _sidPlayerClear();
+  _sidPlaylistName = _sidPlaylistBaseName(sourceName);
   _sidPlayerAdd(list.entries, false, Math.min(list.current, list.entries.length - 1));
   return true;
 }
@@ -55030,8 +55060,15 @@ async function _sidPlayerSavePlaylist() {
   const text = JSON.stringify(_sidPlaylistToJson(), null, 1);
   const bytes = Array.from(new TextEncoder().encode(text));
   if (window.electronAPI?.saveBin) {
-    const res = await window.electronAPI.saveBin({ bytes, fileName: "playlist.sidpl" });
-    if (res?.ok) showViceToast(t("sidPlayerSaved"));
+    const res = await window.electronAPI.saveBin({ bytes, fileName: (_sidPlaylistName || "playlist") + ".sidpl" });
+    if (res?.ok) {
+      if (res.filePath) {
+        _sidPlaylistName = _sidPlaylistBaseName(res.filePath);
+        _sidPlayerRenderList();
+        _sidPlayerPersist();
+      }
+      showViceToast(t("sidPlayerSaved"));
+    }
     else if (res && !res.canceled) showViceToast(res.error || t("sidPlayerSaveFailed"), true);
     return;
   }
@@ -55047,6 +55084,7 @@ function _sidPlayerPersist() {
     const state = _sidPlaylistToJson();
     state.open = !!dlg?.open;
     state.shuffle = _sidShuffle;
+    state.name = _sidPlaylistName || undefined;
     localStorage.setItem(_SID_PLAYER_STORE, JSON.stringify(state));
   } catch (_) {
     // too many tunes for localStorage: keep at least the window state
@@ -55065,6 +55103,7 @@ function _sidPlayerRestore() {
     });
     _sidPlaylistIndex = _sidPlaylist.length ? Math.max(0, Math.min(list.current, _sidPlaylist.length - 1)) : -1;
   }
+  if (typeof saved.name === "string") _sidPlaylistName = saved.name;
   if (saved.shuffle) _sidPlayerSetShuffle(true);
   if (saved.open) _sidPlayerShow();
   else _sidPlayerRenderList();
