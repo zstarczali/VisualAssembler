@@ -563,6 +563,15 @@ impl SidFilePlayer {
         Ok(count)
     }
 
+    /// The registers $00-$18 of every SID as last written (25 bytes per chip).
+    pub fn channel_registers(&self) -> Vec<u8> {
+        let mut regs = self.machine.sid_regs[..25].to_vec();
+        for sid in &self.machine.extra_sids {
+            regs.extend_from_slice(&sid.regs[..25]);
+        }
+        regs
+    }
+
     pub fn frame_rate(&self) -> f64 {
         self.frame_rate
     }
@@ -839,6 +848,15 @@ mod tests {
         let second = &dump[DUMP_FRAME_BYTES..frame];
         assert_eq!((second[0], second[11], second[0x18], second[25]), (0x22, 0x41, 0x0f, 2), "second SID");
         assert_eq!((dump[frame + 25], dump[frame + DUMP_FRAME_BYTES + 25]), (0, 0), "the edges are reported once");
+    }
+
+    #[test]
+    fn channel_registers_give_every_sid_after_a_frame() {
+        let code = write_code(&[(0xd400, 0x11), (0xd420, 0x22), (0xd440, 0x33)]);
+        let mut player = SidFilePlayer::new(&multi_sid(4, 0x42, 0x44, 0, 0x1000, &code), 44_100, SidModel::Mos8580).unwrap();
+        player.render_frames(1).unwrap();
+        let regs = player.channel_registers();
+        assert_eq!((regs.len(), regs[0], regs[25], regs[50]), (75, 0x11, 0x22, 0x33));
     }
 
     #[test]

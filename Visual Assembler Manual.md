@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.7.4**
+**Version 2.7.5**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -8,6 +8,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 
 ## Table of Contents
 
+- [Version 2.7.5 Highlights](#version-275-highlights)
 - [Version 2.7.4 Highlights](#version-274-highlights)
 - [Version 2.7.3 Highlights](#version-273-highlights)
 - [Version 2.7.2 Highlights](#version-272-highlights)
@@ -231,9 +232,18 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
   - [SID Player](#sid-player)
     - [HVSC (High Voltage SID Collection)](#hvsc-high-voltage-sid-collection)
     - [Spectrum analyzer](#spectrum-analyzer)
+    - [Channel curves](#channel-curves)
   - [Curve Editor](#curve-editor)
   - [Table Generator](#table-generator)
   - [Number Converter](#number-converter)
+
+---
+
+## Version 2.7.5 Highlights
+
+- **Channel curves** — a window shared by the SID Player and the SID Editor shows a scrolling level curve and a large note name for every voice. See [Channel curves](#channel-curves).
+- **Spectrum by channel** — the Spectrum window's **View** list switches between the **Mix** of the output and a separate analyzer for every voice (**Channels**). See [Spectrum analyzer](#spectrum-analyzer).
+- **Play subtunes in sequence** — the SID Player plays the remaining subtunes of a file before moving on, also with shuffle. A new toolbar toggle switches it, on by default.
 
 ---
 
@@ -4790,6 +4800,7 @@ The **SID Player** toolbar button opens a floating window that plays `.sid` musi
 - **Buffer:** **Settings → General → SID preview → SID Player buffer** (10, 15, 20 or 30 s). A larger buffer stops the crackle while the app is busy: the tune is rendered that far ahead, from the next tune on.
 - **Engine:** the window shows which engine is playing (reSID or VA SID Core, with the SID chip); choose it in **Settings → General → SID preview**. Both run the tune on a native Rust C64 core with a cycle-exact 6510, precise interrupt timing, CIA 6526A, VIC-II timing with bad lines, sprite DMA and raster interrupts, and the 6510 I/O port — so raster-IRQ, CIA-timed and digi tunes play with the timing of a real machine. 2SID and 3SID tunes play (PSID v3 / v4) in stereo: SID 1 left, SID 2 right, a third SID in the centre.
 - **Shuffle:** the shuffle button next to **Next** plays the playlist in random order — no tune repeats until every tune has played, and **Previous** steps back along the random order. The setting is remembered.
+- **Play subtunes in sequence:** the toggle before **Back 10 s**, on by default, plays the file's remaining subtunes one after the other before moving to the next playlist entry, also with shuffle and for a single file. A subtune lasts its HVSC length when known, otherwise three minutes. With the toggle off, the playlist moves on after the current subtune. At the end of the playlist, with shuffle off, the last subtune keeps playing until you stop it.
 - **Normalize volume:** the button next to the spectrum analyzer plays every tune at about the same loudness: raised or lowered towards one level, by at most 12 dB, without clipping. A tune is measured on its first two seconds, then the level follows it slowly. The setting is remembered.
 - **Favourites:** the ☆ / ★ in each row marks a tune; it is kept in the saved state and in `.sidpl` playlists.
 
@@ -4806,9 +4817,18 @@ The **HVSC** button in the SID Player toolbar opens a search panel for the [High
 
 #### Spectrum analyzer
 
-The bar button in the SID Player toolbar opens the **Spectrum** window: LED-style bars from green through yellow to orange, cells that fade out slowly and a mirrored floor in perspective. It shows whatever the SID Player or the SID Editor plays, with either engine. **Bands** sets 8, 16, 24 or 32 bands. The window can be moved and resized, it closes and reopens together with the SID Player, and it draws only while it is open.
+The bar button in the SID Player toolbar opens the **Spectrum** window: LED-style bars from green through yellow to orange, cells that fade out slowly and a mirrored floor in perspective. It shows whatever the SID Player or the SID Editor plays, with either engine. **Bands** sets 8, 16, 24 or 32 bands. **View** chooses **Mix**, the analyzer of the output, or **Channels**, a separate analyzer for every voice (6 with two SIDs), calculated from the played registers rather than the sound. The window can be moved and resized, it closes and reopens together with the SID Player, and it draws only while it is open.
 
 The SID Editor has its own per-voice **Channel spectrum** window: see [SID Editor](#sid-editor-3-voice-tracker).
+
+#### Channel curves
+
+The **Channel curves** button, next to the spectrum button in the SID Player and in the SID Editor's tracker toolbar, toggles a window shared by the two. It shows a scrolling level curve and a large note name for every voice (6 with two SIDs), following what is sounding at the moment, not the audio rendered ahead of it.
+
+- **SID Player:** works with either engine, in the desktop app.
+- **SID Editor:** works during tracker playback, not for note previews. The window stays usable beside the tracker, so Play and Stop remain at hand.
+- **What it shows:** the level is calculated from the played registers with an approximate ADSR, so it is a level history, not an oscilloscope. A dash means the voice is silent. The curves stand still during a pause.
+- **Window:** drag the header to move it and the small lower-right grip to resize it; its position and size are kept. It closes and reopens with the SID Player and the SID Editor. The button, the close button or Escape closes it for good.
 
 ---
 

@@ -55,6 +55,7 @@ test("the backend renders an external PSID in chunks", async () => {
   const calls = { render: [], release: [], shown: [], sources: [] };
   const ac = { currentTime: 0, sampleRate: 44100, createGain: fakeGain };
   const ctx = {
+    _channelMonitorQueue() {},
     Uint8Array, Float32Array, Promise, Array, Math,
     crypto: { randomUUID() { return "sid-session-1"; } },
     window: { electronAPI: {
@@ -107,6 +108,7 @@ test("a stereo .sid render is timed by its samples per channel", async () => {
   const buffers = [];
   const ac = { currentTime: 0, sampleRate: 44100, createGain: fakeGain };
   const ctx = {
+    _channelMonitorQueue() {},
     Uint8Array, Float32Array, Promise, Array, Math,
     crypto: { randomUUID() { return "sid-session-2"; } },
     window: { electronAPI: {
@@ -409,6 +411,7 @@ test("SID player auto-advance moves one tune on, the UI refresh never advances",
     _sidExtStatus: "playing",
     _sidExtStarting: false,
     _sidExtFile: null,
+    _sidPlaySubtunes: true,
     _sidExtElapsedMs: () => 200000,
     _sidExtStartFile(bytes, name) { started.push(name); },
     _sidExtFormatTime: () => "",
@@ -438,6 +441,7 @@ test("SID player uses the HVSC subtune length for the seek bar and auto-advance"
     document: { getElementById() { return null; } },
     _sidExtStatus: "playing",
     _sidExtStarting: false,
+    _sidPlaySubtunes: true,
     _sidExtElapsedMs: () => elapsed,
     _sidExtStartFile(bytes, name) { started.push(name); },
     _sidPlayerRenderList() {},
@@ -448,8 +452,8 @@ test("SID player uses the HVSC subtune length for the seek bar and auto-advance"
     ${["_sidPlayerTuneMs", "_sidPlayerPlayIndex", "_sidPlayerNext", "_sidPlayerLengthMs", "_sidPlayerAutoAdvance"].map(fnSource).join("\n")}
     this.api = { length: _sidPlayerLengthMs, advance: _sidPlayerAutoAdvance, set(list) { _sidPlaylist = list; } };`, ctx);
   ctx.api.set([
-    { id: "a", name: "a", song: 2, lengths: [90000, 30000] },
-    { id: "b", name: "b", song: 1, lengths: null },
+    { id: "a", name: "a", song: 2, info: { songs: 2 }, lengths: [90000, 30000] },
+    { id: "b", name: "b", song: 1, info: { songs: 1 }, lengths: null },
   ]);
   assert.equal(ctx.api.length(), 30000, "subtune 2 of the HVSC lengths");
   ctx.api.advance();
@@ -459,6 +463,89 @@ test("SID player uses the HVSC subtune length for the seek bar and auto-advance"
   assert.deepEqual(started, ["b"]);
   elapsed = 20000;
   assert.equal(ctx.api.length(), 180000, "no HVSC length: the default");
+});
+
+test("auto-advance plays subtunes in order before the next file, even with shuffle", () => {
+  for (const shuffle of [false, true]) {
+    for (const singleFile of [false, true]) {
+      const started = [];
+      let elapsed = 9999;
+      const ctx = {
+        _sidExtStatus: "playing", _sidExtStarting: false, _sidPlaySubtunes: true,
+        _sidExtElapsedMs: () => elapsed,
+        _sidPlayerRenderList() {}, _sidPlayerPersist() {},
+        _sidExtStartFile(bytes, name, song) { started.push([name, song]); elapsed = 0; },
+      };
+      vm.createContext(ctx);
+      vm.runInContext(`const _SID_TUNE_LENGTH_MS = 180000;
+        var _sidPlaylist = [{ id: 'a', name: 'a', song: 1, info: { songs: 3 }, lengths: [10000, 20000, 0] }],
+          _sidPlaylistIndex = 0, _sidShuffle = ${shuffle}, _sidShuffleHistory = ['a'];
+        ${singleFile ? "" : "_sidPlaylist.push({ id: 'b', name: 'b', song: 1, info: { songs: 1 } });"}
+        ${["_sidPlayerTuneMs", "_sidPlayerPlayIndex", "_sidPlayerNext", "_sidPlayerAutoAdvance"].map(fnSource).join("\n")}
+        this.advance = _sidPlayerAutoAdvance;`, ctx);
+      ctx.advance();
+      assert.deepEqual(started, []);
+      elapsed = 10000;
+      ctx._sidExtStarting = true;
+      ctx.advance();
+      ctx._sidExtStarting = false;
+      ctx._sidExtStatus = "paused";
+      ctx.advance();
+      assert.deepEqual(started, [], "paused or starting playback cannot advance");
+      ctx._sidExtStatus = "playing";
+      ctx.advance();
+      assert.deepEqual(started, [["a", 2]]);
+      elapsed = 19999;
+      ctx.advance();
+      assert.equal(started.length, 1);
+      elapsed = 20000;
+      ctx.advance();
+      assert.deepEqual(started, [["a", 2], ["a", 3]]);
+      elapsed = 179999;
+      ctx.advance();
+      assert.equal(started.length, 2);
+      elapsed = 180000;
+      ctx.advance();
+      assert.deepEqual(started, singleFile ? [["a", 2], ["a", 3]] : [["a", 2], ["a", 3], ["b", 1]]);
+    }
+  }
+});
+
+test("subtune toggle persists, restores and controls automatic progression", () => {
+  let saved, pressed, active, next = 0, played = 0;
+  const ctx = {
+    document: { getElementById(id) { return id === "websid-play-subtunes" ? {
+      classList: { toggle(name, on) { active = on; } },
+      setAttribute(name, value) { pressed = value; },
+    } : null; } },
+    localStorage: { setItem(key, value) { saved = value; }, getItem() { return saved; } },
+    _sidPlaylistToJson: () => ({}), _sidPlaylistFromJson: () => null,
+    _sidPlayerRenderList() {}, _sidPlayerNext() { next++; },
+    _sidPlayerPlayIndex() { played++; }, _sidPlayerTuneMs: () => 1000,
+    _sidExtStatus: "playing", _sidExtStarting: false, _sidExtElapsedMs: () => 1000,
+  };
+  vm.createContext(ctx);
+  vm.runInContext(`var _sidPlaySubtunes = true, _sidShuffle = false, _sidPlaylistName = '',
+    _sidPlaylist = [{ song: 1, info: { songs: 3 } }, { song: 1, info: { songs: 1 } }], _sidPlaylistIndex = 0;
+    const _SID_PLAYER_STORE = 'player', _SID_TUNE_LENGTH_MS = 180000;
+    ${["_sidPlayerSetSubtunes", "_sidPlayerPersist", "_sidPlayerRestore", "_sidPlayerAutoAdvance"].map(fnSource).join("\n")}
+    this.toggle = _sidPlayerSetSubtunes; this.restore = _sidPlayerRestore; this.advance = _sidPlayerAutoAdvance;
+    this.reset = () => { _sidPlaySubtunes = true; };`, ctx);
+  ctx.toggle(false);
+  assert.equal(active, false);
+  assert.equal(pressed, "false");
+  assert.equal(JSON.parse(saved).playSubtunes, false);
+  ctx.reset();
+  ctx.restore();
+  ctx.advance();
+  assert.equal(next, 1, "disabled setting skips to the next file after restore");
+  assert.equal(played, 0);
+  ctx.toggle(true);
+  ctx.advance();
+  assert.equal(active, true);
+  assert.equal(pressed, "true");
+  assert.equal(played, 1);
+  assert.equal(JSON.parse(saved).playSubtunes, true);
 });
 
 test("SID player volume knob maps 0-100 onto a 270 degree sweep", () => {

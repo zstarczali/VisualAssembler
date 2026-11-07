@@ -1,0 +1,62 @@
+name: Publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: 'Successful manual "Build Tauri" run ID (from its Actions URL)'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: publish-va-ftp
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Publish installers and documents to FTP
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Validate source build
+        id: source
+        run: python3 scripts/publish-artifacts.py --validate-run
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPOSITORY: ${{ github.repository }}
+          BUILD_RUN_ID: ${{ inputs.run_id }}
+
+      # download-artifact extracts the ZIPs; each artifact keeps its own directory.
+      - uses: actions/download-artifact@v8
+        with:
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.run_id }}
+          path: publish-artifacts
+
+      # The documents come from the build's exact commit, so they match its installers.
+      - name: Check out the source build documents
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ steps.source.outputs.head_sha }}
+          path: source-build
+          sparse-checkout: |
+            docs/Visual Assembler Manual.pdf
+            docs/Visual Assembler Manual.hu.pdf
+            README.txt
+            install.txt
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+
+      - name: Upload extracted installers and documents
+        run: python3 scripts/publish-artifacts.py publish-artifacts source-build
+        env:
+          FTP_HOST: ftpx.forpsi.com
+          FTP_USERNAME: www.c64va.pro
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_DIRECTORY: /www/downloads/VA/

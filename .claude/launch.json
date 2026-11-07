@@ -19,7 +19,7 @@
         "serve",
         "-l",
         "1431",
-        "./va-product-site"
+        "../product-site"
       ],
       "port": 1431
     }

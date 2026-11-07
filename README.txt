@@ -1,5 +1,7 @@
 C64 Visual Assembler - Installation Guide
-Version 2.7.4
+Version 2.7.5
+
+2.7.5: channel curves (a scrolling level curve and a large note name per voice, in the SID Player and the SID Editor), and the SID Player plays the remaining subtunes of a file in sequence (a new toolbar toggle).
 
 2.7.4: selection with cut / copy / paste / delete in the horizontal tracker, quantize (Q for the selected notes, and recordings with On record), Undo / Redo in the horizontal tracker's header, deleting instruments (one by one or every unused one), the tune's own volume, PAL / NTSC timing.
 

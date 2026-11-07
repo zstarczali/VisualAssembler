@@ -2,9 +2,15 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.7.4**
+**Current version: v2.7.5**
 
 Visual Assembler is free and open source (GPLv3): every feature — editors, builds, hardware runs, languages and themes — works without a registration or serial. At most once a day the app sends an anonymous startup ping (version, OS, UI language, launch count, a random install ID) for the usage statistics; no email, project or source code is sent.
+
+## What's New in v2.7.5
+
+- **Channel curves** — a window shared by the SID Player and the SID Editor shows a scrolling level curve and a large note name for every voice (6 with two SIDs), following what is sounding at the moment. In the SID Editor it stays usable beside the tracker.
+- **Spectrum by channel** — the Spectrum window's **View** list switches between the **Mix** of the output and a separate analyzer for every voice (**Channels**).
+- **Play subtunes in sequence** — the SID Player plays the remaining subtunes of a file before moving on, also with shuffle. A new toolbar toggle switches it, on by default. It uses the HVSC subtune lengths when known, otherwise three minutes per subtune.
 
 ## What's New in v2.7.4
 

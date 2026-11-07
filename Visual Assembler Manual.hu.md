@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**Verzió: 2.7.4**
+**Verzió: 2.7.5**
 
 Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasításblokkok fogd-és-vidd módszerrel történő elrendezésével építed fel, a generált assembly és gépi kód pedig valós időben frissül.
 
@@ -10,6 +10,7 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 
 ## Tartalomjegyzék
 
+- [A 2.7.5 verzió újdonságai](#a-275-verzió-újdonságai)
 - [A 2.7.4 verzió újdonságai](#a-274-verzió-újdonságai)
 - [A 2.7.3 verzió újdonságai](#a-273-verzió-újdonságai)
 - [A 2.7.2 verzió újdonságai](#a-272-verzió-újdonságai)
@@ -233,9 +234,18 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
   - [SID Player](#sid-player)
     - [HVSC (High Voltage SID Collection)](#hvsc-high-voltage-sid-collection)
     - [Spektrum-analizátor](#spektrum-analizátor)
+    - [Csatornagörbék](#csatornagörbék)
   - [Curve Editor](#curve-editor)
   - [Táblagenerátor](#táblagenerátor)
   - [Számrendszer-átváltó](#számrendszer-átváltó)
+
+---
+
+## A 2.7.5 verzió újdonságai
+
+- **Csatornagörbék** — a SID Player és a SID Editor közös ablaka hangonként görgő szintgörbét és nagy hangnevet mutat. Lásd: [Csatornagörbék](#csatornagörbék).
+- **Spektrum csatornánként** — a Spectrum ablak **View** listája a kimenet keveréke (**Mix**) és a hangonkénti külön analizátor (**Channels**) között vált. Lásd: [Spektrum-analizátor](#spektrum-analizátor).
+- **Belső zeneszámok egymás után** — a SID Player a fájl hátralévő subtune-jait is lejátssza, mielőtt továbblép, véletlen lejátszásnál is. Az új eszköztár-gomb kapcsolja, alapból be van kapcsolva.
 
 ---
 
@@ -4778,6 +4788,7 @@ A **SID Player** toolbar gomb egy lebegő ablakot nyit, amely `.sid` zenefájlok
 - **Puffer:** **Beállítások → Általános → SID előnézet → SID Player puffer** (10, 15, 20 vagy 30 mp). Nagyobb pufferrel nem recseg a hang, ha az app épp dolgozik: a következő számtól ennyire előre renderelődik.
 - **Motor:** az ablak kiírja, melyik motor szól (reSID vagy VA SID Core, a SID chippel); a **Beállítások → Általános → SID előnézet** alatt választható. Mindkettő natív Rust C64 magon futtatja a zenét: ciklusra pontos 6510 precíz interrupt-időzítéssel, CIA 6526A, VIC-II időzítés badline-okkal, sprite-DMA-val és raster interruptokkal, valamint a 6510 I/O port — így a raster IRQ-s, CIA-időzített és digi zenék is valódi gép időzítésével szólnak. A 2SID és 3SID dalok (PSID v3 / v4) sztereóban szólnak: SID 1 balra, SID 2 jobbra, a harmadik SID középre.
 - **Véletlen lejátszás:** a **Next** melletti kapcsoló véletlen sorrendben játssza a listát — egy szám sem ismétlődik, amíg mind le nem ment, a **Previous** pedig a véletlen sorrendben lép vissza. A beállítást megjegyzi.
+- **Belső zeneszámok egymás után:** a **Back 10 s** előtti, alapból bekapcsolt gomb a fájl hátralévő subtune-jait egymás után lejátssza, mielőtt a lista következő elemére lép, véletlen lejátszásnál és egyetlen fájlnál is. Egy subtune a HVSC szerinti hosszáig szól, ha ismert, különben három percig. Kikapcsolva a lista az aktuális subtune után lép tovább. A lista végén, véletlen lejátszás nélkül, az utolsó subtune addig szól, amíg le nem állítod.
 - **Hangerő-kiegyenlítés:** a spektrum-analizátor melletti gomb minden dalt kb. azonos hangerővel játszik: egy szint felé emeli vagy halkítja, legfeljebb 12 dB-lel, torzítás nélkül. A dalt az első két másodpercén méri, utána a szint lassan követi. A beállítást megjegyzi.
 - **Kedvencek:** a sorokban lévő ☆ / ★ megjelöli a számot; a mentett állapotban és a `.sidpl` lejátszási listákban is megmarad.
 
@@ -4794,9 +4805,18 @@ A SID Player eszköztárának **HVSC** gombja keresőpanelt nyit a [High Voltage
 
 #### Spektrum-analizátor
 
-A SID Player eszköztárának oszlopdiagram-gombja a **Spectrum** ablakot nyitja: LED-szerű oszlopok zöldtől sárgán át narancsig, lassan halványuló cellák és perspektivikus tükörpadló. Azt mutatja, ami a SID Playerben vagy a SID szerkesztőben szól, bármelyik motorral. A **Bands** 8, 16, 24 vagy 32 sávot állít. Az ablak mozgatható és átméretezhető, a SID Playerrel együtt zárul és nyílik, és csak nyitva rajzol.
+A SID Player eszköztárának oszlopdiagram-gombja a **Spectrum** ablakot nyitja: LED-szerű oszlopok zöldtől sárgán át narancsig, lassan halványuló cellák és perspektivikus tükörpadló. Azt mutatja, ami a SID Playerben vagy a SID szerkesztőben szól, bármelyik motorral. A **Bands** 8, 16, 24 vagy 32 sávot állít. A **View** a **Mix** (a kimenet analizátora) és a **Channels** (hangonként külön analizátor, két SID-nél 6, a lejátszott regiszterekből számolva, nem a hangból) nézet között vált. Az ablak mozgatható és átméretezhető, a SID Playerrel együtt zárul és nyílik, és csak nyitva rajzol.
 
 A SID Editornak saját, hangonkénti **Csatorna-spektrum** ablaka van: lásd [SID Editor](#sid-editor-3-voice-tracker).
+
+#### Csatornagörbék
+
+A **Csatornagörbék** gomb a SID Player spektrum-gombja mellett és a SID Editor tracker-eszköztárán a kettő közös ablakát kapcsolja. Hangonként görgő szintgörbét és nagy hangnevet mutat (két SID-nél 6 hang), és azt követi, ami éppen szól, nem az előre renderelt hangot.
+
+- **SID Player:** mindkét motorral működik, az asztali alkalmazásban.
+- **SID Editor:** tracker-lejátszás közben működik, hang-előnézetnél nem. Az ablak a tracker mellett is használható, a Play és a Stop elérhető marad.
+- **Mit mutat:** a szint a lejátszott regiszterekből és közelített ADSR-ből számolódik, tehát szint-előzmény, nem oszcilloszkóp. A kötőjel néma hangot jelent. Szünet alatt a görbék állnak.
+- **Ablak:** a fejléccel mozgatható, a jobb alsó kis fogantyúval méretezhető; a helyét és a méretét megjegyzi. A SID Playerrel és a SID Editorral együtt zárul és nyílik újra. A gomb, a bezárás gomb vagy az Esc véglegesen bezárja.
 
 ---
 

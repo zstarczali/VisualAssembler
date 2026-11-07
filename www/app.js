@@ -77,54 +77,54 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "sid-tracker-274",
+  id: "channel-curves-275",
   url: "https://www.c64va.pro/docs.html",
   hu: {
-    eyebrow: "Újdonság a 2.7.4-ben",
+    eyebrow: "Újdonság a 2.7.5-ben",
     title: "Üdvözöl a Visual Assembler",
-    body: `<ul><li><strong>Vízszintes tracker</strong>: Shift+húzással vagy Ctrl+kattintással kijelölt hangok kivághatók, másolhatók, beilleszthetők és törölhetők (gombokkal vagy Ctrl+X / C / V és Del).</li><li><strong>Kvantálás</strong>: a Q vagy a gomb a kijelölt hangokat a rácsra teszi (2, 4, 8 vagy 16 sor). A »Felvételnél« bekapcsolva a felvétel a leállításkor kvantálódik.</li><li><strong>Visszavonás / Mégis</strong> a vízszintes tracker fejlécében is.</li><li><strong>Hangszerek</strong> törlése egyenként (−) vagy a nem használtaké egyszerre (Files menü).</li><li><strong>Hangerő</strong> tekerő a tracker eszköztárán a dal hangerejére, két SID-nél chipenként; a hangszerek már nem írják felül. <strong>PAL / NTSC</strong> időzítés.</li></ul>`,
+    body: `<ul><li><strong>Csatornagörbék</strong>: a SID Player és a SID Editor közös ablaka hangonként mutat egy görgő szintgörbét és nagy hangnevet (két SID-nél 6 hang). A SID Editorban a tracker mellett is használható.</li><li><strong>Belső zeneszámok egymás után</strong>: a SID Player a fájl hátralévő subtune-jait is lejátssza, mielőtt továbblép, véletlen lejátszásnál is. Az új eszköztár-gomb kapcsolja, alapból be van kapcsolva.</li></ul>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
-    eyebrow: "New in 2.7.4",
+    eyebrow: "New in 2.7.5",
     title: "Welcome to Visual Assembler",
-    body: `<ul><li><strong>Horizontal tracker</strong>: select notes with Shift+drag or Ctrl+click, then cut, copy, paste or delete them (buttons, or Ctrl+X / C / V and Del).</li><li><strong>Quantize</strong>: Q or the button moves the selected notes onto the grid (2, 4, 8 or 16 rows). With »On record« checked, a recording is quantized when it stops.</li><li><strong>Undo / Redo</strong> in the horizontal tracker's header too.</li><li><strong>Instruments</strong> can be deleted one by one (−) or all unused at once (Files menu).</li><li><strong>Vol</strong>, a knob in the tracker toolbar, sets the tune's volume, per chip with two SIDs; instruments no longer override it. <strong>PAL / NTSC</strong> timing.</li></ul>`,
+    body: `<ul><li><strong>Channel curves</strong>: a window shared by the SID Player and the SID Editor shows a scrolling level curve and a large note name for every voice (6 with two SIDs). In the SID Editor it stays usable beside the tracker.</li><li><strong>Play subtunes in sequence</strong>: the SID Player plays the remaining subtunes of a file before moving on, also with shuffle. A new toolbar toggle switches it, on by default.</li></ul>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
-    eyebrow: "Novedad en la 2.7.4",
+    eyebrow: "Novedad en la 2.7.5",
     title: "Bienvenido a Visual Assembler",
-    body: `<ul><li><strong>Tracker horizontal</strong>: selecciona notas con Mayús+arrastrar o Ctrl+clic y córtalas, cópialas, pégalas o bórralas (botones, o Ctrl+X / C / V y Supr).</li><li><strong>Cuantizar</strong>: Q o el botón mueve las notas seleccionadas a la cuadrícula (2, 4, 8 o 16 filas). Con »Al grabar« activado, la grabación se cuantiza al detenerla.</li><li><strong>Deshacer / Rehacer</strong> también en la cabecera del tracker horizontal.</li><li>Los <strong>instrumentos</strong> se pueden eliminar uno a uno (−) o todos los no usados a la vez (menú Files).</li><li><strong>Vol</strong>, un mando en la barra del tracker, ajusta el volumen de la canción, por chip con dos SID; los instrumentos ya no lo cambian. Temporización <strong>PAL / NTSC</strong>.</li></ul>`,
+    body: `<ul><li><strong>Curvas de canal</strong>: una ventana compartida por el SID Player y el SID Editor muestra una curva de nivel desplazable y un nombre de nota grande por cada voz (6 con dos SID). En el SID Editor se puede usar junto al tracker.</li><li><strong>Subtemas en secuencia</strong>: el SID Player reproduce los subtemas restantes de un archivo antes de continuar, también en modo aleatorio. Un nuevo botón de la barra lo activa o desactiva; viene activado.</li></ul>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
-    eyebrow: "Neu in 2.7.4",
+    eyebrow: "Neu in 2.7.5",
     title: "Willkommen bei Visual Assembler",
-    body: `<ul><li><strong>Horizontaler Tracker</strong>: Noten mit Umschalt+Ziehen oder Strg+Klick auswählen, dann ausschneiden, kopieren, einfügen oder löschen (Schaltflächen oder Strg+X / C / V und Entf).</li><li><strong>Quantisieren</strong>: Q oder die Schaltfläche rückt die ausgewählten Noten aufs Raster (2, 4, 8 oder 16 Zeilen). Mit »Beim Aufnehmen« wird eine Aufnahme beim Stoppen quantisiert.</li><li><strong>Rückgängig / Wiederholen</strong> auch im Kopf des horizontalen Trackers.</li><li><strong>Instrumente</strong> lassen sich einzeln (−) oder alle unbenutzten auf einmal löschen (Menü Files).</li><li><strong>Vol</strong>, ein Drehregler in der Tracker-Leiste, stellt die Lautstärke des Songs ein, bei zwei SIDs pro Chip; Instrumente überschreiben sie nicht mehr. <strong>PAL / NTSC</strong>-Timing.</li></ul>`,
+    body: `<ul><li><strong>Kanalkurven</strong>: Ein gemeinsames Fenster von SID Player und SID Editor zeigt für jede Stimme eine laufende Pegelkurve und einen großen Notennamen (6 Stimmen bei zwei SIDs). Im SID Editor bleibt es neben dem Tracker bedienbar.</li><li><strong>Unterstücke nacheinander</strong>: Der SID Player spielt die übrigen Unterstücke einer Datei, bevor er weitergeht, auch bei Zufallswiedergabe. Ein neuer Schalter in der Werkzeugleiste steuert das; er ist standardmäßig an.</li></ul>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
-    eyebrow: "Nieuw in 2.7.4",
+    eyebrow: "Nieuw in 2.7.5",
     title: "Welkom bij Visual Assembler",
-    body: `<ul><li><strong>Horizontale tracker</strong>: selecteer noten met Shift+slepen of Ctrl+klik en knip, kopieer, plak of verwijder ze (knoppen, of Ctrl+X / C / V en Del).</li><li><strong>Kwantiseren</strong>: Q of de knop zet de geselecteerde noten op het raster (2, 4, 8 of 16 rijen). Met »Bij opname« aan wordt een opname bij het stoppen gekwantiseerd.</li><li><strong>Ongedaan maken / Opnieuw</strong> ook in de kop van de horizontale tracker.</li><li><strong>Instrumenten</strong> zijn één voor één (−) of alle ongebruikte tegelijk te verwijderen (menu Files).</li><li><strong>Vol</strong>, een draaiknop in de trackerbalk, regelt het volume van het nummer, per chip bij twee SID's; instrumenten overschrijven het niet meer. <strong>PAL / NTSC</strong>-timing.</li></ul>`,
+    body: `<ul><li><strong>Kanaalcurves</strong>: een gedeeld venster van de SID Player en de SID Editor toont per stem een scrollende niveaucurve en een grote nootnaam (6 stemmen bij twee SID's). In de SID Editor blijft het naast de tracker bruikbaar.</li><li><strong>Subnummers achter elkaar</strong>: de SID Player speelt de overige subnummers van een bestand voordat hij verdergaat, ook bij willekeurig afspelen. Een nieuwe knop in de werkbalk schakelt dit; standaard staat het aan.</li></ul>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
-    eyebrow: "Nowość w 2.7.4",
+    eyebrow: "Nowość w 2.7.5",
     title: "Witamy w Visual Assembler",
-    body: `<ul><li><strong>Tracker poziomy</strong>: zaznacz nuty przez Shift+przeciągnij lub Ctrl+klik, potem wytnij, skopiuj, wklej lub usuń je (przyciski albo Ctrl+X / C / V i Del).</li><li><strong>Kwantyzacja</strong>: Q lub przycisk przesuwa zaznaczone nuty na siatkę (2, 4, 8 lub 16 wierszy). Z włączonym »Przy nagrywaniu« nagranie jest kwantyzowane po zatrzymaniu.</li><li><strong>Cofnij / Ponów</strong> także w nagłówku trackera poziomego.</li><li><strong>Instrumenty</strong> można usuwać pojedynczo (−) lub wszystkie nieużywane naraz (menu Files).</li><li><strong>Vol</strong>, pokrętło na pasku trackera, ustawia głośność utworu, przy dwóch SID-ach dla każdego układu; instrumenty już jej nie zmieniają. Taktowanie <strong>PAL / NTSC</strong>.</li></ul>`,
+    body: `<ul><li><strong>Krzywe kanałów</strong>: wspólne okno SID Playera i SID Editora pokazuje dla każdego głosu przewijaną krzywą poziomu i dużą nazwę nuty (6 głosów przy dwóch SID-ach). W SID Editorze można z niego korzystać obok trackera.</li><li><strong>Podutwory po kolei</strong>: SID Player odtwarza pozostałe podutwory pliku, zanim przejdzie dalej, także przy losowym odtwarzaniu. Steruje tym nowy przycisk na pasku narzędzi; domyślnie jest włączony.</li></ul>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
-    eyebrow: "Novità nella 2.7.4",
+    eyebrow: "Novità nella 2.7.5",
     title: "Benvenuto in Visual Assembler",
-    body: `<ul><li><strong>Tracker orizzontale</strong>: seleziona le note con Maiusc+trascina o Ctrl+clic, poi tagliale, copiale, incollale o eliminale (pulsanti, oppure Ctrl+X / C / V e Canc).</li><li><strong>Quantizza</strong>: Q o il pulsante sposta le note selezionate sulla griglia (2, 4, 8 o 16 righe). Con »In registrazione« attivo, la registrazione viene quantizzata all'arresto.</li><li><strong>Annulla / Ripeti</strong> anche nell'intestazione del tracker orizzontale.</li><li>Gli <strong>strumenti</strong> si possono eliminare uno alla volta (−) o tutti quelli non usati insieme (menu Files).</li><li><strong>Vol</strong>, una manopola nella barra del tracker, regola il volume del brano, per chip con due SID; gli strumenti non lo sovrascrivono più. Temporizzazione <strong>PAL / NTSC</strong>.</li></ul>`,
+    body: `<ul><li><strong>Curve dei canali</strong>: una finestra condivisa da SID Player e SID Editor mostra per ogni voce una curva di livello scorrevole e un grande nome della nota (6 voci con due SID). Nel SID Editor resta utilizzabile accanto al tracker.</li><li><strong>Sottobrani in sequenza</strong>: il SID Player riproduce i sottobrani rimanenti di un file prima di proseguire, anche in riproduzione casuale. Un nuovo pulsante della barra degli strumenti lo controlla; è attivo di default.</li></ul>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
@@ -2603,6 +2603,7 @@ function setupDraggableEditorDialogs() {
     ["support-dialog", ".support-hdr"],
     ["tut-editor-dialog", ".te-hdr"],
     ["sid-viz-dialog", ".sid-viz-hdr"],
+    ["channel-monitor", ".channel-monitor-header"],
     ["project-settings-dialog", ".ps-hdr"]
   ];
   dialogs.forEach(function(entry) {
@@ -2669,7 +2670,7 @@ function setupDraggableEditorDialogs() {
       // of the big dialog), committed to left / top on release. A transform on the
       // dialog would carry its fixed floating panels (tracker / VA-VK / roll) along,
       // so with those open only the card moves: they are its siblings.
-      const floats = dialog.querySelector(".sid-trk-float:not([hidden]), .sid-vkbd-dialog:not([hidden])");
+      const floats = dialog.querySelector(".sid-trk-float:not([hidden]), .sid-vkbd-dialog:not([hidden]), .channel-monitor-dialog[open]");
       _editorDialogDrag = {
         dialog,
         dx: e.clientX - rect.left,
@@ -4422,6 +4423,7 @@ function _applyEditorTranslations() {
   setAttr("#websid-play-prev", t("sidPlayerPrev"));
   setAttr("#websid-play-next", t("sidPlayerNext"));
   setAttr("#websid-play-shuffle", t("sidPlayerShuffle"));
+  setAttr("#websid-play-subtunes", t("sidPlayerSubtunes"));
   setAttr("#websid-play-rew", t("sidPlayerBack10"));
   setAttr("#websid-play-fwd", t("sidPlayerForward10"));
   setAttr("#websid-play-add", t("sidPlayerAdd"));
@@ -4429,9 +4431,15 @@ function _applyEditorTranslations() {
   _teApplyTranslations();
   setAttr("#websid-play-hvsc", t("sidHvsc"));
   setAttr("#websid-play-viz", t("sidVizOpen"));
+  setAttr("#websid-play-curves", t("channelMonitorTitle"));
+  setAttr("#sid-curves-btn", t("channelMonitorTitle"));
+  setText("#channel-monitor-title", t("channelMonitorTitle"));
   setAttr("#websid-play-normalize", t("sidPlayerNormalize"));
   setText("#sid-viz-title", t("sidVizTitle"));
   setText("#sid-viz-bands-lbl", t("sidVizBands"));
+  setAttr("#sid-viz-mode", t("sidVizView"));
+  setText('#sid-viz-mode option[value="mix"]', t("sidVizMix"));
+  setText('#sid-viz-mode option[value="channels"]', t("sidVizChannels"));
   setAttr("#websid-hvsc-random", t("sidHvscRandom"));
   setAttr("#websid-hvsc-add-all", t("sidHvscAddAll"));
   setAttr("#websid-hvsc-refresh", t("sidHvscRefresh"));
@@ -4764,7 +4772,7 @@ function _applyEditorTranslations() {
   ["new-program-cancel", "sample-cancel", "sid-import-sid-cancel"].forEach(id => setText("#" + id, t("cancel")));
   ["vc-diff-close", "sample-dialog-close", "support-x", "de-close", "dbe-close", "c64-chrrom-close", "ce-close", "cc-close",
     "me-close", "nc-close", "lv-close", "hg-close", "se-close", "se-sheet-close", "sid-close", "sid-roll-close", "sid-vkbd-close",
-    "sid-viz-close", "hg-png-close", "vm-close", "tg-close", "tutorial-dialog-close", "to-close", "te-close"]
+    "sid-viz-close", "channel-monitor-close", "hg-png-close", "vm-close", "tg-close", "tutorial-dialog-close", "to-close", "te-close"]
     .forEach(id => setAttr("#" + id, t("close")));
   setText("#tutorial-dialog-title", t("tutorialDialogTitle"));
   setText("#tutorial-select-hint", t("tutorialSelectHint"));
@@ -48688,6 +48696,7 @@ function setupSidPlayer() {
   on("websid-play-prev", "click", _sidPlayerPrev);
   on("websid-play-next", "click", _sidPlayerNext);
   on("websid-play-shuffle", "click", function() { _sidPlayerSetShuffle(!_sidShuffle); });
+  on("websid-play-subtunes", "click", function() { _sidPlayerSetSubtunes(!_sidPlaySubtunes); });
   on("websid-play-normalize", "click", function() { _playerSetNormalize(!_playerNormalize); });
   on("websid-play-song-prev", "click", function() { _sidPlayerSong(-1); });
   on("websid-play-song-next", "click", function() { _sidPlayerSong(1); });
@@ -48801,6 +48810,7 @@ function setupSidPlayer() {
   setTimeout(function() {
     _sidLoadMasterVolume();
     try { _playerSetNormalize(localStorage.getItem(_PLAYER_NORM_STORE) === "1"); } catch (_) {}
+    setupChannelMonitor();
     _sidPlayerRestore();
     _hvscRestore();
     setupSidVisualizer();
@@ -54720,6 +54730,7 @@ let _sidPlaylistIndex = -1;
 // shuffle: the ids played in this round (in order), so Next never repeats a tune
 // until every entry has played and Previous steps back along the random order
 let _sidShuffle = false;
+let _sidPlaySubtunes = true;
 let _sidShuffleHistory = [];
 
 // The name of the .sidpl file the list was opened from or saved to, shown above the list.
@@ -54837,6 +54848,15 @@ function _sidPlayerSetShuffle(on) {
   }
   _sidPlayerPersist();
 }
+function _sidPlayerSetSubtunes(on) {
+  _sidPlaySubtunes = !!on;
+  const btn = document.getElementById("websid-play-subtunes");
+  if (btn) {
+    btn.classList.toggle("websid-play-tool--active", _sidPlaySubtunes);
+    btn.setAttribute("aria-pressed", String(_sidPlaySubtunes));
+  }
+  _sidPlayerPersist();
+}
 function _sidPlayerRemove(id) {
   const index = _sidPlaylist.findIndex(function(item) { return item.id === id; });
   if (index < 0) return;
@@ -54876,8 +54896,13 @@ function _sidPlayerLengthMs() {
 // itself (Next renders the list while the status is still "playing") and
 // started every remaining tune of the playlist at once.
 function _sidPlayerAutoAdvance() {
-  if (_sidExtStatus === "playing" && !_sidExtStarting && _sidExtElapsedMs() >= (_sidPlayerTuneMs() || _SID_TUNE_LENGTH_MS)
-      && (_sidShuffle ? _sidPlaylist.length > 1 : _sidPlaylistIndex < _sidPlaylist.length - 1)) {
+  if (_sidExtStatus !== "playing" || _sidExtStarting || _sidExtElapsedMs() < (_sidPlayerTuneMs() || _SID_TUNE_LENGTH_MS)) return;
+  const item = _sidPlaylist[_sidPlaylistIndex];
+  // The file's remaining subtunes come first, also for a single file or with shuffle.
+  if (_sidPlaySubtunes && item && item.song < item.info.songs) {
+    item.song++;
+    _sidPlayerPlayIndex(_sidPlaylistIndex);
+  } else if (_sidShuffle ? _sidPlaylist.length > 1 : _sidPlaylistIndex < _sidPlaylist.length - 1) {
     _sidPlayerNext();
   }
 }
@@ -55003,6 +55028,7 @@ function _sidPlayerShow() {
   _sidPlayerSyncButton();
   _sidPlayerRenderList();
   _sidPlayerPersist();
+  _channelMonitorSync();
   if (_sidVizState().open) setTimeout(_sidVizShow, 0);
 }
 function _sidPlayerToggle() {
@@ -55087,11 +55113,12 @@ function _sidPlayerPersist() {
     const state = _sidPlaylistToJson();
     state.open = !!dlg?.open;
     state.shuffle = _sidShuffle;
+    state.playSubtunes = _sidPlaySubtunes;
     state.name = _sidPlaylistName || undefined;
     localStorage.setItem(_SID_PLAYER_STORE, JSON.stringify(state));
   } catch (_) {
     // too many tunes for localStorage: keep at least the window state
-    try { localStorage.setItem(_SID_PLAYER_STORE, JSON.stringify({ open: !!document.getElementById("websid-play-dialog")?.open, shuffle: _sidShuffle })); } catch (__) {}
+    try { localStorage.setItem(_SID_PLAYER_STORE, JSON.stringify({ open: !!document.getElementById("websid-play-dialog")?.open, shuffle: _sidShuffle, playSubtunes: _sidPlaySubtunes })); } catch (__) {}
   }
 }
 function _sidPlayerRestore() {
@@ -55107,6 +55134,7 @@ function _sidPlayerRestore() {
     _sidPlaylistIndex = _sidPlaylist.length ? Math.max(0, Math.min(list.current, _sidPlaylist.length - 1)) : -1;
   }
   if (typeof saved.name === "string") _sidPlaylistName = saved.name;
+  _sidPlayerSetSubtunes(saved.playSubtunes !== false);
   if (saved.shuffle) _sidPlayerSetShuffle(true);
   if (saved.open) _sidPlayerShow();
   else _sidPlayerRenderList();
@@ -55524,9 +55552,51 @@ function _sidVizReadLevels() {
   return levels;
 }
 
+// The Channels view: one analyzer per voice, from the played registers, as the output is one mix.
+function _sidVizDrawChannels(canvas) {
+  _sidAnaAttach();
+  const ext = _sidExternalCore;
+  const frame = ext?.active ? _channelMonitorFrame(ext) : null;
+  if (!ext && _sidWaPlay) _sidAnaAdvance(performance.now());
+  const regs = frame?.regs || (!ext && _sidWaPlay ? _sidAna.last : null);
+  const env = ext ? ext.monitorEnv : _sidAna.env;
+  const count = regs ? Math.floor(regs.length / 25) * 3 : 0;
+  const dpr = window.devicePixelRatio || 1;
+  const W = Math.max(1, Math.round(canvas.clientWidth * dpr)), H = Math.max(1, Math.round(canvas.clientHeight * dpr));
+  if (canvas.width !== W || canvas.height !== H) { canvas.width = W; canvas.height = H; }
+  const ctx = canvas.getContext("2d");
+  ctx.fillStyle = "#000";
+  ctx.fillRect(0, 0, W, H);
+  ctx.font = Math.round(11 * dpr) + "px 'IBM Plex Mono', monospace";
+  ctx.textBaseline = "top";
+  if (!count) {
+    ctx.fillStyle = "#aab5c5";
+    ctx.fillText(t("channelMonitorIdle"), 12 * dpr, 12 * dpr);
+    return;
+  }
+  const cols = Math.min(count, Math.max(3, Math.floor(W / (120 * dpr))));
+  const rows = Math.ceil(count / cols), cw = W / cols, ch = H / rows, pad = 8 * dpr;
+  for (let v = 0; v < count; v++) {
+    const chip = Math.floor(v / 3), bit = v % 3;
+    const x = v % cols * cw + pad, y = Math.floor(v / cols) * ch + pad;
+    ctx.fillStyle = _SID_ROLL_VOICE[v] || "#aab5c5";
+    ctx.fillText(_channelMonitorLabel(v, count), x, y);
+    const levels = _sidAnaVoiceLevels(regs, chip * 25, bit, env?.[v]?.env || 0, _sidVizBands);
+    const bw = (cw - pad * 2) / levels.length, bh = Math.max(1, ch - pad * 2 - 20 * dpr) / 10;
+    for (let b = 0; b < levels.length; b++) {
+      for (let r = 0; r < 10; r++) {
+        const on = Math.max(0.06, Math.min(1, levels[b] * 10 - r));
+        ctx.fillStyle = "hsla(" + _sidVizRowHue(r, 10) + ", 82%, 52%, " + on.toFixed(3) + ")";
+        ctx.fillRect(x + b * bw + bw * 0.1, y + 20 * dpr + (9 - r) * bh, bw * 0.8, bh * 0.82);
+      }
+    }
+  }
+}
+
 function _sidVizDraw() {
   const canvas = document.getElementById("sid-viz-canvas");
   if (!canvas) return;
+  if (document.getElementById("sid-viz-mode")?.value === "channels") { _sidVizDrawChannels(canvas); return; }
   const dpr = window.devicePixelRatio || 1;
   const w = Math.max(1, Math.round(canvas.clientWidth * dpr));
   const h = Math.max(1, Math.round(canvas.clientHeight * dpr));
@@ -55710,7 +55780,9 @@ function _sidAnaVoiceLevels(regs, at, bit, env, bands) {
 // A playing engine records its frames while the window is open.
 function _sidAnaAttach() {
   const box = document.getElementById("sid-ana");
-  const on = !!box && !box.hidden;
+  const viz = document.getElementById("sid-viz-dialog");
+  const on = (!!box && !box.hidden) || !!document.getElementById("channel-monitor")?.open
+    || (!!viz?.open && document.getElementById("sid-viz-mode")?.value === "channels");
   if (_sidWaPlay && _sidWaPlay.e) {
     if (on && !_sidWaPlay.e.snap) _sidWaPlay.e.snap = [];
     if (!on) _sidWaPlay.e.snap = null;
@@ -55847,11 +55919,17 @@ function setupSidVisualizer() {
   const dlg = document.getElementById("sid-viz-dialog");
   if (!dlg) return;
   document.getElementById("websid-play-viz")?.addEventListener("click", _sidVizToggle);
+  const mode = document.getElementById("sid-viz-mode");
+  if (mode) {
+    mode.value = _sidVizState().mode === "channels" ? "channels" : "mix";
+    mode.addEventListener("change", function() { _sidVizSave({ mode: mode.value }); _sidAnaAttach(); });
+  }
   document.getElementById("sid-viz-close")?.addEventListener("click", function() { dlg.close(); });
   document.getElementById("sid-viz-bands")?.addEventListener("change", function(e) { _sidVizSetBands(Number(e.target.value)); });
   dlg.addEventListener("keydown", function(e) { if (e.key === "Escape") { e.preventDefault(); dlg.close(); } });
   dlg.addEventListener("close", function() {
     if (dlg.open) return;
+    _sidAnaAttach();
     if (_sidVizRaf) { cancelAnimationFrame(_sidVizRaf); _sidVizRaf = 0; }
     _sidVizSyncButton();
     // closed together with the player: it reopens with the player
@@ -55867,6 +55945,271 @@ function setupSidVisualizer() {
   const saved = _sidVizState();
   _sidVizSetBands(Number(saved.bands) || 16);
   if (saved.open && document.getElementById("websid-play-dialog")?.open) setTimeout(_sidVizShow, 0);
+}
+
+/* ── Channel curves (#channel-monitor) ──────────────────────────────────────
+ * A scrolling level curve and a large note name per voice, shared by the SID Player
+ * and the SID Editor. The levels come from the played registers and an ADSR estimate,
+ * following the audio clock, not the audio rendered ahead of it. The SID Editor is
+ * modal, and everything outside a modal dialog is inert, so while it is open the window
+ * lives inside it (_channelMonitorSync); that also keeps the editor usable beside it. */
+let _channelMonitorRaf = 0, _channelMonitorSource = null, _channelMonitorCards = [], _channelMonitorLastDraw = 0;
+
+const _CHANNEL_MONITOR_NOTES = ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"];
+
+function _channelMonitorQueue(state, at, frames, fps) {
+  if (!frames || !fps) return;
+  state.monitorClock = fps > 55 ? 1022730 : 985248;
+  const queue = state.monitor || (state.monitor = []);
+  frames.forEach(function(regs, i) { queue.push({ time: at + i / fps, regs }); });
+  // Only the audio still buffered, even while the window is closed.
+  while (queue.length > 1 && queue[1].time <= _sidExtAudio.currentTime) queue.shift();
+}
+
+// The frame sounding now; every frame passed on the way advances the envelopes once.
+function _channelMonitorFrame(state) {
+  const queue = state.monitor || [], time = _sidExtAudio.currentTime;
+  const apply = function(frame) {
+    if (state.monitorFrame === frame) return;
+    state.monitorEnv = state.monitorEnv || [];
+    for (let b = 0; b < frame.regs.length; b += 25) {
+      for (let v = 0; v < 3; v++) {
+        const i = b / 25 * 3 + v;
+        _sidAnaEnvStep(state.monitorEnv[i] || (state.monitorEnv[i] = { env: 0, st: 0, gate: 0 }), frame.regs, b + v * 7, false);
+      }
+    }
+    state.monitorFrame = frame;
+  };
+  while (queue.length > 1 && queue[1].time <= time) { apply(queue[0]); queue.shift(); }
+  const frame = queue[0];
+  if (!frame || frame.time > time) return null;
+  apply(frame);
+  return frame;
+}
+
+function _channelMonitorVoices(regs, envs, clock) {
+  const result = [];
+  for (let chip = 0; chip * 25 < regs.length; chip++) {
+    const at = chip * 25, mode = regs[at + 24];
+    for (let v = 0; v < 3; v++) {
+      const b = at + v * 7, ctl = regs[b + 4];
+      const hz = (regs[b] | (regs[b + 1] << 8)) * clock / 16777216;
+      const midi = hz > 0 ? Math.round(69 + 12 * Math.log2(hz / 440)) : -1;
+      const env = envs[chip * 3 + v];
+      const silent = (ctl & 8) || !(ctl & 0xF0) || (v === 2 && (mode & 0x80) && !(regs[at + 23] & 4));
+      const level = silent ? 0 : (env ? env.env : (ctl & 1 ? (regs[b + 6] >> 4) / 15 : 0)) * (mode & 15) / 15;
+      result.push({ note: level > 0.001 && midi >= 0 ? _CHANNEL_MONITOR_NOTES[((midi % 12) + 12) % 12] + (Math.floor(midi / 12) - 1) : "—", level });
+    }
+  }
+  return result;
+}
+
+function _channelMonitorLabel(voice, voices) {
+  return voices > 3 ? "S" + ((voice / 3 | 0) + 1) + " V" + (voice % 3 + 1) : "V" + (voice + 1);
+}
+
+// The element to live in: a modal SID Player above the editor, the editor, or the page for the
+// SID Player alone. null = neither is open.
+function _channelMonitorOwner() {
+  const player = document.getElementById("websid-play-dialog"), editor = document.getElementById("sid-editor-dialog");
+  if (player?.open && _dlgIsModal(player)) return player;
+  if (editor?.open) return editor;
+  return player?.open ? document.body : null;
+}
+
+// A transform on the owner would make it the origin of the window's fixed position.
+function _channelMonitorFreezeOwner(owner) {
+  if (owner === document.body) return;
+  const rect = owner.getBoundingClientRect();
+  owner.style.position = "fixed";
+  owner.style.margin = "0";
+  owner.style.transform = "none";
+  owner.style.left = rect.left + "px";
+  owner.style.top = rect.top + "px";
+  // otherwise the owner's _applyPosition centers it with a transform again
+  if (!_editorDialogPositions[owner.id]) _editorDialogPositions[owner.id] = { left: Math.round(rect.left), top: Math.round(rect.top) };
+}
+
+function _channelMonitorWanted() {
+  try { return localStorage.getItem("c64va-channel-monitor-open") === "true"; } catch (_) { return false; }
+}
+
+function _channelMonitorSetWanted(on) {
+  try { localStorage.setItem("c64va-channel-monitor-open", JSON.stringify(!!on)); } catch (_) {}
+}
+
+// Follows the SID Player and the SID Editor: goes where they are, closes and reopens with them.
+function _channelMonitorSync() {
+  const dlg = document.getElementById("channel-monitor");
+  if (!dlg) return;
+  const owner = _channelMonitorOwner();
+  if (!owner) { if (dlg.open) dlg.close(); return; }
+  if (!dlg.open && !_channelMonitorWanted()) return;
+  if (dlg.parentElement !== owner) {
+    _channelMonitorFreezeOwner(owner);
+    owner.appendChild(dlg);
+  }
+  if (dlg.open) { dlg._applyPosition?.(); return; }
+  // show() takes the focus, which belongs to the tracker
+  const active = document.activeElement;
+  dlg._applyPosition?.();
+  dlg.show();
+  active?.focus?.({ preventScroll: true });
+  _channelMonitorSyncButtons();
+  _sidAnaAttach();
+  if (!_channelMonitorRaf) _channelMonitorRaf = requestAnimationFrame(_channelMonitorDraw);
+}
+
+function _channelMonitorToggle() {
+  const dlg = document.getElementById("channel-monitor");
+  if (!dlg) return;
+  _channelMonitorSetWanted(!dlg.open);
+  if (dlg.open) dlg.close();
+  else _channelMonitorSync();
+}
+
+function _channelMonitorSyncButtons() {
+  const open = !!document.getElementById("channel-monitor")?.open;
+  const player = document.getElementById("websid-play-curves");
+  if (player) { player.classList.toggle("websid-play-tool--active", open); player.setAttribute("aria-pressed", String(open)); }
+  const editor = document.getElementById("sid-curves-btn");
+  if (editor) { editor.classList.toggle("sid-metronome-on", open); editor.setAttribute("aria-pressed", String(open)); }
+}
+
+function _channelMonitorDraw(now) {
+  _channelMonitorRaf = 0;
+  const dlg = document.getElementById("channel-monitor");
+  if (!dlg?.open) return;
+  const rows = dlg.querySelector(".channel-monitor-rows");
+  const ext = _sidExternalCore, current = ext || _sidWaPlay;
+  if (_channelMonitorSource !== current) { _channelMonitorSource = current; _channelMonitorCards = []; rows.replaceChildren(); }
+  let voices = [];
+  if (ext && ext.active) {
+    const frame = _channelMonitorFrame(ext);
+    if (frame) voices = _channelMonitorVoices(frame.regs, ext.monitorEnv, ext.monitorClock);
+  } else if (_sidWaPlay) {
+    _sidAnaAttach();
+    _sidAnaAdvance(now);
+    if (_sidAna.last) voices = _channelMonitorVoices(_sidAna.last, _sidAna.env, _sidClockHz());
+  }
+  rows.dataset.empty = t("channelMonitorIdle");
+  const paused = ext ? ext.paused : _sidPaused;
+  if (now - _channelMonitorLastDraw > 20 && !paused) {
+    _channelMonitorLastDraw = now;
+    const line = getComputedStyle(dlg).getPropertyValue("--panel-border").trim();
+    voices.forEach(function(voice, i) {
+      let card = _channelMonitorCards[i];
+      if (!card) {
+        const el = document.createElement("div");
+        el.className = "channel-monitor-row";
+        el.innerHTML = '<span></span><b></b><canvas width="600" height="64"></canvas>';
+        rows.appendChild(el);
+        card = _channelMonitorCards[i] = { el, values: new Array(180).fill(0) };
+      }
+      const level = Math.max(0, Math.min(1, voice.level || 0));
+      card.el.querySelector("span").textContent = _channelMonitorLabel(i, voices.length);
+      card.el.querySelector("b").textContent = voice.note;
+      card.values.push(level);
+      card.values.shift();
+      const ctx = card.el.querySelector("canvas").getContext("2d");
+      ctx.clearRect(0, 0, 600, 64);
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = line;
+      ctx.beginPath(); ctx.moveTo(0, 62); ctx.lineTo(600, 62); ctx.stroke();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = _SID_ROLL_VOICE[i] || "#38d6ff";
+      ctx.beginPath();
+      card.values.forEach(function(v, x) { ctx.lineTo(x * 600 / 179, 62 - v * 58); });
+      ctx.stroke();
+    });
+    _channelMonitorCards.forEach(function(card, i) { card.el.hidden = i >= voices.length; });
+  }
+  _channelMonitorRaf = requestAnimationFrame(_channelMonitorDraw);
+}
+
+// Explicit grip: WebKit on macOS does not reliably expose CSS resize handles.
+function _sidSetupResizeHandle(element, onResized) {
+  const grip = document.createElement("button");
+  grip.type = "button";
+  grip.className = "sid-resize-grip";
+  grip.setAttribute("aria-label", "Resize");
+  grip.innerHTML = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 10l7-7M7 10l3-3"/></svg>';
+  element.appendChild(grip);
+  let start = null;
+  const resize = function(w, h) {
+    const rect = element.getBoundingClientRect();
+    element.style.width = Math.max(340, Math.min(window.innerWidth - rect.left - 8, w)) + "px";
+    element.style.height = Math.max(180, Math.min(window.innerHeight - rect.top - 8, h)) + "px";
+  };
+  grip.addEventListener("pointerdown", function(e) {
+    if (e.button !== 0) return;
+    // a centering transform on the dialog would move it while its size changes
+    const owner = element.closest?.("dialog");
+    if (owner) {
+      const at = owner.getBoundingClientRect();
+      owner.style.left = at.left + "px";
+      owner.style.top = at.top + "px";
+      owner.style.transform = "none";
+      owner.style.margin = "0";
+    }
+    const rect = element.getBoundingClientRect();
+    start = { x: e.clientX, y: e.clientY, w: rect.width, h: rect.height };
+    grip.setPointerCapture(e.pointerId);
+    e.preventDefault();
+    e.stopPropagation();
+  });
+  grip.addEventListener("pointermove", function(e) {
+    if (start) resize(start.w + e.clientX - start.x, start.h + e.clientY - start.y);
+  });
+  const end = function() { if (start) onResized(); start = null; };
+  grip.addEventListener("pointerup", end);
+  grip.addEventListener("pointercancel", end);
+  grip.addEventListener("lostpointercapture", end);
+  grip.addEventListener("keydown", function(e) {
+    const dx = e.key === "ArrowRight" ? 20 : e.key === "ArrowLeft" ? -20 : 0;
+    const dy = e.key === "ArrowDown" ? 20 : e.key === "ArrowUp" ? -20 : 0;
+    if (!dx && !dy) return;
+    e.preventDefault();
+    resize(element.offsetWidth + dx, element.offsetHeight + dy);
+    onResized();
+  });
+}
+
+function setupChannelMonitor() {
+  const dlg = document.getElementById("channel-monitor");
+  const card = dlg?.querySelector(".channel-monitor-card");
+  if (!card) return;
+  try {
+    const saved = JSON.parse(localStorage.getItem("c64va-channel-monitor-size") || "{}");
+    if (saved.w > 0) card.style.width = saved.w + "px";
+    if (saved.h > 0) card.style.height = saved.h + "px";
+  } catch (_) {}
+  _sidSetupResizeHandle(card, function() {
+    try { localStorage.setItem("c64va-channel-monitor-size", JSON.stringify({ w: card.offsetWidth, h: card.offsetHeight })); } catch (_) {}
+  });
+  document.getElementById("websid-play-curves")?.addEventListener("click", _channelMonitorToggle);
+  document.getElementById("sid-curves-btn")?.addEventListener("click", _channelMonitorToggle);
+  document.getElementById("channel-monitor-close")?.addEventListener("click", function() {
+    _channelMonitorSetWanted(false);
+    dlg.close();
+  });
+  dlg.addEventListener("keydown", function(e) {
+    if (e.key !== "Escape") return;
+    // inside the editor Escape would close the editor too
+    e.preventDefault();
+    e.stopPropagation();
+    _channelMonitorSetWanted(false);
+    dlg.close();
+  });
+  dlg.addEventListener("close", function() {
+    cancelAnimationFrame(_channelMonitorRaf);
+    _channelMonitorRaf = 0;
+    _channelMonitorSyncButtons();
+    _sidAnaAttach();
+  });
+  ["websid-play-dialog", "sid-editor-dialog"].forEach(function(id) {
+    document.getElementById(id)?.addEventListener("close", _channelMonitorSync);
+  });
 }
 
 function _sidExternalCoreStop(keepDialog = false) {
@@ -55914,9 +56257,10 @@ async function _vaSidPlayFileBytes(bytes, filename, song = 0) {
     state.normGain = gain;
     if (_playerNormalize && _playerNormNode) _playerNormNode.gain.setTargetAtTime(gain, Math.max(at, ac.currentTime), 2);
   };
-  const schedule = function(pcm, channels) {
+  const schedule = function(pcm, channels, monitor, frameRate) {
     const samples = pcm.length / channels;
     state.nextTime = Math.max(state.nextTime, ac.currentTime + 0.02);
+    _channelMonitorQueue(state, state.nextTime, monitor, frameRate);
     _sidPlayBuffer(pcm, state.nextTime, _sidExtSources, channels, output);
     state.nextTime += samples / ac.sampleRate;
   };
@@ -55940,17 +56284,17 @@ async function _vaSidPlayFileBytes(bytes, filename, song = 0) {
         _normMeterAdd(state.meter, pcm, rendered.channels, ac.sampleRate);
         if (!state.warm) {
           // so the tune starts at its level
-          state.held.push({ pcm, channels: rendered.channels });
+          state.held.push({ pcm, channels: rendered.channels, monitor: rendered.monitor, frameRate: rendered.frameRate });
           if (state.meter.frames < ac.sampleRate * 2) continue;
           state.warm = true;
           state.normGain = _playerNormGain({ loudness: _normLoudness(state.meter.blocks), peak: state.meter.peak });
           _playerNormApply(false);
-          state.held.forEach(function(h) { schedule(h.pcm, h.channels); });
+          state.held.forEach(function(h) { schedule(h.pcm, h.channels, h.monitor, h.frameRate); });
           state.held = [];
           continue;
         }
         const at = state.nextTime;
-        schedule(pcm, rendered.channels);
+        schedule(pcm, rendered.channels, rendered.monitor, rendered.frameRate);
         follow(at);
         // A Web Audio szál előre ütemezett hangja UI-terhelés alatt is tovább szól.
       } while (state.active && !state.paused && (!state.seeking || force) && state.nextTime - ac.currentTime < aheadTarget);
@@ -55986,9 +56330,13 @@ async function _vaSidPlayFileBytes(bytes, filename, song = 0) {
 // The scheduled audio is dropped; forward seeks continue the session, backward
 // ones restart the tune in a new session and skip to the target.
 async function _vaSidSeek(state, targetMs) {
+  state.monitor = [];
+  state.monitorEnv = [];
+  state.monitorFrame = null;
   state.seeking = true;
   try {
     while (state.busy) await state.queue.catch(function() {});
+    state.monitor = [];
     if (!state.active) return;
     _sidExtSources.forEach(function(src){ try { src.stop(); } catch (_) {} });
     _sidExtSources.clear();
@@ -58950,6 +59298,9 @@ function setupSidEditor() {
     const cm = document.querySelector(".control-menu"); if (cm) cm.removeAttribute("open");
     dialog._applyPosition?.();
     _sidInit(); if (!_sidHist.cur) _sidHistCheck(); _sidEditorEngineSync(); _sidLcdIdle(); dialog.showModal();
+    // the floating panels and the channel curves are placed in viewport coordinates
+    _channelMonitorFreezeOwner(dialog);
+    _channelMonitorSync();
     // place the detached tracker before the first paint (no jump from the default spot)
     _sidRestoreTrackerFloat();
     _sidRollRestore();

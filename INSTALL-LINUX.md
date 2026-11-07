@@ -1,5 +1,7 @@
 # Linux Installation Guide (Ubuntu / Debian)
-Version 2.7.4
+Version 2.7.5
+
+2.7.5: channel curves (a scrolling level curve and a large note name per voice, in the SID Player and the SID Editor), and the SID Player plays the remaining subtunes of a file in sequence (a new toolbar toggle).
 
 2.7.4: selection with cut / copy / paste / delete in the horizontal tracker, quantize (Q for the selected notes, and recordings with On record), Undo / Redo in the horizontal tracker's header, deleting instruments (one by one or every unused one), the tune's own volume, PAL / NTSC timing.
 
@@ -82,7 +84,7 @@ Built on Ubuntu 22.04, so it runs there and on newer distributions; tested on Ub
 Download the `.deb` package from the releases page and install:
 
 ```bash
-  sudo dpkg -i "c64-visual-assembler_2.7.4_amd64.deb"
+  sudo dpkg -i "c64-visual-assembler_2.7.5_amd64.deb"
 sudo apt-get install -f   # fix any missing dependencies
 ```
 
@@ -201,4 +203,4 @@ The app propagates `DISPLAY`, `WAYLAND_DISPLAY`, `XDG_RUNTIME_DIR`, `DBUS_SESSIO
 - **Blank window, with `Failed to create GBM buffer` in the terminal:** start the application with `WEBKIT_DMABUF_RENDERER_DISABLE_GBM=1`, and if that does not help, with `WEBKIT_DISABLE_DMABUF_RENDERER=1` in front of its command.
 - **No sound, with `GStreamer element ... not found` in the terminal:** the SID Player seems to run, but stays silent. Install the plugins: `sudo apt install gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-alsa gstreamer1.0-pulseaudio`.
 
-**Version:** 2.7.4 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 2.7.5 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64

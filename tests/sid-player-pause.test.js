@@ -39,6 +39,7 @@ function setup() {
   const contexts = [];
   const renders = [];
   const ctx = {
+    _channelMonitorQueue() {},
     contexts, renders,
     window: {
       AudioContext: function() { return fakeContext(contexts); },
