@@ -14,7 +14,7 @@
     rel="stylesheet">
   <link rel="icon" type="image/png" href="assets/icon.png">
   <link rel="shortcut icon" href="favicon.ico">
-  <link rel="stylesheet" href="style.css?v=2.7.4">
+  <link rel="stylesheet" href="style.css?v=2.7.5">
 </head>
 
 <body>
@@ -1529,7 +1529,7 @@ PRINTABLE CHARACTERS
           <img src="assets/logo-about.png" alt="C64 Visual Assembler" width="200" height="160">
         </div>
         <h2 class="about-title">C64 Visual Assembler</h2>
-        <p class="about-version" id="about-version">v2.7.4</p>
+        <p class="about-version" id="about-version">v2.7.5</p>
         <p class="about-version" id="about-ub-version"><span id="about-ub-version-label">UltimateBasic:</span> <span id="about-ub-version-value">v?</span></p>
         <p class="about-version" id="about-vma-version"><span id="about-vma-version-label">VMA:</span> <span id="about-vma-version-value">v?</span></p>
       </div>
@@ -1566,7 +1566,19 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.7.4</p>
+      <p class="whats-new-version">v2.7.5</p>
+      <ul class="whats-new-list">
+        <li>
+          <strong>Channel curves:</strong> a window shared by the SID Player and the SID Editor shows a scrolling level curve and a large note name for every voice (6 with two SIDs), following what is sounding at the moment. In the SID Editor it stays usable beside the tracker.
+        </li>
+        <li>
+          <strong>Spectrum by channel:</strong> the Spectrum window's new <strong>View</strong> list switches between the <strong>Mix</strong> of the output and a separate analyzer for every voice (<strong>Channels</strong>).
+        </li>
+        <li>
+          <strong>Play subtunes in sequence:</strong> the SID Player plays the remaining subtunes of a file before moving on, also with shuffle. A new toolbar toggle switches it, on by default.
+        </li>
+      </ul>
+      <p class="whats-new-previous">v2.7.4</p>
       <ul class="whats-new-list">
         <li>
           <strong>Selection in the horizontal tracker:</strong> Shift+drag a frame or Ctrl+click notes, then cut, copy, paste or delete them with the new header buttons or Ctrl+X / C / V and Del.
@@ -1624,27 +1636,6 @@ PRINTABLE CHARACTERS
         </li>
         <li>
           <strong>No click on reSID:</strong> neither before notes played from the keyboard or VA-VK, nor on the first note of a tune, with either the 6581 or the 8580.
-        </li>
-      </ul>
-      <p class="whats-new-previous">v2.7.2</p>
-      <ul class="whats-new-list">
-        <li>
-          <strong>reSID in place of WebSID:</strong> the SID Player and the SID Editor play on the backend, on resid-rs (the default) or VA SID Core, with the MOS 6581 or 8580. Settings → General → SID preview.
-        </li>
-        <li>
-          <strong>SID Player buffer:</strong> the setting now states how far ahead the tune is rendered: 10, 15, 20 or 30 s.
-        </li>
-        <li>
-          <strong>HVSC by composer:</strong> the search panel can search composer names only.
-        </li>
-        <li>
-          <strong>.sid import:</strong> closer to the original: filter sweeps, pulse width, long wave tables and the release of short drum hits.
-        </li>
-        <li>
-          <strong>Tracker keys:</strong> the upper row of the keyboard played a semitone too high from R on, and F could not be entered from it.
-        </li>
-        <li>
-          <strong>SID Editor windows:</strong> the active one has a highlighted frame and header and comes to the front: the editor, the detached tracker, the horizontal tracker, the channel spectrum or VA-VK. The VA-VK button brings it back from behind the editor.
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
@@ -2908,6 +2899,9 @@ PRINTABLE CHARACTERS
           <button id="sid-ana-btn" class="ce-tool-btn" type="button" aria-label="Channel spectrum" aria-pressed="false">
             <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 14V9M5 14V5M8 14v-3M11 14V3M14 14V7" stroke="currentColor" stroke-width="2"/></svg>
           </button>
+          <button id="sid-curves-btn" class="ce-tool-btn" type="button" aria-label="Channel curves" aria-pressed="false">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1 8h2l2-5 3 10 3-10 2 5h2" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+          </button>
           <button id="sid-tracker-detach" class="ce-tool-btn" type="button" aria-label="Detach tracker">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3H3.5a1 1 0 00-1 1v8.5a1 1 0 001 1H12a1 1 0 001-1V9"/><path d="M9.5 2.5h4v4M13.5 2.5L8 8"/></svg>
           </button>
@@ -3155,11 +3149,13 @@ PRINTABLE CHARACTERS
           <button id="websid-play-shuffle" class="websid-play-tool" type="button" aria-label="Shuffle" aria-pressed="false"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 4.5h2.5c3 0 5 7 8 7h2M1.5 11.5h2.5c1.2 0 2.2-1.1 3-2.4M9 6.9c.8-1.3 1.8-2.4 3-2.4h2" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M12.5 2.5l2 2-2 2M12.5 9.5l2 2-2 2" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
         </div>
         <div class="websid-play-tools">
+          <button id="websid-play-subtunes" class="websid-play-tool websid-play-tool--active" type="button" aria-label="Play subtunes in sequence" aria-pressed="true"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3h8M2 7h8M2 11h5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="m10 9 4 2.5-4 2.5z" fill="currentColor"/></svg></button>
           <button id="websid-play-rew" class="websid-play-tool" type="button" aria-label="Back 10 s"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 4 2.5 8 8 12zM14 4 8.5 8 14 12z" fill="currentColor"/></svg></button>
           <button id="websid-play-fwd" class="websid-play-tool" type="button" aria-label="Forward 10 s"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 4l5.5 4L8 12zM2 4l5.5 4L2 12z" fill="currentColor"/></svg></button>
         </div>
         <div class="websid-play-tools">
           <button id="websid-play-viz" class="websid-play-tool" type="button" aria-label="Spectrum analyzer" aria-pressed="false"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 14V9M5 14V5M8 14V7M11 14V3M14 14V8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"/></svg></button>
+          <button id="websid-play-curves" class="websid-play-tool" type="button" aria-label="Channel curves" aria-pressed="false"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1 8h2l2-5 3 10 3-10 2 5h2" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button>
           <button id="websid-play-normalize" class="websid-play-tool" type="button" aria-label="Normalize volume" aria-pressed="false"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 5.5h12M2 10.5h12" fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="1.5 1.5"/><path d="M4 13V9M8 13V7M12 13V8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M4 3v2.5M8 3v2.5M12 3v2.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
           <button id="websid-play-hvsc" class="websid-play-tool" type="button" aria-label="HVSC" aria-pressed="false"><svg viewBox="0 0 16 16" aria-hidden="true"><ellipse cx="8" cy="3.8" rx="5.5" ry="2" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M2.5 3.8v8.4c0 1.1 2.5 2 5.5 2s5.5-.9 5.5-2V3.8M2.5 8c0 1.1 2.5 2 5.5 2s5.5-.9 5.5-2" fill="none" stroke="currentColor" stroke-width="1.2"/></svg></button>
           <button id="websid-play-add" class="websid-play-tool" type="button" aria-label="Add .sid files…"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
@@ -3227,11 +3223,23 @@ PRINTABLE CHARACTERS
     <div class="websid-play-card sid-viz-card">
       <div class="websid-play-header sid-viz-hdr">
         <span id="sid-viz-title" class="websid-play-title">Spectrum</span>
+        <select id="sid-viz-mode" class="sid-viz-mode" aria-label="View"><option value="mix">Mix</option><option value="channels">Channels</option></select>
         <label class="sid-viz-bands"><span id="sid-viz-bands-lbl">Bands</span>
           <select id="sid-viz-bands"><option value="8">8</option><option value="16">16</option><option value="24">24</option><option value="32">32</option></select></label>
         <button id="sid-viz-close" class="websid-play-xbtn" type="button" aria-label="Close">×</button>
       </div>
       <canvas id="sid-viz-canvas" class="sid-viz-canvas"></canvas>
+    </div>
+  </dialog>
+
+  <!-- Csatornagörbék: a SID Player és a SID Editor közös ablaka; a modális szerkesztő alatt a DOM-ban vele megy (_channelMonitorSync) -->
+  <dialog id="channel-monitor" class="websid-play-dialog channel-monitor-dialog" aria-labelledby="channel-monitor-title">
+    <div class="websid-play-card channel-monitor-card">
+      <div class="websid-play-header channel-monitor-header">
+        <span id="channel-monitor-title" class="websid-play-title">Channel curves</span>
+        <button id="channel-monitor-close" class="websid-play-xbtn" type="button" aria-label="Close">×</button>
+      </div>
+      <div class="channel-monitor-rows"></div>
     </div>
   </dialog>
 
@@ -4267,10 +4275,10 @@ PRINTABLE CHARACTERS
     </div>
   </div>
 
-  <script src="tauri-bridge.js?v=2.7.4"></script>
-  <script src="i18n.js?v=2.7.4"></script>
-  <script src="tutorial-data.js?v=2.7.4"></script>
-  <script src="app.js?v=2.7.4"></script>
+  <script src="tauri-bridge.js?v=2.7.5"></script>
+  <script src="i18n.js?v=2.7.5"></script>
+  <script src="tutorial-data.js?v=2.7.5"></script>
+  <script src="app.js?v=2.7.5"></script>
 
 </body>
 

@@ -82,6 +82,7 @@ function player(normalize) {
   vm.createContext(context);
   vm.runInContext(`${CONSTS} var _playerNormalize = ${normalize}, _playerNormNode = null;
     ${NORM.map(fnSource).join("\n")}
+    function _channelMonitorQueue() {}
     ${fnSource("_vaSidPlayFileBytes")}
     this.play = _vaSidPlayFileBytes; this.node = () => _playerNormNode;`, context);
   return { context, played, master };

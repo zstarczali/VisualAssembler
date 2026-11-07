@@ -1,5 +1,7 @@
 # macOS Installation Guide
-Version 2.7.4
+Version 2.7.5
+
+2.7.5: channel curves (a scrolling level curve and a large note name per voice, in the SID Player and the SID Editor), and the SID Player plays the remaining subtunes of a file in sequence (a new toolbar toggle).
 
 2.7.4: selection with cut / copy / paste / delete in the horizontal tracker, quantize (Q for the selected notes, and recordings with On record), Undo / Redo in the horizontal tracker's header, deleting instruments (one by one or every unused one), the tune's own volume, PAL / NTSC timing.
 
@@ -123,7 +125,7 @@ Both `sfx sys` (Run/Build with Exomizer toggle) and `mem` mode (per-file EXO in 
 
 ---
 
-**Version:** 2.7.4 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 2.7.5 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
 
 ## Building from source: macOS app icon
 

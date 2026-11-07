@@ -878,10 +878,17 @@ fn render_sid_file_blocking(payload: SidFilePayload) -> Result<serde_json::Value
         let frame_samples = player.skip_frames(1)?.max(1) as u64;
         player.skip_frames((skip_samples.saturating_sub(frame_samples) / frame_samples) as usize)?;
     }
-    let pcm = player.render_frames(payload.frames)?;
+    let mut pcm = Vec::new();
+    let mut monitor = Vec::with_capacity(payload.frames);
+    for _ in 0..payload.frames {
+        pcm.extend(player.render_frames(1)?);
+        monitor.push(player.channel_registers());
+    }
     let bytes: Vec<u8> = pcm.iter().flat_map(|sample| sample.to_le_bytes()).collect();
     Ok(serde_json::json!({
         "channels": player.channels(),
+        "monitor": monitor,
+        "frameRate": player.frame_rate(),
         "pcm": base64::engine::general_purpose::STANDARD.encode(bytes),
     }))
 }
