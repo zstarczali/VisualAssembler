@@ -21,6 +21,11 @@ test("the workflow checks out exactly the published documents, which exist in th
   }
 });
 
+test("the workflow checks out the samples folder that goes into va-samples.zip", () => {
+  assert.ok(workflow.includes("            samples/\n") || workflow.includes("            samples/\r\n"));
+  assert.ok(fs.existsSync(path.join(root, "samples")));
+});
+
 test("the workflow publishes to the VA folder, from the validated build's commit", () => {
   assert.ok(workflow.includes("FTP_DIRECTORY: /www/downloads/VA/"));
   assert.ok(workflow.includes("ref: ${{ steps.source.outputs.head_sha }}"));

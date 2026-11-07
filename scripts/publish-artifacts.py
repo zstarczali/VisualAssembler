@@ -11,7 +11,9 @@ from pathlib import Path, PurePosixPath
 import re
 import ssl
 import sys
+import tempfile
 import urllib.request
+import zipfile
 
 BUILD_WORKFLOW = '.github/workflows/build.yml'
 INSTALLERS = {'.exe', '.dmg', '.deb', '.rpm', '.appimage'}
@@ -22,6 +24,8 @@ DOCUMENTS = (
     'README.txt',
     'install.txt',
 )
+SAMPLES = 'samples'
+SAMPLES_ZIP = 'va-samples.zip'
 VERSION = re.compile(r'(?<![\d.])\d+\.\d+\.\d+(?![\d.])')
 
 
@@ -93,6 +97,24 @@ def collect_documents(source):
     return files
 
 
+def build_samples_zip(source, target):
+    """Pack the samples folder of the build's commit; inside the archive the paths start with samples/."""
+    folder = Path(source) / SAMPLES
+    if folder.is_symlink() or not folder.is_dir():
+        raise ValueError(f'The source build commit has no {SAMPLES} folder.')
+    paths = sorted(folder.rglob('*'))
+    if any(path.is_symlink() for path in paths):
+        raise ValueError('Symlinks are not supported.')
+    files = [path for path in paths if path.is_file()]
+    if not files:
+        raise ValueError(f'The {SAMPLES} folder of the source build commit is empty.')
+    archive = Path(target) / SAMPLES_ZIP
+    with zipfile.ZipFile(archive, 'w', zipfile.ZIP_DEFLATED) as output:
+        for path in files:
+            output.write(path, path.relative_to(source).as_posix())
+    return archive
+
+
 def safe_error(error):
     message = str(error)
     for key in ('FTP_PASSWORD', 'GH_TOKEN'):
@@ -103,8 +125,13 @@ def safe_error(error):
 
 
 def upload(root, source):
-    # The documents go last: they are public at once, so only after every installer has arrived.
-    files = {**collect_installers(root), **collect_documents(source)}
+    with tempfile.TemporaryDirectory() as temp:
+        upload_files(root, source, build_samples_zip(source, temp))
+
+
+def upload_files(root, source, samples_zip):
+    # The documents and the samples go last: they are public at once, so only after every installer has arrived.
+    files = {**collect_installers(root), **collect_documents(source), samples_zip.name: samples_zip}
     password = os.environ.get('FTP_PASSWORD', '')
     if not password:
         raise ValueError('Set the FTP_PASSWORD repository Actions secret before publishing.')

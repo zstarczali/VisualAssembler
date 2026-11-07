@@ -39,8 +39,8 @@ jobs:
           run-id: ${{ inputs.run_id }}
           path: publish-artifacts
 
-      # The documents come from the build's exact commit, so they match its installers.
-      - name: Check out the source build documents
+      # The documents and samples come from the build's exact commit, so they match its installers.
+      - name: Check out the source build documents and samples
         uses: actions/checkout@v7
         with:
           ref: ${{ steps.source.outputs.head_sha }}
@@ -50,10 +50,11 @@ jobs:
             docs/Visual Assembler Manual.hu.pdf
             README.txt
             install.txt
+            samples/
           sparse-checkout-cone-mode: false
           persist-credentials: false
 
-      - name: Upload extracted installers and documents
+      - name: Upload extracted installers, documents and va-samples.zip
         run: python3 scripts/publish-artifacts.py publish-artifacts source-build
         env:
           FTP_HOST: ftpx.forpsi.com
