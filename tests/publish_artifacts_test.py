@@ -1,10 +1,13 @@
 import importlib.util
+import io
 import os
 from pathlib import Path
+import shutil
 import sys
 import tempfile
 import unittest
 from unittest.mock import MagicMock, patch
+import zipfile
 
 sys.dont_write_bytecode = True
 
@@ -32,6 +35,10 @@ class PublishTests(unittest.TestCase):
             path = self.source / document
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes(b'%PDF-1.7 manual' if document.endswith('.pdf') else b'text')
+        for sample in ('samples/demo.asm', 'samples/Kick/nested.asm', 'samples/empty.bin'):
+            path = self.source / sample
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(b'' if sample.endswith('.bin') else b'; sample')
 
     def artifact(self, name, content=b'artifact'):
         path = self.root / name
@@ -47,8 +54,14 @@ class PublishTests(unittest.TestCase):
 
     def good_ftp(self):
         ftp = MagicMock()
-        ftp.size.side_effect = lambda name: (self.root / 'windows-x64' / name).stat().st_size if name == EXE else {
-            'Visual Assembler Manual.pdf': 15, 'Visual Assembler Manual.hu.pdf': 15, 'README.txt': 4, 'install.txt': 4}[name]
+        stored = {}
+
+        def store(command, content, blocksize=None):
+            stored[command[len('STOR '):]] = content.read()
+
+        ftp.storbinary.side_effect = store
+        ftp.size.side_effect = lambda name: len(stored[name])
+        ftp.stored = stored
         return ftp
 
     def test_collects_every_installer_kind_without_zip_wrappers(self):
@@ -111,8 +124,29 @@ class PublishTests(unittest.TestCase):
         ftp.cwd.assert_called_once_with('/www/downloads/VA')
         stored = [c.args[0][len('STOR '):] for c in ftp.storbinary.call_args_list]
         self.assertEqual(stored[0], EXE)
-        self.assertEqual(set(stored[1:]), DOCS)
-        self.assertEqual(ftp.size.call_count, 5)
+        self.assertEqual(set(stored[1:]), DOCS | {'va-samples.zip'})
+        self.assertEqual(ftp.size.call_count, 6)
+
+    def test_the_samples_folder_is_uploaded_as_a_zip_with_its_subfolders(self):
+        self.artifact(f'windows-x64/{EXE}')
+        ftp = self.good_ftp()
+        self.publish_with(ftp)
+        with zipfile.ZipFile(io.BytesIO(ftp.stored['va-samples.zip'])) as archive:
+            self.assertIsNone(archive.testzip())
+            self.assertEqual(set(archive.namelist()), {'samples/demo.asm', 'samples/Kick/nested.asm', 'samples/empty.bin'})
+            self.assertEqual(archive.read('samples/Kick/nested.asm'), b'; sample')
+            self.assertEqual(archive.getinfo('samples/demo.asm').compress_type, zipfile.ZIP_DEFLATED)
+
+    def test_missing_or_empty_samples_are_refused_before_connecting(self):
+        self.artifact(EXE)
+        shutil.rmtree(self.source / 'samples')
+        with patch.dict(os.environ, ENV), patch.object(publish.ftplib, 'FTP_TLS') as ftp:
+            with self.assertRaisesRegex(ValueError, 'no samples folder'):
+                publish.upload(self.root, self.source)
+            (self.source / 'samples').mkdir()
+            with self.assertRaisesRegex(ValueError, 'is empty'):
+                publish.upload(self.root, self.source)
+            ftp.assert_not_called()
 
     def test_never_removes_anything_the_released_version_still_needs_it(self):
         self.artifact(f'windows-x64/{EXE}')
