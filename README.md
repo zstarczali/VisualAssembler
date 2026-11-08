@@ -2,9 +2,18 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.7.5**
+**Current version: v2.7.6**
 
 Visual Assembler is free and open source (GPLv3): every feature — editors, builds, hardware runs, languages and themes — works without a registration or serial. At most once a day the app sends an anonymous startup ping (version, OS, UI language, launch count, a random install ID) for the usage statistics; no email, project or source code is sent.
+
+## What's New in v2.7.6
+
+- **Star ratings** — every SID Player playlist row has 1 to 5 stars in place of the single favourite mark; **Keep only starred tunes** removes the rest after a confirmation. Older `.sidpl` favourites become one star.
+- **Remove duplicates** — a new SID Player toolbar button removes the tunes that are in the playlist more than once (the same HVSC path or the same file); the first copy stays, with the most stars any copy had.
+- **Normalize volume without distortion** — when a tune with a quiet start was raised and a louder part follows, the SID Player's level now drops at once, before that part sounds, so its start no longer clips.
+- **HVSC downloads** — a tune that is still downloading shows a spinner in place of its **+** button, and a second click does not add it again.
+- **Restore64 sources with their own BASIC line** — a disassembly that writes its `10 SYS 2061` line at `$0801` after the code builds byte for byte like the original again, in both the JS and the Rust VMA compiler (VMA 2.1.1). Before, the line was moved over the first 12 bytes of the code and the program did nothing.
+- **Sample programs download** — the `samples/` folder is published as `va-samples.zip` next to the manuals.
 
 ## What's New in v2.7.5
 

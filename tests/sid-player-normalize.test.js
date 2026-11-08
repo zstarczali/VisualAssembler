@@ -119,3 +119,29 @@ test("the button, its setting and its label in the seven languages, without modu
     assert.doesNotMatch(text, /mod/i, lang);
   }
 });
+
+test("a boost the new peak no longer allows drops at once, other changes glide", () => {
+  const context = { Math, Infinity };
+  vm.createContext(context);
+  vm.runInContext(`${fnSource("_playerNormGlide")}; this.glide = _playerNormGlide;`, context);
+  const calls = [];
+  const param = { setTargetAtTime: (value, time, tau) => calls.push({ value, time, tau }) };
+
+  // quiet intro raised 4x (peak 0.2), then a loud part: the peak 0.6 allows only 1.5x
+  context.glide(param, 4, 1.5, 0.6, 10, 2);
+  assert.equal(calls[0].value, 1.5);
+  assert.ok(calls[0].tau < 0.01, "fast: " + calls[0].tau);
+  assert.ok(calls[0].time <= 10 && calls[0].time >= 9.9, "just before the loud audio: " + calls[0].time);
+  // within what the peak allows: a slow glide from the audio's start
+  context.glide(param, 1.5, 1.2, 0.6, 12, 2);
+  assert.deepEqual({ ...calls[1] }, { value: 1.2, time: 12, tau: 2 });
+  // raising the gain is always slow
+  context.glide(param, 1.2, 2, 0.3, 14, 2);
+  assert.equal(calls[2].tau, 2);
+  // a loud tune not boosted is lowered slowly
+  context.glide(param, 1, 0.7, 0.95, 16, 2);
+  assert.equal(calls[3].tau, 2);
+  // audio already due starts from now, not in the past
+  context.glide(param, 1, 0.8, 0.5, 1, 2);
+  assert.equal(calls[4].time, 2);
+});

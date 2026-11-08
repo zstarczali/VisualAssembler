@@ -77,54 +77,54 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "channel-curves-275",
+  id: "sid-stars-276",
   url: "https://www.c64va.pro/docs.html",
   hu: {
-    eyebrow: "Újdonság a 2.7.5-ben",
+    eyebrow: "Újdonság a 2.7.6-ban",
     title: "Üdvözöl a Visual Assembler",
-    body: `<ul><li><strong>Csatornagörbék</strong>: a SID Player és a SID Editor közös ablaka hangonként mutat egy görgő szintgörbét és nagy hangnevet (két SID-nél 6 hang). A SID Editorban a tracker mellett is használható.</li><li><strong>Belső zeneszámok egymás után</strong>: a SID Player a fájl hátralévő subtune-jait is lejátssza, mielőtt továbblép, véletlen lejátszásnál is. Az új eszköztár-gomb kapcsolja, alapból be van kapcsolva.</li></ul>`,
+    body: `<ul><li><strong>Csillagos értékelés</strong>: a SID Player listájának minden sora 1–5 csillagot kapott; a <strong>Csak a csillagosak maradjanak</strong> törli a többit.</li><li><strong>Duplikátumok törlése</strong>: egy gombnyomással kikerülnek a listában többször szereplő számok.</li><li><strong>HVSC letöltés</strong>: a töltődő dalon forgó jel látszik, a második kattintás nem veszi fel újra.</li><li><strong>Restore64 források</strong>: a kód után saját BASIC sort író visszafejtés ismét úgy fordul és fut, mint az eredeti.</li></ul>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
-    eyebrow: "New in 2.7.5",
+    eyebrow: "New in 2.7.6",
     title: "Welcome to Visual Assembler",
-    body: `<ul><li><strong>Channel curves</strong>: a window shared by the SID Player and the SID Editor shows a scrolling level curve and a large note name for every voice (6 with two SIDs). In the SID Editor it stays usable beside the tracker.</li><li><strong>Play subtunes in sequence</strong>: the SID Player plays the remaining subtunes of a file before moving on, also with shuffle. A new toolbar toggle switches it, on by default.</li></ul>`,
+    body: `<ul><li><strong>Star ratings</strong>: every SID Player playlist row has 1 to 5 stars; <strong>Keep only starred tunes</strong> removes the rest.</li><li><strong>Remove duplicates</strong>: one button removes the tunes that are in the playlist more than once.</li><li><strong>HVSC downloads</strong>: a tune that is downloading shows a spinner, and a second click does not add it again.</li><li><strong>Restore64 sources</strong>: a disassembly that writes its own BASIC line after the code builds and runs like the original again.</li></ul>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
-    eyebrow: "Novedad en la 2.7.5",
+    eyebrow: "Novedad en la 2.7.6",
     title: "Bienvenido a Visual Assembler",
-    body: `<ul><li><strong>Curvas de canal</strong>: una ventana compartida por el SID Player y el SID Editor muestra una curva de nivel desplazable y un nombre de nota grande por cada voz (6 con dos SID). En el SID Editor se puede usar junto al tracker.</li><li><strong>Subtemas en secuencia</strong>: el SID Player reproduce los subtemas restantes de un archivo antes de continuar, también en modo aleatorio. Un nuevo botón de la barra lo activa o desactiva; viene activado.</li></ul>`,
+    body: `<ul><li><strong>Valoración con estrellas</strong>: cada fila de la lista del SID Player tiene de 1 a 5 estrellas; <strong>Mantener solo las marcadas con estrellas</strong> quita el resto.</li><li><strong>Quitar duplicados</strong>: un botón quita los temas que están más de una vez en la lista.</li><li><strong>Descargas de HVSC</strong>: un tema que se está descargando muestra un indicador, y un segundo clic no lo añade otra vez.</li><li><strong>Fuentes de Restore64</strong>: un desensamblado que escribe su propia línea BASIC después del código vuelve a compilarse y ejecutarse como el original.</li></ul>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
-    eyebrow: "Neu in 2.7.5",
+    eyebrow: "Neu in 2.7.6",
     title: "Willkommen bei Visual Assembler",
-    body: `<ul><li><strong>Kanalkurven</strong>: Ein gemeinsames Fenster von SID Player und SID Editor zeigt für jede Stimme eine laufende Pegelkurve und einen großen Notennamen (6 Stimmen bei zwei SIDs). Im SID Editor bleibt es neben dem Tracker bedienbar.</li><li><strong>Unterstücke nacheinander</strong>: Der SID Player spielt die übrigen Unterstücke einer Datei, bevor er weitergeht, auch bei Zufallswiedergabe. Ein neuer Schalter in der Werkzeugleiste steuert das; er ist standardmäßig an.</li></ul>`,
+    body: `<ul><li><strong>Sternebewertung</strong>: Jede Zeile der SID-Player-Playlist hat 1 bis 5 Sterne; <strong>Nur Titel mit Sternen behalten</strong> entfernt den Rest.</li><li><strong>Duplikate entfernen</strong>: Ein Knopf entfernt Titel, die mehrfach in der Playlist stehen.</li><li><strong>HVSC-Downloads</strong>: Ein Titel, der noch geladen wird, zeigt ein Ladesymbol, und ein zweiter Klick fügt ihn nicht erneut hinzu.</li><li><strong>Restore64-Quellen</strong>: Eine Disassemblierung, die ihre eigene BASIC-Zeile hinter den Code schreibt, wird wieder wie das Original gebaut und läuft.</li></ul>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
-    eyebrow: "Nieuw in 2.7.5",
+    eyebrow: "Nieuw in 2.7.6",
     title: "Welkom bij Visual Assembler",
-    body: `<ul><li><strong>Kanaalcurves</strong>: een gedeeld venster van de SID Player en de SID Editor toont per stem een scrollende niveaucurve en een grote nootnaam (6 stemmen bij twee SID's). In de SID Editor blijft het naast de tracker bruikbaar.</li><li><strong>Subnummers achter elkaar</strong>: de SID Player speelt de overige subnummers van een bestand voordat hij verdergaat, ook bij willekeurig afspelen. Een nieuwe knop in de werkbalk schakelt dit; standaard staat het aan.</li></ul>`,
+    body: `<ul><li><strong>Sterbeoordeling</strong>: elke rij van de SID Player-afspeellijst heeft 1 tot 5 sterren; <strong>Alleen nummers met sterren houden</strong> verwijdert de rest.</li><li><strong>Duplicaten verwijderen</strong>: één knop verwijdert nummers die meer dan eens in de lijst staan.</li><li><strong>HVSC-downloads</strong>: een nummer dat nog downloadt toont een laadteken, en een tweede klik voegt het niet opnieuw toe.</li><li><strong>Restore64-bronnen</strong>: een disassemblage die een eigen BASIC-regel na de code schrijft, bouwt en draait weer als het origineel.</li></ul>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
-    eyebrow: "Nowość w 2.7.5",
+    eyebrow: "Nowość w 2.7.6",
     title: "Witamy w Visual Assembler",
-    body: `<ul><li><strong>Krzywe kanałów</strong>: wspólne okno SID Playera i SID Editora pokazuje dla każdego głosu przewijaną krzywą poziomu i dużą nazwę nuty (6 głosów przy dwóch SID-ach). W SID Editorze można z niego korzystać obok trackera.</li><li><strong>Podutwory po kolei</strong>: SID Player odtwarza pozostałe podutwory pliku, zanim przejdzie dalej, także przy losowym odtwarzaniu. Steruje tym nowy przycisk na pasku narzędzi; domyślnie jest włączony.</li></ul>`,
+    body: `<ul><li><strong>Ocena gwiazdkami</strong>: każdy wiersz listy SID Playera ma od 1 do 5 gwiazdek; <strong>Zostaw tylko utwory z gwiazdkami</strong> usuwa resztę.</li><li><strong>Usuń duplikaty</strong>: jeden przycisk usuwa utwory, które są na liście więcej niż raz.</li><li><strong>Pobieranie z HVSC</strong>: pobierany utwór pokazuje wskaźnik, a drugie kliknięcie nie dodaje go ponownie.</li><li><strong>Źródła Restore64</strong>: deasemblacja zapisująca własną linię BASIC za kodem znów buduje się i działa jak oryginał.</li></ul>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
-    eyebrow: "Novità nella 2.7.5",
+    eyebrow: "Novità nella 2.7.6",
     title: "Benvenuto in Visual Assembler",
-    body: `<ul><li><strong>Curve dei canali</strong>: una finestra condivisa da SID Player e SID Editor mostra per ogni voce una curva di livello scorrevole e un grande nome della nota (6 voci con due SID). Nel SID Editor resta utilizzabile accanto al tracker.</li><li><strong>Sottobrani in sequenza</strong>: il SID Player riproduce i sottobrani rimanenti di un file prima di proseguire, anche in riproduzione casuale. Un nuovo pulsante della barra degli strumenti lo controlla; è attivo di default.</li></ul>`,
+    body: `<ul><li><strong>Valutazione a stelle</strong>: ogni riga della playlist del SID Player ha da 1 a 5 stelle; <strong>Tieni solo i brani con stelle</strong> rimuove il resto.</li><li><strong>Rimuovi duplicati</strong>: un pulsante rimuove i brani presenti più di una volta nella playlist.</li><li><strong>Download HVSC</strong>: un brano in download mostra un indicatore, e un secondo clic non lo aggiunge di nuovo.</li><li><strong>Sorgenti Restore64</strong>: un disassemblato che scrive la propria riga BASIC dopo il codice torna a compilarsi e funzionare come l'originale.</li></ul>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
@@ -31545,7 +31545,9 @@ async function _projEnsureStartupTab() {
 function _buildAutostartPrgCore() {
   const embeddedSysAddress = _getEmbeddedBasicSysAddress(program);
   if (embeddedSysAddress !== null) {
-    const result = assembleProgramToPrg(parseOriginValue().value);
+    // $0801 as the override: the source's own stub stays at $0801 even when it is not the
+    // first ORG (Restore64 puts it among the data blocks after ".pc = $080d").
+    const result = assembleProgramToPrg(0x0801);
     return result.ok ? { ...result, sysAddress: embeddedSysAddress } : result;
   }
 
@@ -31692,13 +31694,13 @@ function _programHasEmbeddedBasicAutostart(blocks) {
 function _getEmbeddedBasicSysAddress(blocks) {
   if (!Array.isArray(blocks) || blocks.length < 2) return null;
 
-  const orgIndex = blocks.findIndex((block) => block?.isOrgMacro && String(block.orgAddress || "").toUpperCase() === "0801");
+  const orgIndex = blocks.findIndex((block) => block?.isOrgMacro && String(block.orgAddress || "").replace(/^\$/, "") === "0801");
   if (orgIndex < 0) return null;
 
   const bytes = [];
   for (let i = orgIndex + 1; i < blocks.length; i++) {
     const block = blocks[i];
-    if (block?.isComment || block?.isBlankLine || block?.isRegionMacro || block?.isEndRegionMacro) continue;
+    if (block?.isComment || block?.isBlankLine || block?.isRegionMacro || block?.isEndRegionMacro || block?.isLabel) continue;
     if (!block?.isByteMacro) return null;
     const parsed = String(block.rawOperand || "")
       .split(",")
@@ -56362,8 +56364,9 @@ async function _vaSidPlayFileBytes(bytes, filename, song = 0) {
   const follow = function(at) {
     const gain = _playerNormGain({ loudness: _normLoudness(state.meter.blocks), peak: state.meter.peak });
     if (Math.abs(gain - state.normGain) < 0.005) return;
+    const from = state.normGain;
     state.normGain = gain;
-    if (_playerNormalize && _playerNormNode) _playerNormNode.gain.setTargetAtTime(gain, Math.max(at, ac.currentTime), 2);
+    if (_playerNormalize && _playerNormNode) _playerNormGlide(_playerNormNode.gain, from, gain, state.meter.peak, at, ac.currentTime);
   };
   const schedule = function(pcm, channels, monitor, frameRate) {
     const samples = pcm.length / channels;
@@ -56537,6 +56540,16 @@ function _playerNormApply(smooth) {
   param.cancelScheduledValues(now);
   if (smooth) { param.setValueAtTime(param.value, now); param.setTargetAtTime(value, now, 0.25); }
   else param.setValueAtTime(value, now);
+}
+
+// Moves the normalization gain to a new measurement of the playing SID tune, from the
+// audio that starts at `at`. Usually a slow glide (2 s); but a boost that the newly
+// measured peak no longer allows (a quiet intro raised, then a loud part) drops at once,
+// just before that audio plays, so the loud part does not clip.
+function _playerNormGlide(param, from, to, peak, at, now) {
+  const allowed = peak > 0 ? Math.max(1, 0.9 / peak) : Infinity;
+  if (to < from && from > allowed + 1e-6) param.setTargetAtTime(to, Math.max(now, at - 0.01), 0.003);
+  else param.setTargetAtTime(to, Math.max(at, now), 2);
 }
 
 function _playerSetNormalize(on) {

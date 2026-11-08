@@ -1,5 +1,7 @@
 # macOS Installation Guide
-Version 2.7.5
+Version 2.7.6
+
+2.7.6: 1–5 star ratings in the SID Player playlist, Remove duplicates and Keep only starred tunes, Normalize volume no longer distorts a loud part after a boosted quiet start, a spinner on HVSC tunes while they download, and Restore64 disassemblies that write their own BASIC line after the code build and run again.
 
 2.7.5: channel curves (a scrolling level curve and a large note name per voice, in the SID Player and the SID Editor), and the SID Player plays the remaining subtunes of a file in sequence (a new toolbar toggle).
 
@@ -125,7 +127,7 @@ Both `sfx sys` (Run/Build with Exomizer toggle) and `mem` mode (per-file EXO in 
 
 ---
 
-**Version:** 2.7.5 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 2.7.6 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
 
 ## Building from source: macOS app icon
 
