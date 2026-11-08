@@ -4584,6 +4584,30 @@
   "error": null
  },
  {
+  "id": "var-embedded-stub-after-code",
+  "caseId": "var-embedded-stub-after-code",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": true,
+  "ok": true,
+  "size": 22,
+  "sha256": "df45333e67f7a2e38db55e53b30f3a841b3e69fc7bf03e230f2b86cc1ff23069",
+  "error": null
+ },
+ {
+  "id": "var-embedded-stub-after-code@nostub",
+  "caseId": "var-embedded-stub-after-code",
+  "kind": "text",
+  "file": null,
+  "baseDir": "tests/vma-golden/files",
+  "basicStub": false,
+  "ok": true,
+  "size": 22,
+  "sha256": "df45333e67f7a2e38db55e53b30f3a841b3e69fc7bf03e230f2b86cc1ff23069",
+  "error": null
+ },
+ {
   "id": "var-joystick-var",
   "caseId": "var-joystick-var",
   "kind": "text",

@@ -266,6 +266,8 @@ function macroCases(app) {
 
 // Parameter variants of the macros (the forms the macro tests and the manual use).
 const VARIANTS = {
+  // Restore64: the source's own BASIC stub at $0801 (with a label) after ".pc = $080d"
+  "embedded-stub-after-code": ".pc = $080d \"main\"\nmain:\n    tsx\n    stx $C000\n    inc $D020\n    rts\n.pc = $0801 \"stub\"\nstub:\n    .byte $0b,$08\n    .byte $0a,$00\n    .byte $9e\n    .text \"2061\"\n    .byte $00\n    .byte $00,$00\n",
   "joystick-var": ".const vx = $FB\n.const vy = $FC\n.const fire = $FD\n* = $1000\n    .joystick 2, vx, vy, fire\n    rts\n",
   "joystick-var-nofire": "* = $1000\n    .joystick 1, $FB, $FC\n    rts\n",
   "joystick-both-ports": "* = $1000\n    .joystick 3, $FB, $FC, $FD\n    rts\n",

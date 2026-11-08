@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.7.5**
+**Version 2.7.6**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -8,6 +8,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 
 ## Table of Contents
 
+- [Version 2.7.6 Highlights](#version-276-highlights)
 - [Version 2.7.5 Highlights](#version-275-highlights)
 - [Version 2.7.4 Highlights](#version-274-highlights)
 - [Version 2.7.3 Highlights](#version-273-highlights)
@@ -236,6 +237,16 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
   - [Curve Editor](#curve-editor)
   - [Table Generator](#table-generator)
   - [Number Converter](#number-converter)
+
+---
+
+## Version 2.7.6 Highlights
+
+- **Star ratings** — every SID Player playlist row has 1 to 5 stars in place of the single favourite mark. **Keep only starred tunes** removes the rest after a confirmation. See [SID Player](#sid-player).
+- **Remove duplicates** — a new SID Player toolbar button removes the tunes that are in the playlist more than once (the same HVSC path, or the same file). The first copy stays, with the most stars any copy had.
+- **Normalize volume without distortion** — when a tune with a quiet start was raised and a louder part follows, the level now drops at once, before that part sounds, instead of gliding down over two seconds while the start of the loud part clipped.
+- **HVSC downloads** — a tune that is still downloading shows a spinner in place of its **+** button, and clicking it again does not add it a second time.
+- **Restore64 sources with their own BASIC line** — a disassembly that writes its `10 SYS 2061` line at `$0801` after the code, among the data blocks, builds byte for byte like the original again. Before, the line was moved over the first 12 bytes of the code, and the program did nothing. See [Kick import](#kick-import-kick-assembler).
 
 ---
 
@@ -997,7 +1008,7 @@ Supported patterns:
 - `*=$XXXX "name"` and `.pc = $XXXX "name"` segments in any order: a segment lower than the first one stays at its address
 - BASIC autostart passthrough: when the program starts at `$0801` with the standard `SYS 2061` byte stub (`.byte $0B,$08,$0A,$00,$9E,$32,$30,$36,$31,$00,$00,$00`), the compiler emits the PRG verbatim instead of wrapping a second BASIC SYS around it
 
-Disassemblies made by Restore64 (KickAssembler syntax) import and build byte for byte like KickAssembler. The entry point named in their header is the first `.pc`. A program for the Plus/4 / C16 (BASIC at `$1001`, TED registers at `$FFxx`) builds the same way, but it runs only in a Plus/4 emulator such as VICE `xplus4`, not with Run.
+Disassemblies made by Restore64 (KickAssembler syntax) import and build byte for byte like KickAssembler. The entry point named in their header is the first `.pc`. When the source writes its own BASIC line (`10 SYS 2061`) at `$0801` after the code, among the data blocks, that line stays at `$0801` and the program starts from its `SYS`. A program for the Plus/4 / C16 (BASIC at `$1001`, TED registers at `$FFxx`) builds the same way, but it runs only in a Plus/4 emulator such as VICE `xplus4`, not with Run.
 
 Known limitation:
 
@@ -4801,8 +4812,9 @@ The **SID Player** toolbar button opens a floating window that plays `.sid` musi
 - **Engine:** the window shows which engine is playing (reSID or VA SID Core, with the SID chip); choose it in **Settings → General → SID preview**. Both run the tune on a native Rust C64 core with a cycle-exact 6510, precise interrupt timing, CIA 6526A, VIC-II timing with bad lines, sprite DMA and raster interrupts, and the 6510 I/O port — so raster-IRQ, CIA-timed and digi tunes play with the timing of a real machine. 2SID and 3SID tunes play (PSID v3 / v4) in stereo: SID 1 left, SID 2 right, a third SID in the centre.
 - **Shuffle:** the shuffle button next to **Next** plays the playlist in random order — no tune repeats until every tune has played, and **Previous** steps back along the random order. The setting is remembered.
 - **Play subtunes in sequence:** the toggle before **Back 10 s**, on by default, plays the file's remaining subtunes one after the other before moving to the next playlist entry, also with shuffle and for a single file. A subtune lasts its HVSC length when known, otherwise three minutes. With the toggle off, the playlist moves on after the current subtune. At the end of the playlist, with shuffle off, the last subtune keeps playing until you stop it.
-- **Normalize volume:** the button next to the spectrum analyzer plays every tune at about the same loudness: raised or lowered towards one level, by at most 12 dB, without clipping. A tune is measured on its first two seconds, then the level follows it slowly. The setting is remembered.
-- **Favourites:** the ☆ / ★ in each row marks a tune; it is kept in the saved state and in `.sidpl` playlists.
+- **Normalize volume:** the button next to the spectrum analyzer plays every tune at about the same loudness: raised or lowered towards one level, by at most 12 dB, without clipping. A tune is measured on its first two seconds, then the level follows it slowly. If a tune with a quiet start was raised and a louder part follows, the level drops at once, before that part sounds, so it does not distort. The setting is remembered.
+- **Stars:** each row has 1 to 5 stars; click a star to rate the tune, click the same star again to clear it. The rating is kept in the saved state and in `.sidpl` playlists (an older playlist's favourite becomes one star). **Keep only starred tunes** in the toolbar removes every tune without a star, after a confirmation.
+- **Remove duplicates:** the toolbar button removes the tunes that are in the playlist more than once: the same HVSC path, or the same file bytes. The first copy stays, with the most stars any of its copies had.
 
 #### HVSC (High Voltage SID Collection)
 
@@ -4810,7 +4822,7 @@ The **HVSC** button in the SID Player toolbar opens a search panel for the [High
 
 - **Search:** type a title, composer or folder (`hubbard commando`, `games/s-z`); every word has to match. **Random tunes** lists 25 random ones.
 - **Composer:** the list next to the search field switches from **All** to **Composer**, which searches composer names only (`hubbard`, `rob hubbard`, `galway`) and lists the tunes by composer. The name comes from the tune's folder under `MUSICIANS`, so a composer is found by the folder's name, which may be a handle (`laxity`). About 4,600 tunes in `GAMES` and `DEMOS` have no composer folder: **All** finds them by title or folder.
-- **Play / add / save:** click a tune to play it, **+** adds it to the playlist, the download button saves the `.sid` file. **Add all results** adds up to 100 found tunes.
+- **Play / add / save:** click a tune to play it, **+** adds it to the playlist, the download button saves the `.sid` file. While a tune downloads, a spinner replaces its **+**, and a second click does not add it again. **Add all results** adds up to 100 found tunes.
 - **Tune lengths:** HVSC knows the length of every subtune, so the seek bar shows it and the playlist moves on when the subtune ends.
 - **Where tunes come from:** the catalog and single tunes are downloaded from an HVSC mirror on first use and kept in the app's cache, so a tune played once also plays offline. **Update catalog** fetches the newest list.
 - **Whole collection:** **Download the whole collection…** downloads the official HVSC archive (about 85 MB) into a folder you pick and unpacks it there (about 380 MB); from then on the player uses that copy and works offline. **Use a local HVSC folder…** points it at a collection you already have.
