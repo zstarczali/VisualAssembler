@@ -219,6 +219,7 @@ dal-letöltés egyenként (`hvsc_fetch`, cache: app cache dir `hvsc/`), helyi ki
 `hvsc-download-progress` esemény, `hvsc_cancel_download`). Backend: `src-tauri/src/hvsc.rs`; tükrök `HVSC_MIRRORS`.
 A playlist elem `lengths` / `hvsc` mezője adja a seek bar hosszát és az auto-advance-t (`_sidPlayerTuneMs`).
 Teszt: `tests/hvsc-catalog.test.js`, Rust `real_hvsc_archive_unpacks` (#[ignore], `HVSC_ARCHIVE` env).
+Playlist: letöltés alatti második kattintás nem ad hozzá újra (`_hvscAdding`, a Studióban `_modlandAdding` is; `var`, mert a render előbb futhat — TDZ); letöltés közben a találat `.websid-hvsc-item--loading` + `_sidSpinner()` a + gomb helyén (Studióban a cache-ből töltődő Modland playlist-elem is: `item.loading`, `.websid-play-item--loading`); `#websid-play-dedupe` → `_sidPlayerRemoveDuplicates` (azonos HVSC / Modland útvonal vagy bájtok, `_sidPlayerKeys`; az első példány marad a legtöbb csillaggal); `#websid-play-keep-starred` → `_sidPlayerKeepStarred` (`_showConfirm` után); csillagok 0–5 (`item.fav` szám, `_sidStars`, `_SID_STARS_MAX`; `.sidpl`: `fav: true` + `stars`, a régi `fav: true` = 1). Teszt: `tests/sid-file-playback.test.js`. Ugyanez a VA SID Studióban.
 
 ### Idegen .sid / .bin fájlok
 
