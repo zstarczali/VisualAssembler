@@ -11579,6 +11579,16 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .websid-play-item:hover .websid-hvsc-item-btn { opacity: 1; }
 .websid-hvsc-item-btn:hover { color: var(--text); background: color-mix(in srgb, var(--secondary) 18%, transparent); }
 .websid-hvsc-item--added .websid-play-item-name { color: var(--primary); }
+.websid-hvsc-item--loading, .websid-play-item--loading { cursor: progress; }
+.websid-hvsc-item--loading .websid-play-item-name, .websid-play-item--loading .websid-play-item-name { opacity: 0.6; }
+.websid-hvsc-item--loading .websid-hvsc-item-add { opacity: 1; color: var(--primary); cursor: progress; }
+.websid-spinner {
+  display: inline-block; width: 10px; height: 10px; box-sizing: border-box;
+  border: 1.5px solid currentColor; border-right-color: transparent; border-radius: 50%;
+  animation: websid-spin 0.7s linear infinite;
+}
+@keyframes websid-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .websid-spinner { animation-duration: 2s; } }
 
 /* ── New project from template ──────────────────────────────────── */
 

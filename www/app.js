@@ -55387,6 +55387,14 @@ function _hvscStatusText() {
   else if (!_hvscResults.length) text += " · " + t("sidHvscHint");
   return text;
 }
+// A small spinning ring: the row's tune is still downloading.
+function _sidSpinner() {
+  const el = document.createElement("span");
+  el.className = "websid-spinner";
+  el.setAttribute("aria-hidden", "true");
+  return el;
+}
+
 function _hvscRender() {
   const panel = document.getElementById("websid-hvsc");
   const btn = document.getElementById("websid-play-hvsc");
@@ -55429,9 +55437,11 @@ function _hvscRender() {
   const inList = new Set(_sidPlaylist.map(function(item) { return item.hvsc; }).filter(Boolean));
   _hvscResults.forEach(function(entry, index) {
     const li = document.createElement("li");
-    li.className = "websid-play-item websid-hvsc-item" + (inList.has(entry.p) ? " websid-hvsc-item--added" : "");
+    const loading = !!_hvscAdding?.has(entry.p);
+    li.className = "websid-play-item websid-hvsc-item" + (inList.has(entry.p) ? " websid-hvsc-item--added" : "") + (loading ? " websid-hvsc-item--loading" : "");
     li.dataset.index = String(index);
     li.dataset.path = entry.p;
+    if (loading) li.setAttribute("aria-busy", "true");
     const name = document.createElement("span");
     name.className = "websid-play-item-name";
     name.textContent = entry.t;
@@ -55444,8 +55454,9 @@ function _hvscRender() {
     const add = document.createElement("button");
     add.type = "button";
     add.className = "websid-hvsc-item-btn websid-hvsc-item-add";
-    add.textContent = "+";
-    add.setAttribute("aria-label", t("sidHvscAdd"));
+    if (loading) add.appendChild(_sidSpinner());
+    else add.textContent = "+";
+    add.setAttribute("aria-label", t(loading ? "sidHvscLoading" : "sidHvscAdd"));
     const save = document.createElement("button");
     save.type = "button";
     save.className = "websid-hvsc-item-btn websid-hvsc-item-save";
@@ -55468,7 +55479,7 @@ async function _hvscFetchBytes(entry) {
 }
 // Adds a tune and plays it if asked; a tune already in the playlist is only played.
 // a second click while the tune is still downloading adds nothing
-const _hvscAdding = new Set();
+var _hvscAdding = new Set();
 
 async function _hvscAddEntry(entry, play) {
   const existing = _sidPlaylist.findIndex(function(item) { return item.hvsc === entry.p; });
@@ -55478,8 +55489,9 @@ async function _hvscAddEntry(entry, play) {
   }
   if (_hvscAdding.has(entry.p)) return true;
   _hvscAdding.add(entry.p);
+  _hvscRender();
   let bytes;
-  try { bytes = await _hvscFetchBytes(entry); } finally { _hvscAdding.delete(entry.p); }
+  try { bytes = await _hvscFetchBytes(entry); } finally { _hvscAdding.delete(entry.p); _hvscRender(); }
   if (!bytes) return false;
   if (_sidPlaylist.some(function(item) { return item.hvsc === entry.p; })) return true;
   _sidPlayerAdd([{ name: _hvscFileName(entry), bytes, lengths: entry.l, hvsc: entry.p }], play);
