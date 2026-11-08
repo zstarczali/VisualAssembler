@@ -324,8 +324,8 @@ test("SID player playlist: PSID metadata, prev restarts then steps back, remove 
     _sidPlayerPersist() {},
   };
   vm.createContext(ctx);
-  vm.runInContext(`const _SID_TUNE_LENGTH_MS = 180000; var _sidPlaylist = [], _sidPlaylistIndex = -1, _sidSeekDragging = false, _sidShuffle = false, _sidShuffleHistory = [];
-    ${["_sidPsidInfo", "_sidValidSong", "_sidPlayerItem", "_sidPlayerTuneMs", "_sidPlayerAdd", "_sidPlayerPlayIndex", "_sidPlayerPrev", "_sidPlayerNext", "_sidPlayerRemove",
+  vm.runInContext(`const _SID_TUNE_LENGTH_MS = 180000, _SID_STARS_MAX = 5; var _sidPlaylist = [], _sidPlaylistIndex = -1, _sidSeekDragging = false, _sidShuffle = false, _sidShuffleHistory = [];
+    ${["_sidPsidInfo", "_sidValidSong", "_sidStars", "_sidPlayerItem", "_sidPlayerTuneMs", "_sidPlayerAdd", "_sidPlayerPlayIndex", "_sidPlayerPrev", "_sidPlayerNext", "_sidPlayerRemove",
       "_sidPlayerLengthMs", "_sidPlayerTickUi", "_sidPlayerRenderList"].map(fnSource).join("\n")}
     this.api = { add: _sidPlayerAdd, prev: _sidPlayerPrev, next: _sidPlayerNext, remove: _sidPlayerRemove,
       list: () => _sidPlaylist, index: () => _sidPlaylistIndex };`, ctx);
@@ -419,7 +419,7 @@ test("SID player auto-advance moves one tune on, the UI refresh never advances",
     _sidPlayerPersist() {},
   };
   vm.createContext(ctx);
-  vm.runInContext(`const _SID_TUNE_LENGTH_MS = 180000; var _sidPlaylist = [], _sidPlaylistIndex = 0, _sidSeekDragging = false, _sidShuffle = false, _sidShuffleHistory = [];
+  vm.runInContext(`const _SID_TUNE_LENGTH_MS = 180000, _SID_STARS_MAX = 5; var _sidPlaylist = [], _sidPlaylistIndex = 0, _sidSeekDragging = false, _sidShuffle = false, _sidShuffleHistory = [];
     ${["_sidPsidInfo", "_sidValidSong", "_sidPlayerTuneMs", "_sidPlayerPlayIndex", "_sidPlayerNext", "_sidPlayerLengthMs", "_sidPlayerTickUi",
       "_sidPlayerRenderList", "_sidPlayerAutoAdvance"].map(fnSource).join("\n")}
     this.api = { tick: _sidPlayerTickUi, render: _sidPlayerRenderList, advance: _sidPlayerAutoAdvance,
@@ -448,7 +448,7 @@ test("SID player uses the HVSC subtune length for the seek bar and auto-advance"
     _sidPlayerPersist() {},
   };
   vm.createContext(ctx);
-  vm.runInContext(`const _SID_TUNE_LENGTH_MS = 180000; var _sidPlaylist = [], _sidPlaylistIndex = 0, _sidShuffle = false, _sidShuffleHistory = [];
+  vm.runInContext(`const _SID_TUNE_LENGTH_MS = 180000, _SID_STARS_MAX = 5; var _sidPlaylist = [], _sidPlaylistIndex = 0, _sidShuffle = false, _sidShuffleHistory = [];
     ${["_sidPlayerTuneMs", "_sidPlayerPlayIndex", "_sidPlayerNext", "_sidPlayerLengthMs", "_sidPlayerAutoAdvance"].map(fnSource).join("\n")}
     this.api = { length: _sidPlayerLengthMs, advance: _sidPlayerAutoAdvance, set(list) { _sidPlaylist = list; } };`, ctx);
   ctx.api.set([
@@ -477,7 +477,7 @@ test("auto-advance plays subtunes in order before the next file, even with shuff
         _sidExtStartFile(bytes, name, song) { started.push([name, song]); elapsed = 0; },
       };
       vm.createContext(ctx);
-      vm.runInContext(`const _SID_TUNE_LENGTH_MS = 180000;
+      vm.runInContext(`const _SID_TUNE_LENGTH_MS = 180000, _SID_STARS_MAX = 5;
         var _sidPlaylist = [{ id: 'a', name: 'a', song: 1, info: { songs: 3 }, lengths: [10000, 20000, 0] }],
           _sidPlaylistIndex = 0, _sidShuffle = ${shuffle}, _sidShuffleHistory = ['a'];
         ${singleFile ? "" : "_sidPlaylist.push({ id: 'b', name: 'b', song: 1, info: { songs: 1 } });"}
@@ -639,8 +639,8 @@ test("SID player shuffle: every tune once per round, Previous steps back along t
     Math,
   };
   vm.createContext(ctx);
-  vm.runInContext(`const _SID_TUNE_LENGTH_MS = 180000; var _sidPlaylist = [], _sidPlaylistIndex = -1, _sidSeekDragging = false, _sidShuffle = false, _sidShuffleHistory = [];
-    ${["_sidPsidInfo", "_sidValidSong", "_sidPlayerItem", "_sidPlayerTuneMs", "_sidPlayerAdd", "_sidPlayerPlayIndex", "_sidPlayerPrev", "_sidPlayerNext", "_sidPlayerSetShuffle",
+  vm.runInContext(`const _SID_TUNE_LENGTH_MS = 180000, _SID_STARS_MAX = 5; var _sidPlaylist = [], _sidPlaylistIndex = -1, _sidSeekDragging = false, _sidShuffle = false, _sidShuffleHistory = [];
+    ${["_sidPsidInfo", "_sidValidSong", "_sidStars", "_sidPlayerItem", "_sidPlayerTuneMs", "_sidPlayerAdd", "_sidPlayerPlayIndex", "_sidPlayerPrev", "_sidPlayerNext", "_sidPlayerSetShuffle",
       "_sidPlayerLengthMs", "_sidPlayerTickUi", "_sidPlayerRenderList"].map(fnSource).join("\n")}
     this.api = { add: _sidPlayerAdd, next: _sidPlayerNext, prev: _sidPlayerPrev, shuffle: _sidPlayerSetShuffle };`, ctx);
   const psid = () => { const b = new Uint8Array(0x80); b.set([0x50, 0x53, 0x49, 0x44]); return b; };
@@ -674,4 +674,72 @@ test("an opened or saved playlist shows its file name above the list; Clear remo
   assert.equal(ctx.api.name(), "Galway best", "a file that is no playlist leaves the name");
   ctx.api.clear();
   assert.equal(ctx.api.name(), "");
+});
+
+test("SID playlist: Remove duplicates, Keep only starred (asks first), 1-5 stars saved, a double click adds an HVSC tune once", async () => {
+  const toasts = [];
+  let answer = false, asked = 0, stops = 0;
+  let release;
+  const ctx = {
+    Math, Map, Set, Number, String, Uint8Array, btoa, atob, Promise,
+    t: (k) => k,
+    tf: (k, v) => k + ":" + JSON.stringify(v),
+    showViceToast(msg) { toasts.push(msg); },
+    _showConfirm: async () => { asked++; return answer; },
+    _sidExtStop() { stops++; },
+    _sidPlayerRenderList() {}, _sidPlayerPersist() {}, _hvscRender() {}, _sidPlayerPlayIndex() {},
+    _hvscFileName: (e) => e.p.split("/").pop(),
+    _hvscFetchBytes: () => new Promise((resolve) => { release = resolve; }),
+  };
+  vm.createContext(ctx);
+  vm.runInContext(`const _SID_STARS_MAX = 5, _SID_PLAYLIST_FORMAT = "va-sid-playlist", _hvscAdding = new Set();
+    var _sidPlaylist = [], _sidPlaylistIndex = -1, _sidShuffleHistory = [], _sidExtFile = null;
+    function _sidPlayerAdd(entries) { entries.forEach(function(e) { _sidPlaylist.push({ id: e.hvsc, name: e.name, bytes: e.bytes, hvsc: e.hvsc, fav: 0, info: {} }); }); }
+    ${["_sidStars", "_sidPlayerKeys", "_sidPlayerRemoveDuplicates", "_sidPlayerKeepStarred", "_hvscAddEntry",
+      "_sidBytesToBase64", "_sidBase64ToBytes", "_sidPlaylistToJson", "_sidPlaylistFromJson"].map(fnSource).join("\n")}
+    this.api = { dedupe: _sidPlayerRemoveDuplicates, keep: _sidPlayerKeepStarred, hvsc: _hvscAddEntry, toJson: _sidPlaylistToJson, fromJson: _sidPlaylistFromJson,
+      set(list, index) { _sidPlaylist = list; _sidPlaylistIndex = index; }, list: () => _sidPlaylist, index: () => _sidPlaylistIndex };`, ctx);
+  const { api } = ctx;
+  const item = (id, bytes, extra = {}) => ({ id, name: id + ".sid", bytes: bytes && new Uint8Array(bytes), fav: 0, info: {}, ...extra });
+
+  // the same HVSC path, or the same bytes (a dropped copy of an HVSC tune), is one tune
+  api.set([item("a", [1, 2, 3], { hvsc: "/M/a.sid" }), item("b", [9]), item("a2", [1, 2, 3], { fav: 3 }),
+    item("a3", null, { hvsc: "/M/a.sid" }), item("c", [7])], 2);
+  api.dedupe();
+  assert.deepEqual(Array.from(api.list(), (it) => it.id), ["a", "b", "c"]);
+  assert.equal(api.list()[0].fav, 3, "the kept copy gets the most stars");
+  assert.equal(api.index(), 0, "the playing copy's first copy becomes the current entry");
+  assert.equal(stops, 0, "the tune that plays goes on");
+  api.dedupe();
+  assert.equal(toasts[toasts.length - 1], "sidPlayerNoDuplicates");
+
+  // Keep only starred: asks, a No changes nothing, a Yes removes the unstarred ones
+  api.list()[2].fav = 1;
+  api.set(api.list(), 1);
+  await api.keep();
+  assert.equal(asked, 1);
+  assert.equal(api.list().length, 3);
+  answer = true;
+  await api.keep();
+  assert.deepEqual(Array.from(api.list(), (it) => it.id), ["a", "c"]);
+  assert.equal(stops, 1, "the playing tune had no star: it stops");
+  assert.equal(api.index(), 1);
+  await api.keep();
+  assert.equal(asked, 2, "nothing to remove: no question");
+
+  // stars survive a save; an older playlist's fav: true is one star
+  const back = api.fromJson(JSON.parse(JSON.stringify(api.toJson())));
+  assert.deepEqual(Array.from(back.entries, (e) => e.fav), [3, 1]);
+  assert.equal(api.fromJson({ format: "va-sid-playlist", items: [{ name: "x.sid", fav: true, data: "AA==" }] }).entries[0].fav, 1);
+  assert.equal(ctx._sidStars(9), 5);
+  assert.equal(ctx._sidStars("x"), 0);
+
+  // a second click while the tune downloads adds nothing
+  api.set([], -1);
+  const entry = { p: "/MUSICIANS/H/Hubbard_Rob/Commando.sid" };
+  const first = api.hvsc(entry, true);
+  const second = api.hvsc(entry, true);
+  release(new Uint8Array([1]));
+  await Promise.all([first, second]);
+  assert.equal(api.list().length, 1);
 });

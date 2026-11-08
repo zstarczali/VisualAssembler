@@ -11496,15 +11496,21 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
   opacity: 0;
 }
 .websid-play-item:hover .websid-play-item-del { opacity: 1; }
-.websid-play-item-fav {
+.websid-play-item-stars { display: inline-flex; flex: none; }
+.websid-play-item-star {
   background: none; border: none;
-  width: 18px; height: 20px; min-height: 0; padding: 0; flex: none;
-  color: var(--secondary); cursor: pointer; font-size: 0.95rem; line-height: 1;
+  width: 11px; height: 20px; min-height: 0; padding: 0; flex: none;
+  color: var(--secondary); cursor: pointer; font-size: 0.78rem; line-height: 1;
   opacity: 0.35;
 }
-.websid-play-item:hover .websid-play-item-fav { opacity: 0.8; }
-.websid-play-item-fav:hover { opacity: 1; color: var(--text); }
-.websid-play-item-fav--on, .websid-play-item:hover .websid-play-item-fav--on { opacity: 1; color: #f5c518; }
+/* not hovered: only the given stars, or one empty star */
+.websid-play-item:not(:hover) .websid-play-item-star:not(.websid-play-item-star--on) { visibility: hidden; }
+.websid-play-item:not(:hover) .websid-play-item-stars:not(.websid-play-item-stars--on) .websid-play-item-star:first-child { visibility: visible; }
+.websid-play-item:hover .websid-play-item-star { opacity: 0.8; }
+.websid-play-item-star--on, .websid-play-item:hover .websid-play-item-star--on { opacity: 1; color: #f5c518; }
+/* hovering previews the stars up to the pointer */
+.websid-play-item-stars:hover .websid-play-item-star { opacity: 1; color: #f5c518; }
+.websid-play-item-stars:hover .websid-play-item-star:hover ~ .websid-play-item-star { opacity: 0.5; color: var(--secondary); }
 .websid-play-item-del:hover { color: var(--text); }
 .websid-play-list-name {
   font-size: 0.74rem;
@@ -12619,7 +12625,7 @@ html[data-theme="c64"] .websid-play-item--current:hover {
   font-weight: 700;
 }
 html[data-theme="c64"] .websid-play-item--current .websid-play-item-no,
-html[data-theme="c64"] .websid-play-item--current .websid-play-item-fav:not(.websid-play-item-fav--on),
+html[data-theme="c64"] .websid-play-item--current .websid-play-item-star:not(.websid-play-item-star--on),
 html[data-theme="c64"] .websid-play-item--current .websid-play-item-del {
   color: #40318d;
 }
@@ -13261,7 +13267,7 @@ html[data-theme="christmas"] .websid-play-item--current:hover {
   font-weight: 700;
 }
 html[data-theme="christmas"] .websid-play-item--current .websid-play-item-no,
-html[data-theme="christmas"] .websid-play-item--current .websid-play-item-fav:not(.websid-play-item-fav--on),
+html[data-theme="christmas"] .websid-play-item--current .websid-play-item-star:not(.websid-play-item-star--on),
 html[data-theme="christmas"] .websid-play-item--current .websid-play-item-del {
   color: #ffffff;
 }
