@@ -2,9 +2,18 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.7.6**
+**Current version: v2.7.7**
 
 Visual Assembler is free and open source (GPLv3): every feature — editors, builds, hardware runs, languages and themes — works without a registration or serial. At most once a day the app sends an anonymous startup ping (version, OS, UI language, launch count, a random install ID) for the usage statistics; no email, project or source code is sent.
+
+## What's New in v2.7.7
+
+- **Ultimate 64 palette macros** — `.u64_palette "file.vpl"` loads all 16 colours of a palette file (VICE `.vpl`, GIMP `.gpl`, a hex list or a Photoshop `.act`) into the video palette of an Ultimate 64 / C64 Ultimate, `.u64_palette_color index, $RRGGBB` changes one colour and `.u64_palette_reset` restores the palette set in the menu. They talk to the Ultimate Command Interface (`$DF1C`–`$DF1F`, firmware 3.15+, Command Interface enabled in the menu) and skip themselves where it does not answer (VICE, older firmware). In both the JS and the Rust VMA compiler (VMA 2.2.0).
+- **Ultimate 64 palette demo** — a new sample: keys 1 and 2 load two palette files, 3 changes two colours, 0 restores the menu's palette; for the hardware or the Ultimate emulator run mode.
+- **Hi-Res MIX** — a mix pen for multicolor pictures: 8 slots of 3 colours and 8 patterns locked to the picture, used by the pencil, spray, shapes and flood fill.
+- **Built-in C64** — Run no longer starts an empty program; the bundled emulator files are `www/vice/vice.*`, and the run mode is called `vice` (older settings and projects with `web64` still load).
+- **Compiler setting** — the **Rust + JavaScript check** mode is removed; JavaScript (default) and Rust remain.
+- **Samples with files** — a sample's own `.incbin` / `.koala` / `.sid` files are loaded with it.
 
 ## What's New in v2.7.6
 

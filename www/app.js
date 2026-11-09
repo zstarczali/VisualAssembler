@@ -77,54 +77,54 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "sid-stars-276",
+  id: "u64-palette-277",
   url: "https://www.c64va.pro/docs.html",
   hu: {
-    eyebrow: "Újdonság a 2.7.6-ban",
+    eyebrow: "Újdonság a 2.7.7-ben",
     title: "Üdvözöl a Visual Assembler",
-    body: `<ul><li><strong>Csillagos értékelés</strong>: a SID Player listájának minden sora 1–5 csillagot kapott; a <strong>Csak a csillagosak maradjanak</strong> törli a többit.</li><li><strong>Duplikátumok törlése</strong>: egy gombnyomással kikerülnek a listában többször szereplő számok.</li><li><strong>HVSC letöltés</strong>: a töltődő dalon forgó jel látszik, a második kattintás nem veszi fel újra.</li><li><strong>Restore64 források</strong>: a kód után saját BASIC sort író visszafejtés ismét úgy fordul és fut, mint az eredeti.</li></ul>`,
+    body: `<ul><li><strong>Ultimate 64 paletta</strong>: a <code>.u64_palette "fájl.vpl"</code> egy palettafájl 16 színét tölti az Ultimate 64 / C64U-ba, a <code>.u64_palette_color</code> egy színt cserél, a <code>.u64_palette_reset</code> visszaállítja a menü palettáját (firmware 3.15+, Command Interface bekapcsolva).</li><li><strong>Paletta demó</strong>: új minta, amely az 1, 2, 3, 0 billentyűkre palettát vált; valódi gépen és az Ultimate emulátorban fut.</li><li><strong>Hi-Res MIX</strong>: keverék-toll multicolor képekhez: 8 hely, 3 szín, 8 minta.</li><li><strong>Beépített C64</strong>: üres programot már nem indít el.</li></ul>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
-    eyebrow: "New in 2.7.6",
+    eyebrow: "New in 2.7.7",
     title: "Welcome to Visual Assembler",
-    body: `<ul><li><strong>Star ratings</strong>: every SID Player playlist row has 1 to 5 stars; <strong>Keep only starred tunes</strong> removes the rest.</li><li><strong>Remove duplicates</strong>: one button removes the tunes that are in the playlist more than once.</li><li><strong>HVSC downloads</strong>: a tune that is downloading shows a spinner, and a second click does not add it again.</li><li><strong>Restore64 sources</strong>: a disassembly that writes its own BASIC line after the code builds and runs like the original again.</li></ul>`,
+    body: `<ul><li><strong>Ultimate 64 palette</strong>: <code>.u64_palette "file.vpl"</code> loads the 16 colours of a palette file into an Ultimate 64 / C64U, <code>.u64_palette_color</code> changes one colour and <code>.u64_palette_reset</code> restores the menu's palette (firmware 3.15+, Command Interface on).</li><li><strong>Palette demo</strong>: a new sample switches palettes with the keys 1, 2, 3 and 0; it runs on the hardware and in the Ultimate emulator.</li><li><strong>Hi-Res MIX</strong>: a mix pen for multicolor pictures: 8 slots, 3 colours, 8 patterns.</li><li><strong>Built-in C64</strong>: an empty program is no longer started.</li></ul>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
-    eyebrow: "Novedad en la 2.7.6",
+    eyebrow: "Novedad en la 2.7.7",
     title: "Bienvenido a Visual Assembler",
-    body: `<ul><li><strong>Valoración con estrellas</strong>: cada fila de la lista del SID Player tiene de 1 a 5 estrellas; <strong>Mantener solo las marcadas con estrellas</strong> quita el resto.</li><li><strong>Quitar duplicados</strong>: un botón quita los temas que están más de una vez en la lista.</li><li><strong>Descargas de HVSC</strong>: un tema que se está descargando muestra un indicador, y un segundo clic no lo añade otra vez.</li><li><strong>Fuentes de Restore64</strong>: un desensamblado que escribe su propia línea BASIC después del código vuelve a compilarse y ejecutarse como el original.</li></ul>`,
+    body: `<ul><li><strong>Paleta del Ultimate 64</strong>: <code>.u64_palette "archivo.vpl"</code> carga los 16 colores de un archivo de paleta en un Ultimate 64 / C64U, <code>.u64_palette_color</code> cambia un color y <code>.u64_palette_reset</code> restaura la paleta del menú (firmware 3.15+, Command Interface activado).</li><li><strong>Demo de paleta</strong>: un ejemplo nuevo cambia de paleta con las teclas 1, 2, 3 y 0; funciona en el hardware y en el emulador Ultimate.</li><li><strong>Hi-Res MIX</strong>: un pincel de mezcla para imágenes multicolor: 8 huecos, 3 colores, 8 patrones.</li><li><strong>C64 integrado</strong>: ya no inicia un programa vacío.</li></ul>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
-    eyebrow: "Neu in 2.7.6",
+    eyebrow: "Neu in 2.7.7",
     title: "Willkommen bei Visual Assembler",
-    body: `<ul><li><strong>Sternebewertung</strong>: Jede Zeile der SID-Player-Playlist hat 1 bis 5 Sterne; <strong>Nur Titel mit Sternen behalten</strong> entfernt den Rest.</li><li><strong>Duplikate entfernen</strong>: Ein Knopf entfernt Titel, die mehrfach in der Playlist stehen.</li><li><strong>HVSC-Downloads</strong>: Ein Titel, der noch geladen wird, zeigt ein Ladesymbol, und ein zweiter Klick fügt ihn nicht erneut hinzu.</li><li><strong>Restore64-Quellen</strong>: Eine Disassemblierung, die ihre eigene BASIC-Zeile hinter den Code schreibt, wird wieder wie das Original gebaut und läuft.</li></ul>`,
+    body: `<ul><li><strong>Ultimate-64-Palette</strong>: <code>.u64_palette "datei.vpl"</code> lädt die 16 Farben einer Palettendatei in einen Ultimate 64 / C64U, <code>.u64_palette_color</code> ändert eine Farbe und <code>.u64_palette_reset</code> stellt die Palette des Menüs wieder her (Firmware 3.15+, Command Interface an).</li><li><strong>Paletten-Demo</strong>: ein neues Beispiel wechselt die Palette mit den Tasten 1, 2, 3 und 0; es läuft auf der Hardware und im Ultimate-Emulator.</li><li><strong>Hi-Res MIX</strong>: ein Mischstift für Multicolor-Bilder: 8 Plätze, 3 Farben, 8 Muster.</li><li><strong>Eingebauter C64</strong>: ein leeres Programm wird nicht mehr gestartet.</li></ul>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
-    eyebrow: "Nieuw in 2.7.6",
+    eyebrow: "Nieuw in 2.7.7",
     title: "Welkom bij Visual Assembler",
-    body: `<ul><li><strong>Sterbeoordeling</strong>: elke rij van de SID Player-afspeellijst heeft 1 tot 5 sterren; <strong>Alleen nummers met sterren houden</strong> verwijdert de rest.</li><li><strong>Duplicaten verwijderen</strong>: één knop verwijdert nummers die meer dan eens in de lijst staan.</li><li><strong>HVSC-downloads</strong>: een nummer dat nog downloadt toont een laadteken, en een tweede klik voegt het niet opnieuw toe.</li><li><strong>Restore64-bronnen</strong>: een disassemblage die een eigen BASIC-regel na de code schrijft, bouwt en draait weer als het origineel.</li></ul>`,
+    body: `<ul><li><strong>Ultimate 64-palet</strong>: <code>.u64_palette "bestand.vpl"</code> laadt de 16 kleuren van een paletbestand in een Ultimate 64 / C64U, <code>.u64_palette_color</code> wijzigt één kleur en <code>.u64_palette_reset</code> herstelt het palet van het menu (firmware 3.15+, Command Interface aan).</li><li><strong>Paletdemo</strong>: een nieuw voorbeeld wisselt het palet met de toetsen 1, 2, 3 en 0; het draait op de hardware en in de Ultimate-emulator.</li><li><strong>Hi-Res MIX</strong>: een mengpen voor multicolor-afbeeldingen: 8 plaatsen, 3 kleuren, 8 patronen.</li><li><strong>Ingebouwde C64</strong>: een leeg programma wordt niet meer gestart.</li></ul>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
-    eyebrow: "Nowość w 2.7.6",
+    eyebrow: "Nowość w 2.7.7",
     title: "Witamy w Visual Assembler",
-    body: `<ul><li><strong>Ocena gwiazdkami</strong>: każdy wiersz listy SID Playera ma od 1 do 5 gwiazdek; <strong>Zostaw tylko utwory z gwiazdkami</strong> usuwa resztę.</li><li><strong>Usuń duplikaty</strong>: jeden przycisk usuwa utwory, które są na liście więcej niż raz.</li><li><strong>Pobieranie z HVSC</strong>: pobierany utwór pokazuje wskaźnik, a drugie kliknięcie nie dodaje go ponownie.</li><li><strong>Źródła Restore64</strong>: deasemblacja zapisująca własną linię BASIC za kodem znów buduje się i działa jak oryginał.</li></ul>`,
+    body: `<ul><li><strong>Paleta Ultimate 64</strong>: <code>.u64_palette "plik.vpl"</code> wczytuje 16 kolorów z pliku palety do Ultimate 64 / C64U, <code>.u64_palette_color</code> zmienia jeden kolor, a <code>.u64_palette_reset</code> przywraca paletę z menu (firmware 3.15+, włączony Command Interface).</li><li><strong>Demo palety</strong>: nowy przykład przełącza palety klawiszami 1, 2, 3 i 0; działa na sprzęcie i w emulatorze Ultimate.</li><li><strong>Hi-Res MIX</strong>: pędzel mieszający do obrazów multicolor: 8 miejsc, 3 kolory, 8 wzorów.</li><li><strong>Wbudowany C64</strong>: pusty program nie jest już uruchamiany.</li></ul>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
-    eyebrow: "Novità nella 2.7.6",
+    eyebrow: "Novità nella 2.7.7",
     title: "Benvenuto in Visual Assembler",
-    body: `<ul><li><strong>Valutazione a stelle</strong>: ogni riga della playlist del SID Player ha da 1 a 5 stelle; <strong>Tieni solo i brani con stelle</strong> rimuove il resto.</li><li><strong>Rimuovi duplicati</strong>: un pulsante rimuove i brani presenti più di una volta nella playlist.</li><li><strong>Download HVSC</strong>: un brano in download mostra un indicatore, e un secondo clic non lo aggiunge di nuovo.</li><li><strong>Sorgenti Restore64</strong>: un disassemblato che scrive la propria riga BASIC dopo il codice torna a compilarsi e funzionare come l'originale.</li></ul>`,
+    body: `<ul><li><strong>Palette Ultimate 64</strong>: <code>.u64_palette "file.vpl"</code> carica i 16 colori di un file di palette in un Ultimate 64 / C64U, <code>.u64_palette_color</code> cambia un colore e <code>.u64_palette_reset</code> ripristina la palette del menu (firmware 3.15+, Command Interface attivo).</li><li><strong>Demo palette</strong>: un nuovo esempio cambia palette con i tasti 1, 2, 3 e 0; funziona sull'hardware e nell'emulatore Ultimate.</li><li><strong>Hi-Res MIX</strong>: un pennello di miscela per immagini multicolor: 8 posti, 3 colori, 8 motivi.</li><li><strong>C64 integrato</strong>: un programma vuoto non viene più avviato.</li></ul>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }

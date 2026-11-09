@@ -1,5 +1,7 @@
 # macOS Installation Guide
-Version 2.7.6
+Version 2.7.7
+
+2.7.7: Ultimate 64 palette macros (.u64_palette from a palette file, .u64_palette_color, .u64_palette_reset) with a demo sample, the Hi-Res editor's MIX pen for multicolor pictures, and the built-in C64 no longer runs an empty program.
 
 2.7.6: 1–5 star ratings in the SID Player playlist, Remove duplicates and Keep only starred tunes, Normalize volume no longer distorts a loud part after a boosted quiet start, a spinner on HVSC tunes while they download, and Restore64 disassemblies that write their own BASIC line after the code build and run again.
 
@@ -127,7 +129,7 @@ Both `sfx sys` (Run/Build with Exomizer toggle) and `mem` mode (per-file EXO in 
 
 ---
 
-**Version:** 2.7.6 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 2.7.7 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
 
 ## Building from source: macOS app icon
 

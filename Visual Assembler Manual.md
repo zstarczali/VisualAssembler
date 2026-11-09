@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.7.6**
+**Version 2.7.7**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -8,6 +8,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 
 ## Table of Contents
 
+- [Version 2.7.7 Highlights](#version-277-highlights)
 - [Version 2.7.6 Highlights](#version-276-highlights)
 - [Version 2.7.5 Highlights](#version-275-highlights)
 - [Version 2.7.4 Highlights](#version-274-highlights)
@@ -237,6 +238,17 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
   - [Curve Editor](#curve-editor)
   - [Table Generator](#table-generator)
   - [Number Converter](#number-converter)
+
+---
+
+## Version 2.7.7 Highlights
+
+- **Ultimate 64 palette macros** — `.u64_palette "file.vpl"`, `.u64_palette_color index, $RRGGBB` and `.u64_palette_reset` set the video palette of an Ultimate 64 / C64 Ultimate through its Command Interface. See [U64_PALETTE / U64_PALETTE_COLOR / U64_PALETTE_RESET](#u64_palette--u64_palette_color--u64_palette_reset).
+- **Ultimate 64 palette demo** — a new sample in the Hardware category: keys 1 and 2 load two palette files, 3 changes two colours, 0 restores the menu's palette. Run it on the hardware or in the Ultimate emulator run mode.
+- **Hi-Res MIX** — a mix pen for multicolor pictures: 8 slots of 3 colours, 8 patterns locked to the picture. See [Hi-Res / Multicolor Editor](#hi-res--multicolor-editor).
+- **Built-in C64** — Run no longer starts an empty program (only an ORG, comments or blank lines), like the other run modes.
+- **Compiler setting** — the **Rust + JavaScript check** mode is removed from Settings → General → Program; JavaScript (default) and Rust remain.
+- **Samples with files** — a sample's own `.incbin` / `.koala` / `.u64_palette` / `.sid` files are loaded with it.
 
 ---
 
@@ -3816,6 +3828,33 @@ A9 xx   LDA #speed_byte
 
 ---
 
+### U64_PALETTE / U64_PALETTE_COLOR / U64_PALETTE_RESET
+
+Set the **video palette of an Ultimate 64 / C64 Ultimate** through the Ultimate Command Interface (`$DF1C`–`$DF1F`). The firmware must be 3.15 or newer, and the interface must be on: menu (F2) → **C64 and Cartridge Settings** → **Command Interface** = Enabled. The routine first reads `$DF1D`; when it is not `$C9` (VICE, the built-in C64, older firmware, interface off) it skips itself, so the program still runs anywhere.
+
+| Macro | Expert syntax | Size | Command |
+|-------|---------------|------|---------|
+| U64_PALETTE | `.u64_palette "file.vpl"` | 109 bytes | `$52` + 16 × R, G, B: all colours |
+| U64_PALETTE_COLOR | `.u64_palette_color index, $RRGGBB` | 65 bytes | `$53` index, R, G, B: one colour |
+| U64_PALETTE_RESET | `.u64_palette_reset` | 61 bytes | `$54`: the palette set in the menu |
+
+**Palette file:** a VICE `.vpl` (`RR GG BB dither` per line), a GIMP `.gpl`, any text with 16 `#RRGGBB` / `$RRGGBB` / `0xRRGGBB` values, or a Photoshop `.act`; the first 16 colours are used. The file is read at build time like an INCBIN (relative to the project, with the Browse button in Block mode); its colours are inside the generated code, nothing is placed elsewhere in memory.
+
+**Index and colour** of `.u64_palette_color` are expressions (`BLUE`, `$3050C0`, `COL + 1`); the index must be 0–15 and the colour `$000000`–`$FFFFFF`.
+
+**The code** waits until the interface is idle (accepting data left over from an earlier command), writes the command to `$DF1D`, pushes it (`$01` → `$DF1C`), waits while it is busy and accepts the answer (`$02` → `$DF1C`). A and X are destroyed. The palette changes at once and stays until the next reset or palette command.
+
+**Example** (the **Ultimate 64 palette demo** sample does this with keys):
+```
+.u64_palette "u64-palette-sunset.vpl"   ; all 16 colours
+.u64_palette_color 6, $5000A0           ; blue -> purple
+.u64_palette_reset                      ; back to the menu's palette
+```
+
+> **Note:** run it on the hardware (Run on C64 Ultimate) or with the **Ultimate emulator** run mode; the VICE-based run modes have no Command Interface, so nothing changes there.
+
+---
+
 ### SUPERCPU_DETECT
 
 Checks whether a **CMD SuperCPU** accelerator is installed — like `PEEK($D0B8)` to see if it returns something other than `$FF`.
@@ -4445,7 +4484,7 @@ Run assembled PRGs directly on real hardware over the local network using the Ul
 
 **Without hardware:** select **Ultimate emulator** from the split run menu to run on [UE2-C64U-Emulator](https://github.com/Jondalar/UE2-C64U-Emulator), which runs the unmodified Ultimate firmware on your computer. Install it separately (see [Installing the Ultimate emulator, step by step](#installing-the-ultimate-emulator-step-by-step)), then set three things in **Settings → Integrations → Ultimate emulator (UE2)**: the `ue2emu` program, a firmware (`.ue2`, `.elf` or `.app`, not included) and the ROM folder (`roms/` of a [1541ultimate](https://github.com/GideonZ/1541ultimate) checkout). Only `chars.bin` (2048 bytes, the menu font) is required from that folder; the Commodore firmware boots on its own C64 ROMs. The first run installs a `.ue2` into a flash image kept per firmware in the app's config folder, and every start turns on the firmware's web service, which the Commodore firmware ships disabled. The emulator starts on the first run and stays open for the next ones; its REST API listens on `127.0.0.1` at the **REST port** (default 8064). It closes with the app or with **Stop emulator**. **D64 on Ultimate emulator** in the same menu packages a D64 (this needs VICE's `c1541`), mounts it on drive A and runs the first program. While one of these two run modes is selected, the **VICE Monitor** window (hot reload, live watch, profiler) connects to the emulator instead of VICE. **Debug** in these run modes opens the emulator debugger: registers, disassembly, memory and breakpoints in a window of their own, the picture in the emulator's window. The program stops at the first breakpoint it reaches, or at its first instruction if there are none; the editor line follows the CPU, and F5, F10, F11 and Shift+F11 work with the focus in the editor too. A timer IRQ can take a step into the KERNAL, as in VICE's monitor, when interrupts are on. VA also sets **Turbo Control** to the turbo registers in the emulator's flash, so a program can change the CPU speed through `$D031` (it reads `$00`, 1 MHz, after a reset).
 
-Sample: **Ultimate turbo demo (64 sprites)** (`samples/ultimate-turbo-demo.asm`) — the speed changes every 3 seconds from 1 to 64 MHz; at 1 MHz balls go missing and the frame rate drops, from 4 MHz all 64 sprites run at 50 fps. It runs only on an Ultimate with the turbo registers on; anywhere else it says so. **Ultimate turbo cube** (`samples/ultimate-box-demo.asm`) does the same with the cube of the box sample: the faster the CPU, the faster the cube turns (5 frames a second at 1 MHz, 50 from 16 MHz).
+Sample: **Ultimate turbo demo (64 sprites)** (`samples/ultimate-turbo-demo.asm`) — the speed changes every 3 seconds from 1 to 64 MHz; at 1 MHz balls go missing and the frame rate drops, from 4 MHz all 64 sprites run at 50 fps. It runs only on an Ultimate with the turbo registers on; anywhere else it says so. **Ultimate turbo cube** (`samples/ultimate-box-demo.asm`) does the same with the cube of the box sample: the faster the CPU, the faster the cube turns (5 frames a second at 1 MHz, 50 from 16 MHz). **Ultimate 64 palette demo** (`samples/u64-palette-demo.asm`) switches the video palette with the keys 1, 2, 3 and 0 (see [U64_PALETTE](#u64_palette--u64_palette_color--u64_palette_reset)); it needs the Command Interface enabled in the menu.
 
 > **Tip:** No USB cable or driver needed — the REST API is built into the Ultimate firmware. Your computer and the device must be on the same local network.
 
