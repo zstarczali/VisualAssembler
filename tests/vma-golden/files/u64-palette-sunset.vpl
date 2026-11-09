@@ -1,0 +1,41 @@
+# VICE Palette file
+#
+# Sunset
+# Made for the C64 Visual Assembler U64 palette demo
+#
+# Syntax:
+# Red Green Blue Dither
+#
+
+# black
+10 06 18 0
+# white
+FF F4 D6 0
+# red
+D0 30 30 4
+# cyan
+60 C8 C8 4
+# purple
+9A 3C 9C 4
+# green
+6C A0 3C 4
+# blue
+3C 2C 8C 4
+# yellow
+FF D2 4A 4
+# orange
+FF 8C 2A 4
+# brown
+7A 40 1C 4
+# light red
+FF 7A 6A 4
+# dark grey
+3A 2E 40 4
+# grey
+7A 6A 80 4
+# light green
+A8 D8 70 4
+# light blue
+8A 7C E0 4
+# light grey
+B8 AC C4 4

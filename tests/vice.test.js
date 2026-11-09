@@ -95,3 +95,30 @@ test("the bundled emulator stops before the instruction and steps like the VICE 
   assert.equal(r.status, 0, (r.stdout || "") + (r.stderr || ""));
   assert.match(r.stdout, /vice debugger: ok/);
 });
+
+// The Run button in the built-in C64 mode: an empty program (no ORG, or only ORG / comments)
+// is refused like in the other run modes, without opening the emulator.
+test("the built-in C64 does not start an empty program", async () => {
+  const loadApp = require("./helpers/load-app");
+  const app = loadApp();
+  app.run(`
+    var __shown = 0, __toasts = [], __builds = 0;
+    _w64Show = async () => { __shown++; };
+    _w64StartPrg = async () => {};
+    showViceToast = (msg, err) => { __toasts.push(String(msg)); };
+    buildRunPrgForCurrentMode = async () => { __builds++; return { ok: true, bytes: [1, 8, 0x60] }; };
+    expertMode = false; ultimateBasicMode = false;
+  `);
+  app.__src = "* = $0801\n; nothing here\n";
+  app.run("program = parseExpertText(__src)");
+  await app.run("_w64Run()");
+  assert.equal(app.run("__shown"), 0);
+  assert.equal(app.run("__builds"), 0);
+  assert.deepEqual(JSON.parse(app.run("JSON.stringify(__toasts)")), [app.run('t("nothingToRunAddSomeInstructionsFirst")')]);
+
+  app.__src = "* = $0801\n    rts\n";
+  app.run("program = parseExpertText(__src)");
+  await app.run("_w64Run()");
+  assert.equal(app.run("__shown"), 1);
+  assert.equal(app.run("__builds"), 1);
+});

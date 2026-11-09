@@ -263,6 +263,9 @@ const mnemonicLibrary = {
     { mnemonic: "REU_FETCH", description: "REU → C64 RAM betoltes: C64 cim, REU cim/bank es hossz beallitasa ($DF02-$DF08), majd $91 parancs → $DF01 (execute + fetch, azonnali DMA). 40 byte inline.", modes: ["implied"], isReuTransferMacro: true },
     { mnemonic: "REU_SWAP", description: "C64 RAM ↔ REU csere: C64 cim, REU cim/bank es hossz beallitasa ($DF02-$DF08), majd $92 parancs → $DF01 (execute + swap, azonnali DMA). 40 byte inline.", modes: ["implied"], isReuTransferMacro: true },
     { mnemonic: "TURBO_SET", description: "U64 Turbo mod beallitasa: $D031-be irja a sebessegi indexet (0-15) es a badline vezerlest (bit7). LDA #ertek + STA $D031, 5 byte.", modes: ["implied"], isTurboSetMacro: true },
+    { mnemonic: "U64_PALETTE", description: "Palettafajl (.vpl, .gpl, .act) betoltese az Ultimate 64 / C64U video-palettajaba a Command Interface-en at ($DF1C-$DF1F). Firmware 3.15+ es bekapcsolt Command Interface kell, kulonben nem csinal semmit. 109 byte.", modes: ["implied"], isIncBinMacro: true, incBinU64Pal: true },
+    { mnemonic: "U64_PALETTE_COLOR", description: "Az Ultimate 64 / C64U paletta egy szinenek beallitasa: index 0-15 es 24 bites $RRGGBB ertek (Command Interface). 65 byte.", modes: ["implied"], isUciPaletteColorMacro: true },
+    { mnemonic: "U64_PALETTE_RESET", description: "Az Ultimate 64 / C64U menujeben beallitott paletta visszaallitasa (Command Interface). 61 byte.", modes: ["implied"], isUciPaletteResetMacro: true },
     { mnemonic: "SUPERCPU_DETECT", description: "CMD SuperCPU jelenletenek ellenorzese: LDA $D0B8 / CMP #$FF. Z=0 → SuperCPU jelen (BNE-vel ugri), Z=1 → nincs (BEQ-vel ugri). 5 byte.", modes: ["implied"], isSuperCpuDetectMacro: true },
     { mnemonic: "TURBO_ENABLE", description: "CMD SuperCPU turbo be/ki: BE → LDA #$00 / STA $D07A, KI → LDA #$00 / STA $D07B. 5 byte.", modes: ["implied"], isTurboEnableMacro: true },
     { mnemonic: "DEFINE", description: "Szimbolum definialasa felteteles forditashoz. Ha jelen van, az IF blokkban levo feltetelek kivalutalodnak.", modes: ["implied"], isDefineMacro: true },
@@ -1018,6 +1021,9 @@ const mnemonicExpertHints = {
   REU_FETCH: mnemonicSyntax("reu_fetch", "src=$0000", "reu=$000000", "size=$1000"),
   REU_SWAP: mnemonicSyntax("reu_swap", "src=$C000", "reu=$000000", "size=$1000"),
   TURBO_SET: mnemonicSyntax("turbo_set", "7", "badlines=on"),
+  U64_PALETTE: `.u64_palette "colodore.vpl"`,
+  U64_PALETTE_COLOR: ".u64_palette_color 6, $3050C0",
+  U64_PALETTE_RESET: ".u64_palette_reset",
   SUPERCPU_DETECT: ".supercpu_detect",
   TURBO_ENABLE: mnemonicSyntax("turbo_enable", "on"),
   ORG: "* = $C000",
@@ -4029,6 +4035,7 @@ function applyTranslations() {
   if (sampleOptions[36]) sampleOptions[36].textContent = t("sampleRuntimeIfDemo");
   if (sampleOptions[37]) sampleOptions[37].textContent = t("sampleUltimateTurboDemo");
   if (sampleOptions[38]) sampleOptions[38].textContent = t("sampleUltimateBoxDemo");
+  if (sampleOptions[39]) sampleOptions[39].textContent = t("sampleU64PaletteDemo");
 
   updateThemeToggleLabel();
   refreshCategoryOptions();
@@ -5111,6 +5118,20 @@ function renderMnemonicDescription() {
     });
     return;
   }
+  if (item.isIncBinMacro && item.incBinU64Pal) {
+    mnemonicDescription.innerHTML = buildMnemonicDescriptionMarkup(item, {
+      lines: [t("macroAddrU64Palette"), t("macroAddrU64PaletteNote"), t("macroAddrBrowseAfter")],
+      example: '.u64_palette "colodore.vpl"'
+    });
+    return;
+  }
+  if (item.isUciPaletteColorMacro) {
+    mnemonicDescription.innerHTML = buildMnemonicDescriptionMarkup(item, {
+      lines: [t("macroAddrU64PaletteColor"), t("macroAddrU64PaletteNote")],
+      example: ".u64_palette_color 6, $3050C0"
+    });
+    return;
+  }
   if (item.isIncBinMacro && item.incBinKoala) {
     mnemonicDescription.innerHTML = buildMnemonicDescriptionMarkup(item, {
       lines: [t("macroAddrKoala"), t("macroAddrKoalaAddress"), t("macroAddrKoalaBrowse")],
@@ -5204,7 +5225,7 @@ function renderPaletteItems() {
               : item.isRawTextMacro
                 ? `${t("paletteRawText")} | ${preview.preview}`
                 : item.isIncBinMacro
-                  ? `${t(item.incBinKoala ? "paletteKoala" : item.incBinLevel ? "paletteLevel" : "paletteBinAtAddr")}`
+                  ? `${t(item.incBinU64Pal ? "paletteU64Palette" : item.incBinKoala ? "paletteKoala" : item.incBinLevel ? "paletteLevel" : "paletteBinAtAddr")}`
                   : item.isIncludeMacro
                   ? `${t("paletteIncludeProj")}`
                   : item.isSidMacro
@@ -5388,7 +5409,7 @@ function getSelectedMnemonic() {
  * macro's Expert line. File macros keep their own file picker. */
 const _PALETTE_OPERAND_FLAGS = ["isLabel", "isComment", "isTextMacro", "isByteMacro", "isStringMacro", "isDataMacro", "isRawBytesMacro",
   "isRawTextMacro", "isPetsciiMacro", "isWordMacro", "isFillMacro", "isAlignMacro", "isDefineMacro", "isIfMacro", "isMacroDefStart",
-  "isRegionMacro", "isAssertMacro", "isLevelRowMacro", "isLongBranchMacro"];
+  "isRegionMacro", "isAssertMacro", "isLevelRowMacro", "isLongBranchMacro", "isUciPaletteColorMacro"];
 const _PALETTE_FILE_FLAGS = ["isIncBinMacro", "isIncludeMacro", "isSidMacro", "isTableMacro"];
 // ".set_bg $06" → { keyword: ".set_bg", args: "$06" }; "* = $C000" → { keyword: "* =", args: "$C000" }
 function _macroLineArgs(line) {
@@ -5687,14 +5708,15 @@ function _createBlockFromPalette(item) {
       description: item.description,
       addressingMode: "implied",
       base: "hex",
-      validationError: t(item.incBinKoala ? "koalaMacroNeedsFile" : item.incBinLevel ? "levelMacroNeedsFile" : "incbinMacroNeedsFile"),
+      validationError: t(item.incBinU64Pal ? "u64PaletteNeedsFile" : item.incBinKoala ? "koalaMacroNeedsFile" : item.incBinLevel ? "levelMacroNeedsFile" : "incbinMacroNeedsFile"),
       collapsed: true,
       isIncBinMacro: true,
       ...(item.incBinKoala ? { incBinKoala: true } : {}),
       ...(item.incBinLevel ? { incBinLevel: true } : {}),
+      ...(item.incBinU64Pal ? { incBinU64Pal: true } : {}),
       incBinFile: "",
       incBinFileName: "",
-      incBinAddress: item.incBinKoala ? "$6000" : item.incBinLevel ? "$2000" : "$C000",
+      incBinAddress: item.incBinU64Pal ? "" : item.incBinKoala ? "$6000" : item.incBinLevel ? "$2000" : "$C000",
       incBinBytes: []
     };
   }
@@ -5943,6 +5965,9 @@ function _createBlockFromPalette(item) {
       scoreBcdAddr: "C200", scoreDigits: 4, scoreAddPoints: "100", scoreScreenAddr: "0400"
     };
   }
+
+  if (item.isUciPaletteColorMacro) return { ..._importMakeU64PalColor(operandInput.value.trim() || "6, $3050C0"), category: categorySelect.value, description: item.description };
+  if (item.isUciPaletteResetMacro) return { ..._importMakeU64PalReset(), category: categorySelect.value, description: item.description };
 
   if (item.isTurboSetMacro) {
     return {
@@ -6896,6 +6921,9 @@ function _blockToExpertLine(block) {
   if (block.isFillMacro)      return `.fill ${fmtRaw(block.rawOperand, block.base)}`;
   if (block.isAlignMacro)     return `.align ${block.rawOperand || "64"}`;
   if (block.isIncBinMacro && block.incBinLevel) return `.level "${block.incBinFileName || "level.bin"}"${block.incBinAddress && parseAddressValue(block.incBinAddress) !== 0x2000 ? ", $" + block.incBinAddress.replace(/^\$/, "") : ""}`;
+  if (block.isIncBinMacro && block.incBinU64Pal) return `.u64_palette "${block.incBinFileName || "palette.vpl"}"`;
+  if (block.isUciPaletteColorMacro) return `.u64_palette_color ${(block.rawOperand || "6, $3050C0").trim()}`;
+  if (block.isUciPaletteResetMacro) return ".u64_palette_reset";
   if (block.isIncBinMacro && block.incBinKoala) return `.koala "${block.incBinFileName || "picture.koa"}"${block.incBinAddress && parseAddressValue(block.incBinAddress) !== 0x6000 ? ", $" + block.incBinAddress.replace(/^\$/, "") : ""}`;
   if (block.isIncBinMacro)    return `.incbin "${block.incBinFileName || "data.bin"}"${block.incBinAddress && block.incBinAddress !== "$C000" ? ", $" + block.incBinAddress.replace(/^\$/,"") : ""}`;
   if (block.isPetsciiMacro)   return `.petscii ${fmtAddr(block.petsciiAddress)}, "${block.rawOperand || "HELLO"}"${block.petsciiCharset === "lower" ? ", lower" : ""}${block.petsciiNullTerminated ? ", null" : ""}${fmtMacroLabel(block.macroLabel)}`;
@@ -7198,12 +7226,16 @@ function doClearProgram() {
   _setCurrentFile("", "", null);
 }
 
+// A block that puts no code into the PRG (an empty Expert line is a BLANK block).
+function _isNoCodeBlock(b) {
+  return b.isOrgMacro || b.isRegionMacro || b.isEndRegionMacro || b.isComment || b.isDefineMacro || b.isBlankLine;
+}
 function isProgramEmpty() {
   if (expertMode) {
     const blocks = _expertGetStartupProgram() || _expertBuildProgram();
-    return !blocks.some(b => b.isOrgMacro) || blocks.every(b => b.isOrgMacro || b.isRegionMacro || b.isEndRegionMacro || b.isComment || b.isDefineMacro);
+    return !blocks.some(b => b.isOrgMacro) || blocks.every(_isNoCodeBlock);
   }
-  return !program.some(b => b.isOrgMacro) || program.every(b => b.isOrgMacro || b.isRegionMacro || b.isEndRegionMacro || b.isComment || b.isDefineMacro);
+  return !program.some(b => b.isOrgMacro) || program.every(_isNoCodeBlock);
 }
 
 // ── Expert Mode ────────────────────────────────────────────────────────────
@@ -10351,6 +10383,7 @@ const _DIRECTIVE_TO_MNEM = {
   text:"TEXT", string:"STRING", rawtext:"RAWTEXT", rawbytes:"RAWBYTES", data:"DATA",
   byte:"BYTE", word:"WORD", fill:"FILL", align:"ALIGN", incbin:"INCBIN", koala:"KOALA",
   level:"LEVEL", level_row:"LEVEL_ROW",
+  u64_palette:"U64_PALETTE", u64_palette_color:"U64_PALETTE_COLOR", u64_palette_reset:"U64_PALETTE_RESET",
   petscii:"PETSCII", table:"TABLE", loadfile:"LOADFILE", sid:"SID", include:"INCLUDE",
   loop:"LOOP", next:"NEXT", for:"FOR", endf:"ENDF", push:"PUSH", pull:"PULL",
   macro:"MACRO", endm:"ENDM", invoke:"INVOKE", call:"INVOKE",
@@ -10436,6 +10469,7 @@ const _AC_DIRECTIVE_DESC = {
   ".loadfile":"load file KERNAL", ".sprite_init":"init sprite", ".sprite_pos":"set sprite pos",
   ".wait_raster":"wait raster line", ".delay":"frame delay", ".wait":"frame delay", ".joystick":"joystick macro", ".mouse":"1351 mouse macro", ".sprite_col":"sprite collision",
   ".turbo_set":"U64 turbo speed",
+  ".u64_palette":"U64 palette from a file", ".u64_palette_color":"set one U64 palette colour", ".u64_palette_reset":"restore the U64 palette",
   ".supercpu_detect":"detect SuperCPU",
   ".turbo_enable":"SuperCPU turbo on/off",
   ".reu_check":"detect REU", ".reu_stash":"C64→REU DMA", ".reu_fetch":"REU→C64 DMA", ".reu_swap":"C64↔REU DMA",
@@ -11114,7 +11148,7 @@ async function showBuildInfoDialog() {
         "isLoadFileMacro","isExoDecrunchMacro","isReuStashMacro","isReuFetchMacro","isReuSwapMacro","isReuCheckMacro",
         "isTurboSetMacro","isTurboEnableMacro","isSuperCpuDetectMacro",
         "isMapCopyMacro","isMapCopy16Macro","isSpriteAnimMacro","isScoreBcdMacro",
-        "isCharDefMacro","isBoxHitMacro",
+        "isCharDefMacro","isBoxHitMacro","isUciPaletteColorMacro","isUciPaletteResetMacro",
       ];
       macroTypes.forEach(t2 => {
         if (b[t2]) {
@@ -11362,7 +11396,7 @@ function _expertHighlightLine(raw) {
   if (!code.trim()) return esc(code) + commentHtml;
 
   // Token regex (order matters)
-  const TOKEN_RE = /("(?:[^"\\]|\\.)*")|(\*\s*=)|(\.(?:text|string|rawtext|rawbytes|data|byte|word|fill|align|assert|loop|next|for|endf|push|pull|endif|endregion|region|macro|endm|endw|repeat|until|while|memcpy|memset|print|print_char|print_hex|clear_screen|wait_key|delay|wait|set_border|set_bg|irq_setup|sid_player|sprite_init|sprite_pos|wait_raster|joystick|mouse|sprite_col|map_copy16x16|map_copy|sprite_anim|score_bcd|define|else|if|const|end|var|incbin|koala|include|sid|petscii|charset|table|loadfile|invoke|call|rand|exodecrunch|reu_check|reu_stash|reu_fetch|reu_swap|turbo_set|turbo_enable|supercpu_detect|chardef|box_hit|level_row|level)\b)|(#?\$[0-9A-Fa-f]+|#\d+\b)|(\b\d+\b)|([A-Za-z_][A-Za-z0-9_]*\s*:)|([A-Za-z_][A-Za-z0-9_]*)|(\{[A-Za-z_][A-Za-z0-9_]*\})|(:[A-Za-z_][A-Za-z0-9_]*)/gi;
+  const TOKEN_RE = /("(?:[^"\\]|\\.)*")|(\*\s*=)|(\.(?:text|string|rawtext|rawbytes|data|byte|word|fill|align|assert|loop|next|for|endf|push|pull|endif|endregion|region|macro|endm|endw|repeat|until|while|memcpy|memset|print|print_char|print_hex|clear_screen|wait_key|delay|wait|set_border|set_bg|irq_setup|sid_player|sprite_init|sprite_pos|wait_raster|joystick|mouse|sprite_col|map_copy16x16|map_copy|sprite_anim|score_bcd|define|else|if|const|end|var|incbin|koala|include|sid|petscii|charset|table|loadfile|invoke|call|rand|exodecrunch|reu_check|reu_stash|reu_fetch|reu_swap|turbo_set|turbo_enable|supercpu_detect|u64_palette_color|u64_palette_reset|u64_palette|chardef|box_hit|level_row|level)\b)|(#?\$[0-9A-Fa-f]+|#\d+\b)|(\b\d+\b)|([A-Za-z_][A-Za-z0-9_]*\s*:)|([A-Za-z_][A-Za-z0-9_]*)|(\{[A-Za-z_][A-Za-z0-9_]*\})|(:[A-Za-z_][A-Za-z0-9_]*)/gi;
 
   let result = "";
   let lastIdx = 0;
@@ -12423,7 +12457,7 @@ function _expertDrawMinimap() {
       color = cComment;
     } else if (/^[A-Za-z_][A-Za-z0-9_]*:/.test(trimmed)) {
       color = cLabel;
-    } else if (_expertDirRe("^{D}(const|if|else|endif|macro|endm|invoke|region|endregion|define|org|byte|word|fill|text|string|data|rawbytes|rawtext|align|table|push|pull|for|endf|loop|next|blank|incbin|koala|level|sid|include|loadfile|sprite|wait|joystick|mouse|reu|turbo|supercpu)\\b").test(trimmed)) {
+    } else if (_expertDirRe("^{D}(const|if|else|endif|macro|endm|invoke|region|endregion|define|org|byte|word|fill|text|string|data|rawbytes|rawtext|align|table|push|pull|for|endf|loop|next|blank|incbin|koala|level|sid|include|loadfile|sprite|wait|joystick|mouse|reu|turbo|supercpu|u64_palette\\w*)\\b").test(trimmed)) {
       color = cDirective;
     } else if (/^\d|#\$|^\$[0-9A-Fa-f]/.test(trimmed)) {
       color = cNumber;
@@ -12631,7 +12665,8 @@ function _blockDrawMinimap() {
                b.isMacroInvoke || b.isSpriteInitMacro || b.isSpritePosMacro || b.isWaitRasterMacro ||
                b.isJoystickMacro || b.isMouseMacro || b.isLoadFileMacro || b.isReuCheckMacro ||
                b.isReuStashMacro || b.isReuFetchMacro || b.isReuSwapMacro || b.isTurboSetMacro ||
-               b.isTurboEnableMacro || b.isSuperCpuDetectMacro || b.isSpriteColMacro) {
+               b.isTurboEnableMacro || b.isSuperCpuDetectMacro || b.isSpriteColMacro ||
+               b.isUciPaletteColorMacro || b.isUciPaletteResetMacro) {
       color = cMacro;
     } else {
       color = cInstr;
@@ -13236,6 +13271,25 @@ function parseExpertText(text) {
       continue;
     }
 
+    // .u64_palette "file.vpl" (INCBIN variant), .u64_palette_color idx, $RRGGBB, .u64_palette_reset
+    const u64PalM = line.match(/^\.u64_palette\s+"([^"]*)"\s*$/i);
+    if (u64PalM) {
+      blocks.push(_importMakeU64Palette(u64PalM[1]));
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+    const u64ColorM = line.match(/^\.u64_palette_color\b\s*(.*)$/i);
+    if (u64ColorM) {
+      blocks.push(_importMakeU64PalColor(u64ColorM[1].trim()));
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+    if (/^\.u64_palette_reset\s*$/i.test(line)) {
+      blocks.push(_importMakeU64PalReset());
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
     // .incbin "filename" [, $ADDR]
     const incbinM = line.match(/^\.incbin\s+"([^"]*)"\s*(?:,\s*\$([0-9A-Fa-f]{1,4}))?\s*$/i);
     if (incbinM) {
@@ -13267,7 +13321,7 @@ function parseExpertText(text) {
     // Malformed asset directives — `.include`, `.incbin`, `.sid` without a
     // quoted filename must still surface as an error instead of silently
     // becoming a comment via the fallback path.
-    const bareAssetDirM = line.match(/^\.(include|incbin|koala|level|sid)\b(.*)$/i);
+    const bareAssetDirM = line.match(/^\.(include|incbin|koala|level|u64_palette|sid)\b(.*)$/i);
     if (bareAssetDirM) {
       const kind = bareAssetDirM[1].toLowerCase();
       if (kind === "include") {
@@ -13278,6 +13332,8 @@ function parseExpertText(text) {
         blocks.push(_importMakeKoala("", ""));
       } else if (kind === "level") {
         blocks.push(_importMakeLevel("", ""));
+      } else if (kind === "u64_palette") {
+        blocks.push(_importMakeU64Palette(""));
       } else {
         blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "SID", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: t("sidMacroNeedsFile"), collapsed: true, isSidMacro: true, sidFile: "", sidFileName: "", sidTitle: "", sidAuthor: "", sidLoadAddress: 0, sidInitAddress: 0, sidPlayAddress: 0, sidBytes: [], sidCustomAddress: "" });
       }
@@ -14049,7 +14105,7 @@ function _expertBuildProgramFromText(text, stateSource = program) {
       if (existing) {
         newBlock.incBinBytes = existing.incBinBytes;
         newBlock.incBinFile  = existing.incBinFile || "";
-        newBlock.validationError = validateIncBinMacro(newBlock.incBinBytes, newBlock.incBinAddress);
+        newBlock.validationError = _incBinBlockError(newBlock);
       }
     }
     if (newBlock.isSidMacro && newBlock.sidFileName) {
@@ -14847,7 +14903,7 @@ function _disasmLineSortAddress(line, labelMap = null) {
   if (block.isPetsciiMacro) {
     return parseAddressValue(block.petsciiAddress, labelMap) ?? 0xC000;
   }
-  if (block.isIncBinMacro && !block.incBinKoala) {
+  if (block.isIncBinMacro && !block.incBinKoala && !block.incBinU64Pal) {
     return parseMacroAddress(block.incBinAddress || "$C000", labelMap) ?? 0xC000;
   }
   if (block.isSidMacro) {
@@ -14970,7 +15026,7 @@ function _buildDisasmLines(originOverride, basicStubSection = null) {
       const block = line.block;
 
       // INCBIN: deferred binary file — show hex dump at incBinAddress
-      if (block.isIncBinMacro && !block.incBinKoala) {
+      if (block.isIncBinMacro && !block.incBinKoala && !block.incBinU64Pal) {
         const incBytes = Array.from(_incBinPayload(block));
         const incAddr = parseMacroAddress(block.incBinAddress || "$C000", labelMap) ?? 0xC000;
         const incAddrHex = incAddr.toString(16).toUpperCase().padStart(4, "0");
@@ -16649,7 +16705,7 @@ const _SAMPLE_CATEGORIES = [
   ["sampleCatSprites", ["sprite-demo", "sprite-macro-demo", "joystick-demo", "mouse-demo", "collision-demo"]],
   ["sampleCatFiles", ["incbin-demo", "loadfile-demo", "exo-multicolor-demo", "include-demo"]],
   ["sampleCatMusic", ["sid-demo", "sid-direct-demo"]],
-  ["sampleCatHardware", ["irq-demo", "overlapping-raster-demo", "memory-overlap-demo", "reu-demo", "ultimate-turbo-demo", "ultimate-box-demo"]]
+  ["sampleCatHardware", ["irq-demo", "overlapping-raster-demo", "memory-overlap-demo", "reu-demo", "ultimate-turbo-demo", "ultimate-box-demo", "u64-palette-demo"]]
 ];
 let _sampleDlgSelected = "";
 
@@ -17251,7 +17307,7 @@ function updateProgramBlock(index, field, value) {
       block.operand = block.rawOperand.trim();
       block.validationError = validateDataMacro(block.rawOperand, block.rawBytesAddress, block.base);
     } else if (block.isIncBinMacro) {
-      block.validationError = validateIncBinMacro(block.incBinBytes, block.incBinAddress) || (block.incBinKoala ? _koalaError(block) : block.incBinLevel ? _levelError(block) : "");
+      block.validationError = _incBinBlockError(block) || (block.incBinKoala ? _koalaError(block) : block.incBinLevel ? _levelError(block) : "");
     } else if (block.isRawTextMacro) {
       block.operand = block.rawOperand.trim();
       block.validationError = validateStringMacroAddress(block.rawTextAddress);
@@ -17314,6 +17370,9 @@ function updateProgramBlock(index, field, value) {
     } else if (block.isLevelRowMacro) {
       block.operand = block.rawOperand.trim();
       block.validationError = _levelRowParse(block.rawOperand) ? "" : t("levelRowSyntax");
+    } else if (block.isUciPaletteColorMacro) {
+      block.operand = block.rawOperand.trim();
+      block.validationError = _u64PalColorError(block.rawOperand);
     } else if (block.isAssertMacro) {
       block.operand = block.rawOperand.trim();
       block.assertExpr = block.rawOperand.trim();
@@ -17382,7 +17441,7 @@ function updateProgramBlock(index, field, value) {
   }
 
   if (field === "incBinAddress" || field === "incBinFile" || field === "incBinFileName" || field === "incBinBytes") {
-    block.validationError = validateAssetMacroHasFile(block) || validateIncBinMacro(block.incBinBytes, block.incBinAddress);
+    block.validationError = validateAssetMacroHasFile(block) || _incBinBlockError(block);
     renderBlockPreview(index);
     renderAsmOutput();
     return;
@@ -18752,6 +18811,12 @@ function parseAddressValue(raw, labelMap) {
   return null;
 }
 
+// The U64_PALETTE variant has no address; its file must be a palette once it is loaded.
+function _incBinBlockError(block) {
+  if (block.incBinU64Pal) return (block.incBinBytes || []).length ? _u64PalError(block) : "";
+  return validateIncBinMacro(block.incBinBytes, block.incBinAddress);
+}
+
 function validateIncBinMacro(incBinBytes, rawAddress) {
   const value = parseAddressValue(rawAddress);
   if (value === null) {
@@ -18775,7 +18840,7 @@ function validateAssetMacroHasFile(block) {
     }
   } else if (block.isIncBinMacro) {
     if (!nonEmpty(block.incBinFile) && !nonEmpty(block.incBinFileName)) {
-      return t(block.incBinKoala ? "koalaMacroNeedsFile" : block.incBinLevel ? "levelMacroNeedsFile" : "incbinMacroNeedsFile");
+      return t(block.incBinU64Pal ? "u64PaletteNeedsFile" : block.incBinKoala ? "koalaMacroNeedsFile" : block.incBinLevel ? "levelMacroNeedsFile" : "incbinMacroNeedsFile");
     }
   } else if (block.isSidMacro) {
     if (!nonEmpty(block.sidFile) && !nonEmpty(block.sidFileName)) {
@@ -25800,7 +25865,7 @@ async function reloadIncBinBlocks(projectFilePath = "", blocks = program) {
       block.incBinBytes = result.bytes || [];
       block.incBinFileName = result.fileName || block.incBinFileName || "";
       block.incBinFile = result.filePath || sourcePath;
-      block.validationError = validateIncBinMacro(block.incBinBytes, block.incBinAddress);
+      block.validationError = _incBinBlockError(block);
     } else {
       block.incBinBytes = [];
       block.validationError = result.error;
@@ -29239,6 +29304,35 @@ function _importMakeKoala(fileName, addressHex) {
   };
 }
 
+function _importMakeU64Palette(fileName) {
+  return {
+    ..._importMakeIncBin(fileName, ""),
+    mnemonic: "U64_PALETTE",
+    incBinU64Pal: true,
+    incBinAddress: "",
+    validationError: (fileName || "").trim() ? "" : t("u64PaletteNeedsFile")
+  };
+}
+
+function _importMakeU64PalColor(raw) {
+  return {
+    id: crypto.randomUUID(), category: "Makrok", mnemonic: "U64_PALETTE_COLOR",
+    operand: raw, rawOperand: raw, description: "",
+    addressingMode: "implied", base: "hex",
+    validationError: _u64PalColorError(raw),
+    collapsed: true, isUciPaletteColorMacro: true
+  };
+}
+
+function _importMakeU64PalReset() {
+  return {
+    id: crypto.randomUUID(), category: "Makrok", mnemonic: "U64_PALETTE_RESET",
+    operand: "", rawOperand: "", description: "",
+    addressingMode: "implied", base: "hex",
+    validationError: "", collapsed: true, isUciPaletteResetMacro: true
+  };
+}
+
 /* KOALA = INCBIN variant (incBinKoala). File: [$00 $60] + 8000 bitmap + 1000 screen
    RAM + 1000 color RAM + 1 background. The data is placed at incBinAddress ($6000 =
    Koala native, or $2000); the block itself emits a fixed 86-byte display routine.
@@ -29404,8 +29498,72 @@ function _levelError(block) {
   return _levelInfo(block).error;
 }
 
+/* Ultimate 64 / C64U palette through the Ultimate Command Interface (firmware 3.15+,
+   enabled in the menu). Control target $04: $52 + 16 × R,G,B sets all colours,
+   $53 idx,R,G,B one, $54 restores the menu's palette. The routine skips itself when
+   no interface answers at $DF1D ($C9: VICE, older firmware), waits for an idle
+   interface (accepting data left over from an earlier command), writes the command,
+   pushes it and accepts the answer. A and X are destroyed. */
+const _U64_UCI_CODE = 59;
+function _u64UciBytes(addr, data) {
+  const len = data.length;
+  const at = (addr + _U64_UCI_CODE) & 0xFFFF;
+  return [
+    0xAD, 0x1D, 0xDF,            // LDA $DF1D      identification
+    0xC9, 0xC9,                  // CMP #$C9
+    0xD0, 52 + len,              // BNE done
+    0xAD, 0x1C, 0xDF,            // idle: LDA $DF1C
+    0x29, 0x30,                  // AND #$30       state
+    0xF0, 0x0B,                  // BEQ ready
+    0x29, 0x20,                  // AND #$20
+    0xF0, 0xF5,                  // BEQ idle       busy
+    0xA9, 0x02,                  // LDA #$02       data pending: accept it
+    0x8D, 0x1C, 0xDF,            // STA $DF1C
+    0xD0, 0xEE,                  // BNE idle
+    0xA2, 0x00,                  // ready: LDX #0
+    0xBD, at & 0xFF, at >> 8,    // send: LDA data,X
+    0x8D, 0x1D, 0xDF,            // STA $DF1D
+    0xE8,                        // INX
+    0xE0, len,                   // CPX #len
+    0xD0, 0xF5,                  // BNE send
+    0xA9, 0x01,                  // LDA #$01       push command
+    0x8D, 0x1C, 0xDF,            // STA $DF1C
+    0xAD, 0x1C, 0xDF,            // busy: LDA $DF1C
+    0x29, 0x30,                  // AND #$30
+    0xC9, 0x10,                  // CMP #$10
+    0xF0, 0xF7,                  // BEQ busy
+    0xA9, 0x02,                  // LDA #$02       accept the answer
+    0x8D, 0x1C, 0xDF,            // STA $DF1C
+    0xD0, len,                   // BNE done
+    ...data                      // data: target, command, parameters
+  ];                             // done:
+}
+const _U64_PAL_SIZE = _U64_UCI_CODE + 50;
+const _U64_PAL_COLOR_SIZE = _U64_UCI_CODE + 6;
+const _U64_PAL_RESET_SIZE = _U64_UCI_CODE + 2;
+
+// Palette file → 16 × 0xRRGGBB: a text palette (.vpl, .gpl, hex list) or a Photoshop .act.
+function _u64PalColors(block) {
+  const bytes = Array.from(block?.incBinBytes || []);
+  if (!bytes.length) return null;
+  let text = "";
+  for (const b of bytes) text += String.fromCharCode(b);
+  return _palParseText(text) || (bytes.length >= 768 ? _palParseAct(bytes) : null);
+}
+function _u64PalError(block) {
+  return _u64PalColors(block) ? "" : t("u64PaletteBadFile");
+}
+function _u64PalColorParse(raw) {
+  const parts = String(raw || "").split(",").map(s => s.trim());
+  return parts.length === 2 && parts[0] && parts[1] ? { index: parts[0], color: parts[1] } : null;
+}
+function _u64PalColorError(raw) {
+  return _u64PalColorParse(raw) ? "" : t("u64PaletteColorSyntax");
+}
+
 /* Data bytes an INCBIN-family block places at incBinAddress. */
 function _incBinPayload(block) {
+  if (block?.incBinU64Pal) return [];
   if (block?.incBinKoala) return _koalaData(block);
   if (block?.incBinLevel) return _levelInfo(block).data;
   return block?.incBinBytes || [];
@@ -30799,7 +30957,7 @@ function _buildUniversalAsmExportText(originOverride) {
       continue;
     }
 
-    if (block.isStringMacro || block.isDataMacro || block.isRawBytesMacro || block.isRawTextMacro || block.isPetsciiMacro || (block.isIncBinMacro && !block.incBinKoala) || block.isSidMacro) {
+    if (block.isStringMacro || block.isDataMacro || block.isRawBytesMacro || block.isRawTextMacro || block.isPetsciiMacro || (block.isIncBinMacro && !block.incBinKoala && !block.incBinU64Pal) || block.isSidMacro) {
       continue;
     }
 
@@ -31212,7 +31370,7 @@ function _getPlainAsmSourceText() {
       return;
     }
 
-    if (block.isIncBinMacro) {
+    if (block.isIncBinMacro && !block.incBinU64Pal) {
       const address = parseAddressValue(block.incBinAddress, labels) ?? 0xC000;
       const bytes = Array.from(_incBinPayload(block));
       const byteLines = _formatPlainByteLines(bytes);
@@ -32025,6 +32183,37 @@ function compileLineBytes(line, labels) {
       bytes: [],
       comment: `RAWBYTES ${block.rawOperand || ""} @ ${formatAddress(parseAddressValue(block.rawBytesAddress) ?? 0xC000)}`
     };
+  }
+
+  if (block.isIncBinMacro && block.incBinU64Pal) {
+    const colors = _u64PalColors(block);
+    if (!colors) return { ok: false, error: t((block.incBinBytes || []).length ? "u64PaletteBadFile" : "u64PaletteNeedsFile") };
+    const data = [0x04, 0x52];
+    for (const c of colors) data.push((c >> 16) & 0xFF, (c >> 8) & 0xFF, c & 0xFF);
+    return {
+      ok: true,
+      bytes: _u64UciBytes(line.address, data),
+      comment: `U64_PALETTE "${block.incBinFileName || block.incBinFile || ""}"`
+    };
+  }
+
+  if (block.isUciPaletteColorMacro) {
+    const p = _u64PalColorParse(block.rawOperand);
+    if (!p) return { ok: false, error: t("u64PaletteColorSyntax") };
+    const index = _evalAsmExpr(_substituteStarPc(p.index, line.address), labels);
+    const color = _evalAsmExpr(_substituteStarPc(p.color, line.address), labels);
+    if (index === null || index === undefined || Number.isNaN(index)) return { ok: false, error: tf("assertUnresolved", { expr: p.index }) };
+    if (color === null || color === undefined || Number.isNaN(color)) return { ok: false, error: tf("assertUnresolved", { expr: p.color }) };
+    if (index < 0 || index > 15 || color < 0 || color > 0xFFFFFF) return { ok: false, error: t("u64PaletteColorRange") };
+    return {
+      ok: true,
+      bytes: _u64UciBytes(line.address, [0x04, 0x53, index & 0xFF, (color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF]),
+      comment: `U64_PALETTE_COLOR ${block.rawOperand.trim()}`
+    };
+  }
+
+  if (block.isUciPaletteResetMacro) {
+    return { ok: true, bytes: _u64UciBytes(line.address, [0x04, 0x54]), comment: "U64_PALETTE_RESET" };
   }
 
   if (block.isIncBinMacro && block.incBinKoala) {
@@ -34694,8 +34883,11 @@ function getInstructionSize(block, depth = 0) {
   }
 
   if (block.isIncBinMacro) {
-    return block.incBinKoala ? _KOALA_SHOW_SIZE : 0;
+    return block.incBinU64Pal ? _U64_PAL_SIZE : block.incBinKoala ? _KOALA_SHOW_SIZE : 0;
   }
+
+  if (block.isUciPaletteColorMacro) return _U64_PAL_COLOR_SIZE;
+  if (block.isUciPaletteResetMacro) return _U64_PAL_RESET_SIZE;
 
   if (block.isSidMacro) {
     return 0;
@@ -35596,7 +35788,7 @@ function getDeferredMemorySections(layout) {
         };
       }
 
-      if (line.block.isIncBinMacro) {
+      if (line.block.isIncBinMacro && !line.block.incBinU64Pal) {
         const bytes = _incBinPayload(line.block);
         const startAddress = parseAddressValue(line.block.incBinAddress) ?? 0xC000;
         return {
@@ -36309,6 +36501,12 @@ function getBlockDescription(block) {
     return block.validationError || `${t("rawbytesMacro")}: ${block.rawOperand || ""} @ ${block.rawBytesAddress || "C000"}`;
   }
 
+  if (block.isIncBinMacro && block.incBinU64Pal) {
+    return block.validationError || `U64_PALETTE "${block.incBinFileName || t("noFile")}" (${_U64_PAL_SIZE} byte)`;
+  }
+  if (block.isUciPaletteColorMacro) return block.validationError || `.u64_palette_color ${block.rawOperand || "?"}  (${_U64_PAL_COLOR_SIZE} byte)`;
+  if (block.isUciPaletteResetMacro) return `.u64_palette_reset  (${_U64_PAL_RESET_SIZE} byte)`;
+
   if (block.isIncBinMacro) {
     const size = (block.incBinBytes || []).length;
     const name = block.incBinFileName || (t("noFile"));
@@ -36517,6 +36715,10 @@ function getBlockModeCaption(block) {
   if (block.isPrintCharMacro) {
     return `PRINT_CHAR ${block.rawOperand || "$41"}  (5 byte)`;
   }
+
+  if (block.isIncBinMacro && block.incBinU64Pal) return `$DF1C-$DF1F  (${_U64_PAL_SIZE} byte)`;
+  if (block.isUciPaletteColorMacro) return `$DF1C-$DF1F  (${_U64_PAL_COLOR_SIZE} byte)`;
+  if (block.isUciPaletteResetMacro) return `$DF1C-$DF1F  (${_U64_PAL_RESET_SIZE} byte)`;
 
   if (block.isIncBinMacro) {
     const size = (block.incBinBytes || []).length;
@@ -36808,6 +37010,7 @@ function getCollapsedOperandText(block) {
     return `$${dst}=$${value} len=$${size}`;
   }
 
+  if (block.isUciPaletteColorMacro) return block.rawOperand || "";
   if (block.isTurboSetMacro) {
     const spd = parseInt(block.turboSpeed || "7", 10);
     const badlineLabel = block.turboBadline === "1"
@@ -37526,12 +37729,12 @@ function renderProgram(virtualScroll = false) {
               ${fileName && fileSize ? `<small style="color:var(--muted);font-size:0.7rem;">${fileSize} bytes</small>` : ""}
             </label>
           </div>
-          <div class="macro-grid single-macro-row">
+          ${block.incBinU64Pal ? "" : `<div class="macro-grid single-macro-row">
             <label class="mini-field">
               <span>${t("fieldAddress")}</span>
               <input class="macro-address" data-address-field="incBinAddress" type="text" value="${block.incBinAddress || "$C000"}" placeholder="$C000">
             </label>
-          </div>
+          </div>`}
         `
       );
       blockControls.querySelector(".include-browse-icon")?.addEventListener("click", async () => {
@@ -37578,7 +37781,7 @@ function renderProgram(virtualScroll = false) {
           program[index].incBinFile = isAbsolute ? (result.filePath || typedPath) : typedPath;
           program[index].incBinFileName = result.fileName || typedPath;
           program[index].incBinBytes = result.bytes || [];
-          program[index].validationError = validateIncBinMacro(program[index].incBinBytes, program[index].incBinAddress);
+          program[index].validationError = _incBinBlockError(program[index]);
         }
         renderProgram();
         renderAsmOutput();
@@ -38636,6 +38839,12 @@ function renderProgram(virtualScroll = false) {
       inlineField.hidden = false;
       operandField.value = block.assertExpr || block.rawOperand || "";
       operandField.placeholder = 'end - start <= 256, "message"';
+      operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
+    } else if (block.isUciPaletteColorMacro) {
+      inlineField.querySelector("span").textContent = t("u64PaletteColorOperand");
+      inlineField.hidden = false;
+      operandField.value = block.rawOperand || "";
+      operandField.placeholder = "6, $3050C0";
       operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
     } else if (block.isLevelRowMacro) {
       inlineField.querySelector("span").textContent = t("levelRowOperand");
@@ -40271,6 +40480,12 @@ function renderAsmOutput() {
       return `; .rawbytes ${rawbytesLabel}`;
     }
 
+    if (line.block.isIncBinMacro && line.block.incBinU64Pal) {
+      return `; .u64_palette "${line.block.incBinFileName || line.block.incBinFile || "?"}" (${_U64_PAL_SIZE} bytes)`;
+    }
+    if (line.block.isUciPaletteColorMacro) return `; .u64_palette_color ${(line.block.rawOperand || "").trim()}`;
+    if (line.block.isUciPaletteResetMacro) return "; .u64_palette_reset";
+
     if (line.block.isIncBinMacro && line.block.incBinKoala) {
       const bytes = _koalaData(line.block);
       const startAddress = parseAddressValue(line.block.incBinAddress) ?? 0x6000;
@@ -40853,6 +41068,8 @@ async function loadSampleFromFile(sampleName) {
   }
 
   await reloadIncludeBlocks(result.filePath || "");
+  await reloadIncBinBlocks(result.filePath || "");
+  await reloadSidBlocks(result.filePath || "");
 
   d64ExportState.extras = [];
   d64ExportState._pendingExtras = null;
@@ -41236,6 +41453,11 @@ function loadSelectedSample() {
 
   if (sampleSelect.value === "ultimate-box-demo") {
     loadSampleFromFile("ultimate-box-demo");
+    return;
+  }
+
+  if (sampleSelect.value === "u64-palette-demo") {
+    loadSampleFromFile("u64-palette-demo");
     return;
   }
 
@@ -62583,6 +62805,11 @@ function _w64OnDialogClose() {
 }
 
 async function _w64Run() {
+  // as runInEmulator; UB checks its own source in buildRunPrgForCurrentMode (ubNothingToRun)
+  if (!ultimateBasicMode && isProgramEmpty()) {
+    showViceToast(t("nothingToRunAddSomeInstructionsFirst"), true);
+    return;
+  }
   const prg = await buildRunPrgForCurrentMode();
   if (!prg.ok) {
     if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
