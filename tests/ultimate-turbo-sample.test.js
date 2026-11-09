@@ -26,7 +26,7 @@ test("the sample is in the menu, its category and the translations", () => {
   assert.equal(options.indexOf("ultimate-box-demo"), 38);
   assert.match(app, /sampleOptions\[37\]\.textContent = t\("sampleUltimateTurboDemo"\)/);
   assert.match(app, /sampleOptions\[38\]\.textContent = t\("sampleUltimateBoxDemo"\)/);
-  assert.match(app, /"reu-demo", "ultimate-turbo-demo", "ultimate-box-demo"\]/);
+  assert.match(app, /"reu-demo", "ultimate-turbo-demo", "ultimate-box-demo", "u64-palette-demo"]/);
   assert.match(app, /sampleSelect\.value === "ultimate-turbo-demo"/);
   assert.match(app, /sampleSelect\.value === "ultimate-box-demo"/);
 });

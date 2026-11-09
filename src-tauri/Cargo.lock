@@ -369,7 +369,7 @@ dependencies = [
 
 [[package]]
 name = "c64-visual-assembler"
-version = "2.7.6"
+version = "2.7.7"
 dependencies = [
  "base64 0.22.1",
  "emulator_6502",
@@ -5079,8 +5079,8 @@ checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
 
 [[package]]
 name = "vma"
-version = "2.1.1"
-source = "git+https://github.com/zstarczali/VMA.git?branch=main#27dcdd9ee89c0f5eb2a94c5cfad088ca27247203"
+version = "2.2.0"
+source = "git+https://github.com/zstarczali/VMA.git?rev=0b79685e750be702e61e9287c050465cc093ce3e#0b79685e750be702e61e9287c050465cc093ce3e"
 dependencies = [
  "embed-resource",
  "regex",

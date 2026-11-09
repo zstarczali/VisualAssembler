@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**Verzió: 2.7.6**
+**Verzió: 2.7.7**
 
 Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasításblokkok fogd-és-vidd módszerrel történő elrendezésével építed fel, a generált assembly és gépi kód pedig valós időben frissül.
 
@@ -10,6 +10,7 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 
 ## Tartalomjegyzék
 
+- [A 2.7.7 verzió újdonságai](#a-277-verzió-újdonságai)
 - [A 2.7.6 verzió újdonságai](#a-276-verzió-újdonságai)
 - [A 2.7.5 verzió újdonságai](#a-275-verzió-újdonságai)
 - [A 2.7.4 verzió újdonságai](#a-274-verzió-újdonságai)
@@ -239,6 +240,17 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
   - [Curve Editor](#curve-editor)
   - [Táblagenerátor](#táblagenerátor)
   - [Számrendszer-átváltó](#számrendszer-átváltó)
+
+---
+
+## A 2.7.7 verzió újdonságai
+
+- **Ultimate 64 paletta makrók** — a `.u64_palette "fájl.vpl"`, a `.u64_palette_color index, $RRGGBB` és a `.u64_palette_reset` az Ultimate 64 / C64 Ultimate videó-palettáját állítja a Command Interface-en át. Lásd: [U64_PALETTE / U64_PALETTE_COLOR / U64_PALETTE_RESET](#u64_palette--u64_palette_color--u64_palette_reset).
+- **Ultimate 64 paletta demó** — új minta a Hardver kategóriában: az 1 és 2 billentyű két palettafájlt tölt, a 3 két színt cserél, a 0 visszaállítja a menü palettáját. Valódi gépen vagy az Ultimate emulátor futtatási módban fut.
+- **Hi-Res MIX** — keverék-toll multicolor képekhez: 8 hely, helyenként 3 szín, 8 minta a képhez rögzítve. Lásd: [Hi-Res / Multicolor Editor](#hi-res--multicolor-editor).
+- **Beépített C64** — a Futtatás üres programot (csak ORG, megjegyzés vagy üres sor) már nem indít el, mint a többi futtatási mód.
+- **Fordító beállítás** — a **Rust + JavaScript ellenőrzés** mód kikerült a Beállítások → Általános → Program alól; a JavaScript (alapértelmezett) és a Rust marad.
+- **Minták fájlokkal** — a minta saját `.incbin` / `.koala` / `.u64_palette` / `.sid` fájljai vele együtt betöltődnek.
 
 ---
 
@@ -3805,6 +3817,33 @@ A9 xx   LDA #speed_byte
 
 ---
 
+### U64_PALETTE / U64_PALETTE_COLOR / U64_PALETTE_RESET
+
+Az **Ultimate 64 / C64 Ultimate videó-palettáját** állítják az Ultimate Command Interface-en át (`$DF1C`–`$DF1F`). 3.15-ös vagy újabb firmware kell, és az interfésznek bekapcsolva kell lennie: menü (F2) → **C64 and Cartridge Settings** → **Command Interface** = Enabled. A rutin előbb a `$DF1D`-t olvassa; ha az nem `$C9` (VICE, beépített C64, régebbi firmware, kikapcsolt interfész), átugorja magát, így a program bárhol fut.
+
+| Makró | Expert szintaxis | Méret | Parancs |
+|-------|---------------|------|---------|
+| U64_PALETTE | `.u64_palette "fájl.vpl"` | 109 byte | `$52` + 16 × R, G, B: minden szín |
+| U64_PALETTE_COLOR | `.u64_palette_color index, $RRGGBB` | 65 byte | `$53` index, R, G, B: egy szín |
+| U64_PALETTE_RESET | `.u64_palette_reset` | 61 byte | `$54`: a menüben beállított paletta |
+
+**Palettafájl:** VICE `.vpl` (soronként `RR GG BB dither`), GIMP `.gpl`, bármilyen szöveg 16 `#RRGGBB` / `$RRGGBB` / `0xRRGGBB` értékkel, vagy Photoshop `.act`; az első 16 szín számít. A fájlt fordításkor olvassa, mint egy INCBIN-t (a projekthez képest, Blokk módban a Tallózás gombbal); a színek a generált kódban vannak, máshová nem kerül semmi a memóriában.
+
+A `.u64_palette_color` **indexe és színe** kifejezés lehet (`BLUE`, `$3050C0`, `COL + 1`); az index 0–15, a szín `$000000`–`$FFFFFF` lehet.
+
+**A kód** megvárja, amíg az interfész szabad (a korábbi parancsból maradt adatot elfogadja), a parancsot a `$DF1D`-be írja, elindítja (`$01` → `$DF1C`), vár, amíg dolgozik, majd elfogadja a választ (`$02` → `$DF1C`). Az A és X elvész. A paletta azonnal vált, és a következő resetig vagy paletta-parancsig marad.
+
+**Példa** (az **Ultimate 64 paletta demó** minta ezt csinálja billentyűkre):
+```
+.u64_palette "u64-palette-sunset.vpl"   ; mind a 16 szín
+.u64_palette_color 6, $5000A0           ; kék -> lila
+.u64_palette_reset                      ; vissza a menü palettájára
+```
+
+> **Megjegyzés:** valódi gépen (Futtatás C64 Ultimate-en) vagy az **Ultimate emulátor** futtatási móddal próbáld ki; a VICE-alapú módokban nincs Command Interface, ott nem változik semmi.
+
+---
+
 ### SUPERCPU_DETECT
 
 Ellenőrzi, hogy telepítve van-e egy **CMD SuperCPU** gyorsító — mint a `PEEK($D0B8)`, hogy `$FF`-től eltérő értéket ad-e vissza.
@@ -4364,7 +4403,6 @@ A **Beállítások → Általános → Program → VMA fordító** választja a 
 
 - **JavaScript** — a beépített fordító, ez az alapértelmezett.
 - **Rust** — a nyílt forráskódú [VMA fordító](https://github.com/zstarczali/VMA) az alkalmazásban. Ugyanazokat a bájtokat, memórianézetet, szegmenseket és hibaüzeneteket adja, mint a JavaScript fordító.
-- **Rust + JavaScript ellenőrzés** — JavaScripttel és Rusttal is fordít, a JavaScript eredményét használja, az eltérést (bájtok, memórianézet, hibák) pedig a hibanaplóba írja, amelyet a hibabejelentés is elküld.
 
 A fordítás ablak kiírja a használt motort. A VMA verziója az About ablakban látszik.
 
@@ -4434,7 +4472,7 @@ Lefordított PRG-ket futtass közvetlenül valódi hardveren a helyi hálózaton
 
 **Hardver nélkül:** az osztott run menü **Ultimate emulátor** pontja az [UE2-C64U-Emulator](https://github.com/Jondalar/UE2-C64U-Emulator) emulátoron futtat, amely a változatlan Ultimate firmware-t futtatja a számítógépeden. Külön kell telepíteni (lásd [Az Ultimate emulátor telepítése lépésről lépésre](#az-ultimate-emulátor-telepítése-lépésről-lépésre)), majd a **Beállítások → Integrációk → Ultimate emulátor (UE2)** alatt három dolgot kell megadni: az `ue2emu` programot, egy firmware-t (`.ue2`, `.elf` vagy `.app`, nincs mellékelve) és a ROM-mappát (egy [1541ultimate](https://github.com/GideonZ/1541ultimate) klón `roms/` mappája). A mappából csak a `chars.bin` kötelező (2048 bájt, a menü betűkészlete), a Commodore firmware a saját C64 ROM-jaival bootol. Az első futtatás a `.ue2`-t egy flash-képbe telepíti, firmware-enként külön, az app konfigurációs mappájában, és minden indítás bekapcsolja a firmware webszolgáltatását, amely a Commodore firmware-ben alapból ki van kapcsolva. Az emulátor az első futtatáskor indul, és nyitva marad a következőkhöz; a REST API-ja a `127.0.0.1` címen, a **REST port**on figyel (alapból 8064). Az appal együtt vagy az **Emulátor leállítása** gombbal zárul. Ugyanebben a menüben a **D64 az Ultimate emulátoron** D64-et csomagol (ehhez a VICE `c1541`-e kell), az A meghajtóra csatolja, és futtatja az első programot. Amíg e két futtatási mód egyike van kiválasztva, a **VICE Monitor** ablak (hot reload, élő változók, profiler) a VICE helyett az emulátorhoz kapcsolódik. Ezekben a módokban a **Debug** az emulátor debuggerét nyitja meg: regiszterek, disassembly, memória és töréspontok külön ablakban, a kép az emulátor ablakában. A program az első elért töréspontnál áll meg, töréspont nélkül az első utasításánál; a szerkesztő sora követi a CPU-t, az F5, F10, F11 és Shift+F11 akkor is működik, ha a szerkesztőben van a fókusz. Engedélyezett megszakításoknál egy timer IRQ a lépést a KERNAL-ba viheti, mint a VICE monitorában. A VA az emulátor flash-képében a **Turbo Control**-t is a turbó-regiszterekre állítja, így a program a `$D031`-gyel állíthatja a CPU sebességét (reset után `$00`, azaz 1 MHz).
 
-Minta: **Ultimate turbó demo (64 sprite)** (`samples/ultimate-turbo-demo.asm`) — a sebesség 3 másodpercenként vált 1 és 64 MHz között; 1 MHz-en golyók tűnnek el és csökken a képkockaszám, 4 MHz-től mind a 64 sprite 50 fps-sel fut. Csak bekapcsolt turbó-regiszterű Ultimate-en fut, máshol ezt írja ki. Az **Ultimate turbó kocka** (`samples/ultimate-box-demo.asm`) ugyanezt teszi a box minta kockájával: minél gyorsabb a CPU, annál gyorsabban forog a kocka (1 MHz-en 5, 16 MHz-től 50 képkocka másodpercenként).
+Minta: **Ultimate turbó demo (64 sprite)** (`samples/ultimate-turbo-demo.asm`) — a sebesség 3 másodpercenként vált 1 és 64 MHz között; 1 MHz-en golyók tűnnek el és csökken a képkockaszám, 4 MHz-től mind a 64 sprite 50 fps-sel fut. Csak bekapcsolt turbó-regiszterű Ultimate-en fut, máshol ezt írja ki. Az **Ultimate turbó kocka** (`samples/ultimate-box-demo.asm`) ugyanezt teszi a box minta kockájával: minél gyorsabb a CPU, annál gyorsabban forog a kocka (1 MHz-en 5, 16 MHz-től 50 képkocka másodpercenként). Az **Ultimate 64 paletta demó** (`samples/u64-palette-demo.asm`) az 1, 2, 3 és 0 billentyűkre a videó-palettát váltja (lásd: [U64_PALETTE](#u64_palette--u64_palette_color--u64_palette_reset)); a menüben bekapcsolt Command Interface kell hozzá.
 
 > **Tipp:** nem kell USB kábel vagy driver — a REST API be van építve az Ultimate firmware-be. A számítógépednek és az eszköznek ugyanazon a helyi hálózaton kell lennie.
 
@@ -4539,6 +4577,7 @@ Pixel-szintű bitmap szerkesztő 320×200 hi-res és 160×200 multicolor módokk
 | Spray eszköz | Airbrush-stílusú festő, amely pixeleket szór a kurzor köré rajzolás közben. |
 | Spray intenzitás | A spray eszköz melletti legördülő vezérli, mennyire sűrű minden spray húzás. |
 | Színpaletta | Előtér (ink) + papír (háttér) választók. Multicolorban minden 4×8-as cellában a papír mellett 3 szín lehet: a 4. színt elutasítja, és a státuszsorban jelzi. A papír cseréje minden háttérpixelt átszínez, ahogy a `$D021` is. A korlátot túllépő cellák (pl. nyers, 32000 bájtos fájlból) piros keretet kapnak, és az export figyelmeztet rájuk, mert a többletszínek háttérszínűek lennének. |
+| MIX (multicolor) | A **MIX** sor egyetlen szín helyett három szín ismétlődő mintázatát festi, így a cella négy színén túli árnyalatok is kikeverhetők. Kapcsold **Be**, és válassz a 8 hely közül (a helyre kattintás be is kapcsolja); minden helynek három színe (a színmintára kattintás a palettán kiválasztott színt veszi át) és egy mintája van: Sorok, Sávok, Tégla, Sakktábla, Lágy (4×4), Oszlopok, Átló, Árnyalat. A ceruzával, a spray-jel, a vonallal, a téglalappal, az oválissal és a kitöltéssel működik; a radírra és a színválasztóra nem hat. A minta a képhez rögzített, nem az alakzathoz, így az azonos keverékkel festett szomszédos alakzatok varrat nélkül találkoznak. A cellakorlát továbbra is érvényes: a papír színét tartalmazó keverék a cella három színéből csak kettőt foglal. A helyek a munkamenetek között megmaradnak. Hi-resben le van tiltva. |
 | Undo / Redo | Húzásonkénti előzmény, ctrl-Z / ctrl-Y. |
 | Kijelölés | A szaggatott négyzet ikonú eszköz: húzással jelölhető ki egy téglalap alakú terület a vásznon. Az **Esc** megszünteti a kijelölést. |
 | Másolás / beillesztés | A **Copy** (`Ctrl/Cmd+C`) a kijelölt területet másolja. A **Paste** (`Ctrl/Cmd+V`) után a másolat előnézete követi a kurzort: kattintás a vászonra elhelyezi, az **Esc** megszakítja. A másolat megmarad, így újabb `Ctrl/Cmd+V` és kattintás akárhányszor beilleszti. Hi-res módban a beillesztett pixelekre is érvényes a cellánkénti két szín, ezért a színek megtartásához igazítsd a területet a cellarácshoz. A Copy, a Paste és az áttetsző beillesztés a vászon jobb klikkes menüjében is megvan; az onnan indított beillesztés előnézete a kattintás helyén jelenik meg. |

@@ -1049,7 +1049,7 @@
     "language": "en",
     "numberBase": "hex",
     "outputMode": "asm",
-    "runMode": "web64",
+    "runMode": "vice",
     "sample": "macro-test",
     "theme": "black",
     "zoom": 1.09

@@ -1,4 +1,4 @@
-// The VMA compiler engine switch (Settings → General, c64va-vma-engine): js / rust / shadow
+// The VMA compiler engine switch (Settings → General, c64va-vma-engine): js / rust
 // through _kickOrVaPrg → _vaBuildPrg, with the vma_build command stubbed (or the real CLI).
 const test = require("node:test");
 const assert = require("node:assert/strict");
@@ -26,6 +26,9 @@ test("the engine defaults to js and ignores unknown values", () => {
   assert.equal(app.run("_vmaEngine()"), "js");
   app.localStorage.setItem("c64va-vma-engine", "nonsense");
   assert.equal(app.run("_vmaEngine()"), "js");
+  // the removed "Rust + JavaScript check" mode falls back to the JS compiler
+  app.localStorage.setItem("c64va-vma-engine", "shadow");
+  assert.equal(app.run("_vmaEngine()"), "js");
 });
 
 test("js engine: the JS build, no vma_build call", async () => {
@@ -49,25 +52,6 @@ test("rust engine: the command's PRG and SYS address, its error as a compile err
   const bad = await app.run("_vaBuildPrg()");
   assert.equal(bad.ok, false);
   assert.match(bad.errors[0].text, /^\[R003\] .* — LDA: invalid operand$/);
-});
-
-test("shadow engine: the JS result is used, a difference is logged", async () => {
-  let rust = null;
-  const app = appWith(async () => rust, "shadow");
-  const js = jsBuild(app);
-  rust = { ok: true, prg: Array.from(js.bytes), sysAddress: js.sysAddress };
-  let r = await app.run("_vaBuildPrg()");
-  assert.deepEqual(Array.from(r.bytes), Array.from(js.bytes));
-  assert.equal(app.run("_vaErrorLog.filter(l => l.includes('vma-shadow')).length"), 0);
-
-  const changed = Array.from(js.bytes);
-  changed[changed.length - 1] ^= 0xFF;
-  rust = { ok: true, prg: changed, sysAddress: js.sysAddress };
-  r = await app.run("_vaBuildPrg()");
-  assert.deepEqual(Array.from(r.bytes), Array.from(js.bytes));
-  const log = app.run("_vaErrorLog.filter(l => l.includes('vma-shadow'))");
-  assert.equal(log.length, 1);
-  assert.match(log[0], new RegExp(`first difference at offset ${changed.length - 1}`));
 });
 
 // Block mode sends program.map(_blockToExpertSourceLine): the real Rust CLI gives the JS bytes.
@@ -111,14 +95,12 @@ test("rust engine: source path, line map and the debugger files of the answer", 
   assert.deepEqual(targets.expertBreakpoints, [0x1000, 0x1002, 0x1005]);
 });
 
-// What a Rust build writes and the memory panel's view of it (the real CLI's --json answer):
-// the VICE Monitor hot reload writes the segments and restarts at the entry, shadow mode compares
-// the memory view with the JS layout's.
-test("rust build: hot reload segments and the shadow memory check", { skip: !findRustCli() && "no Rust VMA CLI" }, async () => {
+// What a Rust build writes (the real CLI's --json answer): the VICE Monitor hot reload writes the
+// segments and restarts at the entry.
+test("rust build: hot reload segments", { skip: !findRustCli() && "no Rust VMA CLI" }, async () => {
   const cli = findRustCli();
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "vma-engine-"));
   const src = "* = $1000\n    lda #$01\n    .rawbytes $2000, $AA, $BB\n    .text 1, 2, \"HI\"\n* = $1100\n    rts\n";
-  let tamper = null;
   try {
     const app = appWith(async (source, baseDir, basicStub, sourcePath) => {
       const input = path.join(tmp, "in.asm");
@@ -127,9 +109,7 @@ test("rust build: hot reload segments and the shadow memory check", { skip: !fin
       const run = require("node:child_process").spawnSync(cli, ["build", input, "-o", path.join(tmp, "out.prg"), "--json", json,
         "--source-path", sourcePath || input, ...(basicStub ? [] : ["--no-basic-stub"])], { encoding: "utf8" });
       if (run.status !== 0) return { ok: false, error: run.stderr };
-      const r = JSON.parse(fs.readFileSync(json, "utf8"));
-      if (tamper) tamper(r);
-      return r;
+      return JSON.parse(fs.readFileSync(json, "utf8"));
     }, "rust");
     app.__src = src;
     app.run("program = parseExpertText(__src)");
@@ -139,19 +119,6 @@ test("rust build: hot reload segments and the shadow memory check", { skip: !fin
     assert.deepEqual(built.segments.map(s => s.address), [0x1000, 0x1100, 0x2000]);
     assert.deepEqual(built.segments[2].bytes, [0xAA, 0xBB]);
     assert.equal(built.sys, 0x1000);
-
-    app.__r = await app.run("_vaBuildPrg()");
-    const ranges = (expr) => plain(app.run(`${expr}.mergedOccupied.map(r => [r.start, r.end])`));
-    assert.deepEqual(ranges("_vmaMemoryUsage(__r.vma.memory)"), ranges("getMemoryUsage()"));
-
-    app.localStorage.setItem("c64va-vma-engine", "shadow");
-    await app.run("_vaBuildPrg()");
-    assert.equal(app.run("_vaErrorLog.filter(l => l.includes('vma-shadow')).length"), 0);
-    tamper = (r) => { r.memory.deferred[0].end += 4; };
-    await app.run("_vaBuildPrg()");
-    const log = app.run("_vaErrorLog.filter(l => l.includes('vma-shadow'))");
-    assert.equal(log.length, 1);
-    assert.match(log[0], /memory: JS/);
   } finally {
     fs.rmSync(tmp, { recursive: true, force: true });
   }

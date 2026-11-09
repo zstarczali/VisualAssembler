@@ -248,6 +248,7 @@ const MACRO_CONTEXT = {
 };
 // Palette lines that name a file the corpus does not have.
 const MACRO_LINE = {
+  U64_PALETTE: '.u64_palette "u64-palette-sunset.vpl"',
   INCBIN: '.incbin "demo-colors.bin"', SID: '.sid "Mad_Ikari.sid"', INCLUDE: '.include "include-library-old.json"'
 };
 
@@ -273,6 +274,7 @@ const VARIANTS = {
   "joystick-both-ports": "* = $1000\n    .joystick 3, $FB, $FC, $FD\n    rts\n",
   "joystick-sprite": "* = $1000\n    .joystick 2, 0\n    .joystick 1, 3\n    rts\n",
   "koala-6000": '* = $1000\n    .koala "picture.koa", $6000\n    rts\n',
+  "u64-palette": '.const BLUE = 6\n* = $1000\n    .u64_palette "u64-palette-sunset.vpl"\n    .u64_palette_color BLUE, $3050C0\n    .u64_palette_reset\n    rts\n',
   "level-2000": '* = $1000\n    .level "level.bin", $2000\n    rts\n',
   "level-row-color": '.const dst_ptr = $FB\n.const view_col = $FD\n* = $1000\n    .level "level.bin", $2000\n    .level_row dst_ptr, view_col, color\n    rts\n',
   "fill-expr": "* = $1000\n    .fill 8, i*2\n    .fill 4, round(127.5*sin(i))\n    rts\n",

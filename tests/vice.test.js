@@ -1,4 +1,4 @@
-// Built-in C64 (www/web64, VICE x64sc in WebAssembly): source map parsing, the SYS address of a
+// Built-in C64 (www/vice, VICE x64sc in WebAssembly): source map parsing, the SYS address of a
 // PRG, and the debugger semantics of the bundled module (stop before the instruction, step
 // into / over / out, continue, break, side-effect free peek).
 const test = require("node:test");
@@ -86,12 +86,39 @@ test("SYS address of a BASIC stub, otherwise the load address", () => {
 });
 
 const { spawnSync } = require("node:child_process");
-const dir = path.join(__dirname, "..", "www", "web64");
-const hasModule = ["x64sc.js", "x64sc.wasm", "x64sc.data"].every((f) => fs.existsSync(path.join(dir, f)));
+const dir = path.join(__dirname, "..", "www", "vice");
+const hasModule = ["vice.js", "vice.wasm", "vice.data"].every((f) => fs.existsSync(path.join(dir, f)));
 
 // the emulator keeps running after the checks: they run in their own process, which exits
 test("the bundled emulator stops before the instruction and steps like the VICE monitor", { skip: !hasModule }, () => {
-  const r = spawnSync(process.execPath, [path.join(__dirname, "helpers", "web64-debug-check.mjs")], { encoding: "utf8", timeout: 120000 });
+  const r = spawnSync(process.execPath, [path.join(__dirname, "helpers", "vice-debug-check.mjs")], { encoding: "utf8", timeout: 120000 });
   assert.equal(r.status, 0, (r.stdout || "") + (r.stderr || ""));
-  assert.match(r.stdout, /web64 debugger: ok/);
+  assert.match(r.stdout, /vice debugger: ok/);
+});
+
+// The Run button in the built-in C64 mode: an empty program (no ORG, or only ORG / comments)
+// is refused like in the other run modes, without opening the emulator.
+test("the built-in C64 does not start an empty program", async () => {
+  const loadApp = require("./helpers/load-app");
+  const app = loadApp();
+  app.run(`
+    var __shown = 0, __toasts = [], __builds = 0;
+    _w64Show = async () => { __shown++; };
+    _w64StartPrg = async () => {};
+    showViceToast = (msg, err) => { __toasts.push(String(msg)); };
+    buildRunPrgForCurrentMode = async () => { __builds++; return { ok: true, bytes: [1, 8, 0x60] }; };
+    expertMode = false; ultimateBasicMode = false;
+  `);
+  app.__src = "* = $0801\n; nothing here\n";
+  app.run("program = parseExpertText(__src)");
+  await app.run("_w64Run()");
+  assert.equal(app.run("__shown"), 0);
+  assert.equal(app.run("__builds"), 0);
+  assert.deepEqual(JSON.parse(app.run("JSON.stringify(__toasts)")), [app.run('t("nothingToRunAddSomeInstructionsFirst")')]);
+
+  app.__src = "* = $0801\n    rts\n";
+  app.run("program = parseExpertText(__src)");
+  await app.run("_w64Run()");
+  assert.equal(app.run("__shown"), 1);
+  assert.equal(app.run("__builds"), 1);
 });

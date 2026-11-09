@@ -77,54 +77,54 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "sid-stars-276",
+  id: "u64-palette-277",
   url: "https://www.c64va.pro/docs.html",
   hu: {
-    eyebrow: "Újdonság a 2.7.6-ban",
+    eyebrow: "Újdonság a 2.7.7-ben",
     title: "Üdvözöl a Visual Assembler",
-    body: `<ul><li><strong>Csillagos értékelés</strong>: a SID Player listájának minden sora 1–5 csillagot kapott; a <strong>Csak a csillagosak maradjanak</strong> törli a többit.</li><li><strong>Duplikátumok törlése</strong>: egy gombnyomással kikerülnek a listában többször szereplő számok.</li><li><strong>HVSC letöltés</strong>: a töltődő dalon forgó jel látszik, a második kattintás nem veszi fel újra.</li><li><strong>Restore64 források</strong>: a kód után saját BASIC sort író visszafejtés ismét úgy fordul és fut, mint az eredeti.</li></ul>`,
+    body: `<ul><li><strong>Ultimate 64 paletta</strong>: a <code>.u64_palette "fájl.vpl"</code> egy palettafájl 16 színét tölti az Ultimate 64 / C64U-ba, a <code>.u64_palette_color</code> egy színt cserél, a <code>.u64_palette_reset</code> visszaállítja a menü palettáját (firmware 3.15+, Command Interface bekapcsolva).</li><li><strong>Paletta demó</strong>: új minta, amely az 1, 2, 3, 0 billentyűkre palettát vált; valódi gépen és az Ultimate emulátorban fut.</li><li><strong>Hi-Res MIX</strong>: keverék-toll multicolor képekhez: 8 hely, 3 szín, 8 minta.</li><li><strong>Beépített C64</strong>: üres programot már nem indít el.</li></ul>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
-    eyebrow: "New in 2.7.6",
+    eyebrow: "New in 2.7.7",
     title: "Welcome to Visual Assembler",
-    body: `<ul><li><strong>Star ratings</strong>: every SID Player playlist row has 1 to 5 stars; <strong>Keep only starred tunes</strong> removes the rest.</li><li><strong>Remove duplicates</strong>: one button removes the tunes that are in the playlist more than once.</li><li><strong>HVSC downloads</strong>: a tune that is downloading shows a spinner, and a second click does not add it again.</li><li><strong>Restore64 sources</strong>: a disassembly that writes its own BASIC line after the code builds and runs like the original again.</li></ul>`,
+    body: `<ul><li><strong>Ultimate 64 palette</strong>: <code>.u64_palette "file.vpl"</code> loads the 16 colours of a palette file into an Ultimate 64 / C64U, <code>.u64_palette_color</code> changes one colour and <code>.u64_palette_reset</code> restores the menu's palette (firmware 3.15+, Command Interface on).</li><li><strong>Palette demo</strong>: a new sample switches palettes with the keys 1, 2, 3 and 0; it runs on the hardware and in the Ultimate emulator.</li><li><strong>Hi-Res MIX</strong>: a mix pen for multicolor pictures: 8 slots, 3 colours, 8 patterns.</li><li><strong>Built-in C64</strong>: an empty program is no longer started.</li></ul>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
-    eyebrow: "Novedad en la 2.7.6",
+    eyebrow: "Novedad en la 2.7.7",
     title: "Bienvenido a Visual Assembler",
-    body: `<ul><li><strong>Valoración con estrellas</strong>: cada fila de la lista del SID Player tiene de 1 a 5 estrellas; <strong>Mantener solo las marcadas con estrellas</strong> quita el resto.</li><li><strong>Quitar duplicados</strong>: un botón quita los temas que están más de una vez en la lista.</li><li><strong>Descargas de HVSC</strong>: un tema que se está descargando muestra un indicador, y un segundo clic no lo añade otra vez.</li><li><strong>Fuentes de Restore64</strong>: un desensamblado que escribe su propia línea BASIC después del código vuelve a compilarse y ejecutarse como el original.</li></ul>`,
+    body: `<ul><li><strong>Paleta del Ultimate 64</strong>: <code>.u64_palette "archivo.vpl"</code> carga los 16 colores de un archivo de paleta en un Ultimate 64 / C64U, <code>.u64_palette_color</code> cambia un color y <code>.u64_palette_reset</code> restaura la paleta del menú (firmware 3.15+, Command Interface activado).</li><li><strong>Demo de paleta</strong>: un ejemplo nuevo cambia de paleta con las teclas 1, 2, 3 y 0; funciona en el hardware y en el emulador Ultimate.</li><li><strong>Hi-Res MIX</strong>: un pincel de mezcla para imágenes multicolor: 8 huecos, 3 colores, 8 patrones.</li><li><strong>C64 integrado</strong>: ya no inicia un programa vacío.</li></ul>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
-    eyebrow: "Neu in 2.7.6",
+    eyebrow: "Neu in 2.7.7",
     title: "Willkommen bei Visual Assembler",
-    body: `<ul><li><strong>Sternebewertung</strong>: Jede Zeile der SID-Player-Playlist hat 1 bis 5 Sterne; <strong>Nur Titel mit Sternen behalten</strong> entfernt den Rest.</li><li><strong>Duplikate entfernen</strong>: Ein Knopf entfernt Titel, die mehrfach in der Playlist stehen.</li><li><strong>HVSC-Downloads</strong>: Ein Titel, der noch geladen wird, zeigt ein Ladesymbol, und ein zweiter Klick fügt ihn nicht erneut hinzu.</li><li><strong>Restore64-Quellen</strong>: Eine Disassemblierung, die ihre eigene BASIC-Zeile hinter den Code schreibt, wird wieder wie das Original gebaut und läuft.</li></ul>`,
+    body: `<ul><li><strong>Ultimate-64-Palette</strong>: <code>.u64_palette "datei.vpl"</code> lädt die 16 Farben einer Palettendatei in einen Ultimate 64 / C64U, <code>.u64_palette_color</code> ändert eine Farbe und <code>.u64_palette_reset</code> stellt die Palette des Menüs wieder her (Firmware 3.15+, Command Interface an).</li><li><strong>Paletten-Demo</strong>: ein neues Beispiel wechselt die Palette mit den Tasten 1, 2, 3 und 0; es läuft auf der Hardware und im Ultimate-Emulator.</li><li><strong>Hi-Res MIX</strong>: ein Mischstift für Multicolor-Bilder: 8 Plätze, 3 Farben, 8 Muster.</li><li><strong>Eingebauter C64</strong>: ein leeres Programm wird nicht mehr gestartet.</li></ul>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
-    eyebrow: "Nieuw in 2.7.6",
+    eyebrow: "Nieuw in 2.7.7",
     title: "Welkom bij Visual Assembler",
-    body: `<ul><li><strong>Sterbeoordeling</strong>: elke rij van de SID Player-afspeellijst heeft 1 tot 5 sterren; <strong>Alleen nummers met sterren houden</strong> verwijdert de rest.</li><li><strong>Duplicaten verwijderen</strong>: één knop verwijdert nummers die meer dan eens in de lijst staan.</li><li><strong>HVSC-downloads</strong>: een nummer dat nog downloadt toont een laadteken, en een tweede klik voegt het niet opnieuw toe.</li><li><strong>Restore64-bronnen</strong>: een disassemblage die een eigen BASIC-regel na de code schrijft, bouwt en draait weer als het origineel.</li></ul>`,
+    body: `<ul><li><strong>Ultimate 64-palet</strong>: <code>.u64_palette "bestand.vpl"</code> laadt de 16 kleuren van een paletbestand in een Ultimate 64 / C64U, <code>.u64_palette_color</code> wijzigt één kleur en <code>.u64_palette_reset</code> herstelt het palet van het menu (firmware 3.15+, Command Interface aan).</li><li><strong>Paletdemo</strong>: een nieuw voorbeeld wisselt het palet met de toetsen 1, 2, 3 en 0; het draait op de hardware en in de Ultimate-emulator.</li><li><strong>Hi-Res MIX</strong>: een mengpen voor multicolor-afbeeldingen: 8 plaatsen, 3 kleuren, 8 patronen.</li><li><strong>Ingebouwde C64</strong>: een leeg programma wordt niet meer gestart.</li></ul>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
-    eyebrow: "Nowość w 2.7.6",
+    eyebrow: "Nowość w 2.7.7",
     title: "Witamy w Visual Assembler",
-    body: `<ul><li><strong>Ocena gwiazdkami</strong>: każdy wiersz listy SID Playera ma od 1 do 5 gwiazdek; <strong>Zostaw tylko utwory z gwiazdkami</strong> usuwa resztę.</li><li><strong>Usuń duplikaty</strong>: jeden przycisk usuwa utwory, które są na liście więcej niż raz.</li><li><strong>Pobieranie z HVSC</strong>: pobierany utwór pokazuje wskaźnik, a drugie kliknięcie nie dodaje go ponownie.</li><li><strong>Źródła Restore64</strong>: deasemblacja zapisująca własną linię BASIC za kodem znów buduje się i działa jak oryginał.</li></ul>`,
+    body: `<ul><li><strong>Paleta Ultimate 64</strong>: <code>.u64_palette "plik.vpl"</code> wczytuje 16 kolorów z pliku palety do Ultimate 64 / C64U, <code>.u64_palette_color</code> zmienia jeden kolor, a <code>.u64_palette_reset</code> przywraca paletę z menu (firmware 3.15+, włączony Command Interface).</li><li><strong>Demo palety</strong>: nowy przykład przełącza palety klawiszami 1, 2, 3 i 0; działa na sprzęcie i w emulatorze Ultimate.</li><li><strong>Hi-Res MIX</strong>: pędzel mieszający do obrazów multicolor: 8 miejsc, 3 kolory, 8 wzorów.</li><li><strong>Wbudowany C64</strong>: pusty program nie jest już uruchamiany.</li></ul>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
-    eyebrow: "Novità nella 2.7.6",
+    eyebrow: "Novità nella 2.7.7",
     title: "Benvenuto in Visual Assembler",
-    body: `<ul><li><strong>Valutazione a stelle</strong>: ogni riga della playlist del SID Player ha da 1 a 5 stelle; <strong>Tieni solo i brani con stelle</strong> rimuove il resto.</li><li><strong>Rimuovi duplicati</strong>: un pulsante rimuove i brani presenti più di una volta nella playlist.</li><li><strong>Download HVSC</strong>: un brano in download mostra un indicatore, e un secondo clic non lo aggiunge di nuovo.</li><li><strong>Sorgenti Restore64</strong>: un disassemblato che scrive la propria riga BASIC dopo il codice torna a compilarsi e funzionare come l'originale.</li></ul>`,
+    body: `<ul><li><strong>Palette Ultimate 64</strong>: <code>.u64_palette "file.vpl"</code> carica i 16 colori di un file di palette in un Ultimate 64 / C64U, <code>.u64_palette_color</code> cambia un colore e <code>.u64_palette_reset</code> ripristina la palette del menu (firmware 3.15+, Command Interface attivo).</li><li><strong>Demo palette</strong>: un nuovo esempio cambia palette con i tasti 1, 2, 3 e 0; funziona sull'hardware e nell'emulatore Ultimate.</li><li><strong>Hi-Res MIX</strong>: un pennello di miscela per immagini multicolor: 8 posti, 3 colori, 8 motivi.</li><li><strong>C64 integrato</strong>: un programma vuoto non viene più avviato.</li></ul>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
@@ -263,6 +263,9 @@ const mnemonicLibrary = {
     { mnemonic: "REU_FETCH", description: "REU → C64 RAM betoltes: C64 cim, REU cim/bank es hossz beallitasa ($DF02-$DF08), majd $91 parancs → $DF01 (execute + fetch, azonnali DMA). 40 byte inline.", modes: ["implied"], isReuTransferMacro: true },
     { mnemonic: "REU_SWAP", description: "C64 RAM ↔ REU csere: C64 cim, REU cim/bank es hossz beallitasa ($DF02-$DF08), majd $92 parancs → $DF01 (execute + swap, azonnali DMA). 40 byte inline.", modes: ["implied"], isReuTransferMacro: true },
     { mnemonic: "TURBO_SET", description: "U64 Turbo mod beallitasa: $D031-be irja a sebessegi indexet (0-15) es a badline vezerlest (bit7). LDA #ertek + STA $D031, 5 byte.", modes: ["implied"], isTurboSetMacro: true },
+    { mnemonic: "U64_PALETTE", description: "Palettafajl (.vpl, .gpl, .act) betoltese az Ultimate 64 / C64U video-palettajaba a Command Interface-en at ($DF1C-$DF1F). Firmware 3.15+ es bekapcsolt Command Interface kell, kulonben nem csinal semmit. 109 byte.", modes: ["implied"], isIncBinMacro: true, incBinU64Pal: true },
+    { mnemonic: "U64_PALETTE_COLOR", description: "Az Ultimate 64 / C64U paletta egy szinenek beallitasa: index 0-15 es 24 bites $RRGGBB ertek (Command Interface). 65 byte.", modes: ["implied"], isUciPaletteColorMacro: true },
+    { mnemonic: "U64_PALETTE_RESET", description: "Az Ultimate 64 / C64U menujeben beallitott paletta visszaallitasa (Command Interface). 61 byte.", modes: ["implied"], isUciPaletteResetMacro: true },
     { mnemonic: "SUPERCPU_DETECT", description: "CMD SuperCPU jelenletenek ellenorzese: LDA $D0B8 / CMP #$FF. Z=0 → SuperCPU jelen (BNE-vel ugri), Z=1 → nincs (BEQ-vel ugri). 5 byte.", modes: ["implied"], isSuperCpuDetectMacro: true },
     { mnemonic: "TURBO_ENABLE", description: "CMD SuperCPU turbo be/ki: BE → LDA #$00 / STA $D07A, KI → LDA #$00 / STA $D07B. 5 byte.", modes: ["implied"], isTurboEnableMacro: true },
     { mnemonic: "DEFINE", description: "Szimbolum definialasa felteteles forditashoz. Ha jelen van, az IF blokkban levo feltetelek kivalutalodnak.", modes: ["implied"], isDefineMacro: true },
@@ -567,6 +570,10 @@ let assemblerSyntax = "kick";
 const _ACME_HIDDEN_CATEGORIES = new Set(["Makrok", "Szerkezet", "HosszuUgrasok"]);
 let acmePath = "";
 let _editorDialogPositions = {};
+// The built-in C64 was called "web64" in earlier versions: its run mode (localStorage, .proj, samples), settings
+// and window position are read under these old names, only the new ("vice") ones are written.
+const _VICE_LEGACY = { runMode: "web64", prefs: "c64va-web64", joy: "c64va-web64-joy", dialog: "web64-dialog" };
+function _runModeNormalize(mode) { return mode === _VICE_LEGACY.runMode ? "vice" : mode; }
 let userMacros = {};  // Stores user-defined macros: { macroName: [blocks...] }
 
 // ΓöÇΓöÇ Tab system ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
@@ -1014,6 +1021,9 @@ const mnemonicExpertHints = {
   REU_FETCH: mnemonicSyntax("reu_fetch", "src=$0000", "reu=$000000", "size=$1000"),
   REU_SWAP: mnemonicSyntax("reu_swap", "src=$C000", "reu=$000000", "size=$1000"),
   TURBO_SET: mnemonicSyntax("turbo_set", "7", "badlines=on"),
+  U64_PALETTE: `.u64_palette "colodore.vpl"`,
+  U64_PALETTE_COLOR: ".u64_palette_color 6, $3050C0",
+  U64_PALETTE_RESET: ".u64_palette_reset",
   SUPERCPU_DETECT: ".supercpu_detect",
   TURBO_ENABLE: mnemonicSyntax("turbo_enable", "on"),
   ORG: "* = $C000",
@@ -2392,7 +2402,7 @@ function initPalette() {
   });
   chooseViceButton?.addEventListener("click", chooseViceExecutable);
   runEmulatorButton?.addEventListener("click", () => {
-    if (runMode === "web64") _w64Run();
+    if (runMode === "vice") _w64Run();
     else if (ultimateBasicMode) _ubRun(runMode);
     else if (runMode === "d64") runViaD64();
     else if (runMode === "ultimate") runOnUltimate();
@@ -2595,7 +2605,7 @@ function setupDraggableEditorDialogs() {
     ["table-gen-dialog", ".tg-hdr"],
     ["vice-mon-dialog", ".vm-hdr"],
     ["ue2-debug-dialog", ".ud-hdr"],
-    ["web64-dialog", ".w64-hdr"],
+    ["vice-dialog", ".w64-hdr"],
     ["memory-float-dialog", ".mem-float-hdr"],
     ["d64-editor-dialog", ".de-hdr"],
     ["d64-block-editor-dialog", ".dbe-hdr"],
@@ -3208,6 +3218,10 @@ function _applyUiSettingsToDOM() {
   _editorDialogPositions =(s.editorDialogPositions && typeof s.editorDialogPositions === "object")
     ? s.editorDialogPositions
     : {};
+  if (_editorDialogPositions[_VICE_LEGACY.dialog] && !_editorDialogPositions["vice-dialog"]) {
+    _editorDialogPositions["vice-dialog"] = _editorDialogPositions[_VICE_LEGACY.dialog];
+  }
+  delete _editorDialogPositions[_VICE_LEGACY.dialog];
 
   if (sampleSelect && s.sample) {
     sampleSelect.value = s.sample;
@@ -3855,7 +3869,6 @@ function applyTranslations() {
     setText("#vma-engine-label", t("vmaEngine"));
     setText('#vma-engine option[value="js"]', t("vmaEngineJs"));
     setText('#vma-engine option[value="rust"]', t("vmaEngineRust"));
-    setText('#vma-engine option[value="shadow"]', t("vmaEngineShadow"));
     setText("#asm-output-settings-label", t("asmOutputSettings"));
     setText("#snapshot-settings-label", t("snapshotSettings"));
     if (macroSourceToggleText) macroSourceToggleText.textContent = t("macroSourceToggle");
@@ -4022,6 +4035,7 @@ function applyTranslations() {
   if (sampleOptions[36]) sampleOptions[36].textContent = t("sampleRuntimeIfDemo");
   if (sampleOptions[37]) sampleOptions[37].textContent = t("sampleUltimateTurboDemo");
   if (sampleOptions[38]) sampleOptions[38].textContent = t("sampleUltimateBoxDemo");
+  if (sampleOptions[39]) sampleOptions[39].textContent = t("sampleU64PaletteDemo");
 
   updateThemeToggleLabel();
   refreshCategoryOptions();
@@ -4273,6 +4287,12 @@ function _applyEditorTranslations() {
   setText("#hg-paper-lbl", t("hgPaperLabel"));
   setText("#hg-zoom-lbl", t("hgZoomLabel"));
   setText("#hg-raster-label", t("hgRaster"));
+  setText("#hg-mix-lbl", t("hgMixLabel"));
+  setText("#hg-mix-on-label", t("hgMixOn"));
+  setText("#hg-mix-hint", t("hgMixMcOnly"));
+  setAttr("#hg-mix-on-wrap", t("hgMixOnTip"));
+  setAttr("#hg-mix-pattern", t("hgMixPatternTip"));
+  _hgMixSync();
   // Sprite Editor
   setText(".se-title", t("seTitle"));
   setText("#se-import-image", t("seImportImage"));
@@ -4479,9 +4499,9 @@ function _applyEditorTranslations() {
   setText("#mem-float-title", t("memoryTitle"));
   setAttr("#vice-mon-btn", t("vmTitle"));
   setText("#vm-title", t("vmTitle").toUpperCase());
-  setAttr("#web64-btn", t("w64Title"));
+  setAttr("#vice-btn", t("w64Title"));
   setText("#w64-title", t("w64Title").toUpperCase());
-  setText("#run-web64-label", t("runInWeb64"));
+  setText("#run-vice-label", t("runInVice"));
   [["#ud-restart", "ue2DbgRestart"], ["#ud-continue", "w64Continue"], ["#ud-break", "w64Break"], ["#ud-step-into", "w64StepInto"],
     ["#ud-step-over", "w64StepOver"], ["#ud-step-out", "w64StepOut"], ["#ud-close", "w64Close"], ["#ud-mem-addr", "w64Address"],
     ["#w64-run", "w64Run"], ["#w64-reset", "w64Reset"], ["#w64-pause", "w64Pause"], ["#w64-continue", "w64Continue"],
@@ -5098,6 +5118,20 @@ function renderMnemonicDescription() {
     });
     return;
   }
+  if (item.isIncBinMacro && item.incBinU64Pal) {
+    mnemonicDescription.innerHTML = buildMnemonicDescriptionMarkup(item, {
+      lines: [t("macroAddrU64Palette"), t("macroAddrU64PaletteNote"), t("macroAddrBrowseAfter")],
+      example: '.u64_palette "colodore.vpl"'
+    });
+    return;
+  }
+  if (item.isUciPaletteColorMacro) {
+    mnemonicDescription.innerHTML = buildMnemonicDescriptionMarkup(item, {
+      lines: [t("macroAddrU64PaletteColor"), t("macroAddrU64PaletteNote")],
+      example: ".u64_palette_color 6, $3050C0"
+    });
+    return;
+  }
   if (item.isIncBinMacro && item.incBinKoala) {
     mnemonicDescription.innerHTML = buildMnemonicDescriptionMarkup(item, {
       lines: [t("macroAddrKoala"), t("macroAddrKoalaAddress"), t("macroAddrKoalaBrowse")],
@@ -5191,7 +5225,7 @@ function renderPaletteItems() {
               : item.isRawTextMacro
                 ? `${t("paletteRawText")} | ${preview.preview}`
                 : item.isIncBinMacro
-                  ? `${t(item.incBinKoala ? "paletteKoala" : item.incBinLevel ? "paletteLevel" : "paletteBinAtAddr")}`
+                  ? `${t(item.incBinU64Pal ? "paletteU64Palette" : item.incBinKoala ? "paletteKoala" : item.incBinLevel ? "paletteLevel" : "paletteBinAtAddr")}`
                   : item.isIncludeMacro
                   ? `${t("paletteIncludeProj")}`
                   : item.isSidMacro
@@ -5375,7 +5409,7 @@ function getSelectedMnemonic() {
  * macro's Expert line. File macros keep their own file picker. */
 const _PALETTE_OPERAND_FLAGS = ["isLabel", "isComment", "isTextMacro", "isByteMacro", "isStringMacro", "isDataMacro", "isRawBytesMacro",
   "isRawTextMacro", "isPetsciiMacro", "isWordMacro", "isFillMacro", "isAlignMacro", "isDefineMacro", "isIfMacro", "isMacroDefStart",
-  "isRegionMacro", "isAssertMacro", "isLevelRowMacro", "isLongBranchMacro"];
+  "isRegionMacro", "isAssertMacro", "isLevelRowMacro", "isLongBranchMacro", "isUciPaletteColorMacro"];
 const _PALETTE_FILE_FLAGS = ["isIncBinMacro", "isIncludeMacro", "isSidMacro", "isTableMacro"];
 // ".set_bg $06" → { keyword: ".set_bg", args: "$06" }; "* = $C000" → { keyword: "* =", args: "$C000" }
 function _macroLineArgs(line) {
@@ -5674,14 +5708,15 @@ function _createBlockFromPalette(item) {
       description: item.description,
       addressingMode: "implied",
       base: "hex",
-      validationError: t(item.incBinKoala ? "koalaMacroNeedsFile" : item.incBinLevel ? "levelMacroNeedsFile" : "incbinMacroNeedsFile"),
+      validationError: t(item.incBinU64Pal ? "u64PaletteNeedsFile" : item.incBinKoala ? "koalaMacroNeedsFile" : item.incBinLevel ? "levelMacroNeedsFile" : "incbinMacroNeedsFile"),
       collapsed: true,
       isIncBinMacro: true,
       ...(item.incBinKoala ? { incBinKoala: true } : {}),
       ...(item.incBinLevel ? { incBinLevel: true } : {}),
+      ...(item.incBinU64Pal ? { incBinU64Pal: true } : {}),
       incBinFile: "",
       incBinFileName: "",
-      incBinAddress: item.incBinKoala ? "$6000" : item.incBinLevel ? "$2000" : "$C000",
+      incBinAddress: item.incBinU64Pal ? "" : item.incBinKoala ? "$6000" : item.incBinLevel ? "$2000" : "$C000",
       incBinBytes: []
     };
   }
@@ -5930,6 +5965,9 @@ function _createBlockFromPalette(item) {
       scoreBcdAddr: "C200", scoreDigits: 4, scoreAddPoints: "100", scoreScreenAddr: "0400"
     };
   }
+
+  if (item.isUciPaletteColorMacro) return { ..._importMakeU64PalColor(operandInput.value.trim() || "6, $3050C0"), category: categorySelect.value, description: item.description };
+  if (item.isUciPaletteResetMacro) return { ..._importMakeU64PalReset(), category: categorySelect.value, description: item.description };
 
   if (item.isTurboSetMacro) {
     return {
@@ -6883,6 +6921,9 @@ function _blockToExpertLine(block) {
   if (block.isFillMacro)      return `.fill ${fmtRaw(block.rawOperand, block.base)}`;
   if (block.isAlignMacro)     return `.align ${block.rawOperand || "64"}`;
   if (block.isIncBinMacro && block.incBinLevel) return `.level "${block.incBinFileName || "level.bin"}"${block.incBinAddress && parseAddressValue(block.incBinAddress) !== 0x2000 ? ", $" + block.incBinAddress.replace(/^\$/, "") : ""}`;
+  if (block.isIncBinMacro && block.incBinU64Pal) return `.u64_palette "${block.incBinFileName || "palette.vpl"}"`;
+  if (block.isUciPaletteColorMacro) return `.u64_palette_color ${(block.rawOperand || "6, $3050C0").trim()}`;
+  if (block.isUciPaletteResetMacro) return ".u64_palette_reset";
   if (block.isIncBinMacro && block.incBinKoala) return `.koala "${block.incBinFileName || "picture.koa"}"${block.incBinAddress && parseAddressValue(block.incBinAddress) !== 0x6000 ? ", $" + block.incBinAddress.replace(/^\$/, "") : ""}`;
   if (block.isIncBinMacro)    return `.incbin "${block.incBinFileName || "data.bin"}"${block.incBinAddress && block.incBinAddress !== "$C000" ? ", $" + block.incBinAddress.replace(/^\$/,"") : ""}`;
   if (block.isPetsciiMacro)   return `.petscii ${fmtAddr(block.petsciiAddress)}, "${block.rawOperand || "HELLO"}"${block.petsciiCharset === "lower" ? ", lower" : ""}${block.petsciiNullTerminated ? ", null" : ""}${fmtMacroLabel(block.macroLabel)}`;
@@ -7185,12 +7226,16 @@ function doClearProgram() {
   _setCurrentFile("", "", null);
 }
 
+// A block that puts no code into the PRG (an empty Expert line is a BLANK block).
+function _isNoCodeBlock(b) {
+  return b.isOrgMacro || b.isRegionMacro || b.isEndRegionMacro || b.isComment || b.isDefineMacro || b.isBlankLine;
+}
 function isProgramEmpty() {
   if (expertMode) {
     const blocks = _expertGetStartupProgram() || _expertBuildProgram();
-    return !blocks.some(b => b.isOrgMacro) || blocks.every(b => b.isOrgMacro || b.isRegionMacro || b.isEndRegionMacro || b.isComment || b.isDefineMacro);
+    return !blocks.some(b => b.isOrgMacro) || blocks.every(_isNoCodeBlock);
   }
-  return !program.some(b => b.isOrgMacro) || program.every(b => b.isOrgMacro || b.isRegionMacro || b.isEndRegionMacro || b.isComment || b.isDefineMacro);
+  return !program.some(b => b.isOrgMacro) || program.every(_isNoCodeBlock);
 }
 
 // ── Expert Mode ────────────────────────────────────────────────────────────
@@ -10338,6 +10383,7 @@ const _DIRECTIVE_TO_MNEM = {
   text:"TEXT", string:"STRING", rawtext:"RAWTEXT", rawbytes:"RAWBYTES", data:"DATA",
   byte:"BYTE", word:"WORD", fill:"FILL", align:"ALIGN", incbin:"INCBIN", koala:"KOALA",
   level:"LEVEL", level_row:"LEVEL_ROW",
+  u64_palette:"U64_PALETTE", u64_palette_color:"U64_PALETTE_COLOR", u64_palette_reset:"U64_PALETTE_RESET",
   petscii:"PETSCII", table:"TABLE", loadfile:"LOADFILE", sid:"SID", include:"INCLUDE",
   loop:"LOOP", next:"NEXT", for:"FOR", endf:"ENDF", push:"PUSH", pull:"PULL",
   macro:"MACRO", endm:"ENDM", invoke:"INVOKE", call:"INVOKE",
@@ -10423,6 +10469,7 @@ const _AC_DIRECTIVE_DESC = {
   ".loadfile":"load file KERNAL", ".sprite_init":"init sprite", ".sprite_pos":"set sprite pos",
   ".wait_raster":"wait raster line", ".delay":"frame delay", ".wait":"frame delay", ".joystick":"joystick macro", ".mouse":"1351 mouse macro", ".sprite_col":"sprite collision",
   ".turbo_set":"U64 turbo speed",
+  ".u64_palette":"U64 palette from a file", ".u64_palette_color":"set one U64 palette colour", ".u64_palette_reset":"restore the U64 palette",
   ".supercpu_detect":"detect SuperCPU",
   ".turbo_enable":"SuperCPU turbo on/off",
   ".reu_check":"detect REU", ".reu_stash":"C64→REU DMA", ".reu_fetch":"REU→C64 DMA", ".reu_swap":"C64↔REU DMA",
@@ -11101,7 +11148,7 @@ async function showBuildInfoDialog() {
         "isLoadFileMacro","isExoDecrunchMacro","isReuStashMacro","isReuFetchMacro","isReuSwapMacro","isReuCheckMacro",
         "isTurboSetMacro","isTurboEnableMacro","isSuperCpuDetectMacro",
         "isMapCopyMacro","isMapCopy16Macro","isSpriteAnimMacro","isScoreBcdMacro",
-        "isCharDefMacro","isBoxHitMacro",
+        "isCharDefMacro","isBoxHitMacro","isUciPaletteColorMacro","isUciPaletteResetMacro",
       ];
       macroTypes.forEach(t2 => {
         if (b[t2]) {
@@ -11349,7 +11396,7 @@ function _expertHighlightLine(raw) {
   if (!code.trim()) return esc(code) + commentHtml;
 
   // Token regex (order matters)
-  const TOKEN_RE = /("(?:[^"\\]|\\.)*")|(\*\s*=)|(\.(?:text|string|rawtext|rawbytes|data|byte|word|fill|align|assert|loop|next|for|endf|push|pull|endif|endregion|region|macro|endm|endw|repeat|until|while|memcpy|memset|print|print_char|print_hex|clear_screen|wait_key|delay|wait|set_border|set_bg|irq_setup|sid_player|sprite_init|sprite_pos|wait_raster|joystick|mouse|sprite_col|map_copy16x16|map_copy|sprite_anim|score_bcd|define|else|if|const|end|var|incbin|koala|include|sid|petscii|charset|table|loadfile|invoke|call|rand|exodecrunch|reu_check|reu_stash|reu_fetch|reu_swap|turbo_set|turbo_enable|supercpu_detect|chardef|box_hit|level_row|level)\b)|(#?\$[0-9A-Fa-f]+|#\d+\b)|(\b\d+\b)|([A-Za-z_][A-Za-z0-9_]*\s*:)|([A-Za-z_][A-Za-z0-9_]*)|(\{[A-Za-z_][A-Za-z0-9_]*\})|(:[A-Za-z_][A-Za-z0-9_]*)/gi;
+  const TOKEN_RE = /("(?:[^"\\]|\\.)*")|(\*\s*=)|(\.(?:text|string|rawtext|rawbytes|data|byte|word|fill|align|assert|loop|next|for|endf|push|pull|endif|endregion|region|macro|endm|endw|repeat|until|while|memcpy|memset|print|print_char|print_hex|clear_screen|wait_key|delay|wait|set_border|set_bg|irq_setup|sid_player|sprite_init|sprite_pos|wait_raster|joystick|mouse|sprite_col|map_copy16x16|map_copy|sprite_anim|score_bcd|define|else|if|const|end|var|incbin|koala|include|sid|petscii|charset|table|loadfile|invoke|call|rand|exodecrunch|reu_check|reu_stash|reu_fetch|reu_swap|turbo_set|turbo_enable|supercpu_detect|u64_palette_color|u64_palette_reset|u64_palette|chardef|box_hit|level_row|level)\b)|(#?\$[0-9A-Fa-f]+|#\d+\b)|(\b\d+\b)|([A-Za-z_][A-Za-z0-9_]*\s*:)|([A-Za-z_][A-Za-z0-9_]*)|(\{[A-Za-z_][A-Za-z0-9_]*\})|(:[A-Za-z_][A-Za-z0-9_]*)/gi;
 
   let result = "";
   let lastIdx = 0;
@@ -12410,7 +12457,7 @@ function _expertDrawMinimap() {
       color = cComment;
     } else if (/^[A-Za-z_][A-Za-z0-9_]*:/.test(trimmed)) {
       color = cLabel;
-    } else if (_expertDirRe("^{D}(const|if|else|endif|macro|endm|invoke|region|endregion|define|org|byte|word|fill|text|string|data|rawbytes|rawtext|align|table|push|pull|for|endf|loop|next|blank|incbin|koala|level|sid|include|loadfile|sprite|wait|joystick|mouse|reu|turbo|supercpu)\\b").test(trimmed)) {
+    } else if (_expertDirRe("^{D}(const|if|else|endif|macro|endm|invoke|region|endregion|define|org|byte|word|fill|text|string|data|rawbytes|rawtext|align|table|push|pull|for|endf|loop|next|blank|incbin|koala|level|sid|include|loadfile|sprite|wait|joystick|mouse|reu|turbo|supercpu|u64_palette\\w*)\\b").test(trimmed)) {
       color = cDirective;
     } else if (/^\d|#\$|^\$[0-9A-Fa-f]/.test(trimmed)) {
       color = cNumber;
@@ -12618,7 +12665,8 @@ function _blockDrawMinimap() {
                b.isMacroInvoke || b.isSpriteInitMacro || b.isSpritePosMacro || b.isWaitRasterMacro ||
                b.isJoystickMacro || b.isMouseMacro || b.isLoadFileMacro || b.isReuCheckMacro ||
                b.isReuStashMacro || b.isReuFetchMacro || b.isReuSwapMacro || b.isTurboSetMacro ||
-               b.isTurboEnableMacro || b.isSuperCpuDetectMacro || b.isSpriteColMacro) {
+               b.isTurboEnableMacro || b.isSuperCpuDetectMacro || b.isSpriteColMacro ||
+               b.isUciPaletteColorMacro || b.isUciPaletteResetMacro) {
       color = cMacro;
     } else {
       color = cInstr;
@@ -13223,6 +13271,25 @@ function parseExpertText(text) {
       continue;
     }
 
+    // .u64_palette "file.vpl" (INCBIN variant), .u64_palette_color idx, $RRGGBB, .u64_palette_reset
+    const u64PalM = line.match(/^\.u64_palette\s+"([^"]*)"\s*$/i);
+    if (u64PalM) {
+      blocks.push(_importMakeU64Palette(u64PalM[1]));
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+    const u64ColorM = line.match(/^\.u64_palette_color\b\s*(.*)$/i);
+    if (u64ColorM) {
+      blocks.push(_importMakeU64PalColor(u64ColorM[1].trim()));
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+    if (/^\.u64_palette_reset\s*$/i.test(line)) {
+      blocks.push(_importMakeU64PalReset());
+      if (commentText) blocks.push(_importMakeComment(commentText));
+      continue;
+    }
+
     // .incbin "filename" [, $ADDR]
     const incbinM = line.match(/^\.incbin\s+"([^"]*)"\s*(?:,\s*\$([0-9A-Fa-f]{1,4}))?\s*$/i);
     if (incbinM) {
@@ -13254,7 +13321,7 @@ function parseExpertText(text) {
     // Malformed asset directives — `.include`, `.incbin`, `.sid` without a
     // quoted filename must still surface as an error instead of silently
     // becoming a comment via the fallback path.
-    const bareAssetDirM = line.match(/^\.(include|incbin|koala|level|sid)\b(.*)$/i);
+    const bareAssetDirM = line.match(/^\.(include|incbin|koala|level|u64_palette|sid)\b(.*)$/i);
     if (bareAssetDirM) {
       const kind = bareAssetDirM[1].toLowerCase();
       if (kind === "include") {
@@ -13265,6 +13332,8 @@ function parseExpertText(text) {
         blocks.push(_importMakeKoala("", ""));
       } else if (kind === "level") {
         blocks.push(_importMakeLevel("", ""));
+      } else if (kind === "u64_palette") {
+        blocks.push(_importMakeU64Palette(""));
       } else {
         blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "SID", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: t("sidMacroNeedsFile"), collapsed: true, isSidMacro: true, sidFile: "", sidFileName: "", sidTitle: "", sidAuthor: "", sidLoadAddress: 0, sidInitAddress: 0, sidPlayAddress: 0, sidBytes: [], sidCustomAddress: "" });
       }
@@ -14036,7 +14105,7 @@ function _expertBuildProgramFromText(text, stateSource = program) {
       if (existing) {
         newBlock.incBinBytes = existing.incBinBytes;
         newBlock.incBinFile  = existing.incBinFile || "";
-        newBlock.validationError = validateIncBinMacro(newBlock.incBinBytes, newBlock.incBinAddress);
+        newBlock.validationError = _incBinBlockError(newBlock);
       }
     }
     if (newBlock.isSidMacro && newBlock.sidFileName) {
@@ -14834,7 +14903,7 @@ function _disasmLineSortAddress(line, labelMap = null) {
   if (block.isPetsciiMacro) {
     return parseAddressValue(block.petsciiAddress, labelMap) ?? 0xC000;
   }
-  if (block.isIncBinMacro && !block.incBinKoala) {
+  if (block.isIncBinMacro && !block.incBinKoala && !block.incBinU64Pal) {
     return parseMacroAddress(block.incBinAddress || "$C000", labelMap) ?? 0xC000;
   }
   if (block.isSidMacro) {
@@ -14957,7 +15026,7 @@ function _buildDisasmLines(originOverride, basicStubSection = null) {
       const block = line.block;
 
       // INCBIN: deferred binary file — show hex dump at incBinAddress
-      if (block.isIncBinMacro && !block.incBinKoala) {
+      if (block.isIncBinMacro && !block.incBinKoala && !block.incBinU64Pal) {
         const incBytes = Array.from(_incBinPayload(block));
         const incAddr = parseMacroAddress(block.incBinAddress || "$C000", labelMap) ?? 0xC000;
         const incAddrHex = incAddr.toString(16).toUpperCase().padStart(4, "0");
@@ -16636,7 +16705,7 @@ const _SAMPLE_CATEGORIES = [
   ["sampleCatSprites", ["sprite-demo", "sprite-macro-demo", "joystick-demo", "mouse-demo", "collision-demo"]],
   ["sampleCatFiles", ["incbin-demo", "loadfile-demo", "exo-multicolor-demo", "include-demo"]],
   ["sampleCatMusic", ["sid-demo", "sid-direct-demo"]],
-  ["sampleCatHardware", ["irq-demo", "overlapping-raster-demo", "memory-overlap-demo", "reu-demo", "ultimate-turbo-demo", "ultimate-box-demo"]]
+  ["sampleCatHardware", ["irq-demo", "overlapping-raster-demo", "memory-overlap-demo", "reu-demo", "ultimate-turbo-demo", "ultimate-box-demo", "u64-palette-demo"]]
 ];
 let _sampleDlgSelected = "";
 
@@ -17238,7 +17307,7 @@ function updateProgramBlock(index, field, value) {
       block.operand = block.rawOperand.trim();
       block.validationError = validateDataMacro(block.rawOperand, block.rawBytesAddress, block.base);
     } else if (block.isIncBinMacro) {
-      block.validationError = validateIncBinMacro(block.incBinBytes, block.incBinAddress) || (block.incBinKoala ? _koalaError(block) : block.incBinLevel ? _levelError(block) : "");
+      block.validationError = _incBinBlockError(block) || (block.incBinKoala ? _koalaError(block) : block.incBinLevel ? _levelError(block) : "");
     } else if (block.isRawTextMacro) {
       block.operand = block.rawOperand.trim();
       block.validationError = validateStringMacroAddress(block.rawTextAddress);
@@ -17301,6 +17370,9 @@ function updateProgramBlock(index, field, value) {
     } else if (block.isLevelRowMacro) {
       block.operand = block.rawOperand.trim();
       block.validationError = _levelRowParse(block.rawOperand) ? "" : t("levelRowSyntax");
+    } else if (block.isUciPaletteColorMacro) {
+      block.operand = block.rawOperand.trim();
+      block.validationError = _u64PalColorError(block.rawOperand);
     } else if (block.isAssertMacro) {
       block.operand = block.rawOperand.trim();
       block.assertExpr = block.rawOperand.trim();
@@ -17369,7 +17441,7 @@ function updateProgramBlock(index, field, value) {
   }
 
   if (field === "incBinAddress" || field === "incBinFile" || field === "incBinFileName" || field === "incBinBytes") {
-    block.validationError = validateAssetMacroHasFile(block) || validateIncBinMacro(block.incBinBytes, block.incBinAddress);
+    block.validationError = validateAssetMacroHasFile(block) || _incBinBlockError(block);
     renderBlockPreview(index);
     renderAsmOutput();
     return;
@@ -18739,6 +18811,12 @@ function parseAddressValue(raw, labelMap) {
   return null;
 }
 
+// The U64_PALETTE variant has no address; its file must be a palette once it is loaded.
+function _incBinBlockError(block) {
+  if (block.incBinU64Pal) return (block.incBinBytes || []).length ? _u64PalError(block) : "";
+  return validateIncBinMacro(block.incBinBytes, block.incBinAddress);
+}
+
 function validateIncBinMacro(incBinBytes, rawAddress) {
   const value = parseAddressValue(rawAddress);
   if (value === null) {
@@ -18762,7 +18840,7 @@ function validateAssetMacroHasFile(block) {
     }
   } else if (block.isIncBinMacro) {
     if (!nonEmpty(block.incBinFile) && !nonEmpty(block.incBinFileName)) {
-      return t(block.incBinKoala ? "koalaMacroNeedsFile" : block.incBinLevel ? "levelMacroNeedsFile" : "incbinMacroNeedsFile");
+      return t(block.incBinU64Pal ? "u64PaletteNeedsFile" : block.incBinKoala ? "koalaMacroNeedsFile" : block.incBinLevel ? "levelMacroNeedsFile" : "incbinMacroNeedsFile");
     }
   } else if (block.isSidMacro) {
     if (!nonEmpty(block.sidFile) && !nonEmpty(block.sidFileName)) {
@@ -19658,7 +19736,7 @@ async function runInDebugger() {
     await _udDebug("vice");
     return;
   }
-  if (runMode === "web64" || choice === "va") {
+  if (runMode === "vice" || choice === "va") {
     await _w64Debug();
     return;
   }
@@ -24643,7 +24721,7 @@ const _RUN_MODE_ITEMS = {
   kff2: "run-kff2-mode",
   ue2: "run-ue2-mode",
   "ue2-d64": "run-ue2-d64-mode",
-  web64: "run-web64-mode",
+  vice: "run-vice-mode",
 };
 
 function _runModeAvailable(mode) {
@@ -24661,7 +24739,7 @@ function getRunModeLabel(mode) {
   if (mode === "kff2") return t("runOnKff2");
   if (mode === "ue2") return t("runOnUe2");
   if (mode === "ue2-d64") return t("runOnUe2D64");
-  if (mode === "web64") return t("runInWeb64");
+  if (mode === "vice") return t("runInVice");
   return t("runInEmulator");
 }
 
@@ -24710,21 +24788,22 @@ function setupRunModeDropdown() {
   document.getElementById("run-kff2-mode")?.addEventListener("click", () => { setRunMode("kff2"); closeMenu(); });
   document.getElementById("run-ue2-mode")?.addEventListener("click", () => { setRunMode("ue2"); closeMenu(); });
   document.getElementById("run-ue2-d64-mode")?.addEventListener("click", () => { setRunMode("ue2-d64"); closeMenu(); });
-  document.getElementById("run-web64-mode")?.addEventListener("click", () => { setRunMode("web64"); closeMenu(); });
+  document.getElementById("run-vice-mode")?.addEventListener("click", () => { setRunMode("vice"); closeMenu(); });
 
-  const saved = localStorage.getItem("runMode");
-  if (["prg", "d64", "ultimate", "ultimate-d64", "kff2", "ue2", "ue2-d64", "web64"].includes(saved)) _runModeWanted = saved;
+  const saved = _runModeNormalize(localStorage.getItem("runMode"));
+  if (["prg", "d64", "ultimate", "ultimate-d64", "kff2", "ue2", "ue2-d64", "vice"].includes(saved)) _runModeWanted = saved;
   _runModeApply();
 }
 
 function setRunMode(mode) {
+  mode = _runModeNormalize(mode);
   _runModeWanted = mode;
   localStorage.setItem("runMode", mode);
   _runModeApply();
 }
 
 function _runModeApply() {
-  const fallback = _runModeAvailable("prg") ? "prg" : "web64";
+  const fallback = _runModeAvailable("prg") ? "prg" : "vice";
   const mode = _runModeAvailable(_runModeWanted) ? _runModeWanted : fallback;
   runMode = mode;
   for (const [itemMode, id] of Object.entries(_RUN_MODE_ITEMS)) {
@@ -25786,7 +25865,7 @@ async function reloadIncBinBlocks(projectFilePath = "", blocks = program) {
       block.incBinBytes = result.bytes || [];
       block.incBinFileName = result.fileName || block.incBinFileName || "";
       block.incBinFile = result.filePath || sourcePath;
-      block.validationError = validateIncBinMacro(block.incBinBytes, block.incBinAddress);
+      block.validationError = _incBinBlockError(block);
     } else {
       block.incBinBytes = [];
       block.validationError = result.error;
@@ -28507,13 +28586,12 @@ async function _kickOrVaPrg() {
 }
 
 /* VMA compiler engine (Settings → General, `c64va-vma-engine`): "js" = the app.js compiler,
-   "rust" = the VMA crate (github.com/zstarczali/VMA) through the vma_build command (the source text in, the files read by Rust),
-   "shadow" = the JS result is used, the Rust one is built too and every difference is logged
-   (console + _vaErrorLog). Without the desktop app (no vmaBuild) always JS. */
+   "rust" = the VMA crate (github.com/zstarczali/VMA) through the vma_build command (the source text in, the files read by Rust).
+   Without the desktop app (no vmaBuild) always JS; anything else saved (the former "shadow") = JS. */
 function _vmaEngine() {
   let v = "js";
   try { v = localStorage.getItem("c64va-vma-engine") || "js"; } catch (_) {}
-  return v === "rust" || v === "shadow" ? v : "js";
+  return v === "rust" ? "rust" : "js";
 }
 
 // The VMA source the JS build compiles (buildAutostartPrgForEmulator's choice), its folder,
@@ -28663,21 +28741,7 @@ async function _vaBuildPrg(kick = null) {
   const file = kick ? _workStepName(kick.entry) : _workStepSource();
   setWorkStep("stepVma", { file, engine: engine === "rust" ? "Rust" : "JS" });
   if (engine === "rust") return _vmaStepDone(await _vmaRustBuild(kick));
-  const js = _vmaStepDone(buildAutostartPrgForEmulator());
-  if (engine === "shadow") {
-    try {
-      setWorkStep("stepVmaShadow", { file });
-      const rust = await _vmaRustBuild(kick);
-      const diff = _vmaShadowDiff(js, rust) || _vmaShadowMemoryDiff(rust);
-      if (diff) {
-        console.warn("[vma-shadow]", diff);
-        _vaLogError("vma-shadow", diff);
-      }
-    } catch (e) {
-      _vaLogError("vma-shadow", "Rust build failed: " + (e?.message || e));
-    }
-  }
-  return js;
+  return _vmaStepDone(buildAutostartPrgForEmulator());
 }
 
 // The step line after a VMA build: the size and load address of the PRG.
@@ -28686,37 +28750,6 @@ function _vmaStepDone(prg) {
     setWorkStep("stepVmaDone", { bytes: prg.bytes.length - 2, from: formatAddress(prg.bytes[0] | (prg.bytes[1] << 8)) });
   }
   return prg;
-}
-
-// The first difference between the JS and the Rust build ("" when they agree).
-function _vmaShadowDiff(js, rust) {
-  if (!!js.ok !== !!rust.ok) return js.ok ? `JS ok, Rust: ${rust.error}` : `Rust ok, JS: ${js.error}`;
-  if (!js.ok) return "";
-  const a = js.bytes, b = rust.bytes;
-  if ((js.sysAddress ?? null) !== (rust.sysAddress ?? null)) return `SYS ${js.sysAddress} vs ${rust.sysAddress}`;
-  const n = Math.min(a.length, b.length);
-  for (let i = 0; i < n; i++) {
-    if (a[i] !== b[i]) return `${a.length} vs ${b.length} bytes, first difference at offset ${i} ($${i.toString(16)})`;
-  }
-  return a.length === b.length ? "" : `${a.length} vs ${b.length} bytes`;
-}
-
-// The memory panel's usage (getMemoryUsage) of a Rust build's `memory`.
-function _vmaMemoryUsage(memory) {
-  return _memoryUsageOf(null, memory.code, memory.deferred, memory.regions.map(([address, end]) => ({ address, end, type: "code" })));
-}
-
-// The first difference between the memory view of the JS layout and of the Rust build ("" when
-// they agree): the occupied ranges, the deferred sections, the overlaps.
-function _vmaShadowMemoryDiff(rust) {
-  if (!rust.ok || !rust.vma?.memory) return "";
-  const js = _vmWithProgram((layout) => getMemoryUsage(layout), rust.vma.input.blocks);
-  const vma = _vmaMemoryUsage(rust.vma.memory);
-  const ranges = (u) => u.mergedOccupied.map(r => `${formatAddress(r.start)}-${formatAddress(r.end)}`).join(",");
-  if (ranges(js) !== ranges(vma)) return `memory: JS ${ranges(js)} vs Rust ${ranges(vma)}`;
-  const sections = (u) => u.deferredSections.map(d => `${d.type}@${d.address}-${d.end}`).join(",");
-  if (sections(js) !== sections(vma)) return `deferred sections: JS ${sections(js)} vs Rust ${sections(vma)}`;
-  return js.overlaps.length === vma.overlaps.length ? "" : `overlaps: JS ${js.overlaps.length} vs Rust ${vma.overlaps.length}`;
 }
 
 async function _kickGotoError(file, line) {
@@ -29271,6 +29304,35 @@ function _importMakeKoala(fileName, addressHex) {
   };
 }
 
+function _importMakeU64Palette(fileName) {
+  return {
+    ..._importMakeIncBin(fileName, ""),
+    mnemonic: "U64_PALETTE",
+    incBinU64Pal: true,
+    incBinAddress: "",
+    validationError: (fileName || "").trim() ? "" : t("u64PaletteNeedsFile")
+  };
+}
+
+function _importMakeU64PalColor(raw) {
+  return {
+    id: crypto.randomUUID(), category: "Makrok", mnemonic: "U64_PALETTE_COLOR",
+    operand: raw, rawOperand: raw, description: "",
+    addressingMode: "implied", base: "hex",
+    validationError: _u64PalColorError(raw),
+    collapsed: true, isUciPaletteColorMacro: true
+  };
+}
+
+function _importMakeU64PalReset() {
+  return {
+    id: crypto.randomUUID(), category: "Makrok", mnemonic: "U64_PALETTE_RESET",
+    operand: "", rawOperand: "", description: "",
+    addressingMode: "implied", base: "hex",
+    validationError: "", collapsed: true, isUciPaletteResetMacro: true
+  };
+}
+
 /* KOALA = INCBIN variant (incBinKoala). File: [$00 $60] + 8000 bitmap + 1000 screen
    RAM + 1000 color RAM + 1 background. The data is placed at incBinAddress ($6000 =
    Koala native, or $2000); the block itself emits a fixed 86-byte display routine.
@@ -29436,8 +29498,72 @@ function _levelError(block) {
   return _levelInfo(block).error;
 }
 
+/* Ultimate 64 / C64U palette through the Ultimate Command Interface (firmware 3.15+,
+   enabled in the menu). Control target $04: $52 + 16 × R,G,B sets all colours,
+   $53 idx,R,G,B one, $54 restores the menu's palette. The routine skips itself when
+   no interface answers at $DF1D ($C9: VICE, older firmware), waits for an idle
+   interface (accepting data left over from an earlier command), writes the command,
+   pushes it and accepts the answer. A and X are destroyed. */
+const _U64_UCI_CODE = 59;
+function _u64UciBytes(addr, data) {
+  const len = data.length;
+  const at = (addr + _U64_UCI_CODE) & 0xFFFF;
+  return [
+    0xAD, 0x1D, 0xDF,            // LDA $DF1D      identification
+    0xC9, 0xC9,                  // CMP #$C9
+    0xD0, 52 + len,              // BNE done
+    0xAD, 0x1C, 0xDF,            // idle: LDA $DF1C
+    0x29, 0x30,                  // AND #$30       state
+    0xF0, 0x0B,                  // BEQ ready
+    0x29, 0x20,                  // AND #$20
+    0xF0, 0xF5,                  // BEQ idle       busy
+    0xA9, 0x02,                  // LDA #$02       data pending: accept it
+    0x8D, 0x1C, 0xDF,            // STA $DF1C
+    0xD0, 0xEE,                  // BNE idle
+    0xA2, 0x00,                  // ready: LDX #0
+    0xBD, at & 0xFF, at >> 8,    // send: LDA data,X
+    0x8D, 0x1D, 0xDF,            // STA $DF1D
+    0xE8,                        // INX
+    0xE0, len,                   // CPX #len
+    0xD0, 0xF5,                  // BNE send
+    0xA9, 0x01,                  // LDA #$01       push command
+    0x8D, 0x1C, 0xDF,            // STA $DF1C
+    0xAD, 0x1C, 0xDF,            // busy: LDA $DF1C
+    0x29, 0x30,                  // AND #$30
+    0xC9, 0x10,                  // CMP #$10
+    0xF0, 0xF7,                  // BEQ busy
+    0xA9, 0x02,                  // LDA #$02       accept the answer
+    0x8D, 0x1C, 0xDF,            // STA $DF1C
+    0xD0, len,                   // BNE done
+    ...data                      // data: target, command, parameters
+  ];                             // done:
+}
+const _U64_PAL_SIZE = _U64_UCI_CODE + 50;
+const _U64_PAL_COLOR_SIZE = _U64_UCI_CODE + 6;
+const _U64_PAL_RESET_SIZE = _U64_UCI_CODE + 2;
+
+// Palette file → 16 × 0xRRGGBB: a text palette (.vpl, .gpl, hex list) or a Photoshop .act.
+function _u64PalColors(block) {
+  const bytes = Array.from(block?.incBinBytes || []);
+  if (!bytes.length) return null;
+  let text = "";
+  for (const b of bytes) text += String.fromCharCode(b);
+  return _palParseText(text) || (bytes.length >= 768 ? _palParseAct(bytes) : null);
+}
+function _u64PalError(block) {
+  return _u64PalColors(block) ? "" : t("u64PaletteBadFile");
+}
+function _u64PalColorParse(raw) {
+  const parts = String(raw || "").split(",").map(s => s.trim());
+  return parts.length === 2 && parts[0] && parts[1] ? { index: parts[0], color: parts[1] } : null;
+}
+function _u64PalColorError(raw) {
+  return _u64PalColorParse(raw) ? "" : t("u64PaletteColorSyntax");
+}
+
 /* Data bytes an INCBIN-family block places at incBinAddress. */
 function _incBinPayload(block) {
+  if (block?.incBinU64Pal) return [];
   if (block?.incBinKoala) return _koalaData(block);
   if (block?.incBinLevel) return _levelInfo(block).data;
   return block?.incBinBytes || [];
@@ -30593,8 +30719,8 @@ async function _applyProjectPayload(projectData, { sourceFilePath = "", keepFile
     applyZoom();
   }
 
-  const validRunModes = ["prg", "d64", "ultimate", "ultimate-d64", "kff2", "ue2", "ue2-d64", "web64"];
-  if (projectData.ui?.runMode && validRunModes.includes(projectData.ui.runMode)) {
+  const validRunModes = ["prg", "d64", "ultimate", "ultimate-d64", "kff2", "ue2", "ue2-d64", "vice"];
+  if (projectData.ui?.runMode && validRunModes.includes(_runModeNormalize(projectData.ui.runMode))) {
     setRunMode(projectData.ui.runMode);
   }
   // Older saves recorded the global setting; only ACME source text keeps ACME.
@@ -30831,7 +30957,7 @@ function _buildUniversalAsmExportText(originOverride) {
       continue;
     }
 
-    if (block.isStringMacro || block.isDataMacro || block.isRawBytesMacro || block.isRawTextMacro || block.isPetsciiMacro || (block.isIncBinMacro && !block.incBinKoala) || block.isSidMacro) {
+    if (block.isStringMacro || block.isDataMacro || block.isRawBytesMacro || block.isRawTextMacro || block.isPetsciiMacro || (block.isIncBinMacro && !block.incBinKoala && !block.incBinU64Pal) || block.isSidMacro) {
       continue;
     }
 
@@ -31244,7 +31370,7 @@ function _getPlainAsmSourceText() {
       return;
     }
 
-    if (block.isIncBinMacro) {
+    if (block.isIncBinMacro && !block.incBinU64Pal) {
       const address = parseAddressValue(block.incBinAddress, labels) ?? 0xC000;
       const bytes = Array.from(_incBinPayload(block));
       const byteLines = _formatPlainByteLines(bytes);
@@ -32057,6 +32183,37 @@ function compileLineBytes(line, labels) {
       bytes: [],
       comment: `RAWBYTES ${block.rawOperand || ""} @ ${formatAddress(parseAddressValue(block.rawBytesAddress) ?? 0xC000)}`
     };
+  }
+
+  if (block.isIncBinMacro && block.incBinU64Pal) {
+    const colors = _u64PalColors(block);
+    if (!colors) return { ok: false, error: t((block.incBinBytes || []).length ? "u64PaletteBadFile" : "u64PaletteNeedsFile") };
+    const data = [0x04, 0x52];
+    for (const c of colors) data.push((c >> 16) & 0xFF, (c >> 8) & 0xFF, c & 0xFF);
+    return {
+      ok: true,
+      bytes: _u64UciBytes(line.address, data),
+      comment: `U64_PALETTE "${block.incBinFileName || block.incBinFile || ""}"`
+    };
+  }
+
+  if (block.isUciPaletteColorMacro) {
+    const p = _u64PalColorParse(block.rawOperand);
+    if (!p) return { ok: false, error: t("u64PaletteColorSyntax") };
+    const index = _evalAsmExpr(_substituteStarPc(p.index, line.address), labels);
+    const color = _evalAsmExpr(_substituteStarPc(p.color, line.address), labels);
+    if (index === null || index === undefined || Number.isNaN(index)) return { ok: false, error: tf("assertUnresolved", { expr: p.index }) };
+    if (color === null || color === undefined || Number.isNaN(color)) return { ok: false, error: tf("assertUnresolved", { expr: p.color }) };
+    if (index < 0 || index > 15 || color < 0 || color > 0xFFFFFF) return { ok: false, error: t("u64PaletteColorRange") };
+    return {
+      ok: true,
+      bytes: _u64UciBytes(line.address, [0x04, 0x53, index & 0xFF, (color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF]),
+      comment: `U64_PALETTE_COLOR ${block.rawOperand.trim()}`
+    };
+  }
+
+  if (block.isUciPaletteResetMacro) {
+    return { ok: true, bytes: _u64UciBytes(line.address, [0x04, 0x54]), comment: "U64_PALETTE_RESET" };
   }
 
   if (block.isIncBinMacro && block.incBinKoala) {
@@ -34726,8 +34883,11 @@ function getInstructionSize(block, depth = 0) {
   }
 
   if (block.isIncBinMacro) {
-    return block.incBinKoala ? _KOALA_SHOW_SIZE : 0;
+    return block.incBinU64Pal ? _U64_PAL_SIZE : block.incBinKoala ? _KOALA_SHOW_SIZE : 0;
   }
+
+  if (block.isUciPaletteColorMacro) return _U64_PAL_COLOR_SIZE;
+  if (block.isUciPaletteResetMacro) return _U64_PAL_RESET_SIZE;
 
   if (block.isSidMacro) {
     return 0;
@@ -35628,7 +35788,7 @@ function getDeferredMemorySections(layout) {
         };
       }
 
-      if (line.block.isIncBinMacro) {
+      if (line.block.isIncBinMacro && !line.block.incBinU64Pal) {
         const bytes = _incBinPayload(line.block);
         const startAddress = parseAddressValue(line.block.incBinAddress) ?? 0xC000;
         return {
@@ -36341,6 +36501,12 @@ function getBlockDescription(block) {
     return block.validationError || `${t("rawbytesMacro")}: ${block.rawOperand || ""} @ ${block.rawBytesAddress || "C000"}`;
   }
 
+  if (block.isIncBinMacro && block.incBinU64Pal) {
+    return block.validationError || `U64_PALETTE "${block.incBinFileName || t("noFile")}" (${_U64_PAL_SIZE} byte)`;
+  }
+  if (block.isUciPaletteColorMacro) return block.validationError || `.u64_palette_color ${block.rawOperand || "?"}  (${_U64_PAL_COLOR_SIZE} byte)`;
+  if (block.isUciPaletteResetMacro) return `.u64_palette_reset  (${_U64_PAL_RESET_SIZE} byte)`;
+
   if (block.isIncBinMacro) {
     const size = (block.incBinBytes || []).length;
     const name = block.incBinFileName || (t("noFile"));
@@ -36549,6 +36715,10 @@ function getBlockModeCaption(block) {
   if (block.isPrintCharMacro) {
     return `PRINT_CHAR ${block.rawOperand || "$41"}  (5 byte)`;
   }
+
+  if (block.isIncBinMacro && block.incBinU64Pal) return `$DF1C-$DF1F  (${_U64_PAL_SIZE} byte)`;
+  if (block.isUciPaletteColorMacro) return `$DF1C-$DF1F  (${_U64_PAL_COLOR_SIZE} byte)`;
+  if (block.isUciPaletteResetMacro) return `$DF1C-$DF1F  (${_U64_PAL_RESET_SIZE} byte)`;
 
   if (block.isIncBinMacro) {
     const size = (block.incBinBytes || []).length;
@@ -36840,6 +37010,7 @@ function getCollapsedOperandText(block) {
     return `$${dst}=$${value} len=$${size}`;
   }
 
+  if (block.isUciPaletteColorMacro) return block.rawOperand || "";
   if (block.isTurboSetMacro) {
     const spd = parseInt(block.turboSpeed || "7", 10);
     const badlineLabel = block.turboBadline === "1"
@@ -37558,12 +37729,12 @@ function renderProgram(virtualScroll = false) {
               ${fileName && fileSize ? `<small style="color:var(--muted);font-size:0.7rem;">${fileSize} bytes</small>` : ""}
             </label>
           </div>
-          <div class="macro-grid single-macro-row">
+          ${block.incBinU64Pal ? "" : `<div class="macro-grid single-macro-row">
             <label class="mini-field">
               <span>${t("fieldAddress")}</span>
               <input class="macro-address" data-address-field="incBinAddress" type="text" value="${block.incBinAddress || "$C000"}" placeholder="$C000">
             </label>
-          </div>
+          </div>`}
         `
       );
       blockControls.querySelector(".include-browse-icon")?.addEventListener("click", async () => {
@@ -37610,7 +37781,7 @@ function renderProgram(virtualScroll = false) {
           program[index].incBinFile = isAbsolute ? (result.filePath || typedPath) : typedPath;
           program[index].incBinFileName = result.fileName || typedPath;
           program[index].incBinBytes = result.bytes || [];
-          program[index].validationError = validateIncBinMacro(program[index].incBinBytes, program[index].incBinAddress);
+          program[index].validationError = _incBinBlockError(program[index]);
         }
         renderProgram();
         renderAsmOutput();
@@ -38668,6 +38839,12 @@ function renderProgram(virtualScroll = false) {
       inlineField.hidden = false;
       operandField.value = block.assertExpr || block.rawOperand || "";
       operandField.placeholder = 'end - start <= 256, "message"';
+      operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
+    } else if (block.isUciPaletteColorMacro) {
+      inlineField.querySelector("span").textContent = t("u64PaletteColorOperand");
+      inlineField.hidden = false;
+      operandField.value = block.rawOperand || "";
+      operandField.placeholder = "6, $3050C0";
       operandField.addEventListener("input", (event) => updateProgramBlock(index, "rawOperand", event.target.value));
     } else if (block.isLevelRowMacro) {
       inlineField.querySelector("span").textContent = t("levelRowOperand");
@@ -40303,6 +40480,12 @@ function renderAsmOutput() {
       return `; .rawbytes ${rawbytesLabel}`;
     }
 
+    if (line.block.isIncBinMacro && line.block.incBinU64Pal) {
+      return `; .u64_palette "${line.block.incBinFileName || line.block.incBinFile || "?"}" (${_U64_PAL_SIZE} bytes)`;
+    }
+    if (line.block.isUciPaletteColorMacro) return `; .u64_palette_color ${(line.block.rawOperand || "").trim()}`;
+    if (line.block.isUciPaletteResetMacro) return "; .u64_palette_reset";
+
     if (line.block.isIncBinMacro && line.block.incBinKoala) {
       const bytes = _koalaData(line.block);
       const startAddress = parseAddressValue(line.block.incBinAddress) ?? 0x6000;
@@ -40885,6 +41068,8 @@ async function loadSampleFromFile(sampleName) {
   }
 
   await reloadIncludeBlocks(result.filePath || "");
+  await reloadIncBinBlocks(result.filePath || "");
+  await reloadSidBlocks(result.filePath || "");
 
   d64ExportState.extras = [];
   d64ExportState._pendingExtras = null;
@@ -40918,8 +41103,8 @@ async function loadSampleFromFile(sampleName) {
     d64ExportState.progName = "";
   }
 
-  const validRunModes = ["prg", "d64", "ultimate", "ultimate-d64", "kff2", "ue2", "ue2-d64", "web64"];
-  if (sampleData.ui?.runMode && validRunModes.includes(sampleData.ui.runMode)) {
+  const validRunModes = ["prg", "d64", "ultimate", "ultimate-d64", "kff2", "ue2", "ue2-d64", "vice"];
+  if (sampleData.ui?.runMode && validRunModes.includes(_runModeNormalize(sampleData.ui.runMode))) {
     setRunMode(sampleData.ui.runMode);
   }
 
@@ -41268,6 +41453,11 @@ function loadSelectedSample() {
 
   if (sampleSelect.value === "ultimate-box-demo") {
     loadSampleFromFile("ultimate-box-demo");
+    return;
+  }
+
+  if (sampleSelect.value === "u64-palette-demo") {
+    loadSampleFromFile("u64-palette-demo");
     return;
   }
 
@@ -49123,6 +49313,7 @@ function _hgBlitSoon() {
 function _hgRenderAll() { _hgSyncModeTools(); _hgRenderBuf(); _hgBlit(); }
 // Multicolor has one shared $D021 background, so the per-cell paper tool is hi-res only.
 function _hgSyncModeTools() {
+  _hgMixSync();
   const btn = document.querySelector('.hg-tool[data-tool="cellpaper"]');
   if (!btn) return;
   btn.disabled = _hgMulti;
@@ -49270,7 +49461,7 @@ function _hgOval(x0, y0, x1, y1, set, filled) {
 }
 function _hgFloodFill(x, y, col) {
   const target = _hgGet(x, y);
-  if (target === col || target === -1) return;
+  if (target === -1 || (typeof col !== "function" && target === col)) return;
   const W = _hgW(), H = _hgH();
   // `seen` guard: in hi-res _hgSet recolours a whole cell, which can change a
   // neighbour's displayed colour mid-fill, so track visited pixels explicitly.
@@ -49283,8 +49474,8 @@ function _hgFloodFill(x, y, col) {
     if (seen[cy * W + cx]) continue;
     if (_hgGet(cx, cy) !== target) continue;
     seen[cy * W + cx] = 1;
-    if (_hgMulti) batch.set(cy * W + cx, col);
-    else _hgSet(cx, cy, col);
+    if (_hgMulti) batch.set(cy * W + cx, _hgInkAt(col, cx, cy));
+    else _hgSet(cx, cy, _hgInkAt(col, cx, cy));
     stack.push([cx+1, cy], [cx-1, cy], [cx, cy+1], [cx, cy-1]);
   }
   if (batch.size) _hgMcPaint(batch);
@@ -49299,8 +49490,152 @@ function _hgSpray(x, y, col) {
     const px = Math.round(x + Math.cos(a) * d);
     const py = Math.round(y + Math.sin(a) * d);
     if (px < 0 || py < 0 || px >= _hgW() || py >= _hgH()) continue;
-    _hgSet(px, py, col);
+    _hgSet(px, py, typeof col === "function" ? col(px, py) : col);
     _hgRedrawCellBuf(px, py);
+  }
+}
+
+/* ── MIX: three colours in a fixed pattern (multicolor only) ──
+   The pattern is locked to the picture, not to the shape, so neighbouring
+   shapes painted with the same mix meet without a seam. A cell still takes
+   paper + 3 colours: a mix containing the paper uses only 2 of them. */
+const _HG_MIX_PATTERNS = ["lines", "stripes", "brick", "checker", "soft", "columns", "diagonal", "tint"];
+const _HG_MIX_SLOTS = 8;
+const _HG_MIX_STORE = "c64va-hg-mix";
+const _HG_BAYER4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+function _hgMixDefaults() {
+  return [
+    { c: [11, 12, 15], p: "lines" }, { c: [6, 14, 3], p: "stripes" }, { c: [9, 2, 8], p: "brick" },
+    { c: [8, 10, 7], p: "checker" }, { c: [5, 13, 3], p: "soft" }, { c: [0, 11, 12], p: "columns" },
+    { c: [6, 4, 14], p: "diagonal" }, { c: [12, 0, 15], p: "tint" },
+  ];
+}
+// var: _hgMixSync can run (palette, translations) before this line (TDZ)
+var _hgMixOn = false;
+var _hgMixSlot = 0;
+var _hgMixes = _hgMixDefaults();
+var _hgMixReady = false;
+// Which of the three colours (0..2) pixel (x, y) takes.
+function _hgMixIndex(pattern, x, y) {
+  const m3 = function(v) { return ((v % 3) + 3) % 3; };
+  const b = _HG_BAYER4[(y & 3) * 4 + (x & 3)];
+  switch (pattern) {
+    case "lines":    return m3(y);
+    case "stripes":  return m3(y >> 1);
+    case "brick":    return ((y & 3) === 3 || ((x + ((y >> 2) & 1) * 2) & 3) === 0) ? 2 : (y & 1);
+    case "checker":  return ((x + y) & 1) ? 1 : ((((x >> 1) + (y >> 1)) & 1) ? 2 : 0);
+    case "soft":     return b < 5 ? 0 : b < 10 ? 1 : 2;
+    case "columns":  return m3(x);
+    case "diagonal": return m3(x + y);
+    case "tint":     return b < 2 ? 1 : b < 4 ? 2 : 0;
+  }
+  return 0;
+}
+function _hgMixColorAt(x, y, slot) {
+  const m = _hgMixes[slot == null ? _hgMixSlot : slot];
+  return m.c[_hgMixIndex(m.p, x, y)];
+}
+function _hgMixActive() {
+  return _hgMixOn && _hgMulti && _hgTool !== "eraser" && _hgTool !== "cellpaper";
+}
+// The pen: a colour index, or a (x, y) → colour function while a mix is on.
+function _hgInk() { return _hgMixActive() ? _hgMixColorAt : _hgColor; }
+function _hgInkAt(ink, x, y) { return typeof ink === "function" ? ink(x, y) : ink; }
+function _hgMixNormalize(data) {
+  const def = _hgMixDefaults();
+  const list = Array.isArray(data && data.mixes) ? data.mixes : [];
+  const mixes = def.map(function(d, i) {
+    const m = list[i];
+    const c = m && Array.isArray(m.c) && m.c.length === 3 && m.c.every(function(v) { return Number.isInteger(v) && v >= 0 && v < 16; }) ? m.c.slice() : d.c;
+    return { c: c, p: m && _HG_MIX_PATTERNS.includes(m.p) ? m.p : d.p };
+  });
+  const slot = data && Number.isInteger(data.slot) && data.slot >= 0 && data.slot < _HG_MIX_SLOTS ? data.slot : 0;
+  return { on: !!(data && data.on), slot: slot, mixes: mixes };
+}
+function _hgMixLoad() {
+  let data = null;
+  try { data = JSON.parse(localStorage.getItem(_HG_MIX_STORE) || "null"); } catch (_) {}
+  const s = _hgMixNormalize(data);
+  _hgMixOn = s.on; _hgMixSlot = s.slot; _hgMixes = s.mixes;
+}
+function _hgMixSave() {
+  try { localStorage.setItem(_HG_MIX_STORE, JSON.stringify({ on: _hgMixOn, slot: _hgMixSlot, mixes: _hgMixes })); } catch (_) {}
+}
+function _hgMixDrawSlot(canvas, slot) {
+  const ctx = canvas.getContext("2d");
+  // 6×8 multicolor pixels, each 4×2 device pixels (the double-wide MC aspect)
+  for (let y = 0; y < 8; y++)
+    for (let x = 0; x < 6; x++) {
+      ctx.fillStyle = _CE_COLORS[_hgMixColorAt(x, y, slot)];
+      ctx.fillRect(x * 4, y * 2, 4, 2);
+    }
+}
+function _hgMixBuildUi() {
+  const slots = document.getElementById("hg-mix-slots");
+  if (!slots || slots.children.length) return;
+  for (let i = 0; i < _HG_MIX_SLOTS; i++) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "hg-mix-slot";
+    btn.dataset.mixSlot = String(i);
+    const cv = document.createElement("canvas");
+    cv.width = 24; cv.height = 16;
+    btn.appendChild(cv);
+    btn.addEventListener("click", function() {
+      _hgMixSlot = i;
+      _hgMixOn = true;
+      _hgMixSave();
+      _hgMixSync();
+    });
+    slots.appendChild(btn);
+  }
+  document.querySelectorAll("#hg-mix-bar .hg-mix-col").forEach(function(btn) {
+    btn.addEventListener("click", function() {
+      _hgMixes[_hgMixSlot].c[+btn.dataset.mixCol] = _hgColor;
+      _hgMixSave();
+      _hgMixSync();
+    });
+  });
+  document.getElementById("hg-mix-on")?.addEventListener("change", function(e) {
+    _hgMixOn = !!e.target.checked;
+    _hgMixSave();
+    _hgMixSync();
+  });
+  document.getElementById("hg-mix-pattern")?.addEventListener("change", function(e) {
+    if (!_HG_MIX_PATTERNS.includes(e.target.value)) return;
+    _hgMixes[_hgMixSlot].p = e.target.value;
+    _hgMixSave();
+    _hgMixSync();
+  });
+}
+// Labels, swatches, previews and the multicolor-only state of the MIX row.
+function _hgMixSync() {
+  const bar = document.getElementById("hg-mix-bar");
+  if (!bar || !_hgMixReady) return;
+  const m = _hgMixes[_hgMixSlot];
+  bar.classList.toggle("hg-toolbar--mix-off", !_hgMulti);
+  bar.querySelectorAll("input, select, button").forEach(function(el) { el.disabled = !_hgMulti; });
+  const on = document.getElementById("hg-mix-on");
+  if (on) on.checked = _hgMixOn;
+  const hint = document.getElementById("hg-mix-hint");
+  if (hint) hint.hidden = _hgMulti;
+  bar.querySelectorAll(".hg-mix-slot").forEach(function(btn, i) {
+    btn.classList.toggle("hg-mix-slot--sel", i === _hgMixSlot);
+    btn.classList.toggle("hg-mix-slot--on", i === _hgMixSlot && _hgMixOn);
+    btn.setAttribute("aria-label", tf("hgMixSlot", { n: i + 1, pattern: t("hgMixPat_" + _hgMixes[i].p) }));
+    const cv = btn.querySelector("canvas");
+    if (cv) _hgMixDrawSlot(cv, i);
+  });
+  bar.querySelectorAll(".hg-mix-col").forEach(function(btn) {
+    const k = +btn.dataset.mixCol;
+    btn.style.background = _CE_COLORS[m.c[k]];
+    btn.setAttribute("aria-label", tf("hgMixColorTip", { n: k + 1 }));
+  });
+  const sel = document.getElementById("hg-mix-pattern");
+  if (sel) {
+    if (!sel.options.length) _HG_MIX_PATTERNS.forEach(function(p) { const o = document.createElement("option"); o.value = p; sel.appendChild(o); });
+    Array.from(sel.options).forEach(function(o) { o.textContent = t("hgMixPat_" + o.value); });
+    sel.value = m.p;
   }
 }
 
@@ -50155,6 +50490,8 @@ function setupHiresEditor() {
   document.getElementById("hires-editor-btn")?.addEventListener("click", function() {
     document.querySelector(".control-menu")?.removeAttribute("open");
     _hgInit();
+    // on first open: setupHiresEditor runs before the _HG_MIX_* constants exist (TDZ)
+    if (!_hgMixReady) { _hgMixReady = true; _hgMixLoad(); _hgMixBuildUi(); }
     _toolDropdownSyncActive("hg-spray-menu", "data-hg-spray-intensity", _hgSprayIntensity);
     _toolDropdownSetOpen("hg-spray-tool", "hg-spray-menu", false);
     _hgRenderAll();
@@ -50401,7 +50738,7 @@ function setupHiresEditor() {
   const applyPoint = function(x, y) {
     if (_hgTool === "eraser") _hgErase(x, y);
     else if (_hgTool === "cellpaper") _hgSetCellBg(x, y, _hgColor);
-    else _hgSet(x, y, _hgColor);
+    else _hgSet(x, y, _hgInkAt(_hgInk(), x, y));
     _hgRedrawCellBuf(x, y);
   };
   const isFreehand = function() { return _hgTool === "pencil" || _hgTool === "eraser" || _hgTool === "cellpaper"; };
@@ -50445,8 +50782,8 @@ function setupHiresEditor() {
     _hgPushUndo();
     _hgPainting = true; _hgStart = p; _hgLast = p;
     if (isFreehand()) { applyPoint(p.x, p.y); _hgBlit(); }
-    else if (_hgTool === "spray") { _hgSpray(p.x, p.y, _hgColor); _hgBlit(); }
-    else if (_hgTool === "fill") { _hgFloodFill(p.x, p.y, _hgColor); _hgRenderAll(); _hgPainting = false; }
+    else if (_hgTool === "spray") { _hgSpray(p.x, p.y, _hgInk()); _hgBlit(); }
+    else if (_hgTool === "fill") { _hgFloodFill(p.x, p.y, _hgInk()); _hgRenderAll(); _hgPainting = false; }
     e.preventDefault();
   });
   canvas.addEventListener("pointermove", function(e) {
@@ -50466,19 +50803,22 @@ function setupHiresEditor() {
       _hgBlitSoon();
       return;
     }
-    const col = _hgColor;
+    const ink = _hgInk();
     if (isFreehand()) {
       _hgLine(_hgLast.x, _hgLast.y, p.x, p.y, applyPoint);
       _hgLast = p; _hgBlitSoon();
     } else if (_hgTool === "spray") {
-      _hgSpray(p.x, p.y, _hgColor);
+      _hgSpray(p.x, p.y, ink);
       _hgLast = p; _hgBlitSoon();
     } else {
       // shape preview: blit committed, draw preview on top
       _hgBlit();
-      _hgCtx.fillStyle = _CE_COLORS[col];
       const pw = _hgPxW(), ph = _hgPxH();
-      const draw = function(x, y) { if (x>=0&&y>=0&&x<_hgW()&&y<_hgH()) _hgCtx.fillRect(x*pw, y*ph, pw, ph); };
+      const draw = function(x, y) {
+        if (x < 0 || y < 0 || x >= _hgW() || y >= _hgH()) return;
+        _hgCtx.fillStyle = _CE_COLORS[_hgInkAt(ink, x, y)];
+        _hgCtx.fillRect(x * pw, y * ph, pw, ph);
+      };
       _hgPreviewShape(_hgStart, p, draw);
     }
   });
@@ -50495,11 +50835,11 @@ function setupHiresEditor() {
       return;
     }
     if (!isFreehand() && _hgTool !== "spray" && _hgTool !== "fill") {
-      const col = _hgColor;
+      const ink = _hgInk();
       const batch = new Map();
       const set = function(x, y) {
-        if (!_hgMulti) _hgSet(x, y, col);
-        else if (x >= 0 && y >= 0 && x < 160 && y < 200) batch.set(y * 160 + x, col);
+        if (!_hgMulti) _hgSet(x, y, _hgInkAt(ink, x, y));
+        else if (x >= 0 && y >= 0 && x < 160 && y < 200) batch.set(y * 160 + x, _hgInkAt(ink, x, y));
       };
       _hgPreviewShape(_hgStart, p, set);
       if (batch.size) _hgMcPaint(batch);
@@ -60854,7 +61194,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setupTableGenerator();
   setupExpertLint();
   setupViceMonitor();
-  setupWeb64();
+  setupVice();
   setupUe2Debugger();
   setupMemoryFloat();
   setupDialogStacking();
@@ -61849,8 +62189,8 @@ function _vmRenderProfile(agg) {
     (r) => (ultimateBasicMode ? _ubGotoLine(r.srcLine) : _zpGotoRef(r)));
 }
 
-// ── Beépített C64: VICE 3.10 x64sc WebAssembly-ben (www/web64/), debuggerrel ──
-// A modul (vice-3.10-web64, GPLv2+) Asyncify-jal a háttérben fut; a JS képkockánként rajzol,
+// ── Beépített C64: VICE 3.10 x64sc WebAssembly-ben (www/vice/vice.*), debuggerrel ──
+// A modul (a vice-3.10-web64 fork, GPLv2+) Asyncify-jal a háttérben fut; a JS képkockánként rajzol,
 // továbbadja a hangot és figyeli a megállást. Töréspontnál és lépés végén a CPU az utasítás
 // ELŐTT vár (vice_web_monitor_break_active), így a regiszterek és a memória pontosan az ottani
 // állapotot mutatják, és az írásuk a folytatáskor érvényes. Csak függvények + egy állapot-objektum
@@ -61874,13 +62214,13 @@ function _w64Sleep(ms) { return new Promise((resolve) => setTimeout(resolve, ms)
 // Remembered state: { open, warp, sound, debug, joy } (the window position: _editorDialogPositions)
 function _w64Prefs() {
   let p = {};
-  try { p = JSON.parse(localStorage.getItem("c64va-web64") || "{}") || {}; } catch (_) { p = {}; }
+  try { p = JSON.parse(localStorage.getItem("c64va-vice") || localStorage.getItem(_VICE_LEGACY.prefs) || "{}") || {}; } catch (_) { p = {}; }
   return p;
 }
 function _w64SavePref(name, value) {
   const p = _w64Prefs();
   p[name] = value;
-  try { localStorage.setItem("c64va-web64", JSON.stringify(p)); } catch (_) {}
+  try { localStorage.setItem("c64va-vice", JSON.stringify(p)); } catch (_) {}
 }
 function _w64Hex(v, w = 4) { return "$" + (v & (w === 2 ? 0xFF : 0xFFFF)).toString(16).toUpperCase().padStart(w, "0"); }
 
@@ -61890,11 +62230,12 @@ async function _w64Load() {
   if (s.loading) return s.loading;
   _w64SetOverlay(t("w64Booting"));
   s.loading = (async () => {
-    const base = new URL("web64/", location.href);
-    const factory = (await import(new URL("x64sc.js", base).href)).default;
+    const base = new URL("vice/", location.href);
+    const factory = (await import(new URL("vice.js", base).href)).default;
     const mod = await factory({
       noInitialRun: true,
-      locateFile: (name) => new URL(name, base).href,
+      // the loader still asks for x64sc.wasm / x64sc.data (the names of the VICE build)
+      locateFile: (name) => new URL(name.replace(/^x64sc\./, "vice."), base).href,
       print: () => {},
       printErr: () => {},
     });
@@ -62144,7 +62485,7 @@ function _w64StartLoop() {
   if (s.raf) return;
   const loop = (now) => {
     s.raf = 0;
-    const dlg = document.getElementById("web64-dialog");
+    const dlg = document.getElementById("vice-dialog");
     if (!s.mod) return;
     _w64DrawFrame();
     _w64DrainAudio();
@@ -62309,7 +62650,7 @@ function _w64SyncButtons() {
   const brk = document.getElementById("w64-break");
   if (brk) brk.disabled = !mod || s.stopped;
   document.getElementById("w64-debug-tools")?.classList.toggle("w64-tools--session", dbg);
-  document.getElementById("web64-btn")?.classList.toggle("main-tb-btn--active", !!document.getElementById("web64-dialog")?.open);
+  document.getElementById("vice-btn")?.classList.toggle("main-tb-btn--active", !!document.getElementById("vice-dialog")?.open);
 }
 
 // ── Billentyűzet, joystick ──
@@ -62412,7 +62753,7 @@ async function _w64StartPrg(bytes, { debug = false } = {}) {
 }
 
 async function _w64Show() {
-  const dlg = document.getElementById("web64-dialog");
+  const dlg = document.getElementById("vice-dialog");
   if (!dlg) return;
   if (!dlg.open) {
     _w64ApplySize();
@@ -62437,13 +62778,13 @@ async function _w64Show() {
 }
 
 function _w64Close() {
-  const dlg = document.getElementById("web64-dialog");
+  const dlg = document.getElementById("vice-dialog");
   dlg?.close();
 }
 
 function _w64OnDialogClose() {
   // the close event is asynchronous: the window may already be open again
-  if (document.getElementById("web64-dialog")?.open) return;
+  if (document.getElementById("vice-dialog")?.open) return;
   const s = _w64S();
   _w64SavePref("open", false);
   _w64ExitFullscreen();
@@ -62464,6 +62805,11 @@ function _w64OnDialogClose() {
 }
 
 async function _w64Run() {
+  // as runInEmulator; UB checks its own source in buildRunPrgForCurrentMode (ubNothingToRun)
+  if (!ultimateBasicMode && isProgramEmpty()) {
+    showViceToast(t("nothingToRunAddSomeInstructionsFirst"), true);
+    return;
+  }
   const prg = await buildRunPrgForCurrentMode();
   if (!prg.ok) {
     if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
@@ -62786,7 +63132,7 @@ function _w64ShowDebugPanel(show) {
   const panel = document.getElementById("w64-debug");
   if (!panel) return;
   panel.hidden = !show;
-  document.getElementById("web64-dialog")?.classList.toggle("w64-dialog--debug", show);
+  document.getElementById("vice-dialog")?.classList.toggle("w64-dialog--debug", show);
   if (show) _w64RenderDebug();
   _w64SyncButtons();
 }
@@ -62949,21 +63295,21 @@ function _w64ParseAddress(text, labels = _w64S().session?.labels) {
 
 // Full screen: the dialog itself fills the window (CSS), in the desktop app the window goes full screen too.
 function _w64IsFullscreen() {
-  return !!document.getElementById("web64-dialog")?.classList.contains("w64-dialog--full");
+  return !!document.getElementById("vice-dialog")?.classList.contains("w64-dialog--full");
 }
 function _w64SetWindowFullscreen(on) {
   try { window.__TAURI__?.window?.getCurrentWindow()?.setFullscreen(!!on).catch(() => {}); } catch (_) {}
 }
 function _w64ToggleFullscreen() {
   if (_w64IsFullscreen()) { _w64ExitFullscreen(); return; }
-  document.getElementById("web64-dialog")?.classList.add("w64-dialog--full");
+  document.getElementById("vice-dialog")?.classList.add("w64-dialog--full");
   _w64SetWindowFullscreen(true);
   document.getElementById("w64-screen")?.focus();
   _w64SyncButtons();
 }
 function _w64ExitFullscreen() {
   if (!_w64IsFullscreen()) return;
-  document.getElementById("web64-dialog")?.classList.remove("w64-dialog--full");
+  document.getElementById("vice-dialog")?.classList.remove("w64-dialog--full");
   _w64SetWindowFullscreen(false);
   _w64SyncButtons();
 }
@@ -62971,14 +63317,14 @@ function _w64ExitFullscreen() {
 // Saved size (prefs.size), kept inside the window. The grip pins the dialog to its place first:
 // a centred (translated) dialog would grow in both directions.
 function _w64ApplySize() {
-  const dlg = document.getElementById("web64-dialog");
+  const dlg = document.getElementById("vice-dialog");
   const size = _w64Prefs().size;
   if (!dlg || !size) return;
   dlg.style.width = Math.min(size.w, innerWidth) + "px";
   dlg.style.height = Math.min(size.h, innerHeight) + "px";
 }
 function _w64SetupResize() {
-  const dlg = document.getElementById("web64-dialog");
+  const dlg = document.getElementById("vice-dialog");
   const grip = document.getElementById("w64-resize");
   if (!dlg || !grip) return;
   let start = null;
@@ -63009,7 +63355,7 @@ function _w64SetupResize() {
   grip.addEventListener("pointercancel", end);
 }
 
-function setupWeb64() {
+function setupVice() {
   const on = (id, ev, fn) => document.getElementById(id)?.addEventListener(ev, fn);
   _w64SetupResize();
   on("w64-fullscreen", "click", _w64ToggleFullscreen);
@@ -63018,12 +63364,12 @@ function setupWeb64() {
     const screen = document.getElementById("w64-screen");
     if (screen) new ResizeObserver(_w64LayoutCrt).observe(screen);
   }
-  on("web64-btn", "click", () => {
-    const dlg = document.getElementById("web64-dialog");
+  on("vice-btn", "click", () => {
+    const dlg = document.getElementById("vice-dialog");
     if (dlg?.open) _w64Close(); else _w64Show();
   });
   on("w64-close", "click", _w64Close);
-  on("web64-dialog", "close", _w64OnDialogClose);
+  on("vice-dialog", "close", _w64OnDialogClose);
   on("w64-run", "click", () => (_w64S().session && !_w64S().session.adhoc ? _w64Debug() : _w64Run()));
   on("w64-reset", "click", async () => {
     const s = _w64S();
@@ -63092,7 +63438,7 @@ function setupWeb64() {
     document.getElementById("w64-screen")?.focus();
   });
   try {
-    const joy = Number(_w64Prefs().joy ?? localStorage.getItem("c64va-web64-joy")) || 0;
+    const joy = Number(_w64Prefs().joy ?? localStorage.getItem(_VICE_LEGACY.joy)) || 0;
     _w64S().joy = joy;
     const sel = document.getElementById("w64-joy");
     if (sel) sel.value = String(joy);
@@ -63127,7 +63473,7 @@ function setupWeb64() {
   canvas?.addEventListener("click", () => { canvas.focus(); _w64ResumeAudio(); });
   canvas?.addEventListener("dblclick", (e) => { e.preventDefault(); _w64ToggleFullscreen(); });
   // debugger keys while the focus is in the window but not on the C64 screen (F5 is a C64 key)
-  on("web64-dialog", "keydown", (e) => {
+  on("vice-dialog", "keydown", (e) => {
     if (e.key === "Escape" && _w64IsFullscreen()) { e.preventDefault(); _w64ExitFullscreen(); return; }
     if (e.target === canvas || /^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName)) return;
     const s = _w64S();

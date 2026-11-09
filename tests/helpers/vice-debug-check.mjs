@@ -1,16 +1,16 @@
-// Debugger semantics of the bundled built-in C64 (www/web64/x64sc). Run as its own process:
+// Debugger semantics of the bundled built-in C64 (www/vice/vice.*). Run as its own process:
 // the emulator keeps running timers, so the process exits explicitly (0 = all checks passed).
 import { pathToFileURL } from "node:url";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const dir = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "www", "web64");
+const dir = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "www", "vice");
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const fail = (msg) => { console.error("FAIL " + msg); process.exit(1); };
 const check = (ok, msg) => { if (!ok) fail(msg); };
 
-const create = (await import(pathToFileURL(join(dir, "x64sc.js")).href)).default;
-const v = await create({ noInitialRun: true, locateFile: (n) => join(dir, n), print() {}, printErr() {} });
+const create = (await import(pathToFileURL(join(dir, "vice.js")).href)).default;
+const v = await create({ noInitialRun: true, locateFile: (n) => join(dir, n.replace(/^x64sc\./, "vice.")), print() {}, printErr() {} });
 v._vice_web_boot();
 const t0 = Date.now();
 while (v._vice_web_frame_number() < 120 && Date.now() - t0 < 60000) await sleep(50);
@@ -59,5 +59,5 @@ check(await waitBreak(), "break stops a running program");
 check(R(0) >= 0xC002 && R(0) <= 0xC011, "break lands in the program");
 const pk = v._vice_web_monitor_memory_peek(0xC000, 2);
 check(v.HEAPU8[pk] === 0xA2 && v.HEAPU8[pk + 1] === 0x00, "peek");
-console.log("web64 debugger: ok");
+console.log("vice debugger: ok");
 process.exit(0);

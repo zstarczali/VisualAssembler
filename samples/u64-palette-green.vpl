@@ -1,0 +1,41 @@
+# VICE Palette file
+#
+# Green monitor
+# Made for the C64 Visual Assembler U64 palette demo
+#
+# Syntax:
+# Red Green Blue Dither
+#
+
+# black
+00 14 00 0
+# white
+2D FE 1B 0
+# red
+0F 62 09 4
+# cyan
+23 CA 15 4
+# purple
+14 7C 0C 4
+# green
+19 96 0F 4
+# blue
+0A 48 06 4
+# yellow
+28 E4 18 4
+# orange
+14 7C 0C 4
+# brown
+0A 48 06 4
+# light red
+1E B0 12 4
+# dark grey
+0F 62 09 4
+# grey
+19 96 0F 4
+# light green
+28 E4 18 4
+# light blue
+19 96 0F 4
+# light grey
+23 CA 15 4
