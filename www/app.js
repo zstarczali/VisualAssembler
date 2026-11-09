@@ -7498,6 +7498,7 @@ const ubCommandDescriptionsEn = {
   "raster": "Returns the current raster line.",
   "scroll": "Controls VIC-II fine scrolling, display width, or shifts a screen row.",
   "badlines": "Controls Ultimate badline timing.",
+  "palette": "Sets the Ultimate 64 / C64 Ultimate palette through the Command Interface (firmware 3.15+).",
   "speed": "Sets the C64 Ultimate CPU speed.",
   "fast": "Enables the compiler's fast execution mode where supported.",
   "getch": "Reads a character using the KERNAL.",
@@ -7636,6 +7637,7 @@ const ubCommandDescriptionsHu = {
   "raster": "Visszaadja az aktuális rasztersor számát (0-311 PAL esetén).",
   "scroll": "Finomgörgetést (fine scroll), képernyőszélességet vezérel vagy eltol egy képernyősort.",
   "badlines": "Vezérli az Ultimate badline időzítést.",
+  "palette": "Az Ultimate 64 / C64 Ultimate palettáját állítja a Command Interface-en át (firmware 3.15+).",
   "speed": "Beállítja a C64 Ultimate processzor sebességét (MHz, max, off).",
   "fast": "Bekapcsolja a fordító gyors végrehajtási módját ahol támogatott.",
   "getch": "Karaktert olvas be a KERNAL GETIN ($FFE4) rutinjával.",
@@ -7774,6 +7776,7 @@ const ubCommandDescriptionsEs = {
   "raster": "Devuelve la línea de trama actual.",
   "scroll": "Controla el desplazamiento fino del VIC-II, el ancho de pantalla o desplaza una fila.",
   "badlines": "Controla la temporización de badlines en Ultimate.",
+  "palette": "Ajusta la paleta del Ultimate 64 / C64 Ultimate mediante el Command Interface (firmware 3.15+).",
   "speed": "Establece la velocidad de CPU de C64 Ultimate.",
   "fast": "Activa el modo de ejecución rápida del compilador donde sea compatible.",
   "getch": "Lee un carácter mediante el KERNAL.",
@@ -7912,6 +7915,7 @@ const ubCommandDescriptionsDe = {
   "raster": "Gibt die aktuelle Rasterzeile zurück.",
   "scroll": "Steuert VIC-II-Feinscrolling, Bildschirmbreite oder verschiebt eine Bildschirmzeile.",
   "badlines": "Steuert das Ultimate Badline-Timing.",
+  "palette": "Setzt die Palette des Ultimate 64 / C64 Ultimate über das Command Interface (Firmware 3.15+).",
   "speed": "Setzt die C64 Ultimate CPU-Geschwindigkeit.",
   "fast": "Aktiviert den schnellen Ausführungsmodus des Compilers, falls unterstützt.",
   "getch": "Liest ein Zeichen über das KERNAL ein.",
@@ -8050,6 +8054,7 @@ const ubCommandDescriptionsNl = {
   "raster": "Geeft de huidige rasterlijn terug.",
   "scroll": "Bestuurt VIC-II fijn scrollen, schermbreedte of verschuift een schermrij.",
   "badlines": "Bestuurt Ultimate badline-timing.",
+  "palette": "Stelt het palet van de Ultimate 64 / C64 Ultimate in via de Command Interface (firmware 3.15+).",
   "speed": "Stelt de C64 Ultimate CPU-snelheid in.",
   "fast": "Schakelt de snelle uitvoeringsmodus van de compiler in waar ondersteund.",
   "getch": "Leest een teken in via de KERNAL.",
@@ -8188,6 +8193,7 @@ const ubCommandDescriptionsPl = {
   "raster": "Zwraca bieżącą linię rastra.",
   "scroll": "Steruje płynnym przewijaniem VIC-II, szerokością ekranu lub przesuwa wiersz ekranu.",
   "badlines": "Steruje czasowaniem badline w Ultimate.",
+  "palette": "Ustawia paletę Ultimate 64 / C64 Ultimate przez Command Interface (firmware 3.15+).",
   "speed": "Ustawia prędkość CPU C64 Ultimate.",
   "fast": "Włącza szybki tryb wykonania kompilatora tam, gdzie jest obsługiwany.",
   "getch": "Odczytuje znak za pomocą KERNAL.",
@@ -8326,6 +8332,7 @@ const ubCommandDescriptionsIt = {
   "raster": "Restituisce la linea raster corrente.",
   "scroll": "Controlla lo scroll fine del VIC-II, la larghezza del display o scorre una riga dello schermo.",
   "badlines": "Controlla il timing delle badline in Ultimate.",
+  "palette": "Imposta la tavolozza dell'Ultimate 64 / C64 Ultimate tramite il Command Interface (firmware 3.15+).",
   "speed": "Imposta la velocità della CPU del C64 Ultimate.",
   "fast": "Attiva la modalità di esecuzione rapida del compilatore dove supportata.",
   "getch": "Legge un carattere tramite il KERNAL.",
@@ -8478,6 +8485,7 @@ const _UB_COMMAND_REFERENCE = [
   ["raster", "raster()", "Returns the current raster line."],
   ["scroll", "scroll x amount [narrow|wide]\nscroll y amount\nscroll row row_number left", "Controls VIC-II fine scrolling, display width, or shifts a screen row."],
   ["badlines", "badlines on | off", "Controls Ultimate badline timing."],
+  ["palette", "palette \"f.vpl\" | palette i, $RRGGBB | palette i, r, g, b | palette reset", "Sets the Ultimate 64 / C64 Ultimate palette through the Command Interface (firmware 3.15+)."],
   ["speed", "speed value | max | off", "Sets the C64 Ultimate CPU speed."],
   ["fast", "fast", "Enables the compiler's fast execution mode where supported."],
   ["getch", "getch()", "Reads a character using the KERNAL."],
@@ -8609,7 +8617,7 @@ function _ubApplyLeftViews(persist = true) {
   if (persist) saveUiSettings();
 }
 
-const _UB_KEYWORDS = new Set(("var const print print# input if then else end for to step next while repeat until loop break continue times sub fn call return goto gosub label graphics on off multi block display gcls cls fast plot plot4 mplot line circle circle4 rect fill paint flip sprite sprite_frame sprdef chardef charset expand priority sound sfx org tune music play stop pause resume sid volume irq irq_exit nmi nmi_exit cia_timer onerr data read asm include incbin load open close save chain memcopy drawmem map koala show hide set draw poke poke16 sys bye exit wait delay raster getch joy reu stash fetch speed badlines color border bg text screen cursor at lowercase uppercase select case and or xor not bnot mod shl shr inc dec erase scroll type endtype pen mline mrect mcircle dim function do wend elseif option").split(" "));
+const _UB_KEYWORDS = new Set(("var const print print# input if then else end for to step next while repeat until loop break continue times sub fn call return goto gosub label graphics on off multi block display gcls cls fast plot plot4 mplot line circle circle4 rect fill paint flip sprite sprite_frame sprdef chardef charset expand priority sound sfx org tune music play stop pause resume sid volume irq irq_exit nmi nmi_exit cia_timer onerr data read asm include incbin load open close save chain memcopy drawmem map koala show hide set draw poke poke16 sys bye exit wait delay raster getch joy reu stash fetch speed badlines palette color border bg text screen cursor at lowercase uppercase select case and or xor not bnot mod shl shr inc dec erase scroll type endtype pen mline mrect mcircle dim function do wend elseif option").split(" "));
 const _UB_TYPES = new Set(["int", "word", "float", "string", "array", "array_word"]);
 // BASIC type names used after `as` (dim / function / sub). The compiler treats them and
 // `as` as context words, not reserved ones, so they are only coloured in a type position.

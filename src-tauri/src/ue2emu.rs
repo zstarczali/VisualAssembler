@@ -33,6 +33,10 @@ const OVERLAY_FONT_SIZE: u64 = 2048;
 /// is written into the flash at every start.
 const NETWORK_SETTINGS: &str = "[Network Settings]\nWeb Remote Control Service=Enabled\n";
 
+/// The Ultimate Command Interface ($DF1C-$DF1F) is off by default too; programs that talk to the
+/// firmware (DOS commands, `.u64_palette*`) need it.
+const COMMAND_INTERFACE_SETTINGS: &str = "[C64 and Cartridge Settings]\nCommand Interface=Enabled\n";
+
 /// `ue2emu settings` lists every setting as `; choice | choice` above `Name=default`, under its
 /// `[Store]`. The turbo registers ($D031) are a choice of "Turbo Control" named per firmware
 /// ("C64U Turbo Registers", "U64 Turbo Registers"), and a choice the firmware lacks stops the start.
@@ -371,7 +375,7 @@ fn spawn_machine(settings: &Settings, dir: &Path, flash: &Path) -> Result<PathBu
     let log = File::create(&log_path).map_err(|e| err("startFailed", e.to_string()))?;
     let network_cfg = dir.join("va-network.cfg");
     // Turbo registers on: $D031 reads $00 after a reset, so a program that does not touch it runs at 1 MHz.
-    let cfg = format!("{NETWORK_SETTINGS}{}", turbo_settings(settings).unwrap_or_default());
+    let cfg = format!("{NETWORK_SETTINGS}{COMMAND_INTERFACE_SETTINGS}{}", turbo_settings(settings).unwrap_or_default());
     std::fs::write(&network_cfg, cfg).map_err(|e| err("startFailed", e.to_string()))?;
     // stdout is the firmware console: long sessions would grow the log without limit.
     let child = no_console(&mut Command::new(&settings.exe))
@@ -827,6 +831,7 @@ mod tests {
         assert!(flash_path(&dir, &settings.firmware).is_file(), "install filled the flash");
         let cfg = std::fs::read_to_string(dir.join("va-network.cfg")).unwrap();
         assert!(cfg.contains("Turbo Control=") && cfg.contains("Turbo Registers"), "{cfg}");
+        assert!(cfg.contains("Command Interface=Enabled"), "{cfg}");
         assert!(matches!(instance_state(&signature(&settings)), Some(true)));
 
         // 10 SYS 2061: writes "HI" to the top left of the screen and stays there.
