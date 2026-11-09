@@ -1,4 +1,4 @@
-// Built-in C64 (www/web64, VICE x64sc in WebAssembly): source map parsing, the SYS address of a
+// Built-in C64 (www/vice, VICE x64sc in WebAssembly): source map parsing, the SYS address of a
 // PRG, and the debugger semantics of the bundled module (stop before the instruction, step
 // into / over / out, continue, break, side-effect free peek).
 const test = require("node:test");
@@ -86,12 +86,12 @@ test("SYS address of a BASIC stub, otherwise the load address", () => {
 });
 
 const { spawnSync } = require("node:child_process");
-const dir = path.join(__dirname, "..", "www", "web64");
-const hasModule = ["x64sc.js", "x64sc.wasm", "x64sc.data"].every((f) => fs.existsSync(path.join(dir, f)));
+const dir = path.join(__dirname, "..", "www", "vice");
+const hasModule = ["vice.js", "vice.wasm", "vice.data"].every((f) => fs.existsSync(path.join(dir, f)));
 
 // the emulator keeps running after the checks: they run in their own process, which exits
 test("the bundled emulator stops before the instruction and steps like the VICE monitor", { skip: !hasModule }, () => {
-  const r = spawnSync(process.execPath, [path.join(__dirname, "helpers", "web64-debug-check.mjs")], { encoding: "utf8", timeout: 120000 });
+  const r = spawnSync(process.execPath, [path.join(__dirname, "helpers", "vice-debug-check.mjs")], { encoding: "utf8", timeout: 120000 });
   assert.equal(r.status, 0, (r.stdout || "") + (r.stderr || ""));
-  assert.match(r.stdout, /web64 debugger: ok/);
+  assert.match(r.stdout, /vice debugger: ok/);
 });

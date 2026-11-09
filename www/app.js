@@ -567,6 +567,10 @@ let assemblerSyntax = "kick";
 const _ACME_HIDDEN_CATEGORIES = new Set(["Makrok", "Szerkezet", "HosszuUgrasok"]);
 let acmePath = "";
 let _editorDialogPositions = {};
+// The built-in C64 was called "web64" in earlier versions: its run mode (localStorage, .proj, samples), settings
+// and window position are read under these old names, only the new ("vice") ones are written.
+const _VICE_LEGACY = { runMode: "web64", prefs: "c64va-web64", joy: "c64va-web64-joy", dialog: "web64-dialog" };
+function _runModeNormalize(mode) { return mode === _VICE_LEGACY.runMode ? "vice" : mode; }
 let userMacros = {};  // Stores user-defined macros: { macroName: [blocks...] }
 
 // ΓöÇΓöÇ Tab system ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
@@ -2392,7 +2396,7 @@ function initPalette() {
   });
   chooseViceButton?.addEventListener("click", chooseViceExecutable);
   runEmulatorButton?.addEventListener("click", () => {
-    if (runMode === "web64") _w64Run();
+    if (runMode === "vice") _w64Run();
     else if (ultimateBasicMode) _ubRun(runMode);
     else if (runMode === "d64") runViaD64();
     else if (runMode === "ultimate") runOnUltimate();
@@ -2595,7 +2599,7 @@ function setupDraggableEditorDialogs() {
     ["table-gen-dialog", ".tg-hdr"],
     ["vice-mon-dialog", ".vm-hdr"],
     ["ue2-debug-dialog", ".ud-hdr"],
-    ["web64-dialog", ".w64-hdr"],
+    ["vice-dialog", ".w64-hdr"],
     ["memory-float-dialog", ".mem-float-hdr"],
     ["d64-editor-dialog", ".de-hdr"],
     ["d64-block-editor-dialog", ".dbe-hdr"],
@@ -3208,6 +3212,10 @@ function _applyUiSettingsToDOM() {
   _editorDialogPositions =(s.editorDialogPositions && typeof s.editorDialogPositions === "object")
     ? s.editorDialogPositions
     : {};
+  if (_editorDialogPositions[_VICE_LEGACY.dialog] && !_editorDialogPositions["vice-dialog"]) {
+    _editorDialogPositions["vice-dialog"] = _editorDialogPositions[_VICE_LEGACY.dialog];
+  }
+  delete _editorDialogPositions[_VICE_LEGACY.dialog];
 
   if (sampleSelect && s.sample) {
     sampleSelect.value = s.sample;
@@ -3855,7 +3863,6 @@ function applyTranslations() {
     setText("#vma-engine-label", t("vmaEngine"));
     setText('#vma-engine option[value="js"]', t("vmaEngineJs"));
     setText('#vma-engine option[value="rust"]', t("vmaEngineRust"));
-    setText('#vma-engine option[value="shadow"]', t("vmaEngineShadow"));
     setText("#asm-output-settings-label", t("asmOutputSettings"));
     setText("#snapshot-settings-label", t("snapshotSettings"));
     if (macroSourceToggleText) macroSourceToggleText.textContent = t("macroSourceToggle");
@@ -4273,6 +4280,12 @@ function _applyEditorTranslations() {
   setText("#hg-paper-lbl", t("hgPaperLabel"));
   setText("#hg-zoom-lbl", t("hgZoomLabel"));
   setText("#hg-raster-label", t("hgRaster"));
+  setText("#hg-mix-lbl", t("hgMixLabel"));
+  setText("#hg-mix-on-label", t("hgMixOn"));
+  setText("#hg-mix-hint", t("hgMixMcOnly"));
+  setAttr("#hg-mix-on-wrap", t("hgMixOnTip"));
+  setAttr("#hg-mix-pattern", t("hgMixPatternTip"));
+  _hgMixSync();
   // Sprite Editor
   setText(".se-title", t("seTitle"));
   setText("#se-import-image", t("seImportImage"));
@@ -4479,9 +4492,9 @@ function _applyEditorTranslations() {
   setText("#mem-float-title", t("memoryTitle"));
   setAttr("#vice-mon-btn", t("vmTitle"));
   setText("#vm-title", t("vmTitle").toUpperCase());
-  setAttr("#web64-btn", t("w64Title"));
+  setAttr("#vice-btn", t("w64Title"));
   setText("#w64-title", t("w64Title").toUpperCase());
-  setText("#run-web64-label", t("runInWeb64"));
+  setText("#run-vice-label", t("runInVice"));
   [["#ud-restart", "ue2DbgRestart"], ["#ud-continue", "w64Continue"], ["#ud-break", "w64Break"], ["#ud-step-into", "w64StepInto"],
     ["#ud-step-over", "w64StepOver"], ["#ud-step-out", "w64StepOut"], ["#ud-close", "w64Close"], ["#ud-mem-addr", "w64Address"],
     ["#w64-run", "w64Run"], ["#w64-reset", "w64Reset"], ["#w64-pause", "w64Pause"], ["#w64-continue", "w64Continue"],
@@ -19658,7 +19671,7 @@ async function runInDebugger() {
     await _udDebug("vice");
     return;
   }
-  if (runMode === "web64" || choice === "va") {
+  if (runMode === "vice" || choice === "va") {
     await _w64Debug();
     return;
   }
@@ -24643,7 +24656,7 @@ const _RUN_MODE_ITEMS = {
   kff2: "run-kff2-mode",
   ue2: "run-ue2-mode",
   "ue2-d64": "run-ue2-d64-mode",
-  web64: "run-web64-mode",
+  vice: "run-vice-mode",
 };
 
 function _runModeAvailable(mode) {
@@ -24661,7 +24674,7 @@ function getRunModeLabel(mode) {
   if (mode === "kff2") return t("runOnKff2");
   if (mode === "ue2") return t("runOnUe2");
   if (mode === "ue2-d64") return t("runOnUe2D64");
-  if (mode === "web64") return t("runInWeb64");
+  if (mode === "vice") return t("runInVice");
   return t("runInEmulator");
 }
 
@@ -24710,21 +24723,22 @@ function setupRunModeDropdown() {
   document.getElementById("run-kff2-mode")?.addEventListener("click", () => { setRunMode("kff2"); closeMenu(); });
   document.getElementById("run-ue2-mode")?.addEventListener("click", () => { setRunMode("ue2"); closeMenu(); });
   document.getElementById("run-ue2-d64-mode")?.addEventListener("click", () => { setRunMode("ue2-d64"); closeMenu(); });
-  document.getElementById("run-web64-mode")?.addEventListener("click", () => { setRunMode("web64"); closeMenu(); });
+  document.getElementById("run-vice-mode")?.addEventListener("click", () => { setRunMode("vice"); closeMenu(); });
 
-  const saved = localStorage.getItem("runMode");
-  if (["prg", "d64", "ultimate", "ultimate-d64", "kff2", "ue2", "ue2-d64", "web64"].includes(saved)) _runModeWanted = saved;
+  const saved = _runModeNormalize(localStorage.getItem("runMode"));
+  if (["prg", "d64", "ultimate", "ultimate-d64", "kff2", "ue2", "ue2-d64", "vice"].includes(saved)) _runModeWanted = saved;
   _runModeApply();
 }
 
 function setRunMode(mode) {
+  mode = _runModeNormalize(mode);
   _runModeWanted = mode;
   localStorage.setItem("runMode", mode);
   _runModeApply();
 }
 
 function _runModeApply() {
-  const fallback = _runModeAvailable("prg") ? "prg" : "web64";
+  const fallback = _runModeAvailable("prg") ? "prg" : "vice";
   const mode = _runModeAvailable(_runModeWanted) ? _runModeWanted : fallback;
   runMode = mode;
   for (const [itemMode, id] of Object.entries(_RUN_MODE_ITEMS)) {
@@ -28507,13 +28521,12 @@ async function _kickOrVaPrg() {
 }
 
 /* VMA compiler engine (Settings → General, `c64va-vma-engine`): "js" = the app.js compiler,
-   "rust" = the VMA crate (github.com/zstarczali/VMA) through the vma_build command (the source text in, the files read by Rust),
-   "shadow" = the JS result is used, the Rust one is built too and every difference is logged
-   (console + _vaErrorLog). Without the desktop app (no vmaBuild) always JS. */
+   "rust" = the VMA crate (github.com/zstarczali/VMA) through the vma_build command (the source text in, the files read by Rust).
+   Without the desktop app (no vmaBuild) always JS; anything else saved (the former "shadow") = JS. */
 function _vmaEngine() {
   let v = "js";
   try { v = localStorage.getItem("c64va-vma-engine") || "js"; } catch (_) {}
-  return v === "rust" || v === "shadow" ? v : "js";
+  return v === "rust" ? "rust" : "js";
 }
 
 // The VMA source the JS build compiles (buildAutostartPrgForEmulator's choice), its folder,
@@ -28663,21 +28676,7 @@ async function _vaBuildPrg(kick = null) {
   const file = kick ? _workStepName(kick.entry) : _workStepSource();
   setWorkStep("stepVma", { file, engine: engine === "rust" ? "Rust" : "JS" });
   if (engine === "rust") return _vmaStepDone(await _vmaRustBuild(kick));
-  const js = _vmaStepDone(buildAutostartPrgForEmulator());
-  if (engine === "shadow") {
-    try {
-      setWorkStep("stepVmaShadow", { file });
-      const rust = await _vmaRustBuild(kick);
-      const diff = _vmaShadowDiff(js, rust) || _vmaShadowMemoryDiff(rust);
-      if (diff) {
-        console.warn("[vma-shadow]", diff);
-        _vaLogError("vma-shadow", diff);
-      }
-    } catch (e) {
-      _vaLogError("vma-shadow", "Rust build failed: " + (e?.message || e));
-    }
-  }
-  return js;
+  return _vmaStepDone(buildAutostartPrgForEmulator());
 }
 
 // The step line after a VMA build: the size and load address of the PRG.
@@ -28686,37 +28685,6 @@ function _vmaStepDone(prg) {
     setWorkStep("stepVmaDone", { bytes: prg.bytes.length - 2, from: formatAddress(prg.bytes[0] | (prg.bytes[1] << 8)) });
   }
   return prg;
-}
-
-// The first difference between the JS and the Rust build ("" when they agree).
-function _vmaShadowDiff(js, rust) {
-  if (!!js.ok !== !!rust.ok) return js.ok ? `JS ok, Rust: ${rust.error}` : `Rust ok, JS: ${js.error}`;
-  if (!js.ok) return "";
-  const a = js.bytes, b = rust.bytes;
-  if ((js.sysAddress ?? null) !== (rust.sysAddress ?? null)) return `SYS ${js.sysAddress} vs ${rust.sysAddress}`;
-  const n = Math.min(a.length, b.length);
-  for (let i = 0; i < n; i++) {
-    if (a[i] !== b[i]) return `${a.length} vs ${b.length} bytes, first difference at offset ${i} ($${i.toString(16)})`;
-  }
-  return a.length === b.length ? "" : `${a.length} vs ${b.length} bytes`;
-}
-
-// The memory panel's usage (getMemoryUsage) of a Rust build's `memory`.
-function _vmaMemoryUsage(memory) {
-  return _memoryUsageOf(null, memory.code, memory.deferred, memory.regions.map(([address, end]) => ({ address, end, type: "code" })));
-}
-
-// The first difference between the memory view of the JS layout and of the Rust build ("" when
-// they agree): the occupied ranges, the deferred sections, the overlaps.
-function _vmaShadowMemoryDiff(rust) {
-  if (!rust.ok || !rust.vma?.memory) return "";
-  const js = _vmWithProgram((layout) => getMemoryUsage(layout), rust.vma.input.blocks);
-  const vma = _vmaMemoryUsage(rust.vma.memory);
-  const ranges = (u) => u.mergedOccupied.map(r => `${formatAddress(r.start)}-${formatAddress(r.end)}`).join(",");
-  if (ranges(js) !== ranges(vma)) return `memory: JS ${ranges(js)} vs Rust ${ranges(vma)}`;
-  const sections = (u) => u.deferredSections.map(d => `${d.type}@${d.address}-${d.end}`).join(",");
-  if (sections(js) !== sections(vma)) return `deferred sections: JS ${sections(js)} vs Rust ${sections(vma)}`;
-  return js.overlaps.length === vma.overlaps.length ? "" : `overlaps: JS ${js.overlaps.length} vs Rust ${vma.overlaps.length}`;
 }
 
 async function _kickGotoError(file, line) {
@@ -30593,8 +30561,8 @@ async function _applyProjectPayload(projectData, { sourceFilePath = "", keepFile
     applyZoom();
   }
 
-  const validRunModes = ["prg", "d64", "ultimate", "ultimate-d64", "kff2", "ue2", "ue2-d64", "web64"];
-  if (projectData.ui?.runMode && validRunModes.includes(projectData.ui.runMode)) {
+  const validRunModes = ["prg", "d64", "ultimate", "ultimate-d64", "kff2", "ue2", "ue2-d64", "vice"];
+  if (projectData.ui?.runMode && validRunModes.includes(_runModeNormalize(projectData.ui.runMode))) {
     setRunMode(projectData.ui.runMode);
   }
   // Older saves recorded the global setting; only ACME source text keeps ACME.
@@ -40918,8 +40886,8 @@ async function loadSampleFromFile(sampleName) {
     d64ExportState.progName = "";
   }
 
-  const validRunModes = ["prg", "d64", "ultimate", "ultimate-d64", "kff2", "ue2", "ue2-d64", "web64"];
-  if (sampleData.ui?.runMode && validRunModes.includes(sampleData.ui.runMode)) {
+  const validRunModes = ["prg", "d64", "ultimate", "ultimate-d64", "kff2", "ue2", "ue2-d64", "vice"];
+  if (sampleData.ui?.runMode && validRunModes.includes(_runModeNormalize(sampleData.ui.runMode))) {
     setRunMode(sampleData.ui.runMode);
   }
 
@@ -49123,6 +49091,7 @@ function _hgBlitSoon() {
 function _hgRenderAll() { _hgSyncModeTools(); _hgRenderBuf(); _hgBlit(); }
 // Multicolor has one shared $D021 background, so the per-cell paper tool is hi-res only.
 function _hgSyncModeTools() {
+  _hgMixSync();
   const btn = document.querySelector('.hg-tool[data-tool="cellpaper"]');
   if (!btn) return;
   btn.disabled = _hgMulti;
@@ -49270,7 +49239,7 @@ function _hgOval(x0, y0, x1, y1, set, filled) {
 }
 function _hgFloodFill(x, y, col) {
   const target = _hgGet(x, y);
-  if (target === col || target === -1) return;
+  if (target === -1 || (typeof col !== "function" && target === col)) return;
   const W = _hgW(), H = _hgH();
   // `seen` guard: in hi-res _hgSet recolours a whole cell, which can change a
   // neighbour's displayed colour mid-fill, so track visited pixels explicitly.
@@ -49283,8 +49252,8 @@ function _hgFloodFill(x, y, col) {
     if (seen[cy * W + cx]) continue;
     if (_hgGet(cx, cy) !== target) continue;
     seen[cy * W + cx] = 1;
-    if (_hgMulti) batch.set(cy * W + cx, col);
-    else _hgSet(cx, cy, col);
+    if (_hgMulti) batch.set(cy * W + cx, _hgInkAt(col, cx, cy));
+    else _hgSet(cx, cy, _hgInkAt(col, cx, cy));
     stack.push([cx+1, cy], [cx-1, cy], [cx, cy+1], [cx, cy-1]);
   }
   if (batch.size) _hgMcPaint(batch);
@@ -49299,8 +49268,152 @@ function _hgSpray(x, y, col) {
     const px = Math.round(x + Math.cos(a) * d);
     const py = Math.round(y + Math.sin(a) * d);
     if (px < 0 || py < 0 || px >= _hgW() || py >= _hgH()) continue;
-    _hgSet(px, py, col);
+    _hgSet(px, py, typeof col === "function" ? col(px, py) : col);
     _hgRedrawCellBuf(px, py);
+  }
+}
+
+/* ── MIX: three colours in a fixed pattern (multicolor only) ──
+   The pattern is locked to the picture, not to the shape, so neighbouring
+   shapes painted with the same mix meet without a seam. A cell still takes
+   paper + 3 colours: a mix containing the paper uses only 2 of them. */
+const _HG_MIX_PATTERNS = ["lines", "stripes", "brick", "checker", "soft", "columns", "diagonal", "tint"];
+const _HG_MIX_SLOTS = 8;
+const _HG_MIX_STORE = "c64va-hg-mix";
+const _HG_BAYER4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+function _hgMixDefaults() {
+  return [
+    { c: [11, 12, 15], p: "lines" }, { c: [6, 14, 3], p: "stripes" }, { c: [9, 2, 8], p: "brick" },
+    { c: [8, 10, 7], p: "checker" }, { c: [5, 13, 3], p: "soft" }, { c: [0, 11, 12], p: "columns" },
+    { c: [6, 4, 14], p: "diagonal" }, { c: [12, 0, 15], p: "tint" },
+  ];
+}
+// var: _hgMixSync can run (palette, translations) before this line (TDZ)
+var _hgMixOn = false;
+var _hgMixSlot = 0;
+var _hgMixes = _hgMixDefaults();
+var _hgMixReady = false;
+// Which of the three colours (0..2) pixel (x, y) takes.
+function _hgMixIndex(pattern, x, y) {
+  const m3 = function(v) { return ((v % 3) + 3) % 3; };
+  const b = _HG_BAYER4[(y & 3) * 4 + (x & 3)];
+  switch (pattern) {
+    case "lines":    return m3(y);
+    case "stripes":  return m3(y >> 1);
+    case "brick":    return ((y & 3) === 3 || ((x + ((y >> 2) & 1) * 2) & 3) === 0) ? 2 : (y & 1);
+    case "checker":  return ((x + y) & 1) ? 1 : ((((x >> 1) + (y >> 1)) & 1) ? 2 : 0);
+    case "soft":     return b < 5 ? 0 : b < 10 ? 1 : 2;
+    case "columns":  return m3(x);
+    case "diagonal": return m3(x + y);
+    case "tint":     return b < 2 ? 1 : b < 4 ? 2 : 0;
+  }
+  return 0;
+}
+function _hgMixColorAt(x, y, slot) {
+  const m = _hgMixes[slot == null ? _hgMixSlot : slot];
+  return m.c[_hgMixIndex(m.p, x, y)];
+}
+function _hgMixActive() {
+  return _hgMixOn && _hgMulti && _hgTool !== "eraser" && _hgTool !== "cellpaper";
+}
+// The pen: a colour index, or a (x, y) → colour function while a mix is on.
+function _hgInk() { return _hgMixActive() ? _hgMixColorAt : _hgColor; }
+function _hgInkAt(ink, x, y) { return typeof ink === "function" ? ink(x, y) : ink; }
+function _hgMixNormalize(data) {
+  const def = _hgMixDefaults();
+  const list = Array.isArray(data && data.mixes) ? data.mixes : [];
+  const mixes = def.map(function(d, i) {
+    const m = list[i];
+    const c = m && Array.isArray(m.c) && m.c.length === 3 && m.c.every(function(v) { return Number.isInteger(v) && v >= 0 && v < 16; }) ? m.c.slice() : d.c;
+    return { c: c, p: m && _HG_MIX_PATTERNS.includes(m.p) ? m.p : d.p };
+  });
+  const slot = data && Number.isInteger(data.slot) && data.slot >= 0 && data.slot < _HG_MIX_SLOTS ? data.slot : 0;
+  return { on: !!(data && data.on), slot: slot, mixes: mixes };
+}
+function _hgMixLoad() {
+  let data = null;
+  try { data = JSON.parse(localStorage.getItem(_HG_MIX_STORE) || "null"); } catch (_) {}
+  const s = _hgMixNormalize(data);
+  _hgMixOn = s.on; _hgMixSlot = s.slot; _hgMixes = s.mixes;
+}
+function _hgMixSave() {
+  try { localStorage.setItem(_HG_MIX_STORE, JSON.stringify({ on: _hgMixOn, slot: _hgMixSlot, mixes: _hgMixes })); } catch (_) {}
+}
+function _hgMixDrawSlot(canvas, slot) {
+  const ctx = canvas.getContext("2d");
+  // 6×8 multicolor pixels, each 4×2 device pixels (the double-wide MC aspect)
+  for (let y = 0; y < 8; y++)
+    for (let x = 0; x < 6; x++) {
+      ctx.fillStyle = _CE_COLORS[_hgMixColorAt(x, y, slot)];
+      ctx.fillRect(x * 4, y * 2, 4, 2);
+    }
+}
+function _hgMixBuildUi() {
+  const slots = document.getElementById("hg-mix-slots");
+  if (!slots || slots.children.length) return;
+  for (let i = 0; i < _HG_MIX_SLOTS; i++) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "hg-mix-slot";
+    btn.dataset.mixSlot = String(i);
+    const cv = document.createElement("canvas");
+    cv.width = 24; cv.height = 16;
+    btn.appendChild(cv);
+    btn.addEventListener("click", function() {
+      _hgMixSlot = i;
+      _hgMixOn = true;
+      _hgMixSave();
+      _hgMixSync();
+    });
+    slots.appendChild(btn);
+  }
+  document.querySelectorAll("#hg-mix-bar .hg-mix-col").forEach(function(btn) {
+    btn.addEventListener("click", function() {
+      _hgMixes[_hgMixSlot].c[+btn.dataset.mixCol] = _hgColor;
+      _hgMixSave();
+      _hgMixSync();
+    });
+  });
+  document.getElementById("hg-mix-on")?.addEventListener("change", function(e) {
+    _hgMixOn = !!e.target.checked;
+    _hgMixSave();
+    _hgMixSync();
+  });
+  document.getElementById("hg-mix-pattern")?.addEventListener("change", function(e) {
+    if (!_HG_MIX_PATTERNS.includes(e.target.value)) return;
+    _hgMixes[_hgMixSlot].p = e.target.value;
+    _hgMixSave();
+    _hgMixSync();
+  });
+}
+// Labels, swatches, previews and the multicolor-only state of the MIX row.
+function _hgMixSync() {
+  const bar = document.getElementById("hg-mix-bar");
+  if (!bar || !_hgMixReady) return;
+  const m = _hgMixes[_hgMixSlot];
+  bar.classList.toggle("hg-toolbar--mix-off", !_hgMulti);
+  bar.querySelectorAll("input, select, button").forEach(function(el) { el.disabled = !_hgMulti; });
+  const on = document.getElementById("hg-mix-on");
+  if (on) on.checked = _hgMixOn;
+  const hint = document.getElementById("hg-mix-hint");
+  if (hint) hint.hidden = _hgMulti;
+  bar.querySelectorAll(".hg-mix-slot").forEach(function(btn, i) {
+    btn.classList.toggle("hg-mix-slot--sel", i === _hgMixSlot);
+    btn.classList.toggle("hg-mix-slot--on", i === _hgMixSlot && _hgMixOn);
+    btn.setAttribute("aria-label", tf("hgMixSlot", { n: i + 1, pattern: t("hgMixPat_" + _hgMixes[i].p) }));
+    const cv = btn.querySelector("canvas");
+    if (cv) _hgMixDrawSlot(cv, i);
+  });
+  bar.querySelectorAll(".hg-mix-col").forEach(function(btn) {
+    const k = +btn.dataset.mixCol;
+    btn.style.background = _CE_COLORS[m.c[k]];
+    btn.setAttribute("aria-label", tf("hgMixColorTip", { n: k + 1 }));
+  });
+  const sel = document.getElementById("hg-mix-pattern");
+  if (sel) {
+    if (!sel.options.length) _HG_MIX_PATTERNS.forEach(function(p) { const o = document.createElement("option"); o.value = p; sel.appendChild(o); });
+    Array.from(sel.options).forEach(function(o) { o.textContent = t("hgMixPat_" + o.value); });
+    sel.value = m.p;
   }
 }
 
@@ -50155,6 +50268,8 @@ function setupHiresEditor() {
   document.getElementById("hires-editor-btn")?.addEventListener("click", function() {
     document.querySelector(".control-menu")?.removeAttribute("open");
     _hgInit();
+    // on first open: setupHiresEditor runs before the _HG_MIX_* constants exist (TDZ)
+    if (!_hgMixReady) { _hgMixReady = true; _hgMixLoad(); _hgMixBuildUi(); }
     _toolDropdownSyncActive("hg-spray-menu", "data-hg-spray-intensity", _hgSprayIntensity);
     _toolDropdownSetOpen("hg-spray-tool", "hg-spray-menu", false);
     _hgRenderAll();
@@ -50401,7 +50516,7 @@ function setupHiresEditor() {
   const applyPoint = function(x, y) {
     if (_hgTool === "eraser") _hgErase(x, y);
     else if (_hgTool === "cellpaper") _hgSetCellBg(x, y, _hgColor);
-    else _hgSet(x, y, _hgColor);
+    else _hgSet(x, y, _hgInkAt(_hgInk(), x, y));
     _hgRedrawCellBuf(x, y);
   };
   const isFreehand = function() { return _hgTool === "pencil" || _hgTool === "eraser" || _hgTool === "cellpaper"; };
@@ -50445,8 +50560,8 @@ function setupHiresEditor() {
     _hgPushUndo();
     _hgPainting = true; _hgStart = p; _hgLast = p;
     if (isFreehand()) { applyPoint(p.x, p.y); _hgBlit(); }
-    else if (_hgTool === "spray") { _hgSpray(p.x, p.y, _hgColor); _hgBlit(); }
-    else if (_hgTool === "fill") { _hgFloodFill(p.x, p.y, _hgColor); _hgRenderAll(); _hgPainting = false; }
+    else if (_hgTool === "spray") { _hgSpray(p.x, p.y, _hgInk()); _hgBlit(); }
+    else if (_hgTool === "fill") { _hgFloodFill(p.x, p.y, _hgInk()); _hgRenderAll(); _hgPainting = false; }
     e.preventDefault();
   });
   canvas.addEventListener("pointermove", function(e) {
@@ -50466,19 +50581,22 @@ function setupHiresEditor() {
       _hgBlitSoon();
       return;
     }
-    const col = _hgColor;
+    const ink = _hgInk();
     if (isFreehand()) {
       _hgLine(_hgLast.x, _hgLast.y, p.x, p.y, applyPoint);
       _hgLast = p; _hgBlitSoon();
     } else if (_hgTool === "spray") {
-      _hgSpray(p.x, p.y, _hgColor);
+      _hgSpray(p.x, p.y, ink);
       _hgLast = p; _hgBlitSoon();
     } else {
       // shape preview: blit committed, draw preview on top
       _hgBlit();
-      _hgCtx.fillStyle = _CE_COLORS[col];
       const pw = _hgPxW(), ph = _hgPxH();
-      const draw = function(x, y) { if (x>=0&&y>=0&&x<_hgW()&&y<_hgH()) _hgCtx.fillRect(x*pw, y*ph, pw, ph); };
+      const draw = function(x, y) {
+        if (x < 0 || y < 0 || x >= _hgW() || y >= _hgH()) return;
+        _hgCtx.fillStyle = _CE_COLORS[_hgInkAt(ink, x, y)];
+        _hgCtx.fillRect(x * pw, y * ph, pw, ph);
+      };
       _hgPreviewShape(_hgStart, p, draw);
     }
   });
@@ -50495,11 +50613,11 @@ function setupHiresEditor() {
       return;
     }
     if (!isFreehand() && _hgTool !== "spray" && _hgTool !== "fill") {
-      const col = _hgColor;
+      const ink = _hgInk();
       const batch = new Map();
       const set = function(x, y) {
-        if (!_hgMulti) _hgSet(x, y, col);
-        else if (x >= 0 && y >= 0 && x < 160 && y < 200) batch.set(y * 160 + x, col);
+        if (!_hgMulti) _hgSet(x, y, _hgInkAt(ink, x, y));
+        else if (x >= 0 && y >= 0 && x < 160 && y < 200) batch.set(y * 160 + x, _hgInkAt(ink, x, y));
       };
       _hgPreviewShape(_hgStart, p, set);
       if (batch.size) _hgMcPaint(batch);
@@ -60854,7 +60972,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setupTableGenerator();
   setupExpertLint();
   setupViceMonitor();
-  setupWeb64();
+  setupVice();
   setupUe2Debugger();
   setupMemoryFloat();
   setupDialogStacking();
@@ -61849,8 +61967,8 @@ function _vmRenderProfile(agg) {
     (r) => (ultimateBasicMode ? _ubGotoLine(r.srcLine) : _zpGotoRef(r)));
 }
 
-// ── Beépített C64: VICE 3.10 x64sc WebAssembly-ben (www/web64/), debuggerrel ──
-// A modul (vice-3.10-web64, GPLv2+) Asyncify-jal a háttérben fut; a JS képkockánként rajzol,
+// ── Beépített C64: VICE 3.10 x64sc WebAssembly-ben (www/vice/vice.*), debuggerrel ──
+// A modul (a vice-3.10-web64 fork, GPLv2+) Asyncify-jal a háttérben fut; a JS képkockánként rajzol,
 // továbbadja a hangot és figyeli a megállást. Töréspontnál és lépés végén a CPU az utasítás
 // ELŐTT vár (vice_web_monitor_break_active), így a regiszterek és a memória pontosan az ottani
 // állapotot mutatják, és az írásuk a folytatáskor érvényes. Csak függvények + egy állapot-objektum
@@ -61874,13 +61992,13 @@ function _w64Sleep(ms) { return new Promise((resolve) => setTimeout(resolve, ms)
 // Remembered state: { open, warp, sound, debug, joy } (the window position: _editorDialogPositions)
 function _w64Prefs() {
   let p = {};
-  try { p = JSON.parse(localStorage.getItem("c64va-web64") || "{}") || {}; } catch (_) { p = {}; }
+  try { p = JSON.parse(localStorage.getItem("c64va-vice") || localStorage.getItem(_VICE_LEGACY.prefs) || "{}") || {}; } catch (_) { p = {}; }
   return p;
 }
 function _w64SavePref(name, value) {
   const p = _w64Prefs();
   p[name] = value;
-  try { localStorage.setItem("c64va-web64", JSON.stringify(p)); } catch (_) {}
+  try { localStorage.setItem("c64va-vice", JSON.stringify(p)); } catch (_) {}
 }
 function _w64Hex(v, w = 4) { return "$" + (v & (w === 2 ? 0xFF : 0xFFFF)).toString(16).toUpperCase().padStart(w, "0"); }
 
@@ -61890,11 +62008,12 @@ async function _w64Load() {
   if (s.loading) return s.loading;
   _w64SetOverlay(t("w64Booting"));
   s.loading = (async () => {
-    const base = new URL("web64/", location.href);
-    const factory = (await import(new URL("x64sc.js", base).href)).default;
+    const base = new URL("vice/", location.href);
+    const factory = (await import(new URL("vice.js", base).href)).default;
     const mod = await factory({
       noInitialRun: true,
-      locateFile: (name) => new URL(name, base).href,
+      // the loader still asks for x64sc.wasm / x64sc.data (the names of the VICE build)
+      locateFile: (name) => new URL(name.replace(/^x64sc\./, "vice."), base).href,
       print: () => {},
       printErr: () => {},
     });
@@ -62144,7 +62263,7 @@ function _w64StartLoop() {
   if (s.raf) return;
   const loop = (now) => {
     s.raf = 0;
-    const dlg = document.getElementById("web64-dialog");
+    const dlg = document.getElementById("vice-dialog");
     if (!s.mod) return;
     _w64DrawFrame();
     _w64DrainAudio();
@@ -62309,7 +62428,7 @@ function _w64SyncButtons() {
   const brk = document.getElementById("w64-break");
   if (brk) brk.disabled = !mod || s.stopped;
   document.getElementById("w64-debug-tools")?.classList.toggle("w64-tools--session", dbg);
-  document.getElementById("web64-btn")?.classList.toggle("main-tb-btn--active", !!document.getElementById("web64-dialog")?.open);
+  document.getElementById("vice-btn")?.classList.toggle("main-tb-btn--active", !!document.getElementById("vice-dialog")?.open);
 }
 
 // ── Billentyűzet, joystick ──
@@ -62412,7 +62531,7 @@ async function _w64StartPrg(bytes, { debug = false } = {}) {
 }
 
 async function _w64Show() {
-  const dlg = document.getElementById("web64-dialog");
+  const dlg = document.getElementById("vice-dialog");
   if (!dlg) return;
   if (!dlg.open) {
     _w64ApplySize();
@@ -62437,13 +62556,13 @@ async function _w64Show() {
 }
 
 function _w64Close() {
-  const dlg = document.getElementById("web64-dialog");
+  const dlg = document.getElementById("vice-dialog");
   dlg?.close();
 }
 
 function _w64OnDialogClose() {
   // the close event is asynchronous: the window may already be open again
-  if (document.getElementById("web64-dialog")?.open) return;
+  if (document.getElementById("vice-dialog")?.open) return;
   const s = _w64S();
   _w64SavePref("open", false);
   _w64ExitFullscreen();
@@ -62786,7 +62905,7 @@ function _w64ShowDebugPanel(show) {
   const panel = document.getElementById("w64-debug");
   if (!panel) return;
   panel.hidden = !show;
-  document.getElementById("web64-dialog")?.classList.toggle("w64-dialog--debug", show);
+  document.getElementById("vice-dialog")?.classList.toggle("w64-dialog--debug", show);
   if (show) _w64RenderDebug();
   _w64SyncButtons();
 }
@@ -62949,21 +63068,21 @@ function _w64ParseAddress(text, labels = _w64S().session?.labels) {
 
 // Full screen: the dialog itself fills the window (CSS), in the desktop app the window goes full screen too.
 function _w64IsFullscreen() {
-  return !!document.getElementById("web64-dialog")?.classList.contains("w64-dialog--full");
+  return !!document.getElementById("vice-dialog")?.classList.contains("w64-dialog--full");
 }
 function _w64SetWindowFullscreen(on) {
   try { window.__TAURI__?.window?.getCurrentWindow()?.setFullscreen(!!on).catch(() => {}); } catch (_) {}
 }
 function _w64ToggleFullscreen() {
   if (_w64IsFullscreen()) { _w64ExitFullscreen(); return; }
-  document.getElementById("web64-dialog")?.classList.add("w64-dialog--full");
+  document.getElementById("vice-dialog")?.classList.add("w64-dialog--full");
   _w64SetWindowFullscreen(true);
   document.getElementById("w64-screen")?.focus();
   _w64SyncButtons();
 }
 function _w64ExitFullscreen() {
   if (!_w64IsFullscreen()) return;
-  document.getElementById("web64-dialog")?.classList.remove("w64-dialog--full");
+  document.getElementById("vice-dialog")?.classList.remove("w64-dialog--full");
   _w64SetWindowFullscreen(false);
   _w64SyncButtons();
 }
@@ -62971,14 +63090,14 @@ function _w64ExitFullscreen() {
 // Saved size (prefs.size), kept inside the window. The grip pins the dialog to its place first:
 // a centred (translated) dialog would grow in both directions.
 function _w64ApplySize() {
-  const dlg = document.getElementById("web64-dialog");
+  const dlg = document.getElementById("vice-dialog");
   const size = _w64Prefs().size;
   if (!dlg || !size) return;
   dlg.style.width = Math.min(size.w, innerWidth) + "px";
   dlg.style.height = Math.min(size.h, innerHeight) + "px";
 }
 function _w64SetupResize() {
-  const dlg = document.getElementById("web64-dialog");
+  const dlg = document.getElementById("vice-dialog");
   const grip = document.getElementById("w64-resize");
   if (!dlg || !grip) return;
   let start = null;
@@ -63009,7 +63128,7 @@ function _w64SetupResize() {
   grip.addEventListener("pointercancel", end);
 }
 
-function setupWeb64() {
+function setupVice() {
   const on = (id, ev, fn) => document.getElementById(id)?.addEventListener(ev, fn);
   _w64SetupResize();
   on("w64-fullscreen", "click", _w64ToggleFullscreen);
@@ -63018,12 +63137,12 @@ function setupWeb64() {
     const screen = document.getElementById("w64-screen");
     if (screen) new ResizeObserver(_w64LayoutCrt).observe(screen);
   }
-  on("web64-btn", "click", () => {
-    const dlg = document.getElementById("web64-dialog");
+  on("vice-btn", "click", () => {
+    const dlg = document.getElementById("vice-dialog");
     if (dlg?.open) _w64Close(); else _w64Show();
   });
   on("w64-close", "click", _w64Close);
-  on("web64-dialog", "close", _w64OnDialogClose);
+  on("vice-dialog", "close", _w64OnDialogClose);
   on("w64-run", "click", () => (_w64S().session && !_w64S().session.adhoc ? _w64Debug() : _w64Run()));
   on("w64-reset", "click", async () => {
     const s = _w64S();
@@ -63092,7 +63211,7 @@ function setupWeb64() {
     document.getElementById("w64-screen")?.focus();
   });
   try {
-    const joy = Number(_w64Prefs().joy ?? localStorage.getItem("c64va-web64-joy")) || 0;
+    const joy = Number(_w64Prefs().joy ?? localStorage.getItem(_VICE_LEGACY.joy)) || 0;
     _w64S().joy = joy;
     const sel = document.getElementById("w64-joy");
     if (sel) sel.value = String(joy);
@@ -63127,7 +63246,7 @@ function setupWeb64() {
   canvas?.addEventListener("click", () => { canvas.focus(); _w64ResumeAudio(); });
   canvas?.addEventListener("dblclick", (e) => { e.preventDefault(); _w64ToggleFullscreen(); });
   // debugger keys while the focus is in the window but not on the C64 screen (F5 is a C64 key)
-  on("web64-dialog", "keydown", (e) => {
+  on("vice-dialog", "keydown", (e) => {
     if (e.key === "Escape" && _w64IsFullscreen()) { e.preventDefault(); _w64ExitFullscreen(); return; }
     if (e.target === canvas || /^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName)) return;
     const s = _w64S();

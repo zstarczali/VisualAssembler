@@ -73,12 +73,12 @@ test("the Debug button picks its debugger from the setting and the run mode", as
   assert.equal(await pick("prg", "va", "rd.exe"), "va:vice");
   assert.equal(await pick("d64", "va", ""), "va:vice");
   assert.equal(await pick("ue2", "va", ""), "va:ue2");
-  assert.equal(await pick("web64", "va", ""), "builtin");
+  assert.equal(await pick("vice", "va", ""), "builtin");
   assert.equal(await pick("ultimate", "va", "rd.exe"), "builtin");
   // RetroDebugger for VICE and the hardware; the built-in C64 and the emulator keep their own
   assert.equal(await pick("prg", "retro", "rd.exe"), "retro");
   assert.equal(await pick("ue2-d64", "retro", "rd.exe"), "va:ue2");
-  assert.equal(await pick("web64", "retro", "rd.exe"), "builtin");
+  assert.equal(await pick("vice", "retro", "rd.exe"), "builtin");
   // no RetroDebugger set: a stored choice of it counts as Visual Assembler
   assert.equal(await pick("prg", "retro", ""), "va:vice");
   assert.equal(await pick("ultimate", "retro", ""), "builtin");
@@ -98,19 +98,34 @@ test("the Run menu lists only the modes whose tool is set, and a saved mode come
     _ue2ApplyConfig(${JSON.stringify(ue2 ? { exe: "u.exe", firmware: "f.ue2", roms: "r" } : { exe: "u.exe", firmware: "", roms: "" })});
     runMode + "|" + Object.entries(_RUN_MODE_ITEMS).filter(([, id]) => !document.getElementById(id).hidden).map(([mode]) => mode).join(",");
   `);
-  assert.equal(state("", "", "", false), "web64|web64", "nothing set: only the built-in C64");
-  assert.equal(state("x64sc.exe", "", "", false), "prg|prg,d64,web64");
-  assert.equal(state("", "192.168.1.64", "", false), "web64|ultimate,ultimate-d64,web64");
-  assert.equal(state("", "", "COM5", false), "web64|kff2,web64");
-  assert.equal(state("", "", "", true), "web64|ue2,ue2-d64,web64");
+  assert.equal(state("", "", "", false), "vice|vice", "nothing set: only the built-in C64");
+  assert.equal(state("x64sc.exe", "", "", false), "prg|prg,d64,vice");
+  assert.equal(state("", "192.168.1.64", "", false), "vice|ultimate,ultimate-d64,vice");
+  assert.equal(state("", "", "COM5", false), "vice|kff2,vice");
+  assert.equal(state("", "", "", true), "vice|ue2,ue2-d64,vice");
 
   app.run(`setRunMode("ue2")`);
   assert.equal(app.localStorage.getItem("runMode"), "ue2");
-  assert.equal(state("x64sc.exe", "", "", false), "prg|prg,d64,web64", "falls back to VICE");
-  assert.equal(state("", "", "", false), "web64|web64", "falls back to the built-in C64");
+  assert.equal(state("x64sc.exe", "", "", false), "prg|prg,d64,vice", "falls back to VICE");
+  assert.equal(state("", "", "", false), "vice|vice", "falls back to the built-in C64");
   assert.equal(app.localStorage.getItem("runMode"), "ue2", "the fallback is not saved");
-  assert.equal(state("", "", "", true), "ue2|ue2,ue2-d64,web64", "the choice comes back");
+  assert.equal(state("", "", "", true), "ue2|ue2,ue2-d64,vice", "the choice comes back");
   assert.equal(app.run("_runModeWanted"), "ue2");
+
+  // the built-in C64's old name ("web64", in .proj files and older settings) becomes "vice"
+  app.run(`setRunMode("web64")`);
+  assert.equal(app.run("_runModeWanted"), "vice");
+  assert.equal(app.localStorage.getItem("runMode"), "vice");
+});
+
+test("the built-in C64's settings are read under their old name", () => {
+  const loadApp = require("./helpers/load-app");
+  const app = loadApp();
+  app.localStorage.removeItem("c64va-vice");
+  app.localStorage.setItem("c64va-web64", JSON.stringify({ warp: true }));
+  assert.equal(app.run("_w64Prefs().warp"), true);
+  app.run(`_w64SavePref("sound", false)`);
+  assert.deepEqual(JSON.parse(app.localStorage.getItem("c64va-vice")), { warp: true, sound: false });
 });
 
 test("the Run menu follows the VICE path loaded from the config at startup", async () => {

@@ -5745,7 +5745,7 @@
     "language": "en",
     "numberBase": "hex",
     "outputMode": "asm",
-    "runMode": "web64",
+    "runMode": "vice",
     "sample": "reu-demo",
     "theme": "black",
     "zoom": 1.09

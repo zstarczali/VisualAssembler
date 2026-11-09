@@ -4376,7 +4376,6 @@ Open via **Menu → Settings…** (formerly *Hardware Settings*). The dialog has
 
 - **JavaScript** — the built-in compiler, the default.
 - **Rust** — the open-source [VMA compiler](https://github.com/zstarczali/VMA) inside the app. It gives the same bytes, memory view, segments and error messages as the JavaScript one.
-- **Rust + JavaScript check** — builds with JavaScript and with Rust, uses the JavaScript result and logs any difference (bytes, memory view, errors) to the error log, which the bug report sends along.
 
 The compiling dialog names the engine in use. The VMA version is shown in the About box.
 
@@ -4551,6 +4550,7 @@ Pixel-level bitmap editor with both 320×200 hi-res and 160×200 multicolor mode
 | Spray tool | Airbrush-style painter that scatters pixels around the cursor while drawing. |
 | Spray intensity | Dropdown next to the spray tool controls how dense each spray stroke is. |
 | Color palette | Foreground (ink) + paper (background) pickers. In multicolor every 4×8 cell holds the paper plus 3 more colours: a 4th is refused with a message in the status bar. Changing the paper recolours all background pixels, as `$D021` does. Cells over the limit (for example from a raw 32000-byte file) get a red frame, and the export warns about them, because their extra colours would turn into the background. |
+| MIX (multicolor) | The **MIX** row paints a blend of three colours in a repeating pattern instead of a single colour, for extra shades beyond the four colours of a cell. Turn it **On** and pick one of the 8 slots (a click on a slot also turns it on); each slot has three colours (a click on a colour swatch takes the selected palette colour) and a pattern: Lines, Stripes, Brick, Checker, Soft (4×4), Columns, Diagonal, Tint. It works with the pencil, spray, line, rectangle, oval and fill tools; the eraser and the colour picker are unaffected. The pattern is locked to the picture, not to the shape, so neighbouring shapes painted with the same mix meet without a seam. The cell limit still applies: a mix that contains the paper colour uses only two of the cell's three colours. The slots are kept between sessions. Disabled in hi-res. |
 | Undo / Redo | Per-stroke history, ctrl-Z / ctrl-Y. |
 | Select | The dashed-square tool: drag on the canvas to mark a rectangular region. **Esc** clears the selection. |
 | Copy / Paste | **Copy** (`Ctrl/Cmd+C`) copies the selected region. **Paste** (`Ctrl/Cmd+V`) shows a preview that follows the cursor: click on the canvas to place it, **Esc** cancels. The copy is kept, so pressing `Ctrl/Cmd+V` and clicking again places it as many times as needed. In hi-res mode pasted pixels still follow the two-colours-per-cell limit, so line the region up with the cell grid to keep its colours. Copy, Paste and Transparent paste are also in the right-click menu of the canvas; a paste started there previews at the clicked spot. |

@@ -4364,7 +4364,6 @@ A **Beállítások → Általános → Program → VMA fordító** választja a 
 
 - **JavaScript** — a beépített fordító, ez az alapértelmezett.
 - **Rust** — a nyílt forráskódú [VMA fordító](https://github.com/zstarczali/VMA) az alkalmazásban. Ugyanazokat a bájtokat, memórianézetet, szegmenseket és hibaüzeneteket adja, mint a JavaScript fordító.
-- **Rust + JavaScript ellenőrzés** — JavaScripttel és Rusttal is fordít, a JavaScript eredményét használja, az eltérést (bájtok, memórianézet, hibák) pedig a hibanaplóba írja, amelyet a hibabejelentés is elküld.
 
 A fordítás ablak kiírja a használt motort. A VMA verziója az About ablakban látszik.
 
@@ -4539,6 +4538,7 @@ Pixel-szintű bitmap szerkesztő 320×200 hi-res és 160×200 multicolor módokk
 | Spray eszköz | Airbrush-stílusú festő, amely pixeleket szór a kurzor köré rajzolás közben. |
 | Spray intenzitás | A spray eszköz melletti legördülő vezérli, mennyire sűrű minden spray húzás. |
 | Színpaletta | Előtér (ink) + papír (háttér) választók. Multicolorban minden 4×8-as cellában a papír mellett 3 szín lehet: a 4. színt elutasítja, és a státuszsorban jelzi. A papír cseréje minden háttérpixelt átszínez, ahogy a `$D021` is. A korlátot túllépő cellák (pl. nyers, 32000 bájtos fájlból) piros keretet kapnak, és az export figyelmeztet rájuk, mert a többletszínek háttérszínűek lennének. |
+| MIX (multicolor) | A **MIX** sor egyetlen szín helyett három szín ismétlődő mintázatát festi, így a cella négy színén túli árnyalatok is kikeverhetők. Kapcsold **Be**, és válassz a 8 hely közül (a helyre kattintás be is kapcsolja); minden helynek három színe (a színmintára kattintás a palettán kiválasztott színt veszi át) és egy mintája van: Sorok, Sávok, Tégla, Sakktábla, Lágy (4×4), Oszlopok, Átló, Árnyalat. A ceruzával, a spray-jel, a vonallal, a téglalappal, az oválissal és a kitöltéssel működik; a radírra és a színválasztóra nem hat. A minta a képhez rögzített, nem az alakzathoz, így az azonos keverékkel festett szomszédos alakzatok varrat nélkül találkoznak. A cellakorlát továbbra is érvényes: a papír színét tartalmazó keverék a cella három színéből csak kettőt foglal. A helyek a munkamenetek között megmaradnak. Hi-resben le van tiltva. |
 | Undo / Redo | Húzásonkénti előzmény, ctrl-Z / ctrl-Y. |
 | Kijelölés | A szaggatott négyzet ikonú eszköz: húzással jelölhető ki egy téglalap alakú terület a vásznon. Az **Esc** megszünteti a kijelölést. |
 | Másolás / beillesztés | A **Copy** (`Ctrl/Cmd+C`) a kijelölt területet másolja. A **Paste** (`Ctrl/Cmd+V`) után a másolat előnézete követi a kurzort: kattintás a vászonra elhelyezi, az **Esc** megszakítja. A másolat megmarad, így újabb `Ctrl/Cmd+V` és kattintás akárhányszor beilleszti. Hi-res módban a beillesztett pixelekre is érvényes a cellánkénti két szín, ezért a színek megtartásához igazítsd a területet a cellarácshoz. A Copy, a Paste és az áttetsző beillesztés a vászon jobb klikkes menüjében is megvan; az onnan indított beillesztés előnézete a kattintás helyén jelenik meg. |

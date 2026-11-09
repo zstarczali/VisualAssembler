@@ -75,12 +75,12 @@ ha le van fordítva), `cargo test --offline` a `crates/vma`-ban, és az esetenk�
    `{ ok, prg, sysAddress }` / `{ ok: false, error, line }` (`vma::build_full`, `prg::Built`); a fájlokat az app saját
    keresési sorrendje adja (`AppFiles`: a `reload_*` parancsokból kiemelt `asset_candidates` /
    `include_candidates`, viselkedés változatlan). JS: Beállítások → Általános → Program `#vma-engine`
-   (`c64va-vma-engine`: `js` (alapérték) / `rust` / `shadow`; i18n `vmaEngine*` mind a 7 nyelven); minden build-út
+   (`c64va-vma-engine`: `js` (alapérték) / `rust`; a `shadow` mód később kikerült, a mentett érték `js`; i18n `vmaEngine*` mind a 7 nyelven); minden build-út
    a `_kickOrVaPrg` → `_vaBuildPrg`-n megy (Run / Save PRG / D64 / CRT / Exomizer / debugger), Kick projekt marad JS;
    `_vmaBuildInput` = a `buildAutostartPrgForEmulator` választása szövegként (Expert: az indítófájl vagy az editor,
-   Block: `_blockToExpertSourceLine`), `_vmaRustBuild` (hiba `[Rnnn]` a sorral), `shadow`: a JS eredmény megy tovább,
-   a Rust is fordít, az eltérés (`_vmaShadowDiff`) a konzolba és a `_vaErrorLog`-ba; teszt `tests/vma-engine.test.js`
-   (a valódi CLI-vel is). Hátra: shadow módú próba a felhasználói projekteken a futó appban; `BuildResult`
+   Block: `_blockToExpertSourceLine`), `_vmaRustBuild` (hiba `[Rnnn]` a sorral), (megszűnt) `shadow`: a JS eredmény ment tovább,
+   a Rust is fordított, az eltérés a konzolba és a `_vaErrorLog`-ba; teszt `tests/vma-engine.test.js`
+   (a valódi CLI-vel is). Valós projektek összevetése: `scripts/vma-shadow-scan.js` (az appban már nincs shadow mód); `BuildResult`
    (szegmensek, sorok, címkék — a memóriasáv, ASM nézet, debugger sidecar, VICE Monitor hot reload ebből), a
    hibák i18n-kulcsai, az alapérték átállítása `rust`-ra.
    ✔ B fázis, debugger nézet: `vma::build_result` → `BuildResult` (`built`, `origin`, `info` = a debugger-layout sorai,
@@ -104,12 +104,11 @@ ha le van fordítva), `cargo test --offline` a `crates/vma`-ban, és az esetenk�
    deferred darabok egyesített tartományai a bájtjaikkal, `Built::segments` + `Built::entry` (a program saját belépője, a
    relocating loader mögött is). JSON: `segments`, `entry`, `memory` {code, regions, deferred: [{type, address, end,
    sourceAddress, label}]}. JS: `getMemoryUsage` → `_memoryUsageOf(layout, code, deferred, regions)` (a `detectMemoryOverlaps`
-   helyett `_memoryCodeRegions` + `_memoryOverlaps`), `_vmaMemoryUsage(memory)` ugyanezt a Rust adatból; shadow módban
-   `_vmaShadowMemoryDiff` (foglalt tartományok, deferred szakaszok, átfedések száma); a `_vmBuildSegments` Rust buildnél a
+   helyett `_memoryCodeRegions` + `_memoryOverlaps`), a shadow móddal együtt a `_vmaMemoryUsage` / `_vmaShadowMemoryDiff` is kikerült; a `_vmBuildSegments` Rust buildnél a
    `segments`-et írja és az `entry`-n indít újra (`_vmWithProgram(fn, blocks)`). Közben javítva: a Rust `origin_of` kihagyja a
    makrótörzs ORG-ját, mint a `parseOriginValue` (golden `org-in-macro-body`). Tesztek: `tests/vma-memory.test.js` (a korpusz
    minden szöveges esetén JS `getMemoryUsage` = Rust `memory`, és a szegmensek a PRG bájtjai), `tests/vma-engine.test.js`
-   (hot reload + shadow memória), Rust `segments_entry_and_memory_view`. A memóriapanel gépelés közben továbbra is a JS
+   (hot reload), Rust `segments_entry_and_memory_view`. A memóriapanel gépelés közben továbbra is a JS
    layoutból rajzol (szinkron) — az F7 (WASM) váltja ki.
    ✔ B fázis, hibakulcsok: `msg.rs` `Msg { key, params, text }` (`Msg::keyed(…).p(név, érték)`; a JS összetételéhez
    `_prefix` / `_suffix` / `_replace`), a `compile_line` és a segédei `Msg`-et adnak, a JS minden `t()` / `tf()` hibáját
@@ -339,8 +338,7 @@ A hibaszövegek fordítása a JS-ben marad: a Rust i18n-kulcsot + paramétereket
   válnak: a fájlt a Rust olvassa.
 - Kick projekt: a `_kickPreprocess` (JS) kimenete VMA szöveg — első körben marad JS-ben, a Rust ezt kapja.
   Portja külön, későbbi fázis.
-- Kapcsoló: `uiSettings.vmaEngine = "js" | "rust" | "shadow"`; `shadow` = mindkettő fut, eltérésnél a
-  konzolba és a hibalogba (`_vaErrorLog`) ír. Alapértelmezés `js` → `shadow` (dev) → `rust`.
+- Kapcsoló: `c64va-vma-engine` = `js` | `rust` (a korábbi `shadow` mód kikerült). Alapértelmezés `js` → `rust`.
 
 ---
 

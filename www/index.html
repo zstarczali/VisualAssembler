@@ -275,7 +275,7 @@
           <button id="numconv-btn" class="main-tb-btn main-tb-icon-btn" type="button" aria-label="Number converter" aria-pressed="false">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15" aria-hidden="true"><path d="M2 4.5h7M6.5 2 9 4.5 6.5 7"/><path d="M14 11.5H7M9.5 9 7 11.5 9.5 14"/><text x="11" y="6.2" font-size="5" font-family="monospace" fill="currentColor" stroke="none">$</text><text x="1.6" y="13.4" font-size="5" font-family="monospace" fill="currentColor" stroke="none">%</text></svg>
           </button>
-          <button id="web64-btn" class="main-tb-btn main-tb-icon-btn" type="button" aria-label="Built-in C64" aria-pressed="false">
+          <button id="vice-btn" class="main-tb-btn main-tb-icon-btn" type="button" aria-label="Built-in C64" aria-pressed="false">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15" aria-hidden="true"><rect x="1" y="5" width="14" height="7" rx="1.5"/><path d="M3.5 8h1M6 8h1M8.5 8h1M11 8h1.5M4.5 10h7"/><path d="M4 5l1-2h6l1 2"/></svg>
           </button>
           <button id="vice-mon-btn" class="main-tb-btn main-tb-icon-btn" type="button" aria-label="VICE Monitor" aria-pressed="false">
@@ -333,9 +333,9 @@
                 <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="13" height="13" aria-hidden="true"><rect x="3" y="5" width="10" height="7" rx="1"/><path d="M5 5V3M8 5V3M11 5V3M5 12v1M8 12v1M11 12v1M1 7h2M1 9h2M13 7h2M13 9h2"/><circle cx="8" cy="8.5" r="1.8" fill="currentColor" stroke="none"/></svg>
                 <span id="run-ue2-d64-label">D64 on Ultimate emulator</span>
               </button>
-              <button id="run-web64-mode" class="run-mode-item" role="menuitem" data-mode="web64">
+              <button id="run-vice-mode" class="run-mode-item" role="menuitem" data-mode="vice">
                 <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="13" height="13" aria-hidden="true"><rect x="1.5" y="3" width="13" height="8.5" rx="1"/><path d="M5.5 14h5"/><path d="M6.5 5.5l3.5 2-3.5 2z" fill="currentColor" stroke="none"/></svg>
-                <span id="run-web64-label">Built-in C64</span>
+                <span id="run-vice-label">Built-in C64</span>
               </button>
             </div>
           </div>
@@ -2458,6 +2458,18 @@ PRINTABLE CHARACTERS
         <span class="hg-zoom-lbl" id="hg-zoom-lbl">Zoom:</span>
         <input type="range" id="hg-zoom" min="1" max="16" step="1" value="3" class="hg-zoom">
       </div>
+      <div class="hg-toolbar hg-toolbar--mix" id="hg-mix-bar">
+        <span class="hg-color-lbl" id="hg-mix-lbl">MIX:</span>
+        <label class="hg-check" id="hg-mix-on-wrap" aria-label="The pen paints the selected mix instead of a single colour"><input type="checkbox" id="hg-mix-on"> <span id="hg-mix-on-label">On</span></label>
+        <div class="hg-mix-slots" id="hg-mix-slots"></div>
+        <div class="hg-mix-cols">
+          <button class="hg-swatch hg-mix-col" data-mix-col="0" type="button" aria-label="Mix colour 1"></button>
+          <button class="hg-swatch hg-mix-col" data-mix-col="1" type="button" aria-label="Mix colour 2"></button>
+          <button class="hg-swatch hg-mix-col" data-mix-col="2" type="button" aria-label="Mix colour 3"></button>
+        </div>
+        <select id="hg-mix-pattern" class="hg-mix-select" aria-label="Pattern"></select>
+        <span id="hg-mix-hint" class="hg-mix-hint">Multicolor only</span>
+      </div>
       <div class="hg-canvas-wrap" id="hg-canvas-wrap">
         <div id="hg-canvas-sizer" class="hg-canvas-sizer"><canvas id="hg-canvas" class="hg-canvas"></canvas></div>
       </div>
@@ -3269,7 +3281,7 @@ PRINTABLE CHARACTERS
     </div>
   </dialog>
 
-  <dialog id="web64-dialog" class="curve-gen-dialog w64-dialog">
+  <dialog id="vice-dialog" class="curve-gen-dialog w64-dialog">
     <div class="cg-card w64-card">
       <div class="cg-hdr w64-hdr">
         <div class="ed-file">
@@ -3987,7 +3999,7 @@ PRINTABLE CHARACTERS
             </label>
             <label class="field compact-field hw-field">
               <span id="vma-engine-label">VMA compiler</span>
-              <select id="vma-engine"><option value="js">JavaScript</option><option value="rust">Rust</option><option value="shadow">Rust + JavaScript check</option></select>
+              <select id="vma-engine"><option value="js">JavaScript</option><option value="rust">Rust</option></select>
             </label>
             <label class="menu-checkbox-label">
               <input type="checkbox" id="basic-sys-toggle" checked>
