@@ -26,7 +26,7 @@ emulator_6502 = { version = "1.1.0", features = ["implementation_transparency"] 
 urlencoding = "2"
 serialport = { version = "4.7", default-features = false }
 sevenz-rust2 = { version = "0.24", default-features = false, features = ["ppmd"] }
-ultimate-basic = { git = "https://github.com/zstarczali/UltimateBasic.git", branch = "dev" }
+ultimate-basic = { git = "https://github.com/zstarczali/UltimateBasic.git", rev = "6392b79b41bd3231cd4ec2a54708570b0111cadc" }
 # the VMA compiler: its own repository; for local work on it, a [patch] with path = "../../VMA"
 vma = { git = "https://github.com/zstarczali/VMA.git", rev = "0b79685e750be702e61e9287c050465cc093ce3e" }
 
