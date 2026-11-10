@@ -297,7 +297,7 @@ function buildKick(files) {
   return { ...prg, hex: prg.bytes ? Buffer.from(prg.bytes.slice(2 + 0x1000 - load)).toString("hex") : "" };
 }
 
-test("Kick scopes: { } blocks, label scopes, loop / if / macro labels, consts", () => {
+ktest("Kick scopes: { } blocks, label scopes, loop / if / macro labels, consts", () => {
   const cases = [
     ["lp: .for (var i=0;i<2;i++) {\ninner: nop\n}\n jmp lp[1].inner", "eaea4c0110"],
     [" jmp myIf.inner\nmyIf: .if (true) {\n nop\ninner: rts\n}", "4c0410ea60"],
@@ -317,7 +317,7 @@ test("Kick scopes: { } blocks, label scopes, loop / if / macro labels, consts", 
   }
 });
 
-test("Kick .filenamespace: labels as namespace.name, @ puts a label in the root", () => {
+ktest("Kick .filenamespace: labels as namespace.name, @ puts a label in the root", () => {
   const prg = buildKick({
     "main.asm": '* = $1000\n#import "lib.asm"\n jsr part.init\n jsr shared\n lda #part.VALUE\n',
     "lib.asm": ".filenamespace part\n.label VALUE = 7\ninit: lda #VALUE\n rts\n@shared: rts\n"
@@ -326,7 +326,7 @@ test("Kick .filenamespace: labels as namespace.name, @ puts a label in the root"
   assert.equal(prg.hex, "a9076060200010200310a907");
 });
 
-test("Kick scopes: inner labels are not visible outside their scope", () => {
+ktest("Kick scopes: inner labels are not visible outside their scope", () => {
   for (const source of [".if (true) {\ninner: nop\n}\n jmp inner", "{\ninner: nop\n}\n jmp inner", ".for (var i=0;i<2;i++) {\ninner: nop\n}\n jmp inner"]) {
     const prg = buildKick({ "main.asm": "* = $1000\n" + source });
     assert.equal(prg.ok, false, source);
@@ -335,7 +335,7 @@ test("Kick scopes: inner labels are not visible outside their scope", () => {
 
 // Pseudocommands, #define / #if, List / Hashtable / struct / strings / .enum / .define:
 // the fixtures and the bytes KickAssembler 5.25 made of them (code at $1000).
-test("Kick pseudocommands, preprocessor and data structures build like KickAssembler", () => {
+ktest("Kick pseudocommands, preprocessor and data structures build like KickAssembler", () => {
   const dir = path.join(__dirname, "fixtures", "kick-features");
   const expected = {
     "pseudocommands.asm": "a90a8d0010b520993000a9149130a93485fba91285fc18a53069808530a5316900853118a53069008532a53169108533a1408541",
@@ -357,7 +357,7 @@ test("Kick .error / .errorif stop the build, .print is collected", () => {
   assert.deepEqual(Array.from(printed.messages), ["x=3"]);
 });
 
-test("Kick command-line variables and -define symbols come from the project settings", () => {
+ktest("Kick command-line variables and -define symbols come from the project settings", () => {
   // KickAssembler: java -jar KickAss.jar cl.asm -define DEBUG :level=7 :name=AB
   const source = '* = $1000\n.const L = cmdLineVars.containsKey("level") ? cmdLineVars.get("level").asNumber() : 1\n lda #L\n#if DEBUG\n lda #$dd\n#endif\n.if (cmdLineVars.containsKey("name")) { .text cmdLineVars.get("name") }\n';
   app.__files = { "/mem/main.asm": source };
