@@ -244,6 +244,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 
 ## Version 2.7.8 Highlights
 
+- **Faster** — building, running and the live views while you type are quicker: the native Rust compiler builds the program once, and every view reads that one build.
 - **One compiler** — every program is built by the Rust VMA compiler (VMA 2.3.0), and the disassembly, monitor, memory map, cycle gutter, hints and ASM view read the same build. The JavaScript compiler and the **VMA compiler** setting are removed; building needs the desktop app. See [VMA compiler](#vma-compiler).
 - **Local labels as absolute operands** — a local label of another scope or with an offset, such as `JMP Second.lp` or `LDA .lp+1,X`, compiles; before, it was an invalid operand.
 

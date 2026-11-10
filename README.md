@@ -8,6 +8,7 @@ Visual Assembler is free and open source (GPLv3): every feature — editors, bui
 
 ## What's New in v2.7.8
 
+- **Faster** — building, running and the live views while you type are quicker: the native Rust compiler builds the program once and every view reads that one build, where the JavaScript compiler laid the program out again for each view.
 - **One compiler** — every program (Block, Expert, Kick project, Build / Run / D64 / CRT / debugger) is built by the Rust VMA compiler (VMA 2.3.0), and the live views (disassembly, monitor, memory map, cycle gutter, peephole hints, ASM view, VICE Monitor) read the same build. The JavaScript compiler and the **VMA compiler** setting are removed; builds need the desktop app.
 - **Local labels as absolute operands** — `JMP Second.lp`, `LDA .lp+1,X` compile; before, they were invalid operands.
 

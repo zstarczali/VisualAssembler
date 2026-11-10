@@ -156,7 +156,7 @@ ha le van fordítva), `cargo test --offline` a `crates/vma`-ban, és az esetenk�
    VICE, Ultimate, KFF2, c1541, Build project fájlonként, Kick kimenetek, debugger).
    ✔ Külön repó: a crate a `crates/vma` történetével (`git subtree split`) a `F:\Development\VMA` repóba költözött
    = `github.com/zstarczali/VMA` (publikus, GPLv3; README, LICENSE). A VA `src-tauri` git-függőségként húzza be
-   (`rev = "<sha>"`, commit SHA-ra kötve, 2.2.0 óta `0b79685`; frissítés: a `rev` cseréje + `cargo update -p vma`;
+   (`rev = "<sha>"`, commit SHA-ra kötve, 2.3.0 óta `7a7d7ff`; frissítés: a `rev` cseréje + `cargo update -p vma`;
    helyi fejlesztéshez `[patch."https://github.com/zstarczali/VMA.git"] vma = { path = "../../VMA" }`). A VA tesztjei / szkriptjei a `VMA_DIR` (alapból
    `../VMA`) és a `VMA_BIN` alapján találják a CLI-t és a forrást (`tests/helpers/vma-rust.js` `vmaDir()`); a golden
    korpusz és a JS referencia a VA-ban marad. A JS fordító (`www/app.js`) változatlanul megmarad, az alapmotor.

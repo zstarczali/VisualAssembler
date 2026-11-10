@@ -77,54 +77,54 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "u64-palette-277",
+  id: "rust-vma-278",
   url: "https://www.c64va.pro/docs.html",
   hu: {
-    eyebrow: "Újdonság a 2.7.7-ben",
+    eyebrow: "Újdonság a 2.7.8-ban",
     title: "Üdvözöl a Visual Assembler",
-    body: `<ul><li><strong>Ultimate 64 paletta</strong>: a <code>.u64_palette "fájl.vpl"</code> egy palettafájl 16 színét tölti az Ultimate 64 / C64U-ba, a <code>.u64_palette_color</code> egy színt cserél, a <code>.u64_palette_reset</code> visszaállítja a menü palettáját (firmware 3.15+, Command Interface bekapcsolva).</li><li><strong>Paletta demó</strong>: új minta, amely az 1, 2, 3, 0 billentyűkre palettát vált; valódi gépen és az Ultimate emulátorban fut.</li><li><strong>Hi-Res MIX</strong>: keverék-toll multicolor képekhez: 8 hely, 3 szín, 8 minta.</li><li><strong>Beépített C64</strong>: üres programot már nem indít el.</li></ul>`,
+    body: `<ul><li><strong>Gyorsabb lett</strong>: a fordítás, a futtatás és gépelés közben az élő nézetek (disassembly, monitor, memóriatérkép, ciklus-gutter, ASM nézet) is gyorsabbak, mert mindent a natív Rust VMA fordító (VMA 2.3.0) fordít, egyszer.</li><li><strong>Egyetlen fordító</strong>: a JavaScript fordító és a <em>VMA fordító</em> beállítás kikerült; ugyanazok a bájtok, ugyanazok a hibaüzenetek.</li><li><strong>Lokális címkék</strong>: a <code>JMP Second.lp</code> és az <code>LDA .lp+1,X</code> is lefordul.</li></ul>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
-    eyebrow: "New in 2.7.7",
+    eyebrow: "New in 2.7.8",
     title: "Welcome to Visual Assembler",
-    body: `<ul><li><strong>Ultimate 64 palette</strong>: <code>.u64_palette "file.vpl"</code> loads the 16 colours of a palette file into an Ultimate 64 / C64U, <code>.u64_palette_color</code> changes one colour and <code>.u64_palette_reset</code> restores the menu's palette (firmware 3.15+, Command Interface on).</li><li><strong>Palette demo</strong>: a new sample switches palettes with the keys 1, 2, 3 and 0; it runs on the hardware and in the Ultimate emulator.</li><li><strong>Hi-Res MIX</strong>: a mix pen for multicolor pictures: 8 slots, 3 colours, 8 patterns.</li><li><strong>Built-in C64</strong>: an empty program is no longer started.</li></ul>`,
+    body: `<ul><li><strong>Faster</strong>: building, running and the live views while you type (disassembly, monitor, memory map, cycle gutter, ASM view) are quicker, because the native Rust VMA compiler (VMA 2.3.0) builds everything, once.</li><li><strong>One compiler</strong>: the JavaScript compiler and the <em>VMA compiler</em> setting are gone; the same bytes, the same error messages.</li><li><strong>Local labels</strong>: <code>JMP Second.lp</code> and <code>LDA .lp+1,X</code> compile.</li></ul>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
-    eyebrow: "Novedad en la 2.7.7",
+    eyebrow: "Novedad en la 2.7.8",
     title: "Bienvenido a Visual Assembler",
-    body: `<ul><li><strong>Paleta del Ultimate 64</strong>: <code>.u64_palette "archivo.vpl"</code> carga los 16 colores de un archivo de paleta en un Ultimate 64 / C64U, <code>.u64_palette_color</code> cambia un color y <code>.u64_palette_reset</code> restaura la paleta del menú (firmware 3.15+, Command Interface activado).</li><li><strong>Demo de paleta</strong>: un ejemplo nuevo cambia de paleta con las teclas 1, 2, 3 y 0; funciona en el hardware y en el emulador Ultimate.</li><li><strong>Hi-Res MIX</strong>: un pincel de mezcla para imágenes multicolor: 8 huecos, 3 colores, 8 patrones.</li><li><strong>C64 integrado</strong>: ya no inicia un programa vacío.</li></ul>`,
+    body: `<ul><li><strong>Más rápido</strong>: compilar, ejecutar y las vistas en vivo mientras escribes (desensamblado, monitor, mapa de memoria, ciclos, vista ASM) son más rápidos, porque el compilador nativo Rust VMA (VMA 2.3.0) lo compila todo, una sola vez.</li><li><strong>Un solo compilador</strong>: el compilador JavaScript y el ajuste <em>Compilador VMA</em> desaparecen; los mismos bytes y los mismos mensajes de error.</li><li><strong>Etiquetas locales</strong>: <code>JMP Second.lp</code> y <code>LDA .lp+1,X</code> compilan.</li></ul>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
-    eyebrow: "Neu in 2.7.7",
+    eyebrow: "Neu in 2.7.8",
     title: "Willkommen bei Visual Assembler",
-    body: `<ul><li><strong>Ultimate-64-Palette</strong>: <code>.u64_palette "datei.vpl"</code> lädt die 16 Farben einer Palettendatei in einen Ultimate 64 / C64U, <code>.u64_palette_color</code> ändert eine Farbe und <code>.u64_palette_reset</code> stellt die Palette des Menüs wieder her (Firmware 3.15+, Command Interface an).</li><li><strong>Paletten-Demo</strong>: ein neues Beispiel wechselt die Palette mit den Tasten 1, 2, 3 und 0; es läuft auf der Hardware und im Ultimate-Emulator.</li><li><strong>Hi-Res MIX</strong>: ein Mischstift für Multicolor-Bilder: 8 Plätze, 3 Farben, 8 Muster.</li><li><strong>Eingebauter C64</strong>: ein leeres Programm wird nicht mehr gestartet.</li></ul>`,
+    body: `<ul><li><strong>Schneller</strong>: Übersetzen, Starten und die Live-Ansichten beim Tippen (Disassembly, Monitor, Speicherkarte, Zyklen, ASM-Ansicht) sind schneller, weil der native Rust-VMA-Compiler (VMA 2.3.0) alles übersetzt, einmal.</li><li><strong>Ein Compiler</strong>: der JavaScript-Compiler und die Einstellung <em>VMA-Compiler</em> entfallen; dieselben Bytes, dieselben Fehlermeldungen.</li><li><strong>Lokale Labels</strong>: <code>JMP Second.lp</code> und <code>LDA .lp+1,X</code> werden übersetzt.</li></ul>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
-    eyebrow: "Nieuw in 2.7.7",
+    eyebrow: "Nieuw in 2.7.8",
     title: "Welkom bij Visual Assembler",
-    body: `<ul><li><strong>Ultimate 64-palet</strong>: <code>.u64_palette "bestand.vpl"</code> laadt de 16 kleuren van een paletbestand in een Ultimate 64 / C64U, <code>.u64_palette_color</code> wijzigt één kleur en <code>.u64_palette_reset</code> herstelt het palet van het menu (firmware 3.15+, Command Interface aan).</li><li><strong>Paletdemo</strong>: een nieuw voorbeeld wisselt het palet met de toetsen 1, 2, 3 en 0; het draait op de hardware en in de Ultimate-emulator.</li><li><strong>Hi-Res MIX</strong>: een mengpen voor multicolor-afbeeldingen: 8 plaatsen, 3 kleuren, 8 patronen.</li><li><strong>Ingebouwde C64</strong>: een leeg programma wordt niet meer gestart.</li></ul>`,
+    body: `<ul><li><strong>Sneller</strong>: compileren, starten en de live weergaven tijdens het typen (disassembly, monitor, geheugenkaart, cycli, ASM-weergave) zijn sneller, omdat de native Rust VMA-compiler (VMA 2.3.0) alles compileert, één keer.</li><li><strong>Eén compiler</strong>: de JavaScript-compiler en de instelling <em>VMA-compiler</em> zijn weg; dezelfde bytes, dezelfde foutmeldingen.</li><li><strong>Lokale labels</strong>: <code>JMP Second.lp</code> en <code>LDA .lp+1,X</code> compileren.</li></ul>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
-    eyebrow: "Nowość w 2.7.7",
+    eyebrow: "Nowość w 2.7.8",
     title: "Witamy w Visual Assembler",
-    body: `<ul><li><strong>Paleta Ultimate 64</strong>: <code>.u64_palette "plik.vpl"</code> wczytuje 16 kolorów z pliku palety do Ultimate 64 / C64U, <code>.u64_palette_color</code> zmienia jeden kolor, a <code>.u64_palette_reset</code> przywraca paletę z menu (firmware 3.15+, włączony Command Interface).</li><li><strong>Demo palety</strong>: nowy przykład przełącza palety klawiszami 1, 2, 3 i 0; działa na sprzęcie i w emulatorze Ultimate.</li><li><strong>Hi-Res MIX</strong>: pędzel mieszający do obrazów multicolor: 8 miejsc, 3 kolory, 8 wzorów.</li><li><strong>Wbudowany C64</strong>: pusty program nie jest już uruchamiany.</li></ul>`,
+    body: `<ul><li><strong>Szybciej</strong>: kompilacja, uruchamianie i widoki na żywo podczas pisania (disassembly, monitor, mapa pamięci, cykle, widok ASM) działają szybciej, bo wszystko kompiluje natywny kompilator Rust VMA (VMA 2.3.0), jeden raz.</li><li><strong>Jeden kompilator</strong>: kompilator JavaScript i ustawienie <em>Kompilator VMA</em> zniknęły; te same bajty, te same komunikaty błędów.</li><li><strong>Etykiety lokalne</strong>: <code>JMP Second.lp</code> i <code>LDA .lp+1,X</code> się kompilują.</li></ul>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
-    eyebrow: "Novità nella 2.7.7",
+    eyebrow: "Novità nella 2.7.8",
     title: "Benvenuto in Visual Assembler",
-    body: `<ul><li><strong>Palette Ultimate 64</strong>: <code>.u64_palette "file.vpl"</code> carica i 16 colori di un file di palette in un Ultimate 64 / C64U, <code>.u64_palette_color</code> cambia un colore e <code>.u64_palette_reset</code> ripristina la palette del menu (firmware 3.15+, Command Interface attivo).</li><li><strong>Demo palette</strong>: un nuovo esempio cambia palette con i tasti 1, 2, 3 e 0; funziona sull'hardware e nell'emulatore Ultimate.</li><li><strong>Hi-Res MIX</strong>: un pennello di miscela per immagini multicolor: 8 posti, 3 colori, 8 motivi.</li><li><strong>C64 integrato</strong>: un programma vuoto non viene più avviato.</li></ul>`,
+    body: `<ul><li><strong>Più veloce</strong>: compilazione, avvio e le viste dal vivo mentre scrivi (disassembly, monitor, mappa di memoria, cicli, vista ASM) sono più rapidi, perché il compilatore nativo Rust VMA (VMA 2.3.0) compila tutto, una volta sola.</li><li><strong>Un solo compilatore</strong>: il compilatore JavaScript e l'impostazione <em>Compilatore VMA</em> sono stati rimossi; stessi byte, stessi messaggi di errore.</li><li><strong>Etichette locali</strong>: <code>JMP Second.lp</code> e <code>LDA .lp+1,X</code> si compilano.</li></ul>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }

@@ -246,6 +246,7 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 
 ## A 2.7.8 verzió újdonságai
 
+- **Gyorsabb lett** — a fordítás, a futtatás és gépelés közben az élő nézetek is gyorsabbak: a natív Rust fordító egyszer fordítja a programot, és minden nézet ebből az egy fordításból dolgozik.
 - **Egyetlen fordító** — minden programot a Rust VMA fordító (VMA 2.3.0) fordít, és a disassembly, a monitor, a memóriatérkép, a ciklus-gutter, a tippek és az ASM nézet ugyanebből a fordításból dolgozik. A JavaScript fordító és a **VMA fordító** beállítás kikerült; a fordításhoz az asztali alkalmazás kell. Lásd: [VMA fordító](#vma-fordító).
 - **Lokális címkék abszolút operandusként** — egy másik hatókör vagy eltolással írt lokális címke, pl. `JMP Second.lp` vagy `LDA .lp+1,X`, lefordul; korábban érvénytelen operandus volt.
 
