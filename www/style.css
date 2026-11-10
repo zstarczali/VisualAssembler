@@ -11403,6 +11403,7 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
   color: var(--primary);
 }
 .websid-play-tool:disabled { opacity: 0.4; cursor: default; background: transparent; }
+.websid-play-sep { width: 1px; height: 18px; margin: 0 3px; flex: 0 0 1px; background: var(--panel-border); }
 .websid-play-body {
   display: flex;
   flex-direction: column;

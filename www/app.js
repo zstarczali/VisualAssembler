@@ -11310,9 +11310,11 @@ function _expertHighlightKickLine(raw) {
       const word = ident.replace(/^@/, "");
       if (header && word === header[2]) cls = "hl-macro";
       else if (header && (braceIdx < 0 || m.index < braceIdx) && m.index > header.index + header[0].length) cls = "hl-macro-param";
-      else if (next === ":" && code[last] !== ":" && stmtStart) cls = "hl-label";
+      // "name:" is a label, "name::" a namespace path
+      else if (next === ":" && !/^\s*::/.test(code.slice(last)) && stmtStart) cls = "hl-label";
       else if (stmtStart && isMnem(word)) cls = "hl-mnem";
-      else if (next === "(" && (functions.has(word) || /^[A-Z]/.test(word))) cls = "hl-macro";
+      // name( is a call: a built-in or the source's own .function / macro
+      else if (next === "(" && (functions.has(word) || !isMnem(word))) cls = "hl-macro";
       else if (Object.prototype.hasOwnProperty.call(_KICK_CONSTS, word) && typeof _KICK_CONSTS[word] === "number") cls = "hl-number";
     }
     // where the next statement starts

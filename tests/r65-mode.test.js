@@ -68,3 +68,12 @@ test("an R65 error in the editor's file names the editor line", () => {
   const plain = app.run('_r65ErrorEntry({ file: "", line: 0, message: "No output" }, { text: "", path: "" })');
   assert.equal(plain.text, "No output");
 });
+
+test("Kick highlighting: a label right before its colon, the directive after it, calls of own functions", () => {
+  app.run('assemblerSyntax = "r65"');
+  const hl = (line) => app.run(`_expertHighlightLine(${JSON.stringify(line)})`);
+  assert.equal(hl("rowLo:  .fill 256, <rowAddr(i)"),
+    '<span class="hl-label">rowLo</span>:  <span class="hl-directive">.fill</span> <span class="hl-number">256</span>, &lt;<span class="hl-macro">rowAddr</span>(i)');
+  assert.match(hl("loop:   lda (zp),y"), /<span class="hl-mnem">lda<\/span> \(zp\),y/);
+  app.run('assemblerSyntax = "kick"');
+});
