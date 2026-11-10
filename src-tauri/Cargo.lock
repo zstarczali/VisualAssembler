@@ -369,10 +369,11 @@ dependencies = [
 
 [[package]]
 name = "c64-visual-assembler"
-version = "2.7.8"
+version = "2.7.9"
 dependencies = [
  "base64 0.22.1",
  "emulator_6502",
+ "r65",
  "reqwest 0.12.28",
  "resid-rs",
  "serde",
@@ -522,6 +523,12 @@ checksum = "052af7878466feccda12ba7a6a67d019d712f296809559b47c12c8cc196d3a9a"
 dependencies = [
  "error-code",
 ]
+
+[[package]]
+name = "color_quant"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3d7b894f5411737b7867f4827955924d7c254fc9f4d91a6aad6b097804b1018b"
 
 [[package]]
 name = "combine"
@@ -1420,6 +1427,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "gif"
+version = "0.14.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ee8cfcc411d9adbbaba82fb72661cc1bcca13e8bba98b364e62b2dba8f960159"
+dependencies = [
+ "color_quant",
+ "weezl",
+]
+
+[[package]]
 name = "gio"
 version = "0.18.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1900,10 +1917,14 @@ checksum = "85ab80394333c02fe689eaf900ab500fbd0c2213da414687ebf995a65d5a6104"
 dependencies = [
  "bytemuck",
  "byteorder-lite",
+ "color_quant",
+ "gif",
  "moxcms",
  "num-traits",
  "png 0.18.1",
  "tiff",
+ "zune-core",
+ "zune-jpeg",
 ]
 
 [[package]]
@@ -3169,6 +3190,15 @@ name = "r-efi"
 version = "6.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f8dcc9c7d52a811697d2151c701e0d08956f92b0e24136cf4cf27b57a6a0d9bf"
+
+[[package]]
+name = "r65"
+version = "1.0.0"
+source = "git+https://github.com/zstarczali/R65.git?rev=e28a167f74d18bc0472ddb8d129533eab3c2f607#e28a167f74d18bc0472ddb8d129533eab3c2f607"
+dependencies = [
+ "embed-resource",
+ "image",
+]
 
 [[package]]
 name = "rand"

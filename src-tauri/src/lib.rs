@@ -4778,6 +4778,46 @@ fn vma_analyze(app: AppHandle, source: String, base_dir: Option<String>, basic_s
     vma::analyze(&source, &options, &files, source_path.as_deref().unwrap_or("program.asm"), line_map.as_deref())
 }
 
+/// KickAssembler source → PRG with R65 (github.com/zstarczali/R65), in memory: #import and the
+/// Load… functions read the files next to `source_path`. Errors with file:line:col, the labels, the
+/// bytes of each source line (`spans`: [address, length, file index, line, column]) and the
+/// .vs / .dbg / .sym texts of the debugger.
+#[tauri::command]
+async fn r65_build(app: AppHandle, source: String, source_path: Option<String>, defines: Option<Vec<String>>, cmd_vars: Option<HashMap<String, String>>) -> serde_json::Value {
+    let path = source_path
+        .filter(|p| !p.trim().is_empty())
+        .map(PathBuf::from)
+        .unwrap_or_else(|| get_working_folder_path(&read_config(&app)).unwrap_or_else(std::env::temp_dir).join("program.asm"));
+    let options = r65::BuildOptions {
+        defines: defines.unwrap_or_default(),
+        cmd_vars: cmd_vars.unwrap_or_default().into_iter().collect(),
+        ..r65::BuildOptions::default()
+    };
+    // r65::build runs the assembly on a thread of its own (deep script recursion)
+    let built = tauri::async_runtime::spawn_blocking(move || r65::build(&source, &path, &options)).await;
+    let Ok(b) = built else {
+        return serde_json::json!({ "ok": false, "errors": [{ "file": "", "line": 0, "col": 0, "endCol": 0, "message": "R65 stopped" }] });
+    };
+    let errors: Vec<serde_json::Value> = b.errors.iter().map(|e| serde_json::json!({ "file": e.file, "line": e.line, "col": e.col, "endCol": e.end_col, "message": e.message })).collect();
+    let blocks: Vec<serde_json::Value> = b.blocks.iter().map(|m| serde_json::json!({ "segment": m.segment, "name": m.name, "start": m.start, "len": m.len, "virtual": m.virt })).collect();
+    let mut answer = serde_json::json!({ "ok": b.ok, "prg": b.prg, "log": b.log, "files": b.files, "errors": errors, "blocks": blocks, "passes": b.passes });
+    if let Some(ex) = b.extra {
+        answer["labels"] = serde_json::json!(ex.labels.iter().map(|(seg, addr, name, file, line)| serde_json::json!([name, addr, file, line, seg])).collect::<Vec<_>>());
+        answer["spans"] = serde_json::json!(ex.spans.iter().map(|(addr, len, file, line, col, text)| serde_json::json!([addr, len, file, line, col, text])).collect::<Vec<_>>());
+        answer["prints"] = serde_json::json!(ex.prints);
+        answer["warnings"] = serde_json::json!(ex.warnings.iter().map(|(file, line, col, msg)| serde_json::json!({ "file": b.files.get(*file).cloned().unwrap_or_default(), "line": line, "col": col, "message": msg })).collect::<Vec<_>>());
+        answer["viceSymbols"] = serde_json::json!(ex.vice_symbols);
+        answer["debugDump"] = serde_json::json!(ex.debug_dump);
+        answer["symbolFile"] = serde_json::json!(ex.symbol_file);
+    }
+    answer
+}
+
+#[tauri::command]
+fn get_r65_version() -> &'static str {
+    r65::VERSION
+}
+
 #[tauri::command]
 fn compile_ultimate_basic(
     source: String,
@@ -6095,6 +6135,8 @@ pub fn run() {
             compile_ultimate_basic,
             vma_build,
             vma_analyze,
+            r65_build,
+            get_r65_version,
             choose_proj_member,
             choose_proj_folder,
             load_sample,

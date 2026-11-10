@@ -2,9 +2,17 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.7.8**
+**Current version: v2.7.9**
 
 Visual Assembler is free and open source (GPLv3): every feature — editors, builds, hardware runs, languages and themes — works without a registration or serial. At most once a day the app sends an anonymous startup ping (version, OS, UI language, launch count, a random install ID) for the usage statistics; no email, project or source code is sent.
+
+## What's New in v2.7.9
+
+- **R65 assembler** — R65, a KickAssembler-compatible assembler (multi-pass, script language, `#import`), is built into the app. **Settings → General → Assembler mode** now offers **R65 mode (KickAssembler)** next to VMA and ACME, and **Project settings** too (saved in the `.proj`). Like ACME it is text (Expert) editing only, and Build, Run, D64 / CRT, the Disassembly / Monitor panels, the memory map, cycle gutter, hints, the VICE Monitor and the debugger files (`.dbg` / `.sym` / `.vs`) all use its build. About shows its version.
+- **Build summary window** — the Build button of the Expert and the UltimateBasic toolbar shows the small work window of Run, and at the end the size and the address range of the PRG.
+- **Kick import** — a statement over several lines, `.errorif` with a condition known only at assembly time, labels inside `.pseudopc` and `<` / `>` of a number are imported correctly; a single file that uses script features (`.for`, `.function`, `.var` …) is offered to open as a Kick project.
+- **UltimateBasic toolbar** — separators around the Load / Save / Save as buttons.
+- **ACME / R65** — Run no longer says *nothing to run* for a source without `* =` (for example with `BasicUpstart2`).
 
 ## What's New in v2.7.8
 

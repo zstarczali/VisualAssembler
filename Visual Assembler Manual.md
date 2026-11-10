@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.7.8**
+**Version 2.7.9**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -8,6 +8,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 
 ## Table of Contents
 
+- [Version 2.7.9 Highlights](#version-279-highlights)
 - [Version 2.7.8 Highlights](#version-278-highlights)
 - [Version 2.7.7 Highlights](#version-277-highlights)
 - [Version 2.7.6 Highlights](#version-276-highlights)
@@ -239,6 +240,16 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
   - [Curve Editor](#curve-editor)
   - [Table Generator](#table-generator)
   - [Number Converter](#number-converter)
+
+---
+
+## Version 2.7.9 Highlights
+
+- **R65 assembler** — R65, a KickAssembler-compatible assembler, is built in: choose **R65 mode (KickAssembler)** in **Settings → General → Assembler mode** or in **Project settings**. See [ACME mode](#acme-mode).
+- **Build summary window** — the Build button of the Expert and the UltimateBasic toolbar shows the small work window of Run, ending with the size and the address range of the PRG.
+- **Kick import** — statements over several lines, `.errorif` with a condition known only at assembly time, labels inside `.pseudopc` and `<` / `>` of a number are imported correctly; a single file that uses script features is offered to open as a Kick project.
+- **UltimateBasic toolbar** — separators around the Load / Save / Save as buttons.
+- **ACME / R65** — Run no longer says *nothing to run* for a source without `* =` (for example with `BasicUpstart2`).
 
 ---
 
@@ -1363,6 +1374,7 @@ The tab bar appears above the editor when there is more than one tab open.
 
 - **VMA mode** (default) — the built-in Visual Assembler assembler with its blocks, macros and `.` directives.
 - **ACME mode** — the source is ACME 0.97 text and is built by the ACME executable set in **Settings → Files and paths → ACME** (**Choose ACME**). `ACME-0.97-reference.pdf` describes the language.
+- **R65 mode (KickAssembler)** — the source is KickAssembler text (script language, `#import`, `.pseudopc`, `BasicUpstart2` …) and is built by R65, the KickAssembler-compatible assembler built into the app; nothing needs to be installed. A project builds its startup file, and R65 reads the `#import` files itself. Everything below about ACME holds for R65 too, and R65 writes its own `.dbg` as well. About shows the R65 version.
 
 The mode is saved with a `.proj` project, so every project opens with its own assembler. ACME mode is text editing only: the Block / Expert switch is locked, and the **Tutorials** button is hidden (the lessons build VMA programs from blocks).
 

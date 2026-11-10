@@ -577,3 +577,34 @@ test("Kick project highlighting: preprocessor, directives, functions, ; in .for,
   assert.ok(tags(out[5]).includes("hl-macro:round") && tags(out[5]).includes("hl-number:127.5"));
   assert.ok(tags(out[6]).includes("hl-comment:; comment"));
 });
+
+test("Kick: an open ( or [ continues the statement on the next line, the line numbers stay", () => {
+  const pre = preprocess({ "main.asm": "* = $1000\n.var l = List().add(1, 2,\n                    3, 4)\n.byte l.get(3)\nnop nop\n" });
+  assert.deepEqual(Array.from(pre.errors), []);
+  assert.match(pre.text, /\$04/);
+  const bad = preprocess({ "main.asm": "* = $1000\n.var l = List().add(1,\n  2)\n.error \"here\"\n" });
+  assert.equal(bad.errors[0].line, 4);
+});
+
+test("Kick: the script language sends Kick import to a Kick project", () => {
+  app.__t = ".var pic = LoadPicture(\"a.png\")\n";
+  assert.equal(app.run("_kickUsesScript(__t)"), true);
+  app.__t = ".function f(x) { .return x }\n";
+  assert.equal(app.run("_kickUsesScript(__t)"), true);
+  app.__t = "* = $1000\nstart: lda #1\n  .byte 1, 2\n.const A = 3\n";
+  assert.equal(app.run("_kickUsesScript(__t)"), false);
+});
+
+ktest("Kick .errorif with * or a label address is checked by the assembler (.assert), .pseudopc logical", () => {
+  const macro = ".macro M() {\n    lp: dex\n        bne lp\n        .errorif (>lp) != (>*), \"page crossed\"\n}\n";
+  const pass = buildKick({ "main.asm": `* = $1000\n${macro}M()\n.errorif * > $2000, "too big"\n` });
+  assert.equal(pass.ok, true);
+  const crossed = buildKick({ "main.asm": `* = $10fd\n${macro}M()\n` });
+  assert.equal(crossed.ok, false);
+  assert.match(crossed.error, /page crossed/);
+  const big = buildKick({ "main.asm": "* = $1000\n.fill $1100, 0\n.errorif * > $2000, \"too big: \" + toHexString(*)\n" });
+  assert.match(big.error, /too big/);
+  // inside .pseudopc * and the labels are logical addresses
+  const pseudo = buildKick({ "main.asm": `* = $1000\n.pseudopc $e000 {\n.fill $400, 0\n.errorif * != $e400, "logical"\n${macro}M()\n}\n` });
+  assert.equal(pseudo.ok, true, pseudo.error);
+});
