@@ -1,10 +1,10 @@
-// VMA language rules fixed before the Rust port (VMA-RUST-PLAN.md, section 3): the error paths
-// the golden corpus does not show (it only records that a case fails) and the Block mode checks.
-const test = require("node:test");
+// VMA language rules (VMA-RUST-PLAN.md, section 3), through the VMA CLI: the error paths the
+// golden corpus does not show (it only records that a case fails) and the Block mode checks.
 const assert = require("node:assert/strict");
-const { createReference } = require("./helpers/vma-reference");
+const loadApp = require("./helpers/load-app");
+const { compileText, vmaTest: test } = require("./helpers/vma-cli");
 
-const ref = createReference();
+const ref = { app: loadApp(), compile: async ({ text, basicStub }) => compileText(text, { basicStub }) };
 const build = async (body) => ref.compile({ text: "* = $1000\n" + body + "\n    rts\n", basicStub: false });
 const hex = (r) => Buffer.from(r.bytes.slice(2)).toString("hex");
 

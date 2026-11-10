@@ -8,19 +8,22 @@ const appJs = fs.readFileSync(path.join(__dirname, "..", "www", "app.js"), "utf8
 
 const extractFunction = require("./helpers/extract-function");
 const extractFunctionSource = name => extractFunction(appJs, name);
+const { codeOf, compileText, loadPrg, labelOf, vmaTest } = require("./helpers/vma-cli");
 
 function loadFunctions(names, extraContext = {}) {
   // no project: the program without the Project settings prelude (_projVmaWithPrelude)
   const context = { _projVmaWithPrelude: (blocks) => blocks, ...extraContext };
   vm.createContext(context);
   for (const name of names) {
+    // the compiler's own functions are gone (the VMA compiler is Rust): only the parser / editor ones
+    if (!new RegExp(`(^|\\n)(async )?function ${name.replace(/\$/g, "\\$")}\\(`).test(appJs)) continue;
     vm.runInContext(`${extractFunctionSource(name)}; this["${name}"] = ${name};`, context);
   }
   return context;
 }
 
 function createMacroContext(extraContext = {}) {
-  return loadFunctions(
+  const ctx = loadFunctions(
     [
       "parseAddressValue",
       "encodeTextMacro",
@@ -61,7 +64,7 @@ function createMacroContext(extraContext = {}) {
       "_buildDisasmHTML",
       "_splitAsmLineComment",
       "_kickScopeRewrite", "parseExpertText",
-      "_blockToExpertLine",
+      "_blockToExpertLine", "chunkBytes",
       "_blockToExpertSourceLine",
       "validateSpriteInitMacro",
       "validateSpritePosMacro",
@@ -136,14 +139,49 @@ function createMacroContext(extraContext = {}) {
       ...extraContext
     }
   );
+  // the compiler's answers for one block, from the VMA compiler (CLI)
+  ctx.compileLineBytes = (line, labels = new Map()) => compileLine(ctx, line.block, labels, line.address);
+  ctx.getInstructionSize = (block) => {
+    const r = compileLine(ctx, block);
+    return r.ok ? r.bytes.length : 0;
+  };
+  return ctx;
+}
+
+// A whole program through the VMA compiler (no BASIC stub): the answer, its memory, the bytes
+// from `from` to `to` and a symbol's value (label, const, var, local label as Global.name).
+function prog(src, files = null) {
+  const r = compileText(src, { basicStub: false, files });
+  assert.equal(r.ok, true, r.error);
+  const mem = loadPrg(r.bytes).mem;
+  const value = (name) => {
+    const row = (r.listing || []).find(l => l[7] === name && l[10] != null);
+    return row ? row[10] : labelOf(r, name);
+  };
+  return { r, mem, value, bytes: (from, to) => Array.from(mem.subarray(from, to)) };
+}
+
+// A block's bytes from the VMA compiler: its Expert line at `address`, the labels as equates
+// in front, the program's .const blocks too.
+function blockSource(ctx, block, labels = new Map()) {
+  const equates = [...labels].map(([name, value]) => `${name} = $${value.toString(16)}`);
+  const consts = (ctx.program || []).filter(b => b.isConstMacro).map(b => ctx._blockToExpertLine(b));
+  return { line: ctx._blockToExpertLine(block), before: [...consts, ...equates].join("\n") };
 }
 
 function compileBlock(ctx, block, labels = new Map(), address = 0x1000) {
-  const result = ctx.compileLineBytes({ address, block }, labels);
-  if (!result.ok) {
-    assert.fail(result.error || "compileLineBytes failed");
+  const { line, before } = blockSource(ctx, block, labels);
+  return codeOf(line, { org: address, before });
+}
+
+// compileLineBytes' answer for a block: { ok, bytes, error }.
+function compileLine(ctx, block, labels = new Map(), address = 0x1000) {
+  const { line, before } = blockSource(ctx, block, labels);
+  try {
+    return { ok: true, bytes: codeOf(line, { org: address, before }) };
+  } catch (e) {
+    return { ok: false, error: String(e.message) };
   }
-  return Array.from(result.bytes);
 }
 
 test("_blockToExpertLine emits Kick `:NAME(args)` for INVOKE with `:` syntax (not `.: NAME`)", () => {
@@ -187,7 +225,7 @@ test("parseExpertText round-trips `:NAME(args)` and legacy `.: NAME(args)` back 
   assert.equal(legacy[0].invokeArgs, "110, 70, 35, $02");
 });
 
-test("resolveNumericOperand handles #<N and #>N with bare decimal N (macro expansion)", () => {
+vmaTest("resolveNumericOperand handles #<N and #>N with bare decimal N (macro expansion)", () => {
   const ctx = createMacroContext();
   // After a Kick macro `.macro Foo(x) { lda #<x }` is invoked as `Foo(110)`,
   // the reparsed block ends up as: rawOperand="<110", base="hex" (fallback).
@@ -213,125 +251,38 @@ test("resolveNumericOperand handles #<N and #>N with bare decimal N (macro expan
   assert.deepEqual(hexLow, [0xA9, 0x10]);
 });
 
-test("runtime IF emits CMP+BNE skip with the right relative offset", () => {
-  const ctx = createMacroContext();
-  const labels = new Map([["else1", 0x1008]]);
-  const bytes = compileBlock(ctx, {
-    mnemonic: "IF_A",
-    isRuntimeIfMacro: true,
-    runtimeIfReg: "A",
-    runtimeIfOp: "==",
-    rawOperand: "#$10",
-    base: "hex",
-    runtimeIfElseLabel: "else1"
-  }, labels, 0x1000);
-
-  assert.deepEqual(bytes, [0xC9, 0x10, 0xD0, 0x04]);
-  assert.equal(ctx.getInstructionSize({
-    isRuntimeIfMacro: true,
-    runtimeIfOp: "==",
-    rawOperand: "#$10"
-  }), 4);
+vmaTest("runtime IF emits CMP+BNE skip with the right relative offset", () => {
+  const p = prog("* = $1000\n.if A == #$10\n nop\n nop\n nop\n nop\n.endif\nafter:\n");
+  assert.deepEqual(p.bytes(0x1000, 0x1004), [0xC9, 0x10, 0xD0, 0x04]);
+  assert.equal(p.value("after"), 0x1008);
 });
 
-test("runtime IF supports X and Y registers too", () => {
-  const ctx = createMacroContext();
-  const xBytes = compileBlock(ctx, {
-    mnemonic: "IF_X",
-    isRuntimeIfMacro: true,
-    runtimeIfReg: "X",
-    runtimeIfOp: "==",
-    rawOperand: "#$10",
-    base: "hex",
-    runtimeIfElseLabel: "else_x"
-  }, new Map([["else_x", 0x1008]]), 0x1000);
-  const yBytes = compileBlock(ctx, {
-    mnemonic: "IF_Y",
-    isRuntimeIfMacro: true,
-    runtimeIfReg: "Y",
-    runtimeIfOp: "==",
-    rawOperand: "#$10",
-    base: "hex",
-    runtimeIfElseLabel: "else_y"
-  }, new Map([["else_y", 0x1008]]), 0x1000);
-
-  assert.deepEqual(xBytes, [0xE0, 0x10, 0xD0, 0x04]);
-  assert.deepEqual(yBytes, [0xC0, 0x10, 0xD0, 0x04]);
+vmaTest("runtime IF supports X and Y registers too", () => {
+  for (const [reg, op] of [["X", 0xE0], ["Y", 0xC0]]) {
+    const p = prog(`* = $1000\n.if ${reg} == #$10\n nop\n nop\n nop\n nop\n.endif\n`);
+    assert.deepEqual(p.bytes(0x1000, 0x1004), [op, 0x10, 0xD0, 0x04]);
+  }
 });
 
-test("runtime WHILE and ENDW compile to loop skip plus jump-back", () => {
-  const ctx = createMacroContext();
-  const whileLabels = new Map([["while_end_1", 0x200A]]);
-  const whileBytes = compileBlock(ctx, {
-    mnemonic: "WHILE_A",
-    isRuntimeWhileMacro: true,
-    runtimeIfReg: "A",
-    runtimeIfOp: "!=",
-    rawOperand: "#$00",
-    base: "hex",
-    whileEndLabel: "while_end_1"
-  }, whileLabels, 0x2000);
-  const endwLabels = new Map([["while_start_1", 0x2000]]);
-  const endwBytes = compileBlock(ctx, {
-    mnemonic: "ENDW",
-    isRuntimeEndwMacro: true,
-    whileStartLabel: "while_start_1"
-  }, endwLabels, 0x2006);
-
-  assert.deepEqual(whileBytes, [0xC9, 0x00, 0xF0, 0x06]);
-  assert.deepEqual(endwBytes, [0x4C, 0x00, 0x20]);
+vmaTest("runtime WHILE and ENDW compile to loop skip plus jump-back", () => {
+  // WHILE $2000-$2003, body $2004-$2005, ENDW = JMP $2000 at $2006, end $2009
+  const p = prog("* = $2000\n.while A != #$00\n nop\n nop\n.endw\nafter:\n");
+  assert.deepEqual(p.bytes(0x2000, 0x2004), [0xC9, 0x00, 0xF0, 0x05]);
+  assert.deepEqual(p.bytes(0x2006, 0x2009), [0x4C, 0x00, 0x20]);
+  assert.equal(p.value("after"), 0x2009);
 });
 
-test("runtime WHILE and UNTIL also support X/Y register variants", () => {
-  const ctx = createMacroContext();
-  const whileX = compileBlock(ctx, {
-    mnemonic: "WHILE_X",
-    isRuntimeWhileMacro: true,
-    runtimeIfReg: "X",
-    runtimeIfOp: "!=",
-    rawOperand: "#$00",
-    base: "hex",
-    whileEndLabel: "while_end_x"
-  }, new Map([["while_end_x", 0x2008]]), 0x2000);
-  const whileY = compileBlock(ctx, {
-    mnemonic: "WHILE_Y",
-    isRuntimeWhileMacro: true,
-    runtimeIfReg: "Y",
-    runtimeIfOp: "!=",
-    rawOperand: "#$00",
-    base: "hex",
-    whileEndLabel: "while_end_y"
-  }, new Map([["while_end_y", 0x2008]]), 0x2000);
-  const untilX = compileBlock(ctx, {
-    mnemonic: "UNTIL_X",
-    isRuntimeUntilMacro: true,
-    runtimeIfReg: "X",
-    runtimeIfOp: "!=",
-    rawOperand: "#$00",
-    base: "hex",
-    repeatStartLabel: "repeat_x"
-  }, new Map([["repeat_x", 0x3000]]), 0x3004);
-  const untilY = compileBlock(ctx, {
-    mnemonic: "UNTIL_Y",
-    isRuntimeUntilMacro: true,
-    runtimeIfReg: "Y",
-    runtimeIfOp: "!=",
-    rawOperand: "#$00",
-    base: "hex",
-    repeatStartLabel: "repeat_y"
-  }, new Map([["repeat_y", 0x3000]]), 0x3004);
-
-  assert.equal(whileX.length, 4);
-  assert.equal(whileY.length, 4);
-  assert.equal(untilX.length, 4);
-  assert.equal(untilY.length, 4);
-  assert.deepEqual(whileX.slice(0, 3), [0xE0, 0x00, 0xF0]);
-  assert.deepEqual(whileY.slice(0, 3), [0xC0, 0x00, 0xF0]);
-  assert.deepEqual(untilX.slice(0, 3), [0xE0, 0x00, 0xF0]);
-  assert.deepEqual(untilY.slice(0, 3), [0xC0, 0x00, 0xF0]);
+vmaTest("runtime WHILE and UNTIL also support X/Y register variants", () => {
+  for (const [reg, op] of [["X", 0xE0], ["Y", 0xC0]]) {
+    const w = prog(`* = $2000\n.while ${reg} != #$00\n nop\n.endw\n`);
+    assert.deepEqual(w.bytes(0x2000, 0x2003), [op, 0x00, 0xF0]);
+    const u = prog(`* = $3000\n.repeat\n nop\n.until ${reg} != #$00\nafter:\n`);
+    assert.deepEqual(u.bytes(0x3001, 0x3004), [op, 0x00, 0xF0]);
+    assert.equal(u.value("after") - 0x3001, 4);
+  }
 });
 
-test("MEMCPY partial copy emits counted indexed loop and correct size", () => {
+vmaTest("MEMCPY partial copy emits counted indexed loop and correct size", () => {
   const ctx = createMacroContext();
   const bytes = compileBlock(ctx, {
     mnemonic: "MEMCPY",
@@ -355,7 +306,7 @@ test("MEMCPY partial copy emits counted indexed loop and correct size", () => {
   }), 13);
 });
 
-test("MEMSET partial fill emits shared-LDA loop and correct size", () => {
+vmaTest("MEMSET partial fill emits shared-LDA loop and correct size", () => {
   const ctx = createMacroContext();
   const bytes = compileBlock(ctx, {
     mnemonic: "MEMSET",
@@ -379,7 +330,7 @@ test("MEMSET partial fill emits shared-LDA loop and correct size", () => {
   }), 12);
 });
 
-test("PRINT lower emits inline PETSCII data and print loop", () => {
+vmaTest("PRINT lower emits inline PETSCII data and print loop", () => {
   const ctx = createMacroContext();
   const bytes = compileBlock(ctx, {
     mnemonic: "PRINT",
@@ -405,7 +356,7 @@ test("PRINT lower emits inline PETSCII data and print loop", () => {
   }), 19);
 });
 
-test("PRINT_CHAR resolves const labels case-insensitively", () => {
+vmaTest("PRINT_CHAR resolves const labels case-insensitively", () => {
   const ctx = createMacroContext();
   const labels = new Map([["newline", 0x0D]]);
   const bytes = compileBlock(ctx, {
@@ -560,7 +511,7 @@ test("expert source rendering keeps an attached inline comment on its line", () 
   assert.equal(ctx._blockToExpertSourceLine({ isLabel: true, labelName: "start", inlineComment: "hehe" }), "start: ; hehe");
 });
 
-test("PUSH expands registers in stack order", () => {
+vmaTest("PUSH expands registers in stack order", () => {
   const ctx = createMacroContext();
   const bytes = compileBlock(ctx, {
     mnemonic: "PUSH",
@@ -572,7 +523,7 @@ test("PUSH expands registers in stack order", () => {
   assert.equal(ctx.getInstructionSize({ isPushMacro: true, pushRegs: "AXY" }), 5);
 });
 
-test("PULL restores registers in reverse stack order", () => {
+vmaTest("PULL restores registers in reverse stack order", () => {
   const ctx = createMacroContext();
   const bytes = compileBlock(ctx, {
     mnemonic: "PULL",
@@ -584,7 +535,7 @@ test("PULL restores registers in reverse stack order", () => {
   assert.equal(ctx.getInstructionSize({ isPullMacro: true, pullRegs: "AXY" }), 5);
 });
 
-test("SPRITE_INIT writes sprite pointer, enable bit, multicolor bit, and color", () => {
+vmaTest("SPRITE_INIT writes sprite pointer, enable bit, multicolor bit, and color", () => {
   const ctx = createMacroContext();
   const bytes = compileBlock(ctx, {
     mnemonic: "SPRITE_INIT",
@@ -610,7 +561,7 @@ test("SPRITE_INIT writes sprite pointer, enable bit, multicolor bit, and color",
   assert.equal(ctx.getInstructionSize({ isSpriteInitMacro: true }), 26);
 });
 
-test("SPRITE_INIT accepts consts and multicolor in compile", () => {
+vmaTest("SPRITE_INIT accepts consts and multicolor in compile", () => {
   const ctx = createMacroContext();
   const labels = new Map([
     ["SPRITE_NUM", 2],
@@ -651,7 +602,7 @@ test("SPRITE_INIT validation accepts consts for byte-sized fields", () => {
   assert.equal(ctx.validateSpriteInitMacro("SPRITE_NUM", "SPRITE_COLOR", "SPRITE_PAGE"), "");
 });
 
-test("SPRITE_POS updates X low byte, D010 bit, and Y position", () => {
+vmaTest("SPRITE_POS updates X low byte, D010 bit, and Y position", () => {
   const ctx = createMacroContext();
   const bytes = compileBlock(ctx, {
     mnemonic: "SPRITE_POS",
@@ -673,7 +624,7 @@ test("SPRITE_POS updates X low byte, D010 bit, and Y position", () => {
   assert.equal(ctx.getInstructionSize({ isSpritePosMacro: true }), 18);
 });
 
-test("SPRITE_POS accepts consts for sprite number and coordinates", () => {
+vmaTest("SPRITE_POS accepts consts for sprite number and coordinates", () => {
   const ctx = createMacroContext({
     program: [
       { isConstMacro: true, constName: "SPRITE_NUM", constValue: 2 },
@@ -727,7 +678,7 @@ test("expert SPRITE_POS roundtrips const operands", () => {
   assert.equal(ctx._blockToExpertLine(blocks[0]), ".sprite_pos SPRITE_NUM, SPRITE_X, SPRITE_Y");
 });
 
-test("LOADFILE emits KERNAL setup, override address, and error branch", () => {
+vmaTest("LOADFILE emits KERNAL setup, override address, and error branch", () => {
   const ctx = createMacroContext();
   const labels = new Map([["fail", 0x4228]]);
   const bytes = compileBlock(ctx, {
@@ -748,15 +699,10 @@ test("LOADFILE emits KERNAL setup, override address, and error branch", () => {
     0xA9, 0x00, 0x20, 0xD5, 0xFF,
     0xB0, 0x04
   ]);
-  assert.equal(ctx.getInstructionSize({
-    isLoadFileMacro: true,
-    loadFileName: "demo",
-    loadFileAddress: "$C000",
-    loadFileErrorLabel: "fail"
-  }), 36);
+  assert.equal(bytes.length, 36);
 });
 
-test("PRINT_HEX renders X with the register prefix", () => {
+vmaTest("PRINT_HEX renders X with the register prefix", () => {
   const ctx = createMacroContext();
   const bytes = compileBlock(ctx, {
     mnemonic: "PRINT_HEX",
@@ -787,26 +733,10 @@ test("buildBasicSysStub emits a valid BASIC SYS line (classic no-space format)",
   assert.deepEqual(bytes.slice(-2), [0x00, 0x00]);  // BASIC end marker
 });
 
-test("_buildAutostartPrgCore routes default origin to $C000 when BASIC SYS is off", () => {
-  const seenOrigins = [];
-  const ctx = loadFunctions(["_buildAutostartPrgCore"], {
-    basicSysToggle: { checked: false },
-    parseOriginValue: () => ({ value: 0x0801 }),
-    assembleProgramToPrg: (origin) => {
-      seenOrigins.push(origin);
-      return { ok: true, bytes: new Uint8Array([0x10, 0x20]) };
-    },
-    parseUserMacros: () => {},
-    _getEmbeddedBasicSysAddress: () => null,
-    program: [],
-    userMacros: {}
-  });
-
-  const result = ctx._buildAutostartPrgCore();
-
-  assert.deepEqual(seenOrigins, [0xC000]);
-  assert.equal(result.ok, true);
-  assert.deepEqual(Array.from(result.bytes), [0x10, 0x20]);
+vmaTest("the default origin is $C000 when BASIC SYS is off", () => {
+  const r = compileText(" nop\n rts\n", { basicStub: false });
+  assert.equal(r.ok, true, r.error);
+  assert.deepEqual(Array.from(r.bytes), [0x00, 0xC0, 0xEA, 0x60]);
 });
 
 test("parseExpertText recognizes .region, .endregion, and .end", () => {
@@ -954,30 +884,30 @@ test("DELAY keeps const names in expert mode", () => {
   assert.equal(ctx._blockToExpertLine(ctx.program[1]), ".delay _delay");
 });
 
-test("DELAY accepts numeric frame counts in expert mode", () => {
+vmaTest("DELAY accepts numeric frame counts in expert mode", () => {
   const ctx = createMacroContext({
     program: [
       { id: "c1", mnemonic: "CONST", isConstMacro: true, constName: "_delay", rawOperand: "30", base: "dec", constValue: 30 },
       { id: "d1", mnemonic: "DELAY", isDelayMacro: true, delayFrames: "30" }
     ]
   });
-  const labels = new Map([["__delay_wait_frames", 0x2000], ["_delay", 30]]);
-  const bytes = compileBlock(ctx, ctx.program[1], labels, 0x1000);
+  const bytes = compileBlock(ctx, ctx.program[1], new Map(), 0x1000);
 
-  assert.deepEqual(bytes, [0xA2, 0x1E, 0x20, 0x00, 0x20]);
+  // LDX #30, JSR the shared helper (right after the code: $1005)
+  assert.deepEqual(bytes, [0xA2, 0x1E, 0x20, 0x05, 0x10]);
 });
 
-test("DELAY resolves const names when the helper label is present", () => {
+vmaTest("DELAY resolves const names when the helper label is present", () => {
   const ctx = createMacroContext({
     program: [
       { id: "c1", mnemonic: "CONST", isConstMacro: true, constName: "_delay", rawOperand: "30", base: "dec", constValue: 30 },
       { id: "d1", mnemonic: "DELAY", isDelayMacro: true, delayFrames: "_delay" }
     ]
   });
-  const labels = new Map([["__delay_wait_frames", 0x2000], ["_delay", 30]]);
-  const bytes = compileBlock(ctx, ctx.program[1], labels, 0x1000);
+  const bytes = compileBlock(ctx, ctx.program[1], new Map(), 0x1000);
 
-  assert.deepEqual(bytes, [0xA2, 0x1E, 0x20, 0x00, 0x20]);
+  // LDX #30, JSR the shared helper (right after the code: $1005)
+  assert.deepEqual(bytes, [0xA2, 0x1E, 0x20, 0x05, 0x10]);
 });
 
 test("loaded instruction operands are normalized from raw labels", () => {
@@ -1018,7 +948,7 @@ test("expert display prefers the raw label form over stale serialized operands",
   assert.equal(ctx.getAsmDisplayOperand(block), "row320lo,X");
 });
 
-test("STRING and DATA emit inline store sequences", () => {
+vmaTest("STRING and DATA emit inline store sequences", () => {
   const ctx = createMacroContext();
 
   const stringBytes = compileBlock(ctx, {
@@ -1043,35 +973,24 @@ test("STRING and DATA emit inline store sequences", () => {
     0xA9, 0x01, 0x8D, 0x20, 0xC0,
     0xA9, 0x02, 0x8D, 0x21, 0xC0
   ]);
-  assert.equal(ctx.getInstructionSize({ isStringMacro: true, rawOperand: "AB" }), 10);
-  assert.equal(ctx.getInstructionSize({ isDataMacro: true, rawOperand: "1,2" }), 10);
+
 });
 
-test("RAWBYTES and RAWTEXT produce deferred sections at their target addresses", () => {
-  const ctx = createMacroContext({
-    program: [
-      { id: "r1", mnemonic: "RAWBYTES", isRawBytesMacro: true, rawOperand: "1, $02, %00000011", rawBytesAddress: "$C120", base: "hex" },
-      { id: "r2", mnemonic: "RAWTEXT", isRawTextMacro: true, rawOperand: "AB", rawTextAddress: "$C100", textCharset: "upper", base: "hex" }
-    ]
-  });
-
-  const layout = ctx.getProgramLayout(0x0801);
-  const sections = ctx.getDeferredMemorySections(layout);
-  const plainSections = JSON.parse(JSON.stringify(sections.map((section) => ({
-    type: section.type,
-    address: section.address,
-    bytes: Array.from(section.bytes)
-  }))));
-
-  assert.deepEqual(plainSections, [
-    { type: "rawtext", address: 0xC100, bytes: [0x01, 0x02] },
-    { type: "rawbytes", address: 0xC120, bytes: [0x01, 0x02, 0x03] }
-  ]);
-  assert.equal(ctx.getInstructionSize({ isRawTextMacro: true }), 0);
-  assert.equal(ctx.getInstructionSize({ isRawBytesMacro: true }), 0);
+vmaTest("RAWBYTES and RAWTEXT produce deferred sections at their target addresses", () => {
+  const ctx = createMacroContext();
+  const lines = [
+    { id: "r1", mnemonic: "RAWBYTES", isRawBytesMacro: true, rawOperand: "1, $02, %00000011", rawBytesAddress: "$C120", base: "hex" },
+    { id: "r2", mnemonic: "RAWTEXT", isRawTextMacro: true, rawOperand: "AB", rawTextAddress: "$C100", textCharset: "upper", base: "hex" }
+  ].map(b => ctx._blockToExpertLine(b));
+  const p = prog(`* = $1000\n${lines.join("\n")}\nafter:\n rts\n`);
+  assert.deepEqual(p.bytes(0xC100, 0xC102), [0x01, 0x02]);
+  assert.deepEqual(p.bytes(0xC120, 0xC123), [0x01, 0x02, 0x03]);
+  assert.equal(p.value("after"), 0x1000, "no bytes in the code");
+  const deferred = JSON.parse(JSON.stringify(p.r.memory.deferred.map(d => [d.type, d.address, d.end])));
+  assert.deepEqual(deferred.sort((a, b) => a[1] - b[1]), [["rawtext", 0xC100, 0xC101], ["rawbytes", 0xC120, 0xC122]]);
 });
 
-test("FILL expands repeated bytes and ALIGN pads to the next boundary", () => {
+vmaTest("FILL expands repeated bytes and ALIGN pads to the next boundary", () => {
   const ctx = createMacroContext();
   const fillBytes = compileBlock(ctx, {
     mnemonic: "FILL",
@@ -1086,23 +1005,15 @@ test("FILL expands repeated bytes and ALIGN pads to the next boundary", () => {
     base: "hex"
   }, new Map(), 0x1003);
 
-  const alignLayoutCtx = createMacroContext({
-    program: [
-      { id: "b1", mnemonic: "BYTE", isByteMacro: true, rawOperand: "1,2,3", base: "hex" },
-      { id: "a1", mnemonic: "ALIGN", isAlignMacro: true, rawOperand: "4", base: "hex" }
-    ]
-  });
-  const alignLayout = alignLayoutCtx.getProgramLayout(0x1000);
-  const alignLine = alignLayout.lines.find((line) => line.block.mnemonic === "ALIGN");
+  const aligned = prog("* = $1000\n.byte 1,2,3\nalign_at:\n.align 4\nafter:\n");
 
   assert.deepEqual(fillBytes, [0x7E, 0x7E, 0x7E, 0x7E]);
   assert.deepEqual(alignBytes, [0x00]);
-  assert.equal(ctx.getInstructionSize({ isFillMacro: true, rawOperand: "4, $7E", base: "hex" }), 4);
-  assert.equal(alignLine.address, 0x1003);
-  assert.equal(alignLine.size, 1);
+  assert.equal(aligned.value("align_at"), 0x1003);
+  assert.equal(aligned.value("after"), 0x1004);
 });
 
-test("FILL supports expressions with consts, math functions, and byte masks", () => {
+vmaTest("FILL supports expressions with consts, math functions, and byte masks", () => {
   const ctx = createMacroContext({
     program: [
       {
@@ -1134,7 +1045,7 @@ test("FILL supports expressions with consts, math functions, and byte masks", ()
   assert.equal(bytes[255], 0x14);
 });
 
-test("SET_BORDER resolves const labels and writes VIC border color", () => {
+vmaTest("SET_BORDER resolves const labels and writes VIC border color", () => {
   const ctx = createMacroContext();
   const labels = new Map([["color", 0x0A]]);
   const bytes = compileBlock(ctx, {
@@ -1146,7 +1057,7 @@ test("SET_BORDER resolves const labels and writes VIC border color", () => {
   assert.deepEqual(bytes, [0xA9, 0x0A, 0x8D, 0x20, 0xD0]);
 });
 
-test("SET_BG resolves const labels and writes VIC background color", () => {
+vmaTest("SET_BG resolves const labels and writes VIC background color", () => {
   const ctx = createMacroContext();
   const labels = new Map([["bg", 0x06]]);
   const bytes = compileBlock(ctx, {
@@ -1158,7 +1069,7 @@ test("SET_BG resolves const labels and writes VIC background color", () => {
   assert.deepEqual(bytes, [0xA9, 0x06, 0x8D, 0x21, 0xD0]);
 });
 
-test("CLEAR_SCREEN and WAIT_KEY emit the expected KERNAL calls", () => {
+vmaTest("CLEAR_SCREEN and WAIT_KEY emit the expected KERNAL calls", () => {
   const ctx = createMacroContext();
   assert.deepEqual(compileBlock(ctx, { mnemonic: "CLEAR_SCREEN", isClearScreenMacro: true }, new Map(), 0x3800), [0xA9, 0x93, 0x20, 0xD2, 0xFF]);
   assert.deepEqual(compileBlock(ctx, { mnemonic: "WAIT_KEY", isWaitKeyMacro: true }, new Map(), 0x3805), [0x20, 0xE4, 0xFF, 0xC9, 0x00, 0xF0, 0xF9]);
@@ -1166,7 +1077,7 @@ test("CLEAR_SCREEN and WAIT_KEY emit the expected KERNAL calls", () => {
   assert.equal(ctx.getInstructionSize({ isWaitKeyMacro: true }), 7);
 });
 
-test("CHARSET toggles VIC charset bit and WAIT_RASTER waits for a scanline", () => {
+vmaTest("CHARSET toggles VIC charset bit and WAIT_RASTER waits for a scanline", () => {
   const ctx = createMacroContext();
   assert.deepEqual(compileBlock(ctx, { mnemonic: "CHARSET", isCharsetMacro: true, charsetMode: "lower" }, new Map(), 0x3900), [0xAD, 0x18, 0xD0, 0x09, 0x02, 0x8D, 0x18, 0xD0]);
   assert.deepEqual(compileBlock(ctx, { mnemonic: "CHARSET", isCharsetMacro: true, charsetMode: "upper" }, new Map(), 0x3908), [0xAD, 0x18, 0xD0, 0x29, 0xFD, 0x8D, 0x18, 0xD0]);
@@ -1175,130 +1086,56 @@ test("CHARSET toggles VIC charset bit and WAIT_RASTER waits for a scanline", () 
   assert.equal(ctx.getInstructionSize({ isWaitRasterMacro: true }), 7);
 });
 
-test("VAR blocks receive auto zero-page addresses in layout order", () => {
-  const ctx = createMacroContext({
-    program: [
-      { id: "1", mnemonic: "VAR", isVarMacro: true, varName: "counter", varSize: 1, rawOperand: "", base: "hex" },
-      { id: "2", mnemonic: "VAR", isVarMacro: true, varName: "timer", varSize: 2, rawOperand: "", base: "hex" },
-      { id: "3", mnemonic: "WAIT_KEY", isWaitKeyMacro: true, rawOperand: "", base: "hex" }
-    ]
-  });
-  const layout = ctx.getProgramLayout(0x0801);
-  assert.equal(layout.lines[0].block._varAddress, 0x02);
-  assert.equal(layout.lines[1].block._varAddress, 0x03);
-  assert.equal(layout.lines[0].size, 0);
-  assert.equal(layout.lines[1].size, 0);
-});
-
-test("assembly IF/ELSE/ENDIF keeps the active branch and skips the other", () => {
-  const ctx = createMacroContext({
-    program: [
-      { id: "d1", mnemonic: "DEFINE", isDefineMacro: true, defineSymbol: "DEBUG", rawOperand: "DEBUG", base: "hex" },
-      { id: "i1", mnemonic: "IF", isIfMacro: true, ifCondition: "DEBUG", rawOperand: "DEBUG", base: "hex" },
-      { id: "c1", mnemonic: "CLEAR_SCREEN", isClearScreenMacro: true, rawOperand: "", base: "hex" },
-      { id: "e1", mnemonic: "ELSE", isElseMacro: true, rawOperand: "", base: "hex" },
-      { id: "w1", mnemonic: "WAIT_KEY", isWaitKeyMacro: true, rawOperand: "", base: "hex" },
-      { id: "n1", mnemonic: "ENDIF", isEndIfMacro: true, rawOperand: "", base: "hex" }
-    ]
-  });
-  const layout = ctx.getProgramLayout(0x0801);
-  const clearLine = layout.lines.find((line) => line.block.mnemonic === "CLEAR_SCREEN");
-  const waitLine = layout.lines.find((line) => line.block.mnemonic === "WAIT_KEY");
-  assert.equal(clearLine.size, 5);
-  assert.equal(waitLine.size, 0);
-});
-
-test("assembly IF skips the then-branch when the symbol is not defined", () => {
-  const ctx = createMacroContext({
-    program: [
-      { id: "i1", mnemonic: "IF", isIfMacro: true, ifCondition: "RELEASE", rawOperand: "RELEASE", base: "hex" },
-      { id: "c1", mnemonic: "CLEAR_SCREEN", isClearScreenMacro: true, rawOperand: "", base: "hex" },
-      { id: "e1", mnemonic: "ELSE", isElseMacro: true, rawOperand: "", base: "hex" },
-      { id: "w1", mnemonic: "WAIT_KEY", isWaitKeyMacro: true, rawOperand: "", base: "hex" },
-      { id: "n1", mnemonic: "ENDIF", isEndIfMacro: true, rawOperand: "", base: "hex" }
-    ]
-  });
-  const layout = ctx.getProgramLayout(0x0801);
-  const clearLine = layout.lines.find((line) => line.block.mnemonic === "CLEAR_SCREEN");
-  const waitLine = layout.lines.find((line) => line.block.mnemonic === "WAIT_KEY");
-  assert.equal(clearLine.size, 0);
-  assert.equal(waitLine.size, 7);
-});
-
-test("LOOP/NEXT compiles a counted decrementing loop", () => {
+vmaTest("VAR blocks receive auto zero-page addresses in layout order", () => {
   const ctx = createMacroContext();
-  const labels = new Map([["loop1", 0x4002]]);
-  const loopBytes = compileBlock(ctx, {
-    mnemonic: "LOOP",
-    isLoopMacro: true,
-    loopReg: "X",
-    loopCount: "05",
-    loopLabel: "loop1",
-    base: "hex"
-  }, labels, 0x4000);
-  const nextBytes = compileBlock(ctx, {
-    mnemonic: "NEXT",
-    isNextMacro: true,
-    nextReg: "X",
-    nextLabel: "loop1",
-    base: "hex"
-  }, labels, 0x4002);
-
-  assert.deepEqual(loopBytes, [0xA2, 0x05]);
-  assert.deepEqual(nextBytes, [0xCA, 0xD0, 0xFD]);
-  assert.equal(ctx.getInstructionSize({ isLoopMacro: true, loopCount: "05", base: "hex" }), 2);
-  assert.equal(ctx.getInstructionSize({ isNextMacro: true }), 3);
+  const lines = [
+    { id: "1", mnemonic: "VAR", isVarMacro: true, varName: "counter", varSize: 1, rawOperand: "", base: "hex" },
+    { id: "2", mnemonic: "VAR", isVarMacro: true, varName: "timer", varSize: 2, rawOperand: "", base: "hex" }
+  ].map(b => ctx._blockToExpertLine(b));
+  const p = prog(`* = $1000\n${lines.join("\n")}\nafter:\n rts\n`);
+  assert.equal(p.value("counter"), 0x02);
+  assert.equal(p.value("timer"), 0x03);
+  assert.equal(p.value("after"), 0x1000, "a VAR takes no bytes");
 });
 
-test("FOR/ENDF compiles a counted incrementing loop", () => {
+vmaTest("assembly IF/ELSE/ENDIF keeps the active branch and skips the other", () => {
+  // CLEAR_SCREEN = 5 bytes, WAIT_KEY = 7 bytes
+  const p = prog("* = $1000\n.define DEBUG\n.if DEBUG\n.clear_screen\n.else\n.wait_key\n.endif\nafter:\n");
+  assert.equal(p.value("after") - 0x1000, 5);
+});
+
+vmaTest("assembly IF skips the then-branch when the symbol is not defined", () => {
+  const p = prog("* = $1000\n.if RELEASE\n.clear_screen\n.else\n.wait_key\n.endif\nafter:\n");
+  assert.equal(p.value("after") - 0x1000, 7);
+});
+
+vmaTest("LOOP/NEXT compiles a counted decrementing loop", () => {
   const ctx = createMacroContext();
-  const labels = new Map([["for1", 0x4102]]);
-  const forBytes = compileBlock(ctx, {
-    mnemonic: "FOR",
-    isForMacro: true,
-    loopReg: "Y",
-    loopCount: "0A",
-    loopLabel: "for1",
-    base: "hex"
-  }, labels, 0x4100);
-  const endfBytes = compileBlock(ctx, {
-    mnemonic: "ENDF",
-    isEndfMacro: true,
-    nextReg: "Y",
-    nextLabel: "for1",
-    nextCount: "0A",
-    base: "hex"
-  }, labels, 0x4102);
-
-  assert.deepEqual(forBytes, [0xA0, 0x00]);
-  assert.deepEqual(endfBytes, [0xC8, 0xC0, 0x0A, 0xD0, 0xFB]);
-  assert.equal(ctx.getInstructionSize({ isForMacro: true }), 2);
-  assert.equal(ctx.getInstructionSize({ isEndfMacro: true }), 5);
+  const lines = [
+    { mnemonic: "LOOP", isLoopMacro: true, loopReg: "X", loopCount: "05", loopLabel: "loop1", base: "hex" },
+    { mnemonic: "NEXT", isNextMacro: true, nextReg: "X", nextLabel: "loop1", base: "hex" }
+  ].map(b => ctx._blockToExpertLine(b));
+  const p = prog(`* = $4000\n${lines.join("\n")}\nafter:\n`);
+  assert.deepEqual(p.bytes(0x4000, p.value("after")), [0xA2, 0x05, 0xCA, 0xD0, 0xFD]);
 });
 
-test("REPEAT/UNTIL compiles a runtime loop-back branch", () => {
+vmaTest("FOR/ENDF compiles a counted incrementing loop", () => {
   const ctx = createMacroContext();
-  const labels = new Map([["repeat1", 0x5000]]);
-  const repeatBytes = compileBlock(ctx, {
-    mnemonic: "REPEAT",
-    isRuntimeRepeatMacro: true,
-    repeatStartLabel: "repeat1"
-  }, labels, 0x5000);
-  const untilBytes = compileBlock(ctx, {
-    mnemonic: "UNTIL_A",
-    isRuntimeUntilMacro: true,
-    runtimeIfReg: "A",
-    runtimeIfOp: "!=",
-    rawOperand: "#$00",
-    base: "hex",
-    repeatStartLabel: "repeat1"
-  }, labels, 0x5000);
-
-  assert.deepEqual(repeatBytes, []);
-  assert.deepEqual(untilBytes, [0xC9, 0x00, 0xF0, 0xFC]);
+  const lines = [
+    { mnemonic: "FOR", isForMacro: true, loopReg: "Y", loopCount: "0A", loopLabel: "for1", base: "hex" },
+    { mnemonic: "ENDF", isEndfMacro: true, nextReg: "Y", nextLabel: "for1", nextCount: "0A", base: "hex" }
+  ].map(b => ctx._blockToExpertLine(b));
+  const p = prog(`* = $4100\n${lines.join("\n")}\nafter:\n`);
+  assert.deepEqual(p.bytes(0x4100, p.value("after")), [0xA0, 0x00, 0xC8, 0xC0, 0x0A, 0xD0, 0xFB]);
 });
 
-test("IRQ_SETUP emits vector, raster and CIA setup bytes", () => {
+vmaTest("REPEAT/UNTIL compiles a runtime loop-back branch", () => {
+  // REPEAT makes no bytes: UNTIL at $5000 branches back to itself
+  const p = prog("* = $5000\n.repeat\n.until A != #$00\nafter:\n");
+  assert.deepEqual(p.bytes(0x5000, p.value("after")), [0xC9, 0x00, 0xF0, 0xFC]);
+});
+
+vmaTest("IRQ_SETUP emits vector, raster and CIA setup bytes", () => {
   const ctx = createMacroContext();
   const labels = new Map([["my_irq", 0x1234]]);
   const bytes = compileBlock(ctx, {
@@ -1316,10 +1153,10 @@ test("IRQ_SETUP emits vector, raster and CIA setup bytes", () => {
     0xA9, 0xFA, 0x8D, 0x12
   ]);
   assert.deepEqual(bytes.slice(-9), [0xA9, 0x7F, 0x8D, 0x0D, 0xDC, 0xAD, 0x0D, 0xDC, 0x58]);
-  assert.equal(ctx.getInstructionSize({ isIrqSetupMacro: true }), 46);
+
 });
 
-test("RAND emits the expected LFSR sequence at the chosen seed address", () => {
+vmaTest("RAND emits the expected LFSR sequence at the chosen seed address", () => {
   const ctx = createMacroContext();
   const bytes = compileBlock(ctx, {
     mnemonic: "RAND",
@@ -1339,7 +1176,7 @@ test("RAND emits the expected LFSR sequence at the chosen seed address", () => {
   assert.equal(ctx.getInstructionSize({ isRandMacro: true }), 15);
 });
 
-test("EXODECRUNCH emits the depacker setup, ROM toggle and JSR", () => {
+vmaTest("EXODECRUNCH emits the depacker setup, ROM toggle and JSR", () => {
   const ctx = createMacroContext();
   const bytes = compileBlock(ctx, {
     mnemonic: "EXODECRUNCH",
@@ -1361,27 +1198,15 @@ test("EXODECRUNCH emits the depacker setup, ROM toggle and JSR", () => {
   assert.equal(ctx.getInstructionSize({ isExoDecrunchMacro: true }), 19);
 });
 
-test("runtime ELSE and ENDIF compile to jump and anchor bytes", () => {
-  const ctx = createMacroContext();
-  const labels = new Map([["if_end_1", 0x2015]]);
-  const elseBytes = compileBlock(ctx, {
-    mnemonic: "ELSE",
-    isRuntimeElseMacro: true,
-    runtimeIfEndLabel: "if_end_1"
-  }, labels, 0x2000);
-  const endBytes = compileBlock(ctx, {
-    mnemonic: "ENDIF",
-    isRuntimeEndIfMacro: true,
-    runtimeIfEndLabel: "if_end_1"
-  }, labels, 0x2010);
-
-  assert.deepEqual(elseBytes, [0x4C, 0x15, 0x20]);
-  assert.deepEqual(endBytes, []);
-  assert.equal(ctx.getInstructionSize({ isRuntimeElseMacro: true }), 3);
-  assert.equal(ctx.getInstructionSize({ isRuntimeEndIfMacro: true }), 0);
+vmaTest("runtime ELSE and ENDIF compile to jump and anchor bytes", () => {
+  // IF $2000-$2003, then-body $2004, ELSE = JMP end at $2005, else-body $2008-$2009, end $200A
+  const p = prog("* = $2000\n.if A == #$01\n nop\n.else\n nop\n nop\n.endif\nafter:\n");
+  assert.deepEqual(p.bytes(0x2000, 0x2004), [0xC9, 0x01, 0xD0, 0x04]);
+  assert.deepEqual(p.bytes(0x2005, 0x2008), [0x4C, 0x0A, 0x20]);
+  assert.equal(p.value("after"), 0x200A, "ENDIF makes no bytes");
 });
 
-test("core helper macros emit stable bytes and sizes", () => {
+vmaTest("core helper macros emit stable bytes and sizes", () => {
   const ctx = createMacroContext();
   const cases = [
     {
@@ -1573,7 +1398,7 @@ test("core helper macros emit stable bytes and sizes", () => {
   }
 });
 
-test("WORD emits little-endian pairs and reports the right size", () => {
+vmaTest("WORD emits little-endian pairs and reports the right size", () => {
   const ctx = createMacroContext();
   const bytes = compileBlock(ctx, {
     mnemonic: "WORD",
@@ -1583,56 +1408,14 @@ test("WORD emits little-endian pairs and reports the right size", () => {
   }, new Map(), 0x4500);
 
   assert.deepEqual(bytes, [0x34, 0x12, 0xCD, 0xAB]);
-  assert.equal(ctx.getInstructionSize({ isWordMacro: true, rawOperand: "$1234, $ABCD", base: "hex" }), 4);
+
 });
 
-test("INCBIN becomes a deferred section at its target address", () => {
-  const ctx = createMacroContext({
-    program: [
-      {
-        id: "inc1",
-        mnemonic: "INCBIN",
-        isIncBinMacro: true,
-        incBinFileName: "demo.bin",
-        incBinAddress: "$C300",
-        incBinBytes: [0x11, 0x22, 0x33]
-      }
-    ]
-  });
-
-  const layout = ctx.getProgramLayout(0x0801);
-  const sections = ctx.getDeferredMemorySections(layout);
-  const plainSections = JSON.parse(JSON.stringify(sections.map((section) => ({
-    type: section.type,
-    address: section.address,
-    bytes: Array.from(section.bytes)
-  }))));
-
-  assert.deepEqual(plainSections, [
-    { type: "incbin", address: 0xC300, bytes: [0x11, 0x22, 0x33] }
-  ]);
-});
-
-test("disassembler sorts deferred data by rendered address, not source order", () => {
-  const ctx = createMacroContext();
-  const codeLine = {
-    address: 0x1000,
-    block: {
-      mnemonic: "SEI",
-      addressingMode: "implied"
-    }
-  };
-  const deferredLine = {
-    address: 0x1001,
-    block: {
-      isRawBytesMacro: true,
-      rawBytesAddress: "$1100"
-    }
-  };
-
-  assert.equal(ctx._disasmLineSortAddress(codeLine, new Map()), 0x1000);
-  assert.equal(ctx._disasmLineSortAddress(deferredLine, new Map()), 0x1100);
-  assert.equal(ctx._compareDisasmLayoutLineRefs({ line: deferredLine, index: 1 }, { line: codeLine, index: 0 }, new Map()) > 0, true);
+vmaTest("INCBIN becomes a deferred section at its target address", () => {
+  const p = prog('* = $1000\n.incbin "demo.bin", $C300\nafter:\n rts\n', { "demo.bin": Uint8Array.from([0x11, 0x22, 0x33]) });
+  assert.deepEqual(p.bytes(0xC300, 0xC303), [0x11, 0x22, 0x33]);
+  assert.equal(p.value("after"), 0x1000);
+  assert.deepEqual(JSON.parse(JSON.stringify(p.r.memory.deferred.map(d => [d.type, d.address, d.end]))), [["incbin", 0xC300, 0xC302]]);
 });
 
 test("ORG, TABLE, SID, INCBIN, and INCLUDE round-trip in expert text", () => {
@@ -1798,7 +1581,7 @@ test("validateAssetMacroHasFile catches empty INCLUDE / INCBIN / SID blocks", ()
 
 // ── Assembler expression & label extensions (v2.3.9) ─────────────────────────
 
-test("LBxx long-branch emits inverted Bxx +3 / JMP target and is 5 bytes", () => {
+vmaTest("LBxx long-branch emits inverted Bxx +3 / JMP target and is 5 bytes", () => {
   const ctx = createMacroContext();
   const labels = new Map([["far", 0xD000]]);
   const bytes = compileBlock(
@@ -1808,10 +1591,6 @@ test("LBxx long-branch emits inverted Bxx +3 / JMP target and is 5 bytes", () =>
     0xC000
   );
   assert.deepEqual(bytes, [0xF0, 0x03, 0x4C, 0x00, 0xD0]);
-  assert.equal(
-    ctx.getInstructionSize({ isLongBranchMacro: true, longBranchCond: "NE" }),
-    5
-  );
 
   // Inverted opcodes for the other conditions
   const inv = { EQ: 0xD0, CC: 0xB0, CS: 0x90, MI: 0x10, PL: 0x30, VC: 0x70, VS: 0x50 };
@@ -1827,7 +1606,7 @@ test("LBxx long-branch emits inverted Bxx +3 / JMP target and is 5 bytes", () =>
   }
 });
 
-test("LBxx target accepts a *-expression", () => {
+vmaTest("LBxx target accepts a *-expression", () => {
   const ctx = createMacroContext();
   const bytes = compileBlock(
     ctx,
@@ -1847,12 +1626,11 @@ test("LBxx round-trips through _blockToExpertLine", () => {
   );
 });
 
-test(".assert passes a truthy expression and fails a falsy one", () => {
+vmaTest(".assert passes a truthy expression and fails a falsy one", () => {
   const ctx = createMacroContext();
   const ok = ctx.compileLineBytes({ address: 0xC000, block: { isAssertMacro: true, assertExpr: "1 + 1" } }, new Map());
   assert.equal(ok.ok, true);
   assert.deepEqual(Array.from(ok.bytes), []);
-  assert.equal(ctx.getInstructionSize({ isAssertMacro: true }), 0);
 
   const bad = ctx.compileLineBytes({ address: 0xC000, block: { isAssertMacro: true, assertExpr: "2 > 5" } }, new Map());
   assert.equal(bad.ok, false);
@@ -1876,16 +1654,10 @@ test(".assert round-trips through _blockToExpertLine with an optional message", 
   );
 });
 
-test("SMC label on an operand maps to the operand byte and round-trips", () => {
-  const ctx = createMacroContext({
-    program: [
-      { id: "i1", mnemonic: "LDA", addressingMode: "immediate", rawOperand: "#$00", operand: "#$00", base: "hex", smcLabel: "value" }
-    ]
-  });
-  const layout = ctx.getProgramLayout(0x1000);
-  const labels = new Map();
-  layout.lines.forEach((line) => ctx.addLayoutLabels(labels, line));
-  assert.equal(labels.get("value"), 0x1001); // code at $1000, operand byte at $1001
+vmaTest("SMC label on an operand maps to the operand byte and round-trips", () => {
+  const ctx = createMacroContext();
+  const p = prog("* = $1000\n lda value:#$00\n rts\n");
+  assert.equal(p.value("value"), 0x1001); // code at $1000, operand byte at $1001
 
   assert.equal(
     ctx._blockToExpertLine({ mnemonic: "LDA", addressingMode: "immediate", rawOperand: "", operand: "#$00", smcLabel: "value" }).trim(),
@@ -1893,71 +1665,25 @@ test("SMC label on an operand maps to the operand byte and round-trips", () => {
   );
 });
 
-test("local (dotted) labels are scoped to the nearest preceding global label", () => {
-  const mkLabel = (name) => ({ id: "L" + name, isLabel: true, mnemonic: "LABEL", labelName: name, addressingMode: "implied", base: "hex", operand: name, rawOperand: name });
-  const mkImplied = (mn) => ({ id: "x" + Math.random(), mnemonic: mn, addressingMode: "implied", base: "hex", rawOperand: "", operand: "" });
-  const mkBranch = (target) => ({ id: "b" + Math.random(), mnemonic: "BNE", addressingMode: "relative", base: "hex", rawOperand: target, operand: target });
-
-  const ctx = createMacroContext({
-    program: [
-      mkLabel("First"),
-      mkLabel(".loop"),
-      mkImplied("NOP"),
-      mkBranch(".loop"),
-      mkLabel("Second"),
-      mkLabel(".loop"),
-      mkImplied("NOP"),
-      mkBranch(".loop")
-    ]
-  });
-
-  const layout = ctx.getProgramLayout(0x1000);
-  const labels = new Map();
-  layout.lines.forEach((line) => ctx.addLayoutLabels(labels, line));
-
-  assert.equal(labels.has("First.loop"), true);
-  assert.equal(labels.has("Second.loop"), true);
-  assert.equal(labels.has(".loop"), false, "raw .loop must not leak as a global label");
-  assert.notEqual(labels.get("First.loop"), labels.get("Second.loop"));
-
-  // Each BNE .loop compiles to a self-scope backward branch (2 bytes, negative offset).
-  const branchLines = layout.lines.filter((l) => l.block.mnemonic === "BNE");
-  assert.equal(branchLines.length, 2);
-  for (const bl of branchLines) {
-    const r = ctx.compileLineBytes(bl, labels);
-    assert.equal(r.ok, true, r.error);
-    assert.equal(r.bytes[0], 0xD0);
-    assert.ok(r.bytes[1] >= 0x80, "backward branch offset should be negative");
-  }
+vmaTest("local (dotted) labels are scoped to the nearest preceding global label", () => {
+  const p = prog("* = $1000\nFirst:\n.loop:\n nop\n bne .loop\nSecond:\n.loop:\n nop\n bne .loop\n");
+  const names = p.r.labels.map(l => l[0]);
+  assert.ok(names.includes("First.loop"));
+  assert.ok(names.includes("Second.loop"));
+  assert.ok(!names.includes(".loop"), "raw .loop must not leak as a global label");
+  assert.notEqual(p.value("First.loop"), p.value("Second.loop"));
+  // each BNE .loop is a backward branch in its own scope
+  assert.deepEqual(p.bytes(0x1001, 0x1003), [0xD0, 0xFD]);
+  assert.deepEqual(p.bytes(0x1004, 0x1006), [0xD0, 0xFD]);
 });
 
-test("local labels support explicit cross-scope references (Global.name)", () => {
-  const mkLabel = (name) => ({ id: "L" + name + Math.random(), isLabel: true, mnemonic: "LABEL", labelName: name, addressingMode: "implied", base: "hex", operand: name, rawOperand: name });
-  const mkJmp = (t) => ({ id: "j" + Math.random(), mnemonic: "JMP", addressingMode: "absolute", base: "hex", rawOperand: t, operand: t });
-  const nop = () => ({ id: "n" + Math.random(), mnemonic: "NOP", addressingMode: "implied", base: "hex", rawOperand: "", operand: "" });
-
-  const ctx = createMacroContext({
-    program: [
-      mkLabel("First"), nop(),
-      mkLabel("Second"),
-      mkLabel(".skip"), nop(),
-      mkJmp("First.skip")   // forward-declared cross-scope ref would be null; here First has no .skip
-    ]
-  });
-  const layout = ctx.getProgramLayout(0x1000);
-  const labels = new Map();
-  layout.lines.forEach((l) => ctx.addLayoutLabels(labels, l));
-
-  assert.equal(labels.has("Second.skip"), true);
-  // JMP Second.skip resolves through the qualified name
-  const jmpLine = layout.lines.find((l) => l.block.mnemonic === "JMP");
-  jmpLine.block.rawOperand = "Second.skip";
-  const r = ctx.compileLineBytes(jmpLine, labels);
-  assert.equal(r.ok, true, r.error);
-  assert.deepEqual(Array.from(r.bytes), [0x4C, labels.get("Second.skip") & 0xFF, (labels.get("Second.skip") >> 8) & 0xFF]);
+vmaTest("local labels support explicit cross-scope references (Global.name)", () => {
+  const p = prog("* = $1000\nFirst:\n nop\nSecond:\n.skip:\n nop\n jmp Second.skip\n");
+  assert.equal(p.value("Second.skip"), 0x1001);
+  assert.deepEqual(p.bytes(0x1002, 0x1005), [0x4C, 0x01, 0x10]);
 });
 
-test(".assert evaluates label arithmetic and reports the value on failure", () => {
+vmaTest(".assert evaluates label arithmetic and reports the value on failure", () => {
   const ctx = createMacroContext();
   const labels = new Map([["start", 0x1000], ["end", 0x1120]]); // 0x120 = 288 bytes
   const pass = ctx.compileLineBytes({ address: 0x1120, block: { isAssertMacro: true, assertExpr: "end - start <= 512" } }, labels);
@@ -1966,7 +1692,7 @@ test(".assert evaluates label arithmetic and reports the value on failure", () =
   assert.equal(fail.ok, false);
 });
 
-test("LBxx rejects an unresolved target with a branch-operand error", () => {
+vmaTest("LBxx rejects an unresolved target with a branch-operand error", () => {
   const ctx = createMacroContext();
   const r = ctx.compileLineBytes(
     { address: 0xC000, block: { mnemonic: "LBNE", isLongBranchMacro: true, longBranchCond: "NE", rawOperand: "nowhere", base: "hex" } },

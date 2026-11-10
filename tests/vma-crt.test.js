@@ -1,12 +1,18 @@
-// Save CRT: the Rust VMA CLI's `--crt` (crt.rs) = the app's buildMagicDeskCrt over the JS build.
+// Save CRT: the VMA CLI's `--crt` (crt.rs) = the app's buildMagicDeskCrt over the same build.
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
 const { spawnSync } = require("node:child_process");
-const { createReference } = require("./helpers/vma-reference");
-const { findRustCli, firstDiff } = require("./helpers/vma-rust");
+const loadApp = require("./helpers/load-app");
+const { vmaCli, compileText } = require("./helpers/vma-cli");
+
+const firstDiff = (a, b) => {
+  const n = Math.min(a.length, b.length);
+  for (let i = 0; i < n; i++) if (a[i] !== b[i]) return i;
+  return a.length === b.length ? -1 : n;
+};
 
 const CASES = [
   { id: "stub", text: "* = $0801\n    lda #$01\n    sta $d020\n    rts\n" },
@@ -17,13 +23,13 @@ const CASES = [
   { id: "too-large", text: "* = $0801\n    .fill 65500, 0\n", tooLarge: true }
 ];
 
-test("vma build --crt gives the app's Magic Desk cartridge", { skip: !findRustCli() && "no Rust VMA CLI" }, async () => {
-  const cli = findRustCli();
-  const ref = createReference();
+test("vma build --crt gives the app's Magic Desk cartridge", { skip: !vmaCli() && "no Rust VMA CLI" }, async () => {
+  const cli = vmaCli();
+  const ref = { app: loadApp() };
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "vma-crt-"));
   try {
     for (const c of CASES) {
-      const js = await ref.compile({ text: c.text, basicStub: c.basicStub !== false });
+      const js = compileText(c.text, { basicStub: c.basicStub !== false });
       assert.ok(js.ok, `${c.id}: ${js.error}`);
       ref.app.__crt = { bytes: js.bytes, sys: js.sysAddress, name: c.name || "VA CART" };
       const expected = ref.app.run(`(() => {
@@ -40,7 +46,7 @@ test("vma build --crt gives the app's Magic Desk cartridge", { skip: !findRustCl
       const args = ["build", input, "--crt", out, ...(c.basicStub === false ? ["--no-basic-stub"] : []), ...(c.name ? ["--crt-name", c.name] : [])];
       const run = spawnSync(cli, args, { encoding: "utf8" });
       if (c.tooLarge) {
-        assert.equal(expected, null, `${c.id}: the JS build fits`);
+        assert.equal(expected, null, `${c.id}: the app would build it`);
         assert.equal(run.status, 1, `${c.id}: the CLI accepted it`);
         assert.match(run.stderr, /too large for a Magic Desk cartridge \(\d+ > 65408 bytes\)/);
         continue;

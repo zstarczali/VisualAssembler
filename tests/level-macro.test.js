@@ -3,6 +3,7 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
+const { compileText, loadPrg, labelOf, vmaTest } = require("./helpers/vma-cli");
 
 const appJs = fs.readFileSync(path.join(__dirname, "..", "www", "app.js"), "utf8");
 const levelBin = new Uint8Array(fs.readFileSync(path.join(__dirname, "..", "samples", "level.bin")));
@@ -14,8 +15,8 @@ function slice(startMarker, endMarker) {
   return appJs.slice(start, end);
 }
 
-// LEVEL helpers: DOM-free slice from the LEVEL comment to _LEVEL_ROW_SIZE, plus the
-// VA bin-meta reader/writer they use.
+// LEVEL helpers (the Level Editor's view of a level: _levelBuild): DOM-free slice from the LEVEL
+// comment to _LEVEL_ROW_SIZE, plus the VA bin-meta reader/writer they use. The compiler is the VMA CLI.
 function loadLevel() {
   const context = {
     t: (k) => k,
@@ -32,9 +33,8 @@ function loadLevel() {
   vm.runInContext(
     slice("const _VA_BIN_META_MAGIC", "/* Save raw bytes") +
     slice("/* LEVEL = INCBIN variant", "const _LEVEL_ROW_SIZE") +
-    "\nconst _LEVEL_ROW_SIZE = _levelRowBytes(0, 0, 0, false, new Proxy({}, { get: () => 0 })).length;" +
-    "\nthis.api = { build: _levelBuild, info: _levelInfo, payload: _incBinPayload, parse: _levelRowParse," +
-    " row: _levelRowBytes, size: _LEVEL_ROW_SIZE, meta: _vaBuildBinWithMeta, read: _vaReadBinWithMeta, U8: Uint8Array };",
+    "\nthis.api = { build: _levelBuild, info: _levelInfo, parse: _levelRowParse," +
+    " meta: _vaBuildBinWithMeta, read: _vaReadBinWithMeta, U8: Uint8Array };",
     context);
   return context.api;
 }
@@ -47,8 +47,8 @@ function levelFile(api, w, h, cells, screens) {
 }
 
 // Just enough 6502 for the .level_row routine.
-function runRow(mem, code, org, x) {
-  mem.set(code, org);
+function runRow(mem, org, size, x) {
+  const code = { length: size };
   let pc = org, a = 0, y = 0, c = 0, z = 0, n = 0;
   const rd16 = () => mem[pc] | (mem[pc + 1] << 8);
   const nz = (v) => { z = v === 0 ? 1 : 0; n = v & 0x80 ? 1 : 0; return v; };
@@ -133,7 +133,15 @@ test(".level_row operand parsing", () => {
   assert.equal(api.parse("ptr, x, blue"), null);
 });
 
-test(".level_row copies every row and window column (screen and color) like the level map", () => {
+// samples/level.bin at $4000 and a `.level_row DST, COL[, color]` at $C000: memory and routine size.
+function buildRow(color) {
+  const src = `.const COL = $F0\n.const DST = $F2\n* = $C000\n.level "level.bin", $4000\n.level_row DST, COL${color ? ", color" : ""}\n__end:\n`;
+  const r = compileText(src, { basicStub: false, files: { "level.bin": levelBin } });
+  assert.equal(r.ok, true, r.error);
+  return { r, mem: loadPrg(r.bytes).mem, size: labelOf(r, "__end") - 0xC000 };
+}
+
+vmaTest(".level_row copies every row and window column (screen and color) like the level map", () => {
   const api = loadLevel();
   const base = 0x4000;
   const info = api.build(levelBin, base);
@@ -150,15 +158,14 @@ test(".level_row copies every row and window column (screen and color) like the 
   };
   const COL = 0x00F0, DST = 0x00F2, TARGET = 0x0400, ORG = 0xC000;
   for (const color of [false, true]) {
-    const code = api.row(ORG, DST, COL, color, L);
-    assert.equal(code.length, api.size);
+    const built = buildRow(color);
+    assert.equal(built.size, 132);
     for (const row of [0, 1, 24, 25, 60, 124]) {
       for (const col of [0, 1, 7, 20, 39, 40]) {
-        const mem = new Uint8Array(0x10000);
-        mem.set(info.data, base);
+        const mem = built.mem.slice();
         mem[COL] = col;
         mem[DST] = TARGET & 0xFF; mem[DST + 1] = TARGET >> 8;
-        runRow(mem, code, ORG, row);
+        runRow(mem, ORG, built.size, row);
         assert.deepEqual(Array.from(mem.subarray(TARGET, TARGET + 40)), expected(row, col, color), `row ${row} col ${col} color ${color}`);
         assert.equal(mem[TARGET + 40], 0, "nothing written past the 40 bytes");
       }
@@ -166,11 +173,13 @@ test(".level_row copies every row and window column (screen and color) like the 
   }
 });
 
-test("_incBinPayload returns the processed level data for a LEVEL block", () => {
+vmaTest("the compiler places the same level data as the Level Editor's _levelBuild", () => {
   const api = loadLevel();
-  const block = { isIncBinMacro: true, incBinLevel: true, incBinAddress: "$4000", incBinBytes: Array.from(levelBin) };
-  assert.equal(api.payload(block).length, api.info(block).data.length);
-  assert.ok(api.payload(block).length < levelBin.length);
+  const info = api.build(levelBin, 0x4000);
+  const { r, mem } = buildRow(false);
+  assert.ok(info.data.length < levelBin.length);
+  assert.deepEqual(Array.from(mem.subarray(0x4000, 0x4000 + info.data.length)), Array.from(info.data));
+  for (const name of ["LEVEL_SLOT_LO", "LEVEL_ROW_LO", "LEVEL_END"]) assert.equal(labelOf(r, name), info.labels[name], name);
 });
 
 test("objects become LEVEL_OBJ_* tables in file order, outside ones dropped", () => {

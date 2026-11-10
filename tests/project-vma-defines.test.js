@@ -1,6 +1,7 @@
 // Project settings → VMA: the symbols (.define) and constants (.const) of a .proj come before the
 // source the project builds (_projVmaPrelude), in the JS layout and in the Rust build input.
 const test = require("node:test");
+const { buildApp, vmaTest } = require("./helpers/vma-cli");
 const assert = require("node:assert/strict");
 const loadApp = require("./helpers/load-app");
 
@@ -35,20 +36,20 @@ function appWith(settings) {
 }
 
 // LDA #imm of the first branch and whether the NOP of LEVEL == 2 is in
-function build(app) {
-  const r = app.run("_buildAutostartPrgCore()");
+async function build(app) {
+  const r = await buildApp(app);
   assert.equal(r.ok, true, r.error);
   const bytes = Array.from(r.bytes);
   const lda = bytes.indexOf(0xA9);
   return { imm: bytes[lda + 1], nop: bytes.includes(0xEA) };
 }
 
-test("the project's .define and .const reach .if", () => {
-  assert.deepEqual(build(appWith({ vmaConsts: { LEVEL: "1" } })), { imm: 0x06, nop: false });
-  assert.deepEqual(build(appWith({ vmaDefines: ["RELEASE"], vmaConsts: { LEVEL: "1" } })), { imm: 0x00, nop: false });
+vmaTest("the project's .define and .const reach .if", async () => {
+  assert.deepEqual(await build(appWith({ vmaConsts: { LEVEL: "1" } })), { imm: 0x06, nop: false });
+  assert.deepEqual(await build(appWith({ vmaDefines: ["RELEASE"], vmaConsts: { LEVEL: "1" } })), { imm: 0x00, nop: false });
   // without the constant `.if LEVEL == 2` cannot be evaluated: an error, as in the source
-  assert.equal(appWith({}).run("_buildAutostartPrgCore().ok"), false);
-  assert.deepEqual(build(appWith({ vmaDefines: ["RELEASE"], vmaConsts: { LEVEL: "2" } })), { imm: 0x00, nop: true });
+  assert.equal((await buildApp(appWith({}))).ok, false);
+  assert.deepEqual(await build(appWith({ vmaDefines: ["RELEASE"], vmaConsts: { LEVEL: "2" } })), { imm: 0x00, nop: true });
 });
 
 test("a Kick project or no project gets no VMA prelude", () => {

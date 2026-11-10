@@ -1,5 +1,7 @@
 # macOS Installation Guide
-Version 2.7.7
+Version 2.7.8
+
+2.7.8: faster building, running and live views; one compiler: the Rust VMA compiler (VMA 2.3.0) builds every program and feeds every live view, the JavaScript compiler and the VMA compiler setting are removed; local labels such as JMP Second.lp or LDA .lp+1,X compile as absolute operands.
 
 2.7.7: Ultimate 64 palette macros (.u64_palette from a palette file, .u64_palette_color, .u64_palette_reset) with a demo sample, the Hi-Res editor's MIX pen for multicolor pictures, and the built-in C64 no longer runs an empty program.
 
@@ -129,7 +131,7 @@ Both `sfx sys` (Run/Build with Exomizer toggle) and `mem` mode (per-file EXO in 
 
 ---
 
-**Version:** 2.7.7 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 2.7.8 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
 
 ## Building from source: macOS app icon
 

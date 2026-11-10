@@ -1,6 +1,6 @@
 [package]
 name = "c64-visual-assembler"
-version = "2.7.7"
+version = "2.7.8"
 edition = "2021"
 
 [lib]
@@ -28,7 +28,7 @@ serialport = { version = "4.7", default-features = false }
 sevenz-rust2 = { version = "0.24", default-features = false, features = ["ppmd"] }
 ultimate-basic = { git = "https://github.com/zstarczali/UltimateBasic.git", rev = "6392b79b41bd3231cd4ec2a54708570b0111cadc" }
 # the VMA compiler: its own repository; for local work on it, a [patch] with path = "../../VMA"
-vma = { git = "https://github.com/zstarczali/VMA.git", rev = "0b79685e750be702e61e9287c050465cc093ce3e" }
+vma = { git = "https://github.com/zstarczali/VMA.git", rev = "7a7d7fff6b86d065ad5174ba7b771a75e0cc8f4a" }
 
 # `tauri dev` speed: the SID emulation (VA SID Core, 6502 CPU) runs slower than
 # real time unoptimised. Dependencies build once at opt-level 2, the app at 1.

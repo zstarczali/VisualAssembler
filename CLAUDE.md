@@ -153,8 +153,8 @@ INCBIN/KOALA/LEVEL, INCLUDE, SID, TABLE) és a paraméter nélküliek tiltva. Ú
 1. `mnemonicLibrary` bővítés (magyar leírással) + `mnemonicDescriptionsEn[name]`
 2. `parseExpertText` regex + `_importMakeXxx()` segéd
 3. `_blockToExpertLine` ág a visszafelé konverzióhoz
-4. `getInstructionSize` ág (méret byte-okban)
-5. `compileBlock` (vagy `compileLineBytes`) ág — milyen byte-okat ad
+4. A méret és a bájtok a **Rust VMA**-ban (`F:\Development\VMA`, `src/asm.rs` / `src/prg.rs`): az app nem fordít
+5. Golden eset (`tests/vma-golden/cases.js`) + `node scripts/vma-golden.js --update`, majd a VMA `rev` cseréje
 6. `renderBlock` (vagy a `renderProgram` template) — UI mezők
 7. Translation kulcsok (`translations.hu` + `translations.en`)
 8. Saját `is*Macro: true` flag a blokkon
@@ -332,10 +332,10 @@ a `.ub` sablon fejléce `# @kulcs érték`, a projekt `main.ub` + `.proj` `"app"
 
 | Fázis | Kulcs függvények |
 |-------|------------------|
-| Layout | `getProgramLayout()` — címek soronként, label tábla |
-| Compile | `compileBlock(block, addr, labels)` → byte tömb; `compileOperand` az operand resolve-ot |
-| Assembly | `assembleProgramToPrg()` — inline + deferred chunks (RAWBYTES/RAWTEXT/INCBIN) flat bufferbe |
-| BASIC SYS | `buildAutostartPrgForEmulator()` — `$0801` BASIC stub + `$080D` kód kezdet |
+| Forrás | `_vmaBuildInput` / `_vmaEditorInput` — Expert szöveg, vagy a blokkok `_blockToExpertSourceLine` szövege (`_vmaBlocksSource`: `blockOfLine`, `lineMap`) |
+| Fordítás | `_vmaAnalyze` → `vma_analyze` Tauri command (Rust VMA): PRG, listing, címkék, szegmensek, memória, sidecarok; `_vmaNormalize` |
+| Build | `_kickOrVaPrg` → `_vaBuildPrg` → `_vmaRustBuild` → `_vmaBuildResult` (BASIC SYS stub: a Rust, a `basic-sys-toggle` szerint) |
+| Élő nézetek | `_vmaLiveFor` / `_vmaLiveNow` (gyorsítótár) + `_vmaLayout` (a régi layout-alak a disasm / monitor / memória / ciklus / lint nézeteknek) |
 | Run | `launch_vice` Tauri command — temp PRG + VICE indítás |
 
 ### Run módok (split run gomb)
@@ -364,19 +364,22 @@ A VMA fordító Rust portja **külön repóban** van: **https://github.com/zstar
 [VMA-RUST-PLAN.md](VMA-RUST-PLAN.md).
 
 - **Függőség:** `src-tauri/Cargo.toml` → `vma = { git = "https://github.com/zstarczali/VMA.git", rev = "<sha>" }`
-  (commit SHA-ra kötve; jelenleg VMA 2.2.0 = `0b79685`, a main merge commitja). VMA-módosítás után ott commit + push a
+  (commit SHA-ra kötve; jelenleg VMA 2.3.0 = `7a7d7ff`, a `development` ág commitja). VMA-módosítás után ott commit + push a
   main-be, majd a VA-ban a `rev` cseréje + `cargo update -p vma`. Egyszerre fejlesztéshez ideiglenesen
   `[patch."https://github.com/zstarczali/VMA.git"] vma = { path = "../../VMA" }` (ezt ne commitold).
-- **A JS fordító megmarad** (`www/app.js`, alapmotor). Motorválasztó: Beállítások → Általános → Program `#vma-engine`
-  (`c64va-vma-engine`: `js` alapérték / `rust`; a „Rust + JavaScript check” (`shadow`) mód kikerült, a mentett `shadow` = `js`). Az alapértéket ne állítsd `rust`-ra, amíg a felhasználó nem kéri.
-  Belépő: `_kickOrVaPrg` → `_kickBuildPrg` / `_vaBuildPrg` → `_vmaRustBuild` (`vma_build` Tauri command; Kick projektnél a
-  `kick.text`, extra kimenetek `raw`-val).
-- **Szabály:** a Rust a JS-t követi bájtra. Viselkedésváltozás előbb a JS-ben, utána golden-frissítés
-  (`node scripts/vma-golden.js --update`, csak a szándékolt esetek változhatnak), végül a Rust a VMA repóban.
-- **Tesztek:** a golden korpusz és a JS referencia a VA-ban marad (`tests/vma-golden/`, `tests/helpers/vma-reference.js`).
-  A CLI-t a `VMA_BIN` vagy `VMA_DIR` (alapból `../VMA`) `target/{release,debug}/vma.exe` adja → előbb `cargo build` a
-  `F:\Development\VMA`-ban. Riport: `node scripts/vma-rust-report.js`; valós projektek: `node scripts/vma-shadow-scan.js <.proj|mappa>`;
-  a VMA saját tesztje: `cargo test --offline` ott. Opkód-tábla generálás: `node scripts/vma-gen-opcodes.js` (a VMA repóba ír).
+- **Egyetlen fordító: a Rust VMA.** A JS fordító (layout, `compileBlock`, `assembleProgramToPrg`, motorválasztó
+  `#vma-engine`) kikerült. Belépő: `_kickOrVaPrg` → `_kickBuildPrg` / `_vaBuildPrg` → `_vmaRustBuild` (`vma_analyze`;
+  Kick projektnél a `kick.text`, extra kimenetek és a SID-export `vma_build` `raw`-val). Tauri nélkül (böngésző) nincs
+  fordítás: `vmaNeedsDesktop` hiba (`_vmaAvailable`). A JS-ben csak a forrás-oldal maradt (parser, `_blockToExpertLine`,
+  Kick előfeldolgozó, `_levelBuild`, `_buildRelocatingLoader` az ACME-hez, `_evalAsmExpr` a Kick debug-jelölőkhöz).
+- **Viselkedésváltozás:** a VMA repóban, utána a golden-frissítés (`node scripts/vma-golden.js --update`, csak a
+  szándékolt esetek változhatnak; ellenőrzés: `node scripts/vma-golden.js [szűrő]`).
+- **Tesztek:** a golden korpusz a VA-ban (`tests/vma-golden/`: `cases.js` = bemenetek, `manifest.json` = a Rust
+  PRG + `.sym` / `.vs` / `.dbg` hash-ei). A CLI-t a `VMA_BIN` vagy `VMA_DIR` (alapból `../VMA`)
+  `target/{release,debug}/vma.exe` adja → előbb `cargo build --release` a `F:\Development\VMA`-ban; nélküle a fordítós
+  tesztek kimaradnak. Segéd: `tests/helpers/vma-cli.js` (`compileText`, `codeOf`, `labelOf`, `useVmaCli(app)`,
+  `buildApp`, `analyzeApp`, `vmaTest`); a CLI `--analyze FILE` = a `vma::analyze` JSON. A VMA saját tesztje:
+  `cargo test --offline` ott. Opkód-tábla generálás: `node scripts/vma-gen-opcodes.js` (a VMA repóba ír).
 - **Hibák:** a Rust `Msg { key, params }`-t ad a JS fordítókulcsaival (`_vmaErrorMessage` / `_vmaErrorEntry` fordítja);
   új Rust-hibakulcs mind a 7 nyelven kell (`tests/vma-error-keys.test.js`).
 
@@ -385,15 +388,13 @@ A VMA fordító Rust portja **külön repóban** van: **https://github.com/zstar
 ## 11. Gyakori hibák és csapdák (bug-trap)
 
 ### `*` a kifejezésben: PC vs szorzás
-`_substituteStarPc` csak akkor cseréli `*`-ot a blokk-címre, ha **érték-pozícióban** áll
-(kifejezés-eleje, vagy `( + - / % & | ^ ~ < > , =` / whitespace után). Szám/`)`/azonosító
-után álló `*` = szorzás, marad (`STRIDE*2`, `table*2`). A csere `compileLineBytes`-ban
-történik `line.address`-szel; `resolveNumericOperand` és `resolveRelativeOperand` a
-kicserélt `(49152)+20` formát kapja. Nincs méret-hatás → nem kell iteratív layout.
+A VMA (Rust) csak **érték-pozícióban** olvassa `*`-ot PC-nek (kifejezés-eleje, vagy
+`( + - / % & | ^ ~ < > , =` / whitespace után); szám/`)`/azonosító után szorzás (`STRIDE*2`).
+Teszt: `tests/star-expression.test.js`.
 
 ### `_evalAsmExpr` és a boolean összehasonlítások
-`_evalAsmExpr` a `<`, `>=`, `==` stb. eredményét (JS boolean) **1/0-ra normalizálja**,
-hogy a `.assert` numerikusan tudja kezelni. A régi inline `evalAsmExpression` másolatok
+`_evalAsmExpr` (JS, a Kick `.watch` / `.break` címeihez) a `<`, `>=`, `==` stb. eredményét
+(JS boolean) **1/0-ra normalizálja**. A régi inline `evalAsmExpression` másolatok
 NEM teszik ezt — új helyen `_evalAsmExpr`-t használj. Identifier-regexe
 `(?<![\w.])[A-Za-z_][A-Za-z0-9_.]*` (dot engedve a lokális labelekhez, de `0xA000`
 `x`-ét nem eszi meg).
@@ -885,7 +886,7 @@ swatch-konténert vegyél fel a `_setEditorPalette` listájába, RGB-cache-t ott
 
 ## 16. Jelenlegi verzió
 
-`2.7.7` — `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html`
+`2.7.8` — `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `index.html`
 What's New dialógus, `README.md`, `README.txt`, `install.txt` (verziósor + telepítő-fájlnevek), `INSTALL-MAC.md`, `INSTALL-LINUX.md`, `Visual Assembler Manual.md`, `Visual Assembler Manual.hu.md`, `AGENTS.md`, és ez a fájl + copilot-instructions.md.
 
 > **Kézikönyv-szinkron:** a `Visual Assembler Manual.md` (angol, forrás) mellett van egy
@@ -897,7 +898,8 @@ What's New dialógus, `README.md`, `README.txt`, `install.txt` (verziósor + tel
 > a .md-k a szerkesztési forrás.
 
 > **Weblate:** a `va-product-site/ub-manual` és `va-product-site/va-manual` mappák tartalmát Weblate fordítja — verzióemeléskor és dokumentáció-frissítéskor **ne szerkeszd** őket.
-Fő 2.7.7 változások: **Ultimate 64 paletta makrók** (JS + Rust VMA 2.2.0): `.u64_palette "f.vpl"` = INCBIN-variáns (`incBinU64Pal`, cím nélkül, `_incBinPayload` üres, a színek a kódban; `_u64PalColors` = `_palParseText` / `_palParseAct`, `_incBinBlockError`), `.u64_palette_color idx, $RRGGBB` (`isUciPaletteColorMacro`, kifejezések, `_u64PalColorParse`), `.u64_palette_reset` (`isUciPaletteResetMacro`); közös UCI rutin `_u64UciBytes` (59 byte + adat: `$DF1D` = `$C9` ellenőrzés, idle-várás leftover DATA_ACC-kal, parancs a `$DF1D`-be, PUSH_CMD, busy-várás, DATA_ACC; target `$04`, `$52` / `$53` / `$54`; méret 109 / 65 / 61, `_U64_PAL_*_SIZE`); a flagnevekben nincs számjegy (a golden `macroCases` regexe `is[A-Za-z]*Macro`); Rust `src/u64pal.rs`; hibák `u64Palette*` mind a 7 nyelven; teszt `tests/u64-palette-macro.test.js` (mini6502 + UCI-modell), golden `var-u64-palette`, `macro-U64_PALETTE*` (`tests/vma-golden/files/u64-palette-sunset.vpl`). Minta `u64-palette-demo` (`sampleOptions[39]`, Hardver kategória, `samples/u64-palette-sunset.vpl` / `-green.vpl`); a `loadSampleFromFile` a minta INCBIN- és SID-fájljait is betölti. **Hi-Res MIX** (15.5b). **Beépített C64**: `vice` futtatási mód (régi `web64`: `_VICE_LEGACY`), `www/vice/vice.*`, üres programot nem indít (`isProgramEmpty`, `_isNoCodeBlock`). A „Rust + JavaScript check” (`shadow`) motor kikerült. VMAExtension 0.1.4: a három makró kiemelése + snippetje. Customer message `id` = `u64-palette-277`.
+Fő 2.7.8 változások: **Egyetlen fordító: a Rust VMA** (VMA 2.3.0), gyorsabb build és élő nézetek (egy fordítás, minden nézet abból). Customer message `id` = `rust-vma-278`. A JS fordító (layout, `compileBlock`, `assembleProgramToPrg`, `buildAutostartPrgForEmulator`) és a `#vma-engine` motorválasztó kikerült; minden build és élő nézet a `vma_analyze` eredményéből (`_vmaAnalyze`, `_vmaLiveFor` / `_vmaLiveNow`, `_vmaLayout`); Tauri nélkül `vmaNeedsDesktop` (mind a 7 nyelven). VMA 2.3.0: CLI `--analyze FILE`, pontos lokális címke abszolút operandusban (`JMP Second.lp`, `LDA .lp+1,X`). Golden = Rust snapshot (`manifest.json`: PRG + `.sym` / `.vs` / `.dbg` hash), tesztek a `tests/helpers/vma-cli.js`-en át; törölve a `vma-reference.js`, `vma-rust.js`, `scripts/vma-cli.js`, `vma-shadow-scan.js`, `vma-rust-report.js`, `tests/vma-engine.test.js` (→ `tests/vma-build.test.js`).
+Korábbi 2.7.7 változások: **Ultimate 64 paletta makrók** (JS + Rust VMA 2.2.0): `.u64_palette "f.vpl"` = INCBIN-variáns (`incBinU64Pal`, cím nélkül, `_incBinPayload` üres, a színek a kódban; `_u64PalColors` = `_palParseText` / `_palParseAct`, `_incBinBlockError`), `.u64_palette_color idx, $RRGGBB` (`isUciPaletteColorMacro`, kifejezések, `_u64PalColorParse`), `.u64_palette_reset` (`isUciPaletteResetMacro`); közös UCI rutin `_u64UciBytes` (59 byte + adat: `$DF1D` = `$C9` ellenőrzés, idle-várás leftover DATA_ACC-kal, parancs a `$DF1D`-be, PUSH_CMD, busy-várás, DATA_ACC; target `$04`, `$52` / `$53` / `$54`; méret 109 / 65 / 61, `_U64_PAL_*_SIZE`); a flagnevekben nincs számjegy (a golden `macroCases` regexe `is[A-Za-z]*Macro`); Rust `src/u64pal.rs`; hibák `u64Palette*` mind a 7 nyelven; teszt `tests/u64-palette-macro.test.js` (mini6502 + UCI-modell), golden `var-u64-palette`, `macro-U64_PALETTE*` (`tests/vma-golden/files/u64-palette-sunset.vpl`). Minta `u64-palette-demo` (`sampleOptions[39]`, Hardver kategória, `samples/u64-palette-sunset.vpl` / `-green.vpl`); a `loadSampleFromFile` a minta INCBIN- és SID-fájljait is betölti. **Hi-Res MIX** (15.5b). **Beépített C64**: `vice` futtatási mód (régi `web64`: `_VICE_LEGACY`), `www/vice/vice.*`, üres programot nem indít (`isProgramEmpty`, `_isNoCodeBlock`). A „Rust + JavaScript check” (`shadow`) motor kikerült. VMAExtension 0.1.4: a három makró kiemelése + snippetje. Customer message `id` = `u64-palette-277`.
 Korábbi 2.7.6 változások: **SID Player csillagok és duplikátumok**: csillagok 0–5 (`item.fav` szám, `_sidStars`, `_SID_STARS_MAX`; `.sidpl`: `fav: true` + `stars`, a régi `fav: true` = 1; ugyanarra a csillagra kattintás törli), `#websid-play-keep-starred` → `_sidPlayerKeepStarred` (`_showConfirm`, `sidPlayerKeepStarredConfirm`), `#websid-play-dedupe` → `_sidPlayerRemoveDuplicates` (`_sidPlayerKeys`: HVSC / Modland útvonal vagy bájtok; az első példány marad a legtöbb csillaggal); `tests/sid-file-playback.test.js`. **Hangerő-kiegyenlítés gyors leszabályozása** (a SID Studio `289f5a9` portja): `_playerNormGlide(param, from, to, peak, at, now)` a `follow`-ban; ha az új csúcs (`0.9 / peak`) már nem engedi a korábbi erősítést, a gain az új hang előtt 10 ms-mal, 3 ms-os időállandóval esik le, minden más változás 2 s-os csúszás; `tests/sid-player-normalize.test.js`. **HVSC letöltés jelzése**: a letöltés alatti második kattintás nem ad hozzá újra (`_hvscAdding`, `var` a TDZ miatt), a találat `.websid-hvsc-item--loading` + `_sidSpinner()` a + gomb helyén. **Restore64 forrás saját BASIC stubbal a kód után** (`.pc = $080d` …, majd az adatblokkok közt `.pc = $0801` + címke + `.byte`/`.text` stub): a `_getEmbeddedBasicSysAddress` a LABEL blokkot (és a `$`-os `orgAddress`-t) átlépi, a `_buildAutostartPrgCore` beágyazott stubnál `assembleProgramToPrg(0x0801)`-et hív, így a `getProgramLayout` stub-ORG emelése (`inStub`) nem viszi a `$0801`-es szegmenst a `$080D`-re (eddig a stub a kód első 12 bájtját írta felül, a program nem indult); ugyanez a Rust VMA 2.1.1-ben (`embedded_sys_address`, `build_prg_full` a `prg.rs`-ben); golden eset `var-embedded-stub-after-code`. **CI**: a Publish workflow a `samples/` mappát `va-samples.zip`-ként tölti fel a dokumentumokkal (`build_samples_zip`). Customer message `id` = `sid-stars-276`.
 Korábbi 2.7.5 változások: **Csatornagörbék** (a SID Studio `www/channel-monitor.js` portja, MOD-ág nélkül): `#channel-monitor`, gombok `#websid-play-curves` / `#sid-curves-btn`, `setupChannelMonitor`, `_channelMonitorQueue` / `_channelMonitorFrame` (a `render_sid_file` `monitor` + `frameRate` mezőiből, Rust `channel_registers`, az audio órájához igazítva, a `monitorEnv` burkolókkal), `_channelMonitorVoices`, `_channelMonitorDraw`, tracker-lejátszásnál `_sidAna.last` (`_sidAnaAttach` a nyitott ablakra is); saját méretező `_sidSetupResizeHandle` (`c64va-channel-monitor-size`). A Studióval ellentétben a VA SID Editora modális, ezért az ablak a tulajdonosába költözik (`_channelMonitorOwner` / `_channelMonitorSync`: modális SID Player, SID Editor, különben `body`; a tulajdonosok `close` eseményére is), így nem inert, és a szerkesztő kezelhető mellette; a tulajdonos transzformja nem maradhat (`_channelMonitorFreezeOwner`, a szerkesztő nyitásakor is), a kívánt állapot `c64va-channel-monitor-open`, a tulajdonossal együtt zárul és nyílik; `tests/channel-monitor.test.js`. **Spektrum nézet**: `#sid-viz-mode` (Mix / Channels, `_sidVizState().mode`), `_sidVizDrawChannels` a `_channelMonitorFrame` / `_sidAna.last` regisztereiből + `_sidAnaVoiceLevels`, a `_sidAnaAttach` erre is figyel. **Belső zeneszámok egymás után**: `#websid-play-subtunes`, `_sidPlaySubtunes`, `_sidPlayerSetSubtunes`, `_sidPlayerAutoAdvance` (a fájl hátralévő subtune-jai a következő elem előtt, shuffle-lel is), `playSubtunes` a `c64va-sid-player` állapotban. Customer message `id` = `channel-curves-275`.
 Korábbi 2.7.4 változások: **Kijelölés, vágólap, kvantálás a vízszintes trackerben**: `_sidRollView.sel` (kulcs `v:start`, `_sidRollKey`), Shift+húzás = keret (`view.band`), Ctrl+kattintás, Ctrl+A, Esc; `_sidRollCopySelected` / `_sidRollCutSelected` / `_sidRollDeleteSelected` / `_sidRollPasteAt` (`_sidRollPasteRow(atMouse)`: Ctrl+V-nél az egér alatti sor, a gombnál a sárga jelölő `view.mark` = az utolsó bal kattintás sora vagy a vonalzó, beillesztés után a beillesztett hangok mögé lép; különben a kurzor; a billentyűk a teljes `#sid-roll` ablakon) a közös `_sidRollPlace`-szel (felülír, a levágott hang régi note-offját törli) és a `_sidRollDelete`-tel (az előző hang megtartja a végét); fejléc-gombok `#sid-roll-undo/redo/cut/copy/paste/delete/quantize` (`_sidRollSyncTools`, a Visszavonás állapota a `_sidHistRender`-ben); kvantálás: rács `#sid-quantize` (`_sidQuant`, `c64va-sid-quantize`, 2 / 4 / 8 / 16 sor, alapból 4), Q a kijelöltre (`_sidRollQuantizeNotes`: legközelebbi rácssor, hossz marad), felvételnél csak `#sid-quantize-rec` mellett (`_sidQuantRec`, `c64va-sid-quantize-rec`; `_sidRecordQuantize`, `rec.taken`, `rec.songPos0`); `tests/sid-roll-select.test.js`. Customer message `id` = `sid-tracker-274`. **SID Player hangerő-kiegyenlítés**: `#websid-play-normalize` (`_playerSetNormalize`, `c64va-sid-normalize`, cél −18 dB, max. ±12 dB: `_playerNormGain`; `_normMeter*` a renderelt hangból, bekapcsolva az első 2 mp-et visszatartja, `state.warm`, `state.held`; `_playerNormNode` a `_sidExtGain` előtt), ugyanaz a Studióban; `tests/sid-player-normalize.test.js`. **Karácsonyi téma** (`data-theme="christmas"`, a `style.css` végén, ugyanaz a VA SID Studióban): csak decemberben (`_isChristmasThemeDay`, `_christmasThemeSync`: az opció `hidden`, a picker `toggle`-jére újraellenőriz); a `setTheme` menti a lecserélt témát (`c64-block-theme-before-christmas`), az `index.html` fej-scriptje utána arra vált; `tests/christmas-theme.test.js`. **Hangszer törlése, dal hangereje, PAL / NTSC**: `#sid-inst-del` → `_sidInstDeleteCurrent` (használt hangszernél `_showConfirm`, `sidDeleteInstrumentUsed`), Files `#sid-inst-unused` → `_sidInstRemoveUnused`, közös `_sidInstRemove` (a törölt hangjai az előtte maradt hangszerre, a későbbiek eggyel lejjebb, egy mindig marad), `_sidInstUse`; dal hangereje `#sid-song-vol` tekerő (`_sidMakeParamKnob`, `_sidSongVol`, `_sidVol()`, `_sidSetSongVol`), két SID-nél a második chipé `#sid-song-vol2` (`#sid-song-vol2-group`, `_sidSongVolSync`, `_sidSongVol2`, `_sidVol2()`, `td.vol2`, `sid_vol2`); a hangszer Vol-ja kikerült a felületről, a `songVol` belső (új hangszeren `true`, a `.sid` import `false`-szal hagyja a hangerőváltásokat; `.bin` ext flag `0x40`; trailer nélküli vagy `$A5` mentésnél mind `true`, a dal hangereje az első hangszeré), `ivol` = `$10` → a chip hangereje marad (motor `_sidEngNoteOn`, lejátszó `CMP #$10`), a `sid_init` a `sid_vol`/`sid_vol2`-t a dal hangerejére állítja; PAL / NTSC `#sid-video` (`_sidNtsc`, `_sidIsNtsc()`, `_sidFps()`, `_sidClockHz()` = 985248 / 1022730, `_sidFreqTables` órajelenként cache-el, PSID flag `0x18`, Rust `SidPreviewPayload.ntsc` → `new_with_clock` + 60 frame/s); `.bin` trailer a song lista után: `$A6`, hangerő, flagek (bit 0 = NTSC), a második SID hangereje; a `_sidSongVol` / `_sidNtsc` `var` inicializáló nélkül (TDZ), a segédfüggvények nem deklarált változón is működnek (tesztek egyenként töltik be); `tests/sid-inst-delete.test.js`.

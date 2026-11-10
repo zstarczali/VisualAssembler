@@ -3,6 +3,7 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const loadApp = require("./helpers/load-app");
+const { compileText, loadPrg, labelOf, vmaTest } = require("./helpers/vma-cli");
 const { cpu } = require("./mini6502");
 
 const app = loadApp();
@@ -12,31 +13,15 @@ const VPL = "# VICE Palette file\n#\n" + Array.from({ length: 16 }, (_, i) =>
   [i * 16, 255 - i, i * 3].map((v) => v.toString(16).toUpperCase().padStart(2, "0")).join(" ") + " 4").join("\n") + "\n";
 const vplBytes = [...VPL].map((ch) => ch.charCodeAt(0));
 
-// Compiles the source (the .u64_palette block gets the file bytes) into a 64K memory image.
-function build(src, fileBytes) {
-  app.__src = src;
-  app.__file = fileBytes || null;
-  return plain(app.run(`(() => {
-    const saved = program;
-    try {
-      program = parseExpertText(__src);
-      for (const b of program) if (b.incBinU64Pal && __file) { b.incBinBytes = __file; b.validationError = _incBinBlockError(b); }
-      const layout = getProgramLayout();
-      const labels = new Map();
-      layout.lines.forEach((line) => addLayoutLabels(labels, line));
-      const mem = new Array(65536).fill(0);
-      const errors = [];
-      let start = null;
-      for (const line of layout.lines) {
-        if (getInstructionSize(line.block) && start === null) start = line.address;
-        if (!getInstructionSize(line.block)) continue;
-        const r = compileLineBytes(line, labels);
-        if (!r.ok) { errors.push(r.error); continue; }
-        Array.from(r.bytes).forEach((b, i) => { mem[line.address + i] = b; });
-      }
-      return { mem, errors, start, invalid: program.map(b => b.validationError).filter(Boolean) };
-    } finally { program = saved; }
-  })()`));
+// Compiles the source with the VMA CLI (the file it names has `fileBytes`) into a 64K memory image;
+// errors: the compiler's message keys.
+function build(src, fileBytes, { basicStub = false, files = null } = {}) {
+  const m = /"([^"]+)"/.exec(src);
+  const all = { ...(files || {}), ...(m && fileBytes ? { [m[1]]: Uint8Array.from(fileBytes) } : {}) };
+  const r = compileText(src, { basicStub, files: all });
+  if (!r.ok) return { mem: [], errors: (r.errors || []).map(e => e.key || e.message), start: null };
+  const { mem, load } = loadPrg(r.bytes);
+  return { mem: Array.from(mem), errors: [], start: r.sysAddress ?? load, r };
 }
 
 // The interface: $DF1D reads $C9 (identification) and takes command bytes; $DF1C bit 0 pushes
@@ -81,17 +66,22 @@ function run(mem, opts) {
 
 test("the three macros parse, keep their Expert line and have a fixed size", () => {
   const src = '.u64_palette "colodore.vpl"\n.u64_palette_color 6, $3050C0\n.u64_palette_reset\n';
-  const blocks = app.run(`parseExpertText(${JSON.stringify(src)}).filter(b => !b.isBlankLine).map(b => ({ m: b.mnemonic, line: _blockToExpertLine(b), size: getInstructionSize(b) }))`);
+  const blocks = app.run(`parseExpertText(${JSON.stringify(src)}).filter(b => !b.isBlankLine).map(b => ({ m: b.mnemonic, line: _blockToExpertLine(b) }))`);
   assert.deepEqual(plain(blocks), [
-    { m: "U64_PALETTE", line: '.u64_palette "colodore.vpl"', size: 109 },
-    { m: "U64_PALETTE_COLOR", line: ".u64_palette_color 6, $3050C0", size: 65 },
-    { m: "U64_PALETTE_RESET", line: ".u64_palette_reset", size: 61 },
+    { m: "U64_PALETTE", line: '.u64_palette "colodore.vpl"' },
+    { m: "U64_PALETTE_COLOR", line: ".u64_palette_color 6, $3050C0" },
+    { m: "U64_PALETTE_RESET", line: ".u64_palette_reset" },
   ]);
   assert.equal(app.run(`parseExpertText(".u64_palette")[0].validationError`), app.run(`t("u64PaletteNeedsFile")`));
   assert.equal(app.run(`parseExpertText(".u64_palette_color 6")[0].validationError`), app.run(`t("u64PaletteColorSyntax")`));
 });
 
-test(".u64_palette sends all 16 colours of a VICE palette", () => {
+vmaTest("the three macros have a fixed size", () => {
+  const { r } = build('* = $1000\n.u64_palette "colodore.vpl"\na:\n.u64_palette_color 6, $3050C0\nb:\n.u64_palette_reset\nc:\n', vplBytes);
+  assert.deepEqual([labelOf(r, "a") - 0x1000, labelOf(r, "b") - labelOf(r, "a"), labelOf(r, "c") - labelOf(r, "b")], [109, 65, 61]);
+});
+
+vmaTest(".u64_palette sends all 16 colours of a VICE palette", () => {
   const { mem, errors } = build("* = $1000\n.u64_palette \"p.vpl\"\n rts\n", vplBytes);
   assert.deepEqual(errors, []);
   const u = run(mem);
@@ -102,30 +92,30 @@ test(".u64_palette sends all 16 colours of a VICE palette", () => {
   assert.equal(u.state, 0x00);
 });
 
-test(".u64_palette_color takes expressions, .u64_palette_reset has no parameters", () => {
+vmaTest(".u64_palette_color takes expressions, .u64_palette_reset has no parameters", () => {
   const { mem, errors } = build("BLUE = 6\n* = $1000\n.u64_palette_color BLUE, $3050C0\n.u64_palette_reset\n rts\n");
   assert.deepEqual(errors, []);
   assert.deepEqual(run(mem).commands, [[0x04, 0x53, 6, 0x30, 0x50, 0xC0], [0x04, 0x54]]);
 });
 
-test("data left over from an earlier command is accepted first", () => {
+vmaTest("data left over from an earlier command is accepted first", () => {
   const { mem } = build("* = $1000\n.u64_palette_reset\n rts\n");
   const u = run(mem, { startState: 0x20 });
   assert.deepEqual(u.commands, [[0x04, 0x54]]);
   assert.equal(u.acks, 2);
 });
 
-test("without a Command Interface the routine does nothing", () => {
+vmaTest("without a Command Interface the routine does nothing", () => {
   const { mem } = build("* = $1000\n.u64_palette_reset\n rts\n");
   const before = mem.slice(0xDF00, 0xDF20);
   run(mem, { present: false });
   assert.deepEqual(mem.slice(0xDF00, 0xDF20), before);
 });
 
-test("bad parameters and files are errors", () => {
-  assert.deepEqual(build("* = $1000\n.u64_palette_color 16, $FFFFFF\n").errors, [app.run(`t("u64PaletteColorRange")`)]);
-  assert.deepEqual(build("* = $1000\n.u64_palette_color 1, $1000000\n").errors, [app.run(`t("u64PaletteColorRange")`)]);
-  assert.deepEqual(build('* = $1000\n.u64_palette "x.vpl"\n', [0x41, 0x42]).invalid, [app.run(`t("u64PaletteBadFile")`)]);
+vmaTest("bad parameters and files are errors", () => {
+  assert.deepEqual(build("* = $1000\n.u64_palette_color 16, $FFFFFF\n").errors, ["u64PaletteColorRange"]);
+  assert.deepEqual(build("* = $1000\n.u64_palette_color 1, $1000000\n").errors, ["u64PaletteColorRange"]);
+  assert.deepEqual(build('* = $1000\n.u64_palette "x.vpl"\n', [0x41, 0x42]).errors, ["u64PaletteBadFile"]);
   // a Photoshop .act is read too
   const act = new Array(772).fill(0);
   act[0] = 0x11; act[1] = 0x22; act[2] = 0x33;
@@ -134,36 +124,13 @@ test("bad parameters and files are errors", () => {
   assert.deepEqual(run(mem).commands[0].slice(0, 5), [0x04, 0x52, 0x11, 0x22, 0x33]);
 });
 
-test("the sample: keys 1, 2, 3, 0 send the two files, two colours and the reset", () => {
+vmaTest("the sample: keys 1, 2, 3, 0 send the two files, two colours and the reset", () => {
   const fs = require("node:fs");
   const path = require("node:path");
   const dir = path.join(__dirname, "..", "samples");
   const src = fs.readFileSync(path.join(dir, "u64-palette-demo.asm"), "utf8");
   const files = ["u64-palette-sunset.vpl", "u64-palette-green.vpl"].map((f) => [...fs.readFileSync(path.join(dir, f))]);
-  app.__src = src;
-  app.__files = files;
-  const r = plain(app.run(`(() => {
-    const saved = program;
-    try {
-      program = parseExpertText(__src);
-      let k = 0;
-      for (const b of program) if (b.incBinU64Pal) { b.incBinBytes = __files[k++]; b.validationError = _incBinBlockError(b); }
-      const layout = getProgramLayout();
-      const labels = new Map();
-      layout.lines.forEach((line) => addLayoutLabels(labels, line));
-      const mem = new Array(65536).fill(0);
-      const errors = [];
-      let start = null;
-      for (const line of layout.lines) {
-        if (!getInstructionSize(line.block)) continue;
-        if (start === null) start = line.address;
-        const c = compileLineBytes(line, labels);
-        if (!c.ok) { errors.push(c.error); continue; }
-        Array.from(c.bytes).forEach((b, i) => { mem[line.address + i] = b; });
-      }
-      return { mem, errors, start };
-    } finally { program = saved; }
-  })()`));
+  const r = build(src, null, { basicStub: true, files: { "u64-palette-sunset.vpl": Uint8Array.from(files[0]), "u64-palette-green.vpl": Uint8Array.from(files[1]) } });
   assert.deepEqual(r.errors, []);
   const mem = r.mem;
   mem[0xE544] = 0x60;                                   // clear screen: RTS

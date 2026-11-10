@@ -1,5 +1,5 @@
 C64 VISUAL ASSEMBLER - INSTALLATION GUIDE
-Version 2.7.7
+Version 2.7.8
 ==========================================================================
 
 Download: https://www.c64va.pro/
@@ -40,8 +40,8 @@ PART 1  INSTALLING THE APP
 Requirements: Windows 10 or 11, x64 or ARM64.
 
 1. Download the installer for your system:
-     C64 Visual Assembler_2.7.7_x64-setup.exe    (Intel / AMD)
-     C64 Visual Assembler_2.7.7_arm64-setup.exe  (ARM64)
+     C64 Visual Assembler_2.7.8_x64-setup.exe    (Intel / AMD)
+     C64 Visual Assembler_2.7.8_arm64-setup.exe  (ARM64)
 2. Run it and follow the installer.
 3. Launch C64 Visual Assembler from the Start menu.
 
@@ -59,8 +59,8 @@ https://developer.microsoft.com/en-us/microsoft-edge/webview2/
 Requirements: macOS 11 or newer, Apple Silicon or Intel.
 
 1. Download the DMG for your Mac:
-     C64 Visual Assembler_2.7.7_aarch64.dmg  (Apple Silicon: M1, M2, M3 ...)
-     C64 Visual Assembler_2.7.7_x64.dmg      (Intel)
+     C64 Visual Assembler_2.7.8_aarch64.dmg  (Apple Silicon: M1, M2, M3 ...)
+     C64 Visual Assembler_2.7.8_x64.dmg      (Intel)
 2. Open the DMG and drag C64 Visual Assembler into Applications.
 3. Remove the quarantine flag once, in Terminal:
 
@@ -89,11 +89,11 @@ pull them in.
 Debian / Ubuntu (.deb):
 
   sudo apt update
-  sudo apt install "./C64 Visual Assembler_2.7.7_amd64.deb"
+  sudo apt install "./C64 Visual Assembler_2.7.8_amd64.deb"
 
 Fedora (.rpm):
 
-  sudo dnf install "./C64 Visual Assembler-2.7.7-1.x86_64.rpm"
+  sudo dnf install "./C64 Visual Assembler-2.7.8-1.x86_64.rpm"
 
 Use the file name you actually downloaded. Launch the app from the
 Applications menu or with:
@@ -102,8 +102,8 @@ Applications menu or with:
 
 AppImage (no installation):
 
-  chmod +x "./C64 Visual Assembler_2.7.7_amd64.AppImage"
-  "./C64 Visual Assembler_2.7.7_amd64.AppImage"
+  chmod +x "./C64 Visual Assembler_2.7.8_amd64.AppImage"
+  "./C64 Visual Assembler_2.7.8_amd64.AppImage"
 
 If the AppImage fails with a FUSE error, start it with
 --appimage-extract-and-run after the file name.

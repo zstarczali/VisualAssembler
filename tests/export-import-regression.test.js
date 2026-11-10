@@ -5,6 +5,8 @@ const path = require("node:path");
 const os = require("node:os");
 const { spawnSync } = require("node:child_process");
 const vm = require("node:vm");
+const loadApp = require("./helpers/load-app");
+const { compileText, labelOf, useVmaCli, vmaTest } = require("./helpers/vma-cli");
 
 const appJs = fs.readFileSync(path.join(__dirname, "..", "www", "app.js"), "utf8");
 
@@ -65,7 +67,9 @@ test("ACME Run sends an autostart source through the configured compiler", async
     parseUserMacros: () => {},
     _getEmbeddedBasicSysAddress: () => null,
     parseOriginValue: () => ({ value: 0x0801 }),
-    _buildUniversalAsmExportText: origin => `* = $${origin.toString(16).toUpperCase().padStart(4, "0")}\nstart:\n    LDA #$01\n    STA $D020\n    RTS\n    .byte $11`,
+    _vmaEditorInput: () => ({}),
+    _vmaAnalyze: async (_input, basicStub) => ({ origin: basicStub ? 0x080D : 0xC000 }),
+    _buildUniversalAsmExportText: vma => `* = $${vma.origin.toString(16).toUpperCase().padStart(4, "0")}\nstart:\n    LDA #$01\n    STA $D020\n    RTS\n    .byte $11`,
     toHex: (value, width) => `$${value.toString(16).toUpperCase().padStart(width, "0")}`,
     window: { electronAPI: { buildAcmePrg: async (source, name) => {
       submitted = { source, name };
@@ -362,187 +366,37 @@ test("normalizeProgramOperands re-coerces loaded branch instructions to relative
   assert.equal(block.operand, "relative:0811");
 });
 
-test("universal ASM export round-trips explicit absolute operands through expert import", () => {
-  const exportAddressToAsm = new Map([
-    [0x0801, "    LDA $093B,X"],
-    [0x0804, "    STA $0009"],
-    [0x0807, "    BNE $0811"],
-    [0x0809, "    LDY $002C"],
-    [0x080C, "    STA $0009,X"],
-    [0x080F, "    LDA $09"]
-  ]);
+// The universal export of the editor's program (the VMA analysis through the CLI).
+async function exportText(source) {
+  const app = useVmaCli(loadApp());
+  app.__src = source;
+  app.run("program = parseExpertText(__src)");
+  return { app, text: await app.run("(async () => _buildUniversalAsmExportText(await _vmaAnalyze(_vmaEditorInput(program), false)))()") };
+}
 
-  const ctx = loadFunctions(
-    ["_splitAsmLineComment", "_buildUniversalAsmExportText", "_kickScopeRewrite", "parseExpertText", "_importMakeInstruction"],
-    {
-      Map,
-      Set,
-      crypto: { randomUUID: () => "test-id" },
-      appVersionText: "2.2.0-test",
-      t: (key) => key,
-      tf: (_key, values) => values?.directive || values?.mnemonic || "?",
-      formatAddress: (value) => `$${value.toString(16).toUpperCase().padStart(4, "0")}`,
-      program: [
-        { mnemonic: "LDA" },
-        { mnemonic: "STA" },
-        { mnemonic: "BNE" },
-        { mnemonic: "LDY" },
-        { mnemonic: "STA" },
-        { mnemonic: "LDA" }
-      ],
-      getProgramLayout: () => ({
-        origin: { text: "$0801" },
-        lines: [
-          { address: 0x0801, block: { mnemonic: "LDA", addressingMode: "absoluteX", rawOperand: "093B" } },
-          { address: 0x0804, block: { mnemonic: "STA", addressingMode: "absolute", rawOperand: "0009" } },
-          { address: 0x0807, block: { mnemonic: "BNE", addressingMode: "relative", rawOperand: "0811" } },
-          { address: 0x0809, block: { mnemonic: "LDY", addressingMode: "absolute", rawOperand: "002C" } },
-          { address: 0x080C, block: { mnemonic: "STA", addressingMode: "absoluteX", rawOperand: "0009" } },
-          { address: 0x080F, block: { mnemonic: "LDA", addressingMode: "zeroPage", rawOperand: "09" } }
-        ]
-      }),
-      addLayoutLabels: () => {},
-      addAllLayoutLabels: () => {},
-      _collectAnonLabels: () => [],
-      getDeferredMemorySections: () => [],
-      _compareLayoutLineRefs: (left, right) => left.index - right.index,
-      compileLineBytes: (line) => ({
-        ok: true,
-        bytes: new Array(line.block.mnemonic === "BNE" ? 2 : (line.block.mnemonic === "LDA" && line.address === 0x080F ? 2 : 3)).fill(0)
-      }),
-      _formatPlainDisasmLines: (_bytes, address) => [exportAddressToAsm.get(address)],
-      parseNumberByBase: () => null,
-      parseAddressValue: () => null,
-      parseByteMacro: () => [],
-      parseFillMacro: () => ({ count: 0, value: 0 }),
-      parseWordMacro: () => [],
-      encodeTextMacro: () => [],
-      encodePetsciiMacro: () => [],
-      resolveProgramValueWithConst: () => 0,
-      _importMnemonicCategory: () => "Memoria",
-      _importMnemonicDescription: () => "",
-      _importMakeComment: (commentText) => ({ id: "c", mnemonic: "COMMENT", isComment: true, commentText })
-    }
-  );
-
-  ctx.parseAsmText = (text) => {
-    const trimmed = String(text || "").trim();
-    if (!trimmed) return [];
-    const match = trimmed.match(/^([A-Za-z]{2,4})\s*(.*)$/);
-    if (!match) {
-      return [{ id: "d", mnemonic: "COMMENT", isComment: true, commentText: trimmed }];
-    }
-    const branchMnems = new Set(["BEQ", "BNE", "BCC", "BCS", "BMI", "BPL", "BVC", "BVS", "BRA"]);
-    return [ctx._importMakeInstruction(match[1].toUpperCase(), match[2].trim(), branchMnems)];
-  };
-
-  const exported = ctx._buildUniversalAsmExportText();
-  const relevantAsm = exported
-    .split("\n")
-    .filter((line) => /^\s*(LDA|STA|BNE|LDY)\b/.test(line))
-    .join("\n");
+vmaTest("universal ASM export round-trips explicit absolute operands through expert import", async () => {
+  const { app, text } = await exportText("* = $0801\n    LDA $093B,X\n    STA $0009\n    BNE $0811\n    LDY $002C\n    STA $0009,X\n    LDA $09\n");
+  const relevantAsm = text.split("\n").filter((line) => /^\s*(LDA|STA|BNE|LDY)\b/.test(line)).join("\n");
   assert.match(relevantAsm, /STA \$0009/);
   assert.match(relevantAsm, /BNE \$0811/);
-
-  const blocks = ctx.parseExpertText(relevantAsm).filter((block) => !block.isComment && !block.isBlankLine && !block.isOrgMacro);
-
-  const normalized = JSON.parse(JSON.stringify(
-    blocks.map((block) => ({ mnemonic: block.mnemonic, mode: block.addressingMode, raw: block.rawOperand }))
-  ));
-
-  assert.deepEqual(
-    normalized,
-    [
-      { mnemonic: "LDA", mode: "absoluteX", raw: "093B" },
-      { mnemonic: "STA", mode: "absolute", raw: "0009" },
-      { mnemonic: "BNE", mode: "relative", raw: "0811" },
-      { mnemonic: "LDY", mode: "absolute", raw: "002C" },
-      { mnemonic: "STA", mode: "absoluteX", raw: "0009" },
-      { mnemonic: "LDA", mode: "zeroPage", raw: "09" }
-    ]
-  );
+  app.__asm = relevantAsm;
+  const normalized = JSON.parse(JSON.stringify(app.run(`parseExpertText(__asm)
+    .filter((block) => !block.isComment && !block.isBlankLine && !block.isOrgMacro)
+    .map((block) => ({ mnemonic: block.mnemonic, mode: block.addressingMode, raw: String(block.rawOperand).replace(/^\\$/, "") }))`)));
+  assert.deepEqual(normalized, [
+    { mnemonic: "LDA", mode: "absoluteX", raw: "093B" },
+    { mnemonic: "STA", mode: "absolute", raw: "0009" },
+    { mnemonic: "BNE", mode: "relative", raw: "0811" },
+    { mnemonic: "LDY", mode: "absolute", raw: "002C" },
+    { mnemonic: "STA", mode: "absoluteX", raw: "0009" },
+    { mnemonic: "LDA", mode: "zeroPage", raw: "09" }
+  ]);
 });
 
-test("_formatByteMacroAsmLines emits single-dollar hex bytes", () => {
-  const ctx = loadFunctions(
-    ["toHex", "parseNumberByBase", "_formatByteMacroAsmLines"],
-    {
-      resolveProgramNumericValue: () => null
-    }
-  );
-
-  const lines = ctx._formatByteMacroAsmLines("$00, $90, 255", "dec");
-
-  assert.deepEqual(
-    JSON.parse(JSON.stringify(lines)),
-    ["    .byte $00, $90, $FF"]
-  );
-});
-
-test("_formatPlainWordLines emits single-dollar hex words", () => {
-  const ctx = loadFunctions(
-    ["toHex", "_formatPlainWordLines"]
-  );
-
-  const lines = ctx._formatPlainWordLines([0x1234, 0xABCD]);
-
-  assert.deepEqual(
-    JSON.parse(JSON.stringify(lines)),
-    ["    .word $1234, $ABCD"]
-  );
-});
-
-test("_buildUniversalAsmExportText rewrites internal absolute targets back to labels", () => {
-  const ctx = loadFunctions(
-    ["_buildUniversalAsmExportText", "_formatPlainDisasmLines", "_replaceAddressesWithLabels"],
-    {
-      Map,
-      appVersionText: "2.2.0-test",
-      t: (key) => key,
-      formatAddress: (value) => `$${value.toString(16).toUpperCase().padStart(4, "0")}`,
-      parseNumberByBase: () => null,
-      parseAddressValue: () => null,
-      parseByteMacro: () => [],
-      parseFillMacro: () => ({ count: 0, value: 0 }),
-      parseWordMacro: () => [],
-      encodeTextMacro: () => [],
-      encodePetsciiMacro: () => [],
-      resolveProgramValueWithConst: () => 0,
-      getDeferredMemorySections: () => [],
-      _collectAnonLabels: () => [],
-      _compareLayoutLineRefs: (left, right) => left.index - right.index,
-      addLayoutLabels(labelMap, line) {
-        if (line.block?.isLabel && line.block.labelName) {
-          labelMap.set(line.block.labelName, line.address);
-        }
-      },
-      addAllLayoutLabels(labelMap, lines) {
-        lines.forEach((line) => {
-          if (line.block?.isLabel && line.block.labelName) labelMap.set(line.block.labelName, line.address);
-        });
-      },
-      _disasmBytes: () => [{ mnemonic: "JSR", operand: "$0805" }],
-      compileLineBytes: () => ({ ok: true, bytes: [0x20, 0x05, 0x08] }),
-      program: [
-        { mnemonic: "LABEL" },
-        { mnemonic: "JSR" },
-        { mnemonic: "LABEL" }
-      ],
-      getProgramLayout: () => ({
-        origin: { text: "$0801" },
-        lines: [
-          { address: 0x0801, block: { isLabel: true, labelName: "start" } },
-          { address: 0x0801, block: { mnemonic: "JSR", addressingMode: "absolute", rawOperand: "0805" } },
-          { address: 0x0805, block: { isLabel: true, labelName: "target_label" } }
-        ]
-      })
-    }
-  );
-
-  const exported = ctx._buildUniversalAsmExportText();
-
-  assert.match(exported, /JSR target_label/);
-  assert.doesNotMatch(exported, /JSR \$0805/);
+vmaTest("_buildUniversalAsmExportText rewrites internal absolute targets back to labels", async () => {
+  const { text } = await exportText("* = $0801\nstart:\n    JSR target_label\ntarget_label:\n    RTS\n");
+  assert.match(text, /JSR target_label/);
+  assert.doesNotMatch(text, /JSR \$0804/);
 });
 
 test("parseAsmText emits a single ORG block for one origin line", () => {
@@ -649,33 +503,6 @@ test("parseAsmText preserves Kick-style @local labels and branch operands", () =
   assert.equal(blocks[3].mnemonic, "NOP");
   assert.equal(blocks[4].mnemonic, "BEQ");
   assert.equal(blocks[4].rawOperand, "@no_xhi_col");
-});
-
-test("buildAutostartPrgForEmulator skips BASIC SYS wrapping when the program already has a BASIC autostart stub", () => {
-  let assembleOrigin = null;
-  const ctx = loadFunctions(
-    ["_getEmbeddedBasicSysAddress", "_programHasEmbeddedBasicAutostart", "_buildAutostartPrgCore"],
-    {
-      program: [
-        { isOrgMacro: true, orgAddress: "0801" },
-        { isByteMacro: true, rawOperand: "0C,08,0A,00,9E,20,32,30,36,31,00,00,00" },
-        { mnemonic: "LDA", addressingMode: "immediate", rawOperand: "$01" }
-      ],
-      basicSysToggle: { checked: true },
-      parseOriginValue: () => ({ value: 0x0801 }),
-      assembleProgramToPrg(origin) {
-        assembleOrigin = origin;
-        return { ok: true, bytes: new Uint8Array([0x01, 0x08, 0xAA]) };
-      }
-    }
-  );
-
-  assert.equal(ctx._programHasEmbeddedBasicAutostart(ctx.program), true);
-  const result = ctx._buildAutostartPrgCore();
-  assert.equal(assembleOrigin, 0x0801);
-  assert.equal(result.ok, true);
-  assert.equal(result.sysAddress, 0x080D);
-  assert.deepEqual(Array.from(result.bytes), [0x01, 0x08, 0xAA]);
 });
 
 // ── v2.3.9 assembler extensions: parser round-trips ─────────────────────────
@@ -877,41 +704,26 @@ test("_buildRelocatingLoader starts an image that overlaps the BASIC SYS stub", 
   assert.equal(ctx._buildRelocatingLoader(big.map(v => v || 1), 0x071C, 0x0C40), null);
 });
 
-test("Kick .label NAME = * + N places a label inside an instruction", () => {
-  const ctx = loadFunctions(["addLayoutLabels", "_blockToExpertLine"], {});
-  const labels = new Map();
-  ctx.addLayoutLabels(labels, { address: 0xC473, block: { isLabel: true, labelName: "loc_c474", labelOffset: 1 } });
-  ctx.addLayoutLabels(labels, { address: 0xC480, block: { isLabel: true, labelName: "back", labelOffset: -2 } });
-  ctx.addLayoutLabels(labels, { address: 0xC490, block: { isLabel: true, labelName: "plain" } });
-  assert.equal(labels.get("loc_c474"), 0xC474);
-  assert.equal(labels.get("back"), 0xC47E);
-  assert.equal(labels.get("plain"), 0xC490);
-  assert.equal(ctx._blockToExpertLine({ isLabel: true, labelName: "loc_c474", labelOffset: 1 }), ".label loc_c474 = * + 1");
-  assert.equal(ctx._blockToExpertLine({ isLabel: true, labelName: "plain" }), "plain:");
+vmaTest("Kick .label NAME = * + N places a label inside an instruction", () => {
+  const r = compileText("* = $C473\n.label loc_c474 = * + 1\n    LDA #$00\n.label back = * - 2\nplain:\n    RTS\n", { basicStub: false });
+  assert.equal(r.ok, true, r.error);
+  assert.equal(labelOf(r, "loc_c474"), 0xC474);
+  assert.equal(labelOf(r, "back"), 0xC473);
+  assert.equal(labelOf(r, "plain"), 0xC475);
+  const app = loadApp();
+  assert.equal(app.run(`_blockToExpertLine({ isLabel: true, labelName: "loc_c474", labelOffset: 1 })`), ".label loc_c474 = * + 1");
+  assert.equal(app.run(`_blockToExpertLine({ isLabel: true, labelName: "plain" })`), "plain:");
   // The Expert parser takes the same line back (see parseExpertText's pcLabelM).
   assert.ok(appJs.includes("const pcLabelM = line.match(/^\\.label\\s+"));
 });
 
-test("Kick scope keeps branch targets across an embedded .label (Krakout sub_c3b9)", () => {
-  const ctx = loadFunctions(["_scopeLocalLabels", "resolveRelativeOperand", "_branchOffsetFromTarget"], {});
-  const blocks = [
-    { isLabel: true, labelName: "before" },
-    { isLabel: true, labelName: "sub_c3b9", kickScope: true },
-    { mnemonic: "BEQ", rawOperand: ".done2" },
-    { isLabel: true, labelName: "loc_c3c2", labelOffset: 1 },
-    { isLabel: true, labelName: ".done2" },
-    { isComment: true, kickScopeEnd: true },
-    { isLabel: true, labelName: ".after" }
-  ];
-  ctx._scopeLocalLabels(blocks);
-  assert.equal(blocks[2].rawOperand, "sub_c3b9.done2");
-  assert.equal(blocks[3].labelName, "loc_c3c2");
-  assert.equal(blocks[4].labelName, "sub_c3b9.done2");
-  assert.equal(blocks[6].labelName, "before.after");
-  ctx._hasStarPcRef = () => false;
-  const result = ctx.resolveRelativeOperand(blocks[2], 0xC3BF, new Map([[blocks[4].labelName, 0xC3EC]]));
-  assert.equal(result.ok, true);
-  assert.equal(result.value, 0x2B);
+vmaTest("Kick scope keeps branch targets across an embedded .label (Krakout sub_c3b9)", () => {
+  const src = "* = $C3B9\nbefore:\nsub_c3b9: {\n    BEQ .done2\n.label loc_c3c2 = * + 1\n    NOP\n.done2:\n    RTS\n}\n.after:\n    RTS\n";
+  const r = compileText(src, { basicStub: false });
+  assert.equal(r.ok, true, r.error);
+  assert.equal(labelOf(r, "sub_c3b9.done2"), 0xC3BC);
+  assert.equal(labelOf(r, "loc_c3c2"), 0xC3BC);
+  assert.deepEqual(Array.from(r.bytes.slice(2, 4)), [0xF0, 0x01]);
 });
 
 test("ACME memory dump below $0801: no stub shift, start loader around the plain image", async () => {

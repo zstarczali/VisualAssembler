@@ -7,7 +7,7 @@ const vm = require("node:vm");
 const appJs = fs.readFileSync(path.join(__dirname, "..", "www", "app.js"), "utf8").replace(/\r\n/g, "\n");
 
 function load() {
-  const start = appJs.indexOf("function _vmLabelMap(");
+  const start = appJs.indexOf("function _vmParseWatch(");
   const end = appJs.indexOf("function _vmSetStatus(");
   assert.ok(start > 0 && end > start, "VICE monitor helpers not found");
   const context = {};

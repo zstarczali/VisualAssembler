@@ -2,7 +2,7 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
-const loadApp = require("./helpers/load-app");
+const { compileText, vmaTest } = require("./helpers/vma-cli");
 const { cpu } = require("./mini6502");
 
 const samples = path.join(__dirname, "..", "samples");
@@ -32,21 +32,10 @@ test("the sample is in the menu, its category and the translations", () => {
 });
 
 // Builds the sample and runs it in the 6502 model until it waits; the model has no $D031.
-for (const name of ["ultimate-turbo-demo", "ultimate-box-demo"]) test(`${name}: without the turbo registers it only shows the message and waits`, () => {
-  const app = loadApp();
-  app.__src = read(`${name}.asm`);
-  app.__read = (file) => {
-    const text = read(file.replace(/^\.\//, ""));
-    return file.endsWith(".json") ? JSON.parse(text).expertText : text;
-  };
-  const bytes = app.run(`(() => {
-    program = parseExpertText(__src);
-    for (const b of program) if (b.isIncludeMacro) b.includedBlocks = parseExpertText(__read(b.includeFile || b.includeFileName));
-    parseUserMacros();
-    const r = _buildAutostartPrgCore();
-    if (!r.ok) throw new Error(r.error);
-    return Array.from(r.bytes);
-  })()`);
+for (const name of ["ultimate-turbo-demo", "ultimate-box-demo"]) vmaTest(`${name}: without the turbo registers it only shows the message and waits`, () => {
+  const r = compileText(read(`${name}.asm`), { baseDir: path.join(__dirname, "..", "samples") });
+  if (!r.ok) throw new Error(r.error);
+  const bytes = Array.from(r.bytes);
   const ram = new Uint8Array(0x10000);
   ram.set(bytes.slice(2), bytes[0] | (bytes[1] << 8));
   for (let a = 0xE544; a < 0xE548; a++) ram[a] = 0x60;

@@ -83,20 +83,8 @@ test("UltimateBasic disassembly starts at the compiler code address, not the BAS
   assert.deepStrictEqual(disassembledAt, { bytes: [0xd8, 0x60], baseAddress: 0x080d });
 });
 
-test("Block and Expert disassembly use the build origin for BASIC SYS modes", () => {
-  const loadOrigin = (basicSys) => loadFunctions(["_getDisassemblyCodeOrigin"], {
-    program: [],
-    basicSysToggle: { checked: basicSys },
-    parseOriginValue: () => ({ value: 0x0801 }),
-    _programHasEmbeddedBasicAutostart: () => false
-  })._getDisassemblyCodeOrigin();
-
-  assert.equal(loadOrigin(true), 0x080d);
-  assert.equal(loadOrigin(false), 0xc000);
-});
-
 test("BASIC stub is extracted for disassembly and monitor views", () => {
-  const context = loadFunctions(["_extractBasicStubSection", "_buildBasicStubDisasmLines", "_formatMonitorMemory"], {
+  const context = loadFunctions(["_escHtml", "_disasmByteRows", "_extractBasicStubSection", "_buildBasicStubDisasmLines", "_formatMonitorMemory"], {
     formatAddress: (value) => `$${value.toString(16).toUpperCase().padStart(4, "0")}`
   });
   const section = context._extractBasicStubSection(new Uint8Array([
@@ -146,16 +134,8 @@ test("UltimateBasic caret stays inside the editor when the minimap is visible", 
   assert.match(appJs, /Math\.min\(markerRect\.left - wrapRect\.left, maxLeft\)/);
 });
 
-test("Expert and UltimateBasic breakpoint lines resolve to executable addresses", () => {
-  const context = loadFunctions(["_breakpointAddressForSourceLines", "_ubBreakpointAddresses"]);
-  const layout = {
-    lines: [
-      { address: 0xc000, size: 2, block: { _srcLine: 1 } },
-      { address: 0xc002, size: 3, block: { _srcLine: 3 } }
-    ]
-  };
-  assert.deepStrictEqual([...context._breakpointAddressForSourceLines(layout, [1, 2])], [0xc000, 0xc002]);
-
+test("UltimateBasic breakpoint lines resolve to executable addresses", () => {
+  const context = loadFunctions(["_ubBreakpointAddresses"]);
   const build = {
     debug: {
       dbg: "  $080d,$080f,0,2,1,2,1\n  $0810,$0812,0,4,1,4,1"
@@ -186,7 +166,8 @@ test("Block and Expert debugger sidecars include labels in dbg, sym and VICE for
         address: 0xc000,
         end: 0xc000,
         size: 1,
-        block: { isLabel: true, labelName: "start", _srcLine: 0 }
+        block: { isLabel: true, labelName: "start", _srcLine: 0 },
+        vma: { kind: "label", name: "start", value: 0xc000 }
       },
       {
         address: 0xc001,
