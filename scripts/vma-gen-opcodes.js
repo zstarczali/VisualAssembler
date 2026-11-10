@@ -27,5 +27,5 @@ pub static OPCODES: &[(&str, Mode, u8)] = &[
 ${rows.join("\n")}
 ];
 `;
-fs.writeFileSync(path.join(require("../tests/helpers/vma-rust").vmaDir(), "src", "opcodes.rs"), out);
+fs.writeFileSync(path.join(require("../tests/helpers/vma-cli").vmaDir(), "src", "opcodes.rs"), out);
 console.log(`${rows.length} opcodes`);

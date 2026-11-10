@@ -2,9 +2,14 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.7.7**
+**Current version: v2.7.8**
 
 Visual Assembler is free and open source (GPLv3): every feature — editors, builds, hardware runs, languages and themes — works without a registration or serial. At most once a day the app sends an anonymous startup ping (version, OS, UI language, launch count, a random install ID) for the usage statistics; no email, project or source code is sent.
+
+## What's New in v2.7.8
+
+- **One compiler** — every program (Block, Expert, Kick project, Build / Run / D64 / CRT / debugger) is built by the Rust VMA compiler (VMA 2.3.0), and the live views (disassembly, monitor, memory map, cycle gutter, peephole hints, ASM view, VICE Monitor) read the same build. The JavaScript compiler and the **VMA compiler** setting are removed; builds need the desktop app.
+- **Local labels as absolute operands** — `JMP Second.lp`, `LDA .lp+1,X` compile; before, they were invalid operands.
 
 ## What's New in v2.7.7
 

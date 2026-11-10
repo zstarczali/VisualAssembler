@@ -50,11 +50,14 @@ test("branches: taken costs +1, +2 across a page", () => {
 test("only real instruction lines are collected and summed", () => {
   const { collect, sum } = load();
   const map = new Map();
-  collect(map, { address: 0x1000, block: { _srcLine: 0, mnemonic: "LDA" } }, [0xA9, 0x01]);
-  collect(map, { address: 0x1002, block: { _srcLine: 1, mnemonic: "STA" } }, [0x8D, 0x20, 0xD0]);
-  collect(map, { address: 0x1005, block: { _srcLine: 2, mnemonic: "BYTE" } }, [0x01, 0x02]);
-  collect(map, { address: 0x1007, block: { _srcLine: 3, mnemonic: "LOOP" } }, [0xA2, 0x05]);
-  collect(map, { address: 0x1009, block: { _srcLine: 4, mnemonic: "BNE" } }, [0xD0, 0xF5]);
+  // analysis lines (_vmaNormalize): only `instr` lines of the source itself count
+  collect(map, { address: 0x1000, sourceLine: 0, kind: "instr", bytes: [0xA9, 0x01] });
+  collect(map, { address: 0x1002, sourceLine: 1, kind: "instr", bytes: [0x8D, 0x20, 0xD0] });
+  collect(map, { address: 0x1005, sourceLine: 2, kind: "data", bytes: [0x01, 0x02] });
+  collect(map, { address: 0x1007, sourceLine: 3, kind: "code", bytes: [0xA2, 0x05] });
+  collect(map, { address: 0x1009, sourceLine: 4, kind: "instr", bytes: [0xD0, 0xF5] });
+  collect(map, { address: 0x100B, sourceLine: 5, kind: "instr", skipped: true, bytes: [0xEA] });
+  collect(map, { address: 0x100C, sourceLine: 6, kind: "instr", file: 1, bytes: [0xEA] });
   assert.deepEqual([...map.keys()], [0, 1, 4]);
   const s = sum(map, 0, 4);
   assert.equal(s.count, 3);

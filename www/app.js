@@ -627,7 +627,6 @@ const _PROJECT_SNAPSHOT_MAX_ENTRIES = 100;
 const _PROJECT_SNAPSHOT_MAX_AUTO = 20;
 const _HISTORY_MAX_STACK = 200; // cap per-tab undo/redo stacks so long editing sessions with many open tabs don't grow memory unbounded
 const _PROJECT_SNAPSHOT_AUTO_DELAY_MS = 2500;
-const DELAY_HELPER_LABEL = "__delay_wait_frames";
 const _PROJECT_SNAPSHOT_HISTORY_CACHE = new Map();
 const _projectSnapshotTimers = new Map();
 
@@ -1422,9 +1421,6 @@ function initPalette() {
   document.getElementById("vice-remote-monitor")?.addEventListener("change", saveUiSettings);
   writeDebugSidecarsToggle?.addEventListener("change", saveUiSettings);
   ubAsmSidecarToggle?.addEventListener("change", saveUiSettings);
-  document.getElementById("vma-engine")?.addEventListener("change", (event) => {
-    try { localStorage.setItem("c64va-vma-engine", event.target.value); } catch (_) {}
-  });
   document.getElementById("assembler-syntax")?.addEventListener("change", async (event) => {
     const select = event.target;
     const syntax = select.value === "acme" ? "acme" : "kick";
@@ -3209,8 +3205,6 @@ function _applyUiSettingsToDOM() {
   acmePath = s.acmePath || "";
   const assemblerSyntaxSelect = document.getElementById("assembler-syntax");
   if (assemblerSyntaxSelect) assemblerSyntaxSelect.value = assemblerSyntax;
-  const vmaEngineSelect = document.getElementById("vma-engine");
-  if (vmaEngineSelect) vmaEngineSelect.value = _vmaEngine();
   _acmeBuildButtonSync();
   const acmePathInput = document.getElementById("acme-path");
   if (acmePathInput) acmePathInput.value = acmePath;
@@ -3866,9 +3860,6 @@ function applyTranslations() {
   setText("#assembler-syntax-label", t("assemblerSyntax"));
     setText('#assembler-syntax option[value="kick"]', t("assemblerModeVma"));
     setText('#assembler-syntax option[value="acme"]', t("assemblerModeAcme"));
-    setText("#vma-engine-label", t("vmaEngine"));
-    setText('#vma-engine option[value="js"]', t("vmaEngineJs"));
-    setText('#vma-engine option[value="rust"]', t("vmaEngineRust"));
     setText("#asm-output-settings-label", t("asmOutputSettings"));
     setText("#snapshot-settings-label", t("snapshotSettings"));
     if (macroSourceToggleText) macroSourceToggleText.textContent = t("macroSourceToggle");
@@ -6904,17 +6895,22 @@ function _blockToExpertLine(block) {
   if (block.isRawBytesMacro)  return `.rawbytes ${fmtAddr(block.rawBytesAddress)}, ${fmtRaw(block.rawOperand, block.base)}${fmtMacroLabel(block.macroLabel)}`;
   if (block.isByteMacro) {
       const hasLabelRef = /^[<>]|,[<>]/.test((block.rawOperand || "").replace(/\s/g, ""));
-      if (hasLabelRef) {
+      // a symbol the program does not define here (a const of another file): the compiler resolves it
+      const asmBytes = hasLabelRef ? [] : parseByteMacro(block.rawOperand, block.base);
+      if (hasLabelRef || asmBytes.some(b => !Number.isFinite(b))) {
         const parts = (block.rawOperand || "").split(",").map(p => p.trim()).filter(Boolean);
         const chunks = chunkBytes(parts, 8);
         return chunks.map(chunk => `.byte ${chunk.join(", ")}`).join("\n");
       }
-      const asmBytes = parseByteMacro(block.rawOperand, block.base);
       const chunks = chunkBytes(asmBytes, 8);
       return chunks.map(chunk => `.byte ${chunk.map(b => "$" + b.toString(16).toUpperCase().padStart(2, "0")).join(", ")}`).join("\n");
   }
   if (block.isWordMacro) {
       const words = parseWordMacro(block.rawOperand, block.base);
+      if (words.some(w => !Number.isFinite(w))) {
+        const parts = String(block.rawOperand || "").split(",").map(p => p.trim()).filter(Boolean);
+        return chunkBytes(parts, 4).map(chunk => `.word ${chunk.join(", ")}`).join("\n");
+      }
       const chunks = chunkBytes(words, 4);
       return chunks.map(chunk => `.word ${chunk.map(w => "$" + (w & 0xFFFF).toString(16).toUpperCase().padStart(4, "0")).join(", ")}`).join("\n");
   }
@@ -9867,17 +9863,6 @@ function _applyExpertBreakpointsToBlocks(blocks) {
   });
 }
 
-function _breakpointAddressForSourceLines(layout, sourceLines) {
-  // an included block's _srcLine is a line of its own file, not of the edited source
-  const executable = (layout?.lines || []).filter(line => line.size > 0 && !line.conditionallySkipped
-    && !line.block?._fromInclude && !line.block?._macroInclude);
-  return sourceLines.map(sourceLine => {
-    const exact = executable.find(line => line.block?._srcLine === sourceLine);
-    const next = executable.find(line => typeof line.block?._srcLine === "number" && line.block._srcLine > sourceLine);
-    return (exact || next)?.address;
-  }).filter(Number.isFinite).map(address => address & 0xFFFF);
-}
-
 function _ubBreakpointAddresses(build, sourceLines) {
   const entries = [];
   String(build?.debug?.dbg || "").split("\n").forEach(line => {
@@ -11072,104 +11057,50 @@ async function showBuildInfoDialog() {
     return;
   }
 
-  let blocks;
-  if (kick) {
-    blocks = kick.program;
-  } else if (expertMode && expertEditor) {
-    blocks = _expertBuildProgram();
-  } else {
-    blocks = program;
-  }
-  const savedProgram = program;
-  const savedUserMacros = userMacros;
-  program = blocks;
-  parseUserMacros();
   // Kick: the VA labels of inner scopes read as scope.label again
   const kickName = (name) => (kick ? name.replace(/^__/, "").replace(/__/g, ".").replace(/\.$/, "") : name);
 
   let infoHtml = "";
   try {
-    const layout = getProgramLayout();
-    const labels = new Map();
-    addAllLayoutLabels(labels, layout.lines);
-    labels._anonAddrs = _collectAnonLabels(layout);
-    appendDelayHelperLabel(labels, layout);
+    const vma = await _vmaAnalyze(kick ? _vmaWithPrelude(_vmaBuildInput(kick)) : _vmaEditorInput());
+    const fmtAddr = a => "$" + (a & 0xFFFF).toString(16).toUpperCase().padStart(4, "0");
+    const lines = vma.lines.filter(line => !line.skipped);
+    const totalBytes = lines.reduce((n, line) => n + Math.max(0, line.size), 0);
 
-    const origin = layout.lines.length ? layout.lines[0].address : 0;
-    let totalBytes = 0, maxAddr = origin;
-    for (const line of layout.lines) {
-      if (line.conditionallySkipped) continue;
-      if (line.size > 0) {
-        totalBytes += line.size;
-        maxAddr = Math.max(maxAddr, line.address + line.size);
-      }
-    }
-    const fmtAddr = a => "$" + a.toString(16).toUpperCase().padStart(4, "0");
-
-    const compileErrors = [];
-    for (const line of layout.lines) {
-      if (line.conditionallySkipped) continue;
-      if (line.block.isLabel || line.block.isComment || line.block.isIncludeMacro) continue;
-      if (line.block._isSavedAddress || line.block._isRestoreAddress || line.block.isOrgMacro) continue;
-      // Kick: the file:line of the statement
-      const origin = kick && typeof line.block._srcLine === "number" ? kick.origins[line.block._srcLine] : null;
-      const where = origin ? `${String(origin.file).split("/").pop()}:${origin.line}: ` : "";
-      if (line.block.validationError) { compileErrors.push(where + line.block.validationError); continue; }
-      const result = compileLineBytes(line, labels);
-      if (!result.ok) compileErrors.push(where + result.error);
-    }
+    const built = kick ? _kickMapResult(_vmaBuildResult(vma), kick) : _vmaBuildResult(vma);
+    const compileErrors = built.ok ? [] : (built.errors || [{ text: built.error }]).map(e => e.text || String(e));
 
     // Segments: the contiguous byte ranges, by address
-    const ranges = [];
-    for (const line of layout.lines) {
-      if (line.conditionallySkipped || !(line.size > 0)) continue;
-      ranges.push([line.address, line.address + line.size]);
-    }
-    ranges.sort((a, b) => a[0] - b[0]);
+    const ranges = lines.filter(line => line.size > 0).map(line => [line.address, line.address + line.size]).sort((x, y) => x[0] - y[0]);
     const segments = [];
-    for (const [a, b] of ranges) {
+    for (const [x, y] of ranges) {
       const last = segments[segments.length - 1];
-      if (last && a <= last[1]) last[1] = Math.max(last[1], b);
-      else segments.push([a, b]);
+      if (last && x <= last[1]) last[1] = Math.max(last[1], y);
+      else segments.push([x, y]);
     }
 
     const labelList = [];
     const constList = [];
     const macroCount = new Map();
-
-    layout.lines.forEach(line => {
-      if (line.conditionallySkipped) return;
-      const b = line.block;
-      if (b.isLabel && b.labelName && !/^__ml_/.test(b.labelName)) labelList.push({ name: kickName(b.labelName), addr: fmtAddr(line.address) });
-      if (b.isLoopMacro && b.loopLabel) labelList.push({ name: b.loopLabel, addr: fmtAddr(line.address + 2) });
-      if (b.isConstMacro && b.constName) {
-        const v = parseNumberByBase((b.rawOperand || "").replace(/^\$/, ""), b.base);
-        constList.push({ name: b.constName, val: v !== null ? fmtAddr(v) : (b.rawOperand || "?") });
+    const textLines = String(vma.input.text || "").split("\n");
+    for (const line of lines) {
+      if (line.name && typeof line.value === "number") {
+        if (line.kind === "const") constList.push({ name: line.name, val: fmtAddr(line.value) });
+        else if (line.kind === "var") labelList.push({ name: line.name, addr: "$" + line.value.toString(16).toUpperCase().padStart(2, "0") });
+        else if (!/^__(ml|pc|brk|rel)_/.test(line.name)) labelList.push({ name: kickName(line.name), addr: fmtAddr(line.value) });
       }
-      if (b.isVarMacro && b.varName && typeof b._varAddress === "number") {
-        labelList.push({ name: b.varName, addr: "$" + b._varAddress.toString(16).toUpperCase().padStart(2, "0") });
+      // a macro of the source (not the lines a macro call expands to): its directive name
+      if (line.kind === "code" && !line.fromMacro) {
+        const word = line.block ? line.block.mnemonic : (/^\s*(\.[A-Za-z_][\w]*)/.exec(textLines[line.textLine] || "") || [])[1];
+        if (word) macroCount.set(word, (macroCount.get(word) || 0) + 1);
       }
-      const macroTypes = [
-        "isTextMacro","isStringMacro","isDataMacro","isRawBytesMacro","isRawTextMacro",
-        "isLoopMacro","isNextMacro","isForMacro","isEndfMacro","isSpriteInitMacro","isSpritePosMacro","isWaitRasterMacro","isDelayMacro",
-        "isJoystickMacro","isMouseMacro","isSpriteColMacro","isIncBinMacro","isSidMacro",
-        "isLoadFileMacro","isExoDecrunchMacro","isReuStashMacro","isReuFetchMacro","isReuSwapMacro","isReuCheckMacro",
-        "isTurboSetMacro","isTurboEnableMacro","isSuperCpuDetectMacro",
-        "isMapCopyMacro","isMapCopy16Macro","isSpriteAnimMacro","isScoreBcdMacro",
-        "isCharDefMacro","isBoxHitMacro","isUciPaletteColorMacro","isUciPaletteResetMacro",
-      ];
-      macroTypes.forEach(t2 => {
-        if (b[t2]) {
-          const key = t2.replace(/^is/, "").replace(/Macro$/, "");
-          macroCount.set(key, (macroCount.get(key) || 0) + 1);
-        }
-      });
-    });
+    }
 
     if (kick) kick.constants.forEach(c => constList.push({ name: c.name, val: fmtAddr(c.value & 0xFFFF) }));
 
+    const origin = vma.origin;
     const first = segments.length ? segments[0][0] : origin;
-    const last = segments.length ? segments[segments.length - 1][1] - 1 : (maxAddr > origin ? maxAddr - 1 : origin);
+    const last = segments.length ? segments[segments.length - 1][1] - 1 : origin;
     infoHtml += makeStats([
       [t("buildInfoOrigin"), fmtAddr(first)],
       [t("buildInfoEnd"), fmtAddr(last)],
@@ -11177,7 +11108,7 @@ async function showBuildInfoDialog() {
       [t("buildInfoSegments"), segments.length]
     ]);
     if (segments.length > 1) {
-      infoHtml += makeGrid(t("buildInfoSegments"), segments.map(([a, b]) => [`${fmtAddr(a)}–${fmtAddr(b - 1)}`, `${b - a} bytes`]));
+      infoHtml += makeGrid(t("buildInfoSegments"), segments.map(([x, y]) => [`${fmtAddr(x)}–${fmtAddr(y - 1)}`, `${y - x} bytes`]));
     }
     if (compileErrors.length) infoHtml += makeList(t("buildInfoErrors"), compileErrors, true);
     if (kick?.messages.length) infoHtml += makeList(t("buildInfoPrint"), kick.messages, false);
@@ -11189,9 +11120,6 @@ async function showBuildInfoDialog() {
     }
   } catch (e) {
     infoHtml = makeMessageRow(`Error: ${e.message}`, true);
-  } finally {
-    program = savedProgram;
-    userMacros = savedUserMacros;
   }
 
   buildInfoContent.innerHTML = pathHtml + infoHtml;
@@ -14519,72 +14447,27 @@ function _expertValidate() {
     _kickScheduleCheck();
     return;
   }
-  _expertParseTimer = setTimeout(() => {
+  _expertParseTimer = setTimeout(async () => {
     try {
       const sourceText = _expertGetSourceText();
       const transientTypingLine = _expertGetTransientTypingSourceLine(sourceText);
       const blocks = _expertBuildProgram();
-      const saved = program;
       _acmeBuildButtonSync(blocks);
-      const savedUserMacros = userMacros;
-      program = blocks;
-      parseUserMacros();
-      let errors = [];
-      try {
-        const layout = getProgramLayout();
-        // Build label map (same as assembleProgramToPrg)
-        const labels = new Map();
-        addAllLayoutLabels(labels, layout.lines);
-        labels._anonAddrs = _collectAnonLabels(layout);
-        appendDelayHelperLabel(labels, layout);
-        // Run compileLineBytes to detect unknown mnemonics / bad operands
-        const cycleMap = new Map();
-        const lintSeq = [];
-        let lintLabelled = false;
-        for (const line of layout.lines) {
-          if (line.conditionallySkipped) continue;
-          if (line.block.isLabel) lintLabelled = true;
-          if (line.block.isLabel || line.block.isComment || line.block.isIncludeMacro || line.block.isBlankLine) continue;
-          if (line.block._isSavedAddress || line.block._isRestoreAddress || line.block.isOrgMacro) {
-            lintSeq.push({ barrier: true });
-            continue;
-          }
-          const result = compileLineBytes(line, labels);
-          if (!result.ok) {
-            errors.push({ msg: result.error, srcLine: line.block._srcLine });
-            lintSeq.push({ barrier: true });
-            continue;
-          }
-          if (_expertCyclesEnabled) _cycleCollect(cycleMap, line, result.bytes);
-          const mnem = String(line.block.mnemonic || "").toUpperCase();
-          const info = _REV_OP[result.bytes[0]];
-          if (opcodeMap[mnem] && info?.mnem === mnem && result.bytes.length === info.size) {
-            lintSeq.push({ mnem, mode: info.mode, bytes: result.bytes, address: line.address, srcLine: line.block._srcLine, labelled: lintLabelled });
-            lintLabelled = false;
-          } else if (result.bytes?.length || line.block.smcLabel) {
-            lintSeq.push({ barrier: true });
-          }
-        }
-        _expertCycleMap = cycleMap;
-        const prevHintKey = _expertLintHints.map((h) => h.srcLine + h.key).join();
-        _expertLintHints = _lintAsm(lintSeq).filter((h) => h.srcLine !== undefined);
-        if (_expertLintHints.map((h) => h.srcLine + h.key).join() !== prevHintKey) {
-          _expertApplyHighlight();
-          _expertRenderLintButton();
-        }
-        if (_expertCyclesEnabled) _expertUpdateCycles();
-        // Update overlap badge and panel
-        renderMemoryMap(getMemoryUsage(layout));
-        // Fall back to block-level validationError if compile found nothing
-        if (!errors.length) {
-          errors = layout.lines
-            .filter(l => l.block?.validationError)
-            .map(l => ({ msg: l.block.validationError, srcLine: l.block._srcLine }));
-        }
-      } finally {
-        program = saved;
-        userMacros = savedUserMacros;
+      const vma = await _vmaLiveNow(_vmaEditorInput());
+      // typed on meanwhile: the next check comes
+      if (!expertMode || _expertGetSourceText() !== sourceText) return;
+      const cycleMap = new Map();
+      if (_expertCyclesEnabled) for (const line of vma.lines) _cycleCollect(cycleMap, line);
+      _expertCycleMap = cycleMap;
+      const prevHintKey = _expertLintHints.map((h) => h.srcLine + h.key).join();
+      _expertLintHints = _lintAsm(_vmaLintSeq(vma, line => line.file ? undefined : line.sourceLine)).filter((h) => h.srcLine !== undefined);
+      if (_expertLintHints.map((h) => h.srcLine + h.key).join() !== prevHintKey) {
+        _expertApplyHighlight();
+        _expertRenderLintButton();
       }
+      if (_expertCyclesEnabled) _expertUpdateCycles();
+      renderMemoryMap(getMemoryUsage(_vmaLayout(vma)));
+      let errors = vma.errors.map(e => ({ msg: e.text, srcLine: typeof e.sourceLine === "number" ? e.sourceLine : undefined }));
       if (transientTypingLine >= 0) {
         errors = errors.filter((entry) => entry.srcLine !== transientTypingLine);
       }
@@ -14605,6 +14488,27 @@ function _expertValidate() {
       _expertSetStatus(String(e), "error");
     }
   }, 350);
+}
+
+// The peephole input of an analysis: its instructions in layout order, a barrier at every ORG and
+// at every line that writes other bytes (or failed); `srcOf(line)` = the line a hint is shown on.
+function _vmaLintSeq(vma, srcOf) {
+  const seq = [];
+  let labelled = false;
+  for (const line of vma.lines) {
+    if (line.skipped) continue;
+    if (line.kind === "label") { labelled = true; continue; }
+    if (line.kind === "org") { seq.push({ barrier: true }); continue; }
+    if (!line.bytes) { seq.push({ barrier: true }); continue; }
+    const info = line.kind === "instr" && line.bytes.length ? _REV_OP[line.bytes[0]] : null;
+    if (info && line.bytes.length === info.size) {
+      seq.push({ mnem: info.mnem, mode: info.mode, bytes: line.bytes, address: line.address, srcLine: srcOf(line), labelled });
+      labelled = false;
+    } else if (line.bytes.length) {
+      seq.push({ barrier: true });
+    }
+  }
+  return seq;
 }
 
 // ── Shared disassembler ────────────────────────────────────────────────────────
@@ -14687,12 +14591,11 @@ function _cycleInfo(bytes, address) {
 }
 
 // Csak valódi utasítás-sor számít (makró / adat nem): a lefordított bájtok egyetlen, azonos nevű opkódot adnak.
-function _cycleCollect(map, line, bytes) {
-  const block = line.block;
-  const src = block?._srcLine;
-  if (src === undefined || !bytes?.length) return;
-  const mnem = String(block.mnemonic || "").toUpperCase();
-  if (!opcodeMap[mnem] || _REV_OP[bytes[0]]?.mnem !== mnem) return;
+// A laid-out instruction (an analysis line) on its editor line.
+function _cycleCollect(map, line) {
+  const src = line.file ? undefined : line.sourceLine;
+  const bytes = line.bytes;
+  if (src === undefined || line.skipped || line.kind !== "instr" || !bytes?.length) return;
   const c = _cycleInfo(bytes, line.address);
   if (!c) return;
   const prev = map.get(src);
@@ -14884,70 +14787,6 @@ function _disasmBytes(bytes, baseAddr) {
   return result;
 }
 
-function _layoutLineSortAddress(line, labelMap = null) {
-  const addr = Number(line?.address);
-  return Number.isFinite(addr) ? addr : Number.MAX_SAFE_INTEGER;
-}
-
-function _disasmLineSortAddress(line, labelMap = null) {
-  const block = line?.block || {};
-  if (block.isTextMacro) {
-    const x = resolveProgramValueWithConst(block.textX ?? "0", "dec") || 0;
-    const y = resolveProgramValueWithConst(block.textY ?? "0", "dec") || 0;
-    return 0x0400 + (y * 40) + x;
-  }
-  if (block.isStringMacro) {
-    return parseAddressValue(block.stringAddress, labelMap) ?? 0xC000;
-  }
-  if (block.isDataMacro) {
-    return parseAddressValue(block.dataAddress, labelMap) ?? _layoutLineSortAddress(line, labelMap);
-  }
-  if (block.isRawBytesMacro) {
-    return parseAddressValue(block.rawBytesAddress, labelMap) ?? 0xC000;
-  }
-  if (block.isRawTextMacro) {
-    return parseAddressValue(block.rawTextAddress, labelMap) ?? 0xC000;
-  }
-  if (block.isPetsciiMacro) {
-    return parseAddressValue(block.petsciiAddress, labelMap) ?? 0xC000;
-  }
-  if (block.isIncBinMacro && !block.incBinKoala && !block.incBinU64Pal) {
-    return parseMacroAddress(block.incBinAddress || "$C000", labelMap) ?? 0xC000;
-  }
-  if (block.isSidMacro) {
-    return block.sidCustomAddress
-      ? (parseAddressValue(block.sidCustomAddress, labelMap) ?? _layoutLineSortAddress(line, labelMap))
-      : (Number(block.sidLoadAddress) || _layoutLineSortAddress(line, labelMap));
-  }
-  return _layoutLineSortAddress(line, labelMap);
-}
-
-function _compareLayoutLineRefs(left, right, labelMap = null) {
-  const leftAddr = _layoutLineSortAddress(left.line, labelMap);
-  const rightAddr = _layoutLineSortAddress(right.line, labelMap);
-  if (leftAddr !== rightAddr) return leftAddr - rightAddr;
-  return left.index - right.index;
-}
-
-function _compareDisasmLayoutLineRefs(left, right, labelMap = null) {
-  const leftAddr = _disasmLineSortAddress(left.line, labelMap);
-  const rightAddr = _disasmLineSortAddress(right.line, labelMap);
-  if (leftAddr !== rightAddr) return leftAddr - rightAddr;
-  return left.index - right.index;
-}
-
-function _getDisassemblyCodeOrigin() {
-  if (_programHasEmbeddedBasicAutostart(program)) return undefined;
-  const origin = parseOriginValue();
-  const useBasicSys = basicSysToggle ? basicSysToggle.checked : true;
-  if (!useBasicSys) return origin.value === 0x0801 ? 0xC000 : origin.value;
-
-  const rawOrigin = origin.value === 0x0801 ? 0x080D : origin.value;
-  const stubDigits = String(rawOrigin).length;
-  const stubEndAddress = 0x0801 + 2 + 2 + 1 + stubDigits + 1 + 2;
-  return Math.max(rawOrigin, stubEndAddress);
-}
-
 function _extractBasicStubSection(prgBytes) {
   const bytes = Array.from(prgBytes || []);
   if (bytes.length < 9) return null;
@@ -14959,246 +14798,110 @@ function _extractBasicStubSection(prgBytes) {
   return { address: loadAddress, bytes: bytes.slice(2, 2 + stubLength) };
 }
 
-function _getGeneratedBasicStubSection() {
-  if (!showBasicStubToggle?.checked || !basicSysToggle?.checked || !program.length) return null;
-  if (_programHasEmbeddedBasicAutostart(program)) return null;
-  const codeOrigin = _getDisassemblyCodeOrigin();
-  return Number.isFinite(codeOrigin) ? _extractBasicStubSection(buildBasicSysStub(codeOrigin)) : null;
+// The BASIC SYS line of a built PRG for the views (Settings: show the BASIC stub).
+function _vmaStubSection(vma) {
+  if (!showBasicStubToggle?.checked || !vma?.ok || !vma.bytes) return null;
+  return _extractBasicStubSection(vma.bytes);
 }
 
 function _buildBasicStubDisasmLines(section) {
   if (!section?.bytes?.length || !Number.isFinite(section.address)) return [];
-  const lines = [`<span class="asm-tok-label">basic_stub:</span>`];
-  const chunkSize = 8;
-  for (let index = 0; index < section.bytes.length; index += chunkSize) {
-    const chunk = section.bytes.slice(index, index + chunkSize);
-    const address = (section.address + index).toString(16).toUpperCase().padStart(4, "0");
-    const hexDump = chunk.map(byte => byte.toString(16).toUpperCase().padStart(2, "0")).join(" ");
-    const operand = chunk.map(byte => `$${byte.toString(16).toUpperCase().padStart(2, "0")}`).join(", ");
-    lines.push(
-      `<span class="dsm-addr">$${address}</span>  ` +
-      `<span class="dsm-bytes">${hexDump.padEnd(Math.max(hexDump.length, 8))}</span>  ` +
+  return [`<span class="asm-tok-label">basic_stub:</span>`, ..._disasmByteRows(section.bytes, section.address), ""];
+}
+
+// .BYTE rows of 8 bytes each (the Disassembly panel).
+function _disasmByteRows(bytes, address) {
+  const esc = _escHtml;
+  const rows = [];
+  const CHUNK = 8;
+  const short = bytes.length <= CHUNK;
+  for (let i = 0; i < bytes.length; i += CHUNK) {
+    const chunk = bytes.slice(i, i + CHUNK);
+    const hexDump = chunk.map(b => b.toString(16).toUpperCase().padStart(2, "0")).join(" ");
+    rows.push(
+      `<span class="dsm-addr">$${((address + i) & 0xFFFF).toString(16).toUpperCase().padStart(4, "0")}</span>  ` +
+      `<span class="dsm-bytes">${hexDump.padEnd(short ? Math.max(hexDump.length, 8) : CHUNK * 3 - 1)}</span>  ` +
       `<span class="asm-tok-mnemonic">.BYTE</span>  ` +
-      `<span class="asm-tok-operand">${operand}</span>`
+      `<span class="asm-tok-operand">${esc(chunk.map(b => "$" + b.toString(16).toUpperCase().padStart(2, "0")).join(", "))}</span>`
     );
   }
-  lines.push("");
-  return lines;
+  return rows;
 }
 
-// Build syntax-highlighted disassembler HTML from current program[].
-// Caller must ensure program[] is set to the desired block list before calling.
-function _buildDisasmHTML(originOverride, basicStubSection = null) {
-  return _buildDisasmLines(originOverride, basicStubSection).join("\n");
-}
-
-// The disassembly as HTML lines (one string per line).
-function _buildDisasmLines(originOverride, basicStubSection = null) {
+// The Disassembly panel of an analysis (HTML lines), in memory order: the code and data of the
+// layout with its labels, then what the program writes elsewhere (.rawbytes, .incbin, .sid …).
+function _vmaDisasmLines(vma, basicStubSection = null) {
   const esc = _escHtml;
   const lines = _buildBasicStubDisasmLines(basicStubSection);
-  try {
-    const layout = getProgramLayout(originOverride);
-
-    // Build label map (name -> address)
-    const labelMap = new Map();
-    addAllLayoutLabels(labelMap, layout.lines);
-    labelMap._anonAddrs = _collectAnonLabels(layout);
-    const addrToLabel = new Map();
-    for (const [name, addr] of labelMap) addrToLabel.set(addr, name);
-
-    // Disassembler view should follow memory order, not source order.
-    // This keeps fixed-address INCLUDE chunks after the main program if they
-    // live at a higher address.
-    const orderedLines = layout.lines
-      .map((line, index) => ({ line, index }))
-      .filter(({ line }) => {
-        if (line.conditionallySkipped) return false;
-        if (line.block._isSavedAddress || line.block._isRestoreAddress) return false;
-        if (line.block._macroSourceBlock) return false;
-        if (line.block.isComment) return false;
-        if (line.block.isIncludeMacro) return false;
-        if (line.block.isOrgMacro) return false;
-        if (line.block.isRegionMacro || line.block.isEndRegionMacro) return false;
-        if (line.block.isLabel && line.block._syntheticMacroLabel) return false;
-        return true;
-      })
-      .sort((left, right) => _compareDisasmLayoutLineRefs(left, right, labelMap));
-
-    for (const { line } of orderedLines) {
-      // Skip non-code blocks
-      const addrHex = line.address.toString(16).toUpperCase().padStart(4, "0");
-      const compiled = compileLineBytes(line, labelMap);
-
-      if (!compiled.ok) continue;
-
-      const block = line.block;
-
-      // INCBIN: deferred binary file — show hex dump at incBinAddress
-      if (block.isIncBinMacro && !block.incBinKoala && !block.incBinU64Pal) {
-        const incBytes = Array.from(_incBinPayload(block));
-        const incAddr = parseMacroAddress(block.incBinAddress || "$C000", labelMap) ?? 0xC000;
-        const incAddrHex = incAddr.toString(16).toUpperCase().padStart(4, "0");
-        if (incBytes.length === 0) {
-          lines.push(`<span class="dsm-addr">$${incAddrHex}</span>  <span class="asm-tok-comment">; INCBIN "${esc(block.incBinFileName || "?")}" (not loaded)</span>`);
-        } else {
-          const MAX_SHOW = 256;
-          const showBytes = incBytes.slice(0, MAX_SHOW);
-          const DCHUNK = 8;
-          const DCOLW = DCHUNK * 3 - 1;
-          const isShort = showBytes.length <= DCHUNK;
-          for (let ci = 0; ci < showBytes.length; ci += DCHUNK) {
-            const chunk = showBytes.slice(ci, ci + DCHUNK);
-            const chunkAddrHex = (incAddr + ci).toString(16).toUpperCase().padStart(4, "0");
-            const hexDump = chunk.map(b => b.toString(16).toUpperCase().padStart(2, "0")).join(" ");
-            const padTo = isShort ? Math.max(hexDump.length, 8) : DCOLW;
-            lines.push(
-              `<span class="dsm-addr">$${chunkAddrHex}</span>  ` +
-              `<span class="dsm-bytes">${hexDump.padEnd(padTo)}</span>  ` +
-              `<span class="asm-tok-mnemonic">.BYTE</span>  ` +
-              `<span class="asm-tok-operand">${esc(chunk.map(b => "$" + b.toString(16).toUpperCase().padStart(2, "0")).join(", "))}</span>`
-            );
-          }
-          if (incBytes.length > MAX_SHOW) {
-            lines.push(`<span class="asm-tok-comment">; ... ${incBytes.length - MAX_SHOW} more bytes (${esc(block.incBinFileName || "?")})</span>`);
-          }
-        }
-        continue;
-      }
-
-      // Deferred data blocks: RAWBYTES, RAWTEXT, PETSCII — no inline code; show data at target address
-      if (block.isRawBytesMacro || block.isRawTextMacro || block.isPetsciiMacro) {
-        let deferredBytes = [];
-        let deferredAddr = 0;
-        if (block.isRawBytesMacro) {
-          deferredBytes = parseByteMacro(block.rawOperand, block.base, labelMap);
-          deferredAddr = parseAddressValue(block.rawBytesAddress, labelMap) ?? 0xC000;
-        } else if (block.isRawTextMacro) {
-          const rawOffset = resolveProgramValueWithConst(block.charOffset || "0", "hex");
-          deferredBytes = encodeTextMacro(block.rawOperand, block.textCharset || "standard")
-            .map(b => (b + (isNaN(rawOffset) ? 0 : rawOffset)) & 0xFF);
-          deferredAddr = parseAddressValue(block.rawTextAddress, labelMap) ?? 0xC000;
-        } else if (block.isPetsciiMacro) {
-          deferredBytes = encodePetsciiMacro(block.rawOperand, block.petsciiCharset || "upper");
-          if (block.petsciiNullTerminated) deferredBytes.push(0x00);
-          deferredAddr = parseAddressValue(block.petsciiAddress, labelMap) ?? 0xC000;
-        }
-        if (deferredBytes.length > 0) {
-          const DCHUNK = 8;
-          const DCOLW = DCHUNK * 3 - 1;
-          const isShort = deferredBytes.length <= DCHUNK;
-          for (let ci = 0; ci < deferredBytes.length; ci += DCHUNK) {
-            const chunk = deferredBytes.slice(ci, ci + DCHUNK);
-            const chunkAddrHex = (deferredAddr + ci).toString(16).toUpperCase().padStart(4, "0");
-            const hexDump = chunk.map(b => b.toString(16).toUpperCase().padStart(2, "0")).join(" ");
-            const padTo = isShort ? Math.max(hexDump.length, 8) : DCOLW;
-            lines.push(
-              `<span class="dsm-addr">$${chunkAddrHex}</span>  ` +
-              `<span class="dsm-bytes">${hexDump.padEnd(padTo)}</span>  ` +
-              `<span class="asm-tok-mnemonic">.BYTE</span>  ` +
-              `<span class="asm-tok-operand">${esc(chunk.map(b => "$" + b.toString(16).toUpperCase().padStart(2, "0")).join(", "))}</span>`
-            );
-          }
-        }
-        continue;
-      }
-
-      // Only show lines that produce actual bytes (real code / inline data)
-      if (!compiled.bytes.length) {
-        continue;
-      }
-
-      // Show label at this address if one exists (inline, before the instruction)
-      if (addrToLabel.has(line.address)) {
-        lines.push(`<span class="asm-tok-label">${esc(addrToLabel.get(line.address))}:</span>`);
-      }
-
-      const DISASM_CHUNK = 8; // bytes per line for raw data blocks
-      const allBytes = compiled.bytes;
-      const mnem = line.block.mnemonic;
-      const op   = line.block.operand || "";
-      const isRealInstruction = opcodeMap[mnem] !== undefined;
-      const isDataBlock = line.block.isByteMacro || line.block.isWordMacro || line.block.isFillMacro;
-
-      if (isRealInstruction && allBytes.length <= DISASM_CHUNK) {
-        // Short — real 6502 instruction, show resolved numeric operand
-        let disasmOp = "";
-        const mode = line.block.addressingMode;
-        if (mode === "relative") {
-          const rel = resolveRelativeOperand(line.block, line.address, labelMap);
-          if (rel.ok) {
-            const target = line.address + 2 + (rel.value & 0x80 ? rel.value - 256 : rel.value);
-            disasmOp = "$" + (target & 0xFFFF).toString(16).toUpperCase().padStart(4, "0");
-          }
-        } else if (mode !== "implied") {
-          const num = resolveNumericOperand(line.block, labelMap);
-          if (num.ok) {
-            const v = num.value;
-            if (mode === "immediate") {
-              disasmOp = v <= 0xFF ? "#$" + (v & 0xFF).toString(16).toUpperCase().padStart(2, "0")
-                                   : "#$" + (v & 0xFFFF).toString(16).toUpperCase().padStart(4, "0");
-            } else if (mode === "zeroPage") {
-              disasmOp = "$" + (v & 0xFF).toString(16).toUpperCase().padStart(2, "0");
-            } else if (mode === "zeroPageX" || mode === "zeroPageY") {
-              const suffix = mode === "zeroPageX" ? ",X" : ",Y";
-              disasmOp = "$" + (v & 0xFF).toString(16).toUpperCase().padStart(2, "0") + suffix;
-            } else if (mode === "absolute") {
-              disasmOp = "$" + (v & 0xFFFF).toString(16).toUpperCase().padStart(4, "0");
-            } else if (mode === "absoluteX" || mode === "absoluteY") {
-              const suffix = mode === "absoluteX" ? ",X" : ",Y";
-              disasmOp = "$" + (v & 0xFFFF).toString(16).toUpperCase().padStart(4, "0") + suffix;
-            } else if (mode === "indirectX") {
-              disasmOp = "($" + (v & 0xFF).toString(16).toUpperCase().padStart(2, "0") + ",X)";
-            } else if (mode === "indirectY") {
-              disasmOp = "($" + (v & 0xFF).toString(16).toUpperCase().padStart(2, "0") + "),Y";
-            } else if (mode === "indirect") {
-              disasmOp = "($" + (v & 0xFFFF).toString(16).toUpperCase().padStart(4, "0") + ")";
-            }
-          }
-        }
-        const hexDump = allBytes.map(b => b.toString(16).toUpperCase().padStart(2, "0")).join(" ");
-        lines.push(
-          `<span class="dsm-addr">$${addrHex}</span>  ` +
-          `<span class="dsm-bytes">${hexDump.padEnd(Math.max(hexDump.length, 8))}</span>  ` +
-          `<span class="asm-tok-mnemonic">${esc(mnem)}</span>` +
-          (disasmOp ? `  <span class="asm-tok-operand">${esc(disasmOp)}</span>` : "")
-        );
-      } else if (isDataBlock) {
-        // Raw data blocks — chunk into 8-byte hex lines
-        const COLW = DISASM_CHUNK * 3 - 1; // fixed byte-column width for long data
-        const opParts = op.split(",").map(s => s.trim());
-        const isShortData = allBytes.length <= DISASM_CHUNK;
-        for (let ci = 0; ci < allBytes.length; ci += DISASM_CHUNK) {
-          const chunk = allBytes.slice(ci, ci + DISASM_CHUNK);
-          const chunkAddr = (line.address + ci).toString(16).toUpperCase().padStart(4, "0");
-          const hexDump = chunk.map(b => b.toString(16).toUpperCase().padStart(2, "0")).join(" ");
-          const padTo = isShortData ? Math.max(hexDump.length, 8) : COLW;
-          const chunkOp = opParts.slice(ci, ci + DISASM_CHUNK).join(", ");
-          lines.push(
-            `<span class="dsm-addr">$${chunkAddr}</span>  ` +
-            `<span class="dsm-bytes">${hexDump.padEnd(padTo)}</span>  ` +
-            `<span class="asm-tok-mnemonic">${esc(mnem)}</span>` +
-            (chunkOp ? `  <span class="asm-tok-operand">${esc(chunkOp)}</span>` : "")
-          );
-        }
-      } else {
-        // Macro-generated code — disassemble instruction by instruction
-        const instrs = _disasmBytes(allBytes, line.address);
-        for (const instr of instrs) {
-          const iAddr = instr.address.toString(16).toUpperCase().padStart(4, "0");
-          const iHex = instr.bytes.map(b => b.toString(16).toUpperCase().padStart(2, "0")).join(" ");
-          lines.push(
-            `<span class="dsm-addr">$${iAddr}</span>  ` +
-            `<span class="dsm-bytes">${iHex.padEnd(Math.max(iHex.length, 8))}</span>  ` +
-            `<span class="asm-tok-mnemonic">${esc(instr.mnemonic)}</span>` +
-            (instr.operand ? `  <span class="asm-tok-operand">${esc(instr.operand)}</span>` : "")
-          );
-        }
-      }
+  if (!vma) return lines;
+  if (!vma.lines.length && vma.errors.length) {
+    lines.push(`<span class="asm-tok-comment">; ${esc(vma.errors[0].text)}</span>`);
+    return lines;
+  }
+  const addrToLabel = new Map();
+  for (const line of vma.lines) {
+    if (!line.skipped && line.name && line.kind !== "const" && line.kind !== "var" && Number.isFinite(line.value) && !addrToLabel.has(line.value)) {
+      addrToLabel.set(line.value, line.name);
     }
-  } catch (e) {
-    lines.push(`<span class="asm-tok-comment">; Error: ${esc(String(e))}</span>`);
+  }
+  const shown = new Set();
+  const label = (address) => {
+    const name = addrToLabel.get(address);
+    if (name && !shown.has(name)) {
+      shown.add(name);
+      lines.push(`<span class="asm-tok-label">${esc(name)}:</span>`);
+    }
+  };
+  const code = vma.lines
+    .filter(line => !line.skipped && line.bytes?.length && line.kind !== "org")
+    .map((line, order) => ({ line, order }))
+    .sort((a, b) => (a.line.address - b.line.address) || (a.order - b.order));
+  for (const { line } of code) {
+    if (line.kind === "data") {
+      label(line.address);
+      lines.push(..._disasmByteRows(line.bytes, line.address));
+      continue;
+    }
+    for (const instr of _disasmBytes(line.bytes, line.address)) {
+      label(instr.address);
+      const iHex = instr.bytes.map(b => b.toString(16).toUpperCase().padStart(2, "0")).join(" ");
+      lines.push(
+        `<span class="dsm-addr">$${instr.address.toString(16).toUpperCase().padStart(4, "0")}</span>  ` +
+        `<span class="dsm-bytes">${iHex.padEnd(Math.max(iHex.length, 8))}</span>  ` +
+        `<span class="asm-tok-mnemonic">${esc(instr.mnemonic)}</span>` +
+        (instr.operand ? `  <span class="asm-tok-operand">${esc(instr.operand)}</span>` : "")
+      );
+    }
+  }
+  // the data written at an address of its own: from the PRG's segments
+  const mem = _vmaMemoryMap(vma);
+  const MAX_SHOW = 256;
+  const sections = (vma.memory?.deferred || []).filter(s => s.end >= s.address).sort((a, b) => a.address - b.address);
+  for (const section of sections) {
+    const bytes = [];
+    for (let a = section.address; a <= section.end && mem.has(a); a++) bytes.push(mem.get(a));
+    if (bytes.length !== section.end - section.address + 1) continue;
+    lines.push("", `<span class="asm-tok-comment">; ${esc(section.label || section.type)}</span>`);
+    lines.push(..._disasmByteRows(bytes.slice(0, MAX_SHOW), section.address));
+    if (bytes.length > MAX_SHOW) lines.push(`<span class="asm-tok-comment">; ... ${bytes.length - MAX_SHOW} more bytes</span>`);
   }
   return lines;
+}
+
+// The Monitor panel of an analysis: what the PRG writes, the BASIC stub with it.
+function _vmaMonitorText(vma, basicStubSection = null) {
+  const memMap = vma ? _vmaMemoryMap(vma) : new Map();
+  if (basicStubSection?.bytes?.length && Number.isFinite(basicStubSection.address)) {
+    basicStubSection.bytes.forEach((byte, index) => memMap.set(basicStubSection.address + index, byte));
+  }
+  return _formatMonitorMemory(memMap, vma?.origin ?? 0x0801);
+}
+
+// The live source of the Expert panels: the editor's text, a Kick project's last build tree.
+function _vmaExpertInput() {
+  const kickProject = !ultimateBasicMode && _kickProjectActive();
+  if (kickProject) return _kickLast?.ok ? _vmaWithPrelude(_vmaBuildInput(_kickLast)) : null;
+  return _vmaEditorInput();
 }
 
 // A long disassembly (a whole Kick project: ~40 000 spans) in one <pre> made every layout of the
@@ -15226,7 +14929,8 @@ function renderDisasmOutput() {
     el.innerHTML = `<span class="asm-tok-comment">; ${t("disassemblyWillAppearHere")}</span>`;
     return;
   }
-  _setDisasmLines(el, _buildDisasmLines(_getDisassemblyCodeOrigin(), _getGeneratedBasicStubSection()));
+  const vma = _vmaLiveFor(_vmaEditorInput(null), renderDisasmOutput);
+  if (vma) _setDisasmLines(el, _vmaDisasmLines(vma, _vmaStubSection(vma)));
 }
 
 function _acmePreviewMessage() {
@@ -15647,22 +15351,11 @@ function _expertRenderDisasm() {
     expertDisasmOutput.innerHTML = `<span class="asm-tok-comment">; ${_escHtml(t("kickBuildFirst"))}</span>`;
     return;
   }
-  try {
-    const blocks = kickProject ? _kickLast.program : _expertBuildProgram();
-    const saved = program;
-    const savedUserMacros = userMacros;
-    program = blocks;
-    parseUserMacros();
-    try {
-      _setDisasmLines(expertDisasmOutput, _buildDisasmLines(_getDisassemblyCodeOrigin(), _getGeneratedBasicStubSection()));
-      if (kickShown) _expertDisasmShown = { kick: kickShown, stubOn };
-    } finally {
-      program = saved;
-      userMacros = savedUserMacros;
-    }
-  } catch (e) {
-    expertDisasmOutput.textContent = String(e);
-  }
+  const input = _vmaExpertInput();
+  const vma = input && _vmaLiveFor(input, () => { if (_expertDisasmVisible) _expertRenderDisasm(); });
+  if (!vma) return;
+  _setDisasmLines(expertDisasmOutput, _vmaDisasmLines(vma, _vmaStubSection(vma)));
+  if (kickShown) _expertDisasmShown = { kick: kickShown, stubOn };
 }
 
 function _expertRenderMonitor() {
@@ -15678,22 +15371,9 @@ function _expertRenderMonitor() {
     expertMonitorOutput.textContent = `; ${t("kickBuildFirst")}`;
     return;
   }
-  try {
-    const blocks = kickProject ? _kickLast.program : _expertBuildProgram();
-    const saved = program;
-    const savedUserMacros = userMacros;
-    program = blocks;
-    parseUserMacros();
-    try {
-      const origin = _getDisassemblyCodeOrigin();
-      expertMonitorOutput.textContent = _buildMonitorText(getProgramLayout(origin), _getGeneratedBasicStubSection());
-    } finally {
-      program = saved;
-      userMacros = savedUserMacros;
-    }
-  } catch (e) {
-    expertMonitorOutput.textContent = String(e);
-  }
+  const input = _vmaExpertInput();
+  const vma = input && _vmaLiveFor(input, () => { if (_expertMonitorVisible) _expertRenderMonitor(); });
+  if (vma) expertMonitorOutput.textContent = _vmaMonitorText(vma, _vmaStubSection(vma));
 }
 
 // ── Expert Project Panel ──────────────────────────────────────────────────────
@@ -19477,41 +19157,15 @@ function _formatDebuggerSymbolAddress(value) {
 
 function _collectDebuggerSymbols(layout) {
   const labels = new Map();
-  const symbols = [];
   const breakpoints = [];
-  const pushSymbol = (name, address) => {
-    const safeName = String(name || "").trim();
-    if (!safeName || !Number.isFinite(address)) return;
-    if (!labels.has(safeName)) labels.set(safeName, address & 0xFFFF);
-  };
-
-  layout.lines.forEach((line) => {
-    const block = line.block || {};
-    if (block.isLabel && block.labelName) pushSymbol(block.labelName, (line.address + (block.labelOffset || 0)) & 0xFFFF);
-    if (block.isLoopMacro && block.loopLabel) pushSymbol(block.loopLabel, line.address + 2);
-    if (block.isForMacro && block.loopLabel) pushSymbol(block.loopLabel, line.address + 2);
-    if (block._autoBufferLabel) pushSymbol(block._autoBufferLabel, line.address);
-    if (block.isTableMacro && block.tableName) pushSymbol(block.tableName, line.address);
-    if (block.isConstMacro && block.constName) {
-      const value = typeof block.constValue === "number" && Number.isFinite(block.constValue)
-        ? block.constValue
-        : parseAddressValue(block.rawOperand || "", labels);
-      if (Number.isFinite(value)) pushSymbol(block.constName, value);
-    }
-    if (block.isVarMacro && block.varName && typeof block._varAddress === "number") {
-      pushSymbol(block.varName, block._varAddress);
-    }
-    if (block.isBreakpoint) {
-      breakpoints.push(line.address & 0xFFFF);
-    }
-  });
-
-  labels.forEach((address, name) => {
-    symbols.push({ name, address });
-  });
-
+  for (const line of layout?.lines || []) {
+    const l = line.vma;
+    const name = String(l?.name || "").trim();
+    if (name && Number.isFinite(l.value) && !labels.has(name)) labels.set(name, l.value & 0xFFFF);
+    if (line.block?.isBreakpoint) breakpoints.push(line.address & 0xFFFF);
+  }
+  const symbols = [...labels].map(([name, address]) => ({ name, address }));
   symbols.sort((left, right) => (left.address - right.address) || left.name.localeCompare(right.name));
-
   return { symbols, breakpoints };
 }
 
@@ -19655,22 +19309,17 @@ function _buildDebuggerSidecarPayload(prg, { force = false, layout = null, sourc
   }
   // ACME source has no VA layout: the symbols come from ACME's label dump.
   if (assemblerSyntax === "acme" && !ultimateBasicMode) return _acmeDebuggerSidecars(prg?.labels);
-  // A Rust build brings its own (vma_build, the same layout and texts).
+  // The build brings its own (vma_build, the same layout and texts).
   if (prg?.vma?.sidecars && !layout) return { ...prg.vma.sidecars };
+  // A Kick project: its lines name file:line through the preprocessor's origins.
   const kick = _kickBuiltProject();
-  const savedProgram = program;
-  const savedUserMacros = userMacros;
+  const debuggerLayout = layout || (prg?.analysis ? _vmaLayout(prg.analysis) : null);
+  if (!debuggerLayout) return null;
   try {
-    const originOverride = _getDebuggerCodeOrigin(prg);
-    if (kick && !layout) { program = kick.program; parseUserMacros(); }
-    const debuggerLayout = layout || getProgramLayout(originOverride);
-    return _buildDebuggerSidecarTexts(debuggerLayout, originOverride, sourcePath, kick);
+    return _buildDebuggerSidecarTexts(debuggerLayout, _getDebuggerCodeOrigin(prg), sourcePath, kick);
   } catch (e) {
     console.error("Debugger sidecar generation failed:", e);
     return null;
-  } finally {
-    program = savedProgram;
-    userMacros = savedUserMacros;
   }
 }
 
@@ -19679,21 +19328,16 @@ function _buildDebuggerSidecarPayload(prg, { force = false, layout = null, sourc
 // Used by the RetroDebugger launch and by the built-in C64's debugger.
 function _debuggerTargets(prg) {
   const acme = assemblerSyntax === "acme";
-  const debugCodeOrigin = _getDebuggerCodeOrigin(prg);
-  const savedProgram = program;
-  const savedUserMacros = userMacros;
-  const startupProgram = _expertGetStartupProgram();
-  const debuggerProgram = startupProgram || (expertMode ? _expertBuildProgram() : program);
-  let symbols;
-  let breakpoints;
-  let expertBreakpoints;
-  let sidecars;
+  let symbols = [];
+  let breakpoints = [];
+  let expertBreakpoints = [];
+  let sidecars = null;
   // The Expert breakpoint lines: the startup file's tab when the project builds that file.
   let sourcePath = "";
   let expertBreakpointLines = _getTabBreakpointLines("expert");
-  if ((startupProgram || prg.vma?.input.sourcePath) && _expertProjectData?.startupFile) {
+  if (prg.vma?.input.sourcePath && _expertProjectData?.startupFile) {
     const startupFile = _projFindEntry(_expertProjectData.files, _expertProjectData.startupFile);
-    if (startupFile && (startupProgram || _normFilePath(_projResolveAbsPath(startupFile.path)) === _normFilePath(prg.vma.input.sourcePath))) {
+    if (startupFile && _normFilePath(_projResolveAbsPath(startupFile.path)) === _normFilePath(prg.vma.input.sourcePath)) {
       sourcePath = _projResolveAbsPath(startupFile.path);
       const normalizedPath = _normFilePath(sourcePath);
       const startupTab = tabs.find(tab => tab.filePath && _normFilePath(tab.filePath) === normalizedPath);
@@ -19710,24 +19354,18 @@ function _debuggerTargets(prg) {
   } else if (prg.vma) {
     ({ symbols, breakpoints, expertBreakpoints } = _vmaDebuggerTargets(prg.vma, expertBreakpointLines));
     sidecars = _buildDebuggerSidecarPayload(prg, { force: true });
-  } else try {
-    if (debuggerProgram?.length) program = debuggerProgram;
-    parseUserMacros();
-    layout = getProgramLayout(debugCodeOrigin);
+  } else if (prg.analysis) {
+    // a Kick project: the build's layout with the file:line of every statement
+    layout = _vmaLayout(prg.analysis);
     ({ symbols, breakpoints } = _collectDebuggerSymbols(layout));
     const kick = _kickBuiltProject();
     if (kick) {
       symbols = symbols.map(sym => ({ ...sym, name: _kickDisplayLabel(sym.name) })).filter(sym => sym.name);
       expertBreakpoints = _kickBreakpointAddresses(layout, kick);
     } else {
-      expertBreakpoints = expertMode
-        ? _breakpointAddressForSourceLines(layout, expertBreakpointLines)
-        : breakpoints;
+      expertBreakpoints = expertMode ? _breakpointAddressForSourceLines(layout, expertBreakpointLines) : breakpoints;
     }
     sidecars = _buildDebuggerSidecarPayload(prg, { force: true, layout, sourcePath });
-  } finally {
-    program = savedProgram;
-    userMacros = savedUserMacros;
   }
   return { symbols, breakpoints, expertBreakpoints, sidecars, sourcePath, layout };
 }
@@ -23047,17 +22685,10 @@ async function _buildProjectAsmTarget(target) {
     // KickAssembler tree: the startup file with its #import modules.
     prg = await _kickOrVaPrg();
   }
-  const savedProgram = program;
-  const savedUserMacros = userMacros;
-  if (!prg) try {
-    if (expertMode) program = _expertBuildProgram();
-    parseUserMacros();
-    prg = _buildAutostartPrgCore();
-    // A layout a swap-olt program[]-ból számol, ezért még a visszaállítás előtt.
-    if (prg.ok) sidecars = _buildDebuggerSidecarPayload(prg, { sourcePath: target.path });
-  } finally {
-    program = savedProgram;
-    userMacros = savedUserMacros;
+  if (!prg) {
+    // the target tab's own source, its debugger files named after it
+    prg = _vmaBuildResult(await _vmaAnalyze({ ..._vmaEditorInput(), sourcePath: target.path }));
+    if (prg.ok) sidecars = _buildDebuggerSidecarPayload(prg);
   }
   if (!prg.ok) {
     const errors = prg.errors?.length ? prg.errors.map(e => e?.text || String(e)) : [prg.error || t("savePrgFailed")];
@@ -25030,7 +24661,7 @@ async function _buildAcmePrg(useCurrentEditor = false, options = null) {
       // ACME mode never expands VA macros into ACME source.
       const macroErrors = _acmeVaMacroBlockErrors(program);
       if (macroErrors.length) return { ok: false, error: tf("acmeVaSource", { count: macroErrors.length }), errors: macroErrors };
-      source = _buildUniversalAsmExportText(codeOrigin)
+      source = _buildUniversalAsmExportText(await _vmaAnalyze(_vmaEditorInput(program), sysAddress !== null))
         .replace(/^(\s*)\.(byte|word|fill|align)\b/gim, "$1!$2");
     }
     if (sysAddress !== null && embeddedSysAddress === null) {
@@ -25797,19 +25428,6 @@ async function runUltimateD64(target = "ultimate") {
 
 // How deep an included file may include further files (and a macro may call further macros).
 const INCLUDE_MAX_DEPTH = 16;
-
-// An include that was not found or includes itself, also further down in the included files:
-// a build error, not an empty library.
-function _includeLoadError(block, depth = 0) {
-  if (!block?.isIncludeMacro || depth > INCLUDE_MAX_DEPTH) return "";
-  if (block._includeMissing) return tf("includeNotFound", { file: block.includeFileName || block.includeFile || "?" });
-  if (block.validationError && !(block.includedBlocks || []).length) return block.validationError;
-  for (const sub of block.includedBlocks || []) {
-    const msg = _includeLoadError(sub, depth + 1);
-    if (msg) return msg;
-  }
-  return "";
-}
 
 async function reloadIncludeBlocks(projectFilePath = "", blocks = program, depth = 0, seen = new Set()) {
   if (!window.electronAPI?.reloadIncludeFile) return;
@@ -28505,29 +28123,16 @@ function _kickMapResult(result, kick = _kickLast) {
 
 // An extra output of a Kick project (.file, outPrg / outBin, a file of .disk): the bytes as
 // KickAssembler writes them — a PRG with its load address, a BIN from the lowest address.
-// The image of an extra output: the Rust engine (vma_build raw) or assembleProgramToPrg.
+// The image of an extra output (vma_build raw: no stub, its first ORG).
 async function _kickOutputImage(output, baseDir) {
-  const engine = window.electronAPI?.vmaBuild ? _vmaEngine() : "js";
-  if (engine === "rust") {
-    const input = { text: output.text, baseDir, editorLines: false, kick: true };
-    const r = await window.electronAPI.vmaBuild(output.text, baseDir, false, null, null, true);
-    if (r?.ok) return { ok: true, bytes: Uint8Array.from(r.prg || []) };
-    const lines = String(output.text).split("\n");
-    const list = r?.errors?.length ? r.errors : [{ line: r?.line || 0, message: r?.error || "VMA (Rust) error", key: "", params: {}, address: null }];
-    const errors = list.map(e => _vmaErrorEntry(e, input, lines));
-    return { ok: false, error: errors[0].text, errors };
-  }
-  const saved = program;
-  const savedMacros = userMacros;
-  try {
-    program = parseExpertText(output.text);
-    _addSrcLineToBlocks(output.text, program);
-    parseUserMacros();
-    return assembleProgramToPrg();
-  } finally {
-    program = saved;
-    userMacros = savedMacros;
-  }
+  if (!_vmaAvailable()) return { ok: false, error: t("vmaNeedsDesktop") };
+  const input = { text: output.text, baseDir, editorLines: false, kick: true };
+  const r = await window.electronAPI.vmaBuild(output.text, baseDir, false, null, null, true);
+  if (r?.ok) return { ok: true, bytes: Uint8Array.from(r.prg || []) };
+  const lines = String(output.text).split("\n");
+  const list = r?.errors?.length ? r.errors : [{ line: r?.line || 0, message: r?.error || "VMA error", key: "", params: {}, address: null }];
+  const errors = list.map(e => _vmaErrorEntry(e, input, lines));
+  return { ok: false, error: errors[0].text, errors };
 }
 
 async function _kickBuildOutput(output, baseDir = "") {
@@ -28593,16 +28198,24 @@ async function _kickOrVaPrg() {
   return (await _kickBuildPrg()) || _vaBuildPrg();
 }
 
-/* VMA compiler engine (Settings → General, `c64va-vma-engine`): "js" = the app.js compiler,
-   "rust" = the VMA crate (github.com/zstarczali/VMA) through the vma_build command (the source text in, the files read by Rust).
-   Without the desktop app (no vmaBuild) always JS; anything else saved (the former "shadow") = JS. */
-function _vmaEngine() {
-  let v = "js";
-  try { v = localStorage.getItem("c64va-vma-engine") || "js"; } catch (_) {}
-  return v === "rust" ? "rust" : "js";
+/* The VMA compiler: the Rust crate (github.com/zstarczali/VMA) behind the vma_build / vma_analyze
+   commands; only the desktop app has it. */
+function _vmaAvailable() {
+  return !!window.electronAPI?.vmaBuild;
 }
 
-// The VMA source the JS build compiles (buildAutostartPrgForEmulator's choice), its folder,
+// Blocks as a VMA source: the text of each block (_blockToExpertSourceLine), the block of each text
+// line (`blockOfLine`) and the line the .dbg names (`lineMap`, the block's _srcLine).
+function _vmaBlocksSource(blocks) {
+  const texts = blocks.map(_blockToExpertSourceLine);
+  const blockOfLine = texts.flatMap((text, i) => String(text).split("\n").map(() => i));
+  // -2: a further line of the same block (vma_build joins it to the block's range)
+  const lineMap = blockOfLine.map((i, k) => (k > 0 && blockOfLine[k - 1] === i ? -2
+    : typeof blocks[i]?._srcLine === "number" ? blocks[i]._srcLine : -1));
+  return { text: texts.join("\n"), blocks, blockOfLine, lineMap };
+}
+
+// The VMA source a build compiles (the startup file of a project, else the editor), its folder,
 // whether its lines are the editor's (so an error line can be shown there) and the main source
 // the debugger files name (runInDebugger's choice). A source made of blocks keeps them: the block
 // of each text line (`blockOfLine`) and the line the .dbg names (`lineMap`, the block's _srcLine).
@@ -28615,14 +28228,7 @@ function _vmaBuildInput(kick = null) {
     return i >= 0 ? s.slice(0, i) : "";
   };
   if (kick) return { text: kick.text, baseDir: dirOf(kick.entry), editorLines: false, kick: true, sourcePath: kick.entry };
-  const fromBlocks = (blocks) => {
-    const texts = blocks.map(_blockToExpertSourceLine);
-    const blockOfLine = texts.flatMap((text, i) => String(text).split("\n").map(() => i));
-    // -2: a further line of the same block (vma_build joins it to the block's range)
-    const lineMap = blockOfLine.map((i, k) => (k > 0 && blockOfLine[k - 1] === i ? -2
-      : typeof blocks[i]?._srcLine === "number" ? blocks[i]._srcLine : -1));
-    return { text: texts.join("\n"), blocks, blockOfLine, lineMap };
-  };
+  const fromBlocks = _vmaBlocksSource;
   const activeTab = tabs.find(tab => tab.id === activeTabId);
   const fileDir = dirOf(activeTab?.filePath || _expertAsmFilePath) || workingFolder || "";
   const startupPath = () => {
@@ -28663,25 +28269,205 @@ function _vmaWithPrelude(input) {
 }
 
 // The Rust build; `vma` = its debugger view (the sidecars, symbols and lines of vma_build), the
-// ranges it writes (`segments` [[address, bytes]]) and the memory panel's view (`memory`).
+// ranges it writes (`segments` [[address, bytes]]) and the memory panel's view (`memory`);
+// `analysis` = the whole _vmaAnalyze answer (its layout: _vmaLayout).
 async function _vmaRustBuild(kick = null) {
-  const input = _vmaWithPrelude(_vmaBuildInput(kick));
-  const r = await window.electronAPI.vmaBuild(input.text, input.baseDir, basicSysToggle ? basicSysToggle.checked : true,
-    input.sourcePath, input.lineMap || null);
-  if (!r?.ok) {
-    const lines = String(input.text || "").split("\n");
-    const list = r?.errors?.length ? r.errors : [{ line: r?.line || 0, message: r?.error || "VMA (Rust) error", key: "", params: {}, address: null }];
-    const errors = list.map(e => _vmaErrorEntry(e, input, lines));
-    return { ok: false, error: errors[0].text, errors };
+  const vma = await _vmaAnalyze(_vmaWithPrelude(_vmaBuildInput(kick)));
+  const result = _vmaBuildResult(vma);
+  result.analysis = vma;
+  return result;
+}
+
+// ── Live views: vma_analyze ─────────────────────────────────────────────────
+// The editor's own source (not the project's startup file): the Expert text, whose lines are the
+// editor's, or the blocks of the Block-mode program (`blocks`: other blocks); the prelude in front.
+function _vmaEditorInput(blocks = null) {
+  const dirOf = (p) => String(p || "").replace(/[\\/][^\\/]*$/, "");
+  const activeTab = tabs.find(tab => tab.id === activeTabId);
+  const filePath = activeTab?.filePath || _expertAsmFilePath || "";
+  const baseDir = (filePath ? dirOf(filePath) : "") || workingFolder || "";
+  const sourcePath = _getDebuggerPrimarySourcePath();
+  if (!blocks && expertMode && expertEditor) {
+    return _vmaWithPrelude({ text: _expertGetSourceText(), baseDir, editorLines: true, sourcePath });
   }
-  const result = { ok: true, bytes: Uint8Array.from(r.prg || []) };
-  if (typeof r.sysAddress === "number") result.sysAddress = r.sysAddress;
-  // a Kick project keeps the JS debugger view (its file:line map, _kickBuiltProject)
-  if (r.sidecars && !input.kick) {
-    result.vma = { origin: r.debugOrigin, sidecars: r.sidecars, symbols: r.symbols || [], lines: r.lines || [],
-      segments: r.segments || [], entry: r.entry, memory: r.memory || null, input };
+  return _vmaWithPrelude({ ..._vmaBlocksSource(blocks || program), baseDir, editorLines: false, sourcePath });
+}
+
+// Any VMA text (an editor's export, a generated test program) as an input.
+function _vmaTextInput(text, baseDir = "") {
+  return { text: String(text || ""), baseDir, editorLines: false, sourcePath: "program.asm" };
+}
+
+function _vmaBasicStub() {
+  return basicSysToggle ? basicSysToggle.checked : true;
+}
+
+// vma_analyze → the build and the layout of `input`. The lines: { address, size, end, skipped,
+// fromMacro, kind ("instr" | "label" | "const" | "var" | "org" | "data" | "code" | "none"), name / value
+// (what the line defines: a label, const, var, LOOP / FOR label, TABLE), bytes
+// (null when the line failed: `error`), mnem / mode (an instruction's, from its opcode), block (the
+// block of a Block-mode source), sourceLine (the editor's line; none in an included file), file /
+// fileLine (an included file's) }; labels: name → address. Without the desktop app: not ok, no lines.
+async function _vmaAnalyze(input, basicStub = _vmaBasicStub()) {
+  if (!window.electronAPI?.vmaAnalyze) return _vmaNormalize({}, input);
+  let r;
+  try {
+    r = await window.electronAPI.vmaAnalyze(input.text, input.baseDir || "", basicStub, input.sourcePath || null, input.lineMap || null, input.assets || null);
+  } catch (e) {
+    r = { ok: false, error: String(e?.message || e), errors: [], listing: [] };
+  }
+  return _vmaNormalize(r || {}, input);
+}
+
+function _vmaNormalize(r, input) {
+  const textLines = String(input.text || "").split("\n");
+  const files = r.files || [];
+  const prelude = input.prelude || 0;
+  const lines = (r.listing || []).map(([address, size, flags, textLine, fileLine, file, kind, name, bytes, error, value], index) => {
+    const blockIndex = input.blocks && textLine >= 0 ? input.blockOfLine?.[textLine] ?? -1 : -1;
+    const block = blockIndex >= 0 ? input.blocks[blockIndex] : null;
+    const own = textLine - prelude;
+    const sourceLine = block
+      ? (typeof block._srcLine === "number" ? block._srcLine : undefined)
+      : (textLine >= 0 && own >= 0 && (input.editorLines || input.kick) ? own : undefined);
+    const info = kind === "instr" && bytes?.length ? _REV_OP[bytes[0]] : null;
+    return {
+      index, address, size, end: address + size - 1, skipped: !!(flags & 1), fromMacro: !!(flags & 2),
+      textLine, sourceLine, file: file >= 0 ? files[file] : null, fileLine: fileLine >= 0 ? fileLine : undefined,
+      kind, name: name || "", value: typeof value === "number" ? value : null, bytes: bytes || null, error: error ? _vmaErrorMessage(error) : "",
+      mnem: info?.mnem || "", mode: info?.mode || "", block, blockIndex
+    };
+  });
+  const noApi = !window.electronAPI?.vmaAnalyze;
+  const list = r.ok ? [] : noApi ? [] : (r.errors?.length ? r.errors : [{ line: r.line || 0, message: r.error || "VMA error", key: "", params: {}, address: null }]);
+  const errors = noApi ? [{ text: t("vmaNeedsDesktop") }] : list.map(e => _vmaErrorEntry(e, input, textLines));
+  return {
+    ok: !!r.ok,
+    error: errors[0]?.text || "",
+    errors,
+    bytes: r.ok ? Uint8Array.from(r.prg || []) : null,
+    sysAddress: typeof r.sysAddress === "number" ? r.sysAddress : null,
+    entry: r.entry,
+    segments: r.segments || [],
+    memory: r.memory || null,
+    symbols: r.symbols || [],
+    sidecars: r.sidecars || null,
+    debugOrigin: r.debugOrigin,
+    origin: typeof r.listOrigin === "number" ? r.listOrigin : 0x0801,
+    lines,
+    labels: new Map((r.labels || []).map(([n, v]) => [n, v & 0xFFFF])),
+    input,
+    raw: r
+  };
+}
+
+// The result of a build as _vmaRustBuild gives it (the PRG, its debugger view), from an analysis.
+function _vmaBuildResult(vma) {
+  if (!vma.ok) return { ok: false, error: vma.error, errors: vma.errors };
+  const result = { ok: true, bytes: vma.bytes };
+  if (typeof vma.sysAddress === "number") result.sysAddress = vma.sysAddress;
+  if (vma.sidecars && !vma.input.kick) {
+    result.vma = { origin: vma.debugOrigin, sidecars: vma.sidecars, symbols: vma.symbols, lines: vma.raw.lines || [],
+      segments: vma.segments, entry: vma.entry, memory: vma.memory, input: vma.input };
   }
   return result;
+}
+
+// The last analysis of the live source; the views read it synchronously: _vmaLiveFor(input, rerender)
+// gives the analysis of exactly this input, or null — then one is made and `rerender` runs when it
+// is there (every caller waiting for the same input). A stale one never answers another input.
+// a few sources at once (the editor's, the project's startup file, a Kick tree): the newest last
+const _vmaLiveCache = new Map();
+const _VMA_LIVE_MAX = 4;
+const _vmaLivePending = new Map();
+
+function _vmaLiveStore(key, vma) {
+  _vmaLiveCache.delete(key);
+  _vmaLiveCache.set(key, vma);
+  while (_vmaLiveCache.size > _VMA_LIVE_MAX) _vmaLiveCache.delete(_vmaLiveCache.keys().next().value);
+}
+
+function _vmaLiveKey(input, basicStub) {
+  return `${basicStub ? 1 : 0}\u0001${input.baseDir || ""}\u0001${input.editorLines ? 1 : 0}\u0001${(input.lineMap || []).join(",")}\u0001${input.text}`;
+}
+
+function _vmaLiveFor(input, rerender = null, basicStub = _vmaBasicStub()) {
+  const key = _vmaLiveKey(input, basicStub);
+  if (_vmaLiveCache.has(key)) return _vmaLiveCache.get(key);
+  if (!window.electronAPI?.vmaAnalyze) return _vmaNormalize({}, input);
+  let pending = _vmaLivePending.get(key);
+  if (!pending) {
+    pending = { callbacks: new Set() };
+    _vmaLivePending.set(key, pending);
+    _vmaAnalyze(input, basicStub).then((vma) => {
+      _vmaLivePending.delete(key);
+      _vmaLiveStore(key, vma);
+      for (const fn of pending.callbacks) {
+        try { fn(vma); } catch (e) { console.warn("VMA live view:", e); }
+      }
+    });
+  }
+  if (rerender) pending.callbacks.add(rerender);
+  return null;
+}
+
+// The analysis of `input` now (awaited), for what runs outside a render pass.
+async function _vmaLiveNow(input, basicStub = _vmaBasicStub()) {
+  const key = _vmaLiveKey(input, basicStub);
+  if (_vmaLiveCache.has(key)) return _vmaLiveCache.get(key);
+  const vma = await _vmaAnalyze(input, basicStub);
+  _vmaLiveStore(key, vma);
+  return vma;
+}
+
+// The bytes of an analysis by address: what the program writes (its segments), else its lines.
+function _vmaMemoryMap(vma) {
+  const mem = new Map();
+  for (const [address, bytes] of vma.segments || []) bytes.forEach((b, i) => mem.set(address + i, b));
+  if (!(vma.segments || []).length) {
+    for (const line of vma.lines) {
+      if (!line.skipped && line.bytes) line.bytes.forEach((b, i) => mem.set(line.address + i, b));
+    }
+  }
+  return mem;
+}
+
+// An analysis in the shape of the layout the views read: per line { block, address, size, end,
+// conditionallySkipped, bytes, error }; `block` is the line's own view (a label's name, an
+// instruction's mnemonic, its source line, the included file) with the id / breakpoint of the
+// Block-mode block it comes from. `labels`: the layout's labels, `vma`: the analysis.
+function _vmaLayout(vma) {
+  let previousBlock = -1;
+  const lines = vma.lines.map((l) => {
+    const first = l.blockIndex >= 0 && l.blockIndex !== previousBlock;
+    if (l.blockIndex >= 0) previousBlock = l.blockIndex;
+    const block = {
+      id: l.block?.id,
+      _srcLine: l.file ? l.fileLine : l.sourceLine,
+      _fromInclude: l.file || undefined,
+      _fromMacro: l.fromMacro ? "macro" : undefined,
+      isBreakpoint: first && !!l.block?.isBreakpoint,
+      isLabel: l.kind === "label",
+      labelName: l.kind === "label" ? l.name : "",
+      isOrgMacro: l.kind === "org",
+      mnemonic: l.mnem,
+      _vmaKind: l.kind
+    };
+    return { block, address: l.address, size: l.size, end: l.end, conditionallySkipped: l.skipped, bytes: l.bytes, error: l.error, vma: l };
+  });
+  return {
+    origin: { value: vma.origin, text: formatAddress(vma.origin), error: "" },
+    lines,
+    start: vma.origin,
+    end: lines.length ? lines[lines.length - 1].end : vma.origin - 1,
+    labels: vma.labels,
+    vma
+  };
+}
+
+// The labels of a layout (name → address).
+function _layoutLabels(layout) {
+  return new Map(layout?.labels || []);
 }
 
 // The text of a Rust compile error in the app's language: tf(key, params) as the JS compiler
@@ -28745,11 +28531,10 @@ function _vmaDebuggerTargets(vma, expertBreakpointLines) {
 }
 
 async function _vaBuildPrg(kick = null) {
-  const engine = window.electronAPI?.vmaBuild ? _vmaEngine() : "js";
+  if (!_vmaAvailable()) return { ok: false, error: t("vmaNeedsDesktop") };
   const file = kick ? _workStepName(kick.entry) : _workStepSource();
-  setWorkStep("stepVma", { file, engine: engine === "rust" ? "Rust" : "JS" });
-  if (engine === "rust") return _vmaStepDone(await _vmaRustBuild(kick));
-  return _vmaStepDone(buildAutostartPrgForEmulator());
+  setWorkStep("stepVma", { file, engine: "Rust" });
+  return _vmaStepDone(await _vmaRustBuild(kick));
 }
 
 // The step line after a VMA build: the size and load address of the PRG.
@@ -28794,33 +28579,28 @@ function _kickScheduleCheck() {
     let errors = kick.errors;
     let bytes = 0;
     if (kick.ok) {
-      const saved = program;
-      const savedMacros = userMacros;
       try {
-        program = kick.program;
-        parseUserMacros();
         if (_kickCheckCache?.kick !== kick) {
-          _kickCheckCache = { kick, res: _kickMapResult(_buildAutostartPrgCore(), kick), usage: getMemoryUsage() };
+          const vma = await _vmaAnalyze(_vmaWithPrelude(_vmaBuildInput(kick)));
+          _kickCheckCache = { kick, vma, res: _kickMapResult(_vmaBuildResult(vma), kick), usage: getMemoryUsage(_vmaLayout(vma)) };
         }
-        const { res, usage } = _kickCheckCache;
+        if (tabId !== activeTabId) return;
+        const { res, usage, vma } = _kickCheckCache;
         if (res.ok) bytes = Math.max(0, (res.bytes?.length || 2) - 2);
         else errors = res.errors;
         renderMemoryMap(usage);
         const activePath = tabs.find(t => t.id === activeTabId)?.filePath || "";
         if (_expertCyclesEnabled && res.ok) {
-          _expertCycleMap = _kickCycleMap(kick, activePath);
+          _expertCycleMap = _kickCycleMap(kick, activePath, vma);
           _expertUpdateCycles();
         }
         if (res.ok) {
           const prevHintKey = _expertLintHints.map((h) => h.srcLine + h.key).join();
-          _expertLintHints = _kickLintHints(kick, activePath);
+          _expertLintHints = _kickLintHints(kick, activePath, vma);
           if (_expertLintHints.map((h) => h.srcLine + h.key).join() !== prevHintKey) _expertRenderLintButton();
         }
       } catch (e) {
         errors = [{ text: String(e) }];
-      } finally {
-        program = saved;
-        userMacros = savedMacros;
       }
     }
     const active = tabs.find(t => t.id === activeTabId);
@@ -28878,42 +28658,20 @@ function _kickBreakpointAddresses(layout, kick) {
       if (hit) addresses.push(hit.line.address & 0xFFFF);
     }
   }
-  const labels = new Map();
-  addAllLayoutLabels(labels, layout?.lines);
+  const labels = _layoutLabels(layout);
   for (const b of kick.breaks || []) if (labels.has(b.label)) addresses.push(Number(labels.get(b.label)) & 0xFFFF);
   return [...new Set(addresses)];
 }
 
-// Peephole hints of a Kick project on the lines of the open file (the built program is
-// `program`); a line unrolled several times gives each hint once.
-function _kickLintHints(kick, filePath) {
+// Peephole hints of a Kick project on the lines of the open file (`vma`: the analysis of its
+// build); a line unrolled several times gives each hint once.
+function _kickLintHints(kick, filePath, vma) {
   const norm = _normFilePath(filePath);
-  if (!norm) return [];
-  const layout = getProgramLayout();
-  const labels = new Map();
-  addAllLayoutLabels(labels, layout.lines);
-  labels._anonAddrs = _collectAnonLabels(layout);
-  appendDelayHelperLabel(labels, layout);
-  const seq = [];
-  let labelled = false;
-  for (const line of layout.lines) {
-    const block = line.block;
-    if (line.conditionallySkipped) continue;
-    if (block.isLabel) labelled = true;
-    if (block.isLabel || block.isComment || block.isIncludeMacro || block.isBlankLine) continue;
-    if (block._isSavedAddress || block._isRestoreAddress || block.isOrgMacro) { seq.push({ barrier: true }); continue; }
-    const result = compileLineBytes(line, labels);
-    const mnem = String(block.mnemonic || "").toUpperCase();
-    const info = result.ok ? _REV_OP[result.bytes[0]] : null;
-    const origin = typeof block._srcLine === "number" ? kick.origins[block._srcLine] : null;
-    if (info && opcodeMap[mnem] && info.mnem === mnem && result.bytes.length === info.size) {
-      const own = origin && _normFilePath(origin.file) === norm;
-      seq.push({ mnem, mode: info.mode, bytes: result.bytes, address: line.address, srcLine: own ? origin.line - 1 : undefined, labelled });
-      labelled = false;
-    } else if (!result.ok || result.bytes?.length || block.smcLabel) {
-      seq.push({ barrier: true });
-    }
-  }
+  if (!norm || !vma) return [];
+  const seq = _vmaLintSeq(vma, (line) => {
+    const origin = line.textLine >= 0 ? kick.origins[line.textLine] : null;
+    return origin && _normFilePath(origin.file) === norm ? origin.line - 1 : undefined;
+  });
   const seen = new Set();
   return _lintAsm(seq).filter((h) => {
     if (h.srcLine === undefined) return false;
@@ -28927,28 +28685,20 @@ function _kickLintHints(kick, filePath) {
 // Cycle gutter of a Kick project: the built program's instructions on the lines of the
 // open file. A line expanded several times (.for, macros) shows one turn and "×n";
 // its min / max count every turn, so a selection sums the whole unrolled code.
-function _kickCycleMap(kick, filePath) {
+function _kickCycleMap(kick, filePath, vma) {
   const map = new Map();
   const norm = _normFilePath(filePath);
-  if (!norm) return map;
-  const layout = getProgramLayout();
-  const labels = new Map();
-  addAllLayoutLabels(labels, layout.lines);
-  labels._anonAddrs = _collectAnonLabels(layout);
+  if (!norm || !vma) return map;
   const perLine = new Map();   // editor line → [{ key, c }] (key: the instruction text)
-  for (const line of layout.lines) {
-    if (line.conditionallySkipped || typeof line.block._srcLine !== "number") continue;
-    const origin = kick.origins[line.block._srcLine];
+  for (const line of vma.lines) {
+    if (line.skipped || line.kind !== "instr" || !line.bytes?.length || line.textLine < 0) continue;
+    const origin = kick.origins[line.textLine];
     if (!origin || _normFilePath(origin.file) !== norm) continue;
-    const mnem = String(line.block.mnemonic || "").toUpperCase();
-    if (!opcodeMap[mnem]) continue;
-    const result = compileLineBytes(line, labels);
-    if (!result.ok || _REV_OP[result.bytes[0]]?.mnem !== mnem) continue;
-    const c = _cycleInfo(result.bytes, line.address);
+    const c = _cycleInfo(line.bytes, line.address);
     if (!c) continue;
-    const key = `${line.block._srcLine}`;
+    const key = `${line.textLine}`;
     if (!perLine.has(origin.line - 1)) perLine.set(origin.line - 1, []);
-    perLine.get(origin.line - 1).push({ key, mnem, c });
+    perLine.get(origin.line - 1).push({ key, mnem: line.mnem, c });
   }
   for (const [lineNo, items] of perLine) {
     // the statements of one turn: up to the first repeated mnemonic sequence
@@ -29347,7 +29097,6 @@ function _importMakeU64PalReset() {
    Only $2000 (VIC bank 0, screen $0400) and $6000 (bank 1, screen $4400) are
    allowed: other 8K slots are under ROM (the copy loop would read ROM) or hit the
    char-ROM shadow. D018 = $18 in both cases (screen +$0400, bitmap +$2000). */
-const _KOALA_SHOW_SIZE = 86;
 
 function _koalaData(block) {
   const bytes = block?.incBinBytes || [];
@@ -29360,27 +29109,6 @@ function _koalaError(block) {
   const len = (block.incBinBytes || []).length;
   if (len && len !== 10001 && len !== 10003) return tf("koalaSizeInvalid", { size: len });
   return "";
-}
-
-function _koalaShowBytes(addr) {
-  const lo = v => v & 0xFF, hi = v => (v >> 8) & 0xFF;
-  const screen = (addr === 0x2000 ? 0x0000 : 0x4000) + 0x0400;
-  const out = [0xA2, 0x00];                                   // LDX #0
-  const copy = (src, dst) => {
-    for (let k = 0; k < 4; k++) {
-      out.push(0xBD, lo(src + k * 250), hi(src + k * 250));   // LDA src+k*250,X
-      out.push(0x9D, lo(dst + k * 250), hi(dst + k * 250));   // STA dst+k*250,X
-    }
-  };
-  copy(addr + 8000, screen);                                  // screen RAM
-  copy(addr + 9000, 0xD800);                                  // color RAM
-  out.push(0xE8, 0xE0, 0xFA, 0xD0, 0xCB);                     // INX / CPX #250 / BNE loop (-53)
-  out.push(0xAD, lo(addr + 10000), hi(addr + 10000), 0x8D, 0x21, 0xD0);   // background → $D021
-  out.push(0xAD, 0x00, 0xDD, 0x29, 0xFC, 0x09, addr === 0x2000 ? 0x03 : 0x02, 0x8D, 0x00, 0xDD); // VIC bank
-  out.push(0xA9, 0x3B, 0x8D, 0x11, 0xD0);                     // bitmap mode
-  out.push(0xA9, 0x18, 0x8D, 0x16, 0xD0);                     // multicolor
-  out.push(0xA9, 0x18, 0x8D, 0x18, 0xD0);                     // screen +$0400, bitmap +$2000
-  return out;
 }
 
 /* LEVEL = INCBIN variant (incBinLevel) for a Level Editor project file (.bin with
@@ -29399,8 +29127,6 @@ function _koalaShowBytes(addr) {
      LEVEL_SCR_BG/BORDER/MC1/MC2[slot]  screen colours (only when a placed screen has its own)
    Rows and columns are 8-bit indices: at most 10 screens tall and 7 wide. */
 const _LEVEL_SCREEN = 2000;
-const _LEVEL_ROW_TABLES = ["LEVEL_SLOT_LO", "LEVEL_SLOT_HI", "LEVEL_ROW_SLOT", "LEVEL_ROW_LO", "LEVEL_ROW_HI",
-  "LEVEL_CROW_LO", "LEVEL_CROW_HI", "LEVEL_COL_SLOT", "LEVEL_COL_OFS"];
 // LEVEL_OBJ_T_* numbering — the Level Editor's _LV_OBJ_TYPES order.
 const _LEVEL_OBJ_TYPES = ["START", "ENEMY", "ITEM", "DOOR", "EXIT", "TRIGGER"];
 // LEVEL_ATTR_* bits — the Level Editor's _LV_ATTRS.
@@ -29513,39 +29239,6 @@ function _levelError(block) {
    interface (accepting data left over from an earlier command), writes the command,
    pushes it and accepts the answer. A and X are destroyed. */
 const _U64_UCI_CODE = 59;
-function _u64UciBytes(addr, data) {
-  const len = data.length;
-  const at = (addr + _U64_UCI_CODE) & 0xFFFF;
-  return [
-    0xAD, 0x1D, 0xDF,            // LDA $DF1D      identification
-    0xC9, 0xC9,                  // CMP #$C9
-    0xD0, 52 + len,              // BNE done
-    0xAD, 0x1C, 0xDF,            // idle: LDA $DF1C
-    0x29, 0x30,                  // AND #$30       state
-    0xF0, 0x0B,                  // BEQ ready
-    0x29, 0x20,                  // AND #$20
-    0xF0, 0xF5,                  // BEQ idle       busy
-    0xA9, 0x02,                  // LDA #$02       data pending: accept it
-    0x8D, 0x1C, 0xDF,            // STA $DF1C
-    0xD0, 0xEE,                  // BNE idle
-    0xA2, 0x00,                  // ready: LDX #0
-    0xBD, at & 0xFF, at >> 8,    // send: LDA data,X
-    0x8D, 0x1D, 0xDF,            // STA $DF1D
-    0xE8,                        // INX
-    0xE0, len,                   // CPX #len
-    0xD0, 0xF5,                  // BNE send
-    0xA9, 0x01,                  // LDA #$01       push command
-    0x8D, 0x1C, 0xDF,            // STA $DF1C
-    0xAD, 0x1C, 0xDF,            // busy: LDA $DF1C
-    0x29, 0x30,                  // AND #$30
-    0xC9, 0x10,                  // CMP #$10
-    0xF0, 0xF7,                  // BEQ busy
-    0xA9, 0x02,                  // LDA #$02       accept the answer
-    0x8D, 0x1C, 0xDF,            // STA $DF1C
-    0xD0, len,                   // BNE done
-    ...data                      // data: target, command, parameters
-  ];                             // done:
-}
 const _U64_PAL_SIZE = _U64_UCI_CODE + 50;
 const _U64_PAL_COLOR_SIZE = _U64_UCI_CODE + 6;
 const _U64_PAL_RESET_SIZE = _U64_UCI_CODE + 2;
@@ -29570,13 +29263,6 @@ function _u64PalColorError(raw) {
 }
 
 /* Data bytes an INCBIN-family block places at incBinAddress. */
-function _incBinPayload(block) {
-  if (block?.incBinU64Pal) return [];
-  if (block?.incBinKoala) return _koalaData(block);
-  if (block?.incBinLevel) return _levelInfo(block).data;
-  return block?.incBinBytes || [];
-}
-
 /* .level_row dst, col[, color] — copies the 40 bytes of level row X (screen codes,
    or colors with "color") starting at level column [col] to the address held in
    the pointer [dst]/[dst+1]. X is kept, A/Y are destroyed. The window spans at most
@@ -29589,65 +29275,7 @@ function _levelRowParse(raw) {
   return { dst: parts[0], col: parts[1], color: parts.length === 3 };
 }
 
-function _levelRowBytes(org, dst, col, color, tab) {
-  const out = [], fix = [], at = {};
-  const lo = v => v & 0xFF, hi = v => (v >> 8) & 0xFF;
-  const abs = (op, a) => out.push(op, lo(a), hi(a));
-  const ref = (op, name, plus) => { out.push(op, 0, 0); fix.push([out.length - 2, name, plus]); };
-  const mark = (name) => { at[name] = org + out.length; };
-  const rowLo = color ? tab.LEVEL_CROW_LO : tab.LEVEL_ROW_LO;
-  const rowHi = color ? tab.LEVEL_CROW_HI : tab.LEVEL_ROW_HI;
-  abs(0xAC, col);                                   // LDY col
-  abs(0xB9, tab.LEVEL_COL_OFS);                     // LDA LEVEL_COL_OFS,Y
-  ref(0x8D, "ofs", 1);                              // STA ofs (ADC #)
-  ref(0x8D, "cntR", 1);                             // STA cntR (LDY #)
-  out.push(0x49, 0xFF, 0x18, 0x69, 41);             // EOR #$FF / CLC / ADC #41 -> 40 - ofs
-  ref(0x8D, "cntL", 1);
-  ref(0x8D, "n1", 1);
-  abs(0xBD, tab.LEVEL_ROW_SLOT);                    // LDA LEVEL_ROW_SLOT,X
-  out.push(0x18);
-  abs(0x79, tab.LEVEL_COL_SLOT);                    // ADC LEVEL_COL_SLOT,Y
-  out.push(0xA8);                                   // TAY (slot)
-  for (const [side, plus] of [["lsrc", 0], ["rsrc", 1]]) {
-    abs(0xB9, tab.LEVEL_SLOT_LO + plus);            // LDA LEVEL_SLOT_LO(+1),Y
-    out.push(0x18);
-    abs(0x7D, rowLo);                               // ADC row_lo,X
-    ref(0x8D, side, 1);
-    abs(0xB9, tab.LEVEL_SLOT_HI + plus);            // LDA LEVEL_SLOT_HI(+1),Y
-    abs(0x7D, rowHi);                               // ADC row_hi,X
-    ref(0x8D, side, 2);
-  }
-  ref(0xAD, "lsrc", 1);                             // left source += ofs
-  out.push(0x18);
-  mark("ofs"); out.push(0x69, 0x00);
-  ref(0x8D, "lsrc", 1);
-  out.push(0x90, 0x03);
-  ref(0xEE, "lsrc", 2);
-  abs(0xAD, dst);                                   // left target = (dst), right = (dst) + n1
-  ref(0x8D, "ldst", 1);
-  out.push(0x18);
-  mark("n1"); out.push(0x69, 0x00);
-  ref(0x8D, "rdst", 1);
-  abs(0xAD, (dst + 1) & 0xFFFF);
-  ref(0x8D, "ldst", 2);
-  out.push(0x69, 0x00);
-  ref(0x8D, "rdst", 2);
-  mark("cntL"); out.push(0xA0, 0x00, 0x88);         // LDY #n1 / DEY
-  mark("lsrc"); abs(0xB9, 0xFFFF);
-  mark("ldst"); abs(0x99, 0xFFFF);
-  out.push(0x88, 0x10, 0xF7);                       // DEY / BPL lsrc
-  mark("cntR"); out.push(0xA0, 0x00, 0xF0, 0x0A, 0x88); // LDY #ofs / BEQ done / DEY
-  mark("rsrc"); abs(0xB9, 0xFFFF);
-  mark("rdst"); abs(0x99, 0xFFFF);
-  out.push(0x88, 0x10, 0xF7);                       // DEY / BPL rsrc
-  for (const [pos, name, plus] of fix) {
-    const a = (at[name] + plus) & 0xFFFF;
-    out[pos] = lo(a); out[pos + 1] = hi(a);
-  }
-  return out;
-}
-
-const _LEVEL_ROW_SIZE = _levelRowBytes(0, 0, 0, false, new Proxy({}, { get: () => 0 })).length;
+const _LEVEL_ROW_SIZE = 132;
 
 /* JOYSTICK: `.joystick port, sprite` moves sprite N (DEC/INC $D000/$D001+2N);
    `.joystick port, vx, vy[, fire]` writes the direction to variables instead:
@@ -29655,32 +29283,6 @@ const _LEVEL_ROW_SIZE = _levelRowBytes(0, 0, 0, false, new Proxy({}, { get: () =
    Port 1 = $DC01, 2 = $DC00, 3 = both (LDA $DC00 / AND $DC01). */
 function _joyIsVarMode(block) {
   return !!String(block?.joyVarX || "").trim() || !!String(block?.joyVarY || "").trim();
-}
-
-function _joyPortValue(block) {
-  const port = resolveProgramNumericValue(block?.joyPort || "2", null, "dec");
-  return port === 1 || port === 3 ? port : 2;
-}
-
-function _joyReadBytes(port) {
-  if (port === 3) return [0xAD, 0x00, 0xDC, 0x2D, 0x01, 0xDC];   // LDA $DC00 / AND $DC01
-  return port === 1 ? [0xAD, 0x01, 0xDC] : [0xAD, 0x00, 0xDC];
-}
-
-function _joyVarBytes(port, vx, vy, fire) {
-  const lo = v => v & 0xFF, hi = v => (v >> 8) & 0xFF;
-  const out = [0xA9, 0x00, 0x8D, lo(vx), hi(vx), 0x8D, lo(vy), hi(vy), ..._joyReadBytes(port)];
-  for (const [op, addr] of [[0xCE, vy], [0xEE, vy], [0xCE, vx], [0xEE, vx]]) {
-    out.push(0x4A, 0xB0, 0x03, op, lo(addr), hi(addr));            // LSR / BCS +3 / DEC|INC var
-  }
-  if (fire !== undefined) out.push(0x29, 0x01, 0x49, 0x01, 0x8D, lo(fire), hi(fire)); // AND #1 / EOR #1 / STA fire
-  return out;
-}
-
-function _joystickSize(block) {
-  const read = _joyReadBytes(_joyPortValue(block)).length;
-  if (!_joyIsVarMode(block)) return read + 24;
-  return 8 + read + 24 + (String(block.joyVarFire || "").trim() ? 7 : 0);
 }
 
 function _importMakeConst(name, rawValue) {
@@ -30333,272 +29935,6 @@ function parseAsmText(text) {
   return blocks;
 }
 
-function splitMacroInvokeArgs(argText) {
-  const result = [];
-  let current = "";
-  let quote = "";
-  let escaped = false;
-
-  for (const char of (argText || "")) {
-    if (escaped) {
-      current += char;
-      escaped = false;
-      continue;
-    }
-    if (char === "\\") {
-      current += char;
-      escaped = true;
-      continue;
-    }
-    if (quote) {
-      current += char;
-      if (char === quote) {
-        quote = "";
-      }
-      continue;
-    }
-    if (char === "\"" || char === "'") {
-      quote = char;
-      current += char;
-      continue;
-    }
-    if (char === ",") {
-      result.push(current.trim());
-      current = "";
-      continue;
-    }
-    current += char;
-  }
-
-  if (current.trim() || result.length) {
-    result.push(current.trim());
-  }
-
-  return result.filter(part => part !== "");
-}
-
-function normalizeMacroInvokeArg(arg) {
-  const trimmed = (arg || "").trim();
-  if (trimmed.length >= 2) {
-    const first = trimmed[0];
-    const last = trimmed[trimmed.length - 1];
-    // 'A' stays a character literal (its code), any other quoted argument loses the quotes
-    if (first === "'" && last === "'" && trimmed.length === 3) return trimmed;
-    if ((first === '"' && last === '"') || (first === "'" && last === "'")) {
-      return trimmed.slice(1, -1);
-    }
-  }
-  return trimmed;
-}
-
-function isBareLabelToken(value) {
-  return /^[A-Za-z_][A-Za-z0-9_]*$/.test((value || "").trim());
-}
-
-function getDeferredMacroAddressField(block) {
-  if (block.isStringMacro) return "stringAddress";
-  if (block.isRawTextMacro) return "rawTextAddress";
-  if (block.isDataMacro) return "dataAddress";
-  if (block.isRawBytesMacro) return "rawBytesAddress";
-  if (block.isPetsciiMacro) return "petsciiAddress";
-  return null;
-}
-
-function makeMacroBufferLabel(invokeId, paramName) {
-  const safeInvokeId = String(invokeId || "").replace(/-/g, "").slice(0, 8) || "invk";
-  const safeParamName = String(paramName || "buf").replace(/[^A-Za-z0-9_]/g, "_");
-  return `__buf_${safeInvokeId}_${safeParamName}`;
-}
-
-function addLayoutLabels(labelMap, line) {
-  if (!line || line.conditionallySkipped) return;
-  const block = line.block || {};
-  const evalAsmExpression = (expr, localLabels = null, localVars = null) => {
-    let text = String(expr ?? "").trim();
-    if (!text) return null;
-
-    text = text.replace(/^#/, "");
-    text = text.replace(/\$([A-Za-z_][A-Za-z0-9_]*)/g, (match, name) => {
-      return /^[0-9A-Fa-f]+$/.test(name) ? match : name;
-    });
-    text = text.replace(/\$<\s*\(/g, "lo(");
-    text = text.replace(/\$>\s*\(/g, "hi(");
-    text = text.replace(/<\s*\(/g, "lo(");
-    text = text.replace(/>\s*\(/g, "hi(");
-    text = text.replace(/<\s*([A-Za-z_][A-Za-z0-9_]*)/g, "lo($1)");
-    text = text.replace(/>\s*([A-Za-z_][A-Za-z0-9_]*)/g, "hi($1)");
-    text = text.replace(/\$([0-9A-Fa-f]+)/g, "0x$1");
-    text = text.replace(/%([01]+)/g, "0b$1");
-
-    const resolved = Object.create(null);
-    const setResolved = (name, value) => {
-      if (value === undefined || value === null || Number.isNaN(value)) return;
-      resolved[name] = Number(value);
-      resolved[name.toLowerCase()] = Number(value);
-      resolved[name.toUpperCase()] = Number(value);
-    };
-
-    if (localLabels && typeof localLabels.forEach === "function") {
-      localLabels.forEach((value, name) => setResolved(name, value));
-    }
-    if (localVars && typeof localVars === "object") {
-      for (const [name, value] of Object.entries(localVars)) {
-        setResolved(name, value);
-      }
-    }
-
-    text = text.replace(/\b(round|sin|cos|max|min|abs)\b/gi, (match) => `__FUNC_${match.toUpperCase()}__`);
-    text = text.replace(/\bPI\b/gi, "__CONST_PI__");
-
-    text = text.replace(/\b[A-Za-z_][A-Za-z0-9_]*\b/g, (name) => {
-      if (name.startsWith("__FUNC_") || name === "__CONST_PI__") return name;
-      if (name === "lo" || name === "hi" || name === "Math") return name;
-      if (/^0x[0-9A-Fa-f]+$/.test(name)) return name;
-      if (Object.prototype.hasOwnProperty.call(resolved, name)) return String(resolved[name]);
-
-      const constValue = lookupProgramConstValue(name);
-      if (constValue !== null) return String(constValue);
-
-      return `__UNKNOWN_${name}__`;
-    });
-
-    if (/__UNKNOWN_[A-Za-z0-9_]+__/.test(text)) {
-      return null;
-    }
-
-    text = text.replace(/__FUNC_ROUND__/g, "Math.round");
-    text = text.replace(/__FUNC_SIN__/g, "Math.sin");
-    text = text.replace(/__FUNC_MAX__/g, "Math.max");
-    text = text.replace(/__FUNC_MIN__/g, "Math.min");
-    text = text.replace(/__FUNC_ABS__/g, "Math.abs");
-    text = text.replace(/__CONST_PI__/g, "Math.PI");
-
-    try {
-      const result = _evalJsExprSafe(text);
-      return Number.isFinite(result) ? Number(result) : null;
-    } catch (_) {
-      return null;
-    }
-  };
-  if (block.isLabel && block.labelName) labelMap.set(block.labelName, (line.address + (block.labelOffset || 0)) & 0xFFFF);
-  if (block.isSidMacro && block.sidLoadAddress) {
-    // the init / play addresses move with a custom load address
-    const placed = block.sidCustomAddress ? parseAddressValue(block.sidCustomAddress, labelMap) : block.sidLoadAddress;
-    if (typeof placed === "number" && !isNaN(placed)) {
-      const shift = placed - block.sidLoadAddress;
-      labelMap.set("SID_LOAD", placed & 0xFFFF);
-      labelMap.set("SID_INIT", ((block.sidInitAddress || block.sidLoadAddress) + shift) & 0xFFFF);
-      if (block.sidPlayAddress) labelMap.set("SID_PLAY", (block.sidPlayAddress + shift) & 0xFFFF);
-    }
-  }
-  if (block.isIncBinMacro && block.incBinLevel) {
-    const info = _levelInfo(block);
-    if (info.ok) for (const [name, value] of Object.entries(info.labels)) labelMap.set(name, value);
-  }
-  // Self-modifying-code label: points at the first operand byte of the instruction.
-  if (block.smcLabel) labelMap.set(block.smcLabel, (line.address + 1) & 0xFFFF);
-  if (block.isLoopMacro && block.loopLabel) labelMap.set(block.loopLabel, line.address + 2);
-  if (block.isForMacro && block.loopLabel) labelMap.set(block.loopLabel, line.address + 2);
-  if (block.isTableMacro && block.tableName) {
-    const tableAddr = block.tableAddress
-      ? (parseAddressValue(block.tableAddress) ?? line.address)
-      : line.address;
-    labelMap.set(block.tableName, tableAddr);
-  }
-  if (block.isConstMacro && block.constName) {
-    const raw = (block.rawOperand || "").trim();
-    const starExpr = raw.match(/^\*\s*([+-])\s*(\d+)$/);
-    if (starExpr) {
-      const offset = parseInt(starExpr[2], 10) * (starExpr[1] === '+' ? 1 : -1);
-      const value = (line.address + offset) & 0xFFFF;
-      block.constValue = value;
-      labelMap.set(block.constName, value);
-    } else {
-      const n = parseNumberByBase(raw.replace(/^\$/, ""), block.base);
-      if (n !== null) {
-        block.constValue = n;
-        labelMap.set(block.constName, n);
-      } else {
-        const v = evalAsmExpression(raw, labelMap, { i: line.address, I: line.address });
-        if (v !== null) {
-          const value = v & 0xFFFF;
-          block.constValue = value;
-          labelMap.set(block.constName, value);
-        }
-      }
-    }
-  }
-  if (block.isVarMacro && block.varName && typeof block._varAddress === "number") {
-    labelMap.set(block.varName, block._varAddress);
-  }
-  if (block.isRuntimeElseMacro && block.runtimeIfElseLabel) {
-    // .else anchors the else_label at this position (after JMP emitted here)
-    labelMap.set(block.runtimeIfElseLabel, line.address + 3);
-  }
-  if (block.isRuntimeEndIfMacro && block.runtimeIfEndLabel) {
-    labelMap.set(block.runtimeIfEndLabel, line.address);
-    // If no ELSE was present, else_label collapses to end_label
-    if (!block.hasElse && block.runtimeIfElseLabel) {
-      labelMap.set(block.runtimeIfElseLabel, line.address);
-    }
-  }
-  if (block.isRuntimeWhileMacro && block.whileStartLabel) {
-    labelMap.set(block.whileStartLabel, line.address);
-  }
-  if (block.isRuntimeEndwMacro && block.whileEndLabel) {
-    // .endw emits JMP loop_start (3 bytes), then anchors loop_end after that
-    labelMap.set(block.whileEndLabel, line.address + 3);
-  }
-  if (block.isRuntimeRepeatMacro && block.repeatStartLabel) {
-    labelMap.set(block.repeatStartLabel, line.address);
-  }
-  if (block._autoBufferLabel) {
-    labelMap.set(block._autoBufferLabel, block._autoBufferAddress ?? line.address);
-  }
-  if (block.macroLabel) {
-    const ml = block.macroLabel.trim();
-    if (ml) {
-      let addr = null;
-      const target = block.isStringMacro ? block.stringAddress
-        : block.isDataMacro ? block.dataAddress
-        : block.isRawBytesMacro ? block.rawBytesAddress
-        : block.isRawTextMacro ? block.rawTextAddress
-        : block.isPetsciiMacro ? block.petsciiAddress
-        : undefined;
-      if (block.isTextMacro) {
-        addr = 0x0400 + ((resolveProgramValueWithConst(block.textY ?? "0", "dec") || 0) * 40) + (resolveProgramValueWithConst(block.textX ?? "0", "dec") || 0);
-      } else if (target !== undefined) {
-        addr = parseAddressValue(target, labelMap);
-        // a label as the target address: resolved once every label is known (addAllLayoutLabels)
-        if (addr === null && /^[A-Za-z_]/.test(String(target || "").trim())) {
-          (labelMap._pendingMacroLabels ||= []).push({ name: ml, target: String(target).trim() });
-          return;
-        }
-        addr ??= 0xC000;
-      }
-      if (addr !== null) labelMap.set(ml, addr);
-    }
-  }
-}
-
-// Every layout line's labels, then the data-macro labels whose target is a label defined later.
-function addAllLayoutLabels(labelMap, lines) {
-  (lines || []).forEach((line) => addLayoutLabels(labelMap, line));
-  let pending = labelMap._pendingMacroLabels || [];
-  delete labelMap._pendingMacroLabels;
-  // a target may be another data-macro label: repeat while it helps; an unresolved one stays undefined
-  while (pending.length) {
-    const left = pending.filter(({ name, target }) => {
-      const addr = parseAddressValue(target, labelMap);
-      if (addr === null) return true;
-      labelMap.set(name, addr);
-      return false;
-    });
-    if (left.length === pending.length) break;
-    pending = left;
-  }
-}
-
 // ── End ASM Import parser ─────────────────────────────────────────
 
 // importedName: an imported foreign project opens unsaved under this name,
@@ -30816,14 +30152,6 @@ async function _getAsmExportHeader() {
   return `; Generated by C64 Visual Assembler ${version}\n; https://zstarczali.itch.io/visual-assembler-commodore-64\n;\n`;
 }
 
-function _buildDisasmText() {
-  const html = _buildDisasmHTML(_getDisassemblyCodeOrigin(), _getGeneratedBasicStubSection());
-  if (!html) return "";
-  const host = document.createElement("div");
-  host.innerHTML = html;
-  return (host.textContent || "").replace(/\u00A0/g, " ");
-}
-
 function _getDisasmSourceText(forExpert = false, outputElement = null) {
   const el = outputElement || (forExpert ? expertDisasmOutput : document.getElementById("disasm-output"));
   return (el?.textContent || "").replace(/\u00A0/g, " ");
@@ -30838,215 +30166,72 @@ async function copyDisasmSourceToClipboard(forExpert = false, outputElement = nu
   }
 }
 
-function _buildUniversalAsmExportText(originOverride) {
-  const layout = getProgramLayout(originOverride);
+// The program as plain 6502 source any assembler reads (Copy ASM, ACME from blocks): the built
+// layout disassembled, its labels kept, the macros as the instructions and bytes they make.
+function _buildUniversalAsmExportText(vma) {
   const headerLines = [
     `; Generated by C64 Visual Assembler ${appVersionText || "v?"}`,
     `; https://zstarczali.itch.io/visual-assembler-commodore-64`
   ];
-  if (!program.length) {
-    return `${headerLines.join("\n")}\n;\n* = ${layout.origin.text}`;
+  if (!vma?.lines.length) {
+    return `${headerLines.join("\n")}\n;\n* = ${formatAddress(vma?.origin ?? 0x0801)}`;
   }
-
-  const labelMap = new Map();
-  addAllLayoutLabels(labelMap, layout.lines);
-  labelMap._anonAddrs = _collectAnonLabels(layout);
-
+  // a label any assembler takes: local ".loop" → "_loop" after its scope
+  const safe = (name) => String(name).replace(/[^A-Za-z0-9_]/g, "_").replace(/^(\d)/, "_$1");
   const addrToLabels = new Map();
-  const equNames = new Set();
-  for (const [name, addr] of labelMap) {
-    if (!addrToLabels.has(addr)) addrToLabels.set(addr, []);
-    addrToLabels.get(addr).push(name);
+  const equates = [];
+  for (const line of vma.lines) {
+    if (line.skipped || !line.name || !Number.isFinite(line.value)) continue;
+    if (line.kind === "const" || line.kind === "var") { equates.push([safe(line.name), line.value]); continue; }
+    if (!addrToLabels.has(line.value)) addrToLabels.set(line.value, []);
+    if (!addrToLabels.get(line.value).includes(safe(line.name))) addrToLabels.get(line.value).push(safe(line.name));
   }
-  const deferredSections = getDeferredMemorySections(layout);
-  layout.lines.forEach((line) => {
-    const block = line.block || {};
-    if (block.isConstMacro && block.constName) equNames.add(block.constName);
-    if (block.isVarMacro && block.varName) equNames.add(block.varName);
-  });
-  const addrToLabel = new Map();
-  for (const [addr, names] of addrToLabels) {
-    const preferred = names.find((name) => !equNames.has(name)) || names[0];
-    if (preferred) addrToLabel.set(addr, preferred);
-  }
+  const addrToLabel = new Map([...addrToLabels].map(([address, names]) => [address, names[0]]));
 
-  const orderedLines = layout.lines
-    .map((line, index) => ({ line, index }))
-    .filter(({ line }) => {
-      if (line.conditionallySkipped) return false;
-      if (line.block._isSavedAddress || line.block._isRestoreAddress) return false;
-      if (line.block._macroSourceBlock || line.block._isMacroInvokeHeader) return false;
-      if (line.block.isComment) return false;
-      if (line.block.isRegionMacro || line.block.isEndRegionMacro) return false;
-      if (line.block.isIncludeMacro) return false;
-      if (line.block.isOrgMacro) return false;
-      return true;
-    })
-    .sort(_compareLayoutLineRefs);
-
-  const lines = [];
+  const lines = equates.map(([name, value]) => `${name} = ${formatAddress(value)}`);
+  if (lines.length) lines.push("");
   let currentAddress = null;
-  const emittedLabels = new Set();
-
-  const emitOrg = (address) => {
-    if (typeof address !== "number" || Number.isNaN(address)) return;
-    if (currentAddress !== address) {
-      lines.push(`* = ${formatAddress(address)}`);
-      currentAddress = address;
+  const emitted = new Set();
+  const emitAt = (address) => {
+    if (currentAddress !== address) lines.push(`* = ${formatAddress(address)}`);
+    for (const name of addrToLabels.get(address) || []) {
+      if (!emitted.has(name)) { lines.push(`${name}:`); emitted.add(name); }
     }
   };
-
-  const advanceAddress = (byteCount) => {
-    if (typeof currentAddress !== "number" || Number.isNaN(currentAddress)) return;
-    if (typeof byteCount !== "number" || Number.isNaN(byteCount)) return;
-    currentAddress += byteCount;
-  };
-
-  const emitLabelsForAddress = (address) => {
-    const labels = addrToLabels.get(address);
-    if (!labels || !labels.length) return;
-    labels.forEach((label) => {
-      if (equNames.has(label) || emittedLabels.has(label)) return;
-      lines.push(`${label}:`);
-      emittedLabels.add(label);
-    });
-  };
-
-  for (const { line } of orderedLines) {
-    const block = line.block || {};
-    const address = line.address;
-
-    if (block.isConstMacro) {
-      const constVal = parseNumberByBase((block.rawOperand || "").replace(/^\$/, ""), block.base);
-      if (block.constName && constVal !== null) {
-        lines.push(`${block.constName} = ${formatAddress(constVal)}`);
-        emittedLabels.add(block.constName);
-      } else if (block.constName) {
-        lines.push(`${block.constName} = ${block.rawOperand || "?"}`);
-        emittedLabels.add(block.constName);
-      }
+  const code = vma.lines
+    .filter(line => !line.skipped && line.bytes?.length && line.kind !== "org")
+    .map((line, order) => ({ line, order }))
+    .sort((a, b) => (a.line.address - b.line.address) || (a.order - b.order));
+  for (const { line } of code) {
+    if (line.kind === "data") {
+      emitAt(line.address);
+      _formatPlainByteLines(line.bytes).forEach(row => lines.push(row));
+      currentAddress = line.address + line.bytes.length;
       continue;
     }
-
-    if (block.isVarMacro) {
-      if (block.varName && typeof block._varAddress === "number") {
-        lines.push(`${block.varName} = ${formatAddress(block._varAddress)}`);
-        emittedLabels.add(block.varName);
-      }
-      continue;
+    for (const instr of _disasmBytes(line.bytes, line.address)) {
+      emitAt(instr.address);
+      _formatPlainDisasmLines(instr.bytes, instr.address, addrToLabel).forEach(row => lines.push(row));
+      currentAddress = instr.address + instr.bytes.length;
     }
-
-    if (block.isTableMacro) {
-      if (block.tableName) {
-        emitOrg(typeof block.tableAddress === "string" && block.tableAddress
-          ? (parseAddressValue(block.tableAddress, labelMap) ?? address)
-          : address);
-        lines.push(`${block.tableName}:`);
-        emittedLabels.add(block.tableName);
-      }
-      continue;
+  }
+  // labels after the last byte (an end marker)
+  for (const [address, names] of addrToLabels) {
+    for (const name of names) {
+      if (!emitted.has(name)) { lines.push(`${name} = ${formatAddress(address)}`); emitted.add(name); }
     }
-
-    if (block.isLabel) {
-      emitOrg(address);
-      lines.push(`${block.labelName || "label"}:`);
-      if (block.labelName) emittedLabels.add(block.labelName);
-      continue;
-    }
-
-    if (block.isAnonymousLabel) {
-      emitOrg(address);
-      lines.push("-");
-      continue;
-    }
-
-    if (block.isBlankLine) {
-      lines.push("");
-      continue;
-    }
-
-    if (block.isStringMacro || block.isDataMacro || block.isRawBytesMacro || block.isRawTextMacro || block.isPetsciiMacro || (block.isIncBinMacro && !block.incBinKoala && !block.incBinU64Pal) || block.isSidMacro) {
-      continue;
-    }
-
-    const isDataBlock = block.isByteMacro || block.isWordMacro || block.isFillMacro || block.isAlignMacro;
-    const compiled = isDataBlock ? { ok: true, bytes: [] } : compileLineBytes(line, labelMap);
-    if (!compiled.ok) {
-      continue;
-    }
-
-    emitOrg(address);
-    emitLabelsForAddress(address);
-
-    if (isDataBlock) {
-      const rawBytes = block.isByteMacro
-        ? parseByteMacro(block.rawOperand, block.base)
-        : block.isFillMacro
-          ? (() => {
-              const parsed = parseFillMacro(block.rawOperand, block.base);
-              return parsed && !isNaN(parsed.count) && !isNaN(parsed.value)
-                ? new Array(parsed.count).fill(parsed.value & 0xFF)
-                : [];
-            })()
-          : block.isAlignMacro
-            ? (() => {
-                const boundary = parseNumberByBase(block.rawOperand.replace(/^\$/, ""), block.base);
-                if (!boundary || boundary < 1) return [];
-                const remainder = address % boundary;
-                const padding = remainder === 0 ? 0 : boundary - remainder;
-                return new Array(padding).fill(0x00);
-              })()
-            : block.isRawBytesMacro
-              ? parseByteMacro(block.rawOperand, block.base, labelMap)
-              : block.isRawTextMacro
-                ? encodeTextMacro(block.rawOperand, block.textCharset || "standard")
-                    .map((byte) => {
-                      const rawOffset = resolveProgramValueWithConst(block.charOffset || "0", "hex");
-                      return (byte + (isNaN(rawOffset) ? 0 : rawOffset)) & 0xFF;
-                    })
-                : block.isPetsciiMacro
-                  ? (() => {
-                      const bytes = encodePetsciiMacro(block.rawOperand, block.petsciiCharset || "upper");
-                      if (block.petsciiNullTerminated) bytes.push(0x00);
-                      return bytes;
-                    })()
-        : block.isIncBinMacro
-                    ? Array.from(block.incBinBytes || [])
-                    : Array.from(block.sidBytes || []);
-
-      if (block.isWordMacro) {
-        const words = parseWordMacro(block.rawOperand, block.base);
-        _formatPlainWordLines(words).forEach((lineText) => lines.push(lineText));
-        advanceAddress(words.length * 2);
-      } else {
-        const byteLines = block.isByteMacro
-          ? _formatByteMacroAsmLines(block.rawOperand, block.base, labelMap)
-          : _formatPlainByteLines(rawBytes);
-        byteLines.forEach((lineText) => lines.push(lineText));
-        advanceAddress(rawBytes.length);
-      }
-      continue;
-    }
-
-    if (!compiled.bytes.length) {
-      continue;
-    }
-
-    const disasmLines = _formatPlainDisasmLines(compiled.bytes, address, addrToLabel);
-    disasmLines.forEach((lineText) => lines.push(lineText));
-    advanceAddress(compiled.bytes.length);
   }
 
-  if (deferredSections.length) {
-    deferredSections.sort((left, right) => left.address - right.address || left.type.localeCompare(right.type));
-    lines.push("", `; ${t("remoteMemoryData")}`);
-    deferredSections.forEach((section) => {
-      if (!section.bytes.length) return;
-      lines.push(`* = ${formatAddress(section.address)}`);
-      if (section.label) lines.push(`; ${section.label}`);
-      _formatPlainByteLines(section.bytes).forEach((lineText) => lines.push(lineText));
-    });
+  const mem = _vmaMemoryMap(vma);
+  const sections = (vma.memory?.deferred || []).filter(sec => sec.end >= sec.address).sort((x, y) => x.address - y.address);
+  const deferred = [];
+  for (const section of sections) {
+    const bytes = [];
+    for (let a = section.address; a <= section.end && mem.has(a); a++) bytes.push(mem.get(a));
+    if (bytes.length !== section.end - section.address + 1) continue;
+    deferred.push(`* = ${formatAddress(section.address)}`, `; ${section.label || section.type}`, ..._formatPlainByteLines(bytes));
   }
+  if (deferred.length) lines.push("", `; ${t("remoteMemoryData")}`, ...deferred);
 
   return `${headerLines.join("\n")}\n;\n${lines.join("\n").trimEnd()}`;
 }
@@ -31069,50 +30254,6 @@ function _formatPlainByteLines(bytes, perLine = 16, indent = "    ") {
   return lines;
 }
 
-function _formatByteMacroAsmLines(raw, base = "dec", labels = null, perLine = 8, indent = "    ") {
-  const parts = String(raw || "")
-    .split(",")
-    .map((part) => part.trim())
-    .filter(Boolean);
-  if (!parts.length) return [];
-
-  const rendered = parts.map((part) => {
-    if (/^[<>][A-Za-z_.][A-Za-z0-9_.]*$/.test(part)) return part;
-    if (/^%[01]+$/.test(part)) return part;
-    if (/^\$[0-9A-Fa-f]+$/.test(part)) return `$${part.slice(1).toUpperCase()}`;
-    if (/^0x[0-9A-Fa-f]+$/i.test(part)) return `$${part.slice(2).toUpperCase()}`;
-
-    const numericByBase = parseNumberByBase(part, base);
-    if (numericByBase !== null && !isNaN(numericByBase)) {
-      return toHex(numericByBase & 0xFF, 2);
-    }
-
-    if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(part)) return part;
-
-    const resolved = resolveProgramNumericValue(part, labels, base);
-    if (resolved !== null && !isNaN(resolved)) {
-      return toHex(resolved & 0xFF, 2);
-    }
-    return part;
-  });
-
-  const lines = [];
-  for (let i = 0; i < rendered.length; i += perLine) {
-    lines.push(`${indent}.byte ${rendered.slice(i, i + perLine).join(", ")}`);
-  }
-  return lines;
-}
-
-function _formatPlainWordLines(words, perLine = 8, indent = "    ") {
-  if (!Array.isArray(words) || !words.length) return [];
-  const lines = [];
-  for (let i = 0; i < words.length; i += perLine) {
-    const chunk = words.slice(i, i + perLine);
-    lines.push(`${indent}.word ${chunk.map((word) => toHex(word, 4)).join(", ")}`);
-  }
-  return lines;
-}
-
 function _formatPlainDisasmLines(bytes, baseAddr, addrToLabel) {
   if (!Array.isArray(bytes) || !bytes.length) return [];
   return _disasmBytes(bytes, baseAddr).map((instr) => {
@@ -31122,360 +30263,9 @@ function _formatPlainDisasmLines(bytes, baseAddr, addrToLabel) {
   });
 }
 
-function _commentifyAsmLines(lines) {
-  return lines.filter(Boolean).map((line) => `; ${line.trimStart()}`);
-}
 
-function _getPlainAsmSourceText() {
-  const layout = getProgramLayout();
-
-  if (!program.length) {
-    return `* = ${layout.origin.text}\n; ${t("theC64AssemblySourceWillAppearHere")}`;
-  }
-
-  if (expertMode && expertEditor) {
-    return _expertGetSourceText();
-  }
-
-  return asmPlainText || "";
-
-  const labels = new Map();
-  addAllLayoutLabels(labels, layout.lines);
-  labels._anonAddrs = _collectAnonLabels(layout);
-
-  const addrToLabel = new Map();
-  for (const [name, addr] of labels) {
-    if (!addrToLabel.has(addr)) {
-      addrToLabel.set(addr, name);
-    }
-  }
-
-  const mainLines = [];
-  const deferredSections = [];
-  const pushLine = (text) => {
-    if (text === null || text === undefined) return;
-    mainLines.push(text);
-  };
-  const addDeferredSection = (block, address, bytes, comment, fallbackName) => {
-    if (!Array.isArray(bytes) || !bytes.length) {
-      if (comment) pushLine(`; ${comment}`);
-      return;
-    }
-    const macroLabel = (block.macroLabel || "").trim();
-    deferredSections.push({
-      address,
-      bytes,
-      label: macroLabel ? sanitizeLabelName(macroLabel) : fallbackName,
-      comment
-    });
-  };
-
-  layout.lines.forEach((line, index) => {
-    const block = line.block || {};
-
-    if (line.conditionallySkipped) return;
-    if (block._isSavedAddress || block._isRestoreAddress) return;
-    if (block._macroSourceBlock || block._isMacroInvokeHeader) return;
-    if (block.isIncludeMacro) return;
-
-    if (block.isBlankLine) {
-      pushLine("");
-      return;
-    }
-
-    if (block.isComment) {
-      pushLine(`; ${block.rawOperand || ""}`);
-      return;
-    }
-
-    if (block.isLabel) {
-      pushLine(`${block.labelName || "label"}:`);
-      return;
-    }
-
-    if (block.isAnonymousLabel) {
-      pushLine("-");
-      return;
-    }
-
-    if (block.isRegionMacro) {
-      if (showRegionComments) pushLine(`; region ${block.regionName || "region"}`);
-      return;
-    }
-
-    if (block.isEndRegionMacro) {
-      if (showRegionComments) pushLine(`; endregion ${block.regionName || "region"}`);
-      return;
-    }
-
-    if (block.isOrgMacro) {
-      if (block.orgAddress) pushLine(`* = $${block.orgAddress.toUpperCase()}`);
-      return;
-    }
-
-    if (block.isTableMacro) {
-      if (block.tableAddress) {
-        const tableAddr = parseAddressValue(block.tableAddress, labels);
-        if (typeof tableAddr === "number" && !isNaN(tableAddr)) {
-          pushLine(`* = ${formatAddress(tableAddr)}`);
-        }
-      }
-      if (block.tableName) pushLine(`${block.tableName}:`);
-      return;
-    }
-
-    if (block.isDefineMacro) {
-      pushLine(`; DEFINE ${block.defineSymbol || "?"}`);
-      return;
-    }
-
-    if (block.isConstMacro) {
-      const constVal = parseNumberByBase((block.rawOperand || "").replace(/^\$/, ""), block.base);
-      if (block.constName && constVal !== null) {
-        pushLine(`${block.constName} = ${formatOperand("absolute", constVal, block.base || "hex")}`);
-      } else {
-        pushLine(`; CONST ${block.constName || "?"} = ${block.rawOperand || "?"}`);
-      }
-      return;
-    }
-
-    if (block.isVarMacro) {
-      if (block.varName && typeof block._varAddress === "number") {
-        const size = resolveProgramValueWithConst(block.varSize || "1", "dec");
-        const safeSize = isNaN(size) ? 1 : Math.max(1, Math.min(255, size));
-        const addr = "$" + block._varAddress.toString(16).toUpperCase().padStart(2, "0");
-        pushLine(`${block.varName} = ${addr}${safeSize > 1 ? "  ; " + safeSize + " bytes" : ""}`);
-      } else {
-        const size = resolveProgramValueWithConst(block.varSize || "1", "dec");
-        const safeSize = isNaN(size) ? 1 : Math.max(1, Math.min(255, size));
-        pushLine(`; VAR ${block.varName || "?"} (size ${safeSize}) — allocation failed`);
-      }
-      return;
-    }
-
-    if (block.isIfMacro) {
-      pushLine(`; IF ${block.ifCondition || "?"}`);
-      return;
-    }
-
-    if (block.isElseMacro) {
-      pushLine("; ELSE");
-      return;
-    }
-
-    if (block.isEndIfMacro) {
-      pushLine("; ENDIF");
-      return;
-    }
-
-    if (block.isMacroDefStart) {
-      pushLine(`; MACRO ${block.macroName || "?"}${block.macroParams ? `(${block.macroParams})` : ""}`);
-      return;
-    }
-
-    if (block.isMacroDefEnd) {
-      pushLine("; ENDM");
-      return;
-    }
-
-    if (block.isByteMacro) {
-      const byteLines = _formatPlainByteLines(parseByteMacro(block.rawOperand, block.base));
-      if (byteLines.length) {
-        pushLine(_commentifyAsmLines(byteLines).join("\n"));
-        pushLine(byteLines.join("\n"));
-      }
-      return;
-    }
-
-    if (block.isWordMacro) {
-      const wordLines = _formatPlainWordLines(parseWordMacro(block.rawOperand, block.base));
-      if (wordLines.length) {
-        pushLine(_commentifyAsmLines(wordLines).join("\n"));
-        pushLine(wordLines.join("\n"));
-      }
-      return;
-    }
-
-    if (block.isFillMacro) {
-      const parsed = parseFillMacro(block.rawOperand, block.base);
-      if (parsed && !isNaN(parsed.count) && !isNaN(parsed.value)) {
-        const fillLines = _formatPlainByteLines(new Array(parsed.count).fill(parsed.value & 0xFF));
-        pushLine(_commentifyAsmLines(fillLines).join("\n"));
-        pushLine(fillLines.join("\n"));
-      } else {
-        pushLine(`; FILL ${block.rawOperand || ""}`);
-      }
-      return;
-    }
-
-    if (block.isAlignMacro) {
-      const boundary = parseNumberByBase(block.rawOperand.replace(/^\$/, ""), block.base);
-      if (boundary && boundary > 0) {
-        const remainder = line.address % boundary;
-        const padding = remainder === 0 ? 0 : boundary - remainder;
-        if (padding > 0) {
-          const alignLines = _formatPlainByteLines(new Array(padding).fill(0x00));
-          pushLine(_commentifyAsmLines(alignLines).join("\n"));
-          pushLine(alignLines.join("\n"));
-        }
-      } else {
-        pushLine(`; ALIGN ${block.rawOperand || ""}`);
-      }
-      return;
-    }
-
-    if (block.isRawBytesMacro) {
-      const address = parseAddressValue(block.rawBytesAddress, labels) ?? 0xC000;
-      const bytes = parseByteMacro(block.rawOperand, block.base, labels);
-      const byteLines = _formatPlainByteLines(bytes);
-      if (byteLines.length) {
-        pushLine(_commentifyAsmLines(byteLines).join("\n"));
-      }
-      addDeferredSection(
-        block,
-        address,
-        bytes,
-        `raw bytes @ ${formatAddress(address)}`,
-        `rawbytes_${String(index + 1).padStart(2, "0")}`
-      );
-      return;
-    }
-
-    if (block.isRawTextMacro) {
-      const address = parseAddressValue(block.rawTextAddress, labels) ?? 0xC000;
-      const rawOffset = resolveProgramNumericValue(block.charOffset || "0", labelMap, "hex");
-      const bytes = encodeTextMacro(block.rawOperand, block.textCharset || "standard")
-        .map((byte) => (byte + (isNaN(rawOffset) ? 0 : rawOffset)) & 0xFF);
-      const byteLines = _formatPlainByteLines(bytes);
-      if (byteLines.length) {
-        pushLine(_commentifyAsmLines(byteLines).join("\n"));
-      }
-      addDeferredSection(
-        block,
-        address,
-        bytes,
-        `raw text @ ${formatAddress(address)}`,
-        `rawtext_${String(index + 1).padStart(2, "0")}`
-      );
-      return;
-    }
-
-    if (block.isPetsciiMacro) {
-      const address = parseAddressValue(block.petsciiAddress, labels) ?? 0xC000;
-      const bytes = encodePetsciiMacro(block.rawOperand, block.petsciiCharset || "upper");
-      if (block.petsciiNullTerminated) bytes.push(0x00);
-      const byteLines = _formatPlainByteLines(bytes);
-      if (byteLines.length) {
-        pushLine(_commentifyAsmLines(byteLines).join("\n"));
-      }
-      addDeferredSection(
-        block,
-        address,
-        bytes,
-        `petscii @ ${formatAddress(address)}`,
-        `petscii_${String(index + 1).padStart(2, "0")}`
-      );
-      return;
-    }
-
-    if (block.isIncBinMacro && !block.incBinU64Pal) {
-      const address = parseAddressValue(block.incBinAddress, labels) ?? 0xC000;
-      const bytes = Array.from(_incBinPayload(block));
-      const byteLines = _formatPlainByteLines(bytes);
-      if (byteLines.length) {
-        pushLine(_commentifyAsmLines(byteLines).join("\n"));
-      }
-      addDeferredSection(
-        block,
-        address,
-        bytes,
-        `incbin "${block.incBinFileName || block.incBinFile || "?"}" @ ${formatAddress(address)}`,
-        `incbin_${String(index + 1).padStart(2, "0")}`
-      );
-      return;
-    }
-
-    if (block.isSidMacro) {
-      const address = block.sidCustomAddress
-        ? parseAddressValue(block.sidCustomAddress, labels)
-        : block.sidLoadAddress;
-      const bytes = Array.from(block.sidBytes || []);
-      if (typeof address === "number" && !isNaN(address)) {
-        const byteLines = _formatPlainByteLines(bytes);
-        if (byteLines.length) {
-          pushLine(_commentifyAsmLines(byteLines).join("\n"));
-        }
-        addDeferredSection(
-          block,
-          address,
-          bytes,
-          `sid "${block.sidFileName || block.sidFile || "?"}" @ ${formatAddress(address)}`,
-          `sid_${String(index + 1).padStart(2, "0")}`
-        );
-      } else {
-        pushLine(`; SID "${block.sidFileName || block.sidFile || "?"}" (${t("noFileLoaded")})`);
-      }
-      return;
-    }
-
-    const compiled = compileLineBytes(line, labels);
-    if (!compiled.ok) {
-      const suffix = block.operand ? ` ${getAsmDisplayOperand(block)}` : "";
-      pushLine(`; ${block.mnemonic}${suffix}  ; ${compiled.error || "compile error"}`);
-      return;
-    }
-    if (!compiled.bytes.length) return;
-    const disasmLines = _formatPlainDisasmLines(compiled.bytes, line.address, addrToLabel);
-    if (disasmLines.length) {
-      pushLine(_commentifyAsmLines(disasmLines).join("\n"));
-      pushLine(disasmLines.join("\n"));
-    }
-  });
-
-  if (deferredSections.length) {
-    deferredSections.sort((left, right) => left.address - right.address || left.label.localeCompare(right.label));
-    pushLine("");
-    pushLine(`; ${t("deferredData")}`);
-    pushLine("");
-    deferredSections.forEach((section) => {
-      pushLine(`* = ${formatAddress(section.address)}`);
-      if (section.label) pushLine(`${section.label}:`);
-      if (section.comment) pushLine(`    ; ${section.comment}`);
-      const byteLines = _formatPlainByteLines(section.bytes);
-      if (byteLines.length) {
-        pushLine(_commentifyAsmLines(byteLines).join("\n"));
-        byteLines.forEach(pushLine);
-      } else {
-        pushLine(`    ; ${t("noDataLoaded")}`);
-      }
-      pushLine("");
-    });
-    while (mainLines.length && mainLines[mainLines.length - 1] === "") {
-      mainLines.pop();
-    }
-  }
-
-  return mainLines.join("\n");
-}
-
-function _getKickAsmExportText() {
-  const buildExportText = () => _buildUniversalAsmExportText() || "";
-
-  if (expertMode && expertEditor) {
-    const blocks = _expertBuildProgram();
-    const savedProgram = program;
-    const savedUserMacros = userMacros;
-    program = blocks;
-    parseUserMacros();
-    try {
-      return buildExportText();
-    } finally {
-      program = savedProgram;
-      userMacros = savedUserMacros;
-    }
-  }
-
-  return buildExportText();
+async function _getKickAsmExportText() {
+  return _buildUniversalAsmExportText(await _vmaLiveNow(_vmaEditorInput())) || "";
 }
 
 async function copyAsmToClipboard() {
@@ -31484,7 +30274,7 @@ async function copyAsmToClipboard() {
   }
 
   try {
-    await navigator.clipboard.writeText(_getKickAsmExportText());
+    await navigator.clipboard.writeText(await _getKickAsmExportText());
     copyAsmButton.textContent = t("asmCopied");
     window.setTimeout(() => {
       copyAsmButton.textContent = t("copyAsm");
@@ -31570,36 +30360,6 @@ async function runInEmulator() {
   }
 }
 
-function buildAutostartPrgForEmulator() {
-  const saved = program;
-  const savedUserMacros = userMacros;
-  let didSwap = false;
-
-  if (expertMode) {
-    // Expert mode: always rebuild from editor, but prefer startup file if set
-    const startupBlocks = _expertGetStartupProgram();
-    program = startupBlocks || _expertBuildProgram();
-    didSwap = true;
-  } else {
-    // Block mode: check for project startup file
-    const startupBlocks = _expertGetStartupProgram();
-    if (startupBlocks) {
-      program = startupBlocks;
-      didSwap = true;
-    }
-  }
-
-  try {
-    parseUserMacros();
-    return _buildAutostartPrgCore();
-  } finally {
-    if (didSwap) {
-      program = saved;
-      userMacros = savedUserMacros;
-    }
-  }
-}
-
 /**
  * Returns the program blocks for the project startup file, or null if none.
  * Works in both block mode and expert mode:
@@ -31676,66 +30436,6 @@ async function _projEnsureStartupTab() {
   return null;
 }
 
-function _buildAutostartPrgCore() {
-  const embeddedSysAddress = _getEmbeddedBasicSysAddress(program);
-  if (embeddedSysAddress !== null) {
-    // $0801 as the override: the source's own stub stays at $0801 even when it is not the
-    // first ORG (Restore64 puts it among the data blocks after ".pc = $080d").
-    const result = assembleProgramToPrg(0x0801);
-    return result.ok ? { ...result, sysAddress: embeddedSysAddress } : result;
-  }
-
-  const useBasicSys = basicSysToggle ? basicSysToggle.checked : true;
-
-  if (!useBasicSys) {
-    const origin = parseOriginValue();
-    const targetOrigin = (origin.value === 0x0801) ? 0xC000 : origin.value;
-    return assembleProgramToPrg(targetOrigin);
-  }
-
-  // Use user's origin as the SYS target address.
-  // Stub occupies $0801..$080C (for 4-digit decimal addresses), code starts at $080D.
-  // Classic C64 SYS stub format: SYS2061 (no space), exactly 12 bytes, gap = 0.
-  const origin = parseOriginValue();
-  // An ORG below $0801 (an imported memory dump) keeps "* = $0801" at $0801: the start
-  // loader below takes the whole image instead of shifting that segment behind the stub.
-  const hasLowerOrg = program.some(block => block?.isOrgMacro && (parseAddressValue(block.orgAddress) ?? 0xFFFF) < 0x0801);
-  const rawOrigin = (origin.value === 0x0801 && !hasLowerOrg) ? 0x080D : origin.value;
-  const stubDigits = String(rawOrigin).length;
-  const stubDataSize = 2 + 2 + 1 + stubDigits + 1 + 2; // nextptr+lineno+SYS+digits+EOL+BASIC_END (no space)
-  const stubEndAddr = 0x0801 + stubDataSize;
-  const codeOrigin = Math.max(rawOrigin, stubEndAddr);
-  // The SYS target is the first ORG, or the "Entry point: $XXXX" of the source's header
-  // comment (Restore64 disassemblies, where the first segment is often data).
-  const sysAddress = _sourceEntryHint(program) ?? codeOrigin;
-
-  const codePrg = assembleProgramToPrg(codeOrigin);
-  if (!codePrg.ok) return codePrg;
-
-  const codeData = codePrg.bytes.slice(2);
-  // The image starts at its lowest segment, which is not always the first ORG
-  // (an imported Kick source can start with ".pc = $0c40" and also fill $071c-).
-  const loadAddr = codePrg.bytes[0] | (codePrg.bytes[1] << 8);
-  const basicStub = buildBasicSysStub(sysAddress);
-  // basicStub[0,1] = PRG load addr header ($0801)
-  // basicStub[2..] = BASIC program data loaded at $0801
-  const stubData = basicStub.slice(2);
-  if (loadAddr < 0x0801 + stubData.length) {
-    // The image covers the stub: a loader moves it into place, then jumps to the entry.
-    const loader = _buildRelocatingLoader(codeData, loadAddr, sysAddress);
-    return loader ? { ok: true, bytes: loader, sysAddress: 0x080D } : { ok: false, error: tf("autostartImageOverlapsStub", { address: formatAddress(loadAddr) }) };
-  }
-
-  // Fill gap between stub end and code start with zeros
-  const gapSize = loadAddr - 0x0801 - stubData.length;
-  const bytes = new Uint8Array(2 + stubData.length + gapSize + codeData.length);
-  bytes[0] = 0x01; bytes[1] = 0x08; // load at $0801
-  bytes.set(stubData, 2);
-  bytes.set(codeData, 2 + stubData.length + gapSize);
-
-  return { ok: true, bytes, sysAddress };
-}
-
 // Autostart PRG for an image that overlaps the BASIC SYS stub ($0801 SYS 2061). A 14-byte
 // starter copies the mover to the tape buffer ($033C) or low stack ($0120) and jumps there.
 // Small image: stored after the mover, copied down to `loadAddr`. Larger image (it would reach
@@ -31798,17 +30498,6 @@ function _buildRelocatingLoader(image, loadAddr, entry) {
   return build(body, tail);
 }
 
-// "Entry point: $XXXX" in the comment lines before the first code line (Restore64 headers).
-function _sourceEntryHint(blocks) {
-  for (const block of blocks || []) {
-    if (block?.isBlankLine) continue;
-    if (!block?.isComment) return null;
-    const match = String(block.commentText ?? block.rawOperand ?? "").match(/\bEntry point:\s*\$([0-9A-Fa-f]{4})\b/i);
-    if (match) return Number.parseInt(match[1], 16);
-  }
-  return null;
-}
-
 // The same for ACME source text (";" or "//" comment lines).
 function _acmeEntryHint(source) {
   for (const line of String(source || "").split(/\r?\n/)) {
@@ -31819,10 +30508,6 @@ function _acmeEntryHint(source) {
     if (match) return Number.parseInt(match[1], 16);
   }
   return null;
-}
-
-function _programHasEmbeddedBasicAutostart(blocks) {
-  return _getEmbeddedBasicSysAddress(blocks) !== null;
 }
 
 function _getEmbeddedBasicSysAddress(blocks) {
@@ -31873,2015 +30558,6 @@ function buildBasicSysStub(sysAddress) {
     0x00,
     0x00, 0x00
   ]);
-}
-
-function assembleProgramToPrg(originOverride) {
-  // Pre-check: any INCLUDE / INCBIN / SID macro without a file specified, and
-  // any unknown-directive comment carrying a validationError, must fail the
-  // compile. The regular per-line pass skips both categories, so their errors
-  // would otherwise be swallowed silently.
-  const assetErrors = [];
-  const assetSource = Array.isArray(typeof program !== "undefined" ? program : null) ? program : [];
-  for (const [idx, block] of assetSource.entries()) {
-    let msg = validateAssetMacroHasFile(block);
-    if (!msg && block?.isComment && typeof block.validationError === "string" && block.validationError) {
-      msg = block.validationError;
-    }
-    if (!msg && block?.isIncludeMacro) msg = _includeLoadError(block);
-    if (msg) {
-      const asmLine = asmBlockRanges[block.id]?.firstLine;
-      const lineTag = typeof asmLine === "number"
-        ? `L${String(asmLine + 1).padStart(3, "0")}`
-        : `P${String(idx + 1).padStart(3, "0")}`;
-      assetErrors.push({
-        text: `[${lineTag}] ${block.mnemonic || "?"} — ${msg}`,
-        asmLine: typeof asmLine === "number" ? asmLine + 1 : null,
-        sourceLine: typeof block._srcLine === "number" ? block._srcLine : null
-      });
-    }
-  }
-  if (assetErrors.length > 0) {
-    return { ok: false, error: assetErrors[0].text, errors: assetErrors };
-  }
-
-  const layout = getProgramLayout(originOverride);
-  const labels = new Map();
-  const hasDelayMacro = layout.lines.some((line) => line.block?.isDelayMacro);
-
-  addAllLayoutLabels(labels, layout.lines);
-  labels._anonAddrs = _collectAnonLabels(layout);
-  appendDelayHelperLabel(labels, layout);
-  const delayHelperAddress = labels.get(DELAY_HELPER_LABEL);
-  const delayHelperBytes = typeof delayHelperAddress === "number"
-    ? buildDelayHelperBytes(delayHelperAddress)
-    : [];
-
-  // Assemble inline code bytes as sections (split by ORG blocks)
-  const inlineSections = [{ addr: layout.origin.value, bytes: [] }];
-  let currentSection = inlineSections[0];
-  const compileErrors = [];
-  for (const [layoutIndex, line] of layout.lines.entries()) {
-    if (line.block.isLabel || line.block.isComment || line.block.isIncludeMacro || line.block.isBlankLine) continue;
-    if (line.block._isSavedAddress) continue;
-    // Skip macro definition-site blocks that still contain unresolved {param} placeholders
-    if ((line.block._fromMacroDef || line.block._macroSourceBlock) && /\{[A-Za-z_][A-Za-z0-9_]*\}/.test(line.block.rawOperand || "")) continue;
-    if (line.block._isRestoreAddress) {
-      currentSection = { addr: line.address, bytes: [] };
-      inlineSections.push(currentSection);
-      continue;
-    }
-    if (line.block.isOrgMacro) {
-      // Use line.address (clamped by getProgramLayout) instead of raw orgAddress,
-      // so that an ORG below originOverride (e.g. ORG $0801 with sysAddress=$080D)
-      // doesn't create a section at the wrong address and shift deferred data.
-      currentSection = { addr: line.address, bytes: [] };
-      inlineSections.push(currentSection);
-      continue;
-    }
-    const compiled = compileLineBytes(line, labels);
-    if (!compiled.ok) {
-      const addr = `$${line.address.toString(16).toUpperCase().padStart(4, "0")}`;
-      const mnemonic = line.block.mnemonic || "?";
-      const operand = line.block.operand ? ` ${line.block.operand}` : "";
-      const key = line.block._fromInclude || (line.block._fromMacro ? (line.block._invokeBlockId || null) : line.block.id);
-      const asmLine = (key && asmBlockRanges[key]) ? (asmBlockRanges[key].firstLine + 1) : null;
-      const lineTag = asmLine
-        ? `L${String(asmLine).padStart(3, "0")}`
-        : `P${String(layoutIndex + 1).padStart(3, "0")}`;
-      compileErrors.push({
-        text: `[${lineTag}] ${addr}  ${mnemonic}${operand} — ${compiled.error}`,
-        asmLine,
-        sourceLine: typeof line.block._srcLine === "number" ? line.block._srcLine : null
-      });
-    } else {
-      currentSection.bytes.push(...compiled.bytes);
-    }
-  }
-  if (compileErrors.length > 0) {
-    return { ok: false, error: compileErrors[0].text, errors: compileErrors };
-  }
-
-  const origin = layout.origin.value;
-
-  // Collect deferred address chunks from RAWBYTES and RAWTEXT blocks
-  const deferredChunks = [];
-  for (const line of layout.lines) {
-    const block = line.block;
-    if (block.isRawBytesMacro) {
-      const chunkBytes = parseByteMacro(block.rawOperand, block.base, labels);
-      const addr = parseAddressValue(block.rawBytesAddress, labels) ?? 0xC000;
-      if (chunkBytes.length > 0) deferredChunks.push({ addr, bytes: chunkBytes });
-    } else if (block.isRawTextMacro) {
-      const rawOffset = resolveProgramNumericValue(block.charOffset || "0", labels, "hex");
-      const chunkBytes = encodeTextMacro(block.rawOperand, block.textCharset || "standard").map(b => (b + (isNaN(rawOffset) ? 0 : rawOffset)) & 0xFF);
-      const addr = parseAddressValue(block.rawTextAddress, labels) ?? 0xC000;
-      if (chunkBytes.length > 0) deferredChunks.push({ addr, bytes: chunkBytes });
-    } else if (block.isPetsciiMacro) {
-      const chunkBytes = encodePetsciiMacro(block.rawOperand, block.petsciiCharset || "upper");
-      if (block.petsciiNullTerminated) chunkBytes.push(0x00);
-      const addr = parseAddressValue(block.petsciiAddress, labels) ?? 0xC000;
-      if (chunkBytes.length > 0) deferredChunks.push({ addr, bytes: chunkBytes });
-    } else if (block.isIncBinMacro) {
-      const chunkBytes = _incBinPayload(block);
-      const addr = parseAddressValue(block.incBinAddress) ?? 0xC000;
-      if (chunkBytes.length > 0) deferredChunks.push({ addr, bytes: Array.from(chunkBytes) });
-    } else if (block.isSidMacro) {
-      const chunkBytes = block.sidBytes || [];
-      const customAddr = block.sidCustomAddress ? parseAddressValue(block.sidCustomAddress.replace(/^\$/, "")) : null;
-      const addr = customAddr ?? block.sidLoadAddress ?? 0;
-      if (chunkBytes.length > 0 && addr > 0) deferredChunks.push({ addr, bytes: Array.from(chunkBytes) });
-    }
-  }
-  if (hasDelayMacro && delayHelperAddress !== null) {
-    deferredChunks.push({ addr: delayHelperAddress, bytes: delayHelperBytes });
-  }
-
-  // Collect all non-empty chunks: inline sections + deferred chunks
-  const allChunks = [
-    ...inlineSections.filter(s => s.bytes.length > 0),
-    ...deferredChunks
-  ];
-
-  if (allChunks.length === 0) {
-    // No bytes at all — return minimal PRG with just load address
-    return { ok: true, bytes: new Uint8Array([origin & 0xFF, (origin >> 8) & 0xFF]) };
-  }
-
-  // Determine full address range across all chunks
-  let minAddr = allChunks[0].addr;
-  let maxAddr = allChunks[0].addr + allChunks[0].bytes.length - 1;
-  for (const chunk of allChunks) {
-    minAddr = Math.min(minAddr, chunk.addr);
-    maxAddr = Math.max(maxAddr, chunk.addr + chunk.bytes.length - 1);
-  }
-
-  // Build flat buffer from minAddr to maxAddr (zeros for gaps)
-  const bufSize = maxAddr - minAddr + 1;
-  const buf = new Uint8Array(bufSize);
-  for (const chunk of allChunks) {
-    const offset = chunk.addr - minAddr;
-    if (offset >= 0 && offset + chunk.bytes.length <= bufSize) {
-      buf.set(chunk.bytes, offset);
-    }
-  }
-
-  // PRG: 2-byte load address header + flat buffer
-  const result = new Uint8Array(2 + bufSize);
-  result[0] = minAddr & 0xFF;
-  result[1] = (minAddr >> 8) & 0xFF;
-  result.set(buf, 2);
-  return { ok: true, bytes: result };
-}
-
-function compileLineBytes(line, labels) {
-  const evalAsmExpression = (expr, localLabels = null, localVars = null) => {
-    let text = String(expr ?? "").trim();
-    if (!text) return null;
-    text = text.replace(/^#/, "");
-    text = text.replace(/\$([A-Za-z_][A-Za-z0-9_]*)/g, (match, name) => {
-      return /^[0-9A-Fa-f]+$/.test(name) ? match : name;
-    });
-    text = text.replace(/\$<\s*\(/g, "lo(");
-    text = text.replace(/\$>\s*\(/g, "hi(");
-    text = text.replace(/<\s*\(/g, "lo(");
-    text = text.replace(/>\s*\(/g, "hi(");
-    text = text.replace(/<\s*([A-Za-z_][A-Za-z0-9_]*)/g, "lo($1)");
-    text = text.replace(/>\s*([A-Za-z_][A-Za-z0-9_]*)/g, "hi($1)");
-    text = text.replace(/\$([0-9A-Fa-f]+)/g, "0x$1");
-    text = text.replace(/%([01]+)/g, "0b$1");
-    text = text.replace(/\b(round|sin|cos|max|min|abs)\b/gi, (match) => `__FUNC_${match.toUpperCase()}__`);
-    text = text.replace(/\bPI\b/gi, "__CONST_PI__");
-    text = text.replace(/\b[A-Za-z_][A-Za-z0-9_]*\b/g, (name) => {
-      if (name.startsWith("__FUNC_") || name === "__CONST_PI__") return name;
-      if (name === "lo" || name === "hi" || name === "Math") return name;
-      if (/^0x[0-9A-Fa-f]+$/.test(name)) return name;
-      if (localLabels && typeof localLabels.get === "function") {
-        const value = localLabels.get(name) ?? localLabels.get(name.toLowerCase()) ?? localLabels.get(name.toUpperCase());
-        if (value !== undefined) return String(value);
-      }
-      const constValue = lookupProgramConstValue(name);
-      if (constValue !== null) return String(constValue);
-      return `__UNKNOWN_${name}__`;
-    });
-    if (/__UNKNOWN_[A-Za-z0-9_]+__/.test(text)) return null;
-    text = text.replace(/__FUNC_ROUND__/g, "Math.round");
-    text = text.replace(/__FUNC_SIN__/g, "Math.sin");
-    text = text.replace(/__FUNC_COS__/g, "Math.cos");
-    text = text.replace(/__FUNC_MAX__/g, "Math.max");
-    text = text.replace(/__FUNC_MIN__/g, "Math.min");
-    text = text.replace(/__FUNC_ABS__/g, "Math.abs");
-    text = text.replace(/__CONST_PI__/g, "Math.PI");
-    try {
-      const result = _evalJsExprSafe(text);
-      return Number.isFinite(result) ? Number(result) : null;
-    } catch (_) {
-      return null;
-    }
-  };
-
-  if (line.conditionallySkipped) {
-    return { ok: true, bytes: [], comment: "conditionally skipped" };
-  }
-  const block = line.block;
-
-  if (block._isMacroInvokeHeader) {
-    return { ok: true, bytes: [], comment: `Invoke: ${block.invokeMacroName || "?"}` };
-  }
-
-  if (block._macroSourceBlock) {
-    return { ok: true, bytes: [] };
-  }
-
-  // Raw INVOKE block that reached compile without being expanded → the target
-  // macro is not defined. Emit a clear error instead of falling through to the
-  // generic "invalid operand" message.
-  if (block.isMacroInvoke) {
-    // A macro called inside a macro is expanded too, INCLUDE_MAX_DEPTH levels deep (a macro calling itself stops there).
-    if (block._macroTooDeep) {
-      return { ok: false, error: tf("compileMacroTooDeep", { name: block.invokeMacroName, depth: INCLUDE_MAX_DEPTH }) };
-    }
-    if (block._fromMacro && userMacros[block.invokeMacroName]) {
-      return { ok: false, error: tf("compileNestedMacro", { name: block.invokeMacroName, outer: block._fromMacro }) };
-    }
-    return { ok: false, error: tf("compileUnknownMacro", { name: block.invokeMacroName || "?" }) };
-  }
-
-  // Macro body at definition site with unresolved {param} placeholders — skip compilation
-  if ((block._fromMacroDef || block._macroSourceBlock) && /\{[A-Za-z_][A-Za-z0-9_]*\}/.test(block.rawOperand || "")) {
-    return { ok: true, bytes: [] };
-  }
-
-  if (block.isLabel || block.isComment || block.isAnonymousLabel || block.isBlankLine) {
-    return { ok: true, bytes: [] };
-  }
-
-  if (block.isIfMacro && block._ifError) return { ok: false, error: block._ifError };
-
-  const blockError = getLiveValidationError(block);
-  if (blockError) {
-    // If the rawOperand still has an unresolved {param} placeholder, give a clearer message
-    if (/\{[A-Za-z_][A-Za-z0-9_]*\}/.test(block.rawOperand || "")) {
-      return { ok: false, error: tf("compileUnresolvedMacroParam", { mnemonic: block.mnemonic, operand: block.rawOperand }) };
-    }
-    return { ok: false, error: tf("compileInvalidOperand", { mnemonic: block.mnemonic }) };
-  }
-
-  if (block.isTextMacro) {
-    const charset = block.textCharset || "standard";
-    const chars = encodeTextMacro(block.rawOperand, charset);
-    const textX = resolveProgramNumericValue(block.textX ?? "0", labels, "dec");
-    const textY = resolveProgramNumericValue(block.textY ?? "0", labels, "dec");
-    const startAddress = 0x0400 + ((isNaN(textY) ? 0 : textY) * 40) + (isNaN(textX) ? 0 : textX);
-    const bytes = [];
-    chars.forEach((charCode, charIndex) => {
-      const targetAddress = startAddress + charIndex;
-      bytes.push(0xA9, charCode & 0xFF, 0x8D, targetAddress & 0xFF, (targetAddress >> 8) & 0xFF);
-    });
-    const isLower = /[a-z]/.test(block.rawOperand || "");
-    return {
-      ok: true,
-      bytes,
-      comment: `TEXT "${block.rawOperand || ""}" @ (${block.textX ?? 0}, ${block.textY ?? 0})${isLower || charset === "lowercase" ? " [lowercase]" : ""}`
-    };
-  }
-
-  if (block.isByteMacro) {
-    const bytes = parseByteMacro(block.rawOperand, block.base, labels);
-    return {
-      ok: true,
-      bytes,
-      comment: `BYTE ${block.rawOperand || ""}`
-    };
-  }
-
-  if (block.isStringMacro) {
-    const chars = encodeTextMacro(block.rawOperand, block.textCharset || "standard");
-    const offset = resolveProgramNumericValue(block.charOffset || "0", labels, "hex");
-    const startAddress = parseAddressValue(block.stringAddress, labels) ?? 0xC000;
-    const bytes = [];
-    chars.forEach((charCode, charIndex) => {
-      const targetAddress = startAddress + charIndex;
-      bytes.push(0xA9, (charCode + (isNaN(offset) ? 0 : offset)) & 0xFF, 0x8D, targetAddress & 0xFF, (targetAddress >> 8) & 0xFF);
-    });
-    return {
-      ok: true,
-      bytes,
-      comment: `STRING "${block.rawOperand || ""}" @ ${formatAddress(startAddress)}${block.textCharset === "lowercase" ? " [lowercase]" : ""}`
-    };
-  }
-
-  if (block.isDataMacro) {
-    const dataBytes = parseByteMacro(block.rawOperand, block.base, labels);
-    const startAddress = parseAddressValue(block.dataAddress, labels) ?? 0xC000;
-    const bytes = [];
-    dataBytes.forEach((byte, byteIndex) => {
-      const targetAddress = startAddress + byteIndex;
-      bytes.push(0xA9, byte & 0xFF, 0x8D, targetAddress & 0xFF, (targetAddress >> 8) & 0xFF);
-    });
-    return {
-      ok: true,
-      bytes,
-      comment: `DATA ${block.rawOperand || ""} @ ${formatAddress(startAddress)}`
-    };
-  }
-
-  if (block.isRawBytesMacro) {
-    return {
-      ok: true,
-      bytes: [],
-      comment: `RAWBYTES ${block.rawOperand || ""} @ ${formatAddress(parseAddressValue(block.rawBytesAddress) ?? 0xC000)}`
-    };
-  }
-
-  if (block.isIncBinMacro && block.incBinU64Pal) {
-    const colors = _u64PalColors(block);
-    if (!colors) return { ok: false, error: t((block.incBinBytes || []).length ? "u64PaletteBadFile" : "u64PaletteNeedsFile") };
-    const data = [0x04, 0x52];
-    for (const c of colors) data.push((c >> 16) & 0xFF, (c >> 8) & 0xFF, c & 0xFF);
-    return {
-      ok: true,
-      bytes: _u64UciBytes(line.address, data),
-      comment: `U64_PALETTE "${block.incBinFileName || block.incBinFile || ""}"`
-    };
-  }
-
-  if (block.isUciPaletteColorMacro) {
-    const p = _u64PalColorParse(block.rawOperand);
-    if (!p) return { ok: false, error: t("u64PaletteColorSyntax") };
-    const index = _evalAsmExpr(_substituteStarPc(p.index, line.address), labels);
-    const color = _evalAsmExpr(_substituteStarPc(p.color, line.address), labels);
-    if (index === null || index === undefined || Number.isNaN(index)) return { ok: false, error: tf("assertUnresolved", { expr: p.index }) };
-    if (color === null || color === undefined || Number.isNaN(color)) return { ok: false, error: tf("assertUnresolved", { expr: p.color }) };
-    if (index < 0 || index > 15 || color < 0 || color > 0xFFFFFF) return { ok: false, error: t("u64PaletteColorRange") };
-    return {
-      ok: true,
-      bytes: _u64UciBytes(line.address, [0x04, 0x53, index & 0xFF, (color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF]),
-      comment: `U64_PALETTE_COLOR ${block.rawOperand.trim()}`
-    };
-  }
-
-  if (block.isUciPaletteResetMacro) {
-    return { ok: true, bytes: _u64UciBytes(line.address, [0x04, 0x54]), comment: "U64_PALETTE_RESET" };
-  }
-
-  if (block.isIncBinMacro && block.incBinKoala) {
-    const err = _koalaError(block);
-    if (err) return { ok: false, error: err };
-    const addr = parseAddressValue(block.incBinAddress) ?? 0x6000;
-    return {
-      ok: true,
-      bytes: _koalaShowBytes(addr),
-      comment: `KOALA "${block.incBinFileName || block.incBinFile || ""}" @ ${formatAddress(addr)} (display routine)`
-    };
-  }
-
-  if (block.isIncBinMacro && block.incBinLevel) {
-    const info = _levelInfo(block);
-    if (info.error) return { ok: false, error: info.error };
-    const addr = parseAddressValue(block.incBinAddress) ?? 0x2000;
-    return {
-      ok: true,
-      bytes: [],
-      comment: `LEVEL "${block.incBinFileName || block.incBinFile || ""}" (${info.data.length} bytes, ${info.screens || 0} screens) @ ${formatAddress(addr)}`
-    };
-  }
-
-  if (block.isLevelRowMacro) {
-    const p = _levelRowParse(block.rawOperand);
-    if (!p) return { ok: false, error: t("levelRowSyntax") };
-    const tab = {};
-    for (const name of _LEVEL_ROW_TABLES) {
-      const value = labels?.get?.(name);
-      if (value === undefined || value === null) return { ok: false, error: t("levelRowNeedsLevel") };
-      tab[name] = value;
-    }
-    const dst = _evalAsmExpr(_substituteStarPc(p.dst, line.address), labels);
-    const col = _evalAsmExpr(_substituteStarPc(p.col, line.address), labels);
-    if (dst === null || dst === undefined || Number.isNaN(dst)) return { ok: false, error: tf("assertUnresolved", { expr: p.dst }) };
-    if (col === null || col === undefined || Number.isNaN(col)) return { ok: false, error: tf("assertUnresolved", { expr: p.col }) };
-    return {
-      ok: true,
-      bytes: _levelRowBytes(line.address, dst & 0xFFFF, col & 0xFFFF, p.color, tab),
-      comment: `LEVEL_ROW ${block.rawOperand.trim()}`
-    };
-  }
-
-  if (block.isIncBinMacro) {
-    const size = (block.incBinBytes || []).length;
-    const addr = parseAddressValue(block.incBinAddress) ?? 0xC000;
-    return {
-      ok: true,
-      bytes: [],
-      comment: `INCBIN "${block.incBinFileName || block.incBinFile || ""}" (${size} bytes) @ ${formatAddress(addr)}`
-    };
-  }
-
-  if (block.isSidMacro) {
-    const size = (block.sidBytes || []).length;
-    const load = block.sidLoadAddress || 0;
-    const init = block.sidInitAddress || 0;
-    const play = block.sidPlayAddress || 0;
-    if (!size) return { ok: true, bytes: [], comment: `SID (no file loaded)` };
-    return {
-      ok: true,
-      bytes: [],
-      comment: `SID "${block.sidFileName || ""}" (${size} bytes) Load:${formatAddress(load)} Init:${formatAddress(init)} Play:${formatAddress(play)}`
-    };
-  }
-
-  if (block.isRawTextMacro) {
-    return {
-      ok: true,
-      bytes: [],
-      comment: `RAWTEXT "${block.rawOperand || ""}" @ ${formatAddress(parseAddressValue(block.rawTextAddress) ?? 0xC000)}`
-    };
-  }
-
-  if (block.isPetsciiMacro) {
-    const nullNote = block.petsciiNullTerminated ? " +$00" : "";
-    return {
-      ok: true,
-      bytes: [],
-      comment: `PETSCII "${block.rawOperand || ""}"${nullNote} @ ${formatAddress(parseAddressValue(block.petsciiAddress) ?? 0xC000)}`
-    };
-  }
-
-  if (block.isMouseMacro) {
-    const port = resolveProgramNumericValue(block.mousePort || "2", labels, "dec");
-    if (port !== 1 && port !== 2) {
-      return { ok: false, error: t("compileMousePortRange") };
-    }
-    const num = resolveProgramNumericValue(block.mouseSpriteNum || "0", labels, "dec");
-    if (isNaN(num) || num < 0 || num > 7) {
-      return { ok: false, error: t("compileMouseSpriteRange") };
-    }
-    const zpXStr = (block.mousePotXZP || "FD").replace(/^\$/, "");
-    const zpYStr = (block.mousePotYZP || "FE").replace(/^\$/, "");
-    const zpX = resolveProgramNumericValue(zpXStr, labels, "hex");
-    const zpY = resolveProgramNumericValue(zpYStr, labels, "hex");
-    if (isNaN(zpX) || zpX < 0 || zpX > 255) {
-      return { ok: false, error: t("compileMouseZpXByte") };
-    }
-    if (isNaN(zpY) || zpY < 0 || zpY > 255) {
-      return { ok: false, error: t("compileMouseZpYByte") };
-    }
-    const ciaSelect = port === 1 ? 0x40 : 0x80; // paddle mux on CIA1 PRA bits 7:6: port1=%01xxxxxx, port2=%10xxxxxx
-    const xAddr = 0xD000 + num * 2;
-    const yAddr = 0xD001 + num * 2;
-    const xMsbMask = 1 << num;
-    const xLo = xAddr & 0xFF, xHi = xAddr >> 8;
-    const yLo = yAddr & 0xFF, yHi = yAddr >> 8;
-    const bytes = [];
-    const asmLabels = new Map();
-    const fixups = [];
-    const emit = (...values) => values.forEach((value) => bytes.push(value & 0xFF));
-    const mark = (name) => asmLabels.set(name, bytes.length);
-    const branch = (opcode, label) => {
-      emit(opcode, 0x00);
-      fixups.push({ kind: "rel", index: bytes.length - 1, label });
-    };
-    const jump = (label) => {
-      emit(0x4C, 0x00, 0x00);
-      fixups.push({ kind: "abs", index: bytes.length - 2, label });
-    };
-
-    emit(
-      0xAD, 0x00, 0xDC,
-      0x29, 0x3F,
-      0x09, ciaSelect,
-      0x8D, 0x00, 0xDC,
-      0xA2, 0x67,
-      0xCA,
-      0xD0, 0xFD
-    );
-
-    mark("xStart");
-    emit(0xAD, 0x19, 0xD4);
-    emit(0xA8);
-    emit(0x38);
-    emit(0xE5, zpX);
-    emit(0x29, 0x7F);
-    emit(0xA2, 0x00);
-    emit(0xC9, 0x40);
-    branch(0xB0, "xNeg");
-    emit(0x4A);
-    branch(0xF0, "xDone");
-    emit(0x84, zpX);
-    emit(0x18);
-    emit(0x6D, xLo, xHi);
-    emit(0x8D, xLo, xHi);
-    emit(0x8A);
-    emit(0x69, 0x00);
-    emit(0x29, 0x01);
-    branch(0xF0, "xDone");
-    emit(0xAD, 0x10, 0xD0);
-    emit(0x49, xMsbMask);
-    emit(0x8D, 0x10, 0xD0);
-    jump("xDone");
-
-    mark("xNeg");
-    emit(0x09, 0xC0);
-    emit(0xC9, 0xFF);
-    branch(0xF0, "xDone");
-    emit(0x38);
-    emit(0x6A);
-    emit(0xCA);
-    emit(0x84, zpX);
-    emit(0x18);
-    emit(0x6D, xLo, xHi);
-    emit(0x8D, xLo, xHi);
-    emit(0x8A);
-    emit(0x69, 0x00);
-    emit(0x29, 0x01);
-    branch(0xF0, "xDone");
-    emit(0xAD, 0x10, 0xD0);
-    emit(0x49, xMsbMask);
-    emit(0x8D, 0x10, 0xD0);
-
-    mark("xDone");
-    emit(0xAD, 0x1A, 0xD4);
-    emit(0xAA);
-    emit(0x38);
-    emit(0xE5, zpY);
-    emit(0x29, 0x7F);
-    emit(0xC9, 0x40);
-    branch(0xB0, "yNeg");
-    emit(0x4A);
-    branch(0xF0, "yDone");
-    emit(0x86, zpY);
-    emit(0x49, 0xFF);
-    emit(0x38);
-    emit(0x6D, yLo, yHi);
-    emit(0x8D, yLo, yHi);
-    jump("yDone");
-
-    mark("yNeg");
-    emit(0x09, 0xC0);
-    emit(0xC9, 0xFF);
-    branch(0xF0, "yDone");
-    emit(0x38);
-    emit(0x6A);
-    emit(0x86, zpY);
-    emit(0x49, 0xFF);
-    emit(0x38);
-    emit(0x6D, yLo, yHi);
-    emit(0x8D, yLo, yHi);
-    mark("yDone");
-
-    fixups.forEach((fixup) => {
-      const target = asmLabels.get(fixup.label);
-      if (typeof target !== "number") {
-        throw new Error(`Missing MOUSE label: ${fixup.label}`);
-      }
-      if (fixup.kind === "rel") {
-        const offset = target - (fixup.index + 1);
-        if (offset < -128 || offset > 127) {
-          throw new Error(`MOUSE branch out of range: ${fixup.label}`);
-        }
-        bytes[fixup.index] = offset & 0xFF;
-        return;
-      }
-      const absolute = line.address + target;
-      bytes[fixup.index] = absolute & 0xFF;
-      bytes[fixup.index + 1] = (absolute >> 8) & 0xFF;
-    });
-
-    return { ok: true, bytes, comment: `MOUSE port${port} → sprite#${num} ZP:$${zpXStr.toUpperCase()}/$${zpYStr.toUpperCase()} std1351` };
-  }
-
-  if (block.isJoystickMacro && _joyIsVarMode(block)) {
-    const port = resolveProgramNumericValue(block.joyPort || "2", labels, "dec");
-    if (port !== 1 && port !== 2 && port !== 3) return { ok: false, error: t("joyPortRange") };
-    if (port !== _joyPortValue(block)) return { ok: false, error: tf("macroSizeNotConstant", { macro: "JOYSTICK", value: block.joyPort }) };
-    const resolve = (expr) => {
-      const v = _evalAsmExpr(_substituteStarPc(String(expr || "").trim(), line.address), labels);
-      return v === null || v === undefined || Number.isNaN(v) ? null : v & 0xFFFF;
-    };
-    const vx = resolve(block.joyVarX), vy = resolve(block.joyVarY);
-    const fire = String(block.joyVarFire || "").trim() ? resolve(block.joyVarFire) : undefined;
-    if (vx === null || vy === null || fire === null) return { ok: false, error: t("joyVarsUnresolved") };
-    return { ok: true, bytes: _joyVarBytes(port, vx, vy, fire), comment: `JOYSTICK port${port} → ${block.joyVarX}, ${block.joyVarY}${fire !== undefined ? ", " + block.joyVarFire : ""}` };
-  }
-
-  if (block.isJoystickMacro) {
-    const port = resolveProgramNumericValue(block.joyPort || "2", labels, "dec");
-    if (port !== 1 && port !== 2 && port !== 3) {
-      return { ok: false, error: t("joyPortRange") };
-    }
-    // the size counts with the port the layout saw (_joyPortValue, no labels): it must be the same
-    if (port !== _joyPortValue(block)) {
-      return { ok: false, error: tf("macroSizeNotConstant", { macro: "JOYSTICK", value: block.joyPort }) };
-    }
-    const num = resolveProgramNumericValue(block.joySpriteNum || "0", labels, "dec");
-    if (isNaN(num) || num < 0 || num > 7) {
-      return { ok: false, error: t("compileJoystickSpriteRange") };
-    }
-    const xAddr = 0xD000 + num * 2;
-    const yAddr = 0xD001 + num * 2;
-    const xLo = xAddr & 0xFF, xHi = xAddr >> 8;
-    const yLo = yAddr & 0xFF, yHi = yAddr >> 8;
-    // Each direction: LSR (1) + BCS +3 (2) + DEC/INC abs (3) = 6 bytes
-    // BCS offset 3 = skip the following 3-byte DEC/INC
-    const bytes = [
-      ..._joyReadBytes(port), // LDA $DCxx (port 3: LDA $DC00 / AND $DC01)
-      0x4A,                  // LSR  → bit0 (UP) → carry
-      0xB0, 0x03,            // BCS +3 (not pressed)
-      0xCE, yLo, yHi,        // DEC $D001+N*2  (Y--)
-      0x4A,                  // LSR  → bit1 (DOWN) → carry
-      0xB0, 0x03,            // BCS +3
-      0xEE, yLo, yHi,        // INC $D001+N*2  (Y++)
-      0x4A,                  // LSR  → bit2 (LEFT) → carry
-      0xB0, 0x03,            // BCS +3
-      0xCE, xLo, xHi,        // DEC $D000+N*2  (X--)
-      0x4A,                  // LSR  → bit3 (RIGHT) → carry
-      0xB0, 0x03,            // BCS +3
-      0xEE, xLo, xHi         // INC $D000+N*2  (X++)
-    ];
-    return { ok: true, bytes, comment: `JOYSTICK port${port} → sprite#${num}` };
-  }
-
-  if (block.isWaitRasterMacro) {
-    const rl = parseMacroNumber(block.rasterLine || "FF", labels, "hex");
-    if (rl === null || isNaN(rl) || rl < 0 || rl > 255) {
-      return { ok: false, error: t("compileWaitRasterByte") };
-    }
-    const rlHex = rl.toString(16).toUpperCase().padStart(2, "0");
-    // LDA $D012 (AD 12 D0) + CMP #rl (C9 rl) + BNE -7 (D0 F9)
-    const bytes = [0xAD, 0x12, 0xD0, 0xC9, rl, 0xD0, 0xF9];
-    return { ok: true, bytes, comment: `WAIT_RASTER $${rlHex}` };
-  }
-
-  if (block.isCharsetMacro) {
-    // lower: LDA $D018 / ORA #$02 / STA $D018  (bit 1 set → kisbetűs charset ROM)
-    // upper: LDA $D018 / AND #$FD / STA $D018  (bit 1 clear → nagybetűs/grafikus ROM)
-    const isLower = (block.charsetMode || "lower") === "lower";
-    const bytes = [
-      0xAD, 0x18, 0xD0,
-      isLower ? 0x09 : 0x29,
-      isLower ? 0x02 : 0xFD,
-      0x8D, 0x18, 0xD0
-    ];
-    return { ok: true, bytes, comment: `CHARSET ${isLower ? "lower" : "upper"}` };
-  }
-
-  if (block.isCharDefMacro) {
-    const base = parseAddressValue(block.charDefBase) ?? 0x3800;
-    const index = parseInt(String(block.charDefIndex || "0"), 10);
-    if (isNaN(index) || index < 0 || index > 255) {
-      return { ok: false, error: "CHARDEF index must be 0-255" };
-    }
-    const target = base + index * 8;
-    if (target < 0 || target > 0xFFFF - 7) {
-      return { ok: false, error: `CHARDEF target address out of range: $${target.toString(16)}` };
-    }
-    const raw = String(block.rawOperand || "").split(",").map(s => s.trim()).filter(Boolean);
-    if (raw.length !== 8) {
-      return { ok: false, error: `CHARDEF needs exactly 8 bytes, got ${raw.length}` };
-    }
-    const bytes = [];
-    for (let i = 0; i < 8; i++) {
-      const val = parseMacroNumber(raw[i], labels, block.base || "hex");
-      if (isNaN(val) || val < 0 || val > 255) {
-        return { ok: false, error: `CHARDEF byte ${i + 1} invalid: ${raw[i]}` };
-      }
-      const addr = target + i;
-      // LDA #val ; STA addr (absolute)
-      bytes.push(0xA9, val & 0xFF, 0x8D, addr & 0xFF, (addr >> 8) & 0xFF);
-    }
-    return { ok: true, bytes, comment: `CHARDEF #${index} @ $${target.toString(16).toUpperCase().padStart(4, "0")}` };
-  }
-
-  if (block.isBoxHitMacro) {
-    const zp1 = parseAddressValue(block.boxHitBox1ZP) ?? 0xFB;
-    const zp2 = parseAddressValue(block.boxHitBox2ZP) ?? 0xF7;
-    if (zp1 < 0 || zp1 > 0xFC || zp2 < 0 || zp2 > 0xFC) {
-      return { ok: false, error: "BOX_HIT zero-page addresses must be 0-$FC (need 4 bytes)" };
-    }
-    // Box layout: zp+0=Left, +1=Top, +2=Right, +3=Bottom (all 8-bit unsigned)
-    // Result in A: 1 = overlap, 0 = no overlap. 30 bytes, fully PC-relative.
-    //   0: LDA b1+2 ; R1
-    //   2: CMP b2   ; L2
-    //   4: BCC no   ; R1 < L2 → miss
-    //   6: LDA b2+2 ; R2
-    //   8: CMP b1   ; L1
-    //  10: BCC no
-    //  12: LDA b1+3 ; B1
-    //  14: CMP b2+1 ; T2
-    //  16: BCC no
-    //  18: LDA b2+3 ; B2
-    //  20: CMP b1+1 ; T1
-    //  22: BCC no
-    //  24: LDA #$01
-    //  26: BNE done ; unconditional (A=1 ≠ 0), skip LDA #0
-    //  28: LDA #$00 ; ← 'no' label
-    //  30: (done)
-    const b1 = zp1 & 0xFF;
-    const b2 = zp2 & 0xFF;
-    const noPC = 28;
-    const donePC = 30;
-    const off = (branchPos, target) => (target - (branchPos + 2)) & 0xFF;
-    const bytes = [
-      0xA5, (b1 + 2) & 0xFF,  // 0
-      0xC5, b2,               // 2
-      0x90, off(4, noPC),     // 4
-      0xA5, (b2 + 2) & 0xFF,  // 6
-      0xC5, b1,               // 8
-      0x90, off(10, noPC),    // 10
-      0xA5, (b1 + 3) & 0xFF,  // 12
-      0xC5, (b2 + 1) & 0xFF,  // 14
-      0x90, off(16, noPC),    // 16
-      0xA5, (b2 + 3) & 0xFF,  // 18
-      0xC5, (b1 + 1) & 0xFF,  // 20
-      0x90, off(22, noPC),    // 22
-      0xA9, 0x01,             // 24
-      0xD0, off(26, donePC),  // 26
-      0xA9, 0x00              // 28
-    ];
-    return { ok: true, bytes, comment: `BOX_HIT b1=$${b1.toString(16).toUpperCase().padStart(2, "0")} b2=$${b2.toString(16).toUpperCase().padStart(2, "0")}` };
-  }
-
-  if (block.isTurboSetMacro) {
-    // an unresolved value (null) is an error, not speed 0
-    const spd = parseMacroNumber(block.turboSpeed || "7", labels, "dec");
-    if (!Number.isFinite(spd) || spd < 0 || spd > 15) {
-      return { ok: false, error: t("turboSetSpeedMustBe015") };
-    }
-    const badlineValue = parseMacroNumber(block.turboBadline || "0", labels, "dec");
-    if (!Number.isFinite(badlineValue)) {
-      return { ok: false, error: tf("operandNotResolvable", { mnemonic: block.mnemonic }) };
-    }
-    const badline = badlineValue === 1 ? 0x80 : 0x00;
-    const val = (spd & 0x0F) | badline;
-    // LDA #val (A9 val) + STA $D031 (8D 31 D0)
-    return { ok: true, bytes: [0xA9, val, 0x8D, 0x31, 0xD0], comment: `TURBO_SET speed=${spd} badline=${block.turboBadline === "1" ? "off" : "on"}` };
-  }
-
-  if (block.isSuperCpuDetectMacro) {
-    return {
-      ok: true,
-      bytes: [0xAD, 0xB8, 0xD0, 0xC9, 0xFF],
-      comment: "SUPERCPU_DETECT"
-    };
-  }
-
-  if (block.isTurboEnableMacro) {
-    const isOn = (block.turboEnableMode || "on") === "on";
-    const targetAddr = isOn ? 0xD07A : 0xD07B;
-    return {
-      ok: true,
-      bytes: [0xA9, 0x00, 0x8D, targetAddr & 0xFF, targetAddr >> 8],
-      comment: `TURBO_ENABLE ${isOn ? "on" : "off"}`
-    };
-  }
-
-  if (block.isSpriteColMacro) {
-    const num = resolveProgramNumericValue(block.spriteNum || "0", labels, "dec");
-    if (isNaN(num) || num < 0 || num > 7) {
-      return { ok: false, error: t("spriteColSpriteNumberMustBe07") };
-    }
-    const isBg = (block.colType || "sprite") === "background";
-    // $D01E = sprite-sprite, $D01F = sprite-background; reading clears the register
-    const regAddr = isBg ? 0xD01F : 0xD01E;
-    const bitMask = 1 << num;
-    // LDA $D01x (AD xx D0) + AND #mask (29 mask) = 5 bytes
-    const bytes = [0xAD, regAddr & 0xFF, regAddr >> 8, 0x29, bitMask];
-    const typeLabel = isBg ? "bg" : "spr";
-    return { ok: true, bytes, comment: `SPRITE_COL #${num} ${typeLabel} → A≠0: utkozes` };
-  }
-
-  if (block.isReuCheckMacro) {
-    // Probe a writable REU register twice. Present -> final CMP leaves Z=0; missing/open bus -> Z=1.
-    return {
-      ok: true,
-      bytes: [
-        0xA9, 0x55,
-        0x8D, 0x04, 0xDF,
-        0xAD, 0x04, 0xDF,
-        0xC9, 0x55,
-        0xD0, 0x12,
-        0xA9, 0xAA,
-        0x8D, 0x04, 0xDF,
-        0xAD, 0x04, 0xDF,
-        0xC9, 0xAA,
-        0xD0, 0x06,
-        0xA9, 0x00,
-        0xC9, 0xFF,
-        0xD0, 0x04,
-        0xA9, 0xFF,
-        0xC9, 0xFF
-      ],
-      comment: "REU_CHECK: probe $DF04 with $55/$AA"
-    };
-  }
-
-  if (block.isReuTransferMacro) {
-    const c64Addr = parseInt((block.reuC64Addr || "C000").replace(/^\$/, ""), 16);
-    const expAddr = parseInt((block.reuExpAddr || "0000").replace(/^\$/, ""), 16);
-    const bank    = resolveProgramNumericValue(block.reuBank || "0", labels, "dec");
-    const length  = parseInt((block.reuLength || "0100").replace(/^\$/, ""), 16);
-    if (isNaN(c64Addr) || c64Addr < 0 || c64Addr > 0xFFFF) return { ok: false, error: t("compileReuInvalidC64Addr") };
-    if (isNaN(expAddr) || expAddr < 0 || expAddr > 0xFFFF) return { ok: false, error: t("compileReuInvalidReuAddr") };
-    if (isNaN(bank)    || bank < 0    || bank > 7)         return { ok: false, error: t("compileReuBankRange") };
-    if (isNaN(length)  || length < 1  || length > 0xFFFF)  return { ok: false, error: t("compileReuLengthRange") };
-    const cmd = block.mnemonic === "REU_STASH" ? 0x90 : block.mnemonic === "REU_FETCH" ? 0x91 : 0x92;
-    const cmdLabel = block.mnemonic === "REU_STASH" ? "C64→REU" : block.mnemonic === "REU_FETCH" ? "REU→C64" : "C64↔REU";
-    const bytes = [
-      0xA9, c64Addr & 0xFF,       0x8D, 0x02, 0xDF,  // LDA #<c64  : STA $DF02
-      0xA9, (c64Addr >> 8) & 0xFF, 0x8D, 0x03, 0xDF, // LDA #>c64  : STA $DF03
-      0xA9, expAddr & 0xFF,       0x8D, 0x04, 0xDF,  // LDA #<reu  : STA $DF04
-      0xA9, (expAddr >> 8) & 0xFF, 0x8D, 0x05, 0xDF, // LDA #>reu  : STA $DF05
-      0xA9, bank & 0xFF,          0x8D, 0x06, 0xDF,  // LDA #bank  : STA $DF06
-      0xA9, length & 0xFF,        0x8D, 0x07, 0xDF,  // LDA #<len  : STA $DF07
-      0xA9, (length >> 8) & 0xFF, 0x8D, 0x08, 0xDF,  // LDA #>len  : STA $DF08
-      0xA9, cmd,                  0x8D, 0x01, 0xDF   // LDA #cmd   : STA $DF01
-    ];
-    const c64Hex = c64Addr.toString(16).toUpperCase().padStart(4, "0");
-    const expHex = expAddr.toString(16).toUpperCase().padStart(4, "0");
-    const lenHex = length.toString(16).toUpperCase().padStart(4, "0");
-    return { ok: true, bytes, comment: `${block.mnemonic} ${cmdLabel}: $${c64Hex} → REU${bank}:$${expHex} len=$${lenHex}` };
-  }
-
-  if (block.isMapCopyMacro) {
-    const srcStr = (block.mapCopySrc || "C000").replace(/^\$/, "");
-    const dstStr = (block.mapCopyDst || "0400").replace(/^\$/, "");
-    const srcInt = parseInt(srcStr, 16);
-    const dstInt = parseInt(dstStr, 16);
-    if (isNaN(srcInt) || srcInt < 0 || srcInt > 0xFFFF)
-      return { ok: false, error: t("mapCopyInvalidSourceAddress") };
-    if (isNaN(dstInt) || dstInt < 0 || dstInt > 0xFFFF)
-      return { ok: false, error: t("mapCopyInvalidDestinationAddress") };
-    const n = parseInt(block.mapCopySize, 10) || 1000;
-    if (n < 1 || n > 0x10000)
-      return { ok: false, error: t("mapCopySizeMustBe165536") };
-    const genSection = (src, dst) => {
-      const out = [];
-      const fp = Math.floor(n / 256);
-      const rem = n % 256;
-      out.push(0xA2, 0x00);  // LDX #0
-      for (let i = 0; i < fp; i++) {
-        const ps = (src + i * 256) & 0xFFFF, pd = (dst + i * 256) & 0xFFFF;
-        out.push(0xBD, ps & 0xFF, ps >> 8, 0x9D, pd & 0xFF, pd >> 8, 0xE8, 0xD0, 0xF7);
-      }
-      if (rem > 0) {
-        const ps = (src + fp * 256) & 0xFFFF, pd = (dst + fp * 256) & 0xFFFF;
-        out.push(0xBD, ps & 0xFF, ps >> 8, 0x9D, pd & 0xFF, pd >> 8, 0xE8, 0xE0, rem, 0xD0, 0xF5);
-      }
-      return out;
-    };
-    const bytes = genSection(srcInt, dstInt);
-    if (block.mapCopyCombined) {
-      const cSrc = (srcInt + n) & 0xFFFF;
-      const cDst = parseInt((block.mapCopyColorDst || "D800").replace(/^\$/, ""), 16);
-      if (!isNaN(cDst)) bytes.push(...genSection(cSrc, cDst));
-    } else if (block.mapCopyColorSrc) {
-      const cSrcStr = (block.mapCopyColorSrc || "C3E8").replace(/^\$/, "");
-      const cDstStr = (block.mapCopyColorDst || "D800").replace(/^\$/, "");
-      const cSrc = parseInt(cSrcStr, 16), cDst = parseInt(cDstStr, 16);
-      if (!isNaN(cSrc) && !isNaN(cDst)) bytes.push(...genSection(cSrc, cDst));
-    }
-    return { ok: true, bytes, comment: `MAP_COPY $${srcStr.toUpperCase()}→$${dstStr.toUpperCase()} ${n}b${block.mapCopyCombined ? " +col" : ""}` };
-  }
-
-  if (block.isMapCopy16Macro) {
-    const srcStr = (block.map16Src || "3000").replace(/^\$/, "");
-    const screenStr = (block.map16ScreenDst || "0400").replace(/^\$/, "");
-    const colorDstStr = (block.map16ColorDst || "D800").replace(/^\$/, "");
-    const srcInt = parseInt(srcStr, 16);
-    const screenInt = parseInt(screenStr, 16);
-    const colorSrcInt = block.map16ColorSrc
-      ? parseInt(String(block.map16ColorSrc).replace(/^\$/, ""), 16)
-      : ((srcInt + 0x100) & 0xFFFF);
-    const colorDstInt = parseInt(colorDstStr, 16);
-    const col = parseInt(block.map16Col ?? 12, 10);
-    const row = parseInt(block.map16Row ?? 4, 10);
-    if (isNaN(srcInt) || srcInt < 0 || srcInt > 0xFFFF)
-      return { ok: false, error: t("mapCopyInvalidSourceAddress") };
-    if (isNaN(screenInt) || screenInt < 0 || screenInt > 0xFFFF)
-      return { ok: false, error: t("mapCopyInvalidDestinationAddress") };
-    if (isNaN(colorSrcInt) || colorSrcInt < 0 || colorSrcInt > 0xFFFF)
-      return { ok: false, error: t("mapCopyInvalidSourceAddress") };
-    if (isNaN(colorDstInt) || colorDstInt < 0 || colorDstInt > 0xFFFF)
-      return { ok: false, error: t("mapCopyInvalidDestinationAddress") };
-    if (isNaN(col) || col < 0 || col > 24 || isNaN(row) || row < 0 || row > 9)
-      return { ok: false, error: t("mapCopy16PositionRange") };
-    const bytes = [];
-    for (let r = 0; r < 16; r++) {
-      const s = (srcInt + r * 16) & 0xFFFF;
-      const d = (screenInt + (row + r) * 40 + col) & 0xFFFF;
-      const cs = (colorSrcInt + r * 16) & 0xFFFF;
-      const cd = (colorDstInt + (row + r) * 40 + col) & 0xFFFF;
-      bytes.push(
-        0xA2, 0x00,             // LDX #0
-        0xBD, s & 0xFF, s >> 8, // LDA screenSrc,X
-        0x9D, d & 0xFF, d >> 8, // STA screenDst,X
-        0xBD, cs & 0xFF, cs >> 8,
-        0x9D, cd & 0xFF, cd >> 8,
-        0xE8,                   // INX
-        0xE0, 0x10,             // CPX #16
-        0xD0, 0xEF              // BNE back to first LDA
-      );
-    }
-    return { ok: true, bytes, comment: `MAP_COPY16X16 $${srcStr.toUpperCase()} → (${col},${row}) + Color RAM` };
-  }
-
-  if (block.isSpriteAnimMacro) {
-    // an unresolved value (null) is an error, not 0
-    const num = resolveProgramNumericValue(block.animSpriteNum || "0", labels, "dec");
-    if (!Number.isFinite(num) || num < 0 || num > 7)
-      return { ok: false, error: t("spriteAnimSpriteNumberMustBe07") };
-    const count = resolveProgramNumericValue(block.animFrameCount || "4", labels, "dec");
-    if (!Number.isFinite(count) || count < 1 || count > 255)
-      return { ok: false, error: t("spriteAnimFrameCountMustBe1255") };
-    const zpStr = (block.animFrameZP || "FB").replace(/^\$/, "");
-    const zp = resolveProgramNumericValue(zpStr, labels, "hex");
-    if (!Number.isFinite(zp) || zp < 0 || zp > 0xFF)
-      return { ok: false, error: t("spriteAnimZpCounterMustBe00Ff") };
-    const listStr = (block.animFrameListAddr || "C100").replace(/^\$/, "");
-    const listAddr = parseInt(listStr, 16);
-    if (isNaN(listAddr) || listAddr < 0 || listAddr > 0xFFFF)
-      return { ok: false, error: t("spriteAnimInvalidFrameListAddress") };
-    const ptrAddr = 0x07F8 + num;
-    const bytes = [
-      0xE6, zp,                             // INC $ZP
-      0xA5, zp,                             // LDA $ZP
-      0xC9, count,                          // CMP #count
-      0x90, 0x04,                           // BCC +4 (skip reset)
-      0xA9, 0x00,                           // LDA #0
-      0x85, zp,                             // STA $ZP
-      0xAA,                                 // TAX
-      0xBD, listAddr & 0xFF, listAddr >> 8, // LDA frameList,X
-      0x8D, ptrAddr & 0xFF, ptrAddr >> 8    // STA $07F8+N
-    ];
-    return { ok: true, bytes, comment: `SPRITE_ANIM #${num} ${count}f zp=$${zpStr.toUpperCase()}` };
-  }
-
-  if (block.isScoreBcdMacro) {
-    const addrStr = (block.scoreBcdAddr || "C200").replace(/^\$/, "");
-    const addr = parseInt(addrStr, 16);
-    if (isNaN(addr) || addr < 0 || addr > 0xFFFF)
-      return { ok: false, error: t("scoreBcdInvalidBcdStorageAddress") };
-    const digits = block.scoreDigits || 4;
-    const scrStr = (block.scoreScreenAddr || "0400").replace(/^\$/, "");
-    const scr = parseInt(scrStr, 16);
-    if (isNaN(scr) || scr < 0 || scr > 0xFFFF)
-      return { ok: false, error: t("scoreBcdInvalidScreenAddress") };
-    const pts = parseInt(block.scoreAddPoints || "100", 10) || 0;
-    const bcdByte = v => (Math.floor(v / 10) % 10) * 16 + (v % 10);
-    const b0 = bcdByte(pts % 100);
-    const b1 = bcdByte(Math.floor(pts / 100) % 100);
-    const b2 = bcdByte(Math.floor(pts / 10000) % 100);
-    const bcdBytes = digits / 2;
-    const bcdAddrs = [addr, addr + 1, addr + 2];
-    const bcdVals = [b0, b1, b2];
-    const bytes = [];
-    // BCD add
-    bytes.push(0xF8, 0x18);  // SED, CLC
-    for (let i = 0; i < bcdBytes; i++) {
-      const a = bcdAddrs[i];
-      bytes.push(0xAD, a & 0xFF, a >> 8);  // LDA abs
-      bytes.push(0x69, bcdVals[i]);          // ADC #bcdN
-      bytes.push(0x8D, a & 0xFF, a >> 8);  // STA abs
-    }
-    bytes.push(0xD8);  // CLD
-    // BCD display (most significant byte first → left to right on screen)
-    for (let i = bcdBytes - 1; i >= 0; i--) {
-      const a = bcdAddrs[i];
-      const screenPos = scr + (bcdBytes - 1 - i) * 2;
-      const sp0 = screenPos & 0xFFFF, sp1 = (screenPos + 1) & 0xFFFF;
-      bytes.push(
-        0xAD, a & 0xFF, a >> 8,          // LDA abs (BCD byte)
-        0x48,                              // PHA
-        0x4A, 0x4A, 0x4A, 0x4A,          // LSR×4 → high nibble
-        0x09, 0x30,                        // ORA #$30 → screen code
-        0x8D, sp0 & 0xFF, sp0 >> 8,       // STA screen+pos
-        0x68,                              // PLA
-        0x29, 0x0F,                        // AND #$0F → low nibble
-        0x09, 0x30,                        // ORA #$30
-        0x8D, sp1 & 0xFF, sp1 >> 8        // STA screen+pos+1
-      );
-    }
-    return { ok: true, bytes, comment: `SCORE_BCD $${addrStr.toUpperCase()} +${pts} → $${scrStr.toUpperCase()} (${digits}d)` };
-  }
-
-  if (block.isSpriteInitMacro) {
-    const num = parseMacroNumber(block.spriteNum || "0", labels, "dec");
-    if (isNaN(num) || num < 0 || num > 7) {
-      return { ok: false, error: t("compileSpriteInitSpriteRange") };
-    }
-    const color = parseMacroNumber(block.spriteColor || "7", labels, "dec");
-    if (isNaN(color) || color < 0 || color > 15) {
-      return { ok: false, error: t("compileSpriteInitColorRange") };
-    }
-    const page = parseMacroNumber(block.spriteDataPage || "21", labels, "hex");
-    if (page === null || isNaN(page) || page < 0 || page > 255) {
-      return { ok: false, error: t("compileSpriteInitPageByte") };
-    }
-    const ptrAddr = 0x07F8 + num;
-    const colorAddr = 0xD027 + num;
-    const bitMask = 1 << num;
-    const multiMask = 0xFF ^ bitMask;
-    const bytes = [
-      0xA9, page,                                // LDA #dataPage
-      0x8D, ptrAddr & 0xFF, ptrAddr >> 8,        // STA $07F8+N
-      0xAD, 0x15, 0xD0,                          // LDA $D015
-      0x09, bitMask,                             // ORA #bitMask
-      0x8D, 0x15, 0xD0,                          // STA $D015
-      0xAD, 0x1C, 0xD0,                          // LDA $D01C
-      block.spriteMulticolor ? 0x09 : 0x29,      // ORA #bitMask / AND #~bitMask
-      block.spriteMulticolor ? bitMask : multiMask,
-      0x8D, 0x1C, 0xD0,                          // STA $D01C
-      0xA9, color,                               // LDA #color
-      0x8D, colorAddr & 0xFF, colorAddr >> 8     // STA $D027+N
-    ];
-    const pageHex = page.toString(16).toUpperCase().padStart(2, "0");
-    return { ok: true, bytes, comment: `SPRITE_INIT #${num} col=${color} page=$${pageHex}${block.spriteMulticolor ? " mc" : ""}` };
-  }
-
-  if (block.isLoadFileMacro) {
-    const filename = (block.loadFileName || "").toUpperCase().replace(/[^\x20-\x7E]/g, "").slice(0, 16);
-    if (!filename) {
-      return { ok: false, error: t("loadfileErrEmptyName") };
-    }
-    const device = resolveProgramNumericValue(block.loadFileDevice || "8", labels, "dec");
-    if (isNaN(device) || device < 8 || device > 30) {
-      return { ok: false, error: t("loadfileErrBadDevice") };
-    }
-    const addrStr = (block.loadFileAddress || "").trim().replace(/^\$/, "");
-    const useOverride = addrStr !== "";
-    let overrideAddr = 0;
-    if (useOverride) {
-      overrideAddr = parseInt(addrStr, 16);
-      if (isNaN(overrideAddr) || overrideAddr < 0 || overrideAddr > 0xFFFF) {
-        return { ok: false, error: t("loadfileErrBadAddr") };
-      }
-    }
-    const errorLabel = (block.loadFileErrorLabel || "").trim();
-    const useErrorCheck = errorLabel !== "";
-
-    const baseAddr = line.address;
-    const fnameAddr = baseAddr + 3;             // immediately after JMP skip
-    const skipAddr = fnameAddr + filename.length;
-
-    const bytes = [];
-
-    // JMP skip (over the filename data)
-    bytes.push(0x4C, skipAddr & 0xFF, skipAddr >> 8);
-
-    // Filename bytes (PETSCII; ASCII A-Z = PETSCII A-Z)
-    for (let i = 0; i < filename.length; i++) {
-      bytes.push(filename.charCodeAt(i) & 0xFF);
-    }
-
-    // SETNAM ($FFBD): A=length, X/Y=ptr lo/hi
-    bytes.push(0xA9, filename.length);
-    bytes.push(0xA2, fnameAddr & 0xFF);
-    bytes.push(0xA0, (fnameAddr >> 8) & 0xFF);
-    bytes.push(0x20, 0xBD, 0xFF);
-
-    // SETLFS ($FFBA): A=logical, X=device, Y=secondary (0 = use override addr; 1 = use file's load addr)
-    const secondary = useOverride ? 0x00 : 0x01;
-    bytes.push(0xA9, 0x01);
-    bytes.push(0xA2, device & 0xFF);
-    bytes.push(0xA0, secondary);
-    bytes.push(0x20, 0xBA, 0xFF);
-
-    // Override address (only when secondary=0): LDX #<addr ; LDY #>addr
-    if (useOverride) {
-      bytes.push(0xA2, overrideAddr & 0xFF);
-      bytes.push(0xA0, (overrideAddr >> 8) & 0xFF);
-    }
-
-    // LOAD ($FFD5): A=0 (load, not verify)
-    bytes.push(0xA9, 0x00);
-    bytes.push(0x20, 0xD5, 0xFF);
-
-    // BCS errorLabel on KERNAL load error (carry set); if no label, BCS * (self-loop = halts on error)
-    if (useErrorCheck) {
-      const target = labels.get(errorLabel);
-      if (target === undefined) {
-        return { ok: false, error: `${t("loadfileErrUnknownLabel")} ${errorLabel}` };
-      }
-      const bcsAddr = baseAddr + bytes.length;
-      const offset = target - (bcsAddr + 2);
-      if (offset < -128 || offset > 127) {
-        return { ok: false, error: `${t("loadfileErrLabelTooFar")} ${offset}).` };
-      }
-      bytes.push(0xB0, offset & 0xFF);
-    } else {
-      bytes.push(0xB0, 0xFE);  // BCS * — megáll ha a fájl nem található
-    }
-
-    const addrSuffix = useOverride
-      ? ` @$${overrideAddr.toString(16).toUpperCase().padStart(4, "0")}`
-      : "";
-    const errSuffix = useErrorCheck ? ` BCS ${errorLabel}` : "";
-    return { ok: true, bytes, comment: `LOADFILE "${filename}" dev=${device}${addrSuffix}${errSuffix}` };
-  }
-
-  if (block.isExoDecrunchMacro) {
-    // Backward exomizer mem-mode convention. Sequence:
-    //   1) Copy KERNAL's load-end ZP ($AE/$AF) into depacker's src-end ZP ($04/$05).
-    //   2) Turn off BASIC ROM ($01 = $36) so the depacker at $A000-$BFFF
-    //      area is visible as RAM (default $37 maps BASIC ROM over $A000-$BFFF).
-    //   3) JSR to depacker.
-    //   4) Restore default memory mapping ($01 = $37) for downstream code.
-    const depackStr = (block.exoDepackerAddr || "B000").replace(/^\$/, "");
-    const depackAddr = parseInt(depackStr, 16);
-    if (isNaN(depackAddr) || depackAddr < 0 || depackAddr > 0xFFFF) {
-      return { ok: false, error: t("exoDecrunchErrBadDepacker") };
-    }
-    const bytes = [
-      0xA5, 0xAE,           // LDA $AE  (KERNAL load-end lo)
-      0x85, 0x04,           // STA $04  (depacker src-end lo)
-      0xA5, 0xAF,           // LDA $AF  (KERNAL load-end hi)
-      0x85, 0x05,           // STA $05  (depacker src-end hi)
-      0xA9, 0x36,           // LDA #$36 (BASIC ROM off, KERNAL+I/O on)
-      0x85, 0x01,           // STA $01
-      0x20, depackAddr & 0xFF, (depackAddr >> 8) & 0xFF, // JSR depacker
-      0xA9, 0x37,           // LDA #$37 (restore default: BASIC+KERNAL+I/O)
-      0x85, 0x01,           // STA $01
-    ];
-    return {
-      ok: true,
-      bytes,
-      comment: `EXODECRUNCH depacker=$${depackAddr.toString(16).toUpperCase().padStart(4,"0")} (toggles $01 around JSR for ROM-overlay area)`
-    };
-  }
-
-  if (block.isSpritePosMacro) {
-    const num = parseMacroNumber(block.spriteNum || "0", labels, "dec");
-    if (num === null || num < 0 || num > 7) {
-      return { ok: false, error: t("compileSpritePosSpriteRange") };
-    }
-    const x = parseMacroNumber(block.spriteX || "152", labels, "dec");
-    if (x === null || x < 0 || x > 319) {
-      return { ok: false, error: t("compileSpritePosXRange") };
-    }
-    const y = parseMacroNumber(block.spriteY || "100", labels, "dec");
-    if (y === null || y < 0 || y > 255) {
-      return { ok: false, error: t("compileSpritePosYRange") };
-    }
-    const xLow = x & 0xFF;
-    const xAddr = 0xD000 + num * 2;
-    const yAddr = 0xD001 + num * 2;
-    const bitMask = 1 << num;
-    const d010Op = x > 255 ? 0x09 : 0x29;                   // ORA (set) vs AND (clear)
-    const d010Mask = x > 255 ? bitMask : (~bitMask & 0xFF);
-    const bytes = [
-      0xA9, xLow,                                // LDA #xLow
-      0x8D, xAddr & 0xFF, xAddr >> 8,            // STA $D000+N*2
-      0xAD, 0x10, 0xD0,                          // LDA $D010
-      d010Op, d010Mask,                          // ORA/AND #mask
-      0x8D, 0x10, 0xD0,                          // STA $D010
-      0xA9, y,                                   // LDA #y
-      0x8D, yAddr & 0xFF, yAddr >> 8             // STA $D001+N*2
-    ];
-    return { ok: true, bytes, comment: `SPRITE_POS #${num} X=${x} Y=${y}` };
-  }
-
-  if (block.isLoopMacro) {
-    const reg = block.loopReg || "X";
-    const opcode = reg === "Y" ? 0xA0 : 0xA2;
-    const rawCount = (block.loopCount || "0A").trim();
-    const count = parseNumberByBase(rawCount, block.base || "hex") ?? NaN;
-    if (isNaN(count) || count < 0 || count > 255) {
-      return { ok: false, error: `LOOP: ${t("invalidOperand") || "ervenytelen szamlalocim"}` };
-    }
-    const countHex = count.toString(16).toUpperCase().padStart(2, "0");
-    return { ok: true, bytes: [opcode, count], comment: `LD${reg} #$${countHex} ; ${block.loopLabel || "?"}:` };
-  }
-
-  if (block.isNextMacro) {
-    const reg = block.nextReg || "X";
-    const deOpcode = reg === "Y" ? 0x88 : 0xCA;
-    const label = block.nextLabel || "";
-    if (!label) {
-      return { ok: false, error: t("compileNextMissingLoop") };
-    }
-    const target = labels.get(label);
-    if (target === undefined) {
-      return { ok: false, error: `NEXT: ismeretlen cimke: ${label}` };
-    }
-    const offset = target - (line.address + 3);
-    if (offset < -128 || offset > 127) {
-      return { ok: false, error: `NEXT: a ciklus tul nagy, BNE nem er el (offset: ${offset}).` };
-    }
-    return { ok: true, bytes: [deOpcode, 0xD0, offset & 0xFF], comment: `DE${reg} / BNE ${label}` };
-  }
-
-  if (block.isForMacro) {
-    const reg = block.loopReg || "X";
-    const opcode = reg === "Y" ? 0xA0 : 0xA2;
-    const rawCount = (block.loopCount || "0A").trim();
-    const count = (block.base === "dec") ? parseInt(rawCount, 10) : parseInt(rawCount, 16);
-    if (isNaN(count) || count < 0 || count > 255) {
-      return { ok: false, error: `FOR: ervenytelen szamlalo` };
-    }
-    // LDX/LDY #0  — label at address+2
-    return { ok: true, bytes: [opcode, 0x00], comment: `LD${reg} #$00 ; ${block.loopLabel || "?"}:` };
-  }
-
-  if (block.isEndfMacro) {
-    const reg = block.nextReg || "X";
-    const inOpcode  = reg === "Y" ? 0xC8 : 0xE8;  // INY / INX
-    const cpOpcode  = reg === "Y" ? 0xC0 : 0xE0;  // CPY / CPX immediate
-    const label = block.nextLabel || "";
-    if (!label) {
-      return { ok: false, error: t("compileEndfMissingFor") };
-    }
-    const rawCount = (block.nextCount || "0A").trim();
-    const count = (block.base === "dec") ? parseInt(rawCount, 10) : parseInt(rawCount, 16);
-    if (isNaN(count) || count < 0 || count > 255) {
-      return { ok: false, error: `ENDF: ervenytelen hatarszam` };
-    }
-    const target = labels.get(label);
-    if (target === undefined) {
-      return { ok: false, error: `ENDF: ismeretlen cimke: ${label}` };
-    }
-    // INX/INY (1) + CPX/CPY #count (2) + BNE offset (2) = 5 bytes
-    // BNE is at address+3, so target offset = target - (address+3+2) = target - (address+5)
-    const offset = target - (line.address + 5);
-    if (offset < -128 || offset > 127) {
-      return { ok: false, error: `ENDF: a ciklus tul nagy, BNE nem er el (offset: ${offset}).` };
-    }
-    return { ok: true, bytes: [inOpcode, cpOpcode, count, 0xD0, offset & 0xFF], comment: `IN${reg} / CP${reg} #$${count.toString(16).toUpperCase().padStart(2,"0")} / BNE ${label}` };
-  }
-
-  if (block.isPushMacro) {
-    const regs = (block.pushRegs || "A").toUpperCase();
-    const bytes = [];
-    let comment = "PUSH ";
-    for (let i = 0; i < regs.length; i++) {
-      const reg = regs[i];
-      if (reg === 'A') {
-        bytes.push(0x48);  // PHA
-      } else if (reg === 'X') {
-        bytes.push(0x8A);  // TXA
-        bytes.push(0x48);  // PHA
-      } else if (reg === 'Y') {
-        bytes.push(0x98);  // TYA
-        bytes.push(0x48);  // PHA
-      } else {
-        return { ok: false, error: `PUSH: ervenytelen regiszter: ${reg}` };
-      }
-      comment += reg;
-    }
-    return { ok: true, bytes, comment };
-  }
-
-  if (block.isPullMacro) {
-    const regs = (block.pullRegs || "A").toUpperCase();
-    const bytes = [];
-    let comment = "PULL ";
-    // IMPORTANT: PULL should be in REVERSE order of PUSH
-    for (let i = regs.length - 1; i >= 0; i--) {
-      const reg = regs[i];
-      if (reg === 'A') {
-        bytes.push(0x68);  // PLA
-      } else if (reg === 'X') {
-        bytes.push(0x68);  // PLA
-        bytes.push(0xAA);  // TAX
-      } else if (reg === 'Y') {
-        bytes.push(0x68);  // PLA
-        bytes.push(0xA8);  // TAY
-      } else {
-        return { ok: false, error: `PULL: ervenytelen regiszter: ${reg}` };
-      }
-      comment += reg;
-    }
-    return { ok: true, bytes, comment };
-  }
-
-  if (block.isEndMacro) {
-    return { ok: true, bytes: [0x60], comment: "END → RTS" };
-  }
-
-  if (block.isWordMacro) {
-    const words = parseWordMacro(block.rawOperand, block.base, labels);
-    const bytes = [];
-    words.forEach(word => {
-      bytes.push(word & 0xFF, (word >> 8) & 0xFF);  // LO, HI
-    });
-    return {
-      ok: true,
-      bytes,
-      comment: `WORD ${block.rawOperand || ""}`
-    };
-  }
-
-  if (block.isFillMacro) {
-    const parsed = parseFillMacro(block.rawOperand, block.base, labels, { i: line.address, I: line.address });
-    if (!parsed) {
-      return { ok: false, error: `FILL: ${t("invalidOperand") || "invalid parameters"}` };
-    }
-    const resolvedCount = Number.isFinite(parsed.count)
-      ? parsed.count
-      : evaluateFillExpression(parsed.countExpr, labels, { i: line.address, I: line.address });
-    if (!Number.isFinite(resolvedCount) || resolvedCount < 0 || resolvedCount > 65536) {
-      return { ok: false, error: `FILL: ${t("invalidOperand") || "invalid parameters"}` };
-    }
-    const count = Math.max(0, resolvedCount | 0);
-    const bytes = [];
-    for (let i = 0; i < count; i++) {
-      const value = Number.isFinite(parsed.value) && !/\bi\b|\bI\b/.test(parsed.valueExpr || "")
-        ? parsed.value
-        : evaluateFillExpression(parsed.valueExpr, labels, { i, I: i });
-      if (value === null || Number.isNaN(value)) {
-        return { ok: false, error: `FILL: ${t("invalidOperand") || "invalid parameters"}` };
-      }
-      bytes.push(value & 0xFF);
-    }
-    return {
-      ok: true,
-      bytes,
-      comment: `FILL ${parsed.count},${parsed.valueExpr}`
-    };
-  }
-
-  if (block.isAlignMacro) {
-    const boundary = parseNumberByBase(block.rawOperand.replace(/^\$/, ""), block.base);
-    if (!boundary || boundary < 1) {
-      return { ok: false, error: `ALIGN: ${t("invalidOperand") || "invalid boundary"}` };
-    }
-    // Calculate padding bytes needed
-    const remainder = line.address % boundary;
-    const padding = remainder === 0 ? 0 : boundary - remainder;
-    const bytes = new Array(padding).fill(0x00);  // Fill with zeros
-    const targetAddr = line.address + padding;
-    return {
-      ok: true,
-      bytes,
-      comment: `ALIGN ${boundary} → ${formatAddress(targetAddr)}`
-    };
-  }
-
-  if (block.isTableMacro) {
-    // TABLE just creates a label, no bytes generated here
-    return {
-      ok: true,
-      bytes: [],
-      comment: `TABLE ${block.tableName || "?"} @ ${formatAddress(parseAddressValue(block.tableAddress) ?? 0xC000)}`
-    };
-  }
-
-  if (block.isRegionMacro || block.isEndRegionMacro) {
-    return {
-      ok: true,
-      bytes: [],
-      comment: block.isRegionMacro ? `Region: ${block.regionName || "region"}` : "End region"
-    };
-  }
-
-  if (block.isDefineMacro || block.isIfMacro || block.isElseMacro || block.isEndIfMacro || block.isConstMacro) {
-    return {
-      ok: true,
-      bytes: [],
-      comment: block.isDefineMacro ? `DEFINE ${block.defineSymbol || "?"}` : block.isIfMacro ? `IF ${block.ifCondition || "?"}` : (block.isElseMacro ? "ELSE" : block.isConstMacro ? `CONST ${block.constName || "?"} = ${block.rawOperand || "?"}` : "ENDIF")
-    };
-  }
-
-  if (block.isVarMacro) {
-    const addr = typeof block._varAddress === "number"
-      ? "$" + block._varAddress.toString(16).toUpperCase().padStart(2, "0")
-      : "?";
-    return { ok: true, bytes: [], comment: `VAR ${block.varName || "?"} = ${addr}` };
-  }
-
-  if (block.isRuntimeIfMacro) {
-    const reg = (block.runtimeIfReg || "A").toUpperCase();
-    const op  = block.runtimeIfOp || "==";
-    const raw = (block.rawOperand || "").trim();
-    const cmpMnem = reg === "A" ? "CMP" : reg === "X" ? "CPX" : "CPY";
-    const isImm = raw.startsWith("#");
-    const cmpMode = isImm ? "immediate" : "absolute";  // 3-byte absolute (safe for labels/16-bit)
-    const opcode = opcodeMap[cmpMnem]?.[cmpMode];
-    if (opcode === undefined) {
-      return { ok: false, error: tf("compileUnsupportedAddressing", { mnemonic: cmpMnem }) };
-    }
-    let cmpVal;
-    if (isImm) {
-      cmpVal = parseNumberByBase(raw, block.base || "hex");
-    } else {
-      cmpVal = parseAddressValue(raw, labels);
-    }
-    if (cmpVal === null || cmpVal === undefined || isNaN(cmpVal)) {
-      return { ok: false, error: tf("compileIfCannotResolveOperand", { operand: raw }) };
-    }
-    const cmpBytes = isImm
-      ? [opcode, cmpVal & 0xFF]
-      : [opcode, cmpVal & 0xFF, (cmpVal >> 8) & 0xFF];
-
-    const skipMnem = ({
-      "==": "BNE",
-      "!=": "BEQ",
-      "<":  "BCS",
-      ">=": "BCC"
-    })[op];
-    const branchTargetLabel = block.runtimeIfElseLabel;
-    const targetAddr = labels.get(branchTargetLabel);
-    if (typeof targetAddr !== "number") {
-      return { ok: false, error: t("compileIfMissingEndif") };
-    }
-    const branchFromAddr = line.address + cmpBytes.length;
-    let branchBytes;
-    if (skipMnem) {
-      const branchOpcode = opcodeMap[skipMnem].relative;
-      const offset = targetAddr - (branchFromAddr + 2);
-      if (offset < -128 || offset > 127) {
-        return { ok: false, error: tf("compileIfBranchTooLarge", { offset }) };
-      }
-      branchBytes = [branchOpcode, offset & 0xFF];
-    } else if (op === "<=") {
-      const bcsFrom = branchFromAddr + 2;
-      const bcsOffset = targetAddr - (bcsFrom + 2);
-      if (bcsOffset < -128 || bcsOffset > 127) {
-        return { ok: false, error: tf("compileIfBranchTooLarge", { offset: bcsOffset }) };
-      }
-      branchBytes = [opcodeMap.BEQ.relative, 0x02, opcodeMap.BCS.relative, bcsOffset & 0xFF];
-    } else if (op === ">") {
-      const beqOffset = targetAddr - (branchFromAddr + 2);
-      const bccFrom = branchFromAddr + 2;
-      const bccOffset = targetAddr - (bccFrom + 2);
-      if (beqOffset < -128 || beqOffset > 127 || bccOffset < -128 || bccOffset > 127) {
-        return { ok: false, error: tf("compileIfBranchTooLarge", { offset: Math.max(Math.abs(beqOffset), Math.abs(bccOffset)) }) };
-      }
-      branchBytes = [opcodeMap.BEQ.relative, beqOffset & 0xFF, opcodeMap.BCC.relative, bccOffset & 0xFF];
-    } else {
-      return { ok: false, error: tf("compileIfOperatorNotSupported", { op }) };
-    }
-    return {
-      ok: true,
-      bytes: [...cmpBytes, ...branchBytes],
-      comment: `IF ${reg} ${op} ${raw} → skip to ${branchTargetLabel}`
-    };
-  }
-
-  if (block.isRuntimeElseMacro) {
-    // JMP to end_label + anchor for else_label (handled by addLayoutLabels)
-    const endLabel = block.runtimeIfEndLabel;
-    const targetAddr = labels.get(endLabel);
-    if (typeof targetAddr !== "number") {
-      return { ok: false, error: t("compileElseMissingEndif") };
-    }
-    return {
-      ok: true,
-      bytes: [0x4C, targetAddr & 0xFF, (targetAddr >> 8) & 0xFF],
-      comment: `ELSE → JMP ${endLabel}`
-    };
-  }
-
-  if (block.isRuntimeEndIfMacro) {
-    return { ok: true, bytes: [], comment: `ENDIF` };
-  }
-
-  // Shared helper: compile a "CMP/CPX/CPY + branch" pair for WHILE/UNTIL
-  function _compileCmpBranch(block, line, labels, branchTargetLabel, opBranchMap, missingLabelKey = "compileWhileMissingEndw") {
-    const reg = (block.runtimeIfReg || "A").toUpperCase();
-    const op  = block.runtimeIfOp === "=" ? "==" : (block.runtimeIfOp || "==");
-    const raw = (block.rawOperand || "").trim();
-    const cmpMnem = reg === "A" ? "CMP" : reg === "X" ? "CPX" : "CPY";
-    const isImm = raw.startsWith("#");
-    const cmpMode = isImm ? "immediate" : "absolute";
-    const opcode = opcodeMap[cmpMnem]?.[cmpMode];
-    if (opcode === undefined) return { ok: false, error: tf("compileUnsupportedAddressing", { mnemonic: cmpMnem }) };
-    const cmpVal = isImm
-      ? parseNumberByBase(raw, block.base || "hex")
-      : parseAddressValue(raw, labels);
-    if (cmpVal === null || cmpVal === undefined || isNaN(cmpVal)) {
-      return { ok: false, error: tf("compileLoopCannotResolveOperand", { operand: raw }) };
-    }
-    const cmpBytes = isImm
-      ? [opcode, cmpVal & 0xFF]
-      : [opcode, cmpVal & 0xFF, (cmpVal >> 8) & 0xFF];
-    const branchMnem = opBranchMap[op];
-    const targetAddr = labels.get(branchTargetLabel);
-    if (typeof targetAddr !== "number") {
-      return { ok: false, error: t(missingLabelKey) };
-    }
-    const branchFromAddr = line.address + cmpBytes.length;
-    let branchBytes;
-    if (branchMnem) {
-      const branchOpcode = opcodeMap[branchMnem].relative;
-      const offset = targetAddr - (branchFromAddr + 2);
-      if (offset < -128 || offset > 127) {
-        return { ok: false, error: tf("compileLoopBranchTooLarge", { offset }) };
-      }
-      branchBytes = [branchOpcode, offset & 0xFF];
-    } else if (op === "<=") {
-      const bcsFrom = branchFromAddr + 2;
-      const bcsOffset = targetAddr - (bcsFrom + 2);
-      if (bcsOffset < -128 || bcsOffset > 127) {
-        return { ok: false, error: tf("compileLoopBranchTooLarge", { offset: bcsOffset }) };
-      }
-      branchBytes = [opcodeMap.BEQ.relative, 0x02, opcodeMap.BCS.relative, bcsOffset & 0xFF];
-    } else if (op === ">") {
-      const beqOffset = targetAddr - (branchFromAddr + 2);
-      const bccFrom = branchFromAddr + 2;
-      const bccOffset = targetAddr - (bccFrom + 2);
-      if (beqOffset < -128 || beqOffset > 127 || bccOffset < -128 || bccOffset > 127) {
-        return { ok: false, error: tf("compileLoopBranchTooLarge", { offset: Math.max(Math.abs(beqOffset), Math.abs(bccOffset)) }) };
-      }
-      branchBytes = [opcodeMap.BEQ.relative, beqOffset & 0xFF, opcodeMap.BCC.relative, bccOffset & 0xFF];
-    } else {
-      return { ok: false, error: tf("compileLoopOperatorNotSupported", { op }) };
-    }
-    return { ok: true, bytes: [...cmpBytes, ...branchBytes] };
-  }
-
-  if (block.isRuntimeWhileMacro) {
-    // Skip out of loop when condition is FALSE — same mapping as IF skip
-    const skipMap = { "==": "BNE", "=": "BNE", "!=": "BEQ", "<": "BCS", ">=": "BCC" };
-    const r = _compileCmpBranch(block, line, labels, block.whileEndLabel, skipMap);
-    if (!r.ok) return r;
-    return { ok: true, bytes: r.bytes, comment: `WHILE ${block.runtimeIfReg || "A"} ${block.runtimeIfOp || "=="} ${block.rawOperand || "?"}` };
-  }
-  if (block.isRuntimeEndwMacro) {
-    const target = labels.get(block.whileStartLabel);
-    if (typeof target !== "number") {
-      return { ok: false, error: t("compileEndwMissingWhile") };
-    }
-    return { ok: true, bytes: [0x4C, target & 0xFF, (target >> 8) & 0xFF], comment: `ENDW → JMP ${block.whileStartLabel}` };
-  }
-  if (block.isRuntimeRepeatMacro) {
-    return { ok: true, bytes: [], comment: `REPEAT (label ${block.repeatStartLabel})` };
-  }
-  if (block.isRuntimeUntilMacro) {
-    // Loop back to start while condition is FALSE — same mapping as IF skip (branch when NOT met)
-    const backMap = { "==": "BNE", "=": "BNE", "!=": "BEQ", "<": "BCS", ">=": "BCC" };
-    const r = _compileCmpBranch(block, line, labels, block.repeatStartLabel, backMap, "compileUntilMissingRepeat");
-    if (!r.ok) return r;
-    return { ok: true, bytes: r.bytes, comment: `UNTIL ${block.runtimeIfReg || "A"} ${block.runtimeIfOp || "=="} ${block.rawOperand || "?"}` };
-  }
-
-  if (block.isMemCpyMacro) {
-    const macroBase = block.base || "hex";
-    const size = parseMacroCountOrSize(block.memcpySize || "0", labels, macroBase);
-    const src = parseMacroAddress(block.memcpySrc || "C000", labels, macroBase);
-    const dst = parseMacroAddress(block.memcpyDst || "0400", labels, macroBase);
-    if (!size || src === null || dst === null) {
-      return { ok: false, error: `MEMCPY: invalid src/dst/size` };
-    }
-    // getInstructionSize counts without labels: a size known only later would shift the layout
-    if (size !== parseMacroCountOrSize(block.memcpySize || "0", null, macroBase)) {
-      return { ok: false, error: tf("macroSizeNotConstant", { macro: "MEMCPY", value: block.memcpySize }) };
-    }
-    const bytes = [];
-    const fullPages = Math.floor(size / 256);
-    const partial = size % 256;
-    for (let p = 0; p < fullPages; p++) {
-      const s = (src + p * 256) & 0xFFFF;
-      const d = (dst + p * 256) & 0xFFFF;
-      // LDX #$00 / LDA s,X / STA d,X / INX / BNE -8
-      bytes.push(0xA2, 0x00);
-      bytes.push(0xBD, s & 0xFF, (s >> 8) & 0xFF);
-      bytes.push(0x9D, d & 0xFF, (d >> 8) & 0xFF);
-      bytes.push(0xE8);
-      bytes.push(0xD0, 0xF7);  // -9 offset from BNE end back to LDA start
-    }
-    if (partial > 0) {
-      const s = (src + fullPages * 256) & 0xFFFF;
-      const d = (dst + fullPages * 256) & 0xFFFF;
-      // LDX #$00 / LDA s,X / STA d,X / INX / CPX #partial / BNE -11
-      bytes.push(0xA2, 0x00);
-      bytes.push(0xBD, s & 0xFF, (s >> 8) & 0xFF);
-      bytes.push(0x9D, d & 0xFF, (d >> 8) & 0xFF);
-      bytes.push(0xE8);
-      bytes.push(0xE0, partial & 0xFF);
-      bytes.push(0xD0, 0xF5);  // -11 offset back to LDA start
-    }
-    return { ok: true, bytes, comment: `MEMCPY $${src.toString(16).padStart(4,"0").toUpperCase()} → $${dst.toString(16).padStart(4,"0").toUpperCase()}, ${size} B` };
-  }
-
-  if (block.isMemSetMacro) {
-    const macroBase = block.base || "hex";
-    const size = parseMacroCountOrSize(block.memsetSize || "0", labels, macroBase);
-    const value = parseMacroCountOrSize(block.memsetValue || "0", labels, macroBase);
-    const dst = parseMacroAddress(block.memsetDst || "0400", labels, macroBase);
-    if (!size || dst === null) {
-      return { ok: false, error: `MEMSET: invalid dst/size` };
-    }
-    if (size !== parseMacroCountOrSize(block.memsetSize || "0", null, macroBase)) {
-      return { ok: false, error: tf("macroSizeNotConstant", { macro: "MEMSET", value: block.memsetSize }) };
-    }
-    if (value === null || value < 0 || value > 255) {
-      return { ok: false, error: `MEMSET: invalid byte value` };
-    }
-    const bytes = [];
-    bytes.push(0xA9, value & 0xFF);  // LDA #value once
-    const fullPages = Math.floor(size / 256);
-    const partial = size % 256;
-    for (let p = 0; p < fullPages; p++) {
-      const d = (dst + p * 256) & 0xFFFF;
-      // LDX #$00 / STA d,X / INX / BNE -6
-      bytes.push(0xA2, 0x00);
-      bytes.push(0x9D, d & 0xFF, (d >> 8) & 0xFF);
-      bytes.push(0xE8);
-      bytes.push(0xD0, 0xFA);  // -6 offset from BNE end back to STA start
-    }
-    if (partial > 0) {
-      const d = (dst + fullPages * 256) & 0xFFFF;
-      // LDX #$00 / STA d,X / INX / CPX #partial / BNE -8
-      bytes.push(0xA2, 0x00);
-      bytes.push(0x9D, d & 0xFF, (d >> 8) & 0xFF);
-      bytes.push(0xE8);
-      bytes.push(0xE0, partial & 0xFF);
-      bytes.push(0xD0, 0xF8);  // -8 back to STA start
-    }
-    return { ok: true, bytes, comment: `MEMSET $${dst.toString(16).padStart(4,"0").toUpperCase()} = $${value.toString(16).padStart(2,"0").toUpperCase()} × ${size}` };
-  }
-
-  if (block.isPrintMacro) {
-    const text = block.rawOperand || "";
-    const charset = block.printCharset || "upper";
-    const data = encodePetsciiMacro(text, charset);
-    if (data.length > 255) {
-      return { ok: false, error: `PRINT: text too long (${data.length}, max 255)` };
-    }
-    const dataAddr = line.address + 3;
-    const codeAddr = dataAddr + data.length + 1;
-    const bytes = [
-      0x4C, codeAddr & 0xFF, (codeAddr >> 8) & 0xFF,
-      ...data,
-      0x00,
-      0xA2, 0x00,
-      0xBD, dataAddr & 0xFF, (dataAddr >> 8) & 0xFF,
-      0xF0, 0x06,
-      0x20, 0xD2, 0xFF,
-      0xE8,
-      0xD0, 0xF5
-    ];
-    return { ok: true, bytes, comment: `PRINT "${text}"${charset === "lower" ? " lower" : ""}` };
-  }
-
-  if (block.isPrintCharMacro) {
-    const raw = block.rawOperand || "";
-    const value = parsePetsciiCharValue(raw, labels);
-    if (value === null || value < 0 || value > 255) {
-      return { ok: false, error: `PRINT_CHAR: cannot resolve value "${raw}"` };
-    }
-    return { ok: true, bytes: [0xA9, value & 0xFF, 0x20, 0xD2, 0xFF], comment: `PRINT_CHAR ${value}` };
-  }
-
-  if (block.isPrintHexMacro) {
-    const reg = (block.printReg || block.rawOperand || "A").toUpperCase();
-    const prefix = reg === "X" ? [0x8A] : reg === "Y" ? [0x98] : reg === "A" ? [] : null;
-    if (!prefix) return { ok: false, error: `PRINT_HEX: register must be A, X or Y` };
-    return { ok: true, bytes: compilePrintHexA(prefix), comment: `PRINT_HEX ${reg}` };
-  }
-
-  if (block.isClearScreenMacro) {
-    return { ok: true, bytes: [0xA9, 0x93, 0x20, 0xD2, 0xFF], comment: "CLEAR_SCREEN" };
-  }
-
-  if (block.isWaitKeyMacro) {
-    return { ok: true, bytes: [0x20, 0xE4, 0xFF, 0xC9, 0x00, 0xF0, 0xF9], comment: "WAIT_KEY" };
-  }
-
-  if (block.isDelayMacro) {
-    const framesRaw = String(block.delayFrames || "1").trim();
-    const frames = parseDelayFrameCount(framesRaw, labels);
-    if (frames === null) {
-      return { ok: false, error: `DELAY: value must be 1-255 or a defined const` };
-    }
-    const helperAddr = labels.get(DELAY_HELPER_LABEL);
-    if (typeof helperAddr !== "number") {
-      return { ok: false, error: t("compileDelayHelperUnavailable") };
-    }
-    const bytes = [0xA2, frames & 0xFF, 0x20, helperAddr & 0xFF, (helperAddr >> 8) & 0xFF];
-    return { ok: true, bytes, comment: `DELAY ${frames} frame${frames !== 1 ? "s" : ""}` };
-  }
-
-  if (block.isSetBorderMacro || block.isSetBgMacro) {
-    const value = parseMacroNumber(block.colorValue || block.rawOperand || "0", labels, "hex");
-    if (value === null || value < 0 || value > 15) {
-      return { ok: false, error: `${block.mnemonic}: color must be 0-15` };
-    }
-    const addr = block.isSetBorderMacro ? 0xD020 : 0xD021;
-    return { ok: true, bytes: compileAbsoluteStore(addr, value), comment: `${block.mnemonic} $${value.toString(16).toUpperCase()}` };
-  }
-
-  if (block.isSidPlayerMacro) {
-    const init = labels.get("SID_INIT");
-    const play = labels.get("SID_PLAY");
-    if (typeof init !== "number") return { ok: false, error: t("compileSidPlayerNoSid") };
-    if (typeof play !== "number") return { ok: false, error: t("compileSidPlayerNoPlay") };
-    const song = parseMacroNumber(block.sidPlayerSong || "0", labels, "dec");
-    const raster = parseMacroNumber(block.sidPlayerRaster || "FA", labels, "hex");
-    if (song === null || song < 0 || song > 255) return { ok: false, error: t("compileSidPlayerSong") };
-    if (raster === null || raster < 0 || raster > 255) return { ok: false, error: t("compileIrqRasterRange").replace("IRQ_SETUP", "SID_PLAYER") };
-    return { ok: true, bytes: _sidPlayerBytes(line.address, init, play, song, raster), comment: `SID_PLAYER song ${song} @ $${raster.toString(16).toUpperCase().padStart(2, "0")}` };
-  }
-
-  if (block.isIrqSetupMacro) {
-    const handler = labels.get(block.irqHandler || "");
-    const raster = parseMacroNumber(block.irqRaster || "FA", labels, "hex");
-    if (typeof handler !== "number") {
-      return { ok: false, error: tf("compileIrqHandlerNotFound", { label: block.irqHandler || "?" }) };
-    }
-    if (raster === null || raster < 0 || raster > 255) {
-      return { ok: false, error: t("compileIrqRasterRange") };
-    }
-    const bytes = [
-      0x78,
-      0xA9, handler & 0xFF, 0x8D, 0x14, 0x03,
-      0xA9, (handler >> 8) & 0xFF, 0x8D, 0x15, 0x03,
-      0xA9, raster & 0xFF, 0x8D, 0x12, 0xD0,
-      0xAD, 0x11, 0xD0, 0x29, 0x7F, 0x8D, 0x11, 0xD0,
-      0xA9, 0x01, 0x8D, 0x19, 0xD0,
-      0xAD, 0x1A, 0xD0, 0x09, 0x01, 0x8D, 0x1A, 0xD0,
-      0xA9, 0x7F, 0x8D, 0x0D, 0xDC,
-      0xAD, 0x0D, 0xDC,
-      0x58
-    ];
-    return { ok: true, bytes, comment: `IRQ_SETUP ${block.irqHandler} @ $${raster.toString(16).toUpperCase().padStart(2, "0")}` };
-  }
-
-  if (block.isRandMacro) {
-    const seed = parseMacroAddress(block.randSeed || "$FB", labels);
-    if (seed === null || seed < 0 || seed > 0xFFFF) {
-      return { ok: false, error: `RAND: invalid seed address` };
-    }
-    const bytes = [
-      0xAD, seed & 0xFF, (seed >> 8) & 0xFF,
-      0xD0, 0x02,
-      0xA9, 0xA5,
-      0x0A,
-      0x90, 0x02,
-      0x49, 0x1D,
-      0x8D, seed & 0xFF, (seed >> 8) & 0xFF
-    ];
-    return { ok: true, bytes, comment: `RAND ${block.randSeed || "$FB"} → A` };
-  }
-
-  if (block.isLongBranchMacro) {
-    // Bxx' *+3 (skip the JMP) ; JMP target  → always 5 bytes, unlimited range.
-    const invOpcode = {
-      NE: 0xF0, EQ: 0xD0, CC: 0xB0, CS: 0x90,
-      MI: 0x10, PL: 0x30, VC: 0x70, VS: 0x50
-    }[block.longBranchCond];
-    if (invOpcode === undefined) {
-      return { ok: false, error: tf("compileUnsupportedMode", { mnemonic: block.mnemonic || "LB?", mode: "relative" }) };
-    }
-    const raw = String(block.rawOperand || "").trim();
-    let target = null;
-    if (labels.has(raw)) {
-      target = labels.get(raw);
-    } else if (_hasStarPcRef(raw)) {
-      target = _evalAsmExpr(_substituteStarPc(raw, line.address), labels);
-    } else {
-      const n = parseNumberByBase(raw.replace(/^\$/, ""), block.base || "hex");
-      target = n !== null ? n : _evalAsmExpr(raw, labels);
-    }
-    if (target === null || target === undefined || Number.isNaN(target)) {
-      return { ok: false, error: tf("branchOperandInvalid", { mnemonic: block.mnemonic || "LB?" }) };
-    }
-    target &= 0xFFFF;
-    return {
-      ok: true,
-      bytes: [invOpcode, 0x03, 0x4C, target & 0xFF, (target >> 8) & 0xFF],
-      comment: `${block.mnemonic} ${raw}`
-    };
-  }
-
-  if (block.isAssertMacro) {
-    const expr = String(block.assertExpr || block.rawOperand || "").trim();
-    const value = _evalAsmExpr(_substituteStarPc(expr, line.address), labels);
-    if (value === null || value === undefined || Number.isNaN(value)) {
-      return { ok: false, error: tf("assertUnresolved", { expr }) };
-    }
-    if (!value) {
-      return {
-        ok: false,
-        error: tf("assertFailed", { expr, value, message: block.assertMessage ? ` ${block.assertMessage}` : "" })
-      };
-    }
-    return { ok: true, bytes: [], comment: `.assert ${expr}` };
-  }
-
-  if (block.isMacroDefStart || block.isMacroDefEnd) {
-    // Macro definition blocks don't generate bytes
-    return {
-      ok: true,
-      bytes: [],
-      comment: block.isMacroDefStart ? `MACRO ${block.macroName || "?"}` : "ENDM"
-    };
-  }
-
-  // Check if this is a user macro invocation (INVOKE block or legacy format)
-  const macroName = block.isMacroInvoke ? block.invokeMacroName : (userMacros[block.mnemonic] ? block.mnemonic : null);
-  if (macroName && userMacros[macroName]) {
-    // This block invokes a user-defined macro - expand it inline
-    return {
-      ok: true,
-      bytes: [],
-      comment: `; Invoke user macro: ${macroName}`,
-      isMacroInvocation: true
-    };
-  }
-
-  if (block.isMacroInvoke) {
-    // INVOKE block with undefined macro
-    return {
-      ok: false,
-      error: `INVOKE: macro "${block.invokeMacroName || "?"}" is not defined`
-    };
-  }
-
-  const opcode = opcodeMap[block.mnemonic]?.[block.addressingMode];
-  if (opcode === undefined) {
-    return { ok: false, error: tf("compileUnsupportedMode", { mnemonic: block.mnemonic, mode: block.addressingMode }) };
-  }
-
-  const bytes = [opcode];
-
-  if (block.addressingMode === "implied") {
-    return { ok: true, bytes, comment: block.mnemonic };
-  }
-
-  if (block.addressingMode === "relative") {
-    let resolveBlock = block;
-    if (block.rawOperand.trim() === "-" || block.rawOperand.trim() === "+") {
-      const anonAddr = _resolveAnonymousLabel(block.rawOperand.trim(), line.address, labels._anonAddrs);
-      if (anonAddr === null) {
-        return { ok: false, error: tf("anonymousLabelNotFound", { label: block.rawOperand.trim() }) };
-      }
-      resolveBlock = { ...block, rawOperand: anonAddr.toString(16).toUpperCase().padStart(4, "0"), base: "hex" };
-    }
-    const relative = resolveRelativeOperand(resolveBlock, line.address, labels);
-    if (!relative.ok) {
-      return relative;
-    }
-    bytes.push(relative.value & 0xFF);
-    return { ok: true, bytes, comment: `${block.mnemonic} ${block.operand || block.rawOperand}` };
-  }
-
-  // Resolve * (current PC) and -/+ anonymous labels to concrete addresses
-  const resolveBlock = block.rawOperand.trim() === "*"
-    ? { ...block, rawOperand: line.address.toString(16).toUpperCase().padStart(4, "0"), base: "hex" }
-    : (block.rawOperand.trim() === "-" || block.rawOperand.trim() === "+")
-      ? (() => {
-          const anonAddr = _resolveAnonymousLabel(block.rawOperand.trim(), line.address, labels._anonAddrs);
-          if (anonAddr === null) {
-            return null;
-          }
-          return { ...block, rawOperand: anonAddr.toString(16).toUpperCase().padStart(4, "0"), base: "hex" };
-        })()
-      : _hasStarPcRef(block.rawOperand)
-        ? { ...block, rawOperand: _substituteStarPc(block.rawOperand, line.address) }
-        : block;
-
-  if (resolveBlock === null) {
-    return { ok: false, error: tf("anonymousLabelNotFound", { label: block.rawOperand.trim() }) };
-  }
-
-  const operandValue = resolveNumericOperand(resolveBlock, labels);
-  if (!operandValue.ok) {
-    return operandValue;
-  }
-
-  if (block.addressingMode === "immediate" || block.addressingMode === "zeroPage" || block.addressingMode === "zeroPageX" || block.addressingMode === "indirectX" || block.addressingMode === "indirectY" || block.addressingMode === "zeroPageY") {
-    bytes.push(operandValue.value & 0xFF);
-  } else {
-    bytes.push(operandValue.value & 0xFF, (operandValue.value >> 8) & 0xFF);
-  }
-
-  return { ok: true, bytes, comment: `${block.mnemonic} ${block.operand || block.rawOperand}` };
-}
-
-function resolveNumericOperand(block, labels) {
-  const evalAsmExpression = (expr, localLabels = null) => {
-    let text = _charLiteralToHex(String(expr ?? "").trim());
-    if (!text) return null;
-    text = text.replace(/^#/, "");
-    text = text.replace(/\$([A-Za-z_][A-Za-z0-9_]*)/g, (match, name) => {
-      return /^[0-9A-Fa-f]+$/.test(name) ? match : name;
-    });
-    text = text.replace(/\$<\s*\(/g, "lo(");
-    text = text.replace(/\$>\s*\(/g, "hi(");
-    text = text.replace(/<\s*\(/g, "lo(");
-    text = text.replace(/>\s*\(/g, "hi(");
-    text = text.replace(/<\s*([A-Za-z_][A-Za-z0-9_]*)/g, "lo($1)");
-    text = text.replace(/>\s*([A-Za-z_][A-Za-z0-9_]*)/g, "hi($1)");
-    text = text.replace(/\$([0-9A-Fa-f]+)/g, "0x$1");
-    text = text.replace(/%([01]+)/g, "0b$1");
-    text = text.replace(/\b(round|sin|cos|max|min|abs)\b/gi, (match) => `__FUNC_${match.toUpperCase()}__`);
-    text = text.replace(/\bPI\b/gi, "__CONST_PI__");
-    text = text.replace(/\b[A-Za-z_][A-Za-z0-9_]*\b/g, (name) => {
-      if (name.startsWith("__FUNC_") || name === "__CONST_PI__") return name;
-      if (name === "lo" || name === "hi" || name === "Math") return name;
-      if (/^0x[0-9A-Fa-f]+$/.test(name)) return name;
-      if (localLabels && typeof localLabels.get === "function") {
-        const value = localLabels.get(name) ?? localLabels.get(name.toLowerCase()) ?? localLabels.get(name.toUpperCase());
-        if (value !== undefined) return String(value);
-      }
-      const constValue = lookupProgramConstValue(name);
-      if (constValue !== null) return String(constValue);
-      return `__UNKNOWN_${name}__`;
-    });
-    if (/__UNKNOWN_[A-Za-z0-9_]+__/.test(text)) return null;
-    text = text.replace(/__FUNC_ROUND__/g, "Math.round");
-    text = text.replace(/__FUNC_SIN__/g, "Math.sin");
-    text = text.replace(/__FUNC_COS__/g, "Math.cos");
-    text = text.replace(/__FUNC_MAX__/g, "Math.max");
-    text = text.replace(/__FUNC_MIN__/g, "Math.min");
-    text = text.replace(/__FUNC_ABS__/g, "Math.abs");
-    text = text.replace(/__CONST_PI__/g, "Math.PI");
-    try {
-      const result = _evalJsExprSafe(text);
-      return Number.isFinite(result) ? Number(result) : null;
-    } catch (_) {
-      return null;
-    }
-  };
-
-  if (labels.has(block.rawOperand)) {
-    return { ok: true, value: labels.get(block.rawOperand) };
-  }
-
-  // label+offset or label-offset expression (e.g. screen_ram+$0100)
-  const exprMatch = block.rawOperand.match(/^([A-Za-z_][A-Za-z0-9_]*)\s*([+-])\s*(\$[0-9A-Fa-f]+|\d+)$/);
-  if (exprMatch) {
-    const [, name, op, offsetStr] = exprMatch;
-    if (labels.has(name)) {
-      const baseAddr = labels.get(name);
-      const offsetVal = offsetStr.startsWith("$")
-        ? parseInt(offsetStr.slice(1), 16)
-        : parseInt(offsetStr, 10);
-      const result = op === "+" ? baseAddr + offsetVal : baseAddr - offsetVal;
-      return { ok: true, value: result & 0xFFFF };
-    }
-    return { ok: false, error: tf("operandNotResolvable", { mnemonic: block.mnemonic }) };
-  }
-
-  const stripped = block.rawOperand.replace(/^#/, "");
-
-  // #<X  → low byte of label address OR numeric literal
-  if (stripped.startsWith("<")) {
-    const name = stripped.slice(1).trim();
-    if (labels.has(name)) return { ok: true, value: labels.get(name) & 0xFF };
-    // Bare decimal digits stay decimal even if block.base was set to hex by a
-    // fallback path (e.g. macro invocation reparse of `#<110`).
-    const literalBase = /^\d+$/.test(name) ? "dec" : block.base;
-    const num = parseNumberByBase(name.replace(/^[\$%]/, ""), literalBase);
-    if (num !== null) return { ok: true, value: num & 0xFF };
-    const constVal = lookupProgramConstValue(name);
-    if (constVal !== null) return { ok: true, value: constVal & 0xFF };
-    const evaluated = evalAsmExpression(name, labels);
-    if (evaluated !== null) return { ok: true, value: evaluated & 0xFF };
-    return { ok: false, error: tf("operandNotResolvable", { mnemonic: block.mnemonic }) };
-  }
-  // #>X  → high byte of label address OR numeric literal
-  if (stripped.startsWith(">")) {
-    const name = stripped.slice(1).trim();
-    if (labels.has(name)) return { ok: true, value: (labels.get(name) >> 8) & 0xFF };
-    const literalBase = /^\d+$/.test(name) ? "dec" : block.base;
-    const num = parseNumberByBase(name.replace(/^[\$%]/, ""), literalBase);
-    if (num !== null) return { ok: true, value: (num >> 8) & 0xFF };
-    const constVal = lookupProgramConstValue(name);
-    if (constVal !== null) return { ok: true, value: (constVal >> 8) & 0xFF };
-    const evaluated = evalAsmExpression(name, labels);
-    if (evaluated !== null) return { ok: true, value: (evaluated >> 8) & 0xFF };
-    return { ok: false, error: tf("operandNotResolvable", { mnemonic: block.mnemonic }) };
-  }
-
-  // Strip $ (hex prefix) and % (binary prefix) before parsing
-  const parsed = parseNumberByBase(stripped.replace(/^[\$%]/, ""), block.base);
-  if (parsed === null) {
-    // Try label lookup with stripped value (handles #LABEL_NAME for immediate mode)
-    if (labels.has(stripped)) {
-      return { ok: true, value: labels.get(stripped) };
-    }
-    const evaluated = evalAsmExpression(stripped, labels);
-    if (evaluated !== null) {
-      return { ok: true, value: evaluated };
-    }
-    return { ok: false, error: tf("operandNotResolvable", { mnemonic: block.mnemonic }) };
-  }
-
-  return { ok: true, value: parsed };
-}
-
-// Substitute the `*` program-counter token with a concrete address, but only
-// where `*` sits in value position (start of expression, or right after an
-// operator / paren / comma / lo-hi sigil). A `*` that follows a digit, `)` or
-// identifier char is multiplication and is left untouched.
-//   *          → (49152)
-//   *-5        → (49152)-5
-//   #<*        → #<(49152)
-//   #>(*+63)   → #>((49152)+63)
-//   table*2    → table*2   (unchanged — multiplication)
-function _substituteStarPc(expr, pcAddr) {
-  if (pcAddr === null || pcAddr === undefined) return expr;
-  const addr = pcAddr & 0xFFFF;
-  return String(expr ?? "").replace(/(^|[(,+\-/%&|^~<>=\s])\*(?!\*)/g, "$1(" + addr + ")");
-}
-
-// True when `expr` uses `*` as a PC reference somewhere other than as the whole
-// operand (that exact case has dedicated fast paths).
-function _hasStarPcRef(expr) {
-  const s = String(expr ?? "");
-  if (s.trim() === "*") return false;
-  return /(?:^|[(,+\-/%&|^~<>=\s])\*(?!\*)/.test(s);
 }
 
 // Evaluates the JS-style arithmetic the expression evaluators produce (numbers,
@@ -34033,107 +30709,7 @@ function _evalAsmExpr(expr, labels = null, strict = false) {
   }
 }
 
-// Range-check a resolved branch target against the ±127 window and produce a
-// friendly, actionable error (with the exact overshoot and an LBxx suggestion)
-// when it does not fit.
-function _branchOffsetFromTarget(target, address, block, label) {
-  const offset = target - (address + 2);
-  if (offset < -128 || offset > 127) {
-    const over = offset < -128 ? -128 - offset : offset - 127;
-    const dir = offset < -128 ? "-" : "+";
-    const sugg = /^B[A-Z]{2}$/.test(block.mnemonic || "") ? "L" + block.mnemonic : "a long branch";
-    return {
-      ok: false,
-      error: tf("branchOutOfRangeSuggest", {
-        mnemonic: block.mnemonic,
-        label: label || formatAddress(target),
-        over: `${dir}${over}`,
-        sugg
-      })
-    };
-  }
-  return { ok: true, value: offset & 0xFF };
-}
-
-function resolveRelativeOperand(block, address, labels) {
-  let raw = block.rawOperand.trim();
-
-  // * = current PC: branch to self → offset = -2
-  if (raw === "*") {
-    return { ok: true, value: 0xFE }; // -2 as unsigned byte
-  }
-
-  // *-expression target (e.g. BNE *-5, BEQ *+10)
-  if (_hasStarPcRef(raw)) {
-    const target = _evalAsmExpr(_substituteStarPc(raw, address), labels);
-    if (target === null) {
-      return { ok: false, error: tf("branchOperandInvalid", { mnemonic: block.mnemonic }) };
-    }
-    return _branchOffsetFromTarget(target & 0xFFFF, address, block, raw);
-  }
-
-  if (labels.has(raw)) {
-    return _branchOffsetFromTarget(labels.get(raw), address, block, raw);
-  }
-
-  const parsed = parseNumberByBase(raw.replace(/^\$/, ""), block.base);
-  if (parsed === null) {
-    // label+offset / const expression target (e.g. BNE loop+3)
-    const evaluated = _evalAsmExpr(raw, labels);
-    if (evaluated === null) {
-      return { ok: false, error: tf("branchOperandInvalid", { mnemonic: block.mnemonic }) };
-    }
-    return _branchOffsetFromTarget(evaluated & 0xFFFF, address, block, raw);
-  }
-
-  if (parsed >= -128 && parsed <= 127) {
-    return { ok: true, value: parsed & 0xFF };
-  }
-
-  return _branchOffsetFromTarget(parsed, address, block, raw);
-}
-
 // ── Anonymous label helpers ──────────────────────────────────────────────────────
-
-// Collect anonymous label addresses from layout.
-// These are stored on the labels map as labels._anonAddrs (sorted ascending).
-function _collectAnonLabels(layout) {
-  const addrs = [];
-  for (const line of layout.lines) {
-    if (line.block.isAnonymousLabel) {
-      addrs.push(line.address);
-    }
-  }
-  addrs.sort((a, b) => a - b);
-  return addrs;
-}
-
-// Resolve an anonymous label reference ("-" or "+") to a concrete address.
-// * "-" (backward) → largest anonymous label address < currentAddr
-// * "+" (forward) → smallest anonymous label address > currentAddr
-// Returns null if no matching anonymous label found.
-function _resolveAnonymousLabel(operand, currentAddr, anonAddrs) {
-  if (!anonAddrs || !anonAddrs.length) return null;
-  if (operand === "-") {
-    let best = null;
-    for (const addr of anonAddrs) {
-      if (addr < currentAddr && (best === null || addr > best)) {
-        best = addr;
-      }
-    }
-    return best;
-  }
-  if (operand === "+") {
-    let best = null;
-    for (const addr of anonAddrs) {
-      if (addr > currentAddr && (best === null || addr < best)) {
-        best = addr;
-      }
-    }
-    return best;
-  }
-  return null;
-}
 
 // BIN format only makes sense for bitmask-style values (immediate mode, raw byte data).
 // For address operands (JMP/JSR/branches/zeroPage/absolute/indirect) BIN is meaningless,
@@ -34290,29 +30866,6 @@ function parseMacroCountOrSize(raw, labels = null, preferredBase = "dec", vars =
 // (CIA1 IRQ off) whose handler, right after the setup, calls SID_PLAY once a frame.
 // Both calls run with $01 = $35 (BASIC and KERNAL ROM out, I/O in), so a tune under
 // $A000-$BFFF or $E000-$FFFF works; $01 is restored before the KERNAL is needed again.
-const _SID_PLAYER_SIZE = 78;
-function _sidPlayerBytes(address, init, play, song, raster) {
-  const irq = (address + 59) & 0xFFFF, end = (address + _SID_PLAYER_SIZE) & 0xFFFF;
-  return [
-    0x78,
-    0xA5, 0x01, 0x48, 0xA9, 0x35, 0x85, 0x01,
-    0xA9, song & 0xFF, 0x20, init & 0xFF, (init >> 8) & 0xFF,
-    0x68, 0x85, 0x01,
-    0xA9, 0x7F, 0x8D, 0x0D, 0xDC, 0xAD, 0x0D, 0xDC,
-    0xA9, irq & 0xFF, 0x8D, 0x14, 0x03, 0xA9, irq >> 8, 0x8D, 0x15, 0x03,
-    0xA9, raster & 0xFF, 0x8D, 0x12, 0xD0,
-    0xAD, 0x11, 0xD0, 0x29, 0x7F, 0x8D, 0x11, 0xD0,
-    0xA9, 0x01, 0x8D, 0x1A, 0xD0, 0x8D, 0x19, 0xD0,
-    0x58,
-    0x4C, end & 0xFF, end >> 8,
-    0x0E, 0x19, 0xD0,
-    0xA5, 0x01, 0x48, 0xA9, 0x35, 0x85, 0x01,
-    0x20, play & 0xFF, (play >> 8) & 0xFF,
-    0x68, 0x85, 0x01,
-    0x4C, 0x31, 0xEA
-  ];
-}
-
 function parseMacroNumber(raw, labels = null, fallbackBase = "hex") {
   const text = String(raw ?? "").trim();
   if (!text) return null;
@@ -34397,73 +30950,6 @@ function lookupProgramConstValue(name) {
     return globalThis.resolveProgramConstValue(name);
   }
   return resolveProgramConstValue(name);
-}
-
-function evaluateFillExpression(expr, labels = null, vars = null) {
-  let text = String(expr ?? "").trim();
-  if (!text) return null;
-
-  text = text.replace(/^#/, "");
-  text = text.replace(/\$([A-Za-z_][A-Za-z0-9_]*)/g, (match, name) => {
-    return /^[0-9A-Fa-f]+$/.test(name) ? match : name;
-  });
-  text = text.replace(/\$<\s*\(/g, "lo(");
-  text = text.replace(/\$>\s*\(/g, "hi(");
-  text = text.replace(/<\s*\(/g, "lo(");
-  text = text.replace(/>\s*\(/g, "hi(");
-  text = text.replace(/<\s*([A-Za-z_][A-Za-z0-9_]*)/g, "lo($1)");
-  text = text.replace(/>\s*([A-Za-z_][A-Za-z0-9_]*)/g, "hi($1)");
-  text = text.replace(/\$([0-9A-Fa-f]+)/g, "0x$1");
-  text = text.replace(/%([01]+)/g, "0b$1");
-
-  const resolved = Object.create(null);
-  const setResolved = (name, value) => {
-    if (value === undefined || value === null || Number.isNaN(value)) return;
-    resolved[name] = Number(value);
-    resolved[name.toLowerCase()] = Number(value);
-    resolved[name.toUpperCase()] = Number(value);
-  };
-
-  if (labels && typeof labels.forEach === "function") {
-    labels.forEach((value, name) => setResolved(name, value));
-  }
-  if (vars && typeof vars === "object") {
-    for (const [name, value] of Object.entries(vars)) {
-      setResolved(name, value);
-    }
-  }
-
-  text = text.replace(/\b(round|sin|cos|max|min|abs)\b/gi, (match) => `__FUNC_${match.toUpperCase()}__`);
-  text = text.replace(/\bPI\b/gi, "__CONST_PI__");
-
-  text = text.replace(/\b[A-Za-z_][A-Za-z0-9_]*\b/g, (name) => {
-    if (name.startsWith("__FUNC_") || name === "__CONST_PI__") return name;
-    if (name === "lo" || name === "hi" || name === "Math") return name;
-    if (/^0x[0-9A-Fa-f]+$/.test(name)) return name;
-    if (Object.prototype.hasOwnProperty.call(resolved, name)) return String(resolved[name]);
-
-    const constValue = lookupProgramConstValue(name);
-    if (constValue !== null) return String(constValue);
-
-    return `__UNKNOWN_${name}__`;
-  });
-
-  if (/__UNKNOWN_[A-Za-z0-9_]+__/.test(text)) return null;
-
-  text = text.replace(/__FUNC_ROUND__/g, "Math.round");
-  text = text.replace(/__FUNC_SIN__/g, "Math.sin");
-  text = text.replace(/__FUNC_COS__/g, "Math.cos");
-  text = text.replace(/__FUNC_MAX__/g, "Math.max");
-  text = text.replace(/__FUNC_MIN__/g, "Math.min");
-  text = text.replace(/__FUNC_ABS__/g, "Math.abs");
-  text = text.replace(/__CONST_PI__/g, "Math.PI");
-
-  try {
-    const result = _evalJsExprSafe(text);
-    return Number.isFinite(result) ? Number(result) : null;
-  } catch (_) {
-    return null;
-  }
 }
 
 function getProgramConstNames() {
@@ -34557,62 +31043,6 @@ function setupProgramConstPicker(inputEl) {
   return { closeDropdown, dropdown };
 }
 
-function parseDelayFrameCount(raw, labels = null) {
-  const text = String(raw ?? "").trim();
-  const value = parseMacroNumber(text, labels, "dec");
-  if (value !== null) {
-    return value >= 1 && value <= 255 ? value : null;
-  }
-  if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(text)) {
-    const resolved = resolveProgramConstValue(text);
-    return (resolved !== null && resolved >= 1 && resolved <= 255) ? resolved : null;
-  }
-  return null;
-}
-
-function buildDelayHelperBytes(baseAddress) {
-  const bytes = [
-    0x48,
-    0x8A,
-    0x48,
-    0x98,
-    0x48,
-    0x8E, 0x00, 0x00,
-    0xAD, 0x12, 0xD0,
-    0xC9, 0xFF,
-    0xD0, 0xF9,
-    0xAD, 0x12, 0xD0,
-    0xC9, 0xFF,
-    0xF0, 0xF9,
-    0xCE, 0x00, 0x00,
-    0xD0, 0xED,
-    0x68,
-    0xA8,
-    0x68,
-    0xAA,
-    0x68,
-    0x60
-  ];
-  const countAddr = (baseAddress + bytes.length) & 0xFFFF;
-  bytes[6] = countAddr & 0xFF;
-  bytes[7] = (countAddr >> 8) & 0xFF;
-  bytes[23] = countAddr & 0xFF;
-  bytes[24] = (countAddr >> 8) & 0xFF;
-  return [...bytes, 0x00];
-}
-
-function appendDelayHelperLabel(labels, layout) {
-  if (!labels || !layout) return;
-  const hasDelayMacro = layout.lines.some((line) => line.block?.isDelayMacro);
-  if (!hasDelayMacro) return;
-  const deferredSectionsPreview = getDeferredMemorySections(layout);
-  const highestExistingEnd = [
-    layout.end,
-    ...deferredSectionsPreview.map((section) => section.end)
-  ].reduce((maxEnd, currentEnd) => Math.max(maxEnd, currentEnd), layout.end);
-  labels.set(DELAY_HELPER_LABEL, highestExistingEnd + 1);
-}
-
 function formatDelayFramesValue(raw) {
   const text = String(raw ?? "1").trim();
   if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(text)) {
@@ -34632,29 +31062,6 @@ function parseMacroAddress(raw, labels = null, preferredBase = "hex") {
   const parsed = parseAddressValue(text, labels);
   if (parsed !== null) return parsed;
   return resolveProgramConstValue(text);
-}
-
-function compileAbsoluteStore(addr, value) {
-  return [0xA9, value & 0xFF, 0x8D, addr & 0xFF, (addr >> 8) & 0xFF];
-}
-
-function compilePrintHexA(prefixBytes = []) {
-  const emitNibble = [
-    0xC9, 0x0A,
-    0x90, 0x02,
-    0x69, 0x06,
-    0x69, 0x30,
-    0x20, 0xD2, 0xFF
-  ];
-  return [
-    ...prefixBytes,
-    0x48,
-    0x4A, 0x4A, 0x4A, 0x4A,
-    ...emitNibble,
-    0x68,
-    0x29, 0x0F,
-    ...emitNibble
-  ];
 }
 
 function getNumberFormatError(base) {
@@ -34812,1040 +31219,9 @@ function formatAddress(value) {
   return `$${value.toString(16).toUpperCase().padStart(4, "0")}`;
 }
 
-// depth: a macro call counts its body, which may call macros (a macro calling itself stops at INCLUDE_MAX_DEPTH)
-function getInstructionSize(block, depth = 0) {
-  if (block.isBlankLine) {
-    return 0;
-  }
-
-  if (block._isMacroInvokeHeader || block._macroSourceBlock) {
-    return 0;
-  }
-
-  if (block._isSavedAddress || block._isRestoreAddress) {
-    return 0;
-  }
-
-  if (block.isLabel) {
-    return 0;
-  }
-
-  if (block.isComment) {
-    return 0;
-  }
-
-  if (block.isAnonymousLabel) {
-    return 0;
-  }
-
-  if (block.isLongBranchMacro) {
-    return 5;  // Bxx' +3 (skip) + JMP abs
-  }
-
-  if (block.isAssertMacro) {
-    return 0;  // compile-time check, emits nothing
-  }
-
-  if (block.isLevelRowMacro) {
-    return _LEVEL_ROW_SIZE;
-  }
-
-  if (block.isTextMacro) {
-    return encodeTextMacro(block.rawOperand).length * 5;
-  }
-
-  if (block.isByteMacro) {
-    return parseByteMacro(block.rawOperand, block.base).length;
-  }
-
-  if (block.isStringMacro) {
-    return encodeTextMacro(block.rawOperand).length * 5;
-  }
-
-  if (block.isDataMacro) {
-    return parseByteMacro(block.rawOperand, block.base).length * 5;
-  }
-
-  if (block.isRawBytesMacro) {
-    return 0;
-  }
-
-  if (block.isRawTextMacro) {
-    return 0;
-  }
-
-  if (block.isPetsciiMacro) {
-    return 0;
-  }
-
-  if (block.isCharsetMacro) {
-    return 8;
-  }
-
-  if (block.isCharDefMacro) {
-    return 40; // 8 × (LDA #b + STA abs) = 8 × 5
-  }
-
-  if (block.isBoxHitMacro) {
-    return 30;
-  }
-
-  if (block.isIncBinMacro) {
-    return block.incBinU64Pal ? _U64_PAL_SIZE : block.incBinKoala ? _KOALA_SHOW_SIZE : 0;
-  }
-
-  if (block.isUciPaletteColorMacro) return _U64_PAL_COLOR_SIZE;
-  if (block.isUciPaletteResetMacro) return _U64_PAL_RESET_SIZE;
-
-  if (block.isSidMacro) {
-    return 0;
-  }
-
-  if (block.isIncludeMacro) {
-    return 0;
-  }
-
-  if (block.isJoystickMacro) {
-    return _joystickSize(block);
-  }
-
-  if (block.isMouseMacro) {
-    return 142;  // CIA select via bits 7:6 + settle wait + full X/Y 1351-style delta decode paths with $D010 handling on X
-  }
-
-  if (block.isWaitRasterMacro) {
-    return 7;  // LDA $D012 + CMP #rl + BNE -7
-  }
-
-  if (block.isTurboSetMacro) {
-    return 5;  // LDA #val + STA $D031
-  }
-
-  if (block.isSuperCpuDetectMacro) {
-    return 5;  // LDA $D0B8 + CMP #$FF
-  }
-
-  if (block.isTurboEnableMacro) {
-    return 5;  // LDA #$00 + STA $D07A/$D07B
-  }
-
-  if (block.isSpriteColMacro) {
-    return 5;  // LDA $D01E/$D01F + AND #mask
-  }
-
-  if (block.isMapCopyMacro) {
-    const n = block.mapCopySize || 1000;
-    const fp = Math.floor(n / 256);
-    const rem = n % 256;
-    const sec = 2 + fp * 9 + (rem > 0 ? 11 : 0);  // LDX#0 + fp full loops + partial
-    return sec * (block.mapCopyCombined || block.mapCopyColorSrc ? 2 : 1);
-  }
-
-  if (block.isMapCopy16Macro) {
-    return 16 * 19;
-  }
-
-  if (block.isSpriteAnimMacro) {
-    return 19;  // INC zp + LDA zp + CMP #N + BCC +4 + LDA #0 + STA zp + TAX + LDA abs,X + STA abs
-  }
-
-  if (block.isScoreBcdMacro) {
-    const digits = block.scoreDigits || 4;
-    const bcdBytes = digits / 2;  // 1, 2, or 3
-    const addSize = 3 + bcdBytes * 8;  // SED+CLC+CLD + (LDA+ADC+STA) × bcdBytes
-    const dispSize = bcdBytes * 21;    // (LDA+PHA+LSR×4+ORA+STA+PLA+AND+ORA+STA) per BCD byte
-    return addSize + dispSize;
-  }
-
-  if (block.isSpriteInitMacro) {
-    return 26;  // LDA/STA ptr + LDA/ORA/STA $D015 + LDA/$D01C/ORA|AND/STA + LDA/STA color
-  }
-
-  if (block.isLoadFileMacro) {
-    const filename = (block.loadFileName || "").toUpperCase().replace(/[^\x20-\x7E]/g, "").slice(0, 16);
-    const fnLen = Math.max(filename.length, 1);  // reserve at least 1 byte even if empty (compile error will surface separately)
-    const useOverride = (block.loadFileAddress || "").trim() !== "";
-    const useErrorCheck = (block.loadFileErrorLabel || "").trim() !== "";
-    // 3 (JMP skip) + fnLen + 9 (SETNAM) + 9 (SETLFS) + (4 if override) + 5 (LDA #0 + JSR LOAD) + 2 (BCS always)
-    return 3 + fnLen + 9 + 9 + (useOverride ? 4 : 0) + 5 + 2;
-  }
-
-  if (block.isExoDecrunchMacro) {
-    return 19;  // 4×(LDA zp+STA zp)=16 for src-end + $01 toggle + JSR (3)
-                // Actually: 8 (src-end) + 4 ($01=$36) + 3 (JSR) + 4 ($01=$37) = 19
-  }
-
-  if (block.isSpritePosMacro) {
-    return 18;  // LDA/STA xLow + LDA/[ORA|AND]/STA $D010 + LDA/STA y
-  }
-
-  if (block.isReuCheckMacro) {
-    return 34;  // $DF04 write/read probe with $55/$AA, normalized to Z=0 present / Z=1 missing
-  }
-
-  if (block.isReuTransferMacro) {
-    return 40;  // 8 × (LDA #imm 2 + STA abs 3) = 8 × 5
-  }
-
-  if (block.isLoopMacro) {
-    return 2;  // LDX/LDY #count
-  }
-
-  if (block.isNextMacro) {
-    return 3;  // DEX/DEY + BNE offset
-  }
-
-  if (block.isForMacro) {
-    return 2;  // LDX/LDY #0
-  }
-
-  if (block.isEndfMacro) {
-    return 5;  // INX/INY + CPX/CPY #limit + BNE offset
-  }
-
-  if (block.isPushMacro) {
-    const regs = (block.pushRegs || "A").toUpperCase();
-    let size = 0;
-    for (let i = 0; i < regs.length; i++) {
-      const reg = regs[i];
-      if (reg === 'A') {
-        size += 1;  // PHA
-      } else if (reg === 'X' || reg === 'Y') {
-        size += 2;  // TXA/TYA + PHA
-      }
-    }
-    return size;
-  }
-
-  if (block.isPullMacro) {
-    const regs = (block.pullRegs || "A").toUpperCase();
-    let size = 0;
-    for (let i = 0; i < regs.length; i++) {
-      const reg = regs[i];
-      if (reg === 'A') {
-        size += 1;  // PLA
-      } else if (reg === 'X' || reg === 'Y') {
-        size += 2;  // PLA + TAX/TAY
-      }
-    }
-    return size;
-  }
-
-  if (block.isEndMacro) {
-    return 1;
-  }
-
-  if (block.isWordMacro) {
-    return parseWordMacro(block.rawOperand, block.base).length * 2;  // 2 bytes per word
-  }
-
-  if (block.isFillMacro) {
-    const parsed = parseFillMacro(block.rawOperand, block.base);
-    return parsed ? parsed.count : 0;
-  }
-
-  if (block.isAlignMacro) {
-    // ALIGN size is calculated dynamically based on current address
-    // For now return 0, will be calculated in getProgramLayout
-    return 0;
-  }
-
-  if (block.isTableMacro || block.isOrgMacro) {
-    return 0;
-  }
-
-  if (block.isDefineMacro || block.isIfMacro || block.isElseMacro || block.isEndIfMacro || block.isConstMacro) {
-    return 0;
-  }
-
-  if (block.isVarMacro) {
-    return 0;  // Just a label, allocated in ZP separately
-  }
-
-  if (block.isRuntimeIfMacro) {
-    const isImm = (block.rawOperand || "").trim().startsWith("#");
-    const op = block.runtimeIfOp === "=" ? "==" : (block.runtimeIfOp || "==");
-    const branchSize = (op === "<=" || op === ">") ? 4 : 2;
-    return (isImm ? 2 : 3) + branchSize;  // CMP/CPX/CPY + skip branch
-  }
-  if (block.isRuntimeElseMacro) {
-    return 3;  // JMP end
-  }
-  if (block.isRuntimeEndIfMacro) {
-    return 0;  // label anchor
-  }
-  if (block.isRuntimeWhileMacro) {
-    const isImm = (block.rawOperand || "").trim().startsWith("#");
-    const op = block.runtimeIfOp === "=" ? "==" : (block.runtimeIfOp || "==");
-    const branchSize = (op === "<=" || op === ">") ? 4 : 2;
-    return (isImm ? 2 : 3) + branchSize;  // CMP + skip-to-end branch
-  }
-  if (block.isRuntimeEndwMacro) {
-    return 3;  // JMP loop_start
-  }
-  if (block.isRuntimeRepeatMacro) {
-    return 0;  // label anchor
-  }
-  if (block.isRuntimeUntilMacro) {
-    const isImm = (block.rawOperand || "").trim().startsWith("#");
-    const op = block.runtimeIfOp === "=" ? "==" : (block.runtimeIfOp || "==");
-    const branchSize = (op === "<=" || op === ">") ? 4 : 2;
-    return (isImm ? 2 : 3) + branchSize;  // CMP + loop-back branch
-  }
-
-  if (block.isMemCpyMacro) {
-    const size = parseMacroCountOrSize(block.memcpySize || "0", null, block.base || "hex");
-    if (!size) return 0;
-    const fullPages = Math.floor(size / 256);
-    const partial = size % 256;
-    return fullPages * 11 + (partial > 0 ? 13 : 0);
-  }
-  if (block.isMemSetMacro) {
-    const size = parseMacroCountOrSize(block.memsetSize || "0", null, block.base || "hex");
-    if (!size) return 0;
-    const fullPages = Math.floor(size / 256);
-    const partial = size % 256;
-    return 2 + fullPages * 8 + (partial > 0 ? 10 : 0);  // LDA #val once + loops
-  }
-
-  if (block.isPrintMacro) {
-    return 17 + encodePetsciiMacro(block.rawOperand || "", block.printCharset || "upper").length;
-  }
-  if (block.isPrintCharMacro) {
-    return 5;
-  }
-  if (block.isPrintHexMacro) {
-    const reg = (block.printReg || block.rawOperand || "A").toUpperCase();
-    return (reg === "X" || reg === "Y") ? 31 : 30;
-  }
-  if (block.isClearScreenMacro) return 5;
-  if (block.isWaitKeyMacro) return 7;
-  if (block.isDelayMacro) {
-    return 5;  // LDX #frames + JSR shared helper
-  }
-  if (block.isSetBorderMacro || block.isSetBgMacro) return 5;
-  if (block.isIrqSetupMacro) return 46;
-  if (block.isSidPlayerMacro) return _SID_PLAYER_SIZE;
-  if (block.isRandMacro) return 15;
-
-  if (block.isMacroDefStart || block.isMacroDefEnd) {
-    return 0;  // Macro definitions don't take space
-  }
-
-  if (block.isRegionMacro || block.isEndRegionMacro) {
-    return 0;  // REGION/ENDREGION are visual markers only
-  }
-
-  // Check if this is a user macro invocation (INVOKE block or legacy format)
-  const macroName = block.isMacroInvoke ? block.invokeMacroName : (userMacros[block.mnemonic] ? block.mnemonic : null);
-  if (macroName && userMacros[macroName]) {
-    if (block._macroTooDeep || depth >= INCLUDE_MAX_DEPTH) return 0;
-    // Calculate size by expanding the macro body
-    let totalSize = 0;
-    for (const macroBlock of userMacros[macroName].body) {
-      totalSize += getInstructionSize(macroBlock, depth + 1);
-    }
-    return totalSize;
-  }
-
-  if (block.isMacroInvoke) {
-    return 0;  // INVOKE block with undefined macro
-  }
-
-  if (block.addressingMode === "implied") {
-    return 1;
-  }
-
-  if (block.addressingMode === "immediate" || block.addressingMode === "zeroPage" || block.addressingMode === "zeroPageX" || block.addressingMode === "relative" || block.addressingMode === "indirectX" || block.addressingMode === "indirectY" || block.addressingMode === "zeroPageY") {
-    return 2;
-  }
-
-  return 3;
-}
-
-function _scopeLocalLabels(expandedProgram) {
-  let lastGlobal = "";
-  const kickScopes = [];
-  const localRe = /(^|[^A-Za-z0-9_.])(\.[A-Za-z_][A-Za-z0-9_]*)/g;
-  for (let i = 0; i < expandedProgram.length; i++) {
-    const b = expandedProgram[i];
-    if (!b || typeof b !== "object") continue;
-    if (b.kickScopeEnd) {
-      if (kickScopes.length) lastGlobal = kickScopes.pop().previous;
-      continue;
-    }
-    if (b.isLabel && b.labelName && !b.isAnonymousLabel) {
-      if (!b.labelName.startsWith(".")) {
-        if (b.kickScope) {
-          kickScopes.push({ previous: lastGlobal });
-          lastGlobal = b.labelName;
-        } else if (!kickScopes.length) lastGlobal = b.labelName;
-        continue;
-      }
-      if (lastGlobal) {
-        expandedProgram[i] = { ...b, labelName: lastGlobal + b.labelName, _localOf: lastGlobal };
-      }
-      continue;
-    }
-    if (!lastGlobal) continue;
-    const rewrite = (s) =>
-      (typeof s === "string" && s.indexOf(".") !== -1)
-        ? s.replace(localRe, (m, pre, dot) => pre + lastGlobal + dot)
-        : s;
-    const newOperand = rewrite(b.rawOperand);
-    const newAssert = rewrite(b.assertExpr);
-    if (newOperand !== b.rawOperand || newAssert !== b.assertExpr) {
-      expandedProgram[i] = { ...b, rawOperand: newOperand, assertExpr: newAssert };
-    }
-  }
-}
-
 // `lda zp` after `.const zp = $FB` (or a `.var`): an operand made of constants only that fits in a
 // byte takes the instruction's zero-page mode, as the number $FB would — KickAssembler does the same.
 // A label (its address is known only after the layout) and `lda.abs zp` (forceAbsolute) stay absolute.
-const _ZP_NARROW = { absolute: "zeroPage", absoluteX: "zeroPageX", absoluteY: "zeroPageY" };
-
-function _narrowConstZeroPage(blocks) {
-  const consts = new Map();
-  for (const b of blocks) {
-    if (b?.isVarMacro && b.varName && typeof b._varAddress === "number") consts.set(b.varName, b._varAddress);
-  }
-  // a constant may name constants defined later: a few passes
-  const constBlocks = blocks.filter(b => b?.isConstMacro && b.constName);
-  for (let pass = 0; pass < 4; pass++) {
-    let added = false;
-    for (const b of constBlocks) {
-      if (consts.has(b.constName)) continue;
-      const raw = String(b.rawOperand || "").trim();
-      if (!raw || raw.includes("*")) continue;
-      let v = parseNumberByBase(raw.replace(/^\$/, ""), b.base);
-      if (v === null) v = _evalAsmExpr(raw, consts, true);
-      if (v === null || !Number.isFinite(v)) continue;
-      consts.set(b.constName, v & 0xFFFF);
-      added = true;
-    }
-    if (!added) break;
-  }
-  if (!consts.size) return;
-  for (let i = 0; i < blocks.length; i++) {
-    const b = blocks[i];
-    const narrow = _ZP_NARROW[b?.addressingMode];
-    if (!narrow || b.forceAbsolute || !opcodeMap[b.mnemonic]?.[narrow]) continue;
-    const raw = String(b.rawOperand || "").trim();
-    // a symbol is needed: a number keeps the width the parser gave it ($00FB stays absolute;
-    // a hex operand is stored without its $: "05E0" is a number, not a name)
-    if (parseNumberByBase(raw.replace(/^[$%]/, ""), b.base || "hex") !== null) continue;
-    if (!/(?<![\w$])[A-Za-z_]/.test(raw.replace(/\$[0-9A-Fa-f]+/g, "").replace(/0x[0-9A-Fa-f]+/gi, "")) || raw.includes("*")) continue;
-    const v = _evalAsmExpr(raw, consts, true);
-    if (v === null || !Number.isFinite(v) || v < 0 || v > 0xFF) continue;
-    blocks[i] = { ...b, addressingMode: narrow };
-  }
-}
-
-// The JMP / RTS around a parameter-less macro body that is also a subroutine (JSR name).
-function _macroSubroutineBlock(mnemonic, target = "") {
-  return {
-    id: crypto.randomUUID(),
-    category: "Ugrasok",
-    mnemonic,
-    operand: target,
-    rawOperand: target,
-    description: "",
-    addressingMode: target ? "absolute" : "implied",
-    base: "hex",
-    validationError: "",
-    _syntheticMacroLabel: true,
-  };
-}
-
-function getProgramLayout(originOverride) {
-  const parsedOrigin = parseOriginValue();
-  const origin = originOverride === undefined
-    ? parsedOrigin
-    : {
-        value: originOverride,
-        text: formatAddress(originOverride),
-        error: ""
-      };
-  let cursor = origin.value;
-
-  // Expand user macros before calculating layout
-  const expandedProgram = [];
-  let insideMacroDef = false;
-  let currentMacroName = null;
-  let currentMacroHasParams = false;
-  const sourceProgram = _projVmaWithPrelude(program);
-
-  // One block of the program (or of an included file / a macro body at `depth`) into expandedProgram:
-  // an INCLUDE expands to its blocks, a macro call to the macro body — both recursively.
-  const expandBlock = (block, depth, fromInclude) => {
-    // Expand INCLUDE blocks inline
-    if (block.isIncludeMacro) {
-      // the blocks of a nested include carry the outermost include (its line in the error list)
-      const includeTag = fromInclude || block.id;
-      expandedProgram.push(block); // header marker, 0 bytes
-      if (block.includedBlocks?.length) {
-        // If an override address is set, save current address then inject synthetic ORG
-        if (block.includeAddress) {
-          // Save address so main program can resume correctly after the library
-          expandedProgram.push({ _isSavedAddress: true, id: crypto.randomUUID() });
-          const addrHex = block.includeAddress.replace(/^\$/, "").toUpperCase().padStart(4, "0");
-          expandedProgram.push({
-            id: crypto.randomUUID(),
-            mnemonic: "ORG",
-            addressingMode: "implied",
-            base: "hex",
-            operand: "",
-            rawOperand: "",
-            validationError: "",
-            isOrgMacro: true,
-            orgAddress: addrHex,
-            _fromInclude: includeTag, _includeOwner: block.id,
-            _includeFileName: block.includeFileName,
-            _syntheticOrg: true
-          });
-        }
-        // Expand included blocks, respecting MACRO/ENDM boundaries
-        // Skip ORG blocks from included libraries — they have no meaning in the including program's address space
-        let insideIncludedMacroDef = false;
-        let includedMacroName = null;
-        let includedMacroHasParams = false;
-        for (const subBlock of block.includedBlocks) {
-          if (subBlock.isOrgMacro) continue;
-          if (subBlock.isMacroDefStart) {
-            insideIncludedMacroDef = true;
-            includedMacroName = subBlock.macroName || "";
-            includedMacroHasParams = (subBlock.macroParams || "").trim().length > 0;
-            if (block.includeAddress && !includedMacroHasParams) {
-              // Library at fixed address: zero-param macros become subroutines
-              // Show source comment first (if toggled on), then synthetic label for JSR target
-              if (showMacroSource) expandedProgram.push({ ...subBlock, _fromInclude: includeTag, _includeOwner: block.id });
-              if (includedMacroName) {
-                expandedProgram.push({
-                  id: crypto.randomUUID(),
-                  isLabel: true,
-                  labelName: includedMacroName,
-                  mnemonic: "LABEL",
-                  addressingMode: "implied",
-                  base: "hex",
-                  operand: includedMacroName,
-                  rawOperand: includedMacroName,
-                  _fromInclude: includeTag, _includeOwner: block.id,
-                  _syntheticMacroLabel: true
-                });
-              }
-            } else {
-              if (showMacroSource) expandedProgram.push({ ...subBlock, _fromInclude: includeTag, _includeOwner: block.id });
-            }
-            continue;
-          }
-          if (subBlock.isMacroDefEnd) {
-            if (block.includeAddress && !includedMacroHasParams && includedMacroName) {
-              expandedProgram.push({ ..._macroSubroutineBlock("RTS"), _srcLine: subBlock._srcLine, _fromInclude: includeTag, _includeOwner: block.id, _includeFileName: block.includeFileName });
-            }
-            insideIncludedMacroDef = false;
-            includedMacroName = null;
-            includedMacroHasParams = false;
-            if (showMacroSource) expandedProgram.push({ ...subBlock, _fromInclude: includeTag, _includeOwner: block.id });
-            continue;
-          }
-          if (insideIncludedMacroDef) {
-            if (block.includeAddress && !includedMacroHasParams) {
-              // Emit as actual subroutine code so JSR macroName resolves correctly
-              expandedProgram.push({ ...subBlock, _fromInclude: includeTag, _includeOwner: block.id, _includeFileName: block.includeFileName, _fromLibraryMacro: includedMacroName });
-            } else if (showMacroSource) {
-              expandedProgram.push({ ...subBlock, _macroSourceBlock: true, _fromInclude: includeTag, _includeOwner: block.id });
-            }
-            continue;
-          }
-          // a further .include, a macro call: expanded like the main program's own
-          expandBlock({ ...subBlock, _fromInclude: includeTag, _includeOwner: block.id, _includeFileName: block.includeFileName }, depth + 1, includeTag);
-        }
-        // After library: restore main program address
-        if (block.includeAddress) {
-          expandedProgram.push({ _isRestoreAddress: true, id: crypto.randomUUID() });
-        }
-      }
-      return;
-    }
-
-    // Check if this block invokes a user macro (INVOKE block or legacy format)
-    const macroName = block.isMacroInvoke ? block.invokeMacroName : (userMacros[block.mnemonic] ? block.mnemonic : null);
-
-    if (macroName && userMacros[macroName]) {
-      const invokeId = block.id;
-      // a call inside a macro body keeps the outermost call for the error line
-      const rootInvokeId = block._invokeBlockId || block.id;
-      const localSuffix = "__m" + invokeId.replace(/-/g, "").slice(0, 8);
-      const macroBody = userMacros[macroName].body;
-      const macroParams = userMacros[macroName].params || [];
-      // Collect local label names defined inside this macro body
-      // Includes both explicit LABEL blocks AND loop labels (isLoopMacro.loopLabel)
-      // so that LOOP/NEXT labels inside macros are uniquified per-invocation.
-      const localLabels = new Set([
-        ...macroBody.filter(b => b.isLabel && b.labelName).map(b => b.labelName),
-        ...macroBody.filter(b => b.isLoopMacro && b.loopLabel).map(b => b.loopLabel)
-      ]);
-      const bufferParams = new Set();
-      for (const macroBlock of macroBody) {
-        const addrFieldName = getDeferredMacroAddressField(macroBlock);
-        if (!addrFieldName) continue;
-        const addrToken = (macroBlock[addrFieldName] || "").trim();
-        if (isBareLabelToken(addrToken) && macroParams.includes(addrToken)) {
-          bufferParams.add(addrToken);
-        }
-      }
-      const bufferLabels = new Map(
-        [...bufferParams].map((paramName) => [paramName, makeMacroBufferLabel(invokeId, paramName)])
-      );
-      // Build parameter → argument substitution map
-      const invokeArgsStr = block.invokeArgs || "";
-      const invokeArgsList = splitMacroInvokeArgs(invokeArgsStr).map(normalizeMacroInvokeArg);
-      const paramSubst = {};
-      macroParams.forEach((p, i) => { if (p) paramSubst[p] = invokeArgsList[i] ?? ""; });
-      // Helper: substitute {param} placeholders with argument values
-      const applyParams = (raw) => {
-        if (!raw || !macroParams.length) return raw;
-        let result = raw;
-        for (const [p, v] of Object.entries(paramSubst)) {
-          result = result.replace(new RegExp(`\\{${p}\\}`, "g"), v);
-          const bareReplacement = bufferLabels.get(p) || v;
-          result = result.replace(new RegExp(`(?<![A-Za-z0-9_])${p}(?![A-Za-z0-9_])`, "g"), bareReplacement);
-        }
-        return result;
-      };
-      // Helper: replace local label references in a rawOperand string, and apply param substitution
-      const rewriteOperand = (raw) => {
-        if (!raw) return raw;
-        let result = applyParams(raw);
-        if (!localLabels.size) return result;
-        for (const lbl of localLabels) {
-          // Match whole-word label references (not part of a longer identifier)
-          const re = new RegExp(`(?<![A-Za-z0-9_])${lbl}(?![A-Za-z0-9_])`, "g");
-          result = result.replace(re, lbl + localSuffix);
-        }
-        return result;
-      };
-      // Add INVOKE block as a zero-size header line for ASM view selection
-      expandedProgram.push({ ...block, _isMacroInvokeHeader: true });
-      // Expand the macro body inline with uniquified local labels
-      for (const macroBlock of userMacros[macroName].body) {
-        const expanded = {
-          ...macroBlock,
-          id: crypto.randomUUID(),
-          _fromMacro: macroName,
-          _invokeBlockId: rootInvokeId
-        };
-        const addrFieldName = getDeferredMacroAddressField(macroBlock);
-        if (macroBlock.isLabel && macroBlock.labelName && localLabels.has(macroBlock.labelName)) {
-          expanded.labelName = macroBlock.labelName + localSuffix;
-        }
-        if (addrFieldName) {
-          const resolvedAddr = applyParams(macroBlock[addrFieldName]);
-          expanded[addrFieldName] = resolvedAddr;
-          if (bufferLabels.has((macroBlock[addrFieldName] || "").trim())) {
-            expanded._autoBufferLabel = resolvedAddr;
-          }
-        }
-        if (macroBlock.rawOperand) {
-          const newRaw = rewriteOperand(macroBlock.rawOperand);
-          expanded.rawOperand = newRaw;
-          expanded.operand   = rewriteOperand(macroBlock.operand);
-          // If param substitution changed the operand (had {param}), re-derive addressing mode
-          // because the original block was parsed with a placeholder (e.g. "absolute" for "{color}")
-          if (newRaw !== macroBlock.rawOperand && opcodeMap[macroBlock.mnemonic]) {
-            // For immediate mode, reconstruct from "#" + newRaw so bare-decimal args
-            // like `100` don't inherit the pre-formatted `$` prefix from macroBlock.operand
-            // (which was baked in at macro-definition time as a hex display hint).
-            const reparsedOperand = macroBlock.addressingMode === "immediate"
-              ? "#" + newRaw
-              : rewriteOperand(macroBlock.operand || macroBlock.rawOperand);
-            const reparsed = _importMakeInstruction(macroBlock.mnemonic, reparsedOperand, new Set(["BEQ","BNE","BCC","BCS","BMI","BPL","BVC","BVS","BRA"]));
-            expanded.addressingMode = reparsed.addressingMode;
-            expanded.rawOperand = reparsed.rawOperand;
-            expanded.operand = reparsed.operand;
-            expanded.base = reparsed.base;
-          }
-        } else if (macroParams.length) {
-          // No rawOperand, but still apply param substitution to operand
-          expanded.operand = applyParams(macroBlock.operand);
-        }
-        if (macroBlock.isLoopMacro && macroBlock.loopLabel && localLabels.has(macroBlock.loopLabel)) {
-          expanded.loopLabel = macroBlock.loopLabel + localSuffix;
-        }
-        if (macroBlock.isNextMacro && macroBlock.nextLabel && localLabels.has(macroBlock.nextLabel)) {
-          expanded.nextLabel = macroBlock.nextLabel + localSuffix;
-        }
-        // the runtime IF / WHILE / REPEAT labels: unique per call
-        for (const field of ["runtimeIfElseLabel", "runtimeIfEndLabel", "whileStartLabel", "whileEndLabel", "repeatStartLabel"]) {
-          if (macroBlock[field]) expanded[field] = macroBlock[field] + localSuffix;
-        }
-        // a library macro with fields of its own: its line again, parameters and locals filled in
-        const macroLine = macroBlock._macroLine && !opcodeMap[macroBlock.mnemonic] ? _macroLineFor(macroBlock) : "";
-        const relined = macroLine
-          ? macroLine.match(/^((?:[A-Za-z_][\w.]*:\s*)?\.?[A-Za-z_]\w*)(.*)$/)
-          : null;
-        if (relined) {
-          const args = rewriteOperand(relined[2]);
-          if (args !== relined[2]) {
-            const again = parseExpertText(relined[1] + args).find(b => b.mnemonic === macroBlock.mnemonic);
-            if (again) {
-              const { id, _srcLine, _macroLine, _macroPrint, ...fields } = again;
-              Object.assign(expanded, fields);
-            }
-          }
-        }
-        // a macro called inside the body: expanded too, its arguments with this call's parameters
-        const innerName = expanded.isMacroInvoke ? expanded.invokeMacroName : (userMacros[expanded.mnemonic] ? expanded.mnemonic : null);
-        if (innerName && userMacros[innerName]) {
-          if (macroBlock.invokeArgs) expanded.invokeArgs = rewriteOperand(macroBlock.invokeArgs);
-          if (depth >= INCLUDE_MAX_DEPTH) {
-            expanded._macroTooDeep = true;
-            expandedProgram.push(expanded);
-          } else {
-            expandBlock(expanded, depth + 1, fromInclude);
-          }
-          continue;
-        }
-        expandedProgram.push(expanded);
-      }
-    } else {
-      expandedProgram.push(block);
-    }
-  };
-
-  let macroSkipCount = 0;
-  for (const block of sourceProgram) {
-    if (block.isMacroDefStart) {
-      insideMacroDef = true;
-      currentMacroName = block.macroName || null;
-      // Macros with parameters cannot be used as subroutines (placeholders can't be resolved at definition site)
-      currentMacroHasParams = !!(block.macroParams && block.macroParams.trim());
-      // Emit synthetic label so JSR macroName can resolve to the definition site (param-less macros only).
-      // The body is a subroutine here: the program flow must not run into it.
-      if (currentMacroName && !currentMacroHasParams) {
-        expandedProgram.push({ ..._macroSubroutineBlock("JMP", `__ml_skip_${++macroSkipCount}`), _srcLine: block._srcLine, isBreakpoint: block.isBreakpoint });
-        expandedProgram.push({
-          id: crypto.randomUUID(),
-          isLabel: true,
-          labelName: currentMacroName,
-          mnemonic: "LABEL",
-          addressingMode: "implied",
-          base: "hex",
-          operand: currentMacroName,
-          rawOperand: currentMacroName,
-          _syntheticMacroLabel: true,
-        });
-      }
-      if (showMacroSource) expandedProgram.push(block);
-      continue;
-    }
-    if (block.isMacroDefEnd) {
-      if (currentMacroName && !currentMacroHasParams) {
-        expandedProgram.push({ ..._macroSubroutineBlock("RTS"), _srcLine: block._srcLine, isBreakpoint: block.isBreakpoint });
-        expandedProgram.push({
-          id: crypto.randomUUID(),
-          isLabel: true,
-          labelName: `__ml_skip_${macroSkipCount}`,
-          mnemonic: "LABEL",
-          addressingMode: "implied",
-          base: "hex",
-          operand: `__ml_skip_${macroSkipCount}`,
-          rawOperand: `__ml_skip_${macroSkipCount}`,
-          _syntheticMacroLabel: true,
-        });
-      }
-      insideMacroDef = false;
-      currentMacroName = null;
-      currentMacroHasParams = false;
-      if (showMacroSource) expandedProgram.push(block);
-      continue;
-    }
-    if (insideMacroDef) {
-      // Emit macro body as real subroutine code at definition site (enables JSR macroName) —
-      // only for parameter-less macros; parameterised macros are INVOKE-only
-      if (!currentMacroHasParams) {
-        expandedProgram.push({ ...block, _fromMacroDef: currentMacroName });
-      } else if (showMacroSource) {
-        expandedProgram.push({ ...block, _macroSourceBlock: true, _fromMacroDef: currentMacroName });
-      }
-      continue;
-    }
-
-    expandBlock(block, 0, null);
-  }
-
-  _scopeLocalLabels(expandedProgram);
-
-  // Assign auto ZP addresses to VAR blocks. Walk the fully-expanded program
-  // (so VARs coming from INCLUDE files are picked up) and give each one a
-  // fresh slot starting at $02. Wraps only around $FE — the user is expected
-  // not to overflow ZP. Contiguous multi-byte VARs get consecutive addresses.
-  {
-    let zpCursor = 0x02;
-    for (const block of expandedProgram) {
-      if (!block.isVarMacro) continue;
-      if (!block.varName) continue;
-      const size = resolveProgramValueWithConst(block.varSize || "1", "dec");
-      if (isNaN(size) || size < 1 || size > 255) {
-        block.validationError = t("compileVarSizeRange");
-        block._varAddress = null;
-        continue;
-      }
-      const safeSize = Math.max(1, Math.min(255, size));
-      if (zpCursor + safeSize > 0xFF) {
-        block.validationError = t("compileVarZpOutOfSpace");
-        block._varAddress = null;
-        continue;
-      }
-      block._varAddress = zpCursor;
-      block.validationError = "";
-      zpCursor += safeSize;
-    }
-  }
-
-  _narrowConstZeroPage(expandedProgram);
-
-  // Collect active defines from DEFINE blocks in the program
-  const activeDefines = new Set(
-    sourceProgram.filter(b => b.isDefineMacro && b.defineSymbol).flatMap(b =>
-      b.defineSymbol.split(",").map(s => s.trim()).filter(Boolean)
-    )
-  );
-
-  // Mark blocks that are inside an inactive IF branch
-  const condStack = []; // frames: { active: bool, inElse: bool }
-  const skippedBlocks = new WeakSet();
-  for (const block of expandedProgram) {
-    if (block.isIfMacro) {
-      const active = _ifConditionActive(block.ifCondition, activeDefines);
-      block._ifError = active === null ? tf("ifConditionNotResolvable", { condition: (block.ifCondition || "").trim() }) : "";
-      condStack.push({ active: active === true, inElse: false });
-    } else if (block.isElseMacro) {
-      if (condStack.length > 0) condStack[condStack.length - 1].inElse = true;
-    } else if (block.isEndIfMacro) {
-      if (condStack.length > 0) condStack.pop();
-    } else if (condStack.length > 0) {
-      const skip = condStack.some(f => f.inElse ? f.active : !f.active);
-      if (skip) skippedBlocks.add(block);
-    }
-  }
-
-  let savedAddress = null;
-  const lines = expandedProgram.map((block) => {
-    let size = getInstructionSize(block);
-
-    if (skippedBlocks.has(block)) {
-      return { block, size: 0, address: cursor, end: cursor - 1, conditionallySkipped: true };
-    }
-
-    if (block._isSavedAddress) {
-      savedAddress = cursor;
-      return { block, size: 0, address: cursor, end: cursor - 1 };
-    }
-
-    if (block._isRestoreAddress) {
-      if (savedAddress !== null) { cursor = savedAddress; savedAddress = null; }
-      return { block, size: 0, address: cursor, end: cursor - 1 };
-    }
-
-    // Handle TABLE macro: set address cursor if tableAddress is present
-    if (block.isTableMacro && block.tableAddress) {
-      const tableAddr = parseAddressValue(block.tableAddress);
-      if (typeof tableAddr === "number" && !isNaN(tableAddr)) {
-        cursor = tableAddr;
-      }
-    }
-
-    // Handle ORG macro: set address cursor to new origin.
-    // When originOverride is set (e.g. BASIC SYS mode), don't let ORG move
-    // the cursor backwards below originOverride — that would place code at the
-    // wrong physical address in the output. Only an ORG inside the SYS stub
-    // ($0800-$0810, e.g. "* = $0801") is lifted: any other lower ORG is a real
-    // segment (an imported Kick dump fills $071c- after ".pc = $0c40").
-    if (block.isOrgMacro && block.orgAddress) {
-      const orgAddr = parseAddressValue(block.orgAddress);
-      if (typeof orgAddr === "number" && !isNaN(orgAddr)) {
-        const inStub = originOverride !== undefined && orgAddr < originOverride && orgAddr >= 0x0800 && originOverride <= 0x0811;
-        cursor = inStub ? originOverride : orgAddr;
-      }
-    }
-
-    // Handle ALIGN macro: calculate padding to next boundary
-    if (block.isAlignMacro) {
-      const boundary = parseNumberByBase(block.rawOperand.replace(/^\$/, ""), block.base);
-      if (boundary && boundary > 0) {
-        const remainder = cursor % boundary;
-        size = remainder === 0 ? 0 : boundary - remainder;
-      }
-    }
-
-    const address = cursor;
-    cursor += size;
-    return {
-      block,
-      size,
-      address,
-      end: cursor - 1
-    };
-  });
-
-  let autoBufferCursor = lines.length ? (lines[lines.length - 1].end + 1) : origin.value;
-  for (const line of lines) {
-    const block = line.block;
-    const addrFieldName = getDeferredMacroAddressField(block);
-    if (!addrFieldName || !block._autoBufferLabel) continue;
-    const autoBytes = block.isPetsciiMacro
-      ? (() => {
-          const bytes = encodePetsciiMacro(block.rawOperand, block.petsciiCharset || "upper");
-          if (block.petsciiNullTerminated) bytes.push(0x00);
-          return bytes;
-        })()
-      : block.isStringMacro
-        ? (() => {
-            const rawChars = encodeTextMacro(block.rawOperand);
-            const offset = resolveProgramValueWithConst(block.charOffset || "0", "hex");
-            return isNaN(offset) || offset === 0 ? rawChars : rawChars.map(b => (b + offset) & 0xFF);
-          })()
-        : block.isRawTextMacro
-          ? (() => {
-              const rawChars = encodeTextMacro(block.rawOperand, block.textCharset || "standard");
-              const offset = resolveProgramValueWithConst(block.charOffset || "0", "hex");
-              return isNaN(offset) || offset === 0 ? rawChars : rawChars.map(b => (b + offset) & 0xFF);
-            })()
-          // DATA / RAWBYTES: one byte per item (the count needs no labels)
-          : parseByteMacro(block.rawOperand || "", block.base);
-    const resolvedAddr = autoBufferCursor;
-    block._autoBufferAddress = resolvedAddr;
-    block[addrFieldName] = `$${resolvedAddr.toString(16).toUpperCase().padStart(4, "0")}`;
-    autoBufferCursor += autoBytes.length;
-  }
-
-  return {
-    origin,
-    lines,
-    start: origin.value,
-    end: lines.length ? lines[lines.length - 1].end : origin.value - 1
-  };
-}
-
-function getDeferredMemorySections(layout) {
-  // Build label map for address resolution
-  const labelMap = new Map();
-  addAllLayoutLabels(labelMap, layout.lines);
-
-  return layout.lines
-    .map((line, index) => {
-      const lineNumber = `${(index + 1).toString().padStart(2, "0")}`;
-
-      if (line.block.isTextMacro) {
-        const chars = encodeTextMacro(line.block.rawOperand);
-        const startAddress = 0x0400 + ((resolveProgramValueWithConst(line.block.textY ?? "0", "dec") || 0) * 40) + (resolveProgramValueWithConst(line.block.textX ?? "0", "dec") || 0);
-        return {
-          type: "text",
-          lineNumber,
-          sourceAddress: line.address,
-          address: startAddress,
-          end: startAddress + chars.length - 1,
-          bytes: chars,
-          label: `TEXT "${line.block.rawOperand || ""}" -> screen (${line.block.textX ?? 0}, ${line.block.textY ?? 0})`
-        };
-      }
-
-      if (line.block.isStringMacro) {
-        const rawChars = encodeTextMacro(line.block.rawOperand);
-        const offset = resolveProgramValueWithConst(line.block.charOffset || "0", "hex");
-        const chars = isNaN(offset) || offset === 0 ? rawChars : rawChars.map(b => (b + offset) & 0xFF);
-        const startAddress = parseAddressValue(line.block.stringAddress, labelMap) ?? 0xC000;
-        return {
-          type: "string",
-          lineNumber,
-          sourceAddress: line.address,
-          address: startAddress,
-          end: startAddress + chars.length - 1,
-          bytes: chars,
-          label: `STRING "${line.block.rawOperand || ""}" -> ${formatAddress(startAddress)}`
-        };
-      }
-
-      if (line.block.isDataMacro) {
-        const bytes = parseByteMacro(line.block.rawOperand, line.block.base, labelMap);
-        const startAddress = parseAddressValue(line.block.dataAddress, labelMap) ?? 0xC000;
-        return {
-          type: "data",
-          lineNumber,
-          sourceAddress: line.address,
-          address: startAddress,
-          end: startAddress + bytes.length - 1,
-          bytes,
-          label: `DATA ${line.block.rawOperand || ""} -> ${formatAddress(startAddress)}`
-        };
-      }
-
-      if (line.block.isRawBytesMacro) {
-        const bytes = parseByteMacro(line.block.rawOperand, line.block.base, labelMap);
-        const startAddress = parseAddressValue(line.block.rawBytesAddress, labelMap) ?? 0xC000;
-        return {
-          type: "rawbytes",
-          lineNumber,
-          sourceAddress: line.address,
-          address: startAddress,
-          end: startAddress + bytes.length - 1,
-          bytes,
-          label: `RAWBYTES ${line.block.rawOperand || ""} -> ${formatAddress(startAddress)}`
-        };
-      }
-
-      if (line.block.isIncBinMacro && !line.block.incBinU64Pal) {
-        const bytes = _incBinPayload(line.block);
-        const startAddress = parseAddressValue(line.block.incBinAddress) ?? 0xC000;
-        return {
-          type: "incbin",
-          lineNumber,
-          sourceAddress: line.address,
-          address: startAddress,
-          end: startAddress + bytes.length - 1,
-          bytes: Array.from(bytes),
-          label: `INCBIN "${line.block.incBinFileName || ""}" -> ${formatAddress(startAddress)}`
-        };
-      }
-
-      if (line.block.isRawTextMacro) {
-        const rawChars = encodeTextMacro(line.block.rawOperand);
-        const offset = resolveProgramValueWithConst(line.block.charOffset || "0", "hex");
-        const chars = isNaN(offset) || offset === 0 ? rawChars : rawChars.map(b => (b + offset) & 0xFF);
-        const startAddress = parseAddressValue(line.block.rawTextAddress, labelMap) ?? 0xC000;
-        return {
-          type: "rawtext",
-          lineNumber,
-          sourceAddress: line.address,
-          address: startAddress,
-          end: startAddress + chars.length - 1,
-          bytes: chars,
-          label: `RAWTEXT "${line.block.rawOperand || ""}" -> ${formatAddress(startAddress)}`
-        };
-      }
-
-      if (line.block.isPetsciiMacro) {
-        const chars = encodePetsciiMacro(line.block.rawOperand, line.block.petsciiCharset || "upper");
-        const startAddress = parseAddressValue(line.block.petsciiAddress, labelMap) ?? 0xC000;
-        return {
-          type: "petscii",
-          lineNumber,
-          sourceAddress: line.address,
-          address: startAddress,
-          end: startAddress + chars.length - 1,
-          bytes: chars,
-          label: `PETSCII "${line.block.rawOperand || ""}" -> ${formatAddress(startAddress)}`
-        };
-      }
-
-      return null;
-    })
-    .filter(Boolean)
-    .sort((left, right) => left.address - right.address);
-}
-
 function mergeMemoryRanges(ranges) {
   if (!ranges.length) {
     return [];
@@ -36066,12 +31442,18 @@ function _acmeMemoryUsage(preview = _acmePreview?.tabId === activeTabId ? _acmeP
   };
 }
 
+// The memory panel's usage of a layout (_vmaLayout); without one the editor's live analysis
+// (the panel is drawn again when it is there).
 function getMemoryUsage(layout) {
   if (ultimateBasicMode) return _ubMemoryUsage();
   if (assemblerSyntax === "acme" && expertMode) return _acmeMemoryUsage();
-  layout = layout || getProgramLayout();
-  const code = program.length && layout.start <= layout.end ? [layout.start, layout.end] : null;
-  return _memoryUsageOf(layout, code, getDeferredMemorySections(layout), _memoryCodeRegions(layout));
+  if (!layout) {
+    const vma = _vmaLiveFor(_vmaEditorInput(), () => { renderMemoryMap(); renderMemoryStrip(); });
+    layout = vma ? _vmaLayout(vma) : null;
+  }
+  const m = layout?.vma?.memory;
+  const regions = (m?.regions || []).map(([address, end]) => ({ address, end, type: "code" }));
+  return _memoryUsageOf(layout || _vmaLayout(_vmaNormalize({}, { text: "" })), m?.code || null, m?.deferred || [], regions);
 }
 
 // The memory panel's usage of a VMA build: `code` = [start, end] of the layout or null, the
@@ -36120,41 +31502,6 @@ function _memoryUsageOf(layout, code, deferredSections, codeRegions) {
     freeRamBytes: Math.max(0, totalRamBytes - occupiedRamBytes),
     overlaps: _memoryOverlaps(codeRegions, deferredSections)
   };
-}
-
-// Contiguous inline code regions of a layout (split at gaps / ORG jumps).
-function _memoryCodeRegions(layout) {
-  const codeRegions = [];
-  let runStart = null;
-  let runEnd = null;
-
-  for (const line of layout.lines) {
-    if (
-      line.conditionallySkipped ||
-      line.block._isSavedAddress ||
-      line.block._isRestoreAddress ||
-      line.block._isMacroInvokeHeader ||
-      line.block.isRawBytesMacro ||
-      line.block.isRawTextMacro ||
-      line.size === 0
-    ) continue;
-
-    const blockEnd = line.address + line.size - 1;
-    if (runStart === null) {
-      runStart = line.address;
-      runEnd = blockEnd;
-    } else if (line.address <= runEnd + 1) {
-      runEnd = Math.max(runEnd, blockEnd);
-    } else {
-      codeRegions.push({ address: runStart, end: runEnd, type: "code" });
-      runStart = line.address;
-      runEnd = blockEnd;
-    }
-  }
-  if (runStart !== null) {
-    codeRegions.push({ address: runStart, end: runEnd, type: "code" });
-  }
-  return codeRegions;
 }
 
 // The overlapping pairs of the code regions and the non-empty deferred sections.
@@ -36253,20 +31600,14 @@ let _zpPanelOpen = false;
 let _zpSelected = -1;
 
 function _zpCollect(layout) {
-  const labels = new Map();
-  addAllLayoutLabels(labels, layout.lines);
-  labels._anonAddrs = _collectAnonLabels(layout);
   const entries = [];
   let owner = "";
   layout.lines.forEach((line, index) => {
     const block = line.block || {};
     if (line.conditionallySkipped) return;
     if (block.isLabel && block.labelName && !block.labelName.startsWith(".")) owner = /^sid_/i.test(block.labelName) ? "sid" : block.labelName;
-    const mnem = String(block.mnemonic || "").toUpperCase();
-    if (!opcodeMap[mnem]) return;
-    const result = compileLineBytes(line, labels);
-    if (!result.ok || !result.bytes?.length) return;
-    entries.push({ bytes: result.bytes, srcLine: block._srcLine, blockId: block.id, index, owner });
+    if (block._vmaKind !== "instr" || !line.bytes?.length) return;
+    entries.push({ bytes: line.bytes, srcLine: block._srcLine, blockId: block.id, index, owner });
   });
   return _zpAnalyze(entries);
 }
@@ -40322,608 +35663,96 @@ function selectBlockInAsm(blockId, event = null, preserveSelection = false) {
 }
 
 function renderAsmOutput() {
-  const layout = getProgramLayout();
-
   if (!program.length) {
-    asmPlainText = `*= ${layout.origin.text}\n; ${t("theC64AssemblySourceWillAppearHere")}`;
+    asmPlainText = `*= $0801\n; ${t("theC64AssemblySourceWillAppearHere")}`;
     asmDisplayText = withAsmLineNumbers(asmPlainText);
     asmOutput.innerHTML = highlightAsmHtml(asmDisplayText);
+    asmBlockRanges = {};
     renderMonitorOutput();
     renderDisasmOutput();
     return;
   }
+  const vma = _vmaLiveFor(_vmaEditorInput(program), renderAsmOutput);
+  if (!vma) return;
 
-  const labels = new Map();
-  addAllLayoutLabels(labels, layout.lines);
-  labels._anonAddrs = _collectAnonLabels(layout);
-  appendDelayHelperLabel(labels, layout);
-
-  const deferredDataSections = [];
-  const codeLines = layout.lines.map((line, index) => {
-    const lineNumber = `${(index + 1).toString().padStart(2, "0")}`;
-
-    // Blank line block → empty line in ASM output
-    if (line.block.isBlankLine) {
-      return "";
-    }
-
-    // Handle conditionally skipped blocks (inactive IF branch)
-    if (line.conditionallySkipped) {
-      const summary = line.block.operand || "";
-      return `; [IF skipped] ${line.block.mnemonic}${summary ? " " + summary : ""}`;
-    }
-
-    // Handle INVOKE block header line
-    if (line.block._isMacroInvokeHeader) {
-      const args = line.block.invokeArgs ? `(${line.block.invokeArgs})` : "";
-      return `; .${line.block.invokeSyntax || "invoke"} ${line.block.invokeMacroName || "?"}${args}`;
-    }
-
-    // Invisible layout markers — address save/restore for INCLUDE with fixed address
-    if (line.block._isSavedAddress || line.block._isRestoreAddress) return null;
-
-    // Handle macro source blocks (body of MACRO/ENDM definition when toggle is on)
-    if (line.block._macroSourceBlock) {
-      if (line.block.isLabel) return `    ${line.block.labelName}:`;
-      if (line.block.isAnonymousLabel) return `    -`;
-      if (line.block.isComment) return `    ; ${line.block.rawOperand || ""}`;
-      const macroSrcError = getLiveValidationError(line.block);
-      if (macroSrcError) {
-        const suffix = line.block.operand ? ` ${line.block.operand}` : "";
-        return `    ${line.block.mnemonic}${suffix}  ; ${t("warningLabel")}: ${macroSrcError}`;
+  // the lines of each block: its own, then the ones a macro call expands to
+  const own = new Map();
+  const expanded = new Map();
+  let current = -1;
+  for (const line of vma.lines) {
+    if (line.fromMacro) {
+      if (current >= 0) {
+        if (!expanded.has(current)) expanded.set(current, []);
+        expanded.get(current).push(line);
       }
-      const suffix = line.block.operand ? ` ${line.block.operand}` : "";
-      return `    ${line.block.mnemonic}${suffix}`;
+      continue;
     }
-
-    // Check if this line came from a macro expansion
-    // Only intercept labels and comments here (to suppress the address annotation).
-    // All other block types (LOOP, NEXT, REGION, regular instructions, etc.) fall
-    // through to their own rendering code below so they render correctly.
-    if (line.block._fromMacro) {
-      if (line.block.isAnonymousLabel) return `-`;
-      if (line.block.isLabel) return `${line.block.labelName}:`;
-      if (line.block.isComment) return `; ${line.block.rawOperand || ""}`;
-      // fall through to normal rendering for everything else
-    }
-
-    if (line.block.isLabel) {
-      if (line.block.labelOffset) return `.label ${line.block.labelName} = * ${line.block.labelOffset < 0 ? "-" : "+"} ${Math.abs(line.block.labelOffset)}  ; ${formatAddress((line.address + line.block.labelOffset) & 0xFFFF)}`;
-      return `${line.block.labelName}:  ; ${formatAddress(line.address)}`;
-    }
-
-    if (line.block.isAnonymousLabel) {
-      return `-  ; ${formatAddress(line.address)}`;
-    }
-
-    if (line.block.isComment) {
-      return `; ${line.block.rawOperand || ""}`;
-    }
-
-    if (line.block.isRegionMacro) {
-      if (!showRegionComments) return null;
-      return `; region ${line.block.regionName || "region"}`;
-    }
-
-    if (line.block.isEndRegionMacro) {
-      if (!showRegionComments) return null;
-      let regionName = "region";
-      let depth = 0;
-      for (let i = index - 1; i >= 0; i--) {
-        if (layout.lines[i].block.isEndRegionMacro) { depth++; }
-        else if (layout.lines[i].block.isRegionMacro) {
-          if (depth === 0) { regionName = layout.lines[i].block.regionName || "region"; break; }
-          depth--;
-        }
-      }
-      return `; endregion ${regionName}`;
-    }
-
-    if (line.block.isTextMacro) {
-      const chars = encodeTextMacro(line.block.rawOperand);
-      const startAddress = 0x0400 + ((resolveProgramValueWithConst(line.block.textY ?? "0", "dec") || 0) * 40) + (resolveProgramValueWithConst(line.block.textX ?? "0", "dec") || 0);
-      const expanded = chunkBytes(chars, 16).map((chunk, chunkIndex) => {
-        const chunkAddress = startAddress + (chunkIndex * 16);
-        const byteList = chunk.map((byte) => toHex(byte, 2)).join(", ");
-        return `    ; ${formatAddress(chunkAddress)}\n    .byte ${byteList}`;
-      }).join("\n");
-      deferredDataSections.push({
-        address: startAddress,
-        text: `${line.block.macroLabel ? line.block.macroLabel.trim() : `text_${lineNumber}`}:\n    ; .text "${line.block.rawOperand || ""}" -> screen (${line.block.textX ?? 0}, ${line.block.textY ?? 0})\n${expanded}`
-      });
-      const textLabel = line.block.macroLabel ? line.block.macroLabel.trim() : `text_${lineNumber}`;
-      return `; .text ${textLabel}`;
-    }
-
-    if (line.block.isByteMacro) {
-      return _formatByteMacroAsmLines(line.block.rawOperand, line.block.base, labels).join("\n");
-    }
-
-    if (line.block.isStringMacro) {
-      const rawOffset = resolveProgramValueWithConst(line.block.charOffset || "0", "hex");
-      const chars = encodeTextMacro(line.block.rawOperand).map(b => (b + (isNaN(rawOffset) ? 0 : rawOffset)) & 0xFF);
-      const startAddress = parseAddressValue(line.block.stringAddress) ?? 0xC000;
-      const expanded = chunkBytes(chars, 16).map((chunk, chunkIndex) => {
-        const chunkAddress = startAddress + (chunkIndex * 16);
-        const byteList = chunk.map((byte) => toHex(byte, 2)).join(", ");
-        return `    ; ${formatAddress(chunkAddress)}\n    .byte ${byteList}`;
-      }).join("\n");
-      deferredDataSections.push({
-        address: startAddress,
-        text: `${line.block.macroLabel ? line.block.macroLabel.trim() : `string_${lineNumber}`}:\n    ; .string "${line.block.rawOperand || ""}" -> ${formatAddress(startAddress)}\n${expanded}`
-      });
-      const stringLabel = line.block.macroLabel ? line.block.macroLabel.trim() : `string_${lineNumber}`;
-      return `; .string ${stringLabel}`;
-    }
-
-    if (line.block.isDataMacro) {
-      const dataBytes = parseByteMacro(line.block.rawOperand, line.block.base, labels);
-      const startAddress = parseAddressValue(line.block.dataAddress) ?? 0xC000;
-      const expanded = chunkBytes(dataBytes, 16).map((chunk, chunkIndex) => {
-        const chunkAddress = startAddress + (chunkIndex * 16);
-        const byteList = chunk.map((byte) => toHex(byte, 2)).join(", ");
-        return `    ; ${formatAddress(chunkAddress)}\n    .byte ${byteList}`;
-      }).join("\n");
-      deferredDataSections.push({
-        address: startAddress,
-        text: `${line.block.macroLabel ? line.block.macroLabel.trim() : `data_${lineNumber}`}:\n    ; .data ${line.block.rawOperand || ""} -> ${formatAddress(startAddress)}\n${expanded}`
-      });
-      const dataLabel = line.block.macroLabel ? line.block.macroLabel.trim() : `data_${lineNumber}`;
-      return `; .data ${dataLabel}`;
-    }
-
-    if (line.block.isRawBytesMacro) {
-      const rawBytes = parseByteMacro(line.block.rawOperand, line.block.base, labels);
-      const startAddress = parseAddressValue(line.block.rawBytesAddress) ?? 0xC000;
-      const expanded = chunkBytes(rawBytes, 16).map((chunk, chunkIndex) => {
-        const chunkAddress = startAddress + (chunkIndex * 16);
-        const byteList = chunk.map((byte) => toHex(byte, 2)).join(", ");
-        return `    ; ${formatAddress(chunkAddress)}\n    .byte ${byteList}`;
-      }).join("\n");
-      deferredDataSections.push({
-        address: startAddress,
-        text: `${line.block.macroLabel ? line.block.macroLabel.trim() : `rawbytes_${lineNumber}`}:\n    ; .rawbytes ${line.block.rawOperand || ""} -> ${formatAddress(startAddress)}\n${expanded}`
-      });
-      const rawbytesLabel = line.block.macroLabel ? line.block.macroLabel.trim() : `rawbytes_${lineNumber}`;
-      return `; .rawbytes ${rawbytesLabel}`;
-    }
-
-    if (line.block.isIncBinMacro && line.block.incBinU64Pal) {
-      return `; .u64_palette "${line.block.incBinFileName || line.block.incBinFile || "?"}" (${_U64_PAL_SIZE} bytes)`;
-    }
-    if (line.block.isUciPaletteColorMacro) return `; .u64_palette_color ${(line.block.rawOperand || "").trim()}`;
-    if (line.block.isUciPaletteResetMacro) return "; .u64_palette_reset";
-
-    if (line.block.isIncBinMacro && line.block.incBinKoala) {
-      const bytes = _koalaData(line.block);
-      const startAddress = parseAddressValue(line.block.incBinAddress) ?? 0x6000;
-      const fileName = line.block.incBinFileName || line.block.incBinFile || "?";
-      if (bytes.length > 0) {
-        const expanded = chunkBytes(bytes, 16).map((chunk, chunkIndex) => {
-          const byteList = chunk.map((byte) => toHex(byte, 2)).join(", ");
-          return `    ; ${formatAddress(startAddress + chunkIndex * 16)}\n    .byte ${byteList}`;
-        }).join("\n");
-        deferredDataSections.push({
-          address: startAddress,
-          text: `koala_${lineNumber}:\n    ; .koala "${fileName}" -> ${formatAddress(startAddress)}\n${expanded}`
-        });
-      }
-      return `; .koala "${fileName}" @ ${formatAddress(startAddress)} (${_KOALA_SHOW_SIZE} bytes display routine)`;
-    }
-
-    if (line.block.isIncBinMacro) {
-      const bytes = _incBinPayload(line.block);
-      const startAddress = parseAddressValue(line.block.incBinAddress) ?? 0xC000;
-      const fileName = line.block.incBinFileName || line.block.incBinFile || "?";
-      if (bytes.length > 0) {
-        const expanded = chunkBytes(Array.from(bytes), 16).map((chunk, chunkIndex) => {
-          const chunkAddress = startAddress + (chunkIndex * 16);
-          const byteList = chunk.map((byte) => toHex(byte, 2)).join(", ");
-          return `    ; ${formatAddress(chunkAddress)}\n    .byte ${byteList}`;
-        }).join("\n");
-        deferredDataSections.push({
-          address: startAddress,
-          text: `incbin_${lineNumber}:\n    ; .incbin "${fileName}" -> ${formatAddress(startAddress)}\n${expanded}`
-        });
-        return `; .incbin incbin_${lineNumber} (${bytes.length} bytes)`;
-      }
-      return `; .incbin "${fileName}" @ ${formatAddress(startAddress)} (${t("noFileLoaded")})`;
-    }
-
-    if (line.block.isSidMacro) {
-      const bytes = line.block.sidBytes || [];
-      const fileName = line.block.sidFileName || "?";
-      const customAddr = line.block.sidCustomAddress ? parseAddressValue(line.block.sidCustomAddress.replace(/^\$/, "")) : null;
-      const load = customAddr ?? line.block.sidLoadAddress ?? 0;
-      const addrOffset = (customAddr !== null && line.block.sidLoadAddress) ? customAddr - line.block.sidLoadAddress : 0;
-      const init = (line.block.sidInitAddress || 0) + addrOffset;
-      const play = (line.block.sidPlayAddress || 0) + addrOffset;
-      if (bytes.length > 0 && load > 0) {
-        const overrideNote = addrOffset !== 0 ? " [relocated]" : "";
-        return `; .sid "${fileName}" @ ${formatAddress(load)}${overrideNote}  init:${formatAddress(init)}  play:${formatAddress(play)}  (${bytes.length} bytes)`;
-      }
-      return `; .sid "${fileName}" (${t("noFileLoaded")})`;
-    }
-
-    if (line.block.isIncludeMacro) {
-      const count = (line.block.includedBlocks || []).length;
-      const fname = line.block.includeFileName || "?";
-      const addrNote = line.block.includeAddress ? ` @ $${line.block.includeAddress.replace(/^\$/, "").toUpperCase().padStart(4, "0")}` : "";
-      if (count === 0) return `; .include "${fname}"${addrNote} (${t("noBlocksLoaded")})`;
-      return `; .include "${fname}"${addrNote} — ${count} ${t("includeBlocksCount")}`;
-    }
-
-    if (line.block.isMemCpyMacro) {
-      const src = (line.block.memcpySrc || "C000").replace(/^\$/, "").toUpperCase().padStart(4, "0");
-      const dst = (line.block.memcpyDst || "0400").replace(/^\$/, "").toUpperCase().padStart(4, "0");
-      const size = (line.block.memcpySize || "0100").replace(/^\$/, "").toUpperCase().padStart(4, "0");
-      return `; .memcpy src=$${src}, dst=$${dst}, size=$${size}`;
-    }
-
-    if (line.block.isMemSetMacro) {
-      const dst = (line.block.memsetDst || "0400").replace(/^\$/, "").toUpperCase().padStart(4, "0");
-      const valueRaw = String(line.block.memsetValue || "00").trim();
-      const value = /^[A-Za-z_]/.test(valueRaw)
-        ? valueRaw
-        : "$" + valueRaw.replace(/^#?\$/, "").toUpperCase().padStart(2, "0");
-      const size = (line.block.memsetSize || "0100").replace(/^\$/, "").toUpperCase().padStart(4, "0");
-      return `; .memset addr=$${dst}, value=${value}, size=$${size}`;
-    }
-
-    if (line.block.isRawTextMacro) {
-      const rawOffset = resolveProgramValueWithConst(line.block.charOffset || "0", "hex");
-      const chars = encodeTextMacro(line.block.rawOperand).map(b => (b + (isNaN(rawOffset) ? 0 : rawOffset)) & 0xFF);
-      const startAddress = parseAddressValue(line.block.rawTextAddress) ?? 0xC000;
-      const expanded = chunkBytes(chars, 16).map((chunk, chunkIndex) => {
-        const chunkAddress = startAddress + (chunkIndex * 16);
-        const byteList = chunk.map((byte) => toHex(byte, 2)).join(", ");
-        return `    ; ${formatAddress(chunkAddress)}\n    .byte ${byteList}`;
-      }).join("\n");
-      deferredDataSections.push({
-        address: startAddress,
-        text: `${line.block.macroLabel ? line.block.macroLabel.trim() : `rawtext_${lineNumber}`}:\n    ; .rawtext "${line.block.rawOperand || ""}" -> ${formatAddress(startAddress)}\n${expanded}`
-      });
-      const rawtextLabel = line.block.macroLabel ? line.block.macroLabel.trim() : `rawtext_${lineNumber}`;
-      return `; .rawtext ${rawtextLabel}`;
-    }
-
-    if (line.block.isPetsciiMacro) {
-      const chars = encodePetsciiMacro(line.block.rawOperand, line.block.petsciiCharset || "upper");
-      const startAddress = parseAddressValue(line.block.petsciiAddress) ?? 0xC000;
-      const nullNote = line.block.petsciiNullTerminated ? ", null" : "";
-      const expanded = chunkBytes(chars, 16).map((chunk, chunkIndex) => {
-        const chunkAddress = startAddress + (chunkIndex * 16);
-        const byteList = chunk.map((byte) => toHex(byte, 2)).join(", ");
-        return `    ; ${formatAddress(chunkAddress)}\n    .byte ${byteList}`;
-      }).join("\n");
-      const nullLine = line.block.petsciiNullTerminated ? `\n    ; ${formatAddress(startAddress + chars.length)}\n    .byte 00  ; null terminator` : "";
-      deferredDataSections.push({
-        address: startAddress,
-        text: `${line.block.macroLabel ? line.block.macroLabel.trim() : `petscii_${lineNumber}`}:\n    ; .petscii "${line.block.rawOperand || ""}"${nullNote} -> ${formatAddress(startAddress)}\n${expanded}${nullLine}`
-      });
-      const petsciiLabel = line.block.macroLabel ? line.block.macroLabel.trim() : `petscii_${lineNumber}`;
-      return `; .petscii ${petsciiLabel}`;
-    }
-
-    if (line.block.isLoopMacro || line.block.isForMacro) {
-      const reg = line.block.loopReg || "X";
-      const rawCount = (line.block.loopCount || "00").trim();
-      const parsedCount = parseNumberByBase(rawCount, line.block.base || "hex") ?? NaN;
-      const countHex = isNaN(parsedCount) ? rawCount.toUpperCase() : parsedCount.toString(16).toUpperCase().padStart(2, "0");
-      const label = line.block.loopLabel || "loop";
-      if (line.block.isForMacro) {
-        return `    LD${reg} #$00\n${label}:`;
-      }
-      return `    LD${reg} #$${countHex}\n${label}:`;
-    }
-
-    if (line.block.isNextMacro) {
-      const reg = line.block.nextReg || "X";
-      const label = line.block.nextLabel || "loop";
-      return `    DE${reg}\n    BNE ${label}`;
-    }
-
-    if (line.block.isEndfMacro) {
-      const reg = line.block.nextReg || "X";
-      const label = line.block.nextLabel || "loop";
-      const rawCount = (line.block.nextCount || "00").trim();
-      const parsedCount = parseNumberByBase(rawCount, line.block.base || "hex") ?? NaN;
-      const countStr = isNaN(parsedCount) ? rawCount.toUpperCase() : `$${parsedCount.toString(16).toUpperCase().padStart(2, "0")}`;
-      return `    IN${reg}\n    CP${reg} #${countStr}\n    BNE ${label}`;
-    }
-
-    if (line.block.isPushMacro) {
-      const regs = (line.block.pushRegs || "A").toUpperCase();
-      const lines = [];
-      for (let i = 0; i < regs.length; i++) {
-        const reg = regs[i];
-        if (reg === 'A') {
-          lines.push("    PHA");
-        } else if (reg === 'X') {
-          lines.push("    TXA");
-          lines.push("    PHA");
-        } else if (reg === 'Y') {
-          lines.push("    TYA");
-          lines.push("    PHA");
-        }
-      }
-      return lines.join("\n");
-    }
-
-    if (line.block.isPullMacro) {
-      const regs = (line.block.pullRegs || "A").toUpperCase();
-      const lines = [];
-      // PULL in reverse order
-      for (let i = regs.length - 1; i >= 0; i--) {
-        const reg = regs[i];
-        if (reg === 'A') {
-          lines.push("    PLA");
-        } else if (reg === 'X') {
-          lines.push("    PLA");
-          lines.push("    TAX");
-        } else if (reg === 'Y') {
-          lines.push("    PLA");
-          lines.push("    TAY");
-        }
-      }
-      return lines.join("\n");
-    }
-
-    if (line.block.isWordMacro) {
-      const words = parseWordMacro(line.block.rawOperand, line.block.base);
-      const chunks = chunkBytes(words, 4);
-      return chunks.map(chunk => `    .word ${chunk.map(w => `$${toHex(w, 4)}`).join(", ")}`).join("\n");
-    }
-
-    if (line.block.isFillMacro) {
-      const parsed = parseFillMacro(line.block.rawOperand, line.block.base);
-      if (parsed) {
-        return `    .fill ${parsed.count}, $${toHex(parsed.value, 2)}`;
-      }
-      return `    ; FILL: invalid parameters`;
-    }
-
-    if (line.block.isAlignMacro) {
-      const boundary = parseNumberByBase(line.block.rawOperand.replace(/^\$/, ""), line.block.base);
-      if (boundary) {
-        const remainder = line.address % boundary;
-        const padding = remainder === 0 ? 0 : boundary - remainder;
-        const targetAddr = line.address + padding;
-        return `; .align ${boundary} \u2192 ${formatAddress(targetAddr)} (${padding} bytes)`;
-      }
-      return `; .align invalid boundary`;
-    }
-
-    if (line.block.isTableMacro) {
-      return `${line.block.tableName || "table"}:`;
-    }
-
-    if (line.block.isOrgMacro) {
-      return `* = $${(line.block.orgAddress || "0900").toUpperCase()}`;
-    }
-
-    if (line.block.isRegionMacro) {
-      if (!showRegionComments) return null;
-      return `; region ${line.block.regionName || "region"}`;
-    }
-
-    if (line.block.isEndRegionMacro) {
-      if (!showRegionComments) return null;
-      let regionName = "region";
-      let depth = 0;
-      for (let i = index - 1; i >= 0; i--) {
-        if (layout.lines[i].block.isEndRegionMacro) { depth++; }
-        else if (layout.lines[i].block.isRegionMacro) {
-          if (depth === 0) { regionName = layout.lines[i].block.regionName || "region"; break; }
-          depth--;
-        }
-      }
-      return `; endregion ${regionName}`;
-    }
-
-    if (line.block.isCharsetMacro) {
-      return `; .charset ${line.block.charsetMode || "lower"}`;
-    }
-
-    if (line.block.isDefineMacro) {
-      return `; .DEFINE ${line.block.defineSymbol || "?"}`;
-    }
-
-    if (line.block.isConstMacro) {
-      const constVal = parseNumberByBase((line.block.rawOperand || "").replace(/^\$/, ""), line.block.base);
-      const formatted = constVal !== null ? formatOperand("absolute", constVal, line.block.base || "hex") : "?";
-      return `; .CONST ${line.block.constName || "?"} = ${formatted}`;
-    }
-
-    if (line.block.isVarMacro) {
-      const addr = typeof line.block._varAddress === "number"
-        ? "$" + line.block._varAddress.toString(16).toUpperCase().padStart(2, "0")
-        : "?";
-      const size = resolveProgramValueWithConst(line.block.varSize || "1", "dec");
-      const safeSize = isNaN(size) ? 1 : Math.max(1, Math.min(255, size));
-      return `; .VAR ${line.block.varName || "?"} @ ${addr}${safeSize > 1 ? " (" + safeSize + "b)" : ""}`;
-    }
-
-    if (line.block.isRuntimeIfMacro) {
-      return `; .if ${line.block.runtimeIfReg || "A"} ${line.block.runtimeIfOp || "=="} ${line.block.rawOperand || "?"}`;
-    }
-
-    if (line.block.isRuntimeElseMacro) return `; .else`;
-    if (line.block.isRuntimeEndIfMacro) return `; .endif`;
-
-    if (line.block.isRuntimeWhileMacro) {
-      return `; .while ${line.block.runtimeIfReg || "A"} ${line.block.runtimeIfOp || "=="} ${line.block.rawOperand || "?"}`;
-    }
-
-    if (line.block.isRuntimeEndwMacro) return `; .endw`;
-    if (line.block.isRuntimeRepeatMacro) return `; .repeat`;
-
-    if (line.block.isRuntimeUntilMacro) {
-      return `; .until ${line.block.runtimeIfReg || "A"} ${line.block.runtimeIfOp || "=="} ${line.block.rawOperand || "?"}`;
-    }
-
-    if (line.block.isPrintMacro) return `; .print "${line.block.rawOperand || ""}"${line.block.printCharset === "lower" ? ", lower" : ""}`;
-    if (line.block.isPrintCharMacro) return `; .print_char ${line.block.rawOperand || "$41"}`;
-    if (line.block.isPrintHexMacro) return `; .print_hex ${(line.block.printReg || line.block.rawOperand || "A").toUpperCase()}`;
-    if (line.block.isClearScreenMacro) return `; .clear_screen`;
-    if (line.block.isWaitKeyMacro) return `; .wait_key`;
-    if (line.block.isDelayMacro) {
-      return `; .delay ${String(line.block.delayFrames || "1").trim()}`;
-    }
-    if (line.block.isSetBorderMacro) return `; .set_border ${/^[A-Za-z_][A-Za-z0-9_]*$/.test(String(line.block.colorValue || line.block.rawOperand || "00").trim()) ? String(line.block.colorValue || line.block.rawOperand || "00").trim() : "$" + String(line.block.colorValue || line.block.rawOperand || "00").trim().replace(/^#?\$/, "").toUpperCase()}`;
-    if (line.block.isSetBgMacro) return `; .set_bg ${/^[A-Za-z_][A-Za-z0-9_]*$/.test(String(line.block.colorValue || line.block.rawOperand || "00").trim()) ? String(line.block.colorValue || line.block.rawOperand || "00").trim() : "$" + String(line.block.colorValue || line.block.rawOperand || "00").trim().replace(/^#?\$/, "").toUpperCase()}`;
-    if (line.block.isSidPlayerMacro) return `; ${_blockToExpertLine(line.block)}`;
-    if (line.block.isIrqSetupMacro) return `; .irq_setup handler=${line.block.irqHandler || "?"}, raster=$${(line.block.irqRaster || "FA").replace(/^#?\$/, "").toUpperCase()}`;
-    if (line.block.isRandMacro) return `; .rand ${line.block.randSeed || "$FB"}`;
-
-    if (line.block.isEndMacro) {
-      return `; .end`;
-    }
-
-    if (line.block.isIfMacro) {
-      return `; .IF ${line.block.ifCondition || "?"}`;
-    }
-
-    if (line.block.isElseMacro) {
-      return `; .ELSE`;
-    }
-
-    if (line.block.isEndIfMacro) {
-      return `; .ENDIF`;
-    }
-
-    if (line.block.isMacroDefStart) {
-      const params = line.block.macroParams ? `(${line.block.macroParams})` : "";
-      return `; .MACRO ${line.block.macroName || "?"}${params}`;
-    }
-
-    if (line.block.isMacroDefEnd) {
-      return `; .ENDM`;
-    }
-
-  if (line.block.isSpriteInitMacro) {
-    const pageHex = (line.block.spriteDataPage || "21").replace(/^\$/, "").toUpperCase().padStart(2, "0");
-    return `; .sprite_init #${line.block.spriteNum || "0"} col=${line.block.spriteColor || "7"} page=$${pageHex}${line.block.spriteMulticolor ? " mc" : ""}`;
+    if (line.blockIndex < 0) continue;
+    current = line.blockIndex;
+    if (!own.has(current)) own.set(current, []);
+    own.get(current).push(line);
   }
 
-    if (line.block.isLoadFileMacro) {
-      const fname = (line.block.loadFileName || "").trim() || "?";
-      const dev = line.block.loadFileDevice || "8";
-      const addr = (line.block.loadFileAddress || "").trim();
-      const errLbl = (line.block.loadFileErrorLabel || "").trim();
-      const addrPart = addr ? ` addr=$${addr.replace(/^\$/, "").toUpperCase()}` : "";
-      const errPart = errLbl ? ` err=${errLbl}` : "";
-      return `; .loadfile "${fname}" dev=${dev}${addrPart}${errPart}`;
+  const regionStack = [];
+  const entries = program.map((block, index) => {
+    const lines = own.get(index) || [];
+    const first = lines.find(l => !l.skipped) || lines[0];
+    const text = _blockToExpertLine(block).replace(/^\s+/, "");
+    if (block.isBlankLine) return "";
+    if (block.isRegionMacro) {
+      regionStack.push(block.regionName || "region");
+      return showRegionComments ? `; region ${block.regionName || "region"}` : null;
     }
-
-    if (line.block.isSpritePosMacro) {
-      return `; .sprite_pos #${line.block.spriteNum || "0"} x=${line.block.spriteX || "152"} y=${line.block.spriteY || "100"}`;
+    if (block.isEndRegionMacro) {
+      const name = regionStack.pop() || "region";
+      return showRegionComments ? `; endregion ${name}` : null;
     }
-
-    if (line.block.isWaitRasterMacro) {
-      return `; .wait_raster $${(line.block.rasterLine || "FF").toUpperCase()}`;
+    if (block.isComment) return `; ${block.rawOperand || ""}`;
+    if (lines.length && lines.every(l => l.skipped)) return `; [IF skipped] ${text}`;
+    if (block.isLabel) {
+      const at = first && Number.isFinite(first.value) ? `  ; ${formatAddress(first.value)}` : "";
+      return `${text}${at}`;
     }
-
-    if (line.block.isTurboSetMacro) {
-      const spd = parseInt(line.block.turboSpeed || "7", 10);
-      const bl = line.block.turboBadline === "1" ? "off" : "on";
-      return `; .TURBO_SET speed=${spd} badline=${bl}`;
-    }
-
-    if (line.block.isSuperCpuDetectMacro) {
-      return `; .SUPERCPU_DETECT`;
-    }
-
-    if (line.block.isTurboEnableMacro) {
-      return `; .TURBO_ENABLE ${(line.block.turboEnableMode || "on").toUpperCase()}`;
-    }
-
-    if (line.block.isJoystickMacro) {
-      if (_joyIsVarMode(line.block)) return `; ${_blockToExpertLine(line.block).trim()}`;
-      return `; .joystick port=${line.block.joyPort || "2"} sprite=${line.block.joySpriteNum || "0"}`;
-    }
-
-    if (line.block.isMouseMacro) {
-      const zpX = (line.block.mousePotXZP || "FD").toUpperCase();
-      const zpY = (line.block.mousePotYZP || "FE").toUpperCase();
-      return `; .mouse port=${line.block.mousePort || "2"} sprite=${line.block.mouseSpriteNum || "0"} zp=$${zpX}/$${zpY}`;
-    }
-
-    if (line.block.isSpriteColMacro) {
-      return `; .sprite_col #${line.block.spriteNum || "0"} ${line.block.colType || "sprite"}`;
-    }
-
-    if (line.block.isMapCopyMacro) {
-      const src = (line.block.mapCopySrc || "C000").toUpperCase();
-      const dst = (line.block.mapCopyDst || "0400").toUpperCase();
-      const sz = line.block.mapCopySize || 1000;
-      const colPart = line.block.mapCopyCombined
-        ? `, auto, $${(line.block.mapCopyColorDst || "D800").toUpperCase()}`
-        : line.block.mapCopyColorSrc ? `, $${line.block.mapCopyColorSrc.toUpperCase()}, $${(line.block.mapCopyColorDst || "D800").toUpperCase()}` : "";
-      return `; .map_copy $${src}, $${dst}, ${sz}${colPart}`;
-    }
-
-    if (line.block.isMapCopy16Macro) {
-      const src = (line.block.map16Src || "3000").toUpperCase();
-      const screen = (line.block.map16ScreenDst || "0400").toUpperCase();
-      const colorSrc = (line.block.map16ColorSrc || "").toUpperCase();
-      const colorDst = (line.block.map16ColorDst || "D800").toUpperCase();
-      const base = `; .map_copy16x16 $${src}, ${line.block.map16Col ?? 12}, ${line.block.map16Row ?? 4}`;
-      return (screen !== "0400" || colorSrc || colorDst !== "D800") ? `${base}, $${screen}, $${colorSrc || "auto"}, $${colorDst}` : base;
-    }
-
-    if (line.block.isSpriteAnimMacro) {
-      return `; .sprite_anim ${line.block.animSpriteNum || 0}, $${(line.block.animFrameListAddr || "C100").toUpperCase()}, ${line.block.animFrameCount || 4}, $${(line.block.animFrameZP || "FB").toUpperCase()}`;
-    }
-
-    if (line.block.isScoreBcdMacro) {
-      return `; .score_bcd $${(line.block.scoreBcdAddr || "C200").toUpperCase()}, ${line.block.scoreDigits || 4}, ${line.block.scoreAddPoints || 100}, $${(line.block.scoreScreenAddr || "0400").toUpperCase()}`;
-    }
-
-    if (line.block.isReuCheckMacro) {
-      return `; .REU_CHECK`;
-    }
-
-    if (line.block.isReuTransferMacro) {
-      const cmd = line.block.mnemonic === "REU_STASH" ? "STASH" : line.block.mnemonic === "REU_FETCH" ? "FETCH" : "SWAP";
-      const c64 = (line.block.reuC64Addr || "C000").replace(/^\$/, "").toUpperCase().padStart(4, "0");
-      const exp = (line.block.reuExpAddr || "0000").replace(/^\$/, "").toUpperCase().padStart(4, "0");
-      const bank = line.block.reuBank || "0";
-      const len  = (line.block.reuLength || "0100").replace(/^\$/, "").toUpperCase().padStart(4, "0");
-      return `; .REU_${cmd} $${c64} → REU${bank}:$${exp} len=$${len}`;
-    }
-
-    const suffix = line.block.operand ? ` ${getAsmDisplayOperand(line.block)}` : "";
-    const liveError = getLiveValidationError(line.block);
-    const comment = liveError ? ` ; ${t("warningLabel")}: ${liveError}` : "";
-    return `    ${line.block.mnemonic}${suffix}${comment}`;
-  }).map((text, i) => (typeof text === "string" && !layout.lines[i].block.isComment && /^; \.[A-Za-z]/.test(text)) ? text.slice(2) : text);
-
-  deferredDataSections.sort((left, right) => left.address - right.address);
-
-  // Build block → line-number index for ASM selection (no header line, ORG block is line 0)
-  asmBlockRanges = {};
-  let textLineNum = 0;
-  codeLines.forEach((codeLine, i) => {
-    if (codeLine === null) return; // suppressed line (e.g. region comment hidden) — not in output
-    const block = layout.lines[i].block;
-    const key = block._fromInclude || (block._fromMacro ? (block._invokeBlockId || null) : block.id);
-    const linesInEntry = codeLine.split("\n").length;
-    if (key) {
-      if (!asmBlockRanges[key]) {
-        asmBlockRanges[key] = { firstLine: textLineNum, lastLine: textLineNum + linesInEntry - 1 };
-      } else {
-        asmBlockRanges[key].lastLine = textLineNum + linesInEntry - 1;
+    if (block.isOrgMacro || block.isConstMacro || block.isDefineMacro || block.isMacroDefStart || block.isMacroDefEnd) return text;
+    const error = lines.find(l => l.error)?.error || getLiveValidationError(block);
+    const rows = [`    ${text}${error ? `  ; ${t("warningLabel")}: ${error}` : ""}`];
+    for (const line of expanded.get(index) || []) {
+      if (line.skipped) continue;
+      if (line.kind === "label" && line.name) { rows.push(`  ${line.name}:`); continue; }
+      if (!line.bytes?.length) continue;
+      if (line.kind === "data") {
+        rows.push(..._formatPlainByteLines(line.bytes).map(row => `    ${row.trim()}`));
+        continue;
+      }
+      for (const instr of _disasmBytes(line.bytes, line.address)) {
+        rows.push(`        ${instr.mnemonic}${instr.operand ? ` ${instr.operand}` : ""}`);
       }
     }
-    textLineNum += linesInEntry;
+    return rows.join("\n");
   });
 
-  let asmText = [
-    ...codeLines.filter(line => line !== null),
-    ...(deferredDataSections.length
-      ? ["", `; ${t("remoteMemoryData")}`, "", ...deferredDataSections.map((section) => section.text)]
-      : [])
+  // what the program writes at an address of its own (.rawbytes, .incbin, .sid …)
+  const mem = _vmaMemoryMap(vma);
+  const deferred = [];
+  for (const section of (vma.memory?.deferred || []).filter(sec => sec.end >= sec.address).sort((x, y) => x.address - y.address)) {
+    const bytes = [];
+    for (let a = section.address; a <= section.end && mem.has(a); a++) bytes.push(mem.get(a));
+    if (bytes.length !== section.end - section.address + 1) continue;
+    deferred.push(`* = ${formatAddress(section.address)}  ; ${section.label || section.type}`, ..._formatPlainByteLines(bytes), "");
+  }
+
+  asmBlockRanges = {};
+  let textLineNum = 0;
+  entries.forEach((entry, i) => {
+    if (entry === null) return;
+    const count = entry.split("\n").length;
+    asmBlockRanges[program[i].id] = { firstLine: textLineNum, lastLine: textLineNum + count - 1 };
+    textLineNum += count;
+  });
+
+  const asmText = [
+    ...entries.filter(entry => entry !== null),
+    ...(deferred.length ? ["", `; ${t("remoteMemoryData")}`, "", ...deferred] : [])
   ].join("\n");
 
   asmPlainText = asmText;
@@ -40936,36 +35765,7 @@ function renderAsmOutput() {
 
   renderMonitorOutput();
   renderDisasmOutput();
-
-  // Keep overlap badge and panel in sync on every ASM render (reuses layout)
-  renderMemoryMap(getMemoryUsage(layout));
-}
-
-function _buildMonitorText(layout, basicStubSection = null) {
-  const memMap = new Map();
-  const labels = new Map();
-  const deferredSections = getDeferredMemorySections(layout);
-
-  addAllLayoutLabels(labels, layout.lines);
-  labels._anonAddrs = _collectAnonLabels(layout);
-  appendDelayHelperLabel(labels, layout);
-
-  for (const line of layout.lines) {
-    if (line.block.isLabel || line.block.isComment) continue;
-    const compiled = compileLineBytes(line, labels);
-    if (!compiled.ok) continue;
-    compiled.bytes.forEach((byte, i) => memMap.set(line.address + i, byte));
-  }
-
-  deferredSections.forEach((section) => {
-    section.bytes.forEach((byte, i) => memMap.set(section.address + i, byte));
-  });
-
-  if (basicStubSection?.bytes?.length && Number.isFinite(basicStubSection.address)) {
-    basicStubSection.bytes.forEach((byte, index) => memMap.set(basicStubSection.address + index, byte));
-  }
-
-  return _formatMonitorMemory(memMap, layout.origin.value);
+  renderMemoryMap(getMemoryUsage(_vmaLayout(vma)));
 }
 
 function _formatMonitorMemory(memMap, fallbackAddress = 0) {
@@ -41006,8 +35806,9 @@ function _formatMonitorMemory(memMap, fallbackAddress = 0) {
   return rows.join("\n");
 }
 
-function renderMonitorOutput(layout = getProgramLayout(_getDisassemblyCodeOrigin())) {
-  monitorOutput.textContent = _buildMonitorText(layout, _getGeneratedBasicStubSection());
+function renderMonitorOutput() {
+  const vma = _vmaLiveFor(_vmaEditorInput(null), renderMonitorOutput);
+  if (vma) monitorOutput.textContent = _vmaMonitorText(vma, _vmaStubSection(vma));
 }
 
 function chunkBytes(bytes, size) {
@@ -48276,34 +43077,23 @@ function _lvTestCamera() {
 
 // Program blocks of the test program, with the level (and charset) bytes put
 // straight into the .level / .incbin blocks — no files needed.
-function _lvTestProgramBlocks() {
+// The test program as a VMA input; the level and the charset it includes come from memory.
+function _lvTestProgramInput() {
   const st = _lvSettings || _lvDefaultSettings();
   const charset = st.charSource === "custom" && st.charset ? st.charset : null;
   const cam = _lvTestCamera();
   const scrColors = _lvCells.some(function(id) { const s = _lvScreenById(id); return s && s.colors; });
-  const blocks = parseExpertText(_lvTestProgramAsm({ charset: !!charset, scrColors: scrColors, camX: cam.x, camY: cam.y }));
-  const levelBytes = Array.from(_lvBuildLevelFile());
-  blocks.forEach(function(b) {
-    if (b.isIncBinMacro && b.incBinLevel) { b.incBinBytes = levelBytes; b.validationError = ""; }
-    else if (b.isIncBinMacro && charset) { b.incBinBytes = Array.from(charset.subarray(0, 2048)); b.validationError = ""; }
-  });
-  return blocks;
+  const input = _vmaTextInput(_lvTestProgramAsm({ charset: !!charset, scrColors: scrColors, camX: cam.x, camY: cam.y }));
+  input.assets = { "level.bin": Array.from(_lvBuildLevelFile()) };
+  if (charset) input.assets["charset.bin"] = Array.from(charset.subarray(0, 2048));
+  return input;
 }
 
 async function _lvRunInVice() {
   if (!_lvCells.some(Boolean)) { _lvFlash(t("lvNothing")); return; }
   if (!window.electronAPI?.launchVice) { showViceToast(t("viceLaunchIsNotAvailable"), true); return; }
   if (!vicePath) { showViceToast(t("viceIsNotConfiguredSelectItInTheMenuFirs"), true); return; }
-  const saved = program, savedMacros = userMacros;
-  let prg;
-  try {
-    program = _lvTestProgramBlocks();
-    parseUserMacros();
-    prg = _buildAutostartPrgCore();
-  } finally {
-    program = saved;
-    userMacros = savedMacros;
-  }
+  const prg = _vmaBuildResult(await _vmaAnalyze(_lvTestProgramInput()));
   if (!prg || !prg.ok) {
     if (prg && prg.errors && prg.errors.length) showCompileErrorDialog(prg.errors);
     else showViceToast((prg && prg.error) || t("lvRunFailed"), true);
@@ -54855,28 +49645,19 @@ function _buildPsidBytes(prgBytes, initAddr, playAddr, name, released = "2026", 
   return out;
 }
 
-function _buildSidPreviewPrg() {
-  if (typeof _sidExportAsmPlayable !== "function") return null;
-  if (typeof parseExpertText !== "function" || typeof assembleProgramToPrg !== "function") return null;
-  const asmText = _sidExportAsmPlayable();
-  const savedProgram = program;
-  const savedMacros = userMacros;
+// The exported player as an image alone (no BASIC stub, from its first ORG): null when it fails.
+async function _buildSidPreviewPrg() {
+  if (!_vmaAvailable() || typeof _sidExportAsmPlayable !== "function") return null;
   try {
-    program = parseExpertText(asmText);
-    parseUserMacros();
-    const result = assembleProgramToPrg();
-    if (!result || !result.ok) {
-      console.warn("SID preview compile failed:", result && result.error);
+    const r = await window.electronAPI.vmaBuild(_sidExportAsmPlayable(), "", false, null, null, true);
+    if (!r?.ok) {
+      console.warn("SID preview compile failed:", r?.error);
       return null;
     }
-    return result.bytes;
+    return Uint8Array.from(r.prg || []);
   } catch (e) {
     console.warn("SID preview build error:", e);
     return null;
-  } finally {
-    program = savedProgram;
-    userMacros = savedMacros;
-    try { parseUserMacros(); } catch(_) {}
   }
 }
 
@@ -60012,8 +54793,8 @@ function setupSidEditor() {
     if (exportAsmToBlocks(_sidExportAsmPlayable()) > 0) { _sidStop(); dialog.close(); }
   });
   onId("sid-save-bin", "click", function(){ _saveBinFile(_sidSerialize(), "sound.bin"); });
-  onId("sid-export-psid", "click", function(){
-    let prg = _buildSidPreviewPrg();
+  onId("sid-export-psid", "click", async function(){
+    let prg = await _buildSidPreviewPrg();
     if (!prg || prg.length < 3) { showViceToast?.(t("sidExportPsidFailed"), true); return; }
     // a build $0801-től tölt (BASIC stub + kitöltés); a .sid-be csak a lejátszó kell ($C000-tól,
     // hosszú dalnál az adatszegmens kezdetétől, ami $C000 alatt van)
@@ -61835,25 +56616,8 @@ function _vmApi() {
 
 // fn(layout) a build által futtatott programmal (Expert módban a szerkesztő szövegéből).
 // `blocks`: the program to lay out (default: the editor's, in Expert mode the startup file's).
-function _vmWithProgram(fn, blocks = null) {
-  const saved = program;
-  const savedMacros = userMacros;
-  try {
-    if (blocks) program = blocks;
-    else if (expertMode) program = _expertGetStartupProgram() || _expertBuildProgram();
-    parseUserMacros();
-    return fn(getProgramLayout());
-  } finally {
-    program = saved;
-    userMacros = savedMacros;
-    try { parseUserMacros(); } catch (_) {}
-  }
-}
-
-function _vmLabelMap(layout) {
-  const labels = new Map();
-  addAllLayoutLabels(labels, layout.lines);
-  return labels;
+async function _vmWithProgram(fn) {
+  return fn(_vmaLayout(await _vmaAnalyze(_vmaWithPrelude(_vmaBuildInput()))));
 }
 
 // Szimbólumtábla a watch-listához: UB módban az utolsó UB build változói / címkéi / sub-jai / tömbjei,
@@ -61873,12 +56637,9 @@ function _vmSymbols() {
     for (const [address, names] of _acmeParseLabels(build?.labels)) names.forEach(name => map.set(name, address));
     return map;
   }
-  try {
-    return _vmWithProgram(_vmLabelMap);
-  } catch (e) {
-    console.warn("VICE monitor: symbols", e);
-    return new Map();
-  }
+  // the build's labels (the watch list is drawn again when they are there)
+  const vma = _vmaLiveFor(_vmaWithPrelude(_vmaBuildInput()), () => _vmRenderWatch());
+  return vma ? new Map(vma.labels) : new Map();
 }
 
 // "label", "$D020", "53280", opcionális ", N" bájtszám (1–16); {name, addr, size} vagy null.
@@ -62089,20 +56850,9 @@ async function _vmBuildSegments() {
   }
   const prg = await _kickOrVaPrg();
   if (!prg?.ok || !prg.bytes || prg.bytes.length < 3) return null;
-  // a Rust build names what it writes (at its own addresses, also behind a relocating loader)
-  if (prg.vma?.segments?.length) {
-    return { segments: prg.vma.segments.map(([address, bytes]) => ({ address, bytes })), sys: prg.vma.entry };
-  }
-  const load = prg.bytes[0] | (prg.bytes[1] << 8);
-  const data = prg.bytes.slice(2);
-  const ranges = _vmWithProgram((layout) => getMemoryUsage(layout).mergedOccupied);
-  const segments = [];
-  for (const r of ranges) {
-    const start = Math.max(r.start, load);
-    const end = Math.min(r.end, load + data.length - 1);
-    if (end >= start) segments.push({ address: start, bytes: Array.from(data.slice(start - load, end - load + 1)) });
-  }
-  return { segments, sys: prg.sysAddress ?? load };
+  // the build names what it writes (at its own addresses, also behind a relocating loader)
+  const vma = prg.analysis;
+  return { segments: (vma?.segments || []).map(([address, bytes]) => ({ address, bytes })), sys: vma?.entry ?? prg.sysAddress };
 }
 
 async function _vmHotReload(restart, quiet = false) {
@@ -62154,7 +56904,7 @@ async function _vmProfile() {
       ? _vmAggregate(res.samples, _vmUbAddressMap(_ubLastResult))
       : acmeBuild
         ? _vmAggregate(res.samples, _acmeAddressMap(_acmeReportRows(acmeBuild.report, acmeBuild.sourceLineOffset ?? null), acmeBuild.labels))
-        : _vmWithProgram((layout) => _vmAggregate(res.samples, _vmAddressMap(layout)));
+        : await _vmWithProgram((layout) => _vmAggregate(res.samples, _vmAddressMap(layout)));
     _vmRenderProfile(agg);
     _vmSetStatus(tf("vmSamples", { n: agg.total }), "ok");
   } catch (e) {
@@ -62947,8 +57697,9 @@ async function _w64DebugBuild() {
   }
   // Block mode: address → block (the selection follows the CPU)
   let blockAt = null;
-  if (!expertMode && targets.layout) {
-    const lines = targets.layout.lines.filter(l => l.size > 0 && !l.conditionallySkipped && l.block?.id)
+  const blockLayout = targets.layout || (prg.analysis ? _vmaLayout(prg.analysis) : null);
+  if (!expertMode && blockLayout) {
+    const lines = blockLayout.lines.filter(l => l.size > 0 && !l.conditionallySkipped && l.block?.id)
       .map(l => ({ start: l.address, end: l.address + l.size - 1, id: l.block.id }));
     blockAt = (pc) => lines.find(l => pc >= l.start && pc <= l.end)?.id || null;
   }

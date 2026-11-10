@@ -6,7 +6,25 @@ azonos marad a mai JS fordítóéval — ezt a golden korpusz (`tests/vma-golden
 
 ---
 
-## 0. Hol tartunk (2026-10-26)
+## 0. Hol tartunk (2026-11-10): a JS fordító kikerült
+
+A VA egyetlen fordítója a Rust VMA. A JS fordító (layout, `compileBlock`, `assembleProgramToPrg`,
+`buildAutostartPrgForEmulator`, a `#vma-engine` motorválasztó) törölve; minden build és élő nézet
+(disasm, monitor, memória, ciklus-gutter, peephole, ASM nézet, VICE Monitor, debugger) a `vma_analyze`
+Tauri command eredményéből dolgozik (`_vmaAnalyze`, `_vmaLiveFor`, `_vmaLayout`). Tauri nélkül nincs
+fordítás (`vmaNeedsDesktop`). WASM nincs (a felhasználó döntése: csak az asztali app fordít).
+
+- VMA: új CLI kapcsoló `--analyze FILE` (a `vma::analyze` JSON, hibánál is); pontos lokális címkék
+  abszolút operandusban (`jmp Second.lp`, `lda .lp+1,x`), teszt `local_labels_as_absolute_operands`.
+- Golden: a `manifest.json` a Rust kimenete (PRG + `.sym` / `.vs` / `.dbg` hash), `node scripts/vma-golden.js
+  [--update | szűrő]`; a régi JS manifesthez képest egyetlen PRG sem változott.
+- Tesztek: `tests/helpers/vma-cli.js` (a CLI-n át); törölve: `tests/helpers/vma-reference.js`, `vma-rust.js`,
+  `scripts/vma-cli.js`, `vma-shadow-scan.js`, `vma-rust-report.js`, `tests/vma-engine.test.js`
+  (→ `tests/vma-build.test.js`), `tests/vma-debug-files.test.js` (a manifest fedi).
+
+Az alábbi állapot- és teendőlista a port történetét őrzi.
+
+## 0a. Korábbi állás (2026-10-26)
 
 | Fázis | Állapot | Commit |
 |-------|---------|--------|

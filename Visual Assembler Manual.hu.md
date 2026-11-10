@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**Verzió: 2.7.7**
+**Verzió: 2.7.8**
 
 Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasításblokkok fogd-és-vidd módszerrel történő elrendezésével építed fel, a generált assembly és gépi kód pedig valós időben frissül.
 
@@ -10,6 +10,7 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 
 ## Tartalomjegyzék
 
+- [A 2.7.8 verzió újdonságai](#a-278-verzió-újdonságai)
 - [A 2.7.7 verzió újdonságai](#a-277-verzió-újdonságai)
 - [A 2.7.6 verzió újdonságai](#a-276-verzió-újdonságai)
 - [A 2.7.5 verzió újdonságai](#a-275-verzió-újdonságai)
@@ -240,6 +241,13 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
   - [Curve Editor](#curve-editor)
   - [Táblagenerátor](#táblagenerátor)
   - [Számrendszer-átváltó](#számrendszer-átváltó)
+
+---
+
+## A 2.7.8 verzió újdonságai
+
+- **Egyetlen fordító** — minden programot a Rust VMA fordító (VMA 2.3.0) fordít, és a disassembly, a monitor, a memóriatérkép, a ciklus-gutter, a tippek és az ASM nézet ugyanebből a fordításból dolgozik. A JavaScript fordító és a **VMA fordító** beállítás kikerült; a fordításhoz az asztali alkalmazás kell. Lásd: [VMA fordító](#vma-fordító).
+- **Lokális címkék abszolút operandusként** — egy másik hatókör vagy eltolással írt lokális címke, pl. `JMP Second.lp` vagy `LDA .lp+1,X`, lefordul; korábban érvénytelen operandus volt.
 
 ---
 
@@ -4399,14 +4407,9 @@ A **Menu → Beállítások…** nyitja meg (korábban *Hardware Settings*). A d
 
 ### VMA fordító
 
-A **Beállítások → Általános → Program → VMA fordító** választja a motort, amely a VMA (és Kick projekt) forrásokat fordítja:
+Minden VMA (és Kick projekt) forrást a nyílt forráskódú, Rustban írt [VMA fordító](https://github.com/zstarczali/VMA) fordít, amely az alkalmazásba van építve: a Futtatás, a Build, a D64, a CRT, a debugger és minden élő nézet (disassembly, monitor, memóriatérkép, ciklus-gutter, tippek, ASM nézet) ugyanazt a fordítást használja. Fordító-beállítás már nincs (a 2.7.7-ig JavaScript fordító is volt). A fordításhoz az asztali alkalmazás kell. A VMA verziója az About ablakban látszik.
 
-- **JavaScript** — a beépített fordító, ez az alapértelmezett.
-- **Rust** — a nyílt forráskódú [VMA fordító](https://github.com/zstarczali/VMA) az alkalmazásban. Ugyanazokat a bájtokat, memórianézetet, szegmenseket és hibaüzeneteket adja, mint a JavaScript fordító.
-
-A fordítás ablak kiírja a használt motort. A VMA verziója az About ablakban látszik.
-
-Ugyanez a fordító parancssorból is fut (VMA 2.1.0): a `vma build game.asm` a `game.prg`-t írja, a `--crt game.crt` Magic Desk cartridge-et (ugyanazokkal a bájtokkal, mint a **Build CRT**), a `--d64` pedig 1541-es lemezképet a programmal (a `--add` további fájlokat tesz rá) — c1541 nélkül. Részletek a [VMA tároló](https://github.com/zstarczali/VMA) kézikönyvében.
+Ugyanez a fordító parancssorból is fut (VMA 2.1.0-tól): a `vma build game.asm` a `game.prg`-t írja, a `--crt game.crt` Magic Desk cartridge-et (ugyanazokkal a bájtokkal, mint a **Build CRT**), a `--d64` pedig 1541-es lemezképet a programmal (a `--add` további fájlokat tesz rá) — c1541 nélkül. Részletek a [VMA tároló](https://github.com/zstarczali/VMA) kézikönyvében.
 
 ### VICE emulátor
 

@@ -1,8 +1,8 @@
 // VMA golden corpus: every case is VMA source text (block programs through _blockToExpertSourceLine),
-// compiled by the JS reference into expected/<id>.prg. The Rust VMA compiler must give the same bytes.
+// pinned by scripts/vma-golden.js in manifest.json (the VMA compiler: PRG + debugger files).
 const fs = require("node:fs");
 const path = require("node:path");
-const { repo } = require("../helpers/vma-reference");
+const { repo } = require("../helpers/vma-cli");
 
 const OPERAND = {
   implied: "", immediate: "#$12", zeroPage: "$12", zeroPageX: "$12,X", zeroPageY: "$12,Y",

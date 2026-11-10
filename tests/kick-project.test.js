@@ -3,6 +3,7 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const loadApp = require("./helpers/load-app");
+const { runCli, useVmaCli, vmaCli } = require("./helpers/vma-cli");
 
 const app = loadApp();
 const fixture = path.join(__dirname, "fixtures", "kick-project").split(path.sep).join("/");
@@ -15,34 +16,31 @@ function preprocess(files, entry = "main.asm") {
   return app.run(`_kickPreprocess("/mem/${entry}", p => __files[p] ?? null, () => null)`);
 }
 
-// Every VMA text the Kick tests build, with the JS result: the last test builds them with the Rust CLI.
-const builtTexts = [];
+// A preprocessed Kick text through the VMA compiler (the CLI's analysis, as _vmaAnalyze gives it
+// for a Kick project: its text lines are the origins' indices).
+const kickFeatures = path.join(__dirname, "fixtures", "kick-features");
+function analyze(text, baseDir = kickFeatures) {
+  useVmaCli(app);
+  app.__r = runCli({ source: text, baseDir, basicStub: app.run("_vmaBasicStub()"), analyze: true });
+  app.__src = text;
+  app.__base = baseDir;
+  return app.run("__vma = _vmaNormalize(__r, { text: __src, baseDir: __base, editorLines: false, kick: true })");
+}
 
 function build(text) {
-  const result = buildJs(text);
-  builtTexts.push({ text, result, basicStub: app.run("basicSysToggle ? !!basicSysToggle.checked : true") });
-  return result;
+  analyze(text);
+  const r = app.run("_vmaBuildResult(__vma)");
+  return { ok: r.ok, error: r.error, errors: r.errors, bytes: r.bytes ? Array.from(r.bytes) : null };
 }
 
-function buildJs(text) {
-  app.__src = text;
-  return app.run(`(() => {
-    const saved = program;
-    try {
-      program = parseExpertText(__src);
-      _addSrcLineToBlocks(__src, program);
-      parseUserMacros();
-      const r = _buildAutostartPrgCore();
-      return { ok: r.ok, error: r.error, errors: r.errors, bytes: r.bytes ? Array.from(r.bytes) : null };
-    } finally { program = saved; }
-  })()`);
-}
+// The tests that build need the CLI.
+const ktest = (name, fn) => test(name, { skip: vmaCli() ? false : "no Rust VMA CLI" }, fn);
 
 // Bytes of the fixture built by KickAssembler 5.25 (java -jar KickAss.jar main.asm).
 const KICK_HEAD = "01080b080a009e3230363200000000a9068d20d0a200bd004095fbbd004195fce8d0f3a903a038b94808b1fb6c1403cad0fd200004f001ea60010000020104000600030609aa55aa55aa55aa553808393808000403040506";
 const KICK_TAIL = "a203cad0fdad09046007";
 
-test("a KickAssembler project builds byte for byte like KickAssembler", () => {
+ktest("a KickAssembler project builds byte for byte like KickAssembler", () => {
   app.__readText = readText;
   app.__readBin = readBin;
   const pre = app.run(`_kickPreprocess(${JSON.stringify(fixture + "/main.asm")}, __readText, __readBin)`);
@@ -105,7 +103,7 @@ test("Kick .pseudopc labels take the logical address, the bytes stay in place", 
   assert.deepEqual(text.split("\n"), ["* = $4000", ".byte $01, $02", "LDX #$02", "DEX", "BNE *-1", "JMP $0402", "LDA $0400"]);
 });
 
-test("Kick .pseudopc forward branches stay relative to the logical PC", () => {
+ktest("Kick .pseudopc forward branches stay relative to the logical PC", () => {
   const { text, errors } = preprocess({
     "main.asm": "* = $0900\n.pseudopc $0334 {\n ldx $ba\n bne !+\n ldx #8\n!: jsr $ffd5\n bcs !err+\n rts\n!err: inc $d020\n jmp !err-\n}\n"
   });
@@ -160,7 +158,7 @@ test("Kick errors name the file and line of the imported source", () => {
   assert.match(missing[0].text, /File not found: \/mem\/nope\.asm/);
 });
 
-test("VA build errors of a Kick project map back to file:line", () => {
+ktest("VA build errors of a Kick project map back to file:line", () => {
   const pre = preprocess({ "main.asm": '* = $1000\n#import "mod.asm"\n', "mod.asm": "nop\n lda NoSuchLabel\n" });
   const prg = build(pre.text);
   assert.equal(prg.ok, false);
@@ -195,7 +193,7 @@ test("Import Kick project writes a .proj with every imported file", async () => 
   assert.equal(app.run("_expertProjectData.kick"), true);
 });
 
-test("a Kick-compatible project keeps the VA macros and directives working", () => {
+ktest("a Kick-compatible project keeps the VA macros and directives working", () => {
   const va = [
     ".const COL = 6",
     ".define DEBUG",
@@ -395,7 +393,7 @@ test("Project settings: name, startup file, Kick switch, symbols and variables a
   assert.equal(el("ps-files").textContent.includes("2"), true);
 });
 
-test("Kick LoadSid, LoadBinary with a template and virtual blocks build like KickAssembler", () => {
+ktest("Kick LoadSid, LoadBinary with a template and virtual blocks build like KickAssembler", () => {
   const dir = path.join(__dirname, "fixtures", "kick-features").split(path.sep).join("/");
   app.__readText = readText;
   app.__readBin = readBin;
@@ -411,20 +409,12 @@ test("Kick LoadSid, LoadBinary with a template and virtual blocks build like Kic
   assert.ok(prg.bytes.length - 2 + load < 0x2000, "the virtual block at $2000 writes no bytes");
 });
 
-test("Kick cycle gutter: cycles on the lines of the open file, unrolled lines as ×n", () => {
+ktest("Kick cycle gutter: cycles on the lines of the open file, unrolled lines as ×n", () => {
   const pre = preprocess({ "main.asm": '* = $1000\n nop\n#import "mod.asm"\n', "mod.asm": ".for (var i = 0; i < 3; i++) {\n lda $2000+i*256,x\n}\n bne *\n" });
   assert.deepEqual(Array.from(pre.errors), []);
   app.__kick = { origins: pre.origins };
-  app.__src = pre.text;
-  const out = app.run(`(() => {
-    const saved = program;
-    try {
-      program = parseExpertText(__src);
-      _addSrcLineToBlocks(__src, program);
-      parseUserMacros();
-      return { mod: [..._kickCycleMap(__kick, "/mem/mod.asm").entries()], main: [..._kickCycleMap(__kick, "/mem/main.asm").entries()] };
-    } finally { program = saved; }
-  })()`);
+  analyze(pre.text);
+  const out = app.run(`({ mod: [..._kickCycleMap(__kick, "/mem/mod.asm", __vma).entries()], main: [..._kickCycleMap(__kick, "/mem/main.asm", __vma).entries()] })`);
   const mod = new Map(out.mod);
   assert.equal(mod.get(1).text, "4×3");
   assert.equal(mod.get(1).min, 12);
@@ -432,23 +422,19 @@ test("Kick cycle gutter: cycles on the lines of the open file, unrolled lines as
   assert.deepEqual(JSON.parse(JSON.stringify(out.main.map(([line, c]) => [line, c.text]))), [[1, "2"]]);
 });
 
-test("Kick debugger files: .dbg lines on the original file:line, readable symbols, breakpoints of every project file", () => {
+ktest("Kick debugger files: .dbg lines on the original file:line, readable symbols, breakpoints of every project file", () => {
   const pre = preprocess({ "main.asm": '* = $1000\nstart: nop\n#import "mod.asm"\n', "mod.asm": "sub: {\nloop: dex\n bne loop\n!: rts\n}\n" });
   assert.deepEqual(Array.from(pre.errors), []);
   app.__kick = { origins: pre.origins };
-  app.__src = pre.text;
+  analyze(pre.text);
   const out = app.run(`(() => {
-    const saved = program;
     const savedTabs = tabs;
     try {
-      program = parseExpertText(__src);
-      _addSrcLineToBlocks(__src, program);
-      parseUserMacros();
-      const layout = getProgramLayout();
+      const layout = _vmaLayout(__vma);
       const texts = _buildDebuggerSidecarTexts(layout, null, "/mem/main.asm", __kick);
       tabs = [{ id: "t-mod", filePath: "/mem/mod.asm", expertBreakpointLines: [0, 2] }];
       return { texts, bps: _kickBreakpointAddresses(layout, __kick) };
-    } finally { program = saved; tabs = savedTabs; }
+    } finally { tabs = savedTabs; }
   })()`);
   const dbg = JSON.stringify(out.texts);
   assert.match(dbg, /mod\.asm/);
@@ -458,26 +444,18 @@ test("Kick debugger files: .dbg lines on the original file:line, readable symbol
   assert.deepEqual(Array.from(out.bps), [0x1001, 0x1002]);
 });
 
-test("Kick peephole hints land on the lines of the open file, once per unrolled line", () => {
+ktest("Kick peephole hints land on the lines of the open file, once per unrolled line", () => {
   const pre = preprocess({ "main.asm": '* = $1000\n jsr sub\n#import "mod.asm"\n', "mod.asm": "sub: {\n.for (var i = 0; i < 2; i++) {\n cmp #0\n beq !+\n!:\n}\n jsr $ffd2\n rts\n}\n" });
   assert.deepEqual(Array.from(pre.errors), []);
   app.__kick = { origins: pre.origins };
-  app.__src = pre.text;
-  const out = app.run(`(() => {
-    const saved = program;
-    try {
-      program = parseExpertText(__src);
-      _addSrcLineToBlocks(__src, program);
-      parseUserMacros();
-      return { mod: _kickLintHints(__kick, "/mem/mod.asm"), main: _kickLintHints(__kick, "/mem/main.asm") };
-    } finally { program = saved; }
-  })()`);
+  analyze(pre.text);
+  const out = app.run(`({ mod: _kickLintHints(__kick, "/mem/mod.asm", __vma), main: _kickLintHints(__kick, "/mem/main.asm", __vma) })`);
   const mod = JSON.parse(JSON.stringify(out.mod)).map(h => [h.srcLine, h.key]).sort();
   assert.deepEqual(mod, [[3, "lintBranchNext"], [6, "lintTailCall"]].sort());
   assert.deepEqual(Array.from(out.main), []);
 });
 
-test("Kick LoadPicture: GIF with the default and a given colour table builds like KickAssembler", () => {
+ktest("Kick LoadPicture: GIF with the default and a given colour table builds like KickAssembler", () => {
   const dir = path.join(__dirname, "fixtures", "kick-features").split(path.sep).join("/");
   app.__readText = readText;
   app.__readBin = readBin;
@@ -495,7 +473,7 @@ test("Kick LoadPicture: GIF with the default and a given colour table builds lik
   assert.match(bad.errors[0]?.text || "", /not in the colour table/);
 });
 
-test("Kick segments: .file / outPrg / outBin / .segmentout / .disk outputs build like KickAssembler", async () => {
+ktest("Kick segments: .file / outPrg / outBin / .segmentout / .disk outputs build like KickAssembler", async () => {
   const dir = path.join(__dirname, "fixtures", "kick-features").split(path.sep).join("/");
   app.__readText = readText;
   app.__readBin = readBin;
@@ -538,7 +516,7 @@ test("Kick segments: a block outside min / max names the segment", () => {
   assert.match(pre.errors[0]?.text || "", /Segment Data: \$C180 is outside \$C000-\$C0FF/);
 });
 
-test("Kick .cpu (illegal, 65c02, DTV), .fillword / .lohifill, suffixes, .break / .watch build like KickAssembler", () => {
+ktest("Kick .cpu (illegal, 65c02, DTV), .fillword / .lohifill, suffixes, .break / .watch build like KickAssembler", () => {
   const dir = path.join(__dirname, "fixtures", "kick-features").split(path.sep).join("/");
   app.__readText = readText;
   app.__readBin = readBin;
@@ -552,16 +530,8 @@ test("Kick .cpu (illegal, 65c02, DTV), .fillword / .lohifill, suffixes, .break /
   assert.ok(Buffer.from(prg.bytes.slice(2 + 0x1000 - load)).equals(ref.subarray(2)));
   // the VICE symbol file gets KickAssembler's break / watch lines
   app.__kick = { origins: pre.origins, breaks: pre.breaks, watches: pre.watches };
-  app.__src = pre.text;
-  const vs = app.run(`(() => {
-    const saved = program;
-    try {
-      program = parseExpertText(__src);
-      _addSrcLineToBlocks(__src, program);
-      parseUserMacros();
-      return _buildDebuggerSidecarTexts(getProgramLayout(), null, "/mem/cpu.asm", __kick).vs;
-    } finally { program = saved; }
-  })()`);
+  analyze(pre.text);
+  const vs = app.run(`_buildDebuggerSidecarTexts(_vmaLayout(__vma), null, "/mem/cpu.asm", __kick).vs`);
   assert.deepEqual(vs.split("\n").filter(l => /^(break|watch)/.test(l)),
     ["break 10bb", "break 10be if y<5", "watch d018", "watch 10b5", "watch d000 d00f", "watch store 10b4 10be"]);
   // an illegal opcode outside .cpu _6502
@@ -569,13 +539,13 @@ test("Kick .cpu (illegal, 65c02, DTV), .fillword / .lohifill, suffixes, .break /
   assert.match(bad.errors[0]?.text || "", /illegal opcode/);
 });
 
-test("VA assembles every NMOS illegal opcode mode and its other names", () => {
+ktest("VA assembles every NMOS illegal opcode mode and its other names", () => {
   const out = build("* = $1000\n DCP ($12,X)\n SLO ($12),Y\n LAX $12,Y\n SHA $1234,Y\n SHX $1234,Y\n SHY $1234,X\n TAS $1234,Y\n LAS $1234,Y\n XAA #$12\n AHX ($12),Y\n ISB $1234,Y\n SBX #1\n");
   assert.equal(out.ok, true, out.error);
   assert.equal(Buffer.from(out.bytes).toString("hex").slice(-50), "c3121312b7129f34129e34129c34129b3412bb34128b129312fb3412cb01".slice(-50));
 });
 
-test("Kick Vector / Matrix: the rotating cube of the manual builds like KickAssembler", () => {
+ktest("Kick Vector / Matrix: the rotating cube of the manual builds like KickAssembler", () => {
   const dir = path.join(__dirname, "fixtures", "kick-features").split(path.sep).join("/");
   app.__readText = readText;
   app.__readBin = readBin;
@@ -606,27 +576,4 @@ test("Kick project highlighting: preprocessor, directives, functions, ; in .for,
   assert.deepEqual(tags(out[4]), ["hl-directive:.pseudocommand", "hl-macro:mov", "hl-macro-param:src", "hl-macro-param:dst"]);
   assert.ok(tags(out[5]).includes("hl-macro:round") && tags(out[5]).includes("hl-number:127.5"));
   assert.ok(tags(out[6]).includes("hl-comment:; comment"));
-});
-
-// The Rust VMA compiler builds every preprocessed Kick text of the tests above as the JS does
-// (with the BASIC SYS toggle as it was for that build).
-test("the Rust VMA CLI builds every Kick test source like the JS", (t) => {
-  const { findRustCli, runRustCli } = require("./helpers/vma-rust");
-  const cli = findRustCli();
-  if (!cli) { t.skip("no Rust VMA CLI"); return; }
-  const os = require("node:os");
-  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "kick-rust-"));
-  const failures = [];
-  try {
-    builtTexts.forEach(({ text, result, basicStub }, i) => {
-      const run = runRustCli(cli, { caseId: "kick", id: `kick${i}`, input: text, baseDir: "tests/fixtures/kick-features", basicStub }, tmp);
-      if (!!run.ok !== !!result.ok) failures.push(`#${i}: JS ${result.ok ? "ok" : result.error}, Rust ${run.ok ? "ok" : run.error}`);
-      else if (run.ok && !Buffer.from(result.bytes).equals(run.bytes)) failures.push(`#${i}: bytes differ
-${text.slice(0, 200)}`);
-    });
-  } finally {
-    fs.rmSync(tmp, { recursive: true, force: true });
-  }
-  assert.ok(builtTexts.length > 20, `only ${builtTexts.length} Kick sources`);
-  assert.deepEqual(failures, []);
 });

@@ -1,25 +1,12 @@
-const test = require("node:test");
 const assert = require("node:assert/strict");
-const loadApp = require("./helpers/load-app");
+const { compileText, vmaTest: test } = require("./helpers/vma-cli");
 const { cpu } = require("./mini6502");
-
-const app = loadApp();
 
 // Builds the source (the included text comes from `library`), without the BASIC stub's RUN: runs from `start`.
 function run(source, library, start = 0x1000) {
-  app.__src = source;
-  app.__lib = library || "";
-  const bytes = app.run(`(() => {
-    const saved = program;
-    try {
-      program = parseExpertText(__src);
-      for (const b of program) if (b.isIncludeMacro) b.includedBlocks = parseExpertText(__lib);
-      parseUserMacros();
-      const r = _buildAutostartPrgCore();
-      if (!r.ok) throw new Error(r.error);
-      return Array.from(r.bytes);
-    } finally { program = saved; }
-  })()`);
+  const r = compileText(source, { files: { "lib.asm": library || "" } });
+  if (!r.ok) throw new Error(r.error);
+  const bytes = Array.from(r.bytes);
   const mem = new Uint8Array(0x10000);
   const load = bytes[0] | (bytes[1] << 8);
   mem.set(bytes.slice(2), load);
@@ -74,23 +61,13 @@ test("a JSR to a macro of a library at a fixed address returns, and does not run
 });
 
 test("a macro with parameters still generates no code at its definition", () => {
-  app.__src = `* = $1000
+  const src = `* = $1000
 .macro Set value
     LDA #{value}
 .endm
     RTS
 `;
-  const size = app.run(`(() => {
-    const saved = program;
-    try {
-      program = parseExpertText(__src);
-      parseUserMacros();
-      return _buildAutostartPrgCore().bytes.length;
-    } finally { program = saved; }
-  })()`);
-  const noMacro = (() => {
-    app.__src = "* = $1000\n    RTS\n";
-    return app.run(`(() => { const saved = program; try { program = parseExpertText(__src); parseUserMacros(); return _buildAutostartPrgCore().bytes.length; } finally { program = saved; } })()`);
-  })();
+  const size = compileText(src).bytes.length;
+  const noMacro = compileText("* = $1000\n    RTS\n").bytes.length;
   assert.equal(size, noMacro);
 });

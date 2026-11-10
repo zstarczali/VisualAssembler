@@ -4718,14 +4718,20 @@ async fn save_ub_file(app: AppHandle, path: String, content: String) -> serde_js
 }
 
 /// The files of the VMA compiler: the app's own lookup (`asset_candidates` / `include_candidates`).
+/// `assets`: files the app holds in memory (a generated test program's level / charset), by the
+/// name the source gives them; they come before the files on disk.
 struct AppFiles<'a> {
     app: &'a AppHandle,
     base_dir: Option<String>,
+    assets: HashMap<String, Vec<u8>>,
 }
 
 impl vma::FileProvider for AppFiles<'_> {
     fn load(&self, name: &str, exts: &[&str]) -> Result<(PathBuf, Vec<u8>), String> {
         let raw_path = name.trim();
+        if let Some(bytes) = self.assets.get(raw_path) {
+            return Ok((PathBuf::from(raw_path), bytes.clone()));
+        }
         let candidates = if exts.is_empty() {
             asset_candidates(self.app, raw_path, self.base_dir.as_deref())
         } else {
@@ -4742,7 +4748,7 @@ impl vma::FileProvider for AppFiles<'_> {
 #[tauri::command]
 fn vma_build(app: AppHandle, source: String, base_dir: Option<String>, basic_stub: Option<bool>, source_path: Option<String>, line_map: Option<Vec<i64>>, raw: Option<bool>) -> serde_json::Value {
     let options = vma::BuildOptions { basic_stub: basic_stub.unwrap_or(true) };
-    let files = AppFiles { app: &app, base_dir };
+    let files = AppFiles { app: &app, base_dir, assets: HashMap::new() };
     let error = |e: vma::CompileError| vma::error_json(&e);
     // a Kick project's extra output: the image alone (assembleProgramToPrg)
     if raw == Some(true) {
@@ -4761,6 +4767,15 @@ fn vma_build(app: AppHandle, source: String, base_dir: Option<String>, basic_stu
         Ok(r) => r.to_json(),
         Err(e) => error(e),
     }
+}
+
+/// The live views of a VMA source (`vma::analyze`): the build with the layout and bytes of every
+/// line, also when the build fails.
+#[tauri::command]
+fn vma_analyze(app: AppHandle, source: String, base_dir: Option<String>, basic_stub: Option<bool>, source_path: Option<String>, line_map: Option<Vec<i64>>, assets: Option<HashMap<String, Vec<u8>>>) -> serde_json::Value {
+    let options = vma::BuildOptions { basic_stub: basic_stub.unwrap_or(true) };
+    let files = AppFiles { app: &app, base_dir, assets: assets.unwrap_or_default() };
+    vma::analyze(&source, &options, &files, source_path.as_deref().unwrap_or("program.asm"), line_map.as_deref())
 }
 
 #[tauri::command]
@@ -6079,6 +6094,7 @@ pub fn run() {
             save_ub_file,
             compile_ultimate_basic,
             vma_build,
+            vma_analyze,
             choose_proj_member,
             choose_proj_folder,
             load_sample,

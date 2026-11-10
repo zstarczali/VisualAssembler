@@ -5,7 +5,7 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
-const { vmaDir } = require("./helpers/vma-rust");
+const { vmaDir } = require("./helpers/vma-cli");
 
 const repo = path.join(__dirname, "..");
 

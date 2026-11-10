@@ -1,5 +1,7 @@
 C64 Visual Assembler - Installation Guide
-Version 2.7.7
+Version 2.7.8
+
+2.7.8: one compiler: the Rust VMA compiler (VMA 2.3.0) builds every program and feeds every live view, the JavaScript compiler and the VMA compiler setting are removed; local labels such as JMP Second.lp or LDA .lp+1,X compile as absolute operands.
 
 2.7.7: Ultimate 64 palette macros (.u64_palette from a palette file, .u64_palette_color, .u64_palette_reset) with a demo sample, the Hi-Res editor's MIX pen for multicolor pictures, and the built-in C64 no longer runs an empty program.
 

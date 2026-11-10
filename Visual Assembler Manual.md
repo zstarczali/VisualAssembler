@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.7.7**
+**Version 2.7.8**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -8,6 +8,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 
 ## Table of Contents
 
+- [Version 2.7.8 Highlights](#version-278-highlights)
 - [Version 2.7.7 Highlights](#version-277-highlights)
 - [Version 2.7.6 Highlights](#version-276-highlights)
 - [Version 2.7.5 Highlights](#version-275-highlights)
@@ -238,6 +239,13 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
   - [Curve Editor](#curve-editor)
   - [Table Generator](#table-generator)
   - [Number Converter](#number-converter)
+
+---
+
+## Version 2.7.8 Highlights
+
+- **One compiler** — every program is built by the Rust VMA compiler (VMA 2.3.0), and the disassembly, monitor, memory map, cycle gutter, hints and ASM view read the same build. The JavaScript compiler and the **VMA compiler** setting are removed; building needs the desktop app. See [VMA compiler](#vma-compiler).
+- **Local labels as absolute operands** — a local label of another scope or with an offset, such as `JMP Second.lp` or `LDA .lp+1,X`, compiles; before, it was an invalid operand.
 
 ---
 
@@ -4411,14 +4419,9 @@ Open via **Menu → Settings…** (formerly *Hardware Settings*). The dialog has
 
 ### VMA compiler
 
-**Settings → General → Program → VMA compiler** chooses the engine that builds VMA (and Kick project) sources:
+Every VMA (and Kick project) source is built by the open-source [VMA compiler](https://github.com/zstarczali/VMA), written in Rust and built into the app: Run, Build, D64, CRT, the debugger and every live view (disassembly, monitor, memory map, cycle gutter, hints, ASM view) use the same build. There is no compiler setting any more (until 2.7.7 the app also had a JavaScript compiler). Building needs the desktop app. The VMA version is shown in the About box.
 
-- **JavaScript** — the built-in compiler, the default.
-- **Rust** — the open-source [VMA compiler](https://github.com/zstarczali/VMA) inside the app. It gives the same bytes, memory view, segments and error messages as the JavaScript one.
-
-The compiling dialog names the engine in use. The VMA version is shown in the About box.
-
-The same compiler runs on the command line (VMA 2.1.0): `vma build game.asm` writes `game.prg`, `--crt game.crt` a Magic Desk cartridge (the same bytes as **Build CRT**), and `--d64` a 1541 disk image with the program (`--add` puts further files on it) — no c1541 needed. See the manual in the [VMA repository](https://github.com/zstarczali/VMA).
+The same compiler runs on the command line (VMA 2.1.0 and later): `vma build game.asm` writes `game.prg`, `--crt game.crt` a Magic Desk cartridge (the same bytes as **Build CRT**), and `--d64` a 1541 disk image with the program (`--add` puts further files on it) — no c1541 needed. See the manual in the [VMA repository](https://github.com/zstarczali/VMA).
 
 ### VICE Emulator
 

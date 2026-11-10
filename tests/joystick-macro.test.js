@@ -1,24 +1,10 @@
-const test = require("node:test");
+// `.joystick port, vx, vy[, fire]` (variable mode) and the sprite mode's size, through the VMA CLI.
 const assert = require("node:assert/strict");
-const fs = require("node:fs");
-const path = require("node:path");
-const vm = require("node:vm");
+const { codeOf, vmaTest: test } = require("./helpers/vma-cli");
 
-const appJs = fs.readFileSync(path.join(__dirname, "..", "www", "app.js"), "utf8");
-
-function loadJoy() {
-  const start = appJs.indexOf("/* JOYSTICK: `.joystick port, sprite`");
-  const end = appJs.indexOf("function _joystickSize(");
-  const fnEnd = appJs.indexOf("\n}", end) + 2;
-  assert.ok(start > 0 && end > start, "joystick helpers not found");
-  const context = {
-    resolveProgramNumericValue: (raw) => parseInt(String(raw), 10),
-  };
-  vm.createContext(context);
-  vm.runInContext(appJs.slice(start, fnEnd) +
-    "\nthis.j = { isVar: _joyIsVarMode, varBytes: _joyVarBytes, size: _joystickSize, read: _joyReadBytes };", context);
-  return context.j;
-}
+const VARS = ".const vx = $0340\n.const vy = $0341\n.const fire = $0342\n.const spr = 0";
+const varBytes = (port, withFire = true) => codeOf(`.joystick ${port}, vx, vy${withFire ? ", fire" : ""}`, { before: VARS });
+const size = (line) => codeOf(line, { before: VARS }).length;
 
 // Just enough 6502 for the joystick code.
 function run(code, dc00, dc01) {
@@ -51,9 +37,7 @@ const VX = 0x0340, VY = 0x0341, FIRE = 0x0342;
 const joy = (bits) => 0xFF & ~bits;
 
 test("variable mode writes -1/0/+1 per axis and the fire flag", () => {
-  const j = loadJoy();
-  const code = j.varBytes(2, VX, VY, FIRE);
-  assert.equal(code.length, j.size({ joyPort: "2", joyVarX: "vx", joyVarY: "vy", joyVarFire: "fire" }));
+  const code = varBytes(2);
   const cases = [
     [0, 0, 0, 0], [1, 0, 0xFF, 0], [2, 0, 1, 0], [4, 0xFF, 0, 0], [8, 1, 0, 0],
     [1 | 8, 1, 0xFF, 0], [16, 0, 0, 1], [2 | 4 | 16, 0xFF, 1, 1],
@@ -65,18 +49,15 @@ test("variable mode writes -1/0/+1 per axis and the fire flag", () => {
 });
 
 test("port 3 reads both ports, port 1 only $DC01", () => {
-  const j = loadJoy();
-  assert.equal(run(j.varBytes(3, VX, VY), 0xFF, joy(8))[VX], 1);
-  assert.equal(run(j.varBytes(3, VX, VY), joy(4), 0xFF)[VX], 0xFF);
-  assert.equal(run(j.varBytes(1, VX, VY), joy(4), 0xFF)[VX], 0);
-  assert.equal(run(j.varBytes(1, VX, VY), 0xFF, joy(4))[VX], 0xFF);
+  assert.equal(run(varBytes(3, false), 0xFF, joy(8))[VX], 1);
+  assert.equal(run(varBytes(3, false), joy(4), 0xFF)[VX], 0xFF);
+  assert.equal(run(varBytes(1, false), joy(4), 0xFF)[VX], 0);
+  assert.equal(run(varBytes(1, false), 0xFF, joy(4))[VX], 0xFF);
 });
 
 test("sizes: sprite mode 27 (+3 for port 3), variable mode 35 / 42 with fire", () => {
-  const j = loadJoy();
-  assert.equal(j.size({ joyPort: "2", joySpriteNum: "0" }), 27);
-  assert.equal(j.size({ joyPort: "3", joySpriteNum: "0" }), 30);
-  assert.equal(j.size({ joyPort: "2", joyVarX: "vx", joyVarY: "vy" }), 35);
-  assert.equal(j.size({ joyPort: "3", joyVarX: "vx", joyVarY: "vy", joyVarFire: "f" }), 45);
-  assert.equal(j.isVar({ joyVarX: "", joyVarY: "" }), false);
+  assert.equal(size(".joystick 2, 0"), 27);
+  assert.equal(size(".joystick 3, 0"), 30);
+  assert.equal(size(".joystick 2, vx, vy"), 35);
+  assert.equal(size(".joystick 3, vx, vy, fire"), 45);
 });
