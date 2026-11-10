@@ -354,6 +354,17 @@ a `.ub` sablon fejléce `# @kulcs érték`, a projekt `main.ub` + `.proj` `"app"
 
 Actions → **Publish** → Run workflow, bemenet egy sikeres **kézi** Build Tauri futás ID-ja (push / PR futásnak nincs telepítője). A `scripts/publish-artifacts.py` ellenőrzi a futást, a kicsomagolt telepítőket (egy verzió) és a build commitjából a `docs/Visual Assembler Manual.pdf`, `.hu.pdf`, `README.txt`, `install.txt` fájlokat, valamint a `samples/` mappából csomagolt `va-samples.zip`-et (`build_samples_zip`, a zipben `samples/…` útvonalak) FTPS-en a `/www/downloads/VA/` mappába tölti, a dokumentumokat és a zipet utoljára. Secret: `FTP_PASSWORD`. **Régi telepítőt nem töröl** (a SID Studióval ellentétben): a `downloads/VA/index.php` csak a dashboardon kiadott verzióig kínál telepítőt, az új feltöltés ott vár, a kiadottnak addig is elérhetőnek kell maradnia. A dokumentumok és a zip viszont azonnal felülíródnak. Teszt: `tests/publish-artifacts.test.js`, `tests/publish_artifacts_test.py`.
 
+### R65 fordító (KickAssembler-kompatibilis) — külön repó
+
+**`F:\Development\R65`** (https://github.com/zstarczali/R65), git-függőség `default-features = false`-szal (a `gui` feature
+nélkül, eframe / rfd nincs). Könyvtár-API: `r65::build(source, path, &BuildOptions)` → `Build` (PRG, hibák, `extra`:
+címkék, forrás-spanok, `.print`, `.vs` / `.sym` / `.dbg`). Tauri: `r65_build` / `get_r65_version` (lib.rs).
+Mód: `assemblerSyntax` = `"r65"` (Beállítások `#assembler-syntax`, Projekt beállítások `#ps-assembler`, `.proj`
+`"assembler": "r65"`); az ACME-hez hasonlóan csak szöveges: `_textOnlyAssembler()`, és az ACME előnézet-gépezetét
+használja (`_textBuild` → `_buildR65Prg`, az eredmény ACME-alakban: `_r65Report`, `_r65LabelDump`, `_r65ErrorEntry`;
+szövegek `_textKey("acme…")` → `r65…`). A projekt indítófájlját fordítja (`_r65Source`, az `#import`-okat az R65 olvassa).
+Teszt: `tests/r65-mode.test.js`. Ismert hiány: a Hires / Curve demó-generátorok R65-ben VA makrókat írnak.
+
 ### Exomizer
 `launch_exomizer` és `build_exomizer_prg` Tauri commands; tömörített SFX PRG.
 

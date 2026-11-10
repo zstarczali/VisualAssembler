@@ -1367,6 +1367,9 @@ function initPalette() {
     const vmaVersion = await window.electronAPI?.getVmaVersion?.();
     const vmaVersionValue = document.getElementById("about-vma-version-value");
     if (vmaVersionValue) vmaVersionValue.textContent = vmaVersion ? `v${vmaVersion}` : "v?";
+    const r65Version = await window.electronAPI?.getR65Version?.();
+    const r65VersionValue = document.getElementById("about-r65-version-value");
+    if (r65VersionValue) r65VersionValue.textContent = r65Version ? `v${r65Version}` : "v?";
     const dlg = document.getElementById("about-dialog");
     dlg?.querySelectorAll("a[href^='mailto:'], a[href^='http://'], a[href^='https://']").forEach(a => {
       if (a.dataset.externalBound) return;
@@ -1423,7 +1426,7 @@ function initPalette() {
   ubAsmSidecarToggle?.addEventListener("change", saveUiSettings);
   document.getElementById("assembler-syntax")?.addEventListener("change", async (event) => {
     const select = event.target;
-    const syntax = select.value === "acme" ? "acme" : "kick";
+    const syntax = _assemblerNormalize(select.value);
     select.value = assemblerSyntax;
     if (syntax === "acme") {
       select.disabled = true;
@@ -1438,14 +1441,21 @@ function initPalette() {
         return;
       }
     }
+    if (syntax === "r65" && !window.electronAPI?.r65Build) {
+      showViceToast(t("r65NeedsDesktop"), true);
+      return;
+    }
     assemblerSyntax = syntax;
     select.value = assemblerSyntax;
+    // The other text assembler's preview is not this one's.
+    _acmePreview = null;
+    _acmePreviewError = null;
     saveUiSettings();
     if (_expertProjectData?._projPath && _expertProjectData.assemblerSyntax !== assemblerSyntax) _expertSaveProject();
     _acmeBuildButtonSync();
     // The source text stays as it is (no VA <-> ACME translation); ACME is
     // edited as text only, so block mode switches to Expert mode.
-    if (assemblerSyntax === "acme" && !expertMode && !ultimateBasicMode) setExpertMode(true);
+    if (_textOnlyAssembler() && !expertMode && !ultimateBasicMode) setExpertMode(true);
     else if (expertMode) _expertValidate();
   });
   document.getElementById("choose-acme")?.addEventListener("click", async () => {
@@ -1461,10 +1471,10 @@ function initPalette() {
 
   // ACME source is text only: block mode is the VA (VMA) model.
   const acmeBlocksBlocked = wantsBlocks => {
-    if (!wantsBlocks || assemblerSyntax !== "acme") return false;
+    if (!wantsBlocks || !_textOnlyAssembler()) return false;
     if (expertModeToggle) expertModeToggle.checked = true;
-    _expertSetStatus(t("acmeNoBlockMode"), "error");
-    showViceToast?.(t("acmeNoBlockMode"), true);
+    _expertSetStatus(t(_textKey("acmeNoBlockMode")), "error");
+    showViceToast?.(t(_textKey("acmeNoBlockMode")), true);
     return true;
   };
   expertModeToggle?.addEventListener("change", () => {
@@ -1832,7 +1842,7 @@ function initPalette() {
   expertSaveAsmAsBtn?.addEventListener("click", () => _expertSaveAsm(true));
   expertBuildInfoBtn?.addEventListener("click", showBuildInfoDialog);
   document.getElementById("expert-acme-build-btn")?.addEventListener("click", () => {
-    if (assemblerSyntax === "acme") _acmeBuildPreview();
+    if (_textOnlyAssembler()) _acmeBuildPreview();
     else _vaBuildExpert();
   });
   buildInfoBtn?.addEventListener("click", showBuildInfoDialog);
@@ -3201,7 +3211,7 @@ function showCustomerMessageIfNeeded() {
 function _applyUiSettingsToDOM() {
   // the loaded settings: a saveUiSettings() on the way (setOutputMode, the mode switch …) replaces savedUiSettings
   const s = savedUiSettings;
-  assemblerSyntax = s.assemblerSyntax === "acme" ? "acme" : "kick";
+  assemblerSyntax = _assemblerNormalize(s.assemblerSyntax);
   acmePath = s.acmePath || "";
   const assemblerSyntaxSelect = document.getElementById("assembler-syntax");
   if (assemblerSyntaxSelect) assemblerSyntaxSelect.value = assemblerSyntax;
@@ -3400,7 +3410,7 @@ function _applyUiSettingsToDOM() {
 
   if (s.ultimateBasicMode) {
     setUltimateBasicMode(true);
-  } else if (s.expertMode || assemblerSyntax === "acme") {
+  } else if (s.expertMode || _textOnlyAssembler()) {
     setExpertMode(true);   // ACME has no block mode
   }
   _expertApplyPanels();
@@ -3512,6 +3522,7 @@ function applyTranslations() {
     setText("#about-repo-label", t("aboutRepoLabel"));
     setText("#about-ub-version-label", t("aboutUbVersionLabel"));
     setText("#about-vma-version-label", t("aboutVmaVersionLabel"));
+    setText("#about-r65-version-label", t("aboutR65VersionLabel"));
   document.getElementById("undo-action")?.setAttribute("aria-label", t("undoAction"));
   document.getElementById("redo-action")?.setAttribute("aria-label", t("redoAction"));
   if (helpManualButton) helpManualButton.textContent = t("helpManual");
@@ -3860,6 +3871,7 @@ function applyTranslations() {
   setText("#assembler-syntax-label", t("assemblerSyntax"));
     setText('#assembler-syntax option[value="kick"]', t("assemblerModeVma"));
     setText('#assembler-syntax option[value="acme"]', t("assemblerModeAcme"));
+    setText('#assembler-syntax option[value="r65"]', t("assemblerModeR65"));
     setText("#asm-output-settings-label", t("asmOutputSettings"));
     setText("#snapshot-settings-label", t("snapshotSettings"));
     if (macroSourceToggleText) macroSourceToggleText.textContent = t("macroSourceToggle");
@@ -5327,7 +5339,7 @@ function renderSearchResults(query) {
   const results = filtered;
 
   const invokeItem = Object.values(mnemonicLibrary).flat().find(i => i.isMacroInvoke);
-  for (const macroName of assemblerSyntax === "acme" ? [] : Object.keys(userMacros)) {
+  for (const macroName of _textOnlyAssembler() ? [] : Object.keys(userMacros)) {
     if (macroName.toLowerCase().includes(q)) {
       if (invokeItem) {
         results.push({ item: invokeItem, category: "Makrok", userMacroName: macroName });
@@ -8576,7 +8588,7 @@ function setUltimateBasicMode(on, { restoreAssemblerMode = true } = {}) {
   _toolkitPlace();
   // back to the assembler editor the user left: ACME and block-locked projects have text only
   if (leavingUb && restoreAssemblerMode && !expertMode
-      && (lastAssemblerEditorMode === "expert" || assemblerSyntax === "acme" || _blockModeBlocked())) {
+      && (lastAssemblerEditorMode === "expert" || _textOnlyAssembler() || _blockModeBlocked())) {
     setExpertMode(true);
     return;
   }
@@ -10933,6 +10945,11 @@ async function importAsmFile() {
       else if (emulatorStatus) emulatorStatus.textContent = t("vasmLoadError") + ": " + res.error;
       return;
     }
+    // the KickAssembler script language only runs in a Kick project (_kickPreprocess)
+    if (_kickUsesScript(res.content) && await _showConfirm(t("kickImportUseProject"))) {
+      await importKickProject(res.filePath);
+      return;
+    }
 
     const name = await _importAsmFromPath(res.filePath, res.content);
     if (expertMode) _expertSetStatus(t("vasmLoadedStatus") + ": " + name, "ok");
@@ -11023,14 +11040,14 @@ async function showBuildInfoDialog() {
   }
 
   // ACME: the real ACME build (not the VMA compiler): its bytes, report and label dump.
-  if (assemblerSyntax === "acme" && expertMode) {
+  if (_textOnlyAssembler() && expertMode) {
     const fmtAddr = a => "$" + (a & 0xFFFF).toString(16).toUpperCase().padStart(4, "0");
     let prg;
-    try { prg = await _buildAcmePrg(true, { preview: true }); } catch (e) { prg = { ok: false, error: String(e?.message || e) }; }
+    try { prg = await _textBuild(true, { preview: true }); } catch (e) { prg = { ok: false, error: String(e?.message || e) }; }
     let html = pathHtml;
     const memory = prg?.ok ? _acmePrgMemory(prg.bytes) : null;
     if (!prg?.ok || !memory) {
-      const lines = prg?.errors?.length ? prg.errors.map(e => e.text) : [prg?.error || t("acmeBuildFirst")];
+      const lines = prg?.errors?.length ? prg.errors.map(e => e.text) : [prg?.error || t(_textKey("acmeBuildFirst"))];
       html += makeList(t("buildInfoErrors"), lines, true);
     } else {
       const rows = _acmeReportRows(prg.report, prg.sourceLineOffset ?? null);
@@ -11206,6 +11223,7 @@ function _expertHighlightAcmeLine(raw) {
 let _kickHlCache = { tab: null, proj: null, at: 0, value: false };
 function _kickHighlightActive() {
   if (typeof assemblerSyntax !== "undefined" && assemblerSyntax === "acme") return false;
+  if (_r65Mode()) return true;
   if (typeof _expertProjectData === "undefined" || !_expertProjectData?.kick) return false;
   const now = Date.now();
   const c = _kickHlCache;
@@ -13943,9 +13961,11 @@ function _acmeFromVaAsm(text) {
 // ACME mode: the export goes to the end of the source as ACME text. With a tag it sits
 // between "; >>> tag" and "; <<< tag", and the next export with that tag replaces it.
 function _acmeInsertExport(asmText, insertTag) {
-  const acmeText = _acmeFromVaAsm(asmText).replace(/^\n+|\n+$/g, "");
+  // R65: the editors' .byte / .word / labels are KickAssembler as written.
+  const r65 = _r65Mode();
+  const acmeText = (r65 ? String(asmText) : _acmeFromVaAsm(asmText)).replace(/^\n+|\n+$/g, "");
   if (!acmeText.trim()) return 0;
-  const errors = _acmeVaSyntaxErrors(acmeText);
+  const errors = r65 ? [] : _acmeVaSyntaxErrors(acmeText);
   if (errors.length) {
     showViceToast?.(tf("acmeVaSource", { count: errors.length }), true);
     return 0;
@@ -13967,7 +13987,7 @@ function _acmeInsertExport(asmText, insertTag) {
 
 function exportAsmToBlocks(asmText, insertTag) {
   if (!asmText) return 0;
-  if (assemblerSyntax === "acme" && expertMode && expertEditor && !ultimateBasicMode) return _acmeInsertExport(asmText, insertTag);
+  if (_textOnlyAssembler() && expertMode && expertEditor && !ultimateBasicMode) return _acmeInsertExport(asmText, insertTag);
   const newBlocks = parseExpertText(asmText);
   if (!newBlocks.length) return 0;
   if (insertTag) newBlocks.forEach(b => { b._cgSource = insertTag; });
@@ -14419,8 +14439,8 @@ function _expertValidate() {
   if (!expertMode || !expertEditor) return;
   _expertApplyHighlight();
   clearTimeout(_expertParseTimer);
-  if (assemblerSyntax === "acme") {
-    const vaErrors = _acmeVaSyntaxErrors(_expertGetSourceText());
+  if (_textOnlyAssembler()) {
+    const vaErrors = _r65Mode() ? [] : _acmeVaSyntaxErrors(_expertGetSourceText());
     _expertErrorLineNos = new Set(vaErrors.map(error => error.sourceLine));
     if (_expertProjectVisible) _expertRenderSymbols();
     _acmeUpdateAnalysis();
@@ -14432,7 +14452,7 @@ function _expertValidate() {
     }
     const preview = _acmePreviewCurrent();
     _expertSetStatus(preview
-      ? tf("acmeBuildSuccess", { bytes: _acmePreviewByteCount(preview) })
+      ? tf(_textKey("acmeBuildSuccess"), { bytes: _acmePreviewByteCount(preview) })
       : _acmePreviewMessage(), preview ? "ok" : _acmePreviewErrorCurrent() ? "error" : "");
     if (_expertDisasmVisible) _expertRenderDisasm();
     if (_expertMonitorVisible) _expertRenderMonitor();
@@ -14935,7 +14955,7 @@ function renderDisasmOutput() {
 
 function _acmePreviewMessage() {
   if (_acmePreviewErrorCurrent()) return _acmePreviewError.text;
-  return _acmePreview?.tabId === activeTabId ? t("acmeBuildChanged") : t("acmeBuildFirst");
+  return _acmePreview?.tabId === activeTabId ? t(_textKey("acmeBuildChanged")) : t(_textKey("acmeBuildFirst"));
 }
 
 // A setting that changes the ACME output (BASIC SYS stub) drops the preview
@@ -14943,7 +14963,7 @@ function _acmePreviewMessage() {
 function _acmeInvalidatePreview() {
   _acmePreview = null;
   _acmePreviewError = null;
-  if (assemblerSyntax === "acme" && expertMode) _expertValidate();
+  if (_textOnlyAssembler() && expertMode) _expertValidate();
 }
 
 function _acmePreviewErrorCurrent() {
@@ -14969,8 +14989,8 @@ function _acmeUpdateAnalysis() {
 // panel (always shown) and the Disassembly / Monitor panels follow the source.
 function _acmeScheduleAutoBuild() {
   clearTimeout(_expertParseTimer);
-  if (assemblerSyntax !== "acme" || !expertMode) return;
-  if (!window.electronAPI?.buildAcmePrg || _acmePreviewCurrent() || _acmePreviewErrorCurrent()) return;
+  if (!_textOnlyAssembler() || !expertMode) return;
+  if (!(_r65Mode() ? window.electronAPI?.r65Build : window.electronAPI?.buildAcmePrg) || _acmePreviewCurrent() || _acmePreviewErrorCurrent()) return;
   _expertParseTimer = setTimeout(() => _acmeBuildPreview({ quiet: true }), 600);
 }
 
@@ -15233,11 +15253,11 @@ function _acmePreviewByteCount(preview) {
 function _acmeDisasmHTML(preview) {
   const memory = _acmePrgMemory(preview.bytes);
   const view = _acmePreviewSegments(preview);
-  if (!memory || !view) return `<span class="asm-tok-comment">; ${_escHtml(t("acmeBuildFirst"))}</span>`;
+  if (!memory || !view) return `<span class="asm-tok-comment">; ${_escHtml(t(_textKey("acmeBuildFirst")))}</span>`;
   const labels = _acmeParseLabels(preview.labels);
   const kinds = _acmeReportKinds(preview.report, memory);
   const addrToLabel = new Map([...labels].map(([address, names]) => [address, names[0]]));
-  const lines = [`<span class="asm-tok-comment">; ${_escHtml(t("acmeDisasmNotice"))}</span>`];
+  const lines = [`<span class="asm-tok-comment">; ${_escHtml(t(_textKey("acmeDisasmNotice")))}</span>`];
   const stub = _extractBasicStubSection(preview.bytes);
   const stubEnd = stub ? stub.address + stub.bytes.length : -1;
   for (const [segmentIndex, segment] of view.segments.entries()) {
@@ -15288,7 +15308,7 @@ function _acmeDisasmHTML(preview) {
 
 function _acmeMonitorText(preview) {
   const view = _acmePreviewSegments(preview);
-  if (!view) return t("acmeBuildFirst");
+  if (!view) return t(_textKey("acmeBuildFirst"));
   const bytes = new Map(view.segments.flatMap(segment => segment.payload.map((byte, index) => [segment.origin + index, byte])));
   if (!bytes.size) return "";
   return _formatMonitorMemory(bytes, view.segments[0]?.origin || 0);
@@ -15340,7 +15360,7 @@ function _expertRenderDisasm() {
   const stubOn = basicSysToggle ? basicSysToggle.checked : true;
   if (kickShown && _expertDisasmShown?.kick === kickShown && _expertDisasmShown.stubOn === stubOn) return;
   _expertDisasmShown = null;
-  if (assemblerSyntax === "acme") {
+  if (_textOnlyAssembler()) {
     _acmeRenderPanel(expertDisasmOutput, (el, preview) => _setDisasmLines(el, _acmeDisasmHTML(preview).split("\n")),
       (el, message) => { el.innerHTML = `<span class="asm-tok-comment">; ${_escHtml(message)}</span>`; });
     return;
@@ -15360,7 +15380,7 @@ function _expertRenderDisasm() {
 
 function _expertRenderMonitor() {
   if (!expertMonitorOutput) return;
-  if (assemblerSyntax === "acme") {
+  if (_textOnlyAssembler()) {
     _acmeRenderPanel(expertMonitorOutput, (el, preview) => { el.textContent = _acmeMonitorText(preview); },
       (el, message) => { el.textContent = `; ${message}`; });
     return;
@@ -19308,6 +19328,7 @@ function _buildDebuggerSidecarPayload(prg, { force = false, layout = null, sourc
     return null;
   }
   // ACME source has no VA layout: the symbols come from ACME's label dump.
+  if (_r65Mode() && !ultimateBasicMode) return _r65DebuggerSidecars(prg);
   if (assemblerSyntax === "acme" && !ultimateBasicMode) return _acmeDebuggerSidecars(prg?.labels);
   // The build brings its own (vma_build, the same layout and texts).
   if (prg?.vma?.sidecars && !layout) return { ...prg.vma.sidecars };
@@ -19327,7 +19348,7 @@ function _buildDebuggerSidecarPayload(prg, { force = false, layout = null, sourc
 // Expert breakpoint addresses, the .dbg / .sym / .vs texts and the source path of the build.
 // Used by the RetroDebugger launch and by the built-in C64's debugger.
 function _debuggerTargets(prg) {
-  const acme = assemblerSyntax === "acme";
+  const acme = _textOnlyAssembler();
   let symbols = [];
   let breakpoints = [];
   let expertBreakpoints = [];
@@ -19410,8 +19431,8 @@ async function runInDebugger() {
     setWorkProgress(20);
 
     // ACME mode: the real ACME build, its label dump and its report lines.
-    const acme = assemblerSyntax === "acme";
-    const prg = acme ? await _buildAcmePrg() : await _kickOrVaPrg();
+    const acme = _textOnlyAssembler();
+    const prg = acme ? await _textBuild() : await _kickOrVaPrg();
     if (!prg.ok) {
       if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
       if (emulatorStatus) emulatorStatus.textContent = prg.error;
@@ -22677,9 +22698,9 @@ async function _buildProjectAsmTarget(target) {
 
   let prg;
   let sidecars = null;
-  if (assemblerSyntax === "acme") {
-    // The target tab is active now: ACME builds its editor source.
-    prg = await _buildAcmePrg(true);
+  if (_textOnlyAssembler()) {
+    // The target tab is active now: ACME / R65 builds its editor source.
+    prg = await _textBuild(true);
     if (prg.ok) sidecars = _buildDebuggerSidecarPayload(prg);
   } else if (_kickProjectActive()) {
     // KickAssembler tree: the startup file with its #import modules.
@@ -22985,7 +23006,7 @@ async function saveCrtToFile() {
   // copies plain bytes into RAM.
   const prg = ultimateBasicMode
     ? await buildRunPrgForCurrentMode()
-    : assemblerSyntax === "acme" ? await _buildAcmePrg() : await _kickOrVaPrg();
+    : _textOnlyAssembler() ? await _textBuild() : await _kickOrVaPrg();
   if (!prg.ok) {
     if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
     if (prg.error) { showViceToast(prg.error, true); return; }
@@ -24593,8 +24614,8 @@ async function buildRunPrgForCurrentMode() {
     };
   }
 
-  if (assemblerSyntax === "acme") {
-    const prg = await _buildAcmePrg();
+  if (_textOnlyAssembler()) {
+    const prg = await _textBuild();
     if (prg.ok) _vmAcmeBuild = prg.imageBytes ? { ...prg, bytes: prg.imageBytes } : prg;
     return prg.ok ? _applyExomizerToPrg(prg) : prg;
   }
@@ -24792,14 +24813,15 @@ function _acmeFirstOrigin(source) {
 // The .proj file names its assembler: "assembler": "vma" | "acme". The older
 // "assemblerSyntax" ("kick" | "acme") is written too and still read.
 function _projAssemblerFields(syntax) {
+  if (syntax === "r65") return { assembler: "r65", assemblerSyntax: "r65" };
   const acme = syntax === "acme";
   return { assembler: acme ? "acme" : "vma", assemblerSyntax: acme ? "acme" : "kick" };
 }
 
 function _projAssemblerSyntax(proj) {
   const assembler = String(proj?.assembler || "").toLowerCase();
-  if (assembler === "acme" || assembler === "vma") return assembler === "acme" ? "acme" : "kick";
-  return proj?.assemblerSyntax === "acme" ? "acme" : "kick";
+  if (assembler === "acme" || assembler === "vma" || assembler === "r65") return assembler === "vma" ? "kick" : assembler;
+  return _assemblerNormalize(proj?.assemblerSyntax);
 }
 
 async function _acmeCheckConfigured() {
@@ -24836,11 +24858,11 @@ function _acmeAvailabilitySync() {
 }
 
 function _setAssemblerSyntax(syntax) {
-  assemblerSyntax = syntax === "acme" ? "acme" : "kick";
+  assemblerSyntax = _assemblerNormalize(syntax);
   const syntaxSelect = document.getElementById("assembler-syntax");
   if (syntaxSelect) syntaxSelect.value = assemblerSyntax;
   _acmeBuildButtonSync();
-  if (assemblerSyntax === "acme" && !expertMode && !ultimateBasicMode) setExpertMode(true);
+  if (_textOnlyAssembler() && !expertMode && !ultimateBasicMode) setExpertMode(true);
 }
 
 // The Expert Build button builds with the active assembler: ACME or VA (VMA).
@@ -24848,9 +24870,9 @@ function _acmeBuildButtonSync(blocks = program) {
   const button = document.getElementById("expert-acme-build-btn");
   if (!button) return;
   button.hidden = false;
-  button.setAttribute("aria-label", t(assemblerSyntax === "acme" ? "acmeBuild" : "vaBuild"));
-  // ACME has no block mode: the block/Expert switch is locked while it is on.
-  const acme = assemblerSyntax === "acme";
+  button.setAttribute("aria-label", t(assemblerSyntax === "acme" ? "acmeBuild" : _r65Mode() ? "r65Build" : "vaBuild"));
+  // ACME / R65 have no block mode: the block/Expert switch is locked while it is on.
+  const acme = _textOnlyAssembler();
   const blocked = _blockModeBlocked(blocks);
   const ubFile = _isBoundUbTab();
   const locked = acme || !!blocked || ubFile;
@@ -24898,7 +24920,7 @@ async function _vaBuildExpert() {
 }
 
 function _acmePreviewCurrent() {
-  return _acmePreview && assemblerSyntax === "acme" && expertMode
+  return _acmePreview && _textOnlyAssembler() && expertMode
     && _acmePreview.tabId === activeTabId
     && _acmePreview.sourceText === _expertGetSourceText()
     ? _acmePreview : null;
@@ -24934,20 +24956,20 @@ async function _acmeBuildPreview(options) {
   const tabId = activeTabId;
   _acmeBuildRunning = true;
   if (button) button.disabled = true;
-  _expertSetStatus(t("acmeBuild") + "…", "ok");
+  _expertSetStatus(t(_textKey("acmeBuild")) + "…", "ok");
   try {
-    const result = await _buildAcmePrg(true, { preview: true });
+    const result = await _textBuild(true, { preview: true });
     if (tabId !== activeTabId || sourceText !== _expertGetSourceText()) return;
     if (!result.ok) {
       _acmePreview = null;
-      _acmePreviewError = { tabId, sourceText, text: result.error || t("acmeBuildFirst") };
-      _expertSetStatus(result.error || t("acmeBuildFirst"), "error");
+      _acmePreviewError = { tabId, sourceText, text: result.error || t(_textKey("acmeBuildFirst")) };
+      _expertSetStatus(result.error || t(_textKey("acmeBuildFirst")), "error");
       // An automatic build only reports in the status line and the panels.
-      if (!quiet) showCompileErrorDialog(result.errors?.length ? result.errors : [{ text: result.error || t("acmeBuildFirst") }]);
+      if (!quiet) showCompileErrorDialog(result.errors?.length ? result.errors : [{ text: result.error || t(_textKey("acmeBuildFirst")) }]);
     } else {
       _acmePreviewError = null;
       _acmePreview = { ...result, tabId, sourceText };
-      _expertSetStatus(tf("acmeBuildSuccess", { bytes: _acmePreviewByteCount(result) }), "ok");
+      _expertSetStatus(tf(_textKey("acmeBuildSuccess"), { bytes: _acmePreviewByteCount(result) }), "ok");
     }
     _acmeUpdateAnalysis();
     if (_expertDisasmVisible) _expertRenderDisasm();
@@ -25683,10 +25705,13 @@ function _kickSemicolonSeparates(before, after) {
 function _kickSourceLines(text, file) {
   const out = [];
   let inBlock = false;
+  // an open ( or [ continues the statement on the next line (List().add(1,⏎ 2)); the line it
+  // continues on stays as an empty line, so the line numbers do not move
+  let depth = 0;
+  let open = null;
   String(text || "").split(/\r?\n/).forEach((raw, index) => {
     let line = "";
     let quote = "";
-    let depth = 0;
     for (let i = 0; i < raw.length; i++) {
       const ch = raw[i];
       if (inBlock) {
@@ -25709,7 +25734,14 @@ function _kickSourceLines(text, file) {
       if (ch === ";" && depth <= 0 && !_kickSemicolonSeparates(line, raw.slice(i + 1))) break;
       line += ch;
     }
-    out.push({ text: line, file, line: index + 1 });
+    if (open) {
+      open.text += " " + line.trim();
+      out.push({ text: "", file, line: index + 1 });
+    } else {
+      out.push({ text: line, file, line: index + 1 });
+    }
+    if (depth > 0) open ??= out[out.length - 1];
+    else { open = null; depth = 0; }
   });
   return out;
 }
@@ -27128,7 +27160,20 @@ function _kickPreprocess(entry, readText, readBinary, options = {}) {
     if ((m = text.match(/^\.error\s+(.+)$/i))) throw new Error(String(_kickEval(m[1], scope)));
     if ((m = text.match(/^\.errorif\s+(.+)$/i))) {
       const [cond, message] = _kickSplitTop(m[1]);
-      if (_kickEval(cond, scope)) throw new Error(String(message ? _kickEval(message, scope) : ".errorif"));
+      let c;
+      try { c = _kickEval(cond, scope); }
+      catch (e) { if (!/not known yet/i.test(e.message)) throw e; }
+      // needs * or a label address: the VMA checks it as an .assert, where both are known
+      if (c === undefined || _kickIsSym(c)) {
+        let text = ".errorif";
+        if (message) {
+          try { text = String(_kickEval(message, scope)); }
+          catch (_) { text = message.match(/"((?:\\.|[^"\\])*)"/)?.[1] ?? message.trim(); }
+        }
+        emit(n, `.assert !(${substitute(cond, scope)}), ${JSON.stringify(text)}`);
+        return;
+      }
+      if (c) throw new Error(String(message ? _kickEval(message, scope) : ".errorif"));
       return;
     }
     if ((m = text.match(/^\.(?:print|printnow)\s+(.+)$/i))) {
@@ -27485,7 +27530,9 @@ function _kickEmit(items, root, constValues, consts, errors, constOf, rootLs = _
       return { lines: [`.align ${Math.trunc(v)}`], size: at === null ? null : (Math.trunc(v) - (at % Math.trunc(v))) % Math.trunc(v) };
     }
     if ((m = text.match(/^\.assert\s+(.+)$/i))) {
-      const parts = _kickSplitTop(m[1]);
+      // inside .pseudopc * is the logical address (the VMA's * would be the physical one)
+      const logical = pc === null ? m[1] : m[1].replace(_KICK_PC_IN_EXPR, (all, before) => before + hex(pc, 4));
+      const parts = _kickSplitTop(logical);
       if (parts.length === 3 && /^"/.test(parts[0])) {
         const expect = parts[2].trim();
         const cond = expect === "true" ? fold(parts[1]) : expect === "false" ? `!(${fold(parts[1])})` : `(${fold(parts[1])})==(${fold(parts[2])})`;
@@ -27534,13 +27581,23 @@ function _kickEmit(items, root, constValues, consts, errors, constOf, rootLs = _
     if (v === undefined || _kickIsSym(v) || typeof v !== "number") return all;
     return hex(Math.trunc(v) & 0xFFFF, Math.trunc(v) >= 0 && Math.trunc(v) <= 0xFF ? 2 : 4);
   });
-  // An expression with * kept as the program counter (for .assert): constants folded.
-  const fold = (expr) => expr.replace(/("(?:\\.|[^"\\])*")|(\$[0-9A-Fa-f]+)|([A-Za-z_]\w*)/g, (all, str, hx, name) => {
+  // An expression with * kept as the program counter (for .assert): constants folded; < / > of a
+  // number computed here (the VMA evaluates them on a label, not on a literal: >$C057).
+  const foldLiteral = (expr) => expr.replace(/(^|[(,!=&|^~+\-/%]\s*)([<>])\s*(\$[0-9A-Fa-f]+|%[01]+|\d+)(?![\w$])/g, (all, before, op, num) => {
+    const v = num[0] === "$" ? parseInt(num.slice(1), 16) : num[0] === "%" ? parseInt(num.slice(1), 2) : parseInt(num, 10);
+    return before + hex(op === "<" ? v & 0xFF : (v >> 8) & 0xFF, 2);
+  });
+  const fold = (expr) => foldLiteral(expr.replace(/("(?:\\.|[^"\\])*")|(\$[0-9A-Fa-f]+)|([A-Za-z_]\w*)/g, (all, str, hx, name) => {
     if (!name) return all;
+    // a label of the statement's scope: its VA name (__s1__lp)
+    const label = scope.label(name);
+    if (label?.label !== undefined) return label.label;
+    // a label inside .pseudopc: its logical address
+    if (label?.value !== undefined) return _kickIsSym(label.value) ? `(${_kickSymText(label.value)})` : valueText(label.value, 4);
     const v = scope.get(name);
     if (v === undefined || _kickIsSym(v)) return v === undefined ? name : `(${_kickSymText(v)})`;
     return valueText(v, 4);
-  });
+  }));
 
   // An instruction of the .cpu table as .byte lines; null when the operand is not one of its modes.
   const cpuInstruction = (mnem, modes, force, operand, pc) => {
@@ -27876,7 +27933,8 @@ function _kickByteLines(bytes) {
 let _kickLast = null;   // last preprocessing: { ok, program, origins, errors, text }
 
 function _kickProjectActive() {
-  if (!_expertProjectData?.kick || !_expertProjectData.startupFile || ultimateBasicMode) return false;
+  // R65 mode: R65 builds the Kick source itself (no VA preprocessing)
+  if (!_expertProjectData?.kick || !_expertProjectData.startupFile || ultimateBasicMode || _r65Mode()) return false;
   const active = tabs.find(t => t.id === activeTabId);
   return !active?.filePath || _projHasFile(active.filePath);
 }
@@ -28182,6 +28240,141 @@ async function _kickWriteOutputs(kick, startupPath) {
   return results;
 }
 
+// ── R65: the KickAssembler compatible assembler (github.com/zstarczali/R65) ─────────────────────
+// assemblerSyntax "r65": the Expert text is KickAssembler source, built by R65 in the backend
+// (r65_build: #import and the Load… functions read the files next to it). Text only, like ACME, and
+// its result takes the ACME preview's form (bytes, a label dump, a report), so the Disassembly /
+// Monitor / memory panels, the cycle gutter, the hints and the debugger targets work the ACME way.
+function _r65Mode() {
+  return typeof assemblerSyntax !== "undefined" && assemblerSyntax === "r65";
+}
+
+// ACME and R65 build source text: no block mode, no VA macros, no tutorials.
+function _textOnlyAssembler() {
+  return typeof assemblerSyntax !== "undefined" && (assemblerSyntax === "acme" || assemblerSyntax === "r65");
+}
+
+function _assemblerNormalize(syntax) {
+  return syntax === "acme" || syntax === "r65" ? syntax : "kick";
+}
+
+// The build of the text assembler of the mode (ACME or R65).
+function _textBuild(useCurrentEditor = false, options = null) {
+  return _r65Mode() ? _buildR65Prg(useCurrentEditor, options) : _buildAcmePrg(useCurrentEditor, options);
+}
+
+// A text key of the text assembler: "acmeBuild" → "r65Build" in R65 mode.
+function _textKey(key) {
+  return _r65Mode() ? key.replace(/^acme/, "r65") : key;
+}
+
+// The source R65 builds: the startup file of a project (its #import files are R65's; read from disk
+// when it is not open), else the editor.
+async function _r65Source(useCurrentEditor = false) {
+  const tab = tabs.find(tb => tb.id === activeTabId);
+  const editor = { text: _expertGetSourceText(), path: tab?.filePath || _expertAsmFilePath || "" };
+  if (useCurrentEditor) return editor;
+  const startup = _expertGetStartupSource();
+  if (startup) return { text: startup.text, path: startup.path };
+  const sf = _expertProjectData?.startupFile ? _projFindEntry(_expertProjectData.files, _expertProjectData.startupFile) : null;
+  if (sf && (!tab?.filePath || _projHasFile(tab.filePath))) {
+    const path = _projResolveAbsPath(sf.path);
+    const read = await window.electronAPI?.readTextFile?.(path);
+    if (read?.ok && typeof read.content === "string") return { text: read.content, path };
+  }
+  return editor;
+}
+
+// The ACME report form of an R65 build: a "; ******** Source: file" block per file, a row per source
+// position (line, address, up to 8 bytes, the text). The editor's own file gets ACME's temporary file
+// name, so its rows carry the editor line (srcLine).
+function _r65Report(r, prg, ownPath) {
+  const own = _normFilePath(ownPath || "");
+  const load = prg.length >= 2 ? prg[0] | (prg[1] << 8) : 0;
+  const byFile = new Map();
+  for (const [address, length, file, line, , text] of r.spans || []) {
+    if (!byFile.has(file)) byFile.set(file, []);
+    byFile.get(file).push({ address, length, line, text: String(text || "") });
+  }
+  const out = [];
+  for (const [file, rows] of byFile) {
+    const name = r.files?.[file] || "";
+    out.push(`; ******** Source: ${own && _normFilePath(name) === own ? "c64-visual-assembler-r65.a" : name}`);
+    rows.sort((a, b) => a.line - b.line || a.address - b.address);
+    for (const row of rows) {
+      const bytes = [];
+      for (let k = 0; k < Math.min(row.length, 8); k++) {
+        const at = 2 + row.address + k - load;
+        if (at >= 2 && at < prg.length) bytes.push(prg[at]);
+      }
+      const hex = bytes.length === Math.min(row.length, 8)
+        ? bytes.map(b => b.toString(16).padStart(2, "0")).join("") + (row.length > 8 ? "..." : "") : "";
+      out.push(`${String(row.line).padStart(6)}  ${(row.address & 0xFFFF).toString(16).padStart(4, "0")} ${hex.padEnd(19)}${row.text}`);
+    }
+  }
+  return out.join("\n");
+}
+
+// The labels of an R65 build as an ACME label dump ("name = $hhhh").
+function _r65LabelDump(r) {
+  return (r.labels || []).map(([name, address]) => `${String(name).replace(/^@/, "")} = $${(address & 0xFFFF).toString(16).toUpperCase().padStart(4, "0")}`).join("\n");
+}
+
+// An R65 error as a compile error entry: the editor's own source by its line, any other file by file:line.
+function _r65ErrorEntry(e, source) {
+  const own = !source.path || _normFilePath(e.file) === _normFilePath(source.path);
+  if (e.line > 0 && own && expertMode) {
+    const text = String(source.text).split("\n")[e.line - 1] ?? "";
+    return { text: `[R${String(e.line).padStart(3, "0")}] ${text.trim() ? `${text.trim()} — ` : ""}${e.message}`, sourceLine: e.line - 1 };
+  }
+  if (e.line > 0 && e.file) return _kickErrorEntry(_kickNormPath(e.file), e.line, e.message);
+  return { text: e.message };
+}
+
+async function _buildR65Prg(useCurrentEditor = false, options = null) {
+  const preview = !!options?.preview;
+  if (!preview && !useCurrentEditor) {
+    const startupError = await _projEnsureStartupTab();
+    if (startupError) return { ok: false, error: startupError };
+  }
+  if (!window.electronAPI?.r65Build) return { ok: false, error: t("r65NeedsDesktop") };
+  const source = await _r65Source(useCurrentEditor);
+  if (!preview) setWorkStep("stepR65", { file: source.path ? _workStepName(source.path) : _workStepSource() });
+  const r = await window.electronAPI.r65Build(source.text, source.path || null,
+    _expertProjectData?.kickDefines || [], _expertProjectData?.kickVars || {});
+  if (!r?.ok) {
+    const errors = (r?.errors?.length ? r.errors : [{ file: "", line: 0, message: "R65" }]).map(e => _r65ErrorEntry(e, source));
+    return { ok: false, error: errors[0].text, errors, r65: r };
+  }
+  const prg = Uint8Array.from(r.prg || []);
+  const built = {
+    ok: true, bytes: prg, r65: r, sourcePath: source.path,
+    labels: _r65LabelDump(r), report: _r65Report(r, prg, source.path),
+    sysAddress: null, stubGenerated: false, sourceLineOffset: 0,
+    messages: r.prints || []
+  };
+  if (prg.length < 3) return built;
+  const load = prg[0] | (prg[1] << 8);
+  // the source's own BASIC line (BasicUpstart2): its SYS address
+  if (load === 0x0801) {
+    const sys = String.fromCharCode(...prg.slice(7, 13)).match(/^\s*(\d+)/);
+    if (sys) built.sysAddress = Number(sys[1]);
+    return built;
+  }
+  // no BASIC line: Run puts a start loader in front (as for an ACME memory dump)
+  if (preview || basicSysToggle?.checked === false) return { ...built, sysAddress: load };
+  const loader = _buildRelocatingLoader(prg.subarray(2), load, load);
+  if (!loader) return { ok: false, error: tf("autostartImageOverlapsStub", { address: formatAddress(load) }) };
+  return { ...built, bytes: loader, sysAddress: 0x080D, imageBytes: prg };
+}
+
+// R65's own debugger files: .dbg (C64 Debugger), .sym (KickAssembler), .vs (VICE).
+function _r65DebuggerSidecars(prg) {
+  const r = prg?.r65;
+  if (!r) return null;
+  return { dbg: r.debugDump || null, sym: r.symbolFile || "", vs: r.viceSymbols || "" };
+}
+
 // PRG of the Kick project through the VA assembler (the same as Run); null without one.
 // The VMA engine builds the preprocessed text (Rust: kick.text through vma_build).
 async function _kickBuildPrg() {
@@ -28193,6 +28386,8 @@ async function _kickBuildPrg() {
 
 // The PRG every build path uses: the Kick project's, or the VA build of the editor.
 async function _kickOrVaPrg() {
+  // R65 mode: R65 builds the startup file (a Kick project's #import tree too)
+  if (_r65Mode() && !ultimateBasicMode) return _buildR65Prg();
   const startupError = await _projEnsureStartupTab();
   if (startupError) return { ok: false, error: startupError };
   return (await _kickBuildPrg()) || _vaBuildPrg();
@@ -28740,7 +28935,7 @@ function _projKickFields(proj) {
 // sees them. Only for a VMA project (not Kick, not ACME) building its own files; "" otherwise.
 function _projVmaPrelude() {
   const data = _expertProjectData;
-  if (!data || data.kick || assemblerSyntax === "acme" || ultimateBasicMode) return "";
+  if (!data || data.kick || _textOnlyAssembler() || ultimateBasicMode) return "";
   const defines = data.vmaDefines || [];
   const consts = Object.entries(data.vmaConsts || {}).filter(([, v]) => String(v).trim() !== "");
   if (!defines.length && !consts.length) return "";
@@ -28807,7 +29002,7 @@ async function openProjectSettings() {
   }
   const asm = document.getElementById("ps-assembler");
   if (asm) {
-    asm.value = assemblerSyntax === "acme" ? "acme" : "kick";
+    asm.value = _assemblerNormalize(assemblerSyntax);
     const acmeOption = asm.querySelector('option[value="acme"]');
     if (acmeOption) acmeOption.disabled = !(await (_acmeAvailabilityCheck || _acmeAvailabilitySync())) && assemblerSyntax !== "acme";
   }
@@ -28886,9 +29081,15 @@ const _KICK_ASSET_RE = /\.(bin|prg|raw|chr|spr|map|koa|kla|sid|bmp|png|d64)$/i;
 
 // Menu → Import Kick project…: a .proj next to the chosen main file, with every
 // #import / .import file of its tree; the sources stay where they are.
-async function importKickProject() {
+// KickAssembler script (functions, loops, variables, file loading) that the line-by-line Kick import
+// does not run: such a source needs a Kick project.
+function _kickUsesScript(text) {
+  return /^\s*(?:\.function\b|\.for\s*\(|\.while\s*\(|\.var\s|\.eval\s|\.pseudocommand\b|\.struct\b|\.enum\b|#import\b|\.import\s+source\b|\.filenamespace\b)|\b(?:LoadPicture|LoadBinary|LoadSid|List|Hashtable)\s*\(/m.test(String(text || ""));
+}
+
+async function importKickProject(filePath = null) {
   const api = window.electronAPI;
-  const res = await api?.chooseAsmFile?.();
+  const res = filePath ? { ok: true, filePath } : await api?.chooseAsmFile?.();
   if (!res || res.canceled) return;
   if (!res.ok) { _expertSetStatus(t("vasmLoadError") + ": " + res.error, "error"); return; }
   if (!await _closeAllTabsWithConfirm()) return;
@@ -30068,7 +30269,7 @@ async function _applyProjectPayload(projectData, { sourceFilePath = "", keepFile
     setRunMode(projectData.ui.runMode);
   }
   // Older saves recorded the global setting; only ACME source text keeps ACME.
-  if (projectData.ui?.assemblerSyntax === "acme" || projectData.ui?.assemblerSyntax === "kick") {
+  if (["acme", "kick", "r65"].includes(projectData.ui?.assemblerSyntax)) {
     _setAssemblerSyntax(projectData.ui.assemblerSyntax);
   }
 
@@ -31446,7 +31647,7 @@ function _acmeMemoryUsage(preview = _acmePreview?.tabId === activeTabId ? _acmeP
 // (the panel is drawn again when it is there).
 function getMemoryUsage(layout) {
   if (ultimateBasicMode) return _ubMemoryUsage();
-  if (assemblerSyntax === "acme" && expertMode) return _acmeMemoryUsage();
+  if (_textOnlyAssembler() && expertMode) return _acmeMemoryUsage();
   if (!layout) {
     const vma = _vmaLiveFor(_vmaEditorInput(), () => { renderMemoryMap(); renderMemoryStrip(); });
     layout = vma ? _vmaLayout(vma) : null;
@@ -37582,8 +37783,8 @@ function _tourTargetValueMatches(step, actualValue) {
 }
 
 function openTutorialDialog() {
-  if (assemblerSyntax === "acme") {
-    showViceToast?.(t("acmeNoTutorial"), true);
+  if (_textOnlyAssembler()) {
+    showViceToast?.(t(_textKey("acmeNoTutorial")), true);
     return;
   }
   const dlg = document.getElementById("tutorial-dialog");
@@ -56631,7 +56832,7 @@ function _vmSymbols() {
     });
     return map;
   }
-  if (assemblerSyntax === "acme") {
+  if (_textOnlyAssembler()) {
     const map = new Map();
     const build = _vmAcmeBuild || _acmePreview;
     for (const [address, names] of _acmeParseLabels(build?.labels)) names.forEach(name => map.set(name, address));
@@ -56833,9 +57034,9 @@ async function _vmBuildSegments() {
     const load = r.prg[0] | (r.prg[1] << 8);
     return { segments: [{ address: load, bytes: Array.from(r.prg.slice(2)) }], sys: r.map?.loadAddress ?? load };
   }
-  if (assemblerSyntax === "acme") {
-    const prg = await _buildAcmePrg(false, { preview: true });
-    if (!prg?.ok) throw new Error(prg?.error || t("acmeBuildFirst"));
+  if (_textOnlyAssembler()) {
+    const prg = await _textBuild(false, { preview: true });
+    if (!prg?.ok) throw new Error(prg?.error || t(_textKey("acmeBuildFirst")));
     _vmAcmeBuild = prg;
     const memory = _acmePrgMemory(prg.bytes);
     if (!memory) return null;
@@ -56896,9 +57097,9 @@ async function _vmProfile() {
     const res = await api.viceMonSample(5000, 1);
     if (!res?.ok) { _vmSetStatus(t("vmStatusOff"), "off"); return; }
     let acmeBuild = null;
-    if (!ultimateBasicMode && assemblerSyntax === "acme") {
-      acmeBuild = _vmAcmeBuild || await _buildAcmePrg(false, { preview: true });
-      if (!acmeBuild?.ok) throw new Error(acmeBuild?.error || t("acmeBuildFirst"));
+    if (!ultimateBasicMode && _textOnlyAssembler()) {
+      acmeBuild = _vmAcmeBuild || await _textBuild(false, { preview: true });
+      if (!acmeBuild?.ok) throw new Error(acmeBuild?.error || t(_textKey("acmeBuildFirst")));
     }
     const agg = ultimateBasicMode
       ? _vmAggregate(res.samples, _vmUbAddressMap(_ubLastResult))
@@ -57680,8 +57881,8 @@ async function _w64DebugBuild() {
     return { bytes: Uint8Array.from(build.prg || []), entries, symbols: _ubDebuggerSymbols(build), blockBps: [], blockAt: null, kind: "ub", primary: sourcePath };
   }
   if (isProgramEmpty()) { showViceToast(t("nothingToRunAddSomeInstructionsFirst"), true); return null; }
-  const acme = assemblerSyntax === "acme";
-  const prg = acme ? await _buildAcmePrg() : await _kickOrVaPrg();
+  const acme = _textOnlyAssembler();
+  const prg = acme ? await _textBuild() : await _kickOrVaPrg();
   if (!prg.ok) {
     if (prg.errors?.length) showCompileErrorDialog(prg.errors);
     else showViceToast(prg.error || t("launchingViceFailed"), true);

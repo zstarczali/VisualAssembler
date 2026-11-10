@@ -17,7 +17,9 @@ function loadFunctions(names, extraContext = {}) {
   // the compiling dialog's step line (setWorkStep) is not part of these tests
   const context = { setWorkStep() {}, _workStepSource: () => "", ...extraContext };
   vm.createContext(context);
-  for (const name of names) {
+  // the assembler-mode helpers every ACME / R65 path asks
+  const modeHelpers = ["_r65Mode", "_textOnlyAssembler", "_assemblerNormalize", "_textBuild", "_textKey"];
+  for (const name of [...modeHelpers.filter(h => !names.includes(h) && !(h in extraContext)), ...names]) {
     vm.runInContext(`${extractFunctionSource(name)}; this["${name}"] = ${name};`, context);
   }
   return context;
