@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**Verzió: 2.7.8**
+**Verzió: 2.7.9**
 
 Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasításblokkok fogd-és-vidd módszerrel történő elrendezésével építed fel, a generált assembly és gépi kód pedig valós időben frissül.
 
@@ -10,6 +10,7 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 
 ## Tartalomjegyzék
 
+- [A 2.7.9 verzió újdonságai](#a-279-verzió-újdonságai)
 - [A 2.7.8 verzió újdonságai](#a-278-verzió-újdonságai)
 - [A 2.7.7 verzió újdonságai](#a-277-verzió-újdonságai)
 - [A 2.7.6 verzió újdonságai](#a-276-verzió-újdonságai)
@@ -241,6 +242,16 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
   - [Curve Editor](#curve-editor)
   - [Táblagenerátor](#táblagenerátor)
   - [Számrendszer-átváltó](#számrendszer-átváltó)
+
+---
+
+## A 2.7.9 verzió újdonságai
+
+- **R65 assembler** — beépült az R65, egy KickAssembler-kompatibilis assembler: **R65 mód (KickAssembler)** a **Beállítások → Általános → Assembler mód** alatt vagy a **Projekt beállításokban**. Lásd: [ACME mód](#acme-mód).
+- **Build összesítő ablak** — az Expert és az UltimateBasic eszköztár Build gombja a Futtatás kis munkaablakát mutatja, a végén a PRG méretével és címtartományával.
+- **Kick import** — a több soros utasítás, a csak fordításkor ismert feltételű `.errorif`, a `.pseudopc` belsejében álló címkék és egy szám `<` / `>` része helyesen importálódik; a script-elemeket használó egyetlen fájlt Kick projektként is megnyithatod.
+- **UltimateBasic eszköztár** — elválasztók a Betöltés / Mentés / Mentés másként gombok körül.
+- **ACME / R65** — a Futtatás nem írja ki, hogy *nincs mit futtatni* `* =` nélküli forrásnál (pl. `BasicUpstart2`-vel).
 
 ---
 
@@ -1353,6 +1364,7 @@ A **Beállítások → Általános → Assembler mód** választja ki az Expert 
 
 - **VMA mód** (alapértelmezett) — a Visual Assembler beépített assemblere a blokkjaival, makróival és `.` direktíváival.
 - **ACME mód** — a forrás ACME 0.97 szöveg, és a **Beállítások → Fájlok és útvonalak → ACME** alatt beállított ACME futtatható fordítja (**ACME kiválasztása**). A nyelvet az `ACME-0.97-reference.pdf` írja le.
+- **R65 mód (KickAssembler)** — a forrás KickAssembler szöveg (script nyelv, `#import`, `.pseudopc`, `BasicUpstart2` …), és az alkalmazásba épített KickAssembler-kompatibilis R65 fordítja; semmit nem kell telepíteni. Projektben az indítófájl fordul, az `#import` fájlokat az R65 maga olvassa. Ami lent az ACME-ről áll, az R65-re is igaz, és az R65 `.dbg` fájlt is ír. Az R65 verzióját a Névjegy mutatja.
 
 A mód a `.proj` projekttel együtt mentődik, így minden projekt a saját assemblerével nyílik meg. ACME módban csak szöveges szerkesztés van: a Blokk / Expert kapcsoló zárolt, és a **Tutorialok** gombja nem jelenik meg (a leckék VMA programot építenek blokkokból).
 

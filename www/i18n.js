@@ -290,6 +290,9 @@ const translations = {
     "workProgressSuccessD64Ultimate": "D64 felcsatolva, lemez fut a hardveren.",
     "workProgressSuccessDebug": "Build sikeres, debugger indítva.",
     "workProgressSuccessImport": "Import sikeres.",
+    "workProgressBuild": "PRG fordítása…",
+    "workProgressSuccessBuild": "Build sikeres.",
+    "workProgressBuildSummary": "{bytes} bájt · {start}–{end}",
     "savePrg": "Build PRG",
 
     "buildProject": "Build projekt",
@@ -2800,6 +2803,9 @@ const translations = {
     "workProgressSuccessD64Ultimate": "D64 mounted, disk running on hardware.",
     "workProgressSuccessDebug": "Build successful, debugger launched.",
     "workProgressSuccessImport": "Import successful.",
+    "workProgressBuild": "Building PRG…",
+    "workProgressSuccessBuild": "Build successful.",
+    "workProgressBuildSummary": "{bytes} bytes · {start}–{end}",
     "savePrg": "Build PRG",
 
     "buildProject": "Build project",
@@ -5482,6 +5488,9 @@ const translations = {
     "workProgressSuccessD64Ultimate": "D64 montado, disco ejecutándose en hardware.",
     "workProgressSuccessDebug": "Build exitoso, depurador iniciado.",
     "workProgressSuccessImport": "Importación exitosa.",
+    "workProgressBuild": "Compilando PRG…",
+    "workProgressSuccessBuild": "Compilación exitosa.",
+    "workProgressBuildSummary": "{bytes} bytes · {start}–{end}",
     "savePrg": "Build PRG",
 
     "buildProject": "Compilar proyecto",
@@ -8164,6 +8173,9 @@ const translations = {
     "workProgressSuccessD64Ultimate": "D64 eingehängt, Diskette läuft auf der Hardware.",
     "workProgressSuccessDebug": "Build erfolgreich, Debugger gestartet.",
     "workProgressSuccessImport": "Import erfolgreich.",
+    "workProgressBuild": "PRG wird gebaut…",
+    "workProgressSuccessBuild": "Build erfolgreich.",
+    "workProgressBuildSummary": "{bytes} Bytes · {start}–{end}",
     "savePrg": "PRG erstellen",
 
     "buildProject": "Projekt erstellen",
@@ -10846,6 +10858,9 @@ const translations = {
     "workProgressSuccessD64Ultimate": "D64 succesvol gekoppeld en gestart op C64 Ultimate.",
     "workProgressSuccessDebug": "RetroDebugger succesvol gestart.",
     "workProgressSuccessImport": "ASM-broncode succesvol geïmporteerd.",
+    "workProgressBuild": "PRG bouwen…",
+    "workProgressSuccessBuild": "Build geslaagd.",
+    "workProgressBuildSummary": "{bytes} bytes · {start}–{end}",
     "savePrg": "PRG opslaan",
 
     "buildProject": "Project bouwen",
@@ -13539,6 +13554,9 @@ const translations = {
     "workProgressSuccessD64Ultimate": "D64 zamontowany, dysk działa na sprzęcie.",
     "workProgressSuccessDebug": "Kompilacja zakończona sukcesem, debuger uruchomiony.",
     "workProgressSuccessImport": "Import zakończony sukcesem.",
+    "workProgressBuild": "Kompilowanie PRG…",
+    "workProgressSuccessBuild": "Kompilacja udana.",
+    "workProgressBuildSummary": "{bytes} bajtów · {start}–{end}",
     "savePrg": "Zbuduj PRG",
 
     "buildProject": "Zbuduj projekt",
@@ -16232,6 +16250,9 @@ const translations = {
     "workProgressSuccessD64Ultimate": "D64 montato, disco in esecuzione sull'hardware.",
     "workProgressSuccessDebug": "Compilazione riuscita, debugger avviato.",
     "workProgressSuccessImport": "Importazione riuscita.",
+    "workProgressBuild": "Compilazione PRG…",
+    "workProgressSuccessBuild": "Compilazione riuscita.",
+    "workProgressBuildSummary": "{bytes} byte · {start}–{end}",
     "savePrg": "Crea PRG",
 
     "buildProject": "Crea progetto",

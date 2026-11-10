@@ -859,6 +859,8 @@ html[data-theme="starlight"] .main-tb-debug:hover {
   box-shadow: 0 6px 20px rgba(0,0,0,0.4);
   z-index: 200;
   min-width: 180px;
+  /* as wide as the longest item: the labels never wrap */
+  width: max-content;
   padding: 4px;
   display: flex;
   flex-direction: column;
@@ -885,6 +887,7 @@ html[data-theme="starlight"] .main-tb-debug:hover {
   font-size: 0.875rem;
   cursor: pointer;
   text-align: left;
+  white-space: nowrap;
   width: 100%;
   transition: background 0.12s;
 }

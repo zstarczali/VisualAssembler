@@ -1,5 +1,7 @@
 # macOS Installation Guide
-Version 2.7.8
+Version 2.7.9
+
+2.7.9: R65, a KickAssembler-compatible assembler, built in: choose it in Settings next to VMA and ACME (projects too, its version in About); Build shows a small window with the size and address range; Kick import fixes (statements over several lines, .errorif, labels in .pseudopc, < / > of numbers) and a single file using script features opens as a Kick project; separators around the UB file buttons.
 
 2.7.8: faster building, running and live views; one compiler: the Rust VMA compiler (VMA 2.3.0) builds every program and feeds every live view, the JavaScript compiler and the VMA compiler setting are removed; local labels such as JMP Second.lp or LDA .lp+1,X compile as absolute operands.
 
@@ -131,7 +133,7 @@ Both `sfx sys` (Run/Build with Exomizer toggle) and `mem` mode (per-file EXO in 
 
 ---
 
-**Version:** 2.7.8 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 2.7.9 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
 
 ## Building from source: macOS app icon
 

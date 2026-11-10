@@ -77,54 +77,54 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "rust-vma-278",
+  id: "r65-279",
   url: "https://www.c64va.pro/docs.html",
   hu: {
-    eyebrow: "Újdonság a 2.7.8-ban",
+    eyebrow: "Újdonság a 2.7.9-ben",
     title: "Üdvözöl a Visual Assembler",
-    body: `<ul><li><strong>Gyorsabb lett</strong>: a fordítás, a futtatás és gépelés közben az élő nézetek (disassembly, monitor, memóriatérkép, ciklus-gutter, ASM nézet) is gyorsabbak, mert mindent a natív Rust VMA fordító (VMA 2.3.0) fordít, egyszer.</li><li><strong>Egyetlen fordító</strong>: a JavaScript fordító és a <em>VMA fordító</em> beállítás kikerült; ugyanazok a bájtok, ugyanazok a hibaüzenetek.</li><li><strong>Lokális címkék</strong>: a <code>JMP Second.lp</code> és az <code>LDA .lp+1,X</code> is lefordul.</li></ul>`,
+    body: `<ul><li><strong>R65 assembler</strong>: beépült az R65, egy KickAssembler-kompatibilis assembler. A <em>Beállítások → Általános → Assembler mód</em> alatt (vagy a Projekt beállításokban) a VMA és az ACME mellett választható; a fordítás, a futtatás, a panelek és a debugger is ezt használják.</li><li><strong>Build összesítő</strong>: az Expert és az UltimateBasic Build gombja kis ablakban mutatja a fordítást, a végén a PRG méretével és címtartományával.</li><li><strong>Kick import</strong>: több soros utasítások, <code>.errorif</code>, <code>.pseudopc</code> címkék és szám-literálok <code>&lt;</code> / <code>&gt;</code> része helyesen importálódik.</li><li><strong>Gyorsabb lett</strong>: a fordítás, a futtatás és gépelés közben az élő nézetek (disassembly, monitor, memóriatérkép, ciklus-gutter, ASM nézet) is gyorsabbak, mert mindent a natív Rust VMA fordító (VMA 2.3.0) fordít, egyszer.</li><li><strong>Egyetlen fordító</strong>: a JavaScript fordító és a <em>VMA fordító</em> beállítás kikerült; ugyanazok a bájtok, ugyanazok a hibaüzenetek.</li></ul>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
-    eyebrow: "New in 2.7.8",
+    eyebrow: "New in 2.7.9",
     title: "Welcome to Visual Assembler",
-    body: `<ul><li><strong>Faster</strong>: building, running and the live views while you type (disassembly, monitor, memory map, cycle gutter, ASM view) are quicker, because the native Rust VMA compiler (VMA 2.3.0) builds everything, once.</li><li><strong>One compiler</strong>: the JavaScript compiler and the <em>VMA compiler</em> setting are gone; the same bytes, the same error messages.</li><li><strong>Local labels</strong>: <code>JMP Second.lp</code> and <code>LDA .lp+1,X</code> compile.</li></ul>`,
+    body: `<ul><li><strong>R65 assembler</strong>: R65, a KickAssembler-compatible assembler, is built in. Choose it in <em>Settings → General → Assembler mode</em> (or in Project settings) next to VMA and ACME; building, running, the panels and the debugger all use it.</li><li><strong>Build summary</strong>: the Build button of Expert and UltimateBasic mode shows the build in a small window, ending with the size and address range of the PRG.</li><li><strong>Kick import</strong>: statements over several lines, <code>.errorif</code>, labels in <code>.pseudopc</code> and <code>&lt;</code> / <code>&gt;</code> of numbers import correctly.</li><li><strong>Faster</strong>: building, running and the live views while you type (disassembly, monitor, memory map, cycle gutter, ASM view) are quicker, because the native Rust VMA compiler (VMA 2.3.0) builds everything, once.</li><li><strong>One compiler</strong>: the JavaScript compiler and the <em>VMA compiler</em> setting are gone; the same bytes, the same error messages.</li></ul>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
-    eyebrow: "Novedad en la 2.7.8",
+    eyebrow: "Novedad en la 2.7.9",
     title: "Bienvenido a Visual Assembler",
-    body: `<ul><li><strong>Más rápido</strong>: compilar, ejecutar y las vistas en vivo mientras escribes (desensamblado, monitor, mapa de memoria, ciclos, vista ASM) son más rápidos, porque el compilador nativo Rust VMA (VMA 2.3.0) lo compila todo, una sola vez.</li><li><strong>Un solo compilador</strong>: el compilador JavaScript y el ajuste <em>Compilador VMA</em> desaparecen; los mismos bytes y los mismos mensajes de error.</li><li><strong>Etiquetas locales</strong>: <code>JMP Second.lp</code> y <code>LDA .lp+1,X</code> compilan.</li></ul>`,
+    body: `<ul><li><strong>Ensamblador R65</strong>: R65, un ensamblador compatible con KickAssembler, viene integrado. Elígelo en <em>Ajustes → General → Modo de ensamblador</em> (o en los ajustes del proyecto) junto a VMA y ACME; la compilación, la ejecución, los paneles y el depurador lo usan.</li><li><strong>Resumen de compilación</strong>: el botón Compilar de los modos Experto y UltimateBasic muestra la compilación en una ventana pequeña, con el tamaño y el rango de direcciones del PRG al final.</li><li><strong>Importación Kick</strong>: las instrucciones en varias líneas, <code>.errorif</code>, las etiquetas en <code>.pseudopc</code> y <code>&lt;</code> / <code>&gt;</code> de números se importan correctamente.</li><li><strong>Más rápido</strong>: compilar, ejecutar y las vistas en vivo mientras escribes (desensamblado, monitor, mapa de memoria, ciclos, vista ASM) son más rápidos, porque el compilador nativo Rust VMA (VMA 2.3.0) lo compila todo, una sola vez.</li><li><strong>Un solo compilador</strong>: el compilador JavaScript y el ajuste <em>Compilador VMA</em> desaparecen; los mismos bytes y los mismos mensajes de error.</li></ul>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
-    eyebrow: "Neu in 2.7.8",
+    eyebrow: "Neu in 2.7.9",
     title: "Willkommen bei Visual Assembler",
-    body: `<ul><li><strong>Schneller</strong>: Übersetzen, Starten und die Live-Ansichten beim Tippen (Disassembly, Monitor, Speicherkarte, Zyklen, ASM-Ansicht) sind schneller, weil der native Rust-VMA-Compiler (VMA 2.3.0) alles übersetzt, einmal.</li><li><strong>Ein Compiler</strong>: der JavaScript-Compiler und die Einstellung <em>VMA-Compiler</em> entfallen; dieselben Bytes, dieselben Fehlermeldungen.</li><li><strong>Lokale Labels</strong>: <code>JMP Second.lp</code> und <code>LDA .lp+1,X</code> werden übersetzt.</li></ul>`,
+    body: `<ul><li><strong>R65-Assembler</strong>: R65, ein KickAssembler-kompatibler Assembler, ist eingebaut. Wähle ihn unter <em>Einstellungen → Allgemein → Assembler-Modus</em> (oder in den Projekteinstellungen) neben VMA und ACME; Übersetzen, Starten, die Panels und der Debugger verwenden ihn.</li><li><strong>Build-Übersicht</strong>: der Build-Knopf im Experten- und UltimateBasic-Modus zeigt den Build in einem kleinen Fenster, am Ende mit Größe und Adressbereich des PRG.</li><li><strong>Kick-Import</strong>: Anweisungen über mehrere Zeilen, <code>.errorif</code>, Labels in <code>.pseudopc</code> und <code>&lt;</code> / <code>&gt;</code> von Zahlen werden richtig importiert.</li><li><strong>Schneller</strong>: Übersetzen, Starten und die Live-Ansichten beim Tippen (Disassembly, Monitor, Speicherkarte, Zyklen, ASM-Ansicht) sind schneller, weil der native Rust-VMA-Compiler (VMA 2.3.0) alles übersetzt, einmal.</li><li><strong>Ein Compiler</strong>: der JavaScript-Compiler und die Einstellung <em>VMA-Compiler</em> entfallen; dieselben Bytes, dieselben Fehlermeldungen.</li></ul>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
-    eyebrow: "Nieuw in 2.7.8",
+    eyebrow: "Nieuw in 2.7.9",
     title: "Welkom bij Visual Assembler",
-    body: `<ul><li><strong>Sneller</strong>: compileren, starten en de live weergaven tijdens het typen (disassembly, monitor, geheugenkaart, cycli, ASM-weergave) zijn sneller, omdat de native Rust VMA-compiler (VMA 2.3.0) alles compileert, één keer.</li><li><strong>Eén compiler</strong>: de JavaScript-compiler en de instelling <em>VMA-compiler</em> zijn weg; dezelfde bytes, dezelfde foutmeldingen.</li><li><strong>Lokale labels</strong>: <code>JMP Second.lp</code> en <code>LDA .lp+1,X</code> compileren.</li></ul>`,
+    body: `<ul><li><strong>R65-assembler</strong>: R65, een KickAssembler-compatibele assembler, is ingebouwd. Kies hem bij <em>Instellingen → Algemeen → Assemblermodus</em> (of in de projectinstellingen) naast VMA en ACME; compileren, starten, de panelen en de debugger gebruiken hem.</li><li><strong>Build-overzicht</strong>: de Build-knop van de Expert- en UltimateBasic-modus toont de build in een klein venster, met aan het eind de grootte en het adresbereik van de PRG.</li><li><strong>Kick-import</strong>: opdrachten over meerdere regels, <code>.errorif</code>, labels in <code>.pseudopc</code> en <code>&lt;</code> / <code>&gt;</code> van getallen worden goed geïmporteerd.</li><li><strong>Sneller</strong>: compileren, starten en de live weergaven tijdens het typen (disassembly, monitor, geheugenkaart, cycli, ASM-weergave) zijn sneller, omdat de native Rust VMA-compiler (VMA 2.3.0) alles compileert, één keer.</li><li><strong>Eén compiler</strong>: de JavaScript-compiler en de instelling <em>VMA-compiler</em> zijn weg; dezelfde bytes, dezelfde foutmeldingen.</li></ul>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
-    eyebrow: "Nowość w 2.7.8",
+    eyebrow: "Nowość w 2.7.9",
     title: "Witamy w Visual Assembler",
-    body: `<ul><li><strong>Szybciej</strong>: kompilacja, uruchamianie i widoki na żywo podczas pisania (disassembly, monitor, mapa pamięci, cykle, widok ASM) działają szybciej, bo wszystko kompiluje natywny kompilator Rust VMA (VMA 2.3.0), jeden raz.</li><li><strong>Jeden kompilator</strong>: kompilator JavaScript i ustawienie <em>Kompilator VMA</em> zniknęły; te same bajty, te same komunikaty błędów.</li><li><strong>Etykiety lokalne</strong>: <code>JMP Second.lp</code> i <code>LDA .lp+1,X</code> się kompilują.</li></ul>`,
+    body: `<ul><li><strong>Asembler R65</strong>: wbudowany R65, asembler zgodny z KickAssemblerem. Wybierzesz go w <em>Ustawienia → Ogólne → Tryb asemblera</em> (lub w ustawieniach projektu) obok VMA i ACME; kompilacja, uruchamianie, panele i debugger z niego korzystają.</li><li><strong>Podsumowanie kompilacji</strong>: przycisk Build w trybie Ekspert i UltimateBasic pokazuje kompilację w małym oknie, na końcu z rozmiarem i zakresem adresów PRG.</li><li><strong>Import Kick</strong>: instrukcje w kilku wierszach, <code>.errorif</code>, etykiety w <code>.pseudopc</code> oraz <code>&lt;</code> / <code>&gt;</code> liczb importują się poprawnie.</li><li><strong>Szybciej</strong>: kompilacja, uruchamianie i widoki na żywo podczas pisania (disassembly, monitor, mapa pamięci, cykle, widok ASM) działają szybciej, bo wszystko kompiluje natywny kompilator Rust VMA (VMA 2.3.0), jeden raz.</li><li><strong>Jeden kompilator</strong>: kompilator JavaScript i ustawienie <em>Kompilator VMA</em> zniknęły; te same bajty, te same komunikaty błędów.</li></ul>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
-    eyebrow: "Novità nella 2.7.8",
+    eyebrow: "Novità nella 2.7.9",
     title: "Benvenuto in Visual Assembler",
-    body: `<ul><li><strong>Più veloce</strong>: compilazione, avvio e le viste dal vivo mentre scrivi (disassembly, monitor, mappa di memoria, cicli, vista ASM) sono più rapidi, perché il compilatore nativo Rust VMA (VMA 2.3.0) compila tutto, una volta sola.</li><li><strong>Un solo compilatore</strong>: il compilatore JavaScript e l'impostazione <em>Compilatore VMA</em> sono stati rimossi; stessi byte, stessi messaggi di errore.</li><li><strong>Etichette locali</strong>: <code>JMP Second.lp</code> e <code>LDA .lp+1,X</code> si compilano.</li></ul>`,
+    body: `<ul><li><strong>Assembler R65</strong>: R65, un assembler compatibile con KickAssembler, è integrato. Sceglilo in <em>Impostazioni → Generale → Modalità assembler</em> (o nelle impostazioni del progetto) accanto a VMA e ACME; compilazione, avvio, pannelli e debugger lo usano.</li><li><strong>Riepilogo della compilazione</strong>: il pulsante Build delle modalità Esperto e UltimateBasic mostra la compilazione in una piccola finestra, con dimensione e intervallo di indirizzi del PRG alla fine.</li><li><strong>Importazione Kick</strong>: istruzioni su più righe, <code>.errorif</code>, etichette in <code>.pseudopc</code> e <code>&lt;</code> / <code>&gt;</code> dei numeri si importano correttamente.</li><li><strong>Più veloce</strong>: compilazione, avvio e le viste dal vivo mentre scrivi (disassembly, monitor, mappa di memoria, cicli, vista ASM) sono più rapidi, perché il compilatore nativo Rust VMA (VMA 2.3.0) compila tutto, una volta sola.</li><li><strong>Un solo compilatore</strong>: il compilatore JavaScript e l'impostazione <em>Compilatore VMA</em> sono stati rimossi; stessi byte, stessi messaggi di errore.</li></ul>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
@@ -1842,8 +1842,8 @@ function initPalette() {
   expertSaveAsmAsBtn?.addEventListener("click", () => _expertSaveAsm(true));
   expertBuildInfoBtn?.addEventListener("click", showBuildInfoDialog);
   document.getElementById("expert-acme-build-btn")?.addEventListener("click", () => {
-    if (_textOnlyAssembler()) _acmeBuildPreview();
-    else _vaBuildExpert();
+    if (_textOnlyAssembler()) _acmeBuildPreview({ progress: true });
+    else _vaBuildExpert({ progress: true });
   });
   buildInfoBtn?.addEventListener("click", showBuildInfoDialog);
 
@@ -7239,6 +7239,12 @@ function _isNoCodeBlock(b) {
   return b.isOrgMacro || b.isRegionMacro || b.isEndRegionMacro || b.isComment || b.isDefineMacro || b.isBlankLine;
 }
 function isProgramEmpty() {
+  // ACME / R65: the source is theirs, not VA blocks (BasicUpstart2, no "* ="); the assembler
+  // reports what is wrong with it, here only an empty source (comments only) counts.
+  if (expertMode && _textOnlyAssembler()) {
+    const text = _expertGetStartupSource()?.text ?? _expertGetSourceText();
+    return !String(text).split("\n").some(line => line.replace(/\/\/.*$|;.*$/, "").trim());
+  }
   if (expertMode) {
     const blocks = _expertGetStartupProgram() || _expertBuildProgram();
     return !blocks.some(b => b.isOrgMacro) || blocks.every(_isNoCodeBlock);
@@ -10104,7 +10110,7 @@ async function _ubCompile(showProgress = false, options = {}) {
   const packedInfo = result.outputPrg ? `\nExomizer: ${result.prg.length} → ${result.outputPrg.length} bytes\n${result.exomizerFilePath}` : "";
   _ubSetBuildOutput(_ubFormatMap(result.map) + packedInfo);
   _ubSetStatus(`${t("ubBuildSuccessful")} — ${(result.outputPrg || result.prg).length} PRG bytes${result.outputPrg ? " (Exomizer)" : ""}`);
-  if (showProgress) await completeWorkProgress("ubBuildProgressDone", 650);
+  if (showProgress) await completeWorkProgress("ubBuildProgressDone", 2200, _workBuildSummary(result.outputPrg || result.prg));
   return result;
 }
 
@@ -22536,6 +22542,15 @@ async function showWorkProgress(messageKey, opts = {}) {
 
 // The step line under the bar: what the running build / run does right now (a no-op while the
 // dialog is closed, so the build paths can call it from any caller).
+// The summary line of a built PRG: its size and the address range it loads to.
+function _workBuildSummary(prg) {
+  const bytes = prg?.length || 0;
+  if (bytes < 3) return "";
+  const hex = (a) => "$" + (a & 0xFFFF).toString(16).toUpperCase().padStart(4, "0");
+  const load = prg[0] | (prg[1] << 8);
+  return tf("workProgressBuildSummary", { bytes: bytes - 2, start: hex(load), end: hex(load + bytes - 3) });
+}
+
 function setWorkStep(key, values = {}) {
   const el = document.getElementById("work-progress-step");
   if (!el || !workProgressDialog?.open) return;
@@ -22578,7 +22593,8 @@ function hideWorkProgress() {
   }
 }
 
-async function completeWorkProgress(successMessageKey, delayMs = 1200) {
+// summary: a line under the bar after the build (the Build buttons: size and address range)
+async function completeWorkProgress(successMessageKey, delayMs = 1200, summary = "") {
   if (!workProgressDialog) return;
   if (workProgressTimer) {
     clearInterval(workProgressTimer);
@@ -22587,6 +22603,8 @@ async function completeWorkProgress(successMessageKey, delayMs = 1200) {
   if (workProgressTitle) workProgressTitle.textContent = t("workProgressDoneTitle");
   if (workProgressSubtitle) workProgressSubtitle.textContent = t(successMessageKey);
   setWorkStep("");
+  const stepLine = document.getElementById("work-progress-step");
+  if (stepLine && summary) stepLine.textContent = summary;
   if (workProgressBar) {
     workProgressBar.classList.remove("work-progress-bar--indeterminate");
     workProgressBar.style.width = "100%";
@@ -24900,7 +24918,9 @@ function _acmeBuildButtonSync(blocks = program) {
 
 // VA (VMA) build of the Expert source, the same PRG Run makes: the size in the
 // status line, errors in the compiler-error dialog.
-async function _vaBuildExpert() {
+async function _vaBuildExpert(options) {
+  const progress = !!options?.progress;
+  if (progress) await showWorkProgress("workProgressBuild");
   let result;
   try {
     result = await _kickOrVaPrg();
@@ -24908,6 +24928,7 @@ async function _vaBuildExpert() {
     result = { ok: false, error: String(error) };
   }
   if (!result?.ok) {
+    if (progress) hideWorkProgress();
     const error = result?.error || t("vaBuild");
     _expertSetStatus(error, "error");
     showCompileErrorDialog(result?.errors?.length ? result.errors : [{ text: error }]);
@@ -24917,6 +24938,7 @@ async function _vaBuildExpert() {
   _expertSetStatus(tf("vaBuildSuccess", { bytes }), "ok");
   if (_expertDisasmVisible) _expertRenderDisasm();
   if (_expertMonitorVisible) _expertRenderMonitor();
+  if (progress) await completeWorkProgress("workProgressSuccessBuild", 2200, _workBuildSummary(result.bytes));
 }
 
 function _acmePreviewCurrent() {
@@ -24949,6 +24971,7 @@ function _acmePrgMemory(bytes) {
 
 async function _acmeBuildPreview(options) {
   const quiet = !!options?.quiet;
+  const progress = !!options?.progress && !quiet;
   const button = document.getElementById("expert-acme-build-btn");
   if (_acmeBuildRunning) return;
   if (quiet && (_acmePreviewCurrent() || _acmePreviewErrorCurrent())) return;
@@ -24957,9 +24980,12 @@ async function _acmeBuildPreview(options) {
   _acmeBuildRunning = true;
   if (button) button.disabled = true;
   _expertSetStatus(t(_textKey("acmeBuild")) + "…", "ok");
+  let summary = null;   // the work window's summary line of a successful build
+  if (progress) await showWorkProgress("workProgressBuild");
   try {
     const result = await _textBuild(true, { preview: true });
     if (tabId !== activeTabId || sourceText !== _expertGetSourceText()) return;
+    if (progress && !result.ok) hideWorkProgress();
     if (!result.ok) {
       _acmePreview = null;
       _acmePreviewError = { tabId, sourceText, text: result.error || t(_textKey("acmeBuildFirst")) };
@@ -24970,12 +24996,14 @@ async function _acmeBuildPreview(options) {
       _acmePreviewError = null;
       _acmePreview = { ...result, tabId, sourceText };
       _expertSetStatus(tf(_textKey("acmeBuildSuccess"), { bytes: _acmePreviewByteCount(result) }), "ok");
+      if (progress) summary = _workBuildSummary(result.bytes);
     }
     _acmeUpdateAnalysis();
     if (_expertDisasmVisible) _expertRenderDisasm();
     if (_expertMonitorVisible) _expertRenderMonitor();
     _acmeRenderMemoryMap();
   } catch (error) {
+    if (progress) hideWorkProgress();
     if (tabId === activeTabId) {
       _acmePreview = null;
       _acmePreviewError = { tabId, sourceText, text: String(error) };
@@ -24989,6 +25017,10 @@ async function _acmeBuildPreview(options) {
     if (button) button.disabled = false;
     // The source may have changed while ACME was running.
     _acmeScheduleAutoBuild();
+  }
+  if (progress) {
+    if (summary !== null) await completeWorkProgress("workProgressSuccessBuild", 2200, summary);
+    else hideWorkProgress();
   }
 }
 
