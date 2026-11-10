@@ -9697,17 +9697,52 @@ function _ubCreateFileTab(path, content) {
   return tab;
 }
 
+function _projIsUb(project) {
+  return project?.app === "ultimate-basic";
+}
+
+// Egy beolvasott UB .proj: UB módba vált (ha kell), a projektpanel és az indítófájl (ennek híján az első .ub) fülként.
+// Az Expert / Blokk módból nyitott projektnél a _closeAllTabsWithConfirm üres fülét is elveszi.
+async function _ubApplyOpenedProject(project, projPath, { dropBlank = false } = {}) {
+  const blankId = dropBlank ? activeTabId : null;
+  if (!ultimateBasicMode) {
+    setUltimateBasicMode(true);
+    if (dropBlank) {
+      // setUltimateBasicMode() demókóddal tölti az üres szerkesztőt
+      if (ubEditor) ubEditor.value = "";
+      _ubFilePath = "";
+      _ubDirty = false;
+    }
+  }
+  _ubProjectData = { name: project.name || "UltimateBasic", files: (project.files || []).filter(file => !file.type || file.type === "file" || file.type === "folder"), startupFile: project.startupFile || null, _projPath: projPath };
+  _ubProjectDirty = false;
+  _ubRenderProjectFiles();
+  const firstUb = (nodes) => {
+    for (const node of nodes || []) {
+      if (node.type === "folder") { const hit = firstUb(node.children); if (hit) return hit; }
+      else if (/\.ub$/i.test(node.path || node.name || "")) return node;
+    }
+    return null;
+  };
+  const startup = _projFindEntry(_ubProjectData.files, _ubProjectData.startupFile) || (dropBlank ? firstUb(_ubProjectData.files) : null);
+  const opened = startup ? await _ubOpenProjectFile(startup) : null;
+  if (blankId && opened && opened.id !== blankId) {
+    const blankIdx = tabs.findIndex(tab => tab.id === blankId && !tab.filePath);
+    if (blankIdx >= 0) { tabs.splice(blankIdx, 1); renderTabBar(); }
+  }
+  if (dropBlank && !_ubProjectVisible) {
+    _ubProjectVisible = true;
+    _ubApplyLeftViews();
+  }
+  _ubRenderProjectFiles();
+  _ubSetStatus(`${t("ubProjectOpened")}: ${_ubProjectData.name}`);
+}
+
 async function _ubOpenProject() {
   const result = await window.electronAPI?.openProjFile?.(ubWorkingFolder);
   if (!result || result.canceled) return;
   if (!result.ok) { _ubSetStatus(result.error || "Project open failed", true); return; }
-  const project = result.project || {};
-  _ubProjectData = { name: project.name || "UltimateBasic", files: (project.files || []).filter(file => !file.type || file.type === "file" || file.type === "folder"), startupFile: project.startupFile || null, _projPath: result.filePath };
-  _ubProjectDirty = false;
-  _ubRenderProjectFiles();
-  const startup = _projFindEntry(_ubProjectData.files, _ubProjectData.startupFile);
-  if (startup) await _ubOpenProjectFile(startup);
-  _ubSetStatus(`${t("ubProjectOpened")}: ${_ubProjectData.name}`);
+  await _ubApplyOpenedProject(result.project || {}, result.filePath);
 }
 
 async function _ubNewProject() {
@@ -16011,6 +16046,7 @@ async function _openProjectFromMenu() {
   if (!res || res.canceled) return;
   if (!res.ok) { _expertSetStatus(t("projError") + ": " + res.error, "error"); return; }
   const proj = res.project || {};
+  if (_projIsUb(proj)) { await _ubApplyOpenedProject(proj, res.filePath, { dropBlank: true }); return; }
   function migrateNodes(nodes) {
     return (nodes || []).map(n => {
       if (n.type === "folder") return { type: "folder", name: n.name || n.path?.split("/").pop() || "", path: n.path, children: migrateNodes(n.children) };
@@ -16093,6 +16129,7 @@ async function _expertOpenProject() {
   if (!res || res.canceled) return;
   if (!res.ok) { _expertSetStatus(t("projError") + ": " + res.error, "error"); return; }
   const proj = res.project || {};
+  if (_projIsUb(proj)) { await _ubApplyOpenedProject(proj, res.filePath, { dropBlank: true }); return; }
   // Backward compat: old format had plain {name, path} objects without type field
   function migrateNodes(nodes) {
     return (nodes || []).map(n => {
