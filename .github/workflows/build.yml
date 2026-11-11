@@ -12,6 +12,8 @@ permissions:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  # cargo fetches git dependencies with the git CLI, so the credentials configured for R65 apply
+  CARGO_NET_GIT_FETCH_WITH_CLI: true
 
 concurrency:
   group: build-${{ github.ref }}
@@ -24,6 +26,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      # R65 is a private repository: cargo fetches it with git, which gets the token here.
+      - name: Give cargo access to the private R65 dependency
+        shell: bash
+        env:
+          R65_TOKEN: ${{ secrets.R65_TOKEN }}
+        run: |
+          if [ -z "$R65_TOKEN" ]; then
+            echo "::error::The R65_TOKEN secret is not set: cargo cannot fetch the private zstarczali/R65 dependency."
+            exit 1
+          fi
+          git config --global url."https://x-access-token:${R65_TOKEN}@github.com/zstarczali/R65".insteadOf "https://github.com/zstarczali/R65"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -89,6 +103,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      # R65 is a private repository: cargo fetches it with git, which gets the token here.
+      - name: Give cargo access to the private R65 dependency
+        shell: bash
+        env:
+          R65_TOKEN: ${{ secrets.R65_TOKEN }}
+        run: |
+          if [ -z "$R65_TOKEN" ]; then
+            echo "::error::The R65_TOKEN secret is not set: cargo cannot fetch the private zstarczali/R65 dependency."
+            exit 1
+          fi
+          git config --global url."https://x-access-token:${R65_TOKEN}@github.com/zstarczali/R65".insteadOf "https://github.com/zstarczali/R65"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
