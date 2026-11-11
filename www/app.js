@@ -9548,7 +9548,7 @@ function _ubRenderProjectFiles() {
         _ubRenderProjectFiles();
       });
       item.addEventListener("contextmenu", e => {
-        _projShowItemMenu(e, { container, entry: file, onMoved: moved, onAddFile: () => _ubAddFile(file.children || (file.children = [])) });
+        _projShowItemMenu(e, { container, entry: file, onMoved: moved, onAddFile: () => _ubAddFile(file.children || (file.children = [])), absPath: file.path ? _ubResolveProjectPath(file.path) : "" });
       });
       list.appendChild(item);
       if (!collapsed) (file.children || []).forEach(child => renderNode(child, file.children, depth + 1));
@@ -9588,7 +9588,11 @@ function _ubRenderProjectFiles() {
       if (tab) _tabActivate(tab.id);
       else if (isUb) _ubOpenProjectFile(file);
     });
-    item.addEventListener("contextmenu", e => _projShowItemMenu(e, { container, entry: file, onMoved: moved }));
+    item.addEventListener("dblclick", event => {
+      if (startup.contains(event.target) || remove.contains(event.target) || tab) return;
+      if (_projOpensInSystem(file.name || file.path, true)) _projOpenInSystem(absPath);
+    });
+    item.addEventListener("contextmenu", e => _projShowItemMenu(e, { container, entry: file, onMoved: moved, absPath }));
     list.appendChild(item);
   };
 
@@ -9693,17 +9697,52 @@ function _ubCreateFileTab(path, content) {
   return tab;
 }
 
+function _projIsUb(project) {
+  return project?.app === "ultimate-basic";
+}
+
+// Egy beolvasott UB .proj: UB módba vált (ha kell), a projektpanel és az indítófájl (ennek híján az első .ub) fülként.
+// Az Expert / Blokk módból nyitott projektnél a _closeAllTabsWithConfirm üres fülét is elveszi.
+async function _ubApplyOpenedProject(project, projPath, { dropBlank = false } = {}) {
+  const blankId = dropBlank ? activeTabId : null;
+  if (!ultimateBasicMode) {
+    setUltimateBasicMode(true);
+    if (dropBlank) {
+      // setUltimateBasicMode() demókóddal tölti az üres szerkesztőt
+      if (ubEditor) ubEditor.value = "";
+      _ubFilePath = "";
+      _ubDirty = false;
+    }
+  }
+  _ubProjectData = { name: project.name || "UltimateBasic", files: (project.files || []).filter(file => !file.type || file.type === "file" || file.type === "folder"), startupFile: project.startupFile || null, _projPath: projPath };
+  _ubProjectDirty = false;
+  _ubRenderProjectFiles();
+  const firstUb = (nodes) => {
+    for (const node of nodes || []) {
+      if (node.type === "folder") { const hit = firstUb(node.children); if (hit) return hit; }
+      else if (/\.ub$/i.test(node.path || node.name || "")) return node;
+    }
+    return null;
+  };
+  const startup = _projFindEntry(_ubProjectData.files, _ubProjectData.startupFile) || (dropBlank ? firstUb(_ubProjectData.files) : null);
+  const opened = startup ? await _ubOpenProjectFile(startup) : null;
+  if (blankId && opened && opened.id !== blankId) {
+    const blankIdx = tabs.findIndex(tab => tab.id === blankId && !tab.filePath);
+    if (blankIdx >= 0) { tabs.splice(blankIdx, 1); renderTabBar(); }
+  }
+  if (dropBlank && !_ubProjectVisible) {
+    _ubProjectVisible = true;
+    _ubApplyLeftViews();
+  }
+  _ubRenderProjectFiles();
+  _ubSetStatus(`${t("ubProjectOpened")}: ${_ubProjectData.name}`);
+}
+
 async function _ubOpenProject() {
   const result = await window.electronAPI?.openProjFile?.(ubWorkingFolder);
   if (!result || result.canceled) return;
   if (!result.ok) { _ubSetStatus(result.error || "Project open failed", true); return; }
-  const project = result.project || {};
-  _ubProjectData = { name: project.name || "UltimateBasic", files: (project.files || []).filter(file => !file.type || file.type === "file" || file.type === "folder"), startupFile: project.startupFile || null, _projPath: result.filePath };
-  _ubProjectDirty = false;
-  _ubRenderProjectFiles();
-  const startup = _projFindEntry(_ubProjectData.files, _ubProjectData.startupFile);
-  if (startup) await _ubOpenProjectFile(startup);
-  _ubSetStatus(`${t("ubProjectOpened")}: ${_ubProjectData.name}`);
+  await _ubApplyOpenedProject(result.project || {}, result.filePath);
 }
 
 async function _ubNewProject() {
@@ -15684,7 +15723,7 @@ function _expertRenderProjectTree() {
         _expertRenderProjectTree();
       });
       item.addEventListener("contextmenu", e => {
-        _projShowItemMenu(e, { container, entry: file, onMoved: moved, onAddFile: () => _expertAddFileIntoFolder(file) });
+        _projShowItemMenu(e, { container, entry: file, onMoved: moved, onAddFile: () => _expertAddFileIntoFolder(file), absPath: file.path ? _projResolveAbsPath(file.path) : "" });
       });
       treeEl.appendChild(item);
       if (!collapsed) (file.children || []).forEach(child => renderNode(child, file.children, depth + 1));
@@ -15707,11 +15746,21 @@ function _expertRenderProjectTree() {
 
     item.appendChild(starBtn);
     item.appendChild(delBtn);
+    const systemFile = _projOpensInSystem(file.name || file.path);
     item.addEventListener("click", e => {
       if (e.target === delBtn || delBtn.contains(e.target) || e.target === starBtn || starBtn.contains(e.target)) return;
+      // a picture, PDF, PRG …: a double click opens it with the system's program
+      if (systemFile && !tabs.some(tb => _normFilePath(tb.filePath) === _normFilePath(_projResolveAbsPath(file.path)))) {
+        _expertSetStatus(tf("projDblClickToOpen", { name: file.name || file.path }), "ok");
+        return;
+      }
       _expertProjectOpenFile(file);
     });
-    item.addEventListener("contextmenu", e => _projShowItemMenu(e, { container, entry: file, onMoved: moved }));
+    item.addEventListener("dblclick", e => {
+      if (e.target === delBtn || delBtn.contains(e.target) || e.target === starBtn || starBtn.contains(e.target)) return;
+      if (systemFile) _projOpenInSystem(_projResolveAbsPath(file.path));
+    });
+    item.addEventListener("contextmenu", e => _projShowItemMenu(e, { container, entry: file, onMoved: moved, absPath: _projResolveAbsPath(file.path) }));
     treeEl.appendChild(item);
   };
 
@@ -15759,7 +15808,37 @@ function _projMoveEntry(container, entry, delta) {
 // Right-click menu of a project-panel row: "Add file" for a folder (a file reference nested under
 // it), and Move up / Move down within its folder (`container`, the order the .proj keeps; `onMoved`
 // marks the project dirty and redraws). Reuses the tab-bar context menu's CSS.
-function _projShowItemMenu(e, { container, entry, onMoved, onAddFile = null }) {
+// A project file VA does not open itself (a picture, a PDF, a PRG …) goes to the program the system
+// set for its type. ub: the UltimateBasic tree (only .ub opens in VA).
+function _projOpensInSystem(name, ub = false) {
+  const n = String(name || "");
+  return ub ? !/\.ub$/i.test(n) : !/\.(asm|s|a65|inc|json|c64va|proj)$/i.test(n);
+}
+
+async function _projOpenInSystem(absPath) {
+  try {
+    await window.electronAPI?.openPathDefault?.(absPath);
+  } catch (error) {
+    showViceToast(tf("projOpenFailed", { error: String(error?.message || error) }), true);
+  }
+}
+
+async function _projRevealInFileManager(absPath) {
+  try {
+    await window.electronAPI?.revealInFileManager?.(absPath);
+  } catch (error) {
+    showViceToast(tf("projOpenFailed", { error: String(error?.message || error) }), true);
+  }
+}
+
+// "Show in Explorer" / "Show in Finder" / "Show in file manager"
+function _projRevealLabel() {
+  const platform = `${navigator.platform || ""} ${navigator.userAgent || ""}`;
+  return t(/Win/i.test(platform) ? "projRevealExplorer" : /Mac/i.test(platform) ? "projRevealFinder" : "projRevealFileManager");
+}
+
+// absPath: the file / folder on disk (Open with the system's program, Show in the file manager)
+function _projShowItemMenu(e, { container, entry, onMoved, onAddFile = null, absPath = "" }) {
   e.preventDefault();
   e.stopPropagation();
   let menu = document.getElementById("proj-folder-ctx-menu");
@@ -15772,7 +15851,10 @@ function _projShowItemMenu(e, { container, entry, onMoved, onAddFile = null }) {
   const index = container.indexOf(entry);
   const move = (delta) => { if (_projMoveEntry(container, entry, delta)) onMoved(); };
   const icon = (d) => `<svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="${d}" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  const isFile = entry?.type !== "folder";
   const items = [
+    ...(absPath && isFile ? [{ label: t("projOpenSystem"), icon: icon("M9 3h4v4M13 3 7 9M11 9v4H3V5h4"), run: () => _projOpenInSystem(absPath) }] : []),
+    ...(absPath ? [{ label: _projRevealLabel(), icon: icon("M2 4h4l1.5 2H14v7H2V4Z"), run: () => _projRevealInFileManager(absPath) }] : []),
     ...(onAddFile ? [{ label: t("projAddFileToFolder"), icon: icon("M8 3v10M3 8h10"), run: onAddFile }] : []),
     { label: t("projMoveTop"), icon: icon("M3 3h10M8 14V6M4 10l4-4 4 4"), disabled: index <= 0, run: () => move(-index) },
     { label: t("projMoveUp"), icon: icon("M8 13V3M4 7l4-4 4 4"), disabled: index <= 0, run: () => move(-1) },
@@ -15964,6 +16046,7 @@ async function _openProjectFromMenu() {
   if (!res || res.canceled) return;
   if (!res.ok) { _expertSetStatus(t("projError") + ": " + res.error, "error"); return; }
   const proj = res.project || {};
+  if (_projIsUb(proj)) { await _ubApplyOpenedProject(proj, res.filePath, { dropBlank: true }); return; }
   function migrateNodes(nodes) {
     return (nodes || []).map(n => {
       if (n.type === "folder") return { type: "folder", name: n.name || n.path?.split("/").pop() || "", path: n.path, children: migrateNodes(n.children) };
@@ -16046,6 +16129,7 @@ async function _expertOpenProject() {
   if (!res || res.canceled) return;
   if (!res.ok) { _expertSetStatus(t("projError") + ": " + res.error, "error"); return; }
   const proj = res.project || {};
+  if (_projIsUb(proj)) { await _ubApplyOpenedProject(proj, res.filePath, { dropBlank: true }); return; }
   // Backward compat: old format had plain {name, path} objects without type field
   function migrateNodes(nodes) {
     return (nodes || []).map(n => {

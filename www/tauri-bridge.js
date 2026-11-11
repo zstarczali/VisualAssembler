@@ -29,6 +29,8 @@
     onSidDumpProgress: (cb) => window.__TAURI__.event.listen("sid-dump-progress", e => cb(e.payload)),
     setWindowTitle: (title) => invoke("set_title", { title }),
     openExternal: (url) => invoke("open_external", { url }),
+    openPathDefault: (path) => invoke("open_path_default", { path }),
+    revealInFileManager: (path) => invoke("reveal_in_file_manager", { path }),
     quitApp: () => invoke("quit_app"),
     bugReport: (payload) => invoke("bug_report", { payload }),
     appLaunchPing: (lang) => invoke("app_launch_ping", { lang }),

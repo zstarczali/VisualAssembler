@@ -976,6 +976,24 @@ async fn open_external(url: String, app: AppHandle) -> Result<(), String> {
         .map_err(|e| e.to_string())
 }
 
+/// A project file with the program the system set for its type (double click in the project tree).
+#[tauri::command]
+async fn open_path_default(path: String, app: AppHandle) -> Result<(), String> {
+    if !Path::new(&path).exists() {
+        return Err(format!("not found: {path}"));
+    }
+    app.opener().open_path(path, None::<String>).map_err(|e| e.to_string())
+}
+
+/// The file manager with the item selected (Explorer, Finder, the Linux file manager).
+#[tauri::command]
+async fn reveal_in_file_manager(path: String, app: AppHandle) -> Result<(), String> {
+    if !Path::new(&path).exists() {
+        return Err(format!("not found: {path}"));
+    }
+    app.opener().reveal_item_in_dir(path).map_err(|e| e.to_string())
+}
+
 const BUG_REPORT_URL: &str = "https://www.c64va.pro/register/bug.php";
 
 /// Bug report with screenshots (base64) to va-product-site/register/bug.php; shown on register/bugs.php.
@@ -6137,6 +6155,8 @@ pub fn run() {
             vma_analyze,
             r65_build,
             get_r65_version,
+            open_path_default,
+            reveal_in_file_manager,
             choose_proj_member,
             choose_proj_folder,
             load_sample,
