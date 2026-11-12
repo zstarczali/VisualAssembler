@@ -10996,6 +10996,23 @@ async function importAsmFile() {
       else if (emulatorStatus) emulatorStatus.textContent = t("vasmLoadError") + ": " + res.error;
       return;
     }
+    // R65 assembles the Kick source (script language, macros, #import): the import is VMA with the
+    // same bytes (_kickImportViaR65); without R65 (or when it fails) the plain conversion below
+    if (window.electronAPI?.r65Build && _vmaAvailable()) {
+      const conv = await _kickImportViaR65(res.filePath, res.content);
+      if (conv.ok) {
+        const name = await _importAsmFromPath(res.filePath, conv.text);
+        const msg = tf(conv.kind === "plain" ? "kickImportPlain" : !conv.same ? "kickImportFlatDiff" : conv.macros ? "kickImportMacros" : "kickImportFlat", { name, count: conv.macros });
+        if (expertMode) _expertSetStatus(msg, conv.same ? "ok" : "error");
+        else if (emulatorStatus) emulatorStatus.textContent = msg;
+        return;
+      }
+      if (conv.errors?.length) {
+        const msg = tf("kickImportR65Failed", { count: conv.errors.length });
+        if (expertMode) _expertSetStatus(msg, "error");
+        else if (emulatorStatus) emulatorStatus.textContent = msg;
+      }
+    }
     // the KickAssembler script language only runs in a Kick project (_kickPreprocess)
     if (_kickUsesScript(res.content) && await _showConfirm(t("kickImportUseProject"))) {
       await importKickProject(res.filePath);
@@ -11008,6 +11025,577 @@ async function importAsmFile() {
     if (expertMode) _expertSetStatus(t("vasmLoadError") + ": " + String(e), "error");
     else if (emulatorStatus) emulatorStatus.textContent = t("vasmLoadError") + ": " + String(e);
   }
+}
+
+// Kick import through R65. kind "plain": the source itself (the plain conversion of parseExpertText)
+// builds the same bytes in VMA, so it stays as it is (constants, expressions, macros); kind "flat":
+// the program R65 assembled, written as VMA (_kickR65ToVma). `same`: VMA builds R65's bytes.
+async function _kickImportViaR65(filePath, content) {
+  let r;
+  try {
+    r = await window.electronAPI.r65Build(content, filePath);
+  } catch (e) {
+    return { ok: false, errors: [{ message: String(e?.message || e) }] };
+  }
+  if (!r?.ok) return { ok: false, errors: r?.errors || [] };
+  if (!r.prg?.length) return { ok: false };
+  const dir = String(filePath || "").replace(/[\\/][^\\/]*$/, "");
+  // `same`, else where it differs: `addr` (the first other byte) or `line` (a VMA error, 1-based)
+  const check = async (text) => {
+    const vma = await _vmaAnalyze(_vmaTextInput(text, dir), false);
+    if (!vma.ok) return { same: false, line: vma.raw?.errors?.[0]?.line ?? null };
+    const bytes = Array.from(vma.bytes || []);
+    const n = Math.max(bytes.length, r.prg.length);
+    let i = 0;
+    while (i < n && bytes[i] === r.prg[i]) i++;
+    if (i === n) return { same: true };
+    return { same: false, addr: i >= 2 ? (r.prg[0] | (r.prg[1] << 8)) + i - 2 : null };
+  };
+  const builds = async (text) => (await check(text)).same;
+  try {
+    if (await builds(_vmaBlocksSource(parseExpertText(content)).text)) return { ok: true, kind: "plain", text: content, same: true };
+  } catch (_) {}
+  const name = String(filePath || "").replace(/\\/g, "/").split("/").pop();
+  const sources = {};
+  for (const file of r.files || []) {
+    if (!file) continue;
+    if (_normFilePath(file) === _normFilePath(filePath)) { sources[file] = content; continue; }
+    const res = await window.electronAPI.readTextFile?.(file).catch(() => null);
+    if (res?.ok) sources[file] = res.content || "";
+  }
+  // the Kick macros as VMA macros; a macro whose calls do not build the same bytes stays expanded
+  const flat = new Set();
+  for (let round = 0; round < 12; round++) {
+    const info = {};
+    const text = _kickR65ToVma(r, name, sources, { flat, info });
+    const res = await check(text);
+    if (res.same || !info.invocations.length) return { ok: true, kind: "flat", text, same: res.same, macros: info.macroCount };
+    let culprit = res.addr != null ? info.invocations.find(v => res.addr >= v.start && res.addr < v.end)?.name : null;
+    if (!culprit && res.line != null) culprit = info.names[_kickVmaMacroAtLine(text, res.line)];
+    if (culprit) flat.add(culprit);
+    else info.invocations.forEach(v => flat.add(v.name));
+  }
+  const text = _kickR65ToVma(r, name, sources, { macros: false });
+  return { ok: true, kind: "flat", text, same: await builds(text), macros: 0 };
+}
+
+// The Kick macro of a VMA line of _kickR65ToVma (1-based): its `.macro` … `.endm` or an `.invoke` of it.
+function _kickVmaMacroAtLine(text, line) {
+  const lines = String(text).split("\n");
+  for (const at of [line - 1, line]) {
+    const call = lines[at]?.match(/^\s*\.invoke\s+(\w+)\(/);
+    if (call) return call[1];
+  }
+  for (let i = Math.min(line - 1, lines.length - 1); i >= 0; i--) {
+    if (/^\.endm\b/.test(lines[i]) && i < line - 1) return null;
+    const def = lines[i].match(/^\.macro\s+(\w+)\(/);
+    if (def) return def[1];
+  }
+  return null;
+}
+
+const _KICK_LEGAL_MNEMONICS = new Set(("ADC AND ASL BCC BCS BEQ BIT BMI BNE BPL BRK BVC BVS CLC CLD CLI CLV CMP CPX CPY "
+  + "DEC DEX DEY EOR INC INX INY JMP JSR LDA LDX LDY LSR NOP ORA PHA PHP PLA PLP ROL ROR RTI RTS SBC SEC SED SEI "
+  + "STA STX STY TAX TAY TSX TXA TXS TYA").split(" "));
+
+// The Kick macros of the sources: `.macro name(p, …) {` … a `}` line; `start` / `end`: the lines of
+// the two braces (1-based), the body between them.
+function _kickMacroDefs(sources) {
+  const defs = [];
+  for (const [file, text] of Object.entries(sources || {})) {
+    const lines = String(text || "").split(/\r?\n/);
+    for (let i = 0; i < lines.length; i++) {
+      const m = lines[i].match(/^\s*\.macro\s+([A-Za-z_]\w*)\s*\(([^)]*)\)\s*\{\s*(?:\/\/.*)?$/);
+      if (!m) continue;
+      let depth = 1;
+      let j = i + 1;
+      for (; j < lines.length; j++) {
+        const code = lines[j].replace(/"(?:[^"\\]|\\.)*"/g, '""').replace(/\/\/.*$/, "");
+        for (const ch of code) depth += ch === "{" ? 1 : ch === "}" ? -1 : 0;
+        if (depth <= 0) break;
+      }
+      if (depth > 0 || !/^\s*\}\s*(?:\/\/.*)?$/.test(lines[j])) continue;
+      defs.push({ name: m[1], params: m[2].split(",").map(s => s.trim()).filter(Boolean), file, start: i + 1, end: j + 1, body: lines.slice(i + 1, j) });
+      i = j;
+    }
+  }
+  return defs;
+}
+
+// The `.pseudopc addr {` … `}` blocks of Kick sources: { file, start, end } (the brace lines, 1-based).
+function _kickPseudopcBlocks(sources) {
+  const blocks = [];
+  for (const [file, text] of Object.entries(sources || {})) {
+    const lines = String(text || "").split(/\r?\n/);
+    lines.forEach((l, i) => {
+      if (!/^\s*(?:[A-Za-z_]\w*\s*:\s*)?\.pseudopc\b[^{]*\{/.test(l)) return;
+      let depth = 0;
+      for (let j = i; j < lines.length; j++) {
+        const code = lines[j].replace(/"(?:[^"\\]|\\.)*"/g, '""').replace(/\/\/.*$/, "");
+        for (const ch of code) depth += ch === "{" ? 1 : ch === "}" ? -1 : 0;
+        if (depth <= 0) { blocks.push({ file, start: i + 1, end: j + 1 }); return; }
+      }
+    });
+  }
+  return blocks;
+}
+
+// The plain number constants of Kick sources (`.const` / `.label NAME = number`); a name defined
+// with two values (scopes) is left out.
+function _kickSimpleDefs(sources) {
+  const defs = new Map();
+  const bad = new Set();
+  for (const text of Object.values(sources || {})) {
+    for (const line of String(text || "").split(/\r?\n/)) {
+      const m = line.match(/^\s*\.(?:const|label)\s+([A-Za-z_]\w*)\s*=\s*(\$[0-9A-Fa-f]+|%[01]+|\d+)\s*(?:;|\/\/|$)/);
+      if (!m) continue;
+      const v = m[2][0] === "$" ? parseInt(m[2].slice(1), 16) : m[2][0] === "%" ? parseInt(m[2].slice(1), 2) : parseInt(m[2], 10);
+      if (!(v >= 0 && v <= 0xFFFF)) continue;
+      if (defs.has(m[1]) && defs.get(m[1]) !== v) bad.add(m[1]);
+      defs.set(m[1], v);
+    }
+  }
+  bad.forEach(n => defs.delete(n));
+  return defs;
+}
+
+// R65's build (r65_build: prg, Default blocks, placed labels, the source of each byte) as a VMA
+// source with the same bytes: `* =` per memory block, the labels, instructions with label operands,
+// .byte / .word data, the Kick line of each as a comment. Labels outside the blocks (a virtual zero
+// page block) are constants on top. The calls of the Kick macros a VMA macro can say are `.invoke`s
+// (opts.flat: the macros kept expanded; opts.info gets the calls: { invocations, macroCount }).
+function _kickR65ToVma(r, fileName = "", sources = {}, opts = {}) {
+  const prg = r.prg;
+  const lo = prg[0] | (prg[1] << 8);
+  const data = prg.slice(2);
+  const byteAt = (a) => data[a - lo] ?? 0;
+  const hex2 = (v) => "$" + (v & 0xFF).toString(16).toUpperCase().padStart(2, "0");
+  const hex4 = (v) => "$" + (v & 0xFFFF).toString(16).toUpperCase().padStart(4, "0");
+  const baseName = (p) => String(p || "").replace(/\\/g, "/").split("/").pop();
+
+  let regions = (r.blocks || [])
+    .filter(b => b.segment === "Default" && !b.virtual && b.len > 0)
+    .map(b => ({ start: b.start, end: b.start + b.len }))
+    .sort((x, y) => x.start - y.start);
+  if (!regions.length) regions = [{ start: lo, end: lo + data.length }];
+  regions = regions.reduce((out, g) => {
+    const last = out[out.length - 1];
+    if (last && g.start <= last.end) last.end = Math.max(last.end, g.end);
+    else out.push({ ...g });
+    return out;
+  }, []);
+  const inRegion = (a) => regions.some(g => a >= g.start && a < g.end);
+
+  // unique VMA names (a Kick scope or macro can repeat a label)
+  const reserved = new Set(["A", "X", "Y", ...Object.keys(opcodeMap)]);
+  const taken = new Set();
+  const nameOf = (raw) => {
+    let base = String(raw || "").replace(/[^A-Za-z0-9_]/g, "_") || "label";
+    if (/^\d/.test(base) || reserved.has(base.toUpperCase())) base = "_" + base;
+    let name = base;
+    for (let n = 2; taken.has(name.toLowerCase()); n++) name = `${base}_${n}`;
+    taken.add(name.toLowerCase());
+    return name;
+  };
+  const labelsAt = new Map();   // inline labels
+  const consts = new Map();     // address → name (labels outside the blocks)
+  const consted = [];
+  // `.pseudopc` code: stored here, run elsewhere — its labels are constants (the run address),
+  // its branches `*±n` (VMA has no .pseudopc)
+  const allMacros = opts.macros === false ? [] : _kickMacroDefs(sources);
+  const inMacro = (file, line) => allMacros.find(m => m.file === file && line > m.start && line < m.end) || null;
+  const pseudo = _kickPseudopcBlocks(sources);
+  const inPseudo = (file, line) => pseudo.some(p => p.file === file && line > p.start && line <= p.end);
+  const labelList = (r.labels || [])
+    .filter(([, addr]) => Number.isFinite(addr))
+    .map(([raw, addr, file, line]) => ({ raw, addr, file: r.files?.[file], line, name: null }));
+  labelList.forEach(l => { l.logical = inPseudo(l.file, l.line); });
+  for (const l of labelList) {
+    if (inRegion(l.addr) && !l.logical) continue;
+    l.name = nameOf(l.raw);
+    if (!consts.has(l.addr)) consts.set(l.addr, l.name);
+    consted.push([l.name, l.addr]);
+  }
+  const labelName = (v) => labelsAt.get(v)?.[0] || null;
+  // the VMA name of a raw Kick label (its first placing)
+  const rawNames = new Map();
+  // the labels in the blocks, but not the ones of a macro body made a VMA macro (`skip`); a label
+  // gets its name when it is written (a macro body's label does not take the name of a global one)
+  const placeLabels = (skip) => {
+    labelsAt.clear();
+    rawNames.clear();
+    for (const l of labelList) {
+      if (!inRegion(l.addr) || l.logical || skip(l)) continue;
+      if (!l.name) l.name = nameOf(l.raw);
+      if (!labelsAt.has(l.addr)) labelsAt.set(l.addr, []);
+      labelsAt.get(l.addr).push(l.name);
+    }
+    for (const l of labelList) {
+      if (!rawNames.has(l.raw) && !skip(l)) rawNames.set(l.raw, { addr: l.addr, name: labelName(l.addr) || consts.get(l.addr) });
+    }
+  };
+  placeLabels(l => !!inMacro(l.file, l.line));
+  // targets without a label (Kick's !+ / !- labels): named in a first pass, `wanted`
+  const wanted = new Set();
+  // the Kick constants the operands name (`text`: the Kick line), as VMA .const on top
+  const defs = _kickSimpleDefs(sources);
+  const defNames = new Map();
+  const defName = (id) => {
+    if (!defNames.has(id)) defNames.set(id, nameOf(id));
+    return defNames.get(id);
+  };
+  const operandIds = (text) => (String(text || "").replace(/^\S+\s*/, "").replace(/(?:;|\/\/).*$/, "")
+    .replace(/\$[0-9A-Fa-f]+|%[01]+|\b\d+\b/g, " ").match(/[A-Za-z_][\w.]*/g) || []).filter(id => !/^[axy]$/i.test(id));
+  // exact, else the nearest constant below the value (SRC + p*256 → SRC+256)
+  const constSym = (v, text, exactOnly = false) => {
+    let best = null;
+    for (const id of operandIds(text)) {
+      if (!defs.has(id)) continue;
+      const d = defs.get(id);
+      if (d === v) return defName(id);
+      if (!exactOnly && d < v && (!best || d > best.d)) best = { id, d };
+    }
+    return best ? `${defName(best.id)}+${v - best.d}` : null;
+  };
+  // a label the Kick line names (mul40.hi → mul40) gives name+offset
+  const absName = (v, text = "") => {
+    // a constant label only where the Kick line names something (not for `sta $c000,x`)
+    const named = !text || operandIds(text).length > 0;
+    const own = labelName(v) || (named ? consts.get(v) : null) || constSym(v, text, true);
+    if (own) return own;
+    for (const id of operandIds(text)) {
+      const hit = rawNames.get(id) || rawNames.get(id.split(".")[0]);
+      if (hit?.name && v - hit.addr > 0 && v - hit.addr < 0x100) return `${hit.name}+${v - hit.addr}`;
+    }
+    const near = constSym(v, text);
+    if (near) return near;
+    for (const off of [1, 2]) {
+      const near = labelName(v - off);
+      if (near) return `${near}+${off}`;
+    }
+    return null;
+  };
+
+  const spans = new Map();
+  for (const [addr, len, file, line, , text] of r.spans || []) {
+    if (!spans.has(addr)) spans.set(addr, { addr, len, file, line, text: String(text || "") });
+  }
+
+  // Kick macros → VMA macros. R65 does not say which call made a byte: the bytes of a macro body's
+  // lines, in a row, are one call, and the call is the `:name(args)` line between the code before
+  // and after it in the source.
+  const sorted = [...spans.values()].sort((x, y) => x.addr - y.addr);
+  const groups = [];
+  let cur = null;
+  sorted.forEach((sp, i) => {
+    const m = inMacro(r.files?.[sp.file], sp.line);
+    if (!m) { cur = null; return; }
+    if (cur && cur.def === m && sp.addr === cur.end && sp.line > cur.lastLine) {
+      cur.end = sp.addr + sp.len;
+      cur.lastLine = sp.line;
+      cur.last = i;
+      return;
+    }
+    cur = { def: m, start: sp.addr, end: sp.addr + sp.len, lastLine: sp.line, first: i, last: i };
+    groups.push(cur);
+  });
+  const calls = new Map();   // macro → its call lines outside the macro bodies
+  for (const m of allMacros) {
+    const re = new RegExp(`^\\s*(?:[A-Za-z_]\\w*\\s*:\\s*)?:?\\s*${m.name}\\s*\\(([^()]*)\\)\\s*(?:\\/\\/.*)?$`);
+    const list = [];
+    for (const [file, text] of Object.entries(sources || {})) {
+      String(text || "").split(/\r?\n/).forEach((l, k) => {
+        const hit = l.match(re);
+        if (hit && !inMacro(file, k + 1)) list.push({ file, line: k + 1, args: hit[1].trim(), text: l.trim().replace(/^[A-Za-z_]\w*\s*:\s*/, "") });
+      });
+    }
+    calls.set(m, list);
+  }
+  const plainSpan = (from, step) => {
+    for (let i = from; i >= 0 && i < sorted.length; i += step) {
+      if (!inMacro(r.files?.[sorted[i].file], sorted[i].line)) return sorted[i];
+    }
+    return null;
+  };
+  const taking = new Map();
+  for (const g of groups) {
+    const prev = plainSpan(g.first - 1, -1);
+    const next = plainSpan(g.last + 1, 1);
+    // the source between the two (in the file of either: the code before may be another file's)
+    const prevFile = prev ? r.files?.[prev.file] : null;
+    const nextFile = next ? r.files?.[next.file] : null;
+    const inWindow = (c) => (c.file === prevFile && c.line > prev.line && (c.file !== nextFile || c.line < next.line))
+      || (c.file === nextFile && c.line < next.line && c.file !== prevFile);
+    const key = `${g.def.name}|${prevFile}:${prev?.line}|${nextFile}:${next?.line}`;
+    const k = taking.get(key) || 0;
+    taking.set(key, k + 1);
+    g.call = (calls.get(g.def) || []).filter(inWindow)[k] || null;
+  }
+  // a Kick expression of a macro body / argument as VMA: parameters as {p}, the constants and
+  // labels by their VMA names; null when it names something else (a function, a .var)
+  const globalName = (raw) => labelList.find(l => l.raw === raw && !inMacro(l.file, l.line))?.name
+    || (labelList.some(l => l.raw === raw) ? null : undefined);
+  const convExpr = (expr, params = new Set(), locals = new Set()) => {
+    if (/[!"'{}[\]]|\/\*/.test(expr)) return null;
+    let out = "";
+    for (const tok of String(expr).match(/\$[0-9A-Fa-f]+|%[01]+|\d+|[A-Za-z_][\w.]*|\s+|./g) || []) {
+      if (!/^[A-Za-z_]/.test(tok)) { out += tok; continue; }
+      if (/^[axy]$/i.test(tok)) out += tok.toUpperCase();
+      else if (params.has(tok)) out += `{${tok}}`;
+      else if (locals.has(tok)) out += tok;
+      else if (defs.has(tok)) out += defName(tok);
+      else {
+        const name = globalName(tok);
+        if (!name) return null;
+        out += name;
+      }
+    }
+    return out.trim();
+  };
+  const SUFFIX = { im: "", i: "", z: ".zp", zp: ".zp", a: ".abs", abs: ".abs" };
+  const bodies = new Map();
+  const convBody = (m) => {
+    if (bodies.has(m)) return bodies.get(m);
+    const params = new Set(m.params);
+    const locals = new Set(m.body.map(l => l.match(/^\s*([A-Za-z_]\w*)\s*:/)?.[1]).filter(Boolean));
+    // Kick's `!:` / `!name:` labels → body labels (unique per call in VMA too); `!-` / `!name++` → them
+    const anon = [];
+    m.body.forEach((l, idx) => {
+      const a = l.replace(/\/\/.*$/, "").match(/^\s*!(\w*)\s*:/);
+      if (a) {
+        let local = `anon_${anon.length + 1}`;
+        while (locals.has(local) || params.has(local)) local += "_";
+        anon.push({ name: a[1], idx, local });
+        locals.add(local);
+      }
+    });
+    let out = [];
+    for (const [idx, raw] of m.body.entries()) {
+      let code = raw;
+      let note = "";
+      const c = code.indexOf("//");
+      if (c >= 0) { note = code.slice(c + 2).trim(); code = code.slice(0, c); }
+      code = code.trim();
+      if (!code) { out.push(note ? `    ; ${note}` : ""); continue; }
+      const own = code.match(/^!(\w*)\s*:\s*(.*)$/);
+      if (own) { out.push(`${anon.find(x => x.idx === idx).local}:`); code = own[2]; if (!code) continue; }
+      code = code.replace(/!(\w*)(\++|-+)/g, (s, name, dir) => {
+        const list = anon.filter(x => x.name === name);
+        const hit = dir[0] === "+" ? list.filter(x => x.idx > idx)[dir.length - 1] : list.filter(x => x.idx <= idx).reverse()[dir.length - 1];
+        return hit ? hit.local : s;
+      });
+      const lab = code.match(/^([A-Za-z_]\w*)\s*:\s*(.*)$/);
+      if (lab) { out.push(`${lab[1]}:`); code = lab[2]; if (!code) continue; }
+      const ins = code.match(/^([A-Za-z]{3})(?:\.([A-Za-z]+))?(?:\s+(.*))?$/);
+      const dat = code.match(/^\.(byte|by|word|wo)\s+(.*)$/i);
+      let line = null;
+      if (ins && opcodeMap[ins[1].toUpperCase()] && (!ins[2] || ins[2].toLowerCase() in SUFFIX)) {
+        const op = ins[3] ? convExpr(ins[3], params, locals) : "";
+        if (op !== null) line = `    ${ins[1].toUpperCase()}${SUFFIX[(ins[2] || "im").toLowerCase()]}${op ? " " + op : ""}`;
+      } else if (dat) {
+        const op = convExpr(dat[2], params, locals);
+        if (op !== null) line = `    .${/^w/i.test(dat[1]) ? "word" : "byte"} ${op}`;
+      }
+      if (line === null) { out = null; break; }
+      out.push(note ? `${line.padEnd(28)} ; ${note}` : line);
+    }
+    bodies.set(m, out);
+    return out;
+  };
+  const invAt = new Map();
+  const used = [];
+  for (const g of groups) {
+    if (opts.flat?.has(g.def.name) || !g.call || !convBody(g.def)) continue;
+    const args = g.call.args ? g.call.args.split(",").map(a => convExpr(a.trim())) : [];
+    if (args.some(a => a === null || a === "") || args.length !== g.def.params.length) continue;
+    if (!used.includes(g.def)) {
+      used.push(g.def);
+      g.def.vmaName = nameOf(g.def.name);
+    }
+    invAt.set(g.start, { ...g, args: g.def.params.length ? args.join(", ") : "0" });
+  }
+  placeLabels(l => used.some(m => m.file === l.file && l.line > m.start && l.line < m.end));
+  if (opts.info) {
+    opts.info.invocations = [...invAt.values()].map(v => ({ start: v.start, end: v.end, name: v.def.name }));
+    opts.info.macroCount = used.length;
+    opts.info.names = Object.fromEntries(used.map(m => [m.vmaName, m.name]));
+  }
+
+  const lines = [
+    `; Kick import: ${fileName}`,
+    "; assembled by R65 and written as VMA; each Kick source line is the comment of its code",
+    ""
+  ];
+  for (const [name, addr] of consted) lines.push(`.const ${name} = ${addr < 0x100 ? hex2(addr) : hex4(addr)}`);
+  if (consted.length) lines.push("");
+
+  const comment = (emitted, text) => {
+    const src = String(text || "").replace(/\s+/g, " ").trim();
+    if (!src || src.toLowerCase() === emitted.replace(/\s+/g, " ").trim().toLowerCase()) return emitted;
+    return `${emitted.padEnd(28)} ; ${src.length > 80 ? src.slice(0, 77) + "..." : src}`;
+  };
+  // the instruction at `a` as VMA, or null (an unknown opcode, past the end)
+  const instruction = (a, end, text, legalOnly, reloc = false) => {
+    const info = _REV_OP[byteAt(a)];
+    if (!info || info.mode === "unknown" || a + info.size > end) return null;
+    if (legalOnly && !_KICK_LEGAL_MNEMONICS.has(info.mnem)) return null;
+    const b1 = byteAt(a + 1);
+    const w = b1 | (byteAt(a + 2) << 8);
+    let mnem = info.mnem;
+    let op = "";
+    const zp = (suffix) => ((!text || operandIds(text).length ? consts.get(b1) : null) || constSym(b1, text) || hex2(b1)) + suffix;
+    const abs = (suffix) => {
+      const name = absName(w, text);
+      if (!name && (info.mnem === "JMP" || info.mnem === "JSR") && inRegion(w)) wanted.add(w);
+      if (name && w < 0x100) mnem += ".abs";
+      return (name || hex4(w)) + suffix;
+    };
+    switch (info.mode) {
+      case "immediate": {
+        const m = String(text || "").match(/#\s*([<>])\s*([A-Za-z_][\w.]*)/);
+        const target = m ? (r.labels || []).find(([n]) => n === m[2]) : null;
+        let name = target ? (labelName(target[1]) || consts.get(target[1])) : null;
+        let value = target ? target[1] : null;
+        if (m && !name && defs.has(m[2])) { value = defs.get(m[2]); name = defName(m[2]); }
+        const part = value === null ? -1 : m[1] === "<" ? value & 0xFF : (value >> 8) & 0xFF;
+        if (name && part === b1) op = `#${m[1]}${name}`;
+        else {
+          const sym = !m && /#\s*[A-Za-z_]/.test(String(text || "")) ? constSym(b1, text, true) : null;
+          op = "#" + (sym || hex2(b1));
+        }
+        break;
+      }
+      case "zeroPage": op = zp(""); break;
+      case "zeroPageX": op = zp(",X"); break;
+      case "zeroPageY": op = zp(",Y"); break;
+      case "indirectX": op = `(${zp(",X")})`; break;
+      case "indirectY": op = `(${zp("")}),Y`; break;
+      case "absolute": op = abs(""); break;
+      case "absoluteX": op = abs(",X"); break;
+      case "absoluteY": op = abs(",Y"); break;
+      case "indirect": op = `(${abs("")})`; break;
+      case "relative": {
+        const target = (a + 2 + ((b1 & 0x80) ? b1 - 256 : b1)) & 0xFFFF;
+        const d = target - a;
+        if (reloc) op = `*${d < 0 ? "-" : "+"}${Math.abs(d)}`;
+        else {
+          op = labelName(target) || hex4(target);
+          if (!labelName(target) && inRegion(target)) wanted.add(target);
+        }
+        break;
+      }
+      default: break;
+    }
+    // labels inside the instruction (a Kick label on an operand byte)
+    const inner = [];
+    for (let k = 1; k < info.size; k++) {
+      for (const name of labelsAt.get(a + k) || []) inner.push(`.label ${name} = * + ${k}`);
+    }
+    return { size: info.size, inner, text: `    ${mnem}${op ? " " + op : ""}` };
+  };
+  const dataLines = (a, stop, text) => {
+    const out = [];
+    const isWord = /^\.(?:word|wo|fillword)\b/i.test(text) && (stop - a) % 2 === 0;
+    const step = isWord ? 8 : 16;
+    for (let p = a; p < stop; p += isWord ? step * 2 : step) {
+      const items = [];
+      if (isWord) {
+        for (let q = p; q < Math.min(stop, p + step * 2); q += 2) {
+          const v = byteAt(q) | (byteAt(q + 1) << 8);
+          items.push(absName(v, text) || hex4(v));
+        }
+      } else {
+        for (let q = p; q < Math.min(stop, p + step); q++) items.push(hex2(byteAt(q)));
+      }
+      const line = `    .${isWord ? "word" : "byte"} ${items.join(", ")}`;
+      out.push(p === a ? comment(line, text) : line);
+    }
+    return out;
+  };
+
+  // the first pass finds the jump targets without a label (`wanted`), the second writes
+  const emit = (lines) => {
+    let lastFile = -1;
+    for (const { start, end } of regions) {
+      lines.push(`* = ${hex4(start)}`);
+      let a = start;
+      while (a < end) {
+        const sp = spans.get(a);
+        if (sp && sp.file !== lastFile && r.files?.[sp.file] != null) {
+          if (lastFile !== -1) lines.push(`; --- ${baseName(r.files[sp.file])} ---`);
+          lastFile = sp.file;
+        }
+        for (const name of labelsAt.get(a) || []) lines.push(`${name}:`);
+        const inv = invAt.get(a);
+        if (inv && inv.end <= end) {
+          for (let k = 1; k < inv.end - a; k++) {
+            for (const name of labelsAt.get(a + k) || []) lines.push(`.label ${name} = * + ${k}`);
+          }
+          lines.push(comment(`    .invoke ${inv.def.vmaName}(${inv.args})`, inv.call.text));
+          a = inv.end;
+          continue;
+        }
+        const spanEnd = sp ? Math.min(end, a + sp.len) : end;
+        const text = sp?.text || "";
+        // instructions: a Kick instruction line, or code a macro / pseudo command call made
+        if (sp && !text.startsWith(".")) {
+          const isInstr = /^[A-Za-z]{3}(?:\.[A-Za-z]+)?(?:\s|$)/.test(text);
+          const decoded = [];
+          let p = a;
+          while (p < spanEnd) {
+            const ins = instruction(p, spanEnd, text, !isInstr, inPseudo(r.files?.[sp.file], sp.line));
+            if (!ins) break;
+            decoded.push([p, ins]);
+            p += ins.size;
+          }
+          if (p === spanEnd && decoded.length) {
+            decoded.forEach(([q, ins], i) => {
+              if (i > 0) for (const name of labelsAt.get(q) || []) lines.push(`${name}:`);
+              lines.push(...ins.inner, i === 0 ? comment(ins.text, text) : ins.text);
+            });
+            a = spanEnd;
+            continue;
+          }
+        }
+        // data up to the end of the span (or to the next span / label), split at labels
+        let stop = a + 1;
+        const limit = sp ? spanEnd : end;
+        while (stop < limit && !labelsAt.has(stop) && (sp || !spans.has(stop))) stop++;
+        lines.push(...dataLines(a, stop, text));
+        if (sp && stop < spanEnd) {
+          // the rest of a span after a label inside it
+          let q = stop;
+          while (q < spanEnd) {
+            for (const name of labelsAt.get(q) || []) lines.push(`${name}:`);
+            let s = q + 1;
+            while (s < spanEnd && !labelsAt.has(s)) s++;
+            lines.push(...dataLines(q, s, ""));
+            q = s;
+          }
+          stop = spanEnd;
+        }
+        a = stop;
+      }
+      lines.push("");
+    }
+  };
+  emit([]);
+  for (const v of [...wanted].sort((x, y) => x - y)) {
+    if (!labelsAt.has(v)) labelsAt.set(v, [nameOf("L_" + hex4(v).slice(1))]);
+  }
+  const body = [];
+  emit(body);
+  for (const [id, name] of defNames) {
+    const v = defs.get(id);
+    lines.push(`.const ${name} = ${v < 0x100 ? hex2(v) : hex4(v)}`);
+  }
+  if (defNames.size) lines.push("");
+  for (const m of used) {
+    // VMA assembles a macro without parameters as a subroutine where it is defined: `unused`
+    lines.push(`.macro ${m.vmaName}(${m.params.length ? m.params.join(", ") : "unused"})`, ...bodies.get(m), ".endm", "");
+  }
+  lines.push(...body);
+  return lines.join("\n");
 }
 
 // ── Build info dialog ────────────────────────────────────────────────────────

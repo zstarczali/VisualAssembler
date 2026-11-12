@@ -1714,3 +1714,32 @@ mod tests {
         assert_eq!(&one[400..], &second);
     }
 }
+
+#[cfg(test)]
+mod measure_tmp {
+    use super::*;
+    fn digi(model: SidModel, setup: &[(u8, u8)], lo: u8, hi: u8) -> i32 {
+        let mut sid = SidCore::new(44_100, model);
+        for &(r, v) in setup { sid.write(r, v); }
+        let mut pcm = vec![0i16; 8_820];
+        for (index, chunk) in pcm.chunks_mut(10).enumerate() {
+            sid.write(0x18, if index % 2 == 0 { hi } else { lo });
+            sid.render(chunk);
+        }
+        pcm[2_000..].iter().map(|&s| i32::from(s).abs()).max().unwrap()
+    }
+    fn saw(model: SidModel) -> i32 {
+        let mut sid = SidCore::new(44_100, model);
+        sid.write(0, 0); sid.write(1, 0x20); sid.write(5, 0); sid.write(6, 0xf0); sid.write(0x18, 0x0f); sid.write(4, 0x21);
+        let mut pcm = vec![0i16; 8_820]; sid.render(&mut pcm);
+        pcm[2_000..].iter().map(|&s| i32::from(s).abs()).max().unwrap()
+    }
+    #[test]
+    #[ignore]
+    fn print_levels() {
+        for m in [SidModel::Mos6581, SidModel::Mos8580] {
+            let boost = [(5u8, 0u8), (6, 0xf0), (2, 0), (3, 0), (4, 0x49), (12, 0), (13, 0xf0), (11, 0x49), (19, 0), (20, 0xf0), (18, 0x49)];
+            println!("{:?} saw {} digi {} digi_lp {} boost {}", m, saw(m), digi(m, &[], 0, 15), digi(m, &[], 0x10, 0x1f), digi(m, &boost, 0, 15));
+        }
+    }
+}
