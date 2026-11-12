@@ -107,6 +107,8 @@ test("the built-in C64 does not start an empty program", async () => {
     _w64StartPrg = async () => {};
     showViceToast = (msg, err) => { __toasts.push(String(msg)); };
     buildRunPrgForCurrentMode = async () => { __builds++; return { ok: true, bytes: [1, 8, 0x60] }; };
+    // the loader's timers and animation frames never fire: the work window would wait forever
+    showWorkProgress = async () => {}; completeWorkProgress = async () => {};
     expertMode = false; ultimateBasicMode = false;
   `);
   app.__src = "* = $0801\n; nothing here\n";
