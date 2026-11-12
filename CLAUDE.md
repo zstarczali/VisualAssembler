@@ -228,7 +228,7 @@ Playlist: letöltés alatti második kattintás nem ad hozzá újra (`_hvscAddin
 **.sid import** (Files → `#sid-import-sid` → `#sid-import-sid-dialog`: subtune + hossz mp-ben): a Rust `sid_register_dump`
 (`SidFilePlayer::dump_registers`, frame-enként 25 SID-regiszter + gate-él bájt) lefuttatja a dalt, a `_sidDumpImport` ebből
 patterneket csinál: hangjegy = gate-él (≤2 frame-en belüli újragate összevonva) vagy legato (tartott gate alatt új félhang
-≥ 5 frame-ig); sorok = a hangkezdetekre illesztett L / L+1 frame-es sorok (funktempo, swing), a sorhossz-váltás `F` effekt
+≥ 5 frame-ig; `L` effekt: hangindítás gate-újraindítás és first wave nélkül, előtte nincs gate timer / hard restart; motor `_sidEngNoteOn(…, leg)`, lejátszó `sid_leg`; ha az `F` sorhossz-effektnek nincs szabad cellája, az `L` adja át, a UB-export sima hangot ír); sorok = a hangkezdetekre illesztett L / L+1 frame-es sorok (funktempo, swing), a sorhossz-váltás `F` effekt
 egy sorral előbb (elsőbbsége van a `C` előtt); hangmagasság = a fő hullámforma leggyakoribb félhangja; hangszer = ADSR +
 fő hullámforma + PW/PWM + szűrő + wave tábla a teljes hangból (a következő hangig, a néma hard-restart frame előtt vágva;
 lépésenként abszolút vagy relatív hangmagasság az azonos formájú hangok szavazata alapján, teszt-bites / néma frame = `$08` lépés hangmagasság nélkül; legrövidebb előtag + ismétlődő periódus, max 32 lépés; félhangnál kisebb szabályos kitérés → hangszer-vibrato `vibDelay/Speed/Depth`); gate: későbbi sorban `C`,

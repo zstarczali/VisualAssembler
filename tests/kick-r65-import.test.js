@@ -112,3 +112,51 @@ vmaTest("the VMA of _kickR65ToVma builds R65's bytes", () => {
   assert.ok(r.ok, r.error);
   assert.deepEqual(Array.from(r.bytes), R65.prg);
 });
+
+// plasmaborder.asm: `beq bad` came back from the blocks as `BEQ $BAD` (a "hex" block reads a name
+// of hex letters as a number)
+test("a label of hex letters stays a name through the blocks", () => {
+  const app = loadApp();
+  const blocks = app.parseExpertText("* = $c000\n    BEQ bad\n    LDA ab\n    JMP fade\n    STX.zp ab\n    LDA #$AB\n    LDA $0BAD\nbad:\n    RTS\nfade:\n    RTS\n.const ab = $10");
+  const text = app._vmaBlocksSource(blocks).text;
+  assert.match(text, /^ {4}BEQ bad$/m);
+  assert.match(text, /^ {4}LDA ab$/m);
+  assert.match(text, /^ {4}JMP fade$/m);
+  assert.match(text, /^ {4}STX\.zp ab$/m);
+  assert.match(text, /^ {4}LDA #\$AB$/m);
+  assert.match(text, /^ {4}LDA \$0BAD$/m);
+});
+
+// Import Kick project: R65 builds it, the result is <name>_vma.asm + a VMA .proj next to the Kick
+// sources (they stay as they are)
+vmaTest("Import Kick project converts the project to VMA through R65", async () => {
+  const { useVmaCli } = require("./helpers/vma-cli");
+  const app = loadApp();
+  const { r, sources } = fixture();
+  const dir = FIX.split(path.sep).join("/");
+  const saved = {};
+  app.window.electronAPI = {
+    chooseAsmFile: async () => ({ ok: true, filePath: dir + "/main.asm" }),
+    r65Build: async () => r,
+    readTextFile: async (p) => {
+      const name = String(p).split(/[\/]/).pop();
+      return name === "main.asm" ? { ok: true, content: sources["main.asm"] } : { ok: false, error: "missing" };
+    },
+    saveTextFile: async (p, c) => { saved[p] = c; return { ok: true, path: p }; }
+  };
+  useVmaCli(app);
+  await app.run(`(async () => {
+    _closeAllTabsWithConfirm = async () => true;
+    _expertProjectOpenFile = async () => {};
+    await importKickProject();
+  })()`);
+  const proj = JSON.parse(saved[dir + "/kick-r65-import.proj"]);
+  assert.equal(proj.startupFile, "kick-r65-import_vma.asm");
+  assert.equal(proj.assembler, "vma");
+  assert.equal(proj.kick, undefined);
+  const text = saved[dir + "/kick-r65-import_vma.asm"];
+  assert.match(text, /^\.macro Poke\(addr, value\)$/m);
+  const out = compileText(text, { basicStub: false });
+  assert.ok(out.ok, out.error);
+  assert.deepEqual(Array.from(out.bytes), r.prg);
+});

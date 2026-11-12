@@ -77,7 +77,7 @@ function player(normalize) {
     _sidPlayerAudio: () => ac, _sidExtGain: master, _sidExtSources: new Set(),
     _sidStop() {}, _sidPlayerAheadSeconds: () => 3, _sidPlayerBufferSize: () => 0, showViceToast() {},
     _sidPlayerShowTune() {}, _sidEngineLabel: () => "", _sidEngineName: () => "", _sidExtStop() {},
-    _sidPlaylist: [], _sidPlaylistIndex: -1, _sidPreviewModel: "8580", _sidPreviewEngine: "resid", _sidExternalCore: null,
+    _sidPlaylist: [], _sidPlaylistIndex: -1, _sidPreviewModel: "8580", _sidPreviewEngine: "resid", _sidDigiBoost: false, _sidExternalCore: null,
   };
   vm.createContext(context);
   vm.runInContext(`${CONSTS} var _playerNormalize = ${normalize}, _playerNormNode = null;

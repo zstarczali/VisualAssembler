@@ -29880,6 +29880,24 @@ async function importKickProject(filePath = null) {
   if (!await _closeAllTabsWithConfirm()) return;
   const entry = _kickNormPath(res.filePath);
   const dir = entry.replace(/\/[^/]*$/, "");
+  const dirName = dir.split("/").pop() || "kick";
+  const name = /^(src|source|sources|asm)$/i.test(dirName) ? (dir.split("/").slice(-2, -1)[0] || dirName) : dirName;
+  const projPath = `${dir}/${name}.proj`;
+  // R65 builds the project and its result becomes one VMA source next to the Kick tree;
+  // without R65 (or when it fails) the project stays a Kick project
+  let r65Status = null;
+  if (api?.r65Build && _vmaAvailable()) {
+    const source = await api.readTextFile?.(res.filePath).catch(() => null);
+    if (source?.ok) {
+      _expertSetStatus(tf("stepR65", { file: entry.split("/").pop() }), "ok");
+      const conv = await _kickImportViaR65(res.filePath, source.content || "");
+      if (conv.ok) {
+        await _kickProjectFromVma(dir, name, projPath, conv);
+        return;
+      }
+      if (conv.errors?.length) r65Status = tf("kickImportR65Failed", { count: conv.errors.length });
+    }
+  }
   const { texts, bins } = await _kickReadTree(entry);
   const missing = [...texts, ...bins].filter(([, v]) => v === null).map(([p]) => p);
 
@@ -29913,9 +29931,6 @@ async function importKickProject(filePath = null) {
   };
   sortNodes(files);
 
-  const dirName = dir.split("/").pop() || "kick";
-  const name = /^(src|source|sources|asm)$/i.test(dirName) ? (dir.split("/").slice(-2, -1)[0] || dirName) : dirName;
-  const projPath = `${dir}/${name}.proj`;
   if ((await api?.readTextFile?.(projPath))?.ok && !await _showConfirm(tf("kickProjectOverwrite", { path: projPath }))) return;
   const startupFile = relOf(entry);
   const payload = JSON.stringify({ name, files, startupFile, ..._projAssemblerFields("kick"), kick: true }, null, 2);
@@ -29931,7 +29946,33 @@ async function importKickProject(filePath = null) {
   await _expertProjectOpenFile({ type: "file", name: startupFile.split("/").pop(), path: startupFile });
   const count = texts.size + bins.size - missing.length;
   if (missing.length) showCompileErrorDialog(missing.map(p => ({ text: tf("kickImportMissing", { path: p }) })));
-  _expertSetStatus(tf("kickProjectImported", { name, count }), missing.length ? "error" : "ok");
+  _expertSetStatus((r65Status ? r65Status + " · " : "") + tf("kickProjectImported", { name, count }), missing.length || r65Status ? "error" : "ok");
+}
+
+// A Kick project converted by R65 (_kickImportViaR65): <name>_vma.asm and a VMA .proj in the
+// project's folder; the Kick sources stay as they are.
+async function _kickProjectFromVma(dir, name, projPath, conv) {
+  const api = window.electronAPI;
+  const file = `${name}_vma.asm`;
+  const asmPath = `${dir}/${file}`;
+  for (const path of [projPath, asmPath]) {
+    if ((await api?.readTextFile?.(path))?.ok && !await _showConfirm(tf("kickProjectOverwrite", { path }))) return;
+  }
+  const savedAsm = await api?.saveTextFile?.(asmPath, conv.text);
+  if (!savedAsm?.ok) { _expertSetStatus(t("projSaveError") + ": " + (savedAsm?.error || asmPath), "error"); return; }
+  const files = [{ type: "file", name: file, path: file }];
+  const payload = JSON.stringify({ name, files, startupFile: file, ..._projAssemblerFields("kick") }, null, 2);
+  const saved = await api?.saveTextFile?.(projPath, payload);
+  if (!saved?.ok) { _expertSetStatus(t("projSaveError") + ": " + (saved?.error || projPath), "error"); return; }
+  _expertProjectData = { name, files, _projPath: projPath, startupFile: file, assemblerSyntax: "kick" };
+  _setAssemblerSyntax("kick");
+  _expertProjectDirty = false;
+  if (!expertMode) setExpertMode(true);
+  if (!_expertProjectVisible) expertProjectBtn?.click();
+  else _expertRenderProjectTree();
+  await _expertProjectOpenFile({ type: "file", name: file, path: file });
+  const key = conv.kind === "plain" ? "kickImportPlain" : !conv.same ? "kickImportFlatDiff" : conv.macros ? "kickImportMacros" : "kickImportFlat";
+  _expertSetStatus(tf(key, { name: file, count: conv.macros }), conv.same ? "ok" : "error");
 }
 
 // Detect a comma-separated value list base. Returns { base, normalized } where
@@ -30613,6 +30654,9 @@ function _importMakeInstruction(mnemonic, operandRaw, branchMnems) {
       addressingMode = isBranchMnemonic ? "relative" : "absolute";
       displayOperand = op;
     }
+    // A name of hex letters only (bad, fade, ab): the source has no bare hex numbers, but a
+    // "hex" block reads its operand as one ($0BAD). As "dec" it stays the name.
+    if (base === "hex" && !op.includes("$") && /^[A-Fa-f][0-9A-Fa-f]*$/.test(rawOperand)) base = "dec";
   }
 
   let forceZeroPage = false;
@@ -48052,7 +48096,10 @@ function _sidInstNorm(ins) {
   o.tableSpeed = cl(o.tableSpeed, 1, 15);
   o.table = (Array.isArray(o.table) ? o.table : []).slice(0, 32).map(function(s) {
     const abs = !!(s && s.abs);
-    return { w: cl(s && s.w, 0, 255), n: abs ? cl(s && s.n, 0, 95) : cl(s && s.n, -96, 95), abs: abs };
+    const step = { w: cl(s && s.w, 0, 255), n: abs ? cl(s && s.n, 0, 95) : cl(s && s.n, -96, 95), abs: abs };
+    // off: the gate is released from this step on (until the next note)
+    if (s && s.off) step.off = true;
+    return step;
   });
   o.tableLoop = cl(o.tableLoop, -1, o.table.length - 1);
   return o;
@@ -48883,6 +48930,19 @@ function _sidRenderTable() {
     const absTxt = document.createElement("span");
     absTxt.textContent = t("sidTableAbs");
     absLbl.append(abs, absTxt);
+    // the gate is released from this step on (a short gate: drums, plucks)
+    const offLbl = document.createElement("label");
+    offLbl.className = "sid-check";
+    offLbl.setAttribute("aria-label", t("sidTableGateOffHint"));
+    const off = document.createElement("input");
+    off.type = "checkbox"; off.checked = !!step.off;
+    off.addEventListener("change", function(){
+      if (off.checked) step.off = true; else delete step.off;
+      _sidTableEdited();
+    });
+    const offTxt = document.createElement("span");
+    offTxt.textContent = t("sidTableGateOff");
+    offLbl.append(off, offTxt);
     const del = document.createElement("button");
     del.type = "button"; del.className = "sid-mini-btn sid-tstep-del"; del.textContent = "×";
     del.setAttribute("aria-label", t("sidTableDelStep"));
@@ -48892,7 +48952,7 @@ function _sidRenderTable() {
       _sidTableEdited();
       _sidRenderTable();
     });
-    row.append(idx, wave, note, absLbl, del);
+    row.append(idx, wave, note, absLbl, offLbl, del);
     box.appendChild(row);
   });
   const add = document.getElementById("sid-table-add");
@@ -49023,9 +49083,10 @@ function _sidDrawADSR() {
 
 /* ── Tracker grid ── */
 // Effect column codes: V=vibrato, U=slide/portamento up, D=slide down,
-// C=note cut (release without a new note), F=speed change (frames/row).
-const _SID_FX_CODES = { V: 1, U: 2, D: 3, C: 4, F: 5 };
-const _SID_FX_NAMES = [null, "V", "U", "D", "C", "F"];
+// C=note cut (release without a new note), F=speed change (frames/row),
+// L=legato (a note on under a held gate: the envelope is not retriggered).
+const _SID_FX_CODES = { V: 1, U: 2, D: 3, C: 4, F: 5, L: 6 };
+const _SID_FX_NAMES = [null, "V", "U", "D", "C", "F", "L"];
 function _sidFxText(cell) {
   if (!cell.fx) return "...";
   return cell.fx + (cell.fxval < 16 ? "0" : "") + (cell.fxval & 0xFF).toString(16).toUpperCase();
@@ -49305,7 +49366,7 @@ function _sidParseCellEntry(text) {
   for (; i < tokens.length; i++) {
     const tok = tokens[i];
     if (tok === ".." || tok === "...") continue; // explicit "leave unset" placeholder
-    const fxMatch = tok.match(/^([VUDCF])([0-9a-fA-F]{0,2})$/);
+    const fxMatch = tok.match(/^([VUDCFL])([0-9a-fA-F]{0,2})$/);
     const instMatch = tok.match(/^[0-9a-fA-F]{1,2}$/);
     if (instMatch && !fxMatch) {
       inst = Math.max(0, Math.min(255, parseInt(tok, 16)));
@@ -49341,7 +49402,7 @@ function _sidBeginManualEdit(v, r, td) {
   input.autocomplete = "off";
   input.setAttribute("maxlength", "12");
   input.placeholder = "C-4 01 V24";
-  input.title = "Format: note [instrument] [effect] (e.g. C-4 01, C#5, D3 0A V24). Effects: V=vibrato U/D=slide up/down C=note cut F=speed. \"F06\" or \"C\" alone applies an effect with no new note; \"===\" (or OFF, key 1) = note-off. Empty = clear.";
+  input.title = "Format: note [instrument] [effect] (e.g. C-4 01, C#5, D3 0A V24). Effects: V=vibrato U/D=slide up/down C=note cut F=speed L=legato (new pitch, no retrigger). \"F06\" or \"C\" alone applies an effect with no new note; \"===\" (or OFF, key 1) = note-off. Empty = clear.";
   const original = td.innerHTML;
   td.innerHTML = "";
   td.appendChild(input);
@@ -52940,7 +53001,7 @@ function _sidTuneData(opts) {
     a.ipms.push(o.pwmSpeed); a.ipmnl.push(pmin & 0xFF); a.ipmnh.push(pmin >> 8); a.ipmxl.push(pmax & 0xFF); a.ipmxh.push(pmax >> 8);
     a.igt.push(o.gateTimer); a.ihr.push(o.hr ? 1 : 0); a.iffw.push(o.firstWave);
     // identical step runs are stored once: the 255-step table space goes further
-    const bytes = o.table.map(function(s){ return [s.w & 0xFF, s.n & 0xFF, s.abs ? 1 : 0]; });
+    const bytes = o.table.map(function(s){ return [s.w & 0xFF, s.n & 0xFF, (s.abs ? 1 : 0) | (s.off ? 2 : 0)]; });
     let at = -1;
     for (let k = 0; bytes.length && k + bytes.length <= a.tw.length && at < 0; k++) {
       if (bytes.every(function(x, i){ return a.tw[k + i] === x[0] && a.tn[k + i] === x[1] && a.ta[k + i] === x[2]; })) at = k;
@@ -52961,7 +53022,7 @@ function _sidTuneData(opts) {
 function _sidCellBytes(c, instCount) {
   const note = c && c.note != null ? Math.max(0, Math.min(95, c.note | 0)) + 1 : 0;
   const inst = c ? (c.inst | 0) & 0xFF : 0;
-  const fx = c && c.fx ? ({ V: 1, U: 2, D: 3, C: 4, F: 5 })[c.fx] || 0 : 0;
+  const fx = c && c.fx ? ({ V: 1, U: 2, D: 3, C: 4, F: 5, L: 6 })[c.fx] || 0 : 0;
   return [note, inst < instCount ? inst : 0, fx, c ? (c.fxval | 0) & 0xFF : 0];
 }
 
@@ -52989,17 +53050,21 @@ function _sidEngTab(e, s, k) {
   const w = e.a.tw[k] | 0;
   if (w) s.wav = w & 0xFE;
   s.nof = e.a.tn[k] | 0;
-  s.nab = e.a.ta[k] | 0;
+  const fl = e.a.ta[k] | 0;
+  s.nab = fl & 1;
+  if (fl & 2) s.gate = 0;
 }
 
-function _sidEngNoteOn(e, v, n, i) {
+function _sidEngNoteOn(e, v, n, i, leg) {
   const a = e.a, s = e.v[v], chip = v / 3 | 0, f = e.fs[chip], base = e.base[v];
-  s.ctl &= 0xFE;
-  e.regs[base + 4] = s.ctl;
-  e.trig[v] = true;
+  if (!leg) {
+    s.ctl &= 0xFE;
+    e.regs[base + 4] = s.ctl;
+    e.trig[v] = true;
+  }
   s.note = n; s.inst = i; s.on = 1; s.gate = 1; s.jon = 1;
   s.sl = 0; s.fvo = 0; s.fvs = 0; s.fvc = 0; s.pwd = 0; s.vof = 0; s.tpos = 0; s.nof = 0; s.nab = 0; s.vdr = 1;
-  s.ffr = a.iffw[i];
+  s.ffr = leg ? 0 : a.iffw[i];
   s.pw = a.ipwl[i] | (a.ipwh[i] << 8);
   s.vdl = a.ivdl[i];
   s.vcn = ((a.ivsp[i] + 1) & 0xFF) >> 1 || 1;
@@ -53029,7 +53094,9 @@ function _sidEngRow(e) {
   for (let v = 0; v < e.v.length; v++) {
     const b = _sidCellBytes(pat ? pat[v][e.row] : null, td.insts.length);
     const s = e.v[v];
-    if (b[0]) _sidEngNoteOn(e, v, b[0] - 1, b[1]);
+    if (b[0]) {
+      _sidEngNoteOn(e, v, b[0] - 1, b[1], b[2] === 6 && s.gate);
+    }
     const fx = b[2], val = b[3];
     if (fx !== 1) s.fvo = 0;
     if (fx === 4) s.gate = 0;
@@ -53062,7 +53129,8 @@ function _sidEngHr(e) {
     const gt = a.igt[s.inst];
     if (!gt || gt !== e.tick || gt === e.spd) continue;
     const pat = e.td.patterns[e.pat];
-    if (!_sidCellBytes(pat ? pat[v][e.row] : null, e.td.insts.length)[0]) continue;
+    const nb = _sidCellBytes(pat ? pat[v][e.row] : null, e.td.insts.length);
+    if (!nb[0] || nb[2] === 6) continue;
     s.gate = 0;
     if (a.ihr[s.inst]) { e.regs[e.base[v] + 5] = 0; e.regs[e.base[v] + 6] = 0; }
   }
@@ -53355,7 +53423,7 @@ function _sidInstExtBytes(ins) {
   const out = [flags, o.cutEnd & 0xFF, o.cutEnd >> 8, o.cutSpeed, o.vibDelay, o.vibSpeed, o.vibDepth,
     o.pwmSpeed, o.pwmMin & 0xFF, o.pwmMin >> 8, o.pwmMax & 0xFF, o.pwmMax >> 8,
     o.gateTimer, o.firstWave, o.tableSpeed, o.tableLoop < 0 ? 0xFF : o.tableLoop, o.table.length];
-  o.table.forEach(function(s){ out.push(s.w, s.n & 0xFF, s.abs ? 1 : 0); });
+  o.table.forEach(function(s){ out.push(s.w, s.n & 0xFF, (s.abs ? 1 : 0) | (s.off ? 2 : 0)); });
   const name = Array.from(new TextEncoder().encode(String(o.name || ""))).slice(0, 255);
   out.push(name.length);
   return out.concat(name);
@@ -53374,8 +53442,10 @@ function _sidReadInstExt(ins, src, p) {
   const len = src[p++] || 0;
   ins.table = [];
   for (let k = 0; k < len; k++) {
-    const w = src[p++] || 0, n = src[p++] || 0, abs = !!src[p++];
-    ins.table.push({ w: w, n: abs ? n : (n > 127 ? n - 256 : n), abs: abs });
+    const w = src[p++] || 0, n = src[p++] || 0, fl = src[p++] || 0, abs = !!(fl & 1);
+    const step = { w: w, n: abs ? n : (n > 127 ? n - 256 : n), abs: abs };
+    if (fl & 2) step.off = true;
+    ins.table.push(step);
   }
   const nameLen = src[p++] || 0;
   const name = new TextDecoder().decode(Uint8Array.from(Array.from(src.slice(p, p + nameLen))));
@@ -53847,7 +53917,7 @@ function _sidDumpImport(regs, meta) {
       }
     });
     if (extra.length) {
-      skip("legato notes (retriggered)");
+      vc.leg = new Set(extra);
       vc.ons = vc.ons.concat(extra).sort(function(a, c){ return a - c; });
     }
   });
@@ -53870,7 +53940,11 @@ function _sidDumpImport(regs, meta) {
     return 0;
   };
   const speed = gaps.length ? (pickL(0.97) || pickL(0.9) || pickL(0.75) || 1) : 6;
-  const rowStart = [times[0]];
+  // the player starts its first row on the first frame: silence before the first note is whole rows
+  // (what is left of it, less than a row, is dropped)
+  const rowStart = [];
+  for (let f = times[0] % speed; f < times[0]; f += speed) rowStart.push(f);
+  rowStart.push(times[0]);
   const pushRows = function(g, k) {
     const at = rowStart[rowStart.length - 1];
     for (let i = 1; i <= k; i++) rowStart.push(at + Math.round(i * g / k));
@@ -53910,7 +53984,7 @@ function _sidDumpImport(regs, meta) {
     Object.keys(cnt).forEach(function(k){ if (best === null || cnt[k] > cnt[best] || (cnt[k] === cnt[best] && first[k] < first[best])) best = k; });
     return best === null ? null : +best;
   };
-  const same = function(a, c) { return a.w === c.w && a.n === c.n && a.abs === c.abs; };
+  const same = function(a, c) { return a.w === c.w && a.n === c.n && a.abs === c.abs && !a.off === !c.off; };
   voices.forEach(function(vc, v) {
     const b = vc.b, at = vc.at;
     const freqAt = function(g) { return R(g, b) | (R(g, b + 1) << 8); };
@@ -53998,14 +54072,26 @@ function _sidDumpImport(regs, meta) {
       // frames of a note → the envelope decays at the release rate instead
       if (off >= 0) {
         const cr = rowOf(off), gap = next - off;
-        if (cr > row && (next >= frames || cr < rowOf(next))) {
+        // a release between two rows, less than a row before the next note: the gate timer is exact
+        const timer = next < frames && gap < speed && gap <= 15;
+        if (cr > row && (next >= frames || cr < rowOf(next)) && (!timer || rowStart[cr] === off)) {
           if (cr < totalRows && cols[v][cr].note == null && !cols[v][cr].fx) cols[v][cr] = { note: null, inst: 0, fx: "C", fxval: 0 };
-        } else if (next < frames && gap < speed && gap <= 15) {
+        } else if (timer) {
           ins.gateTimer = gap;
-          // the player zeroes ADSR with the gate: if the tune does it later, the release has to sound until then
-          ins.hr = R(off, b + 5) === 0 && R(off, b + 6) === 0;
+          // the player zeroes ADSR with the gate. A tune zeroing it a frame or two later (Hubbard) is
+          // close enough; one keeping the release until the next note is no hard restart
+          let zero = -1;
+          for (let g = off; g < next && zero < 0; g++) { if (R(g, b + 5) === 0 && R(g, b + 6) === 0) zero = g; }
+          ins.hr = zero >= 0 && zero - off <= 2;
         } else {
-          ins.s = 0; ins.d = ins.r;
+          // released within the note: a table step releases the gate there (the ADSR stays the
+          // tune's own); beyond the table the envelope decays at the release rate instead
+          if (off - f < raw.length && off - f < _SID_DUMP_TABLE_STEPS) raw[off - f].off = true;
+          else { ins.s = 0; ins.d = ins.r; }
+          // the tune zeroes ADSR a few frames before the next note: silence from there on
+          let zero = -1;
+          for (let g = off; g < next && g < frames && zero < 0; g++) { if (R(g, b + 5) === 0 && R(g, b + 6) === 0) zero = g; }
+          if (zero >= 0 && next < frames && next - zero < speed && next - zero <= 15) { ins.gateTimer = next - zero; ins.hr = true; }
         }
       }
 
@@ -54085,7 +54171,9 @@ function _sidDumpImport(regs, meta) {
           ins.cutSpeed = Math.min(127, Math.max(1, Math.ceil(Math.abs(ins.cutEnd - ins.cut) / frames2)));
         }
       }
-      cols[v][row] = { note: base, inst: 0, fx: null, fxval: 0 };
+      // a legato note (L): a note on under the held gate, the envelope goes on
+      const leg = !!(vc.leg && vc.leg.has(f));
+      cols[v][row] = { note: base, inst: 0, fx: leg ? "L" : null, fxval: 0 };
       recs.push({ v: v, row: row, base: base, w: w, ins: ins, raw: raw, vibFrom: vibFrom });
     });
   });
@@ -54119,10 +54207,12 @@ function _sidDumpImport(regs, meta) {
   recs.forEach(function(r) {
     const w = r.w, ins = r.ins, len = r.raw.length;
     const steps = r.raw.map(function(x, k) {
-      if (x.n == null || (r.vibFrom >= 0 && k >= r.vibFrom && x.w === w)) return { w: x.w, n: 0, abs: false };
-      return r.absAt[k] ? { w: x.w, n: x.n, abs: true } : { w: x.w, n: x.n - r.base, abs: false };
+      const st = x.n == null || (r.vibFrom >= 0 && k >= r.vibFrom && x.w === w) ? { w: x.w, n: 0, abs: false }
+        : r.absAt[k] ? { w: x.w, n: x.n, abs: true } : { w: x.w, n: x.n - r.base, abs: false };
+      if (x.off) st.off = true;
+      return st;
     });
-    const isPlain = function(st) { return st.w === w && st.n === 0 && !st.abs; };
+    const isPlain = function(st) { return st.w === w && st.n === 0 && !st.abs && !st.off; };
     if (!steps.every(isPlain)) {
       // a table step can last several frames: one step per common run length
       let runGcd = 0;
@@ -54246,8 +54336,10 @@ function _sidDumpImport(regs, meta) {
     // timing wins over a note cut: a missed speed change would shift the rest of the song
     let v = cols.findIndex(function(col){ return !col[r].fx; });
     if (v < 0) v = cols.findIndex(function(col){ return col[r].fx === "C"; });
+    if (v < 0) v = cols.findIndex(function(col){ return col[r].fx === "L"; });
     if (v < 0) { skip("speed changes"); continue; }
     if (cols[v][r].fx === "C") skip("note cuts dropped");
+    if (cols[v][r].fx === "L") skip("legato notes (retriggered)");
     cols[v][r].fx = "F"; cols[v][r].fxval = val;
   }
 
@@ -54540,7 +54632,7 @@ function _sidExportAsmPlayable() {
     "; pulse width modulation, gate timer / hard restart; the filter cutoff sweep",
     "; of the voice that last started a filter-routed instrument.",
     "; Effect column (once per row): V=vibrato, U/D=slide up/down, C=note cut,",
-    "; F=speed change.",
+    "; F=speed change, L=legato (new pitch under a held gate, no retrigger).",
     "; =========================================================",
     "",
     "* = $080D",
@@ -54559,7 +54651,7 @@ function _sidExportAsmPlayable() {
   const STATE_F = ["fown", "fcl", "fch", "fspd", "ftl", "fth", "fsl", "fsh", "fel", "feh", "fping", "fres", "fmode",
     "froute", "vol"];
   const STATE_G = STATE_F.concat(nv > 3 ? STATE_F.map(function(n){ return n + "2"; }) : [],
-    ["cv", "ci", "fxv", "tmp", "t0", "t1", "t3", "m0", "m1"]);
+    ["cv", "ci", "fxv", "tmp", "t0", "t1", "t3", "m0", "m1", "leg"]);
   const stateSize = STATE_V.length * nv + STATE_G.length;
 
   // ---- sid_init / sid_stop / sid_irq -------------------------------------
@@ -54670,6 +54762,12 @@ function _sidExportAsmPlayable() {
       "LDA (" + vi.notesPtr + "),Y",
       "BEQ sid_skip_" + vi.n,
       "STA $1A",               // note 1..96
+      "LDA (" + vi.fxPtr + "),Y",
+      "CMP #$06",              // L = legato: a note on under a held gate (sid_leg = gate)
+      "BNE sid_note_" + vi.n,
+      "LDA sid_gate+" + vi.i,
+      "STA sid_leg",
+      "sid_note_" + vi.n + ":",
       "LDA (" + vi.instsPtr + "),Y",
       "TAX",
       "LDA #" + hx(vi.i),
@@ -54827,10 +54925,13 @@ function _sidExportAsmPlayable() {
     "STX sid_ci",
     "LDX sid_cv",
     vbase,
+    "LDA sid_leg",
+    "BNE sid_sv_leg",
     "LDA sid_ctl,X",
     "AND #$FE",
     "STA sid_ctl,X",
     ...vreg(4),             // gate off: the gate on below retriggers the envelope
+    "sid_sv_leg:",
     "LDA sid_tmp",
     "STA sid_note,X",
     "LDA sid_ci",
@@ -54856,6 +54957,12 @@ function _sidExportAsmPlayable() {
     "LDY sid_ci",
     "LDA sid_iffw,Y",
     "STA sid_ffr,X",
+    "LDA sid_leg",             // legato: no first-frame waveform
+    "BEQ sid_sv_ffr",
+    "LDA #$00",
+    "STA sid_ffr,X",
+    "STA sid_leg",
+    "sid_sv_ffr:",
     "LDA sid_ipwl,Y",
     "STA sid_pwl,X",
     "LDA sid_ipwh,Y",
@@ -54980,7 +55087,15 @@ function _sidExportAsmPlayable() {
     "LDA sid_tn,Y",
     "STA sid_nof,X",
     "LDA sid_ta,Y",
+    "AND #$01",
     "STA sid_nab,X",
+    // bit 1: the gate is released from this step on
+    "LDA sid_ta,Y",
+    "AND #$02",
+    "BEQ sid_ta_gate",
+    "LDA #$00",
+    "STA sid_gate,X",
+    "sid_ta_gate:",
     "RTS",
     "");
 
@@ -54998,6 +55113,9 @@ function _sidExportAsmPlayable() {
       "BEQ sid_hr_" + vi.n,
       "LDY $FC",
       "LDA (" + vi.notesPtr + "),Y",
+      "BEQ sid_hr_" + vi.n,
+      "LDA (" + vi.fxPtr + "),Y",
+      "CMP #$06",              // a legato note keeps the gate
       "BEQ sid_hr_" + vi.n,
       "LDA #$00",
       "STA sid_gate+" + vi.i,
@@ -55450,7 +55568,9 @@ function _sidExportUbBlock() {
     for (let v = 0; v < 3; v++) {
       const cells = [];
       for (let r = 0; r < _SID_ROWS; r++) {
-        const c = _sidCellText(_sidPatterns[pi][v][r]);
+        // the UB player has no legato: an L note is a plain note on there
+        const cell = _sidPatterns[pi][v][r];
+        const c = _sidCellText(cell && cell.fx === "L" ? Object.assign({}, cell, { fx: null, fxval: 0 }) : cell);
         cells.push(c === "... .. ..." ? "..." : c);
       }
       while (cells.length && cells[cells.length - 1] === "...") cells.pop();

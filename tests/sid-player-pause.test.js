@@ -58,7 +58,7 @@ function setup() {
     var _sidAudio = null, _sidMasterGain = null, _sidMasterVol = 0.6, _sidExtAudio = null, _sidExtGain = null, _sidVizVa = null, _sidVizExt = null;
     const _PLAYER_NORM_TARGET_DB = -18, _PLAYER_NORM_MAX_DB = 12;
     var _playerNormalize = false, _playerNormNode = null;
-    var _sidExternalCore = null, _sidExtSources = new Set(), _sidPreviewSources = new Set(), _sidPreviewModel = "8580", _sidPreviewEngine = "resid";
+    var _sidExternalCore = null, _sidExtSources = new Set(), _sidPreviewSources = new Set(), _sidPreviewModel = "8580", _sidPreviewEngine = "resid", _sidDigiBoost = false;
     var _sidExtStatus = "playing", _sidExtStarting = false, _sidExtFile = null, _sidPlaylist = [], _sidPlaylistIndex = -1;
     function _sidStop() {}
     function _sidPlayerAheadSeconds() { return 1; }

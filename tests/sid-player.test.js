@@ -52,7 +52,7 @@ function richTune() {
     table: [{ w: 0, n: 0 }, { w: 0, n: 4 }, { w: 0, n: 7 }, { w: 0x21, n: 12 }] };
   const drum = { name: "Drum", noi: true, pul: false, a: 0, d: 8, s: 0, r: 8, vol: 15, hp: true, filt: true, off3: true,
     cut: 1800, cutEnd: 300, cutSpeed: 90, res: 5,
-    table: [{ w: 0x81, n: 60, abs: true }, { w: 0x41, n: 30, abs: true }, { w: 0x41, n: -12 }, { w: 0x80, n: 0 }], tableLoop: -1 };
+    table: [{ w: 0x81, n: 60, abs: true }, { w: 0x41, n: 30, abs: true, off: true }, { w: 0x41, n: -12 }, { w: 0x80, n: 0 }], tableLoop: -1 };
   const ring = { name: "Ring", tri: true, pul: false, ring: true, sync: true, a: 2, d: 5, s: 9, r: 5, vol: 13 };
   const p0 = emptyPattern(), p1 = emptyPattern();
   const put = (p, v, r, note, inst, fx, fxval) => { p[v][r] = { note, inst, fx: fx || null, fxval: fxval || 0 }; };
@@ -64,6 +64,8 @@ function richTune() {
   put(p1, 0, 0, 60, 2); put(p1, 0, 3, 62, 0); put(p1, 0, 31, 64, 0);
   put(p1, 1, 1, 40, 1); put(p1, 1, 2, null, 0, "F", 7); put(p1, 1, 16, 45, 4);
   put(p1, 2, 0, 20, 3); put(p1, 2, 8, 22, 9);   // instrument 9 does not exist → 0
+  // legato: under the held gate (pad; the lead with gate timer + hard restart), after a note cut a plain note on
+  put(p0, 1, 5, 40, 1, "L"); put(p1, 0, 10, 65, 0, "L"); put(p0, 0, 22, 53, 0, "L");
   return { insts: [lead, pad, arp, drum, ring], patterns: [p0, p1], song: [0, 1, 0, 1], speed: 5 };
 }
 
@@ -331,4 +333,28 @@ test("two SIDs: each chip starts on its own volume", () => {
   out.forEach((f, k) => assert.deepEqual([f[0x18] & 15, f[25 + 0x18] & 15], [5, 12], `frame ${k}`));
   const e = api._sidEngineNew(api._sidTuneData());
   assert.deepEqual(Array.from(e.vols), [5, 12]);
+});
+
+// a table step with `off` releases the gate (a 1-frame drum hit); the 6502 player follows the engine (richTune's drum)
+test("a table step marked off releases the gate until the next note", () => {
+  const tune = richTune();
+  const api = sandbox(tune);
+  const frames = runEngine(api, 120);
+  // the drum (instrument 3) starts on voice 2, row 2 at speed 5
+  const ctl = frames.map((r) => r[2 * 7 + 4]);
+  const on = ctl.findIndex((c, i) => i && (c & 0x80) && (c & 1));
+  assert.ok(on > 0, "the drum starts");
+  assert.equal(ctl[on] & 1, 1);
+  assert.equal(ctl[on + 1] & 1, 0, "released on its second frame");
+  assert.equal(ctl[on + 2] & 1, 0, "and stays released");
+});
+
+test("an L (legato) note changes the pitch without retriggering the envelope", () => {
+  const api = sandbox(richTune());
+  const regs = runEngine(api, 60);
+  // the pad (voice 2): note on at row 0, L at row 5 (speed 5), the next note on at row 10
+  const gate = regs.map((r) => r[7 + 4] & 1);
+  assert.ok(gate.slice(5, 52).every((g) => g === 1), "the gate stays on through the legato note");
+  const f = (k) => regs[k][7] | (regs[k][8] << 8);
+  assert.notEqual(f(26), f(32), "the pitch moves to the legato note");
 });
