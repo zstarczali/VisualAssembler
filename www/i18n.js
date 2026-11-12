@@ -256,6 +256,40 @@ const translations = {
     "snapshotEmpty": "Még nincs commit.",
     "close": "Bezárás",
     "workProgressTitle": "Fordítás folyamatban...",
+
+    "workProgressTitleLaunch": "Indítás...",
+
+    "workProgressTitleCrunch": "Tömörítés...",
+
+    "workProgressTitleDisk": "Lemezkép készítése...",
+
+
+    "workPhaseCompile": "Fordítás",
+
+
+    "workPhaseCrunch": "Tömörítés",
+
+
+    "workPhaseDisk": "Lemezkép",
+
+
+    "workPhaseLaunch": "Indítás",
+
+
+
+    "workPhasePrepare": "Előfeldolgozás",
+
+
+
+    "workPhaseAnalyze": "Elemzés",
+
+
+
+    "workProgressTitleAnalyze": "Elemzés...",
+
+
+
+    "stepAnalyze": "Disassembly, monitor és memóriatérkép frissítése…",
     "stepKickRead": "Kick: {file} forrásfájának beolvasása…",
     "stepKickPreprocess": "Kick: {file} előfeldolgozása ({files} fájl)…",
     "stepVma": "VMA ({engine}): {file} fordítása…",
@@ -2775,6 +2809,40 @@ const translations = {
     "snapshotEmpty": "No commits yet.",
     "close": "Close",
     "workProgressTitle": "Compiling...",
+
+    "workProgressTitleLaunch": "Launching...",
+
+    "workProgressTitleCrunch": "Compressing...",
+
+    "workProgressTitleDisk": "Building disk image...",
+
+
+    "workPhaseCompile": "Compile",
+
+
+    "workPhaseCrunch": "Compress",
+
+
+    "workPhaseDisk": "Disk image",
+
+
+    "workPhaseLaunch": "Launch",
+
+
+
+    "workPhasePrepare": "Preprocess",
+
+
+
+    "workPhaseAnalyze": "Analysis",
+
+
+
+    "workProgressTitleAnalyze": "Analyzing...",
+
+
+
+    "stepAnalyze": "Updating disassembly, monitor and memory map…",
     "stepKickRead": "Kick: reading the source tree of {file}…",
     "stepKickPreprocess": "Kick: preprocessing {file} ({files} files)…",
     "stepVma": "VMA ({engine}): compiling {file}…",
@@ -5466,6 +5534,40 @@ const translations = {
     "snapshotEmpty": "Todavía no hay commits.",
     "close": "Cerrar",
     "workProgressTitle": "Compilando...",
+
+    "workProgressTitleLaunch": "Iniciando...",
+
+    "workProgressTitleCrunch": "Comprimiendo...",
+
+    "workProgressTitleDisk": "Creando imagen de disco...",
+
+
+    "workPhaseCompile": "Compilar",
+
+
+    "workPhaseCrunch": "Comprimir",
+
+
+    "workPhaseDisk": "Imagen de disco",
+
+
+    "workPhaseLaunch": "Iniciar",
+
+
+
+    "workPhasePrepare": "Preprocesar",
+
+
+
+    "workPhaseAnalyze": "Análisis",
+
+
+
+    "workProgressTitleAnalyze": "Analizando...",
+
+
+
+    "stepAnalyze": "Actualizando desensamblado, monitor y mapa de memoria…",
     "stepKickRead": "Kick: leyendo el árbol de fuentes de {file}…",
     "stepKickPreprocess": "Kick: preprocesando {file} ({files} archivos)…",
     "stepVma": "VMA ({engine}): compilando {file}…",
@@ -8157,6 +8259,40 @@ const translations = {
     "snapshotEmpty": "Noch keine Commits.",
     "close": "Schließen",
     "workProgressTitle": "Kompiliere...",
+
+    "workProgressTitleLaunch": "Starte...",
+
+    "workProgressTitleCrunch": "Komprimiere...",
+
+    "workProgressTitleDisk": "Erstelle Disk-Image...",
+
+
+    "workPhaseCompile": "Übersetzen",
+
+
+    "workPhaseCrunch": "Komprimieren",
+
+
+    "workPhaseDisk": "Disk-Image",
+
+
+    "workPhaseLaunch": "Starten",
+
+
+
+    "workPhasePrepare": "Vorverarbeiten",
+
+
+
+    "workPhaseAnalyze": "Analyse",
+
+
+
+    "workProgressTitleAnalyze": "Analysiere...",
+
+
+
+    "stepAnalyze": "Disassembly, Monitor und Speicherkarte werden aktualisiert…",
     "stepKickRead": "Kick: Quellbaum von {file} wird gelesen…",
     "stepKickPreprocess": "Kick: {file} wird vorverarbeitet ({files} Dateien)…",
     "stepVma": "VMA ({engine}): {file} wird übersetzt…",
@@ -10848,6 +10984,40 @@ const translations = {
     "snapshotEmpty": "Nog geen commits.",
     "close": "Sluiten",
     "workProgressTitle": "Bewerking bezig...",
+
+    "workProgressTitleLaunch": "Starten...",
+
+    "workProgressTitleCrunch": "Comprimeren...",
+
+    "workProgressTitleDisk": "Schijfkopie maken...",
+
+
+    "workPhaseCompile": "Compileren",
+
+
+    "workPhaseCrunch": "Comprimeren",
+
+
+    "workPhaseDisk": "Schijfkopie",
+
+
+    "workPhaseLaunch": "Starten",
+
+
+
+    "workPhasePrepare": "Voorbewerken",
+
+
+
+    "workPhaseAnalyze": "Analyse",
+
+
+
+    "workProgressTitleAnalyze": "Analyseren...",
+
+
+
+    "stepAnalyze": "Disassembly, monitor en geheugenkaart bijwerken…",
     "stepKickRead": "Kick: bronboom van {file} lezen…",
     "stepKickPreprocess": "Kick: {file} voorbewerken ({files} bestanden)…",
     "stepVma": "VMA ({engine}): {file} compileren…",
@@ -13550,6 +13720,40 @@ const translations = {
     "snapshotEmpty": "Brak commitów.",
     "close": "Zamknij",
     "workProgressTitle": "Kompilowanie...",
+
+    "workProgressTitleLaunch": "Uruchamianie...",
+
+    "workProgressTitleCrunch": "Kompresja...",
+
+    "workProgressTitleDisk": "Tworzenie obrazu dysku...",
+
+
+    "workPhaseCompile": "Kompilacja",
+
+
+    "workPhaseCrunch": "Kompresja",
+
+
+    "workPhaseDisk": "Obraz dysku",
+
+
+    "workPhaseLaunch": "Uruchomienie",
+
+
+
+    "workPhasePrepare": "Przetwarzanie wstępne",
+
+
+
+    "workPhaseAnalyze": "Analiza",
+
+
+
+    "workProgressTitleAnalyze": "Analiza...",
+
+
+
+    "stepAnalyze": "Aktualizacja disasemblera, monitora i mapy pamięci…",
     "stepKickRead": "Kick: odczyt drzewa źródeł {file}…",
     "stepKickPreprocess": "Kick: wstępne przetwarzanie {file} ({files} plików)…",
     "stepVma": "VMA ({engine}): kompilacja {file}…",
@@ -16252,6 +16456,40 @@ const translations = {
     "snapshotEmpty": "Ancora nessun commit.",
     "close": "Chiudi",
     "workProgressTitle": "Compilazione...",
+
+    "workProgressTitleLaunch": "Avvio...",
+
+    "workProgressTitleCrunch": "Compressione...",
+
+    "workProgressTitleDisk": "Creazione immagine disco...",
+
+
+    "workPhaseCompile": "Compilazione",
+
+
+    "workPhaseCrunch": "Compressione",
+
+
+    "workPhaseDisk": "Immagine disco",
+
+
+    "workPhaseLaunch": "Avvio",
+
+
+
+    "workPhasePrepare": "Preelaborazione",
+
+
+
+    "workPhaseAnalyze": "Analisi",
+
+
+
+    "workProgressTitleAnalyze": "Analisi...",
+
+
+
+    "stepAnalyze": "Aggiornamento di disassembly, monitor e mappa di memoria…",
     "stepKickRead": "Kick: lettura dell'albero dei sorgenti di {file}…",
     "stepKickPreprocess": "Kick: preelaborazione di {file} ({files} file)…",
     "stepVma": "VMA ({engine}): compilazione di {file}…",

@@ -6270,6 +6270,42 @@ mark.vcd-word { color: inherit; border-radius: 2px; }
   text-overflow: ellipsis;
 }
 
+/* The phases reached so far (setWorkStep → _workPhaseEnter) */
+.work-progress-phases {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.84rem;
+}
+
+.work-progress-phases[hidden] { display: none; }
+
+.work-progress-phase {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+}
+
+.work-progress-phase::before {
+  content: "";
+  flex: none;
+  width: 14px;
+  text-align: center;
+  font-weight: 700;
+}
+
+.work-progress-phase--active { color: var(--text); font-weight: 600; }
+.work-progress-phase--active::before { content: "●"; color: var(--primary); animation: work-phase-pulse 1s ease-in-out infinite; }
+.work-progress-phase--done::before { content: "✓"; color: var(--primary); }
+
+@keyframes work-phase-pulse {
+  50% { opacity: 0.35; }
+}
+
 .work-progress-bar-wrap {
   height: 10px;
   width: 100%;

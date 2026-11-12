@@ -10079,6 +10079,7 @@ async function _ubApplyExomizer(result, label = "ultimate-basic") {
     _ubShowCompileErrors(["Exomizer is not available."]);
     return false;
   }
+  setWorkStep("stepExomizer", { file: _workStepName(label) || "PRG", bytes: (result.prg || []).length });
   let packed;
   try {
     packed = await window.electronAPI.buildExomizerPrg({
@@ -10122,6 +10123,7 @@ async function _ubCompile(showProgress = false, options = {}) {
   _ubScheduleLint();
   const buildTab = _getActiveTab();
   if (buildTab) buildTab._ubBuildResult = result;
+  if (result?.ok) setWorkStep("stepAnalyze");
   _ubRenderDisassembly(result);
   _ubRenderMonitor(result);
   renderMemoryMap();
@@ -10210,9 +10212,11 @@ async function _ubRun(mode) {
     let result;
     if (mode === "ultimate") {
       const password = (document.getElementById("ultimate-password")?.value || ultimatePassword).trim() || null;
+      setWorkStep("stepUltimate", { bytes: (build.outputPrg || build.prg).length, host });
       result = await window.electronAPI?.runOnUltimate(host, password, build.outputPrg || build.prg);
       _ubSetStatus(result?.ok ? "Running on Ultimate ✓" : (result?.error || "Ultimate run failed"), !result?.ok);
     } else if (mode === "kff2") {
+      setWorkStep("stepKff2", { bytes: (build.outputPrg || build.prg).length, port: kff2PortValue });
       result = await window.electronAPI?.runOnKff2(kff2PortValue, build.outputPrg || build.prg);
       _ubSetStatus(result?.ok ? "Running on Kung Fu Flash ✓" : (result?.error || t("kff2RunFailed")), !result?.ok);
     } else if (mode === "ue2") {
@@ -10221,6 +10225,7 @@ async function _ubRun(mode) {
       _ubSetStatus(result?.ok ? t("workProgressSuccessUe2") : _ue2ErrorText(result), !result?.ok);
       _ue2RefreshSettings();
     } else {
+      setWorkStep("stepVice", { file: _workStepName(target.path) || "main.ub", bytes: (build.outputPrg || build.prg).length });
       result = await window.electronAPI?.launchVice?.({ bytes: build.outputPrg || build.prg, fileName: `ultimate-basic-${Date.now()}.prg`, sidecars: _ubBuildSidecars(build) });
       _ubSetStatus(result?.ok ? "Running in VICE ✓" : (result?.error || "VICE launch failed"), !result?.ok);
     }
@@ -10309,6 +10314,7 @@ async function _ubRunDebugger() {
     const breakpointLines = target.startup
       ? (Array.isArray(target.breakpoints) ? target.breakpoints : [])
       : _getTabBreakpointLines("ub");
+    setWorkStep("stepDebugger", { file: _workStepName(target.path) || "main.ub" });
     const result = await window.electronAPI.launchDebugger({
       bytes: Array.from(build.prg || []),
       fileName: `ultimate-basic-${Date.now()}.prg`,
@@ -22599,6 +22605,7 @@ async function showWorkProgress(messageKey, opts = {}) {
   if (workProgressSubtitle) workProgressSubtitle.textContent = t(messageKey);
   const stepLine = document.getElementById("work-progress-step");
   if (stepLine && !workProgressDialog.open) stepLine.textContent = "";
+  if (!workProgressDialog.open && !opts.keepPhases) _workPhasesReset();
 
   if (indeterminate) {
     workProgressValue = 0;
@@ -22637,10 +22644,63 @@ function _workBuildSummary(prg) {
   return tf("workProgressBuildSummary", { bytes: bytes - 2, start: hex(load), end: hex(load + bytes - 3) });
 }
 
+// The phase of a step (a Run compiles, then launches): the dialog title and the phase list follow it.
+const _WORK_STEP_PHASES = {
+  stepKickRead: "prepare",
+  stepKickPreprocess: "prepare",
+  stepAnalyze: "analyze",
+  stepExomizer: "crunch",
+  stepD64: "disk",
+  stepVice: "launch",
+  stepUltimate: "launch",
+  stepKff2: "launch",
+  stepUe2: "launch",
+  stepDebugFiles: "launch",
+  stepDebugger: "launch"
+};
+const _WORK_PHASE_KEYS = {
+  prepare: ["workProgressTitle", "workPhasePrepare"],
+  compile: ["workProgressTitle", "workPhaseCompile"],
+  analyze: ["workProgressTitleAnalyze", "workPhaseAnalyze"],
+  crunch: ["workProgressTitleCrunch", "workPhaseCrunch"],
+  disk: ["workProgressTitleDisk", "workPhaseDisk"],
+  launch: ["workProgressTitleLaunch", "workPhaseLaunch"]
+};
+
+// The phases reached so far, one line each: the earlier ones done, the last one running.
+function _workPhaseEnter(phase) {
+  const list = document.getElementById("work-progress-phases");
+  if (!list) return;
+  const last = list.lastElementChild;
+  if (last?.dataset.phase === phase) return;
+  if (last) last.className = "work-progress-phase work-progress-phase--done";
+  const li = document.createElement("li");
+  li.className = "work-progress-phase work-progress-phase--active";
+  li.dataset.phase = phase;
+  li.textContent = t(_WORK_PHASE_KEYS[phase][1]);
+  list.appendChild(li);
+  list.hidden = false;
+}
+
+function _workPhasesReset(done = false) {
+  const list = document.getElementById("work-progress-phases");
+  if (!list) return;
+  if (done) {
+    for (const li of list.children) li.className = "work-progress-phase work-progress-phase--done";
+    return;
+  }
+  list.replaceChildren();
+  list.hidden = true;
+}
+
 function setWorkStep(key, values = {}) {
   const el = document.getElementById("work-progress-step");
   if (!el || !workProgressDialog?.open) return;
   el.textContent = key ? tf(key, values) : "";
+  if (!key) return;
+  const phase = _WORK_STEP_PHASES[key] || "compile";
+  if (workProgressTitle) workProgressTitle.textContent = t(_WORK_PHASE_KEYS[phase][0]);
+  _workPhaseEnter(phase);
 }
 
 // The file name of a path (the last / or \ part).
@@ -22689,6 +22749,7 @@ async function completeWorkProgress(successMessageKey, delayMs = 1200, summary =
   if (workProgressTitle) workProgressTitle.textContent = t("workProgressDoneTitle");
   if (workProgressSubtitle) workProgressSubtitle.textContent = t(successMessageKey);
   setWorkStep("");
+  _workPhasesReset(true);
   const stepLine = document.getElementById("work-progress-step");
   if (stepLine && summary) stepLine.textContent = summary;
   if (workProgressBar) {
@@ -24407,7 +24468,7 @@ async function confirmD64Export() {
   // Switch the progress modal's subtitle to the D64 packaging message. If we
   // didn't open it during compression and we're in run mode, open it now.
   if (isRunMode) {
-    await showWorkProgress(isUltimateMode ? "workProgressRunD64Ultimate" : "workProgressRunD64");
+    await showWorkProgress(isUltimateMode ? "workProgressRunD64Ultimate" : "workProgressRunD64", { keepPhases: true });
   } else if (willCrunchAny) {
     // Save-only mode: progress modal is up but the EXO loop is done — close it
     // so the OS save dialog (if any) isn't blocked behind it.
@@ -24600,12 +24661,13 @@ async function runViaD64() {
     return;
   }
 
-  const prg = await buildRunPrgForCurrentMode();
+  const prg = await _runBuildWithProgress("workProgressRunD64");
   if (!prg.ok) {
     if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
     if (emulatorStatus) emulatorStatus.textContent = prg.error;
     return;
   }
+  hideWorkProgress();
 
   d64ExportState.prgBytes = prg.bytes;
   d64ExportState.runMode = true;
@@ -24699,6 +24761,14 @@ async function runViaExomizer() {
       hideWorkProgress();
     }
   }
+}
+
+// A Run's build inside the work window, so its phase list shows the compile (and Exomizer) too.
+async function _runBuildWithProgress(messageKey) {
+  await showWorkProgress(messageKey);
+  const prg = await buildRunPrgForCurrentMode();
+  if (!prg.ok) hideWorkProgress();
+  return prg;
 }
 
 async function buildRunPrgForCurrentMode() {
@@ -25022,6 +25092,7 @@ async function _vaBuildExpert(options) {
   }
   const bytes = _acmePreviewByteCount({ bytes: result.bytes, sysAddress: result.sysAddress, stubGenerated: true });
   _expertSetStatus(tf("vaBuildSuccess", { bytes }), "ok");
+  setWorkStep("stepAnalyze");
   if (_expertDisasmVisible) _expertRenderDisasm();
   if (_expertMonitorVisible) _expertRenderMonitor();
   if (progress) await completeWorkProgress("workProgressSuccessBuild", 2200, _workBuildSummary(result.bytes));
@@ -25067,7 +25138,10 @@ async function _acmeBuildPreview(options) {
   if (button) button.disabled = true;
   _expertSetStatus(t(_textKey("acmeBuild")) + "…", "ok");
   let summary = null;   // the work window's summary line of a successful build
-  if (progress) await showWorkProgress("workProgressBuild");
+  if (progress) {
+    await showWorkProgress("workProgressBuild");
+    setWorkStep(_r65Mode() ? "stepR65" : "stepAcme", { file: _workStepSource() });
+  }
   try {
     const result = await _textBuild(true, { preview: true });
     if (tabId !== activeTabId || sourceText !== _expertGetSourceText()) return;
@@ -25084,6 +25158,7 @@ async function _acmeBuildPreview(options) {
       _expertSetStatus(tf(_textKey("acmeBuildSuccess"), { bytes: _acmePreviewByteCount(result) }), "ok");
       if (progress) summary = _workBuildSummary(result.bytes);
     }
+    if (progress && result.ok) setWorkStep("stepAnalyze");
     _acmeUpdateAnalysis();
     if (_expertDisasmVisible) _expertRenderDisasm();
     if (_expertMonitorVisible) _expertRenderMonitor();
@@ -25441,14 +25516,13 @@ async function runOnUltimate() {
     showViceToast(t("ultimateNotConfigured"), true);
     return;
   }
-  const prg = await buildRunPrgForCurrentMode();
+  const prg = await _runBuildWithProgress("workProgressRunUltimate");
   if (!prg.ok) {
     if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
     if (emulatorStatus) emulatorStatus.textContent = prg.error;
     return;
   }
   const password = (document.getElementById("ultimate-password")?.value || ultimatePassword).trim() || null;
-  await showWorkProgress("workProgressRunUltimate");
   setWorkStep("stepUltimate", { bytes: prg.bytes.length, host });
   const result = await window.electronAPI?.runOnUltimate(host, password, Array.from(prg.bytes));
   if (result?.ok) {
@@ -25464,13 +25538,12 @@ async function runOnUe2() {
     showViceToast(t("nothingToRunAddSomeInstructionsFirst"), true);
     return;
   }
-  const prg = await buildRunPrgForCurrentMode();
+  const prg = await _runBuildWithProgress("workProgressRunUe2");
   if (!prg.ok) {
     if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
     if (emulatorStatus) emulatorStatus.textContent = prg.error;
     return;
   }
-  await showWorkProgress("workProgressRunUe2");
   setWorkStep("stepUe2", { bytes: prg.bytes.length });
   const result = await window.electronAPI?.ue2RunPrg(Array.from(prg.bytes));
   _ue2RefreshSettings();
@@ -25492,13 +25565,12 @@ async function runOnKff2() {
     showViceToast(t("kff2NotConfigured"), true);
     return;
   }
-  const prg = await buildRunPrgForCurrentMode();
+  const prg = await _runBuildWithProgress("workProgressRunKff2");
   if (!prg.ok) {
     if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
     if (emulatorStatus) emulatorStatus.textContent = prg.error;
     return;
   }
-  await showWorkProgress("workProgressRunKff2");
   setWorkStep("stepKff2", { bytes: prg.bytes.length, port });
   const result = await window.electronAPI?.runOnKff2(port, Array.from(prg.bytes));
   if (result?.ok) {
@@ -25520,12 +25592,13 @@ async function runUltimateD64(target = "ultimate") {
     return;
   }
 
-  const prg = await buildRunPrgForCurrentMode();
+  const prg = await _runBuildWithProgress("workProgressRunD64");
   if (!prg.ok) {
     if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
     if (emulatorStatus) emulatorStatus.textContent = prg.error;
     return;
   }
+  hideWorkProgress();
 
   d64ExportState.prgBytes = prg.bytes;
   d64ExportState.runMode = target;
@@ -57887,12 +57960,14 @@ async function _w64Run() {
     showViceToast(t("nothingToRunAddSomeInstructionsFirst"), true);
     return;
   }
-  const prg = await buildRunPrgForCurrentMode();
+  const prg = await _runBuildWithProgress("workProgressRun");
   if (!prg.ok) {
     if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
     showViceToast(prg.error || t("launchingViceFailed"), true);
     return;
   }
+  setWorkStep("stepVice", { file: _workStepSource() || "PRG", bytes: prg.bytes.length });
+  await completeWorkProgress("workProgressSuccessRun", 400);
   await _w64Show();
   _w64S().session = null;
   _w64EndDebugView();
