@@ -11,7 +11,7 @@
 
 use std::sync::{Arc, Mutex, OnceLock};
 
-pub(crate) const VERSION: &str = "1.2";
+pub(crate) const VERSION: &str = "1.3";
 pub(crate) const PAL_CLOCK: f64 = 985_248.0;
 pub(crate) const NTSC_CLOCK: f64 = 1_022_730.0;
 const PHASE_MASK: u32 = 0x00ff_ffff;
@@ -31,6 +31,12 @@ const WAVE_8580_PS: &[u8; 4096] = include_bytes!("../vendor/sid-wave-tables/wave
 const WAVE_8580_PT: &[u8; 4096] = include_bytes!("../vendor/sid-wave-tables/wave8580_P_T.dat");
 const WAVE_8580_ST: &[u8; 4096] = include_bytes!("../vendor/sid-wave-tables/wave8580__ST.dat");
 const OUTPUT_SCALE: f32 = i16::MAX as f32 / 8.0;
+/// The 8580's small voice DC level (one voice's full swing = 1): the volume register still
+/// moves it, so $D418 digis are faintly audible, as on the real chip.
+const VOICE_DC_8580: f32 = 0.075;
+/// The 8580 "digi boost" hack: a DC level on EXT IN, as reSID's `input(-32768)` (three
+/// voices at full negative swing), which the volume register turns into a loud digi.
+const DIGI_BOOST_8580: f32 = -3.25;
 const FIR_PHASES: usize = 128;
 const FIR_ATTENUATION_DB: f64 = 80.0;
 
@@ -557,6 +563,7 @@ pub struct SidCore {
     history2: History,
     decimation_count: usize,
     output_enabled: bool,
+    digi_boost: bool,
     cycles_per_sample: f64,
     cycles_to_sample: u32,
     sample_fraction: f64,
@@ -674,6 +681,7 @@ impl SidCore {
             resampler,
             decimation_count: 0,
             output_enabled: true,
+            digi_boost: false,
             cycles_per_sample,
             cycles_to_sample: cycles_per_sample.floor() as u32 + 1,
             sample_fraction: cycles_per_sample.fract(),
@@ -862,6 +870,17 @@ impl SidCore {
             self.history2 = History::new(self.resampler.stage2.taps);
         }
         self.output_enabled = enabled;
+    }
+
+    /// The 8580 digi boost (EXT IN DC). The 6581's voices carry a large DC level of their
+    /// own, so it is left alone there. The output settles on the new idle level.
+    pub fn set_digi_boost(&mut self, enabled: bool) {
+        if self.digi_boost != enabled {
+            self.digi_boost = enabled;
+            if self.model == SidModel::Mos8580 {
+                self.settle_output();
+            }
+        }
     }
 
     /// The band-limited output at the instant reported by the last `clock()`.
@@ -1235,8 +1254,14 @@ impl SidCore {
         }
         let mut routed = 0.0f32;
         let mut direct = 0.0f32;
+        let ext_in = if self.digi_boost { DIGI_BOOST_8580 } else { 0.0 };
+        if routing & 8 != 0 {
+            routed += ext_in;
+        } else {
+            direct += ext_in;
+        }
         for index in 0..3 {
-            let sample = self.voice_samples[index];
+            let sample = self.voice_samples[index] + VOICE_DC_8580;
             if routing & (1 << index) != 0 {
                 routed += sample;
             } else if index != 2 || mode_vol & 0x80 == 0 {
@@ -1712,5 +1737,76 @@ mod tests {
         split.render(&mut second);
         assert_eq!(&one[..400], &first);
         assert_eq!(&one[400..], &second);
+    }
+}
+
+/// $D418 digis on both engines: the 8580's faint voice DC and its digi boost, measured
+/// against reSID (the digi's peak relative to a full sawtooth).
+#[cfg(test)]
+mod digi_tests {
+    use super::*;
+    use crate::sid_chip::{SidChip, SidEngine};
+
+    fn peak(pcm: &[i16]) -> i32 {
+        pcm[2_000..].iter().map(|&sample| i32::from(sample).abs()).max().unwrap()
+    }
+
+    fn digi(engine: SidEngine, model: SidModel, boost: bool) -> i32 {
+        let mut sid = SidChip::new(engine, 44_100, model);
+        sid.set_digi_boost(boost);
+        let mut pcm = vec![0i16; 8_820];
+        for (index, chunk) in pcm.chunks_mut(10).enumerate() {
+            sid.write(0x18, if index % 2 == 0 { 0x0f } else { 0x00 });
+            sid.render(chunk);
+        }
+        peak(&pcm)
+    }
+
+    fn saw(engine: SidEngine, model: SidModel) -> i32 {
+        let mut sid = SidChip::new(engine, 44_100, model);
+        for (register, value) in [(0u8, 0u8), (1, 0x20), (5, 0), (6, 0xf0), (0x18, 0x0f), (4, 0x21)] {
+            sid.write(register, value);
+        }
+        let mut pcm = vec![0i16; 8_820];
+        sid.render(&mut pcm);
+        peak(&pcm)
+    }
+
+    fn ratio(engine: SidEngine, boost: bool) -> f64 {
+        f64::from(digi(engine, SidModel::Mos8580, boost)) / f64::from(saw(engine, SidModel::Mos8580))
+    }
+
+    #[test]
+    fn mos8580_volume_digi_is_faint_like_resid() {
+        let (va, resid) = (ratio(SidEngine::VaCore, false), ratio(SidEngine::Resid, false));
+        assert!((0.05..0.2).contains(&va), "8580 digi / saw {va:.3}");
+        assert!((va / resid - 1.0).abs() < 0.25, "VA {va:.3}, reSID {resid:.3}");
+    }
+
+    #[test]
+    fn mos8580_digi_boost_makes_the_volume_digi_loud_like_resid() {
+        let (va, resid) = (ratio(SidEngine::VaCore, true), ratio(SidEngine::Resid, true));
+        assert!(va > 1.0, "boosted 8580 digi / saw {va:.3}");
+        assert!((va / resid - 1.0).abs() < 0.25, "VA {va:.3}, reSID {resid:.3}");
+    }
+
+    #[test]
+    fn digi_boost_leaves_the_6581_alone() {
+        for engine in [SidEngine::VaCore, SidEngine::Resid] {
+            assert_eq!(digi(engine, SidModel::Mos6581, true), digi(engine, SidModel::Mos6581, false));
+        }
+    }
+
+    #[test]
+    fn switching_the_digi_boost_does_not_click() {
+        for engine in [SidEngine::VaCore, SidEngine::Resid] {
+            let mut sid = SidChip::new(engine, 44_100, SidModel::Mos8580);
+            sid.write(0x18, 0x0f);
+            let mut pcm = vec![0i16; 4_410];
+            sid.render(&mut pcm);
+            sid.set_digi_boost(true);
+            sid.render(&mut pcm);
+            assert!(pcm.iter().all(|&sample| sample.abs() < 400), "{engine:?}: {}", peak(&[&[0; 2_000][..], &pcm].concat()));
+        }
     }
 }

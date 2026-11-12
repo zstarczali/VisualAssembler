@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**Verzió: 2.7.9**
+**Verzió: 2.8.0**
 
 Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasításblokkok fogd-és-vidd módszerrel történő elrendezésével építed fel, a generált assembly és gépi kód pedig valós időben frissül.
 
@@ -10,6 +10,7 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 
 ## Tartalomjegyzék
 
+- [A 2.8.0 verzió újdonságai](#a-280-verzió-újdonságai)
 - [A 2.7.9 verzió újdonságai](#a-279-verzió-újdonságai)
 - [A 2.7.8 verzió újdonságai](#a-278-verzió-újdonságai)
 - [A 2.7.7 verzió újdonságai](#a-277-verzió-újdonságai)
@@ -242,6 +243,20 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
   - [Curve Editor](#curve-editor)
   - [Táblagenerátor](#táblagenerátor)
   - [Számrendszer-átváltó](#számrendszer-átváltó)
+
+---
+
+## A 2.8.0 verzió újdonságai
+
+- **SID szerkesztő: L (legato) effekt** — hang a tartott gate alatt, a burkoló újraindítása nélkül. Lásd: [SID szerkesztő](#sid-editor-3-voice-tracker).
+- **SID szerkesztő: gate ki a wave táblában** — egy táblalépés a következő hangig elengedheti a gate-et.
+- **.sid import** — a legato hangok L hangok, a hangon belül elengedett gate „gate ki” táblalépés, a néma bevezetés egész sorokból áll.
+- **VA SID Core 1.3 és 8580 digi boost** — a `$D418` digik a 8580-on halkan szólnak, mint a valódi chipen; a **Beállítások → Általános → SID előnézet → 8580 digi boost** hangossá teszi őket.
+- **Kick import az R65-ön át** — a **Kick import** és a **Kick projekt importálása…** az R65-tel fordítja a forrást, és ugyanazokat a bájtokat adó VMA-t ír. Lásd: [Kick import](#kick-import-kick-assembler).
+- **Munkaablak fázisai** — a Futtatás, a Debug és a Build mutatja a munka fázisait. Lásd: [Fordítási folyamat modal](#fordítási-folyamat-modal).
+- **Projektfa** — a többi fájl az alapértelmezett programmal nyílik, és megjeleníthető a fájlkezelőben; az UltimateBasic projekt Expert / Blokk módból is UltimateBasic módban nyílik.
+- **Eszköztárak** — az Expert és az UltimateBasic eszköztár azonos sorrendű, azonos ikonokkal; az UltimateBasic **New** gomb kikerült (Ctrl+N).
+- **Javítások** — a hexa betűkből álló címke (`BEQ bad`) a blokkokon át is címke marad; a Kick kiemelés javult a címkéknél és a hívásoknál.
 
 ---
 
@@ -787,7 +802,7 @@ Nehezebb műveletek alatt egy középre igazított folyamatjelző modal jelenik 
 - **Debug** — a PRG fordítása és a RetroDebugger indítása.
 - **Build project**, **Build D64** és **Exomizer** tömörítés.
 
-A sáv alatti sor az éppen futó lépést mutatja a fájllal — például *Kick: main.asm előfeldolgozása (14 fájl)…*, *VMA (Rust): main.asm fordítása…*, *A PRG kész: 2061 bájt, $0801 címtől*, *Exomizer: … tömörítése*, *VICE: … indítása*. A modal automatikusan bezárul, amikor a művelet befejeződik vagy meghiúsul.
+A sáv fölött a munka fázisai látszanak — *Előkészítés*, *Fordítás*, *Elemzés*, *Tömörítés* (Exomizer), *Lemezkép* (D64), *Indítás* —, a futó kiemelve, a kész fázisok pipával; az ablak címe a fázist követi. A sáv alatti sor az éppen futó lépést mutatja a fájllal — például *Kick: main.asm előfeldolgozása (14 fájl)…*, *VMA (Rust): main.asm fordítása…*, *A PRG kész: 2061 bájt, $0801 címtől*, *Exomizer: … tömörítése*, *VICE: … indítása*. A modal automatikusan bezárul, amikor a művelet befejeződik vagy meghiúsul.
 
 ---
 
@@ -1016,7 +1031,11 @@ Az Expert-mód `.asm` betöltő elfogadja a gyakori 6502 forrásmintákat, és b
 
 ### Kick import (Kick Assembler)
 
-A Program menü **Kick import** gombja nyers Kick Assembler forrást olvas be egy új blokk-módú fülbe. Ez elkülönül a fenti Expert-mód `Load .asm file`-tól — az egyéni tooltipje jelzi, hogy **csak Kick Assembler kód támogatott** (más assemblerek részben parse-olhatók, de a round-trip nem garantált).
+A Program menü **Kick import** gombja nyers Kick Assembler forrást olvas be egy új blokk-módú fülbe.
+
+**Az R65-ön át (asztali alkalmazás):** a forrást előbb a beépített R65 assembler fordítja le, és a fordítás VMA-ként íródik ki: maga a forrás, ha a VMA ugyanazokat a bájtokat fordítja belőle, különben az R65 programja, a `!+` / `!-` célokhoz címkékkel, az operandusokban szereplő Kick konstansokkal, a Kick makrók VMA makróként (`.invoke`; a `.for`-ból hívott makró kibontva marad), a `.pseudopc` kód a futási címeivel. Az állapotsor kiírja, melyik út futott, és egyeznek-e a bájtok az R65-éivel. Ha az R65 nem tudja lefordítani, a lenti átalakítás fut, és az állapotsor ezt jelzi.
+
+Az átalakítás R65 nélkül: Ez elkülönül a fenti Expert-mód `Load .asm file`-tól — az egyéni tooltipje jelzi, hogy **csak Kick Assembler kód támogatott** (más assemblerek részben parse-olhatók, de a round-trip nem garantált).
 
 Támogatott minták:
 
@@ -1041,6 +1060,8 @@ Ismert korlát:
 - Azok a konstansok, amelyek zero-page címre oldódnak fel (például a `.const BYTEADDR = $FC` `STA BYTEADDR`-ként használva) jelenleg abszolút módú utasításokra fordulnak (3 byte) a zero-page (2 byte) helyett. A lefordított kód még mindig a helyes memóriacímre ír, csak kis méret- és ciklus-többlettel a Kick Assemblerrel épített ugyanazon forráshoz képest.
 
 #### Kick projektek (Kick projekt importálása…)
+
+**Az R65-ön át (asztali alkalmazás):** az R65 a fő fájlból lefordítja a projektet, a VA pedig az eredményt `<név>_vma.asm` fájlba írja egy VMA `.proj`-jal (indítófájl: ez a forrás) a Kick források mellé, amelyek változatlanok maradnak; meglévő fájlt csak kérdés után ír felül. R65 nélkül, vagy ha az R65 nem tudja lefordítani, a lenti Kick projekt készül.
 
 A **Kick projekt importálása…** (Program menü, a **Kick import** alatt) egy teljes KickAssembler forrásfát — egy fő fájlt `#import` modulokkal és `.import binary` assetekkel — VA projektté tesz. Válaszd ki a fő fájlt (`main.asm`); a VA követ minden `#import` / `.import source` / `.import binary` sort (a nem teljesülő `.if` ágakban is), és mellé ír egy `.proj`-ot a mappa nevével (`src` / `source` / `asm` mappánál a szülőmappa nevével). A projekt a mappaszerkezetükben listázza a fájlokat; a források a helyükön maradnak, így egy meglévő KickAssembler build-szkript továbbra is működik. A nem található fájlokat a hiba-ablak sorolja fel.
 
@@ -1106,7 +1127,7 @@ color border 0
 print "HELLO FROM ULTIMATE BASIC"
 ```
 
-A UB mód `.ub` forrásfájlokkal dolgozik. A **New**, **Open**, **Save** és **Save As** az aktív UB fülre vonatkozik. Egy `.ub` fájl megnyitása automatikusan aktiválja a hozzá tartozó szerkesztőfület.
+A UB mód `.ub` forrásfájlokkal dolgozik. Az **Open**, **Save** és **Save As** az aktív UB fülre vonatkozik; új forrásfület a **Ctrl+N** vagy a fül-sáv **+** gombja nyit. Egy `.ub` fájl megnyitása automatikusan aktiválja a hozzá tartozó szerkesztőfület.
 
 Az eszköztár mutatja az aktuális UB munkamappát. Ez a mappa a Block/Expert munkamappától elkülönítve tárolódik. Amíg a UB mód aktív, a **File → Set working folder** a UB mappát választja ki; a tooltipje jelzi az aktív hatókört. A UB Open/Save dialógusok innen indulnak, és a nem mentett források ezt használják alapként a relatív `include` és `incbin` útvonalakhoz.
 
@@ -1134,6 +1155,8 @@ A parancslista szándékosan magasság-korlátozott, hogy a parancs-részlet ká
 
 Az Ultimate Basic projektek `.proj` fájlokat használnak, és több `.ub` forrást tartalmazhatnak. A Project panel listázza a nyitott fájlokat, jelöli a nem mentett füleket, és mutatja a felfedezett címkéket, függvényeket és szubrutinokat. A projekt-műveletekkel létrehozhatsz, megnyithatsz, menthetsz és bezárhatsz egy projektet, vagy hozzáadhatsz egy újabb forrásfájlt. A Verziókezelés dialógus a projekt összes fájlját együtt is commitolja, összeveti és visszaállítja — lásd: [Projekt mód](#projekt-mód). Új projekt UltimateBasic sablonból is indulhat — lásd: [Projekt sablonok](#projekt-sablonok).
 
+Az Expert vagy Blokk módból (**Menu → File → Open project**) megnyitott UltimateBasic `.proj` UB módra vált, megmutatja a projekt panelt, és megnyitja az indítófájlt (vagy az első `.ub` fájlt).
+
 Kattints egy projektfájl melletti csillagra, hogy **startup fájlnak** jelöld. A Build, Run, D64, C64 Ultimate és Debug parancsok azt a startup forrást fordítják, még akkor is, ha éppen egy másik fül aktív. Startup-választás nélkül az aktív UB fül használódik.
 
 A projekt panel eszköztárán két hozzáadó gomb van, a fájldialógusok pedig alapból az **UB working foldert** nyitják meg (Menu → File → Set working folder, UB-specifikus):
@@ -1147,7 +1170,7 @@ A **Save project** gomb automatikusan letiltja magát és "Elmentve" állapotot 
 
 ### Buildelés és diagnosztika
 
-A **Build** gomb ugyanazt a középre igazított folyamatjelző élményt nyitja meg, mint a többi Visual Assembler futtatási munkafolyamat. A sikeres buildek frissítik a Build Output, Build Info és Disassembly paneleket. Engedélyezd a **Verbose**-t, hogy a fordító memóriatérkép-részletei, belső zero-page allokációi és a generált kód adatai is bekerüljenek.
+A **Build** gomb ugyanazt a középre igazított folyamatjelző élményt nyitja meg, mint a többi Visual Assembler futtatási munkafolyamat. A sikeres buildek frissítik a Build Output, Build Info és Disassembly paneleket. A **Build** melletti **Build Info** gomb az utolsó build Build Info ablakát nyitja meg (változók, tömbök, szubrutinok és a PRG mérete). Engedélyezd a **Verbose**-t, hogy a fordító memóriatérkép-részletei, belső zero-page allokációi és a generált kód adatai is bekerüljenek.
 
 Ha a fordítás meghiúsul:
 
@@ -4738,7 +4761,7 @@ Réteges tilemap szerkesztő statikus díszlethez, sprite spawn map-ekhez, ütk�
 
 Több-hangszeres 3-voice tracker. A SID Editor eszköztár-gombjával nyílik. A lejátszás és minden előnézet (**Play: All**, hangszer-előnézet, virtuális billentyűzet, hangbeírás, akkord / arpeggio, sor- és egy patternes lejátszás) az emulált SID-en szól: az exportált 6502 lejátszó frame-pontos JS modellje a backendnek küldi a SID-regisztereit, a hangot az rendereli. Az asztali appon kívül egy kis SID-szintetizátor szól helyette.
 
-**Előnézeti motor:** a **Beállítások → Általános → SID előnézet** alatt a **reSID (resid-rs)**, ez az alapértelmezett, vagy a **VA SID Core (Rust)**, az alkalmazás saját SID-emulációja választható, és a chip (MOS 6581 / 8580). A szerkesztő fejléce mutatja a használt motort (pl. *· reSID (MOS 8580)*). A hangszer-paraméterek tekerőgombokkal állíthatók.
+**Előnézeti motor:** a **Beállítások → Általános → SID előnézet** alatt a **reSID (resid-rs)**, ez az alapértelmezett, vagy a **VA SID Core (Rust)**, az alkalmazás saját SID-emulációja választható, és a chip (MOS 6581 / 8580). A szerkesztő fejléce mutatja a használt motort (pl. *· reSID (MOS 8580)*). A **8580 digi boost** egyenfeszültséget ad az EXT IN bemenetre, mint a VICE: nélküle a `$D418` digik a 8580-on halkak (a VA SID Core 1.3 modellezi a 8580 hangjainak kis DC-szintjét, így nem is némák), vele hangosak. A 6581-re nem hat; a SID Playerre is érvényes, lejátszás közben is. A hangszer-paraméterek tekerőgombokkal állíthatók.
 
 **Két SID:** a tracker eszköztárán a **SID: 1 / 2** 3 és 6 hang között váltja a dalt. Két SID-nél a mellette lévő lista a második SID címét állítja: `$D420`–`$D7E0` vagy `$DE00`–`$DFE0`, `$20`-as lépésekben. Az oszlopok fejléce **S1 V1** … **S2 V3**. Mindkét SID-nek saját szűrője és hangereje van, és egy hang csak a saját chipjéét vezérli. A két SID sztereóban szól (SID 1 balra, SID 2 jobbra). A hang-előnézetek az első SID-en szólnak. Egy SID-re visszaváltva a második SID hangjai törlődnek, és ha van bennük valami, előbb rákérdez.
 
@@ -4750,7 +4773,7 @@ Több-hangszeres 3-voice tracker. A SID Editor eszköztár-gombjával nyílik. A
 - **Vibrato:** **Késleltetés** frame után háromszög LFO, ami **Sebesség** frame-enként fordul, a **Mélység** 0-15 a hang félhangjához skálázva (független a `V` effekttől).
 - **Pulzusszélesség-moduláció:** frame-enként **Sebesség** adódik a pulzusszélességhez, **Min** és **Max** között pattogva.
 - **Gate:** a **Gate időzítő** ennyi frame-mel a hang következő hangja előtt elengedi a gate-et (legyen kisebb a Speednél); a **Hard restart** ekkor az ADSR-t is nullázza a tiszta indításhoz; az **Első frame** a hang első frame-jén hullámformát ír (pl. `$09` test + gate).
-- **Wave / arpeggio tábla:** legfeljebb 32 lépés hullámformával (— = marad) és hanggal (eltolás félhangban, vagy **abs** = abszolút hang), lépésenként **Sebesség** frame, **Ismétlés** egy lépésre vissza, vagy megáll az utolsón. **Előbeállítások** (25, csoportosítva; a lista mutatja a választottat, amíg a táblát kézzel nem szerkeszted): arpeggiók (dúr, moll, szeptimakkordok, sus4, szűkített, bővített, power akkord, oktáv, trilla), dobok (lábdob, pergő, tam, taps, zárt / nyitott lábcin), lead- és basszus-indítások, hangeffektek (lézer, felvétel, robbanás).
+- **Wave / arpeggio tábla:** legfeljebb 32 lépés hullámformával (— = marad) és hanggal (eltolás félhangban, vagy **abs** = abszolút hang), lépésenként **Sebesség** frame, **Ismétlés** egy lépésre vissza, vagy megáll az utolsón. A lépés **gate ki** jelölője attól a lépéstől a következő hangig elengedi a gate-et (a release fut; pl. egyframe-es dobütés). **Előbeállítások** (25, csoportosítva; a lista mutatja a választottat, amíg a táblát kézzel nem szerkeszted): arpeggiók (dúr, moll, szeptimakkordok, sus4, szűkített, bővített, power akkord, oktáv, trilla), dobok (lábdob, pergő, tam, taps, zárt / nyitott lábcin), lead- és basszus-indítások, hangeffektek (lézer, felvétel, robbanás).
 
 **Tracker rács:**
 - 3 voice (második SID-del 6) × akár 256 pattern × 32 sor; a song / sorrend lista legfeljebb 255 lépés.
@@ -4786,6 +4809,7 @@ Minden cella a note és hangszer mellett hordozhat egy effektet is, rövid kódd
 | `D` | Csúszás le (portamento) | soronként a frekvenciából levont mennyiség |
 | `C` | Note-cut | elnémítja a voice-ot újraütés nélkül; az érték nem használt |
 | `F` | Tempóváltás | új frame/sor érték, azonnal érvénybe lép |
+| `L` | Legato | hanggal: a tartott gate alatt a hang a burkoló újraindítása nélkül indul (a hangszer, a tábla, a pulzusszélesség és a vibrato újraindul, first frame hullámforma és előtte gate timer / hard restart nincs); tartott gate nélkül sima hang |
 
 Az effektek soronként egyszer frissülnek (megegyezően az exportált lejátszó időzítésével), azonosan futnak a Web Audio előnézetben és a lefordított 6502 exportban, és veszteségmentesen mentődnek/töltődnek be a verziózott `.bin` formátumban.
 
@@ -4824,9 +4848,9 @@ Az effektek soronként egyszer frissülnek (megegyezően az exportált lejátsz�
 - A wavetable által elengedett gate a következő szabad sorban note-off lesz. Csak az első subtune töltődik be.
 
 **.sid import:** a **Files → Import .sid…** egy PSID / RSID fájlt nyit meg (csak az asztali alkalmazásban, mert a VA SID Core-t használja). Válaszd ki a subtune-t és a hosszt másodpercben, majd **Import**: a dal némán lefut, a SID-regiszterek frame-ről frame-re rögzülnek, és ebből lesz a song az aktuális helyére. A felvételt folyamatjelző követi, az átalakítást az *Átalakítás…* állapot.
-- **Hangok:** a hangkezdet egy gate-él (2 frame-en belüli újragate egy hangnak számít); ha tartott gate mellett a hangmagasság új félhangra vált és legalább 5 frame-ig ott marad, az új, újraindított (legato) hang lesz. A hangmagasság a hang fő hullámformájának leggyakoribb félhangja; az NTSC dalok a PAL hangtáblára hangolódnak át.
+- **Hangok:** a hangkezdet egy gate-él (2 frame-en belüli újragate egy hangnak számít); ha tartott gate mellett a hangmagasság új félhangra vált és legalább 5 frame-ig ott marad, `L` effektes legato hang lesz belőle (ha a sornak `F` tempóváltás is kell, és egyik hangnak sincs szabad effekt-cellája, újraindított hang). Az első hang előtti sorok a dal sorhosszának egész sorai. A hangmagasság a hang fő hullámformájának leggyakoribb félhangja; az NTSC dalok a PAL hangtáblára hangolódnak át.
 - **Sorok:** a sorok pontosan a hangkezdeteken indulnak. Az alapsorhossz a leghosszabb, amelyre szinte mind illeszkedik; az ennyi vagy egy frame-mel hosszabb sorokat (funktempo, swing, tempóváltás) egy sorral előbb álló `F` effekt állítja.
-- **Hangszerek:** AD / SR, a fő hullámforma, pulzusszélesség és PWM, a szűrő (routing, mód, rezonancia, cutoff-söprés), valamint a hang minden frame-jének hullámformája és hangmagassága a következő hangig: ez a wave / arpeggio tábla (előtag és ismétlődő loop, legfeljebb 32 lépés). A fix magasságú dob-attack abszolút, az arpeggio relatív hangokat kap, az azonos hangzású hangok közös döntése alapján; a szabályos, félhangnál kisebb kitérés a hangszer vibratója lesz. A gate-ből note cut, gate időzítő (hard restarttal, ha az ADSR nullázva van) vagy release-sebességű lecsengés lesz. Az azonos hangszerek közösek, legfeljebb 128.
+- **Hangszerek:** AD / SR, a fő hullámforma, pulzusszélesség és PWM, a szűrő (routing, mód, rezonancia, cutoff-söprés), valamint a hang minden frame-jének hullámformája és hangmagassága a következő hangig: ez a wave / arpeggio tábla (előtag és ismétlődő loop, legfeljebb 32 lépés). A fix magasságú dob-attack abszolút, az arpeggio relatív hangokat kap, az azonos hangzású hangok közös döntése alapján; a szabályos, félhangnál kisebb kitérés a hangszer vibratója lesz. A gate-ből note cut, gate időzítő (hard restarttal, ha az ADSR nullázva van), vagy ha a hangon belül enged el, **gate ki** táblalépés lesz (a táblán túl release-sebességű lecsengés). Az azonos hangszerek közösek, legfeljebb 128.
 - Egy üzenet felsorolja, mi lett közelítve, például a félhanglépésekké váló glide-ok vagy a 32 lépésnél hosszabb táblák. A BASIC programként induló RSID dalok nem támogatottak.
 - **Szűrő és pulzus mozgása:** a szűrősöprés a teljes hangra számít, akkor is, ha a hullámforma már elnémult, és ott ér véget, ahol egy másik hang újraindítja a szűrőt. A gyorsan eső szűrőtáblát az számítja, mikor éri el a végét, a lejátszó frame-enkénti 127-es korlátján belül. A szűrő-LFO a szélsőértékei között pattog. Egy hangszer az összes hangjának pulzustartományát megtartja. A pulzus és a szűrő minden szűrőn átvezetett hangnál újraindul, ezért a sok hangon át szabadon futó söprés csak közelítés, a félhangok közé eső hangmagasság pedig a legközelebbi félhangra kerekül.
 - **Több SID:** a 2SID-es dal hat hangos lesz, és a második SID címe is átjön. A 3SID-es dalból az első két SID kerül át, erről üzenet is szól.

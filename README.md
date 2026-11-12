@@ -2,9 +2,22 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.7.9**
+**Current version: v2.8.0**
 
 Visual Assembler is free and open source (GPLv3): every feature — editors, builds, hardware runs, languages and themes — works without a registration or serial. At most once a day the app sends an anonymous startup ping (version, OS, UI language, launch count, a random install ID) for the usage statistics; no email, project or source code is sent.
+
+## What's New in v2.8.0
+
+- **SID Editor: legato** — a new effect code **L** plays the note of the row under the held gate: the instrument, its table and pulse width start again, but the envelope is not retriggered and the first-frame waveform is skipped. Without a held gate it is a plain note. The exported 6502 player does the same.
+- **SID Editor: gate off in the wave table** — every step of the wave / arpeggio table has a **gate off** box: from that step the gate is released until the next note (a one-frame drum hit under a ringing bass).
+- **.sid import** — legato notes become L notes in place of retriggered ones, a gate released inside a note becomes a gate-off table step, and the rows of a silent intro start on whole rows. Over eight test tunes the envelope match rose from 84 % to 91 % (Wizball from 53 % to 100 %).
+- **VA SID Core 1.3** — the 8580 voices have a small DC level, so `$D418` digis play quietly as on the real chip; **Settings → General → SID preview → 8580 digi boost** drives EXT IN as VICE does, and they play loud. The setting works with reSID too, and it can be switched while a tune plays.
+- **Kick import through R65** — **Kick import** and **Import Kick project…** let the built-in R65 assembler build the source and write it as VMA: Kick macros become VMA macros, `!+` / `!-` targets get labels, `.pseudopc` code keeps its run addresses, and the result is checked to build R65's bytes. Import Kick project writes `<name>_vma.asm` and a VMA `.proj` next to the Kick sources, which stay as they are. When R65 cannot build the source, the old conversion runs.
+- **Work window phases** — Run, Debug and the Build buttons list the phases (prepare, compile, analyze, compress, disk image, launch), the done ones checked.
+- **Project tree** — files that VA does not open (pictures, PDFs, PRGs …) open with their default app on a double-click or from the right-click menu, which also has **Show in Explorer / Finder / file manager**.
+- **UltimateBasic projects from Expert / Block mode** — opening an UltimateBasic `.proj` switches to UltimateBasic mode with its project panel and startup file.
+- **Toolbars** — the Expert and the UltimateBasic toolbar have the same groups in the same order (project, panels, files, format, build, side panels, editor view, find / bookmarks, zoom) and the same icons. The UltimateBasic **New** button is gone: **Ctrl+N** or **+** on the tab bar opens a new tab.
+- **Fixes** — a label made of hex letters (`BEQ bad`, `JMP fade`) no longer turns into a number (`$0BAD`) on its way through the blocks; Kick syntax highlighting of labels before a directive and of calls to the source's own functions and macros.
 
 ## What's New in v2.7.9
 

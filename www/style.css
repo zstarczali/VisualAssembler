@@ -3998,11 +3998,10 @@ body.ub-mode .hero-copy { display: none; }
 body.ub-mode .workspace { grid-template-columns: 1fr; gap: 14px; }
 .ub-panel { display: flex; flex-direction: column; height: var(--editor-max-depth); min-height: var(--editor-max-depth); max-height: var(--editor-max-depth); background: var(--panel); border: 1px solid var(--panel-border); border-radius: 2px; box-shadow: var(--shadow); overflow: hidden; box-sizing: border-box; }
 .ub-toolbar, .ub-statusbar { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-bottom: 1px solid var(--panel-border); background: var(--ub-chrome-bg, var(--panel-strong)); color: var(--text); }
-.ub-toolbar { flex-wrap: nowrap; min-height: 48px; overflow: visible; box-sizing: border-box; position: relative; z-index: 22; } /* above .expert-project-panel (21): its tooltips hang over the panel */
+.ub-toolbar { flex-wrap: nowrap; min-height: 48px; gap: 10px; padding: 0 14px; overflow: visible; box-sizing: border-box; position: relative; z-index: 22; } /* above .expert-project-panel (21): its tooltips hang over the panel */
 .ub-toolbar > button, .ub-toolbar > .expert-toolbar-sep { flex: 0 0 auto; }
 .ub-toolbar .expert-hl-toggle { display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; }
 .ub-toolbar .expert-hl-toggle svg { display: block; flex: none; }
-.ub-toolbar .ub-zoom-btn { min-width: 34px; }
 .ub-statusbar { border-top: 1px solid var(--panel-border); border-bottom: 0; justify-content: flex-start; color: var(--muted); font-size: .78rem; }
 #ub-status { min-width: 0; max-width: 55%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 #ub-cursor-pos { margin-left: auto; flex-shrink: 0; white-space: nowrap; }
@@ -6268,6 +6267,42 @@ mark.vcd-word { color: inherit; border-radius: 2px; }
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* The phases reached so far (setWorkStep → _workPhaseEnter) */
+.work-progress-phases {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.84rem;
+}
+
+.work-progress-phases[hidden] { display: none; }
+
+.work-progress-phase {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+}
+
+.work-progress-phase::before {
+  content: "";
+  flex: none;
+  width: 14px;
+  text-align: center;
+  font-weight: 700;
+}
+
+.work-progress-phase--active { color: var(--text); font-weight: 600; }
+.work-progress-phase--active::before { content: "●"; color: var(--primary); animation: work-phase-pulse 1s ease-in-out infinite; }
+.work-progress-phase--done::before { content: "✓"; color: var(--primary); }
+
+@keyframes work-phase-pulse {
+  50% { opacity: 0.35; }
 }
 
 .work-progress-bar-wrap {
@@ -10911,7 +10946,7 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 #sid-table-preset { flex: 1 1 140px; min-width: 120px; }
 .sid-table-steps { display: flex; flex-direction: column; gap: 3px; max-height: 145px; overflow-y: auto; overflow-x: hidden; padding-right: 4px; margin-bottom: 4px; }
 .sid-table-empty { font-size: 0.72rem; color: var(--muted); padding: 4px 0; }
-.sid-tstep { display: grid; grid-template-columns: 18px minmax(0, 1fr) 54px auto 24px; align-items: center; gap: 5px; }
+.sid-tstep { display: grid; grid-template-columns: 18px minmax(0, 1fr) 54px auto auto 24px; align-items: center; gap: 5px; }
 .sid-tstep--loop .sid-tstep-idx { color: var(--primary); font-weight: 700; }
 .sid-tstep-idx { font-family: "IBM Plex Mono", monospace; font-size: 0.7rem; color: var(--secondary); text-align: right; }
 .sid-tstep .sid-select, .sid-tstep .sid-input { height: 26px; font-size: 0.74rem; min-width: 0; }

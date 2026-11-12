@@ -1,5 +1,7 @@
 C64 Visual Assembler - Installation Guide
-Version 2.7.9
+Version 2.8.0
+
+2.8.0: SID Editor L (legato) effect and gate-off table steps, a closer .sid import; VA SID Core 1.3 with the 8580 digi boost option; Kick import and Import Kick project build through R65 and write VMA that builds the same bytes; build phases in the work window; project files open with their default app or show in the file manager; UltimateBasic projects open from Expert / Block mode; Expert and UltimateBasic toolbars in the same order with the same icons
 
 2.7.9: R65, a KickAssembler-compatible assembler, built in: choose it in Settings next to VMA and ACME (projects too, its version in About); Build shows a small window with the size and address range; Kick import fixes (statements over several lines, .errorif, labels in .pseudopc, < / > of numbers) and a single file using script features opens as a Kick project; separators around the UB file buttons.
 

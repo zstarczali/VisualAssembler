@@ -77,54 +77,54 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "r65-279",
+  id: "sid-legato-280",
   url: "https://www.c64va.pro/docs.html",
   hu: {
-    eyebrow: "Újdonság a 2.7.9-ben",
+    eyebrow: "Újdonság a 2.8.0-ban",
     title: "Üdvözöl a Visual Assembler",
-    body: `<ul><li><strong>R65 assembler</strong>: beépült az R65, egy KickAssembler-kompatibilis assembler. A <em>Beállítások → Általános → Assembler mód</em> alatt (vagy a Projekt beállításokban) a VMA és az ACME mellett választható; a fordítás, a futtatás, a panelek és a debugger is ezt használják.</li><li><strong>Build összesítő</strong>: az Expert és az UltimateBasic Build gombja kis ablakban mutatja a fordítást, a végén a PRG méretével és címtartományával.</li><li><strong>Kick import</strong>: több soros utasítások, <code>.errorif</code>, <code>.pseudopc</code> címkék és szám-literálok <code>&lt;</code> / <code>&gt;</code> része helyesen importálódik.</li><li><strong>Gyorsabb lett</strong>: a fordítás, a futtatás és gépelés közben az élő nézetek (disassembly, monitor, memóriatérkép, ciklus-gutter, ASM nézet) is gyorsabbak, mert mindent a natív Rust VMA fordító (VMA 2.3.0) fordít, egyszer.</li><li><strong>Egyetlen fordító</strong>: a JavaScript fordító és a <em>VMA fordító</em> beállítás kikerült; ugyanazok a bájtok, ugyanazok a hibaüzenetek.</li></ul>`,
+    body: `<ul><li><strong>SID szerkesztő: legato</strong>: az új <strong>L</strong> effekt a tartott gate alatt indítja a hangot, a burkoló újraindítása nélkül; a wave tábla lépései <em>gate ki</em> jelölőt kaptak.</li><li><strong>.sid import</strong>: a legato hangokból L hangok, a hangon belül elengedett gate-ből táblalépés lesz: az importált dalok közelebb szólnak az eredetihez.</li><li><strong>VA SID Core 1.3</strong>: a <code>$D418</code> digik a 8580-on halkan szólnak, mint a valódi chipen; a <em>Beállítások → SID előnézet → 8580 digi boost</em> hangossá teszi őket.</li><li><strong>Kick import az R65-ön át</strong>: a Kick import és a Kick projekt importálása az R65-tel fordít, és ugyanazokat a bájtokat adó VMA forrást ír, a Kick makrókból VMA makrókat.</li><li><strong>Projektek és eszköztárak</strong>: a többi fájl az alapértelmezett programmal nyílik vagy megmutatható a fájlkezelőben; az Expert és az UltimateBasic eszköztár azonos sorrendű és ikonú; a munkaablak a fordítás fázisait mutatja.</li></ul>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
-    eyebrow: "New in 2.7.9",
+    eyebrow: "New in 2.8.0",
     title: "Welcome to Visual Assembler",
-    body: `<ul><li><strong>R65 assembler</strong>: R65, a KickAssembler-compatible assembler, is built in. Choose it in <em>Settings → General → Assembler mode</em> (or in Project settings) next to VMA and ACME; building, running, the panels and the debugger all use it.</li><li><strong>Build summary</strong>: the Build button of Expert and UltimateBasic mode shows the build in a small window, ending with the size and address range of the PRG.</li><li><strong>Kick import</strong>: statements over several lines, <code>.errorif</code>, labels in <code>.pseudopc</code> and <code>&lt;</code> / <code>&gt;</code> of numbers import correctly.</li><li><strong>Faster</strong>: building, running and the live views while you type (disassembly, monitor, memory map, cycle gutter, ASM view) are quicker, because the native Rust VMA compiler (VMA 2.3.0) builds everything, once.</li><li><strong>One compiler</strong>: the JavaScript compiler and the <em>VMA compiler</em> setting are gone; the same bytes, the same error messages.</li></ul>`,
+    body: `<ul><li><strong>SID Editor: legato</strong>: the new <strong>L</strong> effect starts a note under the held gate without retriggering the envelope; wave table steps have a <em>gate off</em> box.</li><li><strong>.sid import</strong>: legato notes become L notes and a gate released inside a note becomes a table step: imported tunes sound closer to the originals.</li><li><strong>VA SID Core 1.3</strong>: <code>$D418</code> digis play quietly on the 8580, as on the real chip; <em>Settings → SID preview → 8580 digi boost</em> makes them loud.</li><li><strong>Kick import through R65</strong>: Kick import and Import Kick project build with R65 and write VMA source that builds the same bytes, with Kick macros as VMA macros.</li><li><strong>Projects and toolbars</strong>: other files open with their default app or show in the file manager; the Expert and UltimateBasic toolbars share their order and icons; the work window shows the build phases.</li></ul>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
-    eyebrow: "Novedad en la 2.7.9",
+    eyebrow: "Novedad en la 2.8.0",
     title: "Bienvenido a Visual Assembler",
-    body: `<ul><li><strong>Ensamblador R65</strong>: R65, un ensamblador compatible con KickAssembler, viene integrado. Elígelo en <em>Ajustes → General → Modo de ensamblador</em> (o en los ajustes del proyecto) junto a VMA y ACME; la compilación, la ejecución, los paneles y el depurador lo usan.</li><li><strong>Resumen de compilación</strong>: el botón Compilar de los modos Experto y UltimateBasic muestra la compilación en una ventana pequeña, con el tamaño y el rango de direcciones del PRG al final.</li><li><strong>Importación Kick</strong>: las instrucciones en varias líneas, <code>.errorif</code>, las etiquetas en <code>.pseudopc</code> y <code>&lt;</code> / <code>&gt;</code> de números se importan correctamente.</li><li><strong>Más rápido</strong>: compilar, ejecutar y las vistas en vivo mientras escribes (desensamblado, monitor, mapa de memoria, ciclos, vista ASM) son más rápidos, porque el compilador nativo Rust VMA (VMA 2.3.0) lo compila todo, una sola vez.</li><li><strong>Un solo compilador</strong>: el compilador JavaScript y el ajuste <em>Compilador VMA</em> desaparecen; los mismos bytes y los mismos mensajes de error.</li></ul>`,
+    body: `<ul><li><strong>Editor SID: legato</strong>: el nuevo efecto <strong>L</strong> inicia una nota con el gate mantenido, sin reiniciar la envolvente; los pasos de la tabla de ondas tienen una casilla <em>gate off</em>.</li><li><strong>Importación .sid</strong>: las notas legato pasan a ser notas L y un gate soltado dentro de una nota pasa a ser un paso de tabla: las canciones importadas suenan más cerca del original.</li><li><strong>VA SID Core 1.3</strong>: los digis de <code>$D418</code> suenan bajos en el 8580, como en el chip real; <em>Ajustes → Vista previa SID → Digi boost del 8580</em> los hace audibles.</li><li><strong>Importación Kick con R65</strong>: la importación Kick y la importación de proyectos Kick compilan con R65 y escriben código VMA que genera los mismos bytes, con las macros Kick como macros VMA.</li><li><strong>Proyectos y barras de herramientas</strong>: los demás archivos se abren con su programa predeterminado o se muestran en el explorador; las barras Experto y UltimateBasic comparten orden e iconos; la ventana de trabajo muestra las fases.</li></ul>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
-    eyebrow: "Neu in 2.7.9",
+    eyebrow: "Neu in 2.8.0",
     title: "Willkommen bei Visual Assembler",
-    body: `<ul><li><strong>R65-Assembler</strong>: R65, ein KickAssembler-kompatibler Assembler, ist eingebaut. Wähle ihn unter <em>Einstellungen → Allgemein → Assembler-Modus</em> (oder in den Projekteinstellungen) neben VMA und ACME; Übersetzen, Starten, die Panels und der Debugger verwenden ihn.</li><li><strong>Build-Übersicht</strong>: der Build-Knopf im Experten- und UltimateBasic-Modus zeigt den Build in einem kleinen Fenster, am Ende mit Größe und Adressbereich des PRG.</li><li><strong>Kick-Import</strong>: Anweisungen über mehrere Zeilen, <code>.errorif</code>, Labels in <code>.pseudopc</code> und <code>&lt;</code> / <code>&gt;</code> von Zahlen werden richtig importiert.</li><li><strong>Schneller</strong>: Übersetzen, Starten und die Live-Ansichten beim Tippen (Disassembly, Monitor, Speicherkarte, Zyklen, ASM-Ansicht) sind schneller, weil der native Rust-VMA-Compiler (VMA 2.3.0) alles übersetzt, einmal.</li><li><strong>Ein Compiler</strong>: der JavaScript-Compiler und die Einstellung <em>VMA-Compiler</em> entfallen; dieselben Bytes, dieselben Fehlermeldungen.</li></ul>`,
+    body: `<ul><li><strong>SID-Editor: Legato</strong>: der neue Effekt <strong>L</strong> startet eine Note bei gehaltenem Gate, ohne die Hüllkurve neu auszulösen; die Schritte der Wave-Tabelle haben ein Feld <em>gate off</em>.</li><li><strong>.sid-Import</strong>: Legato-Noten werden zu L-Noten, ein innerhalb einer Note gelöstes Gate wird zu einem Tabellenschritt: importierte Stücke klingen näher am Original.</li><li><strong>VA SID Core 1.3</strong>: <code>$D418</code>-Digis klingen auf dem 8580 leise wie auf dem echten Chip; <em>Einstellungen → SID-Vorschau → 8580 Digi-Boost</em> macht sie laut.</li><li><strong>Kick-Import über R65</strong>: Kick-Import und Kick-Projekt-Import übersetzen mit R65 und schreiben VMA-Quelltext mit denselben Bytes, Kick-Makros als VMA-Makros.</li><li><strong>Projekte und Werkzeugleisten</strong>: andere Dateien öffnen mit ihrem Standardprogramm oder lassen sich im Dateimanager zeigen; Experten- und UltimateBasic-Leiste haben dieselbe Reihenfolge und Symbole; das Arbeitsfenster zeigt die Phasen.</li></ul>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
-    eyebrow: "Nieuw in 2.7.9",
+    eyebrow: "Nieuw in 2.8.0",
     title: "Welkom bij Visual Assembler",
-    body: `<ul><li><strong>R65-assembler</strong>: R65, een KickAssembler-compatibele assembler, is ingebouwd. Kies hem bij <em>Instellingen → Algemeen → Assemblermodus</em> (of in de projectinstellingen) naast VMA en ACME; compileren, starten, de panelen en de debugger gebruiken hem.</li><li><strong>Build-overzicht</strong>: de Build-knop van de Expert- en UltimateBasic-modus toont de build in een klein venster, met aan het eind de grootte en het adresbereik van de PRG.</li><li><strong>Kick-import</strong>: opdrachten over meerdere regels, <code>.errorif</code>, labels in <code>.pseudopc</code> en <code>&lt;</code> / <code>&gt;</code> van getallen worden goed geïmporteerd.</li><li><strong>Sneller</strong>: compileren, starten en de live weergaven tijdens het typen (disassembly, monitor, geheugenkaart, cycli, ASM-weergave) zijn sneller, omdat de native Rust VMA-compiler (VMA 2.3.0) alles compileert, één keer.</li><li><strong>Eén compiler</strong>: de JavaScript-compiler en de instelling <em>VMA-compiler</em> zijn weg; dezelfde bytes, dezelfde foutmeldingen.</li></ul>`,
+    body: `<ul><li><strong>SID-editor: legato</strong>: het nieuwe effect <strong>L</strong> start een noot onder de vastgehouden gate zonder de envelope opnieuw te starten; stappen van de wavetabel hebben een vakje <em>gate off</em>.</li><li><strong>.sid-import</strong>: legato-noten worden L-noten en een binnen een noot losgelaten gate wordt een tabelstap: geïmporteerde nummers klinken dichter bij het origineel.</li><li><strong>VA SID Core 1.3</strong>: <code>$D418</code>-digi's klinken op de 8580 zacht, zoals op de echte chip; <em>Instellingen → SID-voorbeeld → 8580 digi boost</em> maakt ze luid.</li><li><strong>Kick-import via R65</strong>: Kick-import en Kick-project importeren compileren met R65 en schrijven VMA-broncode die dezelfde bytes geeft, met Kick-macro's als VMA-macro's.</li><li><strong>Projecten en werkbalken</strong>: andere bestanden openen met hun standaardprogramma of tonen zich in bestandsbeheer; de Expert- en UltimateBasic-werkbalk delen volgorde en pictogrammen; het werkvenster toont de fasen.</li></ul>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
-    eyebrow: "Nowość w 2.7.9",
+    eyebrow: "Nowość w 2.8.0",
     title: "Witamy w Visual Assembler",
-    body: `<ul><li><strong>Asembler R65</strong>: wbudowany R65, asembler zgodny z KickAssemblerem. Wybierzesz go w <em>Ustawienia → Ogólne → Tryb asemblera</em> (lub w ustawieniach projektu) obok VMA i ACME; kompilacja, uruchamianie, panele i debugger z niego korzystają.</li><li><strong>Podsumowanie kompilacji</strong>: przycisk Build w trybie Ekspert i UltimateBasic pokazuje kompilację w małym oknie, na końcu z rozmiarem i zakresem adresów PRG.</li><li><strong>Import Kick</strong>: instrukcje w kilku wierszach, <code>.errorif</code>, etykiety w <code>.pseudopc</code> oraz <code>&lt;</code> / <code>&gt;</code> liczb importują się poprawnie.</li><li><strong>Szybciej</strong>: kompilacja, uruchamianie i widoki na żywo podczas pisania (disassembly, monitor, mapa pamięci, cykle, widok ASM) działają szybciej, bo wszystko kompiluje natywny kompilator Rust VMA (VMA 2.3.0), jeden raz.</li><li><strong>Jeden kompilator</strong>: kompilator JavaScript i ustawienie <em>Kompilator VMA</em> zniknęły; te same bajty, te same komunikaty błędów.</li></ul>`,
+    body: `<ul><li><strong>Edytor SID: legato</strong>: nowy efekt <strong>L</strong> uruchamia nutę przy trzymanym gate bez ponownego startu obwiedni; kroki tablicy fal mają pole <em>gate off</em>.</li><li><strong>Import .sid</strong>: nuty legato stają się nutami L, a gate zwolniony w trakcie nuty krokiem tablicy: importowane utwory brzmią bliżej oryginału.</li><li><strong>VA SID Core 1.3</strong>: digi <code>$D418</code> grają na 8580 cicho, jak na prawdziwym układzie; <em>Ustawienia → Podgląd SID → 8580 digi boost</em> czyni je głośnymi.</li><li><strong>Import Kick przez R65</strong>: import Kick i import projektu Kick kompilują R65 i zapisują kod VMA dający te same bajty, z makrami Kick jako makrami VMA.</li><li><strong>Projekty i paski narzędzi</strong>: inne pliki otwierają się w domyślnym programie lub pokazują w menedżerze plików; paski Ekspert i UltimateBasic mają tę samą kolejność i ikony; okno pracy pokazuje fazy.</li></ul>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
-    eyebrow: "Novità nella 2.7.9",
+    eyebrow: "Novità nella 2.8.0",
     title: "Benvenuto in Visual Assembler",
-    body: `<ul><li><strong>Assembler R65</strong>: R65, un assembler compatibile con KickAssembler, è integrato. Sceglilo in <em>Impostazioni → Generale → Modalità assembler</em> (o nelle impostazioni del progetto) accanto a VMA e ACME; compilazione, avvio, pannelli e debugger lo usano.</li><li><strong>Riepilogo della compilazione</strong>: il pulsante Build delle modalità Esperto e UltimateBasic mostra la compilazione in una piccola finestra, con dimensione e intervallo di indirizzi del PRG alla fine.</li><li><strong>Importazione Kick</strong>: istruzioni su più righe, <code>.errorif</code>, etichette in <code>.pseudopc</code> e <code>&lt;</code> / <code>&gt;</code> dei numeri si importano correttamente.</li><li><strong>Più veloce</strong>: compilazione, avvio e le viste dal vivo mentre scrivi (disassembly, monitor, mappa di memoria, cicli, vista ASM) sono più rapidi, perché il compilatore nativo Rust VMA (VMA 2.3.0) compila tutto, una volta sola.</li><li><strong>Un solo compilatore</strong>: il compilatore JavaScript e l'impostazione <em>Compilatore VMA</em> sono stati rimossi; stessi byte, stessi messaggi di errore.</li></ul>`,
+    body: `<ul><li><strong>Editor SID: legato</strong>: il nuovo effetto <strong>L</strong> avvia una nota con il gate tenuto, senza riavviare l'inviluppo; i passi della tabella d'onda hanno una casella <em>gate off</em>.</li><li><strong>Importazione .sid</strong>: le note legato diventano note L e un gate rilasciato dentro una nota diventa un passo di tabella: i brani importati suonano più vicini all'originale.</li><li><strong>VA SID Core 1.3</strong>: i digi di <code>$D418</code> suonano piano sull'8580, come sul chip reale; <em>Impostazioni → Anteprima SID → Digi boost 8580</em> li rende forti.</li><li><strong>Import Kick tramite R65</strong>: l'import Kick e l'import di progetti Kick compilano con R65 e scrivono sorgente VMA che produce gli stessi byte, con le macro Kick come macro VMA.</li><li><strong>Progetti e barre degli strumenti</strong>: gli altri file si aprono con il programma predefinito o si mostrano nel file manager; le barre Esperto e UltimateBasic condividono ordine e icone; la finestra di lavoro mostra le fasi.</li></ul>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
@@ -1486,7 +1486,6 @@ function initPalette() {
     setExpertMode(!expertMode);
   });
   ubModeTbBtn?.addEventListener("click", () => setUltimateBasicMode(!ultimateBasicMode));
-  document.getElementById("ub-new-btn")?.addEventListener("click", _ubNew);
   document.getElementById("ub-open-btn")?.addEventListener("click", () => _ubOpen(false));
   document.getElementById("ub-save-btn")?.addEventListener("click", () => _ubSave(false));
   document.getElementById("ub-save-as-btn")?.addEventListener("click", () => _ubSave(true));
@@ -1841,6 +1840,7 @@ function initPalette() {
   expertSaveAsmBtn?.addEventListener("click", () => _expertSaveAsm(false));
   expertSaveAsmAsBtn?.addEventListener("click", () => _expertSaveAsm(true));
   expertBuildInfoBtn?.addEventListener("click", showBuildInfoDialog);
+  document.getElementById("ub-build-info-btn")?.addEventListener("click", showBuildInfoDialog);
   document.getElementById("expert-acme-build-btn")?.addEventListener("click", () => {
     if (_textOnlyAssembler()) _acmeBuildPreview({ progress: true });
     else _vaBuildExpert({ progress: true });
@@ -3627,7 +3627,7 @@ function applyTranslations() {
   buildInfoBtn?.setAttribute("aria-label", t("buildInfoBtn"));
 
   const ubLabels = {
-    "ub-new-btn": "ubNewSource", "ub-open-btn": "ubOpenSource", "ub-save-btn": "ubSaveSource", "ub-save-as-btn": "ubSaveSourceAs", "ub-format-btn": "ubFormatSource",
+    "ub-open-btn": "ubOpenSource", "ub-save-btn": "ubSaveSource", "ub-save-as-btn": "ubSaveSourceAs", "ub-format-btn": "ubFormatSource",
     "ub-build-btn": "ubBuild", "ub-output-btn": "ubBuildOutput", "ub-explicit-btn": "ubExplicit", "ub-verbose-btn": "ubVerbose", "ub-disasm-btn": "expertDisasm", "ub-monitor-btn": "monitorOutputLabel", "ub-toolkit-btn": "expertToolkit", "ub-autocomplete-btn": "expertAutocomplete",
     "ub-project-btn": "expertProjectPanel", "ub-help-btn": "ubCommandHelpToggle", "ub-manual-btn": "ubManual", "ub-project-open-btn": "projOpenProjectBtn",
     "ub-project-new-btn": "projNewProjectBtn", "ub-project-save-btn": "projSaveProjectBtn",
@@ -4403,6 +4403,7 @@ function _applyEditorTranslations() {
   setAttr("#sid-vkbd-record", t("sidRecord"));
   setText("#sid-preview-engine-lbl", t("sidPreviewEngine"));
   setText("#sid-preview-model-lbl", t("sidPreviewModel"));
+  setText("#sid-digi-boost-label", t("sidDigiBoost"));
   setText("#sid-lcd-color-lbl", t("sidLcdColor"));
   setText("#sid-player-buffer-lbl", t("sidPlayerBuffer"));
   setText("#sid-player-buffer-note", t("sidPlayerBufferNote"));
@@ -4749,6 +4750,7 @@ function _applyEditorTranslations() {
   setAttr("#curve-gen-btn", t("curveEditorBtn"));
   setText("#build-info-btn", t("buildInfoTitle"));
   setAttr("#expert-build-info-btn", t("buildInfoTitle"));
+  setAttr("#ub-build-info-btn", t("buildInfoTitle"));
   setAttr("#tab-scroll-left", t("tabScrollLeft"));
   setAttr("#tab-scroll-right", t("tabScrollRight"));
   setAttr("#ws-resizer-output", t("wsResizerAria"));
@@ -9839,14 +9841,6 @@ function _ubRenderCommandReference() {
   detail.append(title, descriptionLabel, description, syntaxLabel, syntax, noteLabel, note);
 }
 
-function _ubNew() {
-  _tabNew();
-  if (ubBuildOutput) ubBuildOutput.textContent = "Ready.";
-  _ubSetStatus(t("ubNewSource"));
-  _ubRefreshEditor();
-  ubEditor.focus();
-}
-
 async function _ubOpen(addToProject = false) {
   let result;
   try {
@@ -10079,6 +10073,7 @@ async function _ubApplyExomizer(result, label = "ultimate-basic") {
     _ubShowCompileErrors(["Exomizer is not available."]);
     return false;
   }
+  setWorkStep("stepExomizer", { file: _workStepName(label) || "PRG", bytes: (result.prg || []).length });
   let packed;
   try {
     packed = await window.electronAPI.buildExomizerPrg({
@@ -10122,6 +10117,7 @@ async function _ubCompile(showProgress = false, options = {}) {
   _ubScheduleLint();
   const buildTab = _getActiveTab();
   if (buildTab) buildTab._ubBuildResult = result;
+  if (result?.ok) setWorkStep("stepAnalyze");
   _ubRenderDisassembly(result);
   _ubRenderMonitor(result);
   renderMemoryMap();
@@ -10210,9 +10206,11 @@ async function _ubRun(mode) {
     let result;
     if (mode === "ultimate") {
       const password = (document.getElementById("ultimate-password")?.value || ultimatePassword).trim() || null;
+      setWorkStep("stepUltimate", { bytes: (build.outputPrg || build.prg).length, host });
       result = await window.electronAPI?.runOnUltimate(host, password, build.outputPrg || build.prg);
       _ubSetStatus(result?.ok ? "Running on Ultimate ✓" : (result?.error || "Ultimate run failed"), !result?.ok);
     } else if (mode === "kff2") {
+      setWorkStep("stepKff2", { bytes: (build.outputPrg || build.prg).length, port: kff2PortValue });
       result = await window.electronAPI?.runOnKff2(kff2PortValue, build.outputPrg || build.prg);
       _ubSetStatus(result?.ok ? "Running on Kung Fu Flash ✓" : (result?.error || t("kff2RunFailed")), !result?.ok);
     } else if (mode === "ue2") {
@@ -10221,6 +10219,7 @@ async function _ubRun(mode) {
       _ubSetStatus(result?.ok ? t("workProgressSuccessUe2") : _ue2ErrorText(result), !result?.ok);
       _ue2RefreshSettings();
     } else {
+      setWorkStep("stepVice", { file: _workStepName(target.path) || "main.ub", bytes: (build.outputPrg || build.prg).length });
       result = await window.electronAPI?.launchVice?.({ bytes: build.outputPrg || build.prg, fileName: `ultimate-basic-${Date.now()}.prg`, sidecars: _ubBuildSidecars(build) });
       _ubSetStatus(result?.ok ? "Running in VICE ✓" : (result?.error || "VICE launch failed"), !result?.ok);
     }
@@ -10309,6 +10308,7 @@ async function _ubRunDebugger() {
     const breakpointLines = target.startup
       ? (Array.isArray(target.breakpoints) ? target.breakpoints : [])
       : _getTabBreakpointLines("ub");
+    setWorkStep("stepDebugger", { file: _workStepName(target.path) || "main.ub" });
     const result = await window.electronAPI.launchDebugger({
       bytes: Array.from(build.prg || []),
       fileName: `ultimate-basic-${Date.now()}.prg`,
@@ -10990,6 +10990,23 @@ async function importAsmFile() {
       else if (emulatorStatus) emulatorStatus.textContent = t("vasmLoadError") + ": " + res.error;
       return;
     }
+    // R65 assembles the Kick source (script language, macros, #import): the import is VMA with the
+    // same bytes (_kickImportViaR65); without R65 (or when it fails) the plain conversion below
+    if (window.electronAPI?.r65Build && _vmaAvailable()) {
+      const conv = await _kickImportViaR65(res.filePath, res.content);
+      if (conv.ok) {
+        const name = await _importAsmFromPath(res.filePath, conv.text);
+        const msg = tf(conv.kind === "plain" ? "kickImportPlain" : !conv.same ? "kickImportFlatDiff" : conv.macros ? "kickImportMacros" : "kickImportFlat", { name, count: conv.macros });
+        if (expertMode) _expertSetStatus(msg, conv.same ? "ok" : "error");
+        else if (emulatorStatus) emulatorStatus.textContent = msg;
+        return;
+      }
+      if (conv.errors?.length) {
+        const msg = tf("kickImportR65Failed", { count: conv.errors.length });
+        if (expertMode) _expertSetStatus(msg, "error");
+        else if (emulatorStatus) emulatorStatus.textContent = msg;
+      }
+    }
     // the KickAssembler script language only runs in a Kick project (_kickPreprocess)
     if (_kickUsesScript(res.content) && await _showConfirm(t("kickImportUseProject"))) {
       await importKickProject(res.filePath);
@@ -11002,6 +11019,577 @@ async function importAsmFile() {
     if (expertMode) _expertSetStatus(t("vasmLoadError") + ": " + String(e), "error");
     else if (emulatorStatus) emulatorStatus.textContent = t("vasmLoadError") + ": " + String(e);
   }
+}
+
+// Kick import through R65. kind "plain": the source itself (the plain conversion of parseExpertText)
+// builds the same bytes in VMA, so it stays as it is (constants, expressions, macros); kind "flat":
+// the program R65 assembled, written as VMA (_kickR65ToVma). `same`: VMA builds R65's bytes.
+async function _kickImportViaR65(filePath, content) {
+  let r;
+  try {
+    r = await window.electronAPI.r65Build(content, filePath);
+  } catch (e) {
+    return { ok: false, errors: [{ message: String(e?.message || e) }] };
+  }
+  if (!r?.ok) return { ok: false, errors: r?.errors || [] };
+  if (!r.prg?.length) return { ok: false };
+  const dir = String(filePath || "").replace(/[\\/][^\\/]*$/, "");
+  // `same`, else where it differs: `addr` (the first other byte) or `line` (a VMA error, 1-based)
+  const check = async (text) => {
+    const vma = await _vmaAnalyze(_vmaTextInput(text, dir), false);
+    if (!vma.ok) return { same: false, line: vma.raw?.errors?.[0]?.line ?? null };
+    const bytes = Array.from(vma.bytes || []);
+    const n = Math.max(bytes.length, r.prg.length);
+    let i = 0;
+    while (i < n && bytes[i] === r.prg[i]) i++;
+    if (i === n) return { same: true };
+    return { same: false, addr: i >= 2 ? (r.prg[0] | (r.prg[1] << 8)) + i - 2 : null };
+  };
+  const builds = async (text) => (await check(text)).same;
+  try {
+    if (await builds(_vmaBlocksSource(parseExpertText(content)).text)) return { ok: true, kind: "plain", text: content, same: true };
+  } catch (_) {}
+  const name = String(filePath || "").replace(/\\/g, "/").split("/").pop();
+  const sources = {};
+  for (const file of r.files || []) {
+    if (!file) continue;
+    if (_normFilePath(file) === _normFilePath(filePath)) { sources[file] = content; continue; }
+    const res = await window.electronAPI.readTextFile?.(file).catch(() => null);
+    if (res?.ok) sources[file] = res.content || "";
+  }
+  // the Kick macros as VMA macros; a macro whose calls do not build the same bytes stays expanded
+  const flat = new Set();
+  for (let round = 0; round < 12; round++) {
+    const info = {};
+    const text = _kickR65ToVma(r, name, sources, { flat, info });
+    const res = await check(text);
+    if (res.same || !info.invocations.length) return { ok: true, kind: "flat", text, same: res.same, macros: info.macroCount };
+    let culprit = res.addr != null ? info.invocations.find(v => res.addr >= v.start && res.addr < v.end)?.name : null;
+    if (!culprit && res.line != null) culprit = info.names[_kickVmaMacroAtLine(text, res.line)];
+    if (culprit) flat.add(culprit);
+    else info.invocations.forEach(v => flat.add(v.name));
+  }
+  const text = _kickR65ToVma(r, name, sources, { macros: false });
+  return { ok: true, kind: "flat", text, same: await builds(text), macros: 0 };
+}
+
+// The Kick macro of a VMA line of _kickR65ToVma (1-based): its `.macro` … `.endm` or an `.invoke` of it.
+function _kickVmaMacroAtLine(text, line) {
+  const lines = String(text).split("\n");
+  for (const at of [line - 1, line]) {
+    const call = lines[at]?.match(/^\s*\.invoke\s+(\w+)\(/);
+    if (call) return call[1];
+  }
+  for (let i = Math.min(line - 1, lines.length - 1); i >= 0; i--) {
+    if (/^\.endm\b/.test(lines[i]) && i < line - 1) return null;
+    const def = lines[i].match(/^\.macro\s+(\w+)\(/);
+    if (def) return def[1];
+  }
+  return null;
+}
+
+const _KICK_LEGAL_MNEMONICS = new Set(("ADC AND ASL BCC BCS BEQ BIT BMI BNE BPL BRK BVC BVS CLC CLD CLI CLV CMP CPX CPY "
+  + "DEC DEX DEY EOR INC INX INY JMP JSR LDA LDX LDY LSR NOP ORA PHA PHP PLA PLP ROL ROR RTI RTS SBC SEC SED SEI "
+  + "STA STX STY TAX TAY TSX TXA TXS TYA").split(" "));
+
+// The Kick macros of the sources: `.macro name(p, …) {` … a `}` line; `start` / `end`: the lines of
+// the two braces (1-based), the body between them.
+function _kickMacroDefs(sources) {
+  const defs = [];
+  for (const [file, text] of Object.entries(sources || {})) {
+    const lines = String(text || "").split(/\r?\n/);
+    for (let i = 0; i < lines.length; i++) {
+      const m = lines[i].match(/^\s*\.macro\s+([A-Za-z_]\w*)\s*\(([^)]*)\)\s*\{\s*(?:\/\/.*)?$/);
+      if (!m) continue;
+      let depth = 1;
+      let j = i + 1;
+      for (; j < lines.length; j++) {
+        const code = lines[j].replace(/"(?:[^"\\]|\\.)*"/g, '""').replace(/\/\/.*$/, "");
+        for (const ch of code) depth += ch === "{" ? 1 : ch === "}" ? -1 : 0;
+        if (depth <= 0) break;
+      }
+      if (depth > 0 || !/^\s*\}\s*(?:\/\/.*)?$/.test(lines[j])) continue;
+      defs.push({ name: m[1], params: m[2].split(",").map(s => s.trim()).filter(Boolean), file, start: i + 1, end: j + 1, body: lines.slice(i + 1, j) });
+      i = j;
+    }
+  }
+  return defs;
+}
+
+// The `.pseudopc addr {` … `}` blocks of Kick sources: { file, start, end } (the brace lines, 1-based).
+function _kickPseudopcBlocks(sources) {
+  const blocks = [];
+  for (const [file, text] of Object.entries(sources || {})) {
+    const lines = String(text || "").split(/\r?\n/);
+    lines.forEach((l, i) => {
+      if (!/^\s*(?:[A-Za-z_]\w*\s*:\s*)?\.pseudopc\b[^{]*\{/.test(l)) return;
+      let depth = 0;
+      for (let j = i; j < lines.length; j++) {
+        const code = lines[j].replace(/"(?:[^"\\]|\\.)*"/g, '""').replace(/\/\/.*$/, "");
+        for (const ch of code) depth += ch === "{" ? 1 : ch === "}" ? -1 : 0;
+        if (depth <= 0) { blocks.push({ file, start: i + 1, end: j + 1 }); return; }
+      }
+    });
+  }
+  return blocks;
+}
+
+// The plain number constants of Kick sources (`.const` / `.label NAME = number`); a name defined
+// with two values (scopes) is left out.
+function _kickSimpleDefs(sources) {
+  const defs = new Map();
+  const bad = new Set();
+  for (const text of Object.values(sources || {})) {
+    for (const line of String(text || "").split(/\r?\n/)) {
+      const m = line.match(/^\s*\.(?:const|label)\s+([A-Za-z_]\w*)\s*=\s*(\$[0-9A-Fa-f]+|%[01]+|\d+)\s*(?:;|\/\/|$)/);
+      if (!m) continue;
+      const v = m[2][0] === "$" ? parseInt(m[2].slice(1), 16) : m[2][0] === "%" ? parseInt(m[2].slice(1), 2) : parseInt(m[2], 10);
+      if (!(v >= 0 && v <= 0xFFFF)) continue;
+      if (defs.has(m[1]) && defs.get(m[1]) !== v) bad.add(m[1]);
+      defs.set(m[1], v);
+    }
+  }
+  bad.forEach(n => defs.delete(n));
+  return defs;
+}
+
+// R65's build (r65_build: prg, Default blocks, placed labels, the source of each byte) as a VMA
+// source with the same bytes: `* =` per memory block, the labels, instructions with label operands,
+// .byte / .word data, the Kick line of each as a comment. Labels outside the blocks (a virtual zero
+// page block) are constants on top. The calls of the Kick macros a VMA macro can say are `.invoke`s
+// (opts.flat: the macros kept expanded; opts.info gets the calls: { invocations, macroCount }).
+function _kickR65ToVma(r, fileName = "", sources = {}, opts = {}) {
+  const prg = r.prg;
+  const lo = prg[0] | (prg[1] << 8);
+  const data = prg.slice(2);
+  const byteAt = (a) => data[a - lo] ?? 0;
+  const hex2 = (v) => "$" + (v & 0xFF).toString(16).toUpperCase().padStart(2, "0");
+  const hex4 = (v) => "$" + (v & 0xFFFF).toString(16).toUpperCase().padStart(4, "0");
+  const baseName = (p) => String(p || "").replace(/\\/g, "/").split("/").pop();
+
+  let regions = (r.blocks || [])
+    .filter(b => b.segment === "Default" && !b.virtual && b.len > 0)
+    .map(b => ({ start: b.start, end: b.start + b.len }))
+    .sort((x, y) => x.start - y.start);
+  if (!regions.length) regions = [{ start: lo, end: lo + data.length }];
+  regions = regions.reduce((out, g) => {
+    const last = out[out.length - 1];
+    if (last && g.start <= last.end) last.end = Math.max(last.end, g.end);
+    else out.push({ ...g });
+    return out;
+  }, []);
+  const inRegion = (a) => regions.some(g => a >= g.start && a < g.end);
+
+  // unique VMA names (a Kick scope or macro can repeat a label)
+  const reserved = new Set(["A", "X", "Y", ...Object.keys(opcodeMap)]);
+  const taken = new Set();
+  const nameOf = (raw) => {
+    let base = String(raw || "").replace(/[^A-Za-z0-9_]/g, "_") || "label";
+    if (/^\d/.test(base) || reserved.has(base.toUpperCase())) base = "_" + base;
+    let name = base;
+    for (let n = 2; taken.has(name.toLowerCase()); n++) name = `${base}_${n}`;
+    taken.add(name.toLowerCase());
+    return name;
+  };
+  const labelsAt = new Map();   // inline labels
+  const consts = new Map();     // address → name (labels outside the blocks)
+  const consted = [];
+  // `.pseudopc` code: stored here, run elsewhere — its labels are constants (the run address),
+  // its branches `*±n` (VMA has no .pseudopc)
+  const allMacros = opts.macros === false ? [] : _kickMacroDefs(sources);
+  const inMacro = (file, line) => allMacros.find(m => m.file === file && line > m.start && line < m.end) || null;
+  const pseudo = _kickPseudopcBlocks(sources);
+  const inPseudo = (file, line) => pseudo.some(p => p.file === file && line > p.start && line <= p.end);
+  const labelList = (r.labels || [])
+    .filter(([, addr]) => Number.isFinite(addr))
+    .map(([raw, addr, file, line]) => ({ raw, addr, file: r.files?.[file], line, name: null }));
+  labelList.forEach(l => { l.logical = inPseudo(l.file, l.line); });
+  for (const l of labelList) {
+    if (inRegion(l.addr) && !l.logical) continue;
+    l.name = nameOf(l.raw);
+    if (!consts.has(l.addr)) consts.set(l.addr, l.name);
+    consted.push([l.name, l.addr]);
+  }
+  const labelName = (v) => labelsAt.get(v)?.[0] || null;
+  // the VMA name of a raw Kick label (its first placing)
+  const rawNames = new Map();
+  // the labels in the blocks, but not the ones of a macro body made a VMA macro (`skip`); a label
+  // gets its name when it is written (a macro body's label does not take the name of a global one)
+  const placeLabels = (skip) => {
+    labelsAt.clear();
+    rawNames.clear();
+    for (const l of labelList) {
+      if (!inRegion(l.addr) || l.logical || skip(l)) continue;
+      if (!l.name) l.name = nameOf(l.raw);
+      if (!labelsAt.has(l.addr)) labelsAt.set(l.addr, []);
+      labelsAt.get(l.addr).push(l.name);
+    }
+    for (const l of labelList) {
+      if (!rawNames.has(l.raw) && !skip(l)) rawNames.set(l.raw, { addr: l.addr, name: labelName(l.addr) || consts.get(l.addr) });
+    }
+  };
+  placeLabels(l => !!inMacro(l.file, l.line));
+  // targets without a label (Kick's !+ / !- labels): named in a first pass, `wanted`
+  const wanted = new Set();
+  // the Kick constants the operands name (`text`: the Kick line), as VMA .const on top
+  const defs = _kickSimpleDefs(sources);
+  const defNames = new Map();
+  const defName = (id) => {
+    if (!defNames.has(id)) defNames.set(id, nameOf(id));
+    return defNames.get(id);
+  };
+  const operandIds = (text) => (String(text || "").replace(/^\S+\s*/, "").replace(/(?:;|\/\/).*$/, "")
+    .replace(/\$[0-9A-Fa-f]+|%[01]+|\b\d+\b/g, " ").match(/[A-Za-z_][\w.]*/g) || []).filter(id => !/^[axy]$/i.test(id));
+  // exact, else the nearest constant below the value (SRC + p*256 → SRC+256)
+  const constSym = (v, text, exactOnly = false) => {
+    let best = null;
+    for (const id of operandIds(text)) {
+      if (!defs.has(id)) continue;
+      const d = defs.get(id);
+      if (d === v) return defName(id);
+      if (!exactOnly && d < v && (!best || d > best.d)) best = { id, d };
+    }
+    return best ? `${defName(best.id)}+${v - best.d}` : null;
+  };
+  // a label the Kick line names (mul40.hi → mul40) gives name+offset
+  const absName = (v, text = "") => {
+    // a constant label only where the Kick line names something (not for `sta $c000,x`)
+    const named = !text || operandIds(text).length > 0;
+    const own = labelName(v) || (named ? consts.get(v) : null) || constSym(v, text, true);
+    if (own) return own;
+    for (const id of operandIds(text)) {
+      const hit = rawNames.get(id) || rawNames.get(id.split(".")[0]);
+      if (hit?.name && v - hit.addr > 0 && v - hit.addr < 0x100) return `${hit.name}+${v - hit.addr}`;
+    }
+    const near = constSym(v, text);
+    if (near) return near;
+    for (const off of [1, 2]) {
+      const near = labelName(v - off);
+      if (near) return `${near}+${off}`;
+    }
+    return null;
+  };
+
+  const spans = new Map();
+  for (const [addr, len, file, line, , text] of r.spans || []) {
+    if (!spans.has(addr)) spans.set(addr, { addr, len, file, line, text: String(text || "") });
+  }
+
+  // Kick macros → VMA macros. R65 does not say which call made a byte: the bytes of a macro body's
+  // lines, in a row, are one call, and the call is the `:name(args)` line between the code before
+  // and after it in the source.
+  const sorted = [...spans.values()].sort((x, y) => x.addr - y.addr);
+  const groups = [];
+  let cur = null;
+  sorted.forEach((sp, i) => {
+    const m = inMacro(r.files?.[sp.file], sp.line);
+    if (!m) { cur = null; return; }
+    if (cur && cur.def === m && sp.addr === cur.end && sp.line > cur.lastLine) {
+      cur.end = sp.addr + sp.len;
+      cur.lastLine = sp.line;
+      cur.last = i;
+      return;
+    }
+    cur = { def: m, start: sp.addr, end: sp.addr + sp.len, lastLine: sp.line, first: i, last: i };
+    groups.push(cur);
+  });
+  const calls = new Map();   // macro → its call lines outside the macro bodies
+  for (const m of allMacros) {
+    const re = new RegExp(`^\\s*(?:[A-Za-z_]\\w*\\s*:\\s*)?:?\\s*${m.name}\\s*\\(([^()]*)\\)\\s*(?:\\/\\/.*)?$`);
+    const list = [];
+    for (const [file, text] of Object.entries(sources || {})) {
+      String(text || "").split(/\r?\n/).forEach((l, k) => {
+        const hit = l.match(re);
+        if (hit && !inMacro(file, k + 1)) list.push({ file, line: k + 1, args: hit[1].trim(), text: l.trim().replace(/^[A-Za-z_]\w*\s*:\s*/, "") });
+      });
+    }
+    calls.set(m, list);
+  }
+  const plainSpan = (from, step) => {
+    for (let i = from; i >= 0 && i < sorted.length; i += step) {
+      if (!inMacro(r.files?.[sorted[i].file], sorted[i].line)) return sorted[i];
+    }
+    return null;
+  };
+  const taking = new Map();
+  for (const g of groups) {
+    const prev = plainSpan(g.first - 1, -1);
+    const next = plainSpan(g.last + 1, 1);
+    // the source between the two (in the file of either: the code before may be another file's)
+    const prevFile = prev ? r.files?.[prev.file] : null;
+    const nextFile = next ? r.files?.[next.file] : null;
+    const inWindow = (c) => (c.file === prevFile && c.line > prev.line && (c.file !== nextFile || c.line < next.line))
+      || (c.file === nextFile && c.line < next.line && c.file !== prevFile);
+    const key = `${g.def.name}|${prevFile}:${prev?.line}|${nextFile}:${next?.line}`;
+    const k = taking.get(key) || 0;
+    taking.set(key, k + 1);
+    g.call = (calls.get(g.def) || []).filter(inWindow)[k] || null;
+  }
+  // a Kick expression of a macro body / argument as VMA: parameters as {p}, the constants and
+  // labels by their VMA names; null when it names something else (a function, a .var)
+  const globalName = (raw) => labelList.find(l => l.raw === raw && !inMacro(l.file, l.line))?.name
+    || (labelList.some(l => l.raw === raw) ? null : undefined);
+  const convExpr = (expr, params = new Set(), locals = new Set()) => {
+    if (/[!"'{}[\]]|\/\*/.test(expr)) return null;
+    let out = "";
+    for (const tok of String(expr).match(/\$[0-9A-Fa-f]+|%[01]+|\d+|[A-Za-z_][\w.]*|\s+|./g) || []) {
+      if (!/^[A-Za-z_]/.test(tok)) { out += tok; continue; }
+      if (/^[axy]$/i.test(tok)) out += tok.toUpperCase();
+      else if (params.has(tok)) out += `{${tok}}`;
+      else if (locals.has(tok)) out += tok;
+      else if (defs.has(tok)) out += defName(tok);
+      else {
+        const name = globalName(tok);
+        if (!name) return null;
+        out += name;
+      }
+    }
+    return out.trim();
+  };
+  const SUFFIX = { im: "", i: "", z: ".zp", zp: ".zp", a: ".abs", abs: ".abs" };
+  const bodies = new Map();
+  const convBody = (m) => {
+    if (bodies.has(m)) return bodies.get(m);
+    const params = new Set(m.params);
+    const locals = new Set(m.body.map(l => l.match(/^\s*([A-Za-z_]\w*)\s*:/)?.[1]).filter(Boolean));
+    // Kick's `!:` / `!name:` labels → body labels (unique per call in VMA too); `!-` / `!name++` → them
+    const anon = [];
+    m.body.forEach((l, idx) => {
+      const a = l.replace(/\/\/.*$/, "").match(/^\s*!(\w*)\s*:/);
+      if (a) {
+        let local = `anon_${anon.length + 1}`;
+        while (locals.has(local) || params.has(local)) local += "_";
+        anon.push({ name: a[1], idx, local });
+        locals.add(local);
+      }
+    });
+    let out = [];
+    for (const [idx, raw] of m.body.entries()) {
+      let code = raw;
+      let note = "";
+      const c = code.indexOf("//");
+      if (c >= 0) { note = code.slice(c + 2).trim(); code = code.slice(0, c); }
+      code = code.trim();
+      if (!code) { out.push(note ? `    ; ${note}` : ""); continue; }
+      const own = code.match(/^!(\w*)\s*:\s*(.*)$/);
+      if (own) { out.push(`${anon.find(x => x.idx === idx).local}:`); code = own[2]; if (!code) continue; }
+      code = code.replace(/!(\w*)(\++|-+)/g, (s, name, dir) => {
+        const list = anon.filter(x => x.name === name);
+        const hit = dir[0] === "+" ? list.filter(x => x.idx > idx)[dir.length - 1] : list.filter(x => x.idx <= idx).reverse()[dir.length - 1];
+        return hit ? hit.local : s;
+      });
+      const lab = code.match(/^([A-Za-z_]\w*)\s*:\s*(.*)$/);
+      if (lab) { out.push(`${lab[1]}:`); code = lab[2]; if (!code) continue; }
+      const ins = code.match(/^([A-Za-z]{3})(?:\.([A-Za-z]+))?(?:\s+(.*))?$/);
+      const dat = code.match(/^\.(byte|by|word|wo)\s+(.*)$/i);
+      let line = null;
+      if (ins && opcodeMap[ins[1].toUpperCase()] && (!ins[2] || ins[2].toLowerCase() in SUFFIX)) {
+        const op = ins[3] ? convExpr(ins[3], params, locals) : "";
+        if (op !== null) line = `    ${ins[1].toUpperCase()}${SUFFIX[(ins[2] || "im").toLowerCase()]}${op ? " " + op : ""}`;
+      } else if (dat) {
+        const op = convExpr(dat[2], params, locals);
+        if (op !== null) line = `    .${/^w/i.test(dat[1]) ? "word" : "byte"} ${op}`;
+      }
+      if (line === null) { out = null; break; }
+      out.push(note ? `${line.padEnd(28)} ; ${note}` : line);
+    }
+    bodies.set(m, out);
+    return out;
+  };
+  const invAt = new Map();
+  const used = [];
+  for (const g of groups) {
+    if (opts.flat?.has(g.def.name) || !g.call || !convBody(g.def)) continue;
+    const args = g.call.args ? g.call.args.split(",").map(a => convExpr(a.trim())) : [];
+    if (args.some(a => a === null || a === "") || args.length !== g.def.params.length) continue;
+    if (!used.includes(g.def)) {
+      used.push(g.def);
+      g.def.vmaName = nameOf(g.def.name);
+    }
+    invAt.set(g.start, { ...g, args: g.def.params.length ? args.join(", ") : "0" });
+  }
+  placeLabels(l => used.some(m => m.file === l.file && l.line > m.start && l.line < m.end));
+  if (opts.info) {
+    opts.info.invocations = [...invAt.values()].map(v => ({ start: v.start, end: v.end, name: v.def.name }));
+    opts.info.macroCount = used.length;
+    opts.info.names = Object.fromEntries(used.map(m => [m.vmaName, m.name]));
+  }
+
+  const lines = [
+    `; Kick import: ${fileName}`,
+    "; assembled by R65 and written as VMA; each Kick source line is the comment of its code",
+    ""
+  ];
+  for (const [name, addr] of consted) lines.push(`.const ${name} = ${addr < 0x100 ? hex2(addr) : hex4(addr)}`);
+  if (consted.length) lines.push("");
+
+  const comment = (emitted, text) => {
+    const src = String(text || "").replace(/\s+/g, " ").trim();
+    if (!src || src.toLowerCase() === emitted.replace(/\s+/g, " ").trim().toLowerCase()) return emitted;
+    return `${emitted.padEnd(28)} ; ${src.length > 80 ? src.slice(0, 77) + "..." : src}`;
+  };
+  // the instruction at `a` as VMA, or null (an unknown opcode, past the end)
+  const instruction = (a, end, text, legalOnly, reloc = false) => {
+    const info = _REV_OP[byteAt(a)];
+    if (!info || info.mode === "unknown" || a + info.size > end) return null;
+    if (legalOnly && !_KICK_LEGAL_MNEMONICS.has(info.mnem)) return null;
+    const b1 = byteAt(a + 1);
+    const w = b1 | (byteAt(a + 2) << 8);
+    let mnem = info.mnem;
+    let op = "";
+    const zp = (suffix) => ((!text || operandIds(text).length ? consts.get(b1) : null) || constSym(b1, text) || hex2(b1)) + suffix;
+    const abs = (suffix) => {
+      const name = absName(w, text);
+      if (!name && (info.mnem === "JMP" || info.mnem === "JSR") && inRegion(w)) wanted.add(w);
+      if (name && w < 0x100) mnem += ".abs";
+      return (name || hex4(w)) + suffix;
+    };
+    switch (info.mode) {
+      case "immediate": {
+        const m = String(text || "").match(/#\s*([<>])\s*([A-Za-z_][\w.]*)/);
+        const target = m ? (r.labels || []).find(([n]) => n === m[2]) : null;
+        let name = target ? (labelName(target[1]) || consts.get(target[1])) : null;
+        let value = target ? target[1] : null;
+        if (m && !name && defs.has(m[2])) { value = defs.get(m[2]); name = defName(m[2]); }
+        const part = value === null ? -1 : m[1] === "<" ? value & 0xFF : (value >> 8) & 0xFF;
+        if (name && part === b1) op = `#${m[1]}${name}`;
+        else {
+          const sym = !m && /#\s*[A-Za-z_]/.test(String(text || "")) ? constSym(b1, text, true) : null;
+          op = "#" + (sym || hex2(b1));
+        }
+        break;
+      }
+      case "zeroPage": op = zp(""); break;
+      case "zeroPageX": op = zp(",X"); break;
+      case "zeroPageY": op = zp(",Y"); break;
+      case "indirectX": op = `(${zp(",X")})`; break;
+      case "indirectY": op = `(${zp("")}),Y`; break;
+      case "absolute": op = abs(""); break;
+      case "absoluteX": op = abs(",X"); break;
+      case "absoluteY": op = abs(",Y"); break;
+      case "indirect": op = `(${abs("")})`; break;
+      case "relative": {
+        const target = (a + 2 + ((b1 & 0x80) ? b1 - 256 : b1)) & 0xFFFF;
+        const d = target - a;
+        if (reloc) op = `*${d < 0 ? "-" : "+"}${Math.abs(d)}`;
+        else {
+          op = labelName(target) || hex4(target);
+          if (!labelName(target) && inRegion(target)) wanted.add(target);
+        }
+        break;
+      }
+      default: break;
+    }
+    // labels inside the instruction (a Kick label on an operand byte)
+    const inner = [];
+    for (let k = 1; k < info.size; k++) {
+      for (const name of labelsAt.get(a + k) || []) inner.push(`.label ${name} = * + ${k}`);
+    }
+    return { size: info.size, inner, text: `    ${mnem}${op ? " " + op : ""}` };
+  };
+  const dataLines = (a, stop, text) => {
+    const out = [];
+    const isWord = /^\.(?:word|wo|fillword)\b/i.test(text) && (stop - a) % 2 === 0;
+    const step = isWord ? 8 : 16;
+    for (let p = a; p < stop; p += isWord ? step * 2 : step) {
+      const items = [];
+      if (isWord) {
+        for (let q = p; q < Math.min(stop, p + step * 2); q += 2) {
+          const v = byteAt(q) | (byteAt(q + 1) << 8);
+          items.push(absName(v, text) || hex4(v));
+        }
+      } else {
+        for (let q = p; q < Math.min(stop, p + step); q++) items.push(hex2(byteAt(q)));
+      }
+      const line = `    .${isWord ? "word" : "byte"} ${items.join(", ")}`;
+      out.push(p === a ? comment(line, text) : line);
+    }
+    return out;
+  };
+
+  // the first pass finds the jump targets without a label (`wanted`), the second writes
+  const emit = (lines) => {
+    let lastFile = -1;
+    for (const { start, end } of regions) {
+      lines.push(`* = ${hex4(start)}`);
+      let a = start;
+      while (a < end) {
+        const sp = spans.get(a);
+        if (sp && sp.file !== lastFile && r.files?.[sp.file] != null) {
+          if (lastFile !== -1) lines.push(`; --- ${baseName(r.files[sp.file])} ---`);
+          lastFile = sp.file;
+        }
+        for (const name of labelsAt.get(a) || []) lines.push(`${name}:`);
+        const inv = invAt.get(a);
+        if (inv && inv.end <= end) {
+          for (let k = 1; k < inv.end - a; k++) {
+            for (const name of labelsAt.get(a + k) || []) lines.push(`.label ${name} = * + ${k}`);
+          }
+          lines.push(comment(`    .invoke ${inv.def.vmaName}(${inv.args})`, inv.call.text));
+          a = inv.end;
+          continue;
+        }
+        const spanEnd = sp ? Math.min(end, a + sp.len) : end;
+        const text = sp?.text || "";
+        // instructions: a Kick instruction line, or code a macro / pseudo command call made
+        if (sp && !text.startsWith(".")) {
+          const isInstr = /^[A-Za-z]{3}(?:\.[A-Za-z]+)?(?:\s|$)/.test(text);
+          const decoded = [];
+          let p = a;
+          while (p < spanEnd) {
+            const ins = instruction(p, spanEnd, text, !isInstr, inPseudo(r.files?.[sp.file], sp.line));
+            if (!ins) break;
+            decoded.push([p, ins]);
+            p += ins.size;
+          }
+          if (p === spanEnd && decoded.length) {
+            decoded.forEach(([q, ins], i) => {
+              if (i > 0) for (const name of labelsAt.get(q) || []) lines.push(`${name}:`);
+              lines.push(...ins.inner, i === 0 ? comment(ins.text, text) : ins.text);
+            });
+            a = spanEnd;
+            continue;
+          }
+        }
+        // data up to the end of the span (or to the next span / label), split at labels
+        let stop = a + 1;
+        const limit = sp ? spanEnd : end;
+        while (stop < limit && !labelsAt.has(stop) && (sp || !spans.has(stop))) stop++;
+        lines.push(...dataLines(a, stop, text));
+        if (sp && stop < spanEnd) {
+          // the rest of a span after a label inside it
+          let q = stop;
+          while (q < spanEnd) {
+            for (const name of labelsAt.get(q) || []) lines.push(`${name}:`);
+            let s = q + 1;
+            while (s < spanEnd && !labelsAt.has(s)) s++;
+            lines.push(...dataLines(q, s, ""));
+            q = s;
+          }
+          stop = spanEnd;
+        }
+        a = stop;
+      }
+      lines.push("");
+    }
+  };
+  emit([]);
+  for (const v of [...wanted].sort((x, y) => x - y)) {
+    if (!labelsAt.has(v)) labelsAt.set(v, [nameOf("L_" + hex4(v).slice(1))]);
+  }
+  const body = [];
+  emit(body);
+  for (const [id, name] of defNames) {
+    const v = defs.get(id);
+    lines.push(`.const ${name} = ${v < 0x100 ? hex2(v) : hex4(v)}`);
+  }
+  if (defNames.size) lines.push("");
+  for (const m of used) {
+    // VMA assembles a macro without parameters as a subroutine where it is defined: `unused`
+    lines.push(`.macro ${m.vmaName}(${m.params.length ? m.params.join(", ") : "unused"})`, ...bodies.get(m), ".endm", "");
+  }
+  lines.push(...body);
+  return lines.join("\n");
 }
 
 // ── Build info dialog ────────────────────────────────────────────────────────
@@ -22599,6 +23187,7 @@ async function showWorkProgress(messageKey, opts = {}) {
   if (workProgressSubtitle) workProgressSubtitle.textContent = t(messageKey);
   const stepLine = document.getElementById("work-progress-step");
   if (stepLine && !workProgressDialog.open) stepLine.textContent = "";
+  if (!workProgressDialog.open && !opts.keepPhases) _workPhasesReset();
 
   if (indeterminate) {
     workProgressValue = 0;
@@ -22637,10 +23226,63 @@ function _workBuildSummary(prg) {
   return tf("workProgressBuildSummary", { bytes: bytes - 2, start: hex(load), end: hex(load + bytes - 3) });
 }
 
+// The phase of a step (a Run compiles, then launches): the dialog title and the phase list follow it.
+const _WORK_STEP_PHASES = {
+  stepKickRead: "prepare",
+  stepKickPreprocess: "prepare",
+  stepAnalyze: "analyze",
+  stepExomizer: "crunch",
+  stepD64: "disk",
+  stepVice: "launch",
+  stepUltimate: "launch",
+  stepKff2: "launch",
+  stepUe2: "launch",
+  stepDebugFiles: "launch",
+  stepDebugger: "launch"
+};
+const _WORK_PHASE_KEYS = {
+  prepare: ["workProgressTitle", "workPhasePrepare"],
+  compile: ["workProgressTitle", "workPhaseCompile"],
+  analyze: ["workProgressTitleAnalyze", "workPhaseAnalyze"],
+  crunch: ["workProgressTitleCrunch", "workPhaseCrunch"],
+  disk: ["workProgressTitleDisk", "workPhaseDisk"],
+  launch: ["workProgressTitleLaunch", "workPhaseLaunch"]
+};
+
+// The phases reached so far, one line each: the earlier ones done, the last one running.
+function _workPhaseEnter(phase) {
+  const list = document.getElementById("work-progress-phases");
+  if (!list) return;
+  const last = list.lastElementChild;
+  if (last?.dataset.phase === phase) return;
+  if (last) last.className = "work-progress-phase work-progress-phase--done";
+  const li = document.createElement("li");
+  li.className = "work-progress-phase work-progress-phase--active";
+  li.dataset.phase = phase;
+  li.textContent = t(_WORK_PHASE_KEYS[phase][1]);
+  list.appendChild(li);
+  list.hidden = false;
+}
+
+function _workPhasesReset(done = false) {
+  const list = document.getElementById("work-progress-phases");
+  if (!list) return;
+  if (done) {
+    for (const li of list.children) li.className = "work-progress-phase work-progress-phase--done";
+    return;
+  }
+  list.replaceChildren();
+  list.hidden = true;
+}
+
 function setWorkStep(key, values = {}) {
   const el = document.getElementById("work-progress-step");
   if (!el || !workProgressDialog?.open) return;
   el.textContent = key ? tf(key, values) : "";
+  if (!key) return;
+  const phase = _WORK_STEP_PHASES[key] || "compile";
+  if (workProgressTitle) workProgressTitle.textContent = t(_WORK_PHASE_KEYS[phase][0]);
+  _workPhaseEnter(phase);
 }
 
 // The file name of a path (the last / or \ part).
@@ -22689,6 +23331,7 @@ async function completeWorkProgress(successMessageKey, delayMs = 1200, summary =
   if (workProgressTitle) workProgressTitle.textContent = t("workProgressDoneTitle");
   if (workProgressSubtitle) workProgressSubtitle.textContent = t(successMessageKey);
   setWorkStep("");
+  _workPhasesReset(true);
   const stepLine = document.getElementById("work-progress-step");
   if (stepLine && summary) stepLine.textContent = summary;
   if (workProgressBar) {
@@ -24407,7 +25050,7 @@ async function confirmD64Export() {
   // Switch the progress modal's subtitle to the D64 packaging message. If we
   // didn't open it during compression and we're in run mode, open it now.
   if (isRunMode) {
-    await showWorkProgress(isUltimateMode ? "workProgressRunD64Ultimate" : "workProgressRunD64");
+    await showWorkProgress(isUltimateMode ? "workProgressRunD64Ultimate" : "workProgressRunD64", { keepPhases: true });
   } else if (willCrunchAny) {
     // Save-only mode: progress modal is up but the EXO loop is done — close it
     // so the OS save dialog (if any) isn't blocked behind it.
@@ -24600,12 +25243,13 @@ async function runViaD64() {
     return;
   }
 
-  const prg = await buildRunPrgForCurrentMode();
+  const prg = await _runBuildWithProgress("workProgressRunD64");
   if (!prg.ok) {
     if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
     if (emulatorStatus) emulatorStatus.textContent = prg.error;
     return;
   }
+  hideWorkProgress();
 
   d64ExportState.prgBytes = prg.bytes;
   d64ExportState.runMode = true;
@@ -24699,6 +25343,14 @@ async function runViaExomizer() {
       hideWorkProgress();
     }
   }
+}
+
+// A Run's build inside the work window, so its phase list shows the compile (and Exomizer) too.
+async function _runBuildWithProgress(messageKey) {
+  await showWorkProgress(messageKey);
+  const prg = await buildRunPrgForCurrentMode();
+  if (!prg.ok) hideWorkProgress();
+  return prg;
 }
 
 async function buildRunPrgForCurrentMode() {
@@ -25022,6 +25674,7 @@ async function _vaBuildExpert(options) {
   }
   const bytes = _acmePreviewByteCount({ bytes: result.bytes, sysAddress: result.sysAddress, stubGenerated: true });
   _expertSetStatus(tf("vaBuildSuccess", { bytes }), "ok");
+  setWorkStep("stepAnalyze");
   if (_expertDisasmVisible) _expertRenderDisasm();
   if (_expertMonitorVisible) _expertRenderMonitor();
   if (progress) await completeWorkProgress("workProgressSuccessBuild", 2200, _workBuildSummary(result.bytes));
@@ -25067,7 +25720,10 @@ async function _acmeBuildPreview(options) {
   if (button) button.disabled = true;
   _expertSetStatus(t(_textKey("acmeBuild")) + "…", "ok");
   let summary = null;   // the work window's summary line of a successful build
-  if (progress) await showWorkProgress("workProgressBuild");
+  if (progress) {
+    await showWorkProgress("workProgressBuild");
+    setWorkStep(_r65Mode() ? "stepR65" : "stepAcme", { file: _workStepSource() });
+  }
   try {
     const result = await _textBuild(true, { preview: true });
     if (tabId !== activeTabId || sourceText !== _expertGetSourceText()) return;
@@ -25084,6 +25740,7 @@ async function _acmeBuildPreview(options) {
       _expertSetStatus(tf(_textKey("acmeBuildSuccess"), { bytes: _acmePreviewByteCount(result) }), "ok");
       if (progress) summary = _workBuildSummary(result.bytes);
     }
+    if (progress && result.ok) setWorkStep("stepAnalyze");
     _acmeUpdateAnalysis();
     if (_expertDisasmVisible) _expertRenderDisasm();
     if (_expertMonitorVisible) _expertRenderMonitor();
@@ -25281,6 +25938,11 @@ function setupHardwareSettingsDialog() {
     _sidPlayerRenderList();
     _sidEditorEngineSync();
   });
+  // the SID Player sends it with every render, so a playing tune switches at once
+  document.getElementById("sid-digi-boost")?.addEventListener("change", function(e) {
+    _sidDigiBoost = !!e.target.checked;
+    try { localStorage.setItem("c64va-sid-digi-boost", _sidDigiBoost ? "1" : "0"); } catch (_) {}
+  });
 }
 
 // ── C64 Ultimate (1541 Ultimate REST API) ─────────────────────────────────────
@@ -25441,14 +26103,13 @@ async function runOnUltimate() {
     showViceToast(t("ultimateNotConfigured"), true);
     return;
   }
-  const prg = await buildRunPrgForCurrentMode();
+  const prg = await _runBuildWithProgress("workProgressRunUltimate");
   if (!prg.ok) {
     if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
     if (emulatorStatus) emulatorStatus.textContent = prg.error;
     return;
   }
   const password = (document.getElementById("ultimate-password")?.value || ultimatePassword).trim() || null;
-  await showWorkProgress("workProgressRunUltimate");
   setWorkStep("stepUltimate", { bytes: prg.bytes.length, host });
   const result = await window.electronAPI?.runOnUltimate(host, password, Array.from(prg.bytes));
   if (result?.ok) {
@@ -25464,13 +26125,12 @@ async function runOnUe2() {
     showViceToast(t("nothingToRunAddSomeInstructionsFirst"), true);
     return;
   }
-  const prg = await buildRunPrgForCurrentMode();
+  const prg = await _runBuildWithProgress("workProgressRunUe2");
   if (!prg.ok) {
     if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
     if (emulatorStatus) emulatorStatus.textContent = prg.error;
     return;
   }
-  await showWorkProgress("workProgressRunUe2");
   setWorkStep("stepUe2", { bytes: prg.bytes.length });
   const result = await window.electronAPI?.ue2RunPrg(Array.from(prg.bytes));
   _ue2RefreshSettings();
@@ -25492,13 +26152,12 @@ async function runOnKff2() {
     showViceToast(t("kff2NotConfigured"), true);
     return;
   }
-  const prg = await buildRunPrgForCurrentMode();
+  const prg = await _runBuildWithProgress("workProgressRunKff2");
   if (!prg.ok) {
     if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
     if (emulatorStatus) emulatorStatus.textContent = prg.error;
     return;
   }
-  await showWorkProgress("workProgressRunKff2");
   setWorkStep("stepKff2", { bytes: prg.bytes.length, port });
   const result = await window.electronAPI?.runOnKff2(port, Array.from(prg.bytes));
   if (result?.ok) {
@@ -25520,12 +26179,13 @@ async function runUltimateD64(target = "ultimate") {
     return;
   }
 
-  const prg = await buildRunPrgForCurrentMode();
+  const prg = await _runBuildWithProgress("workProgressRunD64");
   if (!prg.ok) {
     if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
     if (emulatorStatus) emulatorStatus.textContent = prg.error;
     return;
   }
+  hideWorkProgress();
 
   d64ExportState.prgBytes = prg.bytes;
   d64ExportState.runMode = target;
@@ -29213,6 +29873,24 @@ async function importKickProject(filePath = null) {
   if (!await _closeAllTabsWithConfirm()) return;
   const entry = _kickNormPath(res.filePath);
   const dir = entry.replace(/\/[^/]*$/, "");
+  const dirName = dir.split("/").pop() || "kick";
+  const name = /^(src|source|sources|asm)$/i.test(dirName) ? (dir.split("/").slice(-2, -1)[0] || dirName) : dirName;
+  const projPath = `${dir}/${name}.proj`;
+  // R65 builds the project and its result becomes one VMA source next to the Kick tree;
+  // without R65 (or when it fails) the project stays a Kick project
+  let r65Status = null;
+  if (api?.r65Build && _vmaAvailable()) {
+    const source = await api.readTextFile?.(res.filePath).catch(() => null);
+    if (source?.ok) {
+      _expertSetStatus(tf("stepR65", { file: entry.split("/").pop() }), "ok");
+      const conv = await _kickImportViaR65(res.filePath, source.content || "");
+      if (conv.ok) {
+        await _kickProjectFromVma(dir, name, projPath, conv);
+        return;
+      }
+      if (conv.errors?.length) r65Status = tf("kickImportR65Failed", { count: conv.errors.length });
+    }
+  }
   const { texts, bins } = await _kickReadTree(entry);
   const missing = [...texts, ...bins].filter(([, v]) => v === null).map(([p]) => p);
 
@@ -29246,9 +29924,6 @@ async function importKickProject(filePath = null) {
   };
   sortNodes(files);
 
-  const dirName = dir.split("/").pop() || "kick";
-  const name = /^(src|source|sources|asm)$/i.test(dirName) ? (dir.split("/").slice(-2, -1)[0] || dirName) : dirName;
-  const projPath = `${dir}/${name}.proj`;
   if ((await api?.readTextFile?.(projPath))?.ok && !await _showConfirm(tf("kickProjectOverwrite", { path: projPath }))) return;
   const startupFile = relOf(entry);
   const payload = JSON.stringify({ name, files, startupFile, ..._projAssemblerFields("kick"), kick: true }, null, 2);
@@ -29264,7 +29939,33 @@ async function importKickProject(filePath = null) {
   await _expertProjectOpenFile({ type: "file", name: startupFile.split("/").pop(), path: startupFile });
   const count = texts.size + bins.size - missing.length;
   if (missing.length) showCompileErrorDialog(missing.map(p => ({ text: tf("kickImportMissing", { path: p }) })));
-  _expertSetStatus(tf("kickProjectImported", { name, count }), missing.length ? "error" : "ok");
+  _expertSetStatus((r65Status ? r65Status + " · " : "") + tf("kickProjectImported", { name, count }), missing.length || r65Status ? "error" : "ok");
+}
+
+// A Kick project converted by R65 (_kickImportViaR65): <name>_vma.asm and a VMA .proj in the
+// project's folder; the Kick sources stay as they are.
+async function _kickProjectFromVma(dir, name, projPath, conv) {
+  const api = window.electronAPI;
+  const file = `${name}_vma.asm`;
+  const asmPath = `${dir}/${file}`;
+  for (const path of [projPath, asmPath]) {
+    if ((await api?.readTextFile?.(path))?.ok && !await _showConfirm(tf("kickProjectOverwrite", { path }))) return;
+  }
+  const savedAsm = await api?.saveTextFile?.(asmPath, conv.text);
+  if (!savedAsm?.ok) { _expertSetStatus(t("projSaveError") + ": " + (savedAsm?.error || asmPath), "error"); return; }
+  const files = [{ type: "file", name: file, path: file }];
+  const payload = JSON.stringify({ name, files, startupFile: file, ..._projAssemblerFields("kick") }, null, 2);
+  const saved = await api?.saveTextFile?.(projPath, payload);
+  if (!saved?.ok) { _expertSetStatus(t("projSaveError") + ": " + (saved?.error || projPath), "error"); return; }
+  _expertProjectData = { name, files, _projPath: projPath, startupFile: file, assemblerSyntax: "kick" };
+  _setAssemblerSyntax("kick");
+  _expertProjectDirty = false;
+  if (!expertMode) setExpertMode(true);
+  if (!_expertProjectVisible) expertProjectBtn?.click();
+  else _expertRenderProjectTree();
+  await _expertProjectOpenFile({ type: "file", name: file, path: file });
+  const key = conv.kind === "plain" ? "kickImportPlain" : !conv.same ? "kickImportFlatDiff" : conv.macros ? "kickImportMacros" : "kickImportFlat";
+  _expertSetStatus(tf(key, { name: file, count: conv.macros }), conv.same ? "ok" : "error");
 }
 
 // Detect a comma-separated value list base. Returns { base, normalized } where
@@ -29946,6 +30647,9 @@ function _importMakeInstruction(mnemonic, operandRaw, branchMnems) {
       addressingMode = isBranchMnemonic ? "relative" : "absolute";
       displayOperand = op;
     }
+    // A name of hex letters only (bad, fade, ab): the source has no bare hex numbers, but a
+    // "hex" block reads its operand as one ($0BAD). As "dec" it stays the name.
+    if (base === "hex" && !op.includes("$") && /^[A-Fa-f][0-9A-Fa-f]*$/.test(rawOperand)) base = "dec";
   }
 
   let forceZeroPage = false;
@@ -36683,9 +37387,11 @@ function applyZoom() {
 }
 
 // Settings setup runs inside initPalette, before the SID editor code below.
-var _VA_SID_CORE_VERSION = "1.2";
+var _VA_SID_CORE_VERSION = "1.3";
 var _sidPreviewEngine = "resid";
 var _sidPreviewModel = "8580";
+// the 8580 "digi boost" hack (a DC level on EXT IN): loud $D418 samples on the 8580
+var _sidDigiBoost = false;
 initPalette();
 
 // ===== TUTORIAL SYSTEM =======================================================
@@ -47289,7 +47995,10 @@ function _sidLoadPreviewSettings() {
     if (savedEngine === "resid" || savedEngine === "va-core") _sidPreviewEngine = savedEngine;
     const savedModel = localStorage.getItem("c64va-sid-preview-model");
     if (savedModel === "6581" || savedModel === "8580") _sidPreviewModel = savedModel;
+    _sidDigiBoost = localStorage.getItem("c64va-sid-digi-boost") === "1";
   } catch (_) {}
+  const boostEl = document.getElementById("sid-digi-boost");
+  if (boostEl) boostEl.checked = _sidDigiBoost;
   const engineEl = document.getElementById("sid-preview-engine");
   if (engineEl) engineEl.value = _sidPreviewEngine;
   const modelEl = document.getElementById("sid-preview-model");
@@ -47380,7 +48089,10 @@ function _sidInstNorm(ins) {
   o.tableSpeed = cl(o.tableSpeed, 1, 15);
   o.table = (Array.isArray(o.table) ? o.table : []).slice(0, 32).map(function(s) {
     const abs = !!(s && s.abs);
-    return { w: cl(s && s.w, 0, 255), n: abs ? cl(s && s.n, 0, 95) : cl(s && s.n, -96, 95), abs: abs };
+    const step = { w: cl(s && s.w, 0, 255), n: abs ? cl(s && s.n, 0, 95) : cl(s && s.n, -96, 95), abs: abs };
+    // off: the gate is released from this step on (until the next note)
+    if (s && s.off) step.off = true;
+    return step;
   });
   o.tableLoop = cl(o.tableLoop, -1, o.table.length - 1);
   return o;
@@ -48211,6 +48923,19 @@ function _sidRenderTable() {
     const absTxt = document.createElement("span");
     absTxt.textContent = t("sidTableAbs");
     absLbl.append(abs, absTxt);
+    // the gate is released from this step on (a short gate: drums, plucks)
+    const offLbl = document.createElement("label");
+    offLbl.className = "sid-check";
+    offLbl.setAttribute("aria-label", t("sidTableGateOffHint"));
+    const off = document.createElement("input");
+    off.type = "checkbox"; off.checked = !!step.off;
+    off.addEventListener("change", function(){
+      if (off.checked) step.off = true; else delete step.off;
+      _sidTableEdited();
+    });
+    const offTxt = document.createElement("span");
+    offTxt.textContent = t("sidTableGateOff");
+    offLbl.append(off, offTxt);
     const del = document.createElement("button");
     del.type = "button"; del.className = "sid-mini-btn sid-tstep-del"; del.textContent = "×";
     del.setAttribute("aria-label", t("sidTableDelStep"));
@@ -48220,7 +48945,7 @@ function _sidRenderTable() {
       _sidTableEdited();
       _sidRenderTable();
     });
-    row.append(idx, wave, note, absLbl, del);
+    row.append(idx, wave, note, absLbl, offLbl, del);
     box.appendChild(row);
   });
   const add = document.getElementById("sid-table-add");
@@ -48351,9 +49076,10 @@ function _sidDrawADSR() {
 
 /* ── Tracker grid ── */
 // Effect column codes: V=vibrato, U=slide/portamento up, D=slide down,
-// C=note cut (release without a new note), F=speed change (frames/row).
-const _SID_FX_CODES = { V: 1, U: 2, D: 3, C: 4, F: 5 };
-const _SID_FX_NAMES = [null, "V", "U", "D", "C", "F"];
+// C=note cut (release without a new note), F=speed change (frames/row),
+// L=legato (a note on under a held gate: the envelope is not retriggered).
+const _SID_FX_CODES = { V: 1, U: 2, D: 3, C: 4, F: 5, L: 6 };
+const _SID_FX_NAMES = [null, "V", "U", "D", "C", "F", "L"];
 function _sidFxText(cell) {
   if (!cell.fx) return "...";
   return cell.fx + (cell.fxval < 16 ? "0" : "") + (cell.fxval & 0xFF).toString(16).toUpperCase();
@@ -48633,7 +49359,7 @@ function _sidParseCellEntry(text) {
   for (; i < tokens.length; i++) {
     const tok = tokens[i];
     if (tok === ".." || tok === "...") continue; // explicit "leave unset" placeholder
-    const fxMatch = tok.match(/^([VUDCF])([0-9a-fA-F]{0,2})$/);
+    const fxMatch = tok.match(/^([VUDCFL])([0-9a-fA-F]{0,2})$/);
     const instMatch = tok.match(/^[0-9a-fA-F]{1,2}$/);
     if (instMatch && !fxMatch) {
       inst = Math.max(0, Math.min(255, parseInt(tok, 16)));
@@ -48669,7 +49395,7 @@ function _sidBeginManualEdit(v, r, td) {
   input.autocomplete = "off";
   input.setAttribute("maxlength", "12");
   input.placeholder = "C-4 01 V24";
-  input.title = "Format: note [instrument] [effect] (e.g. C-4 01, C#5, D3 0A V24). Effects: V=vibrato U/D=slide up/down C=note cut F=speed. \"F06\" or \"C\" alone applies an effect with no new note; \"===\" (or OFF, key 1) = note-off. Empty = clear.";
+  input.title = "Format: note [instrument] [effect] (e.g. C-4 01, C#5, D3 0A V24). Effects: V=vibrato U/D=slide up/down C=note cut F=speed L=legato (new pitch, no retrigger). \"F06\" or \"C\" alone applies an effect with no new note; \"===\" (or OFF, key 1) = note-off. Empty = clear.";
   const original = td.innerHTML;
   td.innerHTML = "";
   td.appendChild(input);
@@ -51829,7 +52555,7 @@ async function _vaSidPlayFileBytes(bytes, filename, song = 0) {
     try {
       do {
         const payload = { sessionId: state.sessionId, sampleRate: ac.sampleRate,
-          model: _sidPreviewModel, engine: _sidPreviewEngine, frames: 20, skipMs: Math.max(0, Math.round(state.skipMs)), song: state.song };
+          model: _sidPreviewModel, engine: _sidPreviewEngine, digiBoost: _sidDigiBoost, frames: 20, skipMs: Math.max(0, Math.round(state.skipMs)), song: state.song };
         if (state.fileBytes) payload.fileBytes = state.fileBytes;
         state.queue = window.electronAPI.renderSidFile(payload);
         const rendered = await state.queue;
@@ -52268,7 +52994,7 @@ function _sidTuneData(opts) {
     a.ipms.push(o.pwmSpeed); a.ipmnl.push(pmin & 0xFF); a.ipmnh.push(pmin >> 8); a.ipmxl.push(pmax & 0xFF); a.ipmxh.push(pmax >> 8);
     a.igt.push(o.gateTimer); a.ihr.push(o.hr ? 1 : 0); a.iffw.push(o.firstWave);
     // identical step runs are stored once: the 255-step table space goes further
-    const bytes = o.table.map(function(s){ return [s.w & 0xFF, s.n & 0xFF, s.abs ? 1 : 0]; });
+    const bytes = o.table.map(function(s){ return [s.w & 0xFF, s.n & 0xFF, (s.abs ? 1 : 0) | (s.off ? 2 : 0)]; });
     let at = -1;
     for (let k = 0; bytes.length && k + bytes.length <= a.tw.length && at < 0; k++) {
       if (bytes.every(function(x, i){ return a.tw[k + i] === x[0] && a.tn[k + i] === x[1] && a.ta[k + i] === x[2]; })) at = k;
@@ -52289,7 +53015,7 @@ function _sidTuneData(opts) {
 function _sidCellBytes(c, instCount) {
   const note = c && c.note != null ? Math.max(0, Math.min(95, c.note | 0)) + 1 : 0;
   const inst = c ? (c.inst | 0) & 0xFF : 0;
-  const fx = c && c.fx ? ({ V: 1, U: 2, D: 3, C: 4, F: 5 })[c.fx] || 0 : 0;
+  const fx = c && c.fx ? ({ V: 1, U: 2, D: 3, C: 4, F: 5, L: 6 })[c.fx] || 0 : 0;
   return [note, inst < instCount ? inst : 0, fx, c ? (c.fxval | 0) & 0xFF : 0];
 }
 
@@ -52317,17 +53043,21 @@ function _sidEngTab(e, s, k) {
   const w = e.a.tw[k] | 0;
   if (w) s.wav = w & 0xFE;
   s.nof = e.a.tn[k] | 0;
-  s.nab = e.a.ta[k] | 0;
+  const fl = e.a.ta[k] | 0;
+  s.nab = fl & 1;
+  if (fl & 2) s.gate = 0;
 }
 
-function _sidEngNoteOn(e, v, n, i) {
+function _sidEngNoteOn(e, v, n, i, leg) {
   const a = e.a, s = e.v[v], chip = v / 3 | 0, f = e.fs[chip], base = e.base[v];
-  s.ctl &= 0xFE;
-  e.regs[base + 4] = s.ctl;
-  e.trig[v] = true;
+  if (!leg) {
+    s.ctl &= 0xFE;
+    e.regs[base + 4] = s.ctl;
+    e.trig[v] = true;
+  }
   s.note = n; s.inst = i; s.on = 1; s.gate = 1; s.jon = 1;
   s.sl = 0; s.fvo = 0; s.fvs = 0; s.fvc = 0; s.pwd = 0; s.vof = 0; s.tpos = 0; s.nof = 0; s.nab = 0; s.vdr = 1;
-  s.ffr = a.iffw[i];
+  s.ffr = leg ? 0 : a.iffw[i];
   s.pw = a.ipwl[i] | (a.ipwh[i] << 8);
   s.vdl = a.ivdl[i];
   s.vcn = ((a.ivsp[i] + 1) & 0xFF) >> 1 || 1;
@@ -52357,7 +53087,9 @@ function _sidEngRow(e) {
   for (let v = 0; v < e.v.length; v++) {
     const b = _sidCellBytes(pat ? pat[v][e.row] : null, td.insts.length);
     const s = e.v[v];
-    if (b[0]) _sidEngNoteOn(e, v, b[0] - 1, b[1]);
+    if (b[0]) {
+      _sidEngNoteOn(e, v, b[0] - 1, b[1], b[2] === 6 && s.gate);
+    }
     const fx = b[2], val = b[3];
     if (fx !== 1) s.fvo = 0;
     if (fx === 4) s.gate = 0;
@@ -52390,7 +53122,8 @@ function _sidEngHr(e) {
     const gt = a.igt[s.inst];
     if (!gt || gt !== e.tick || gt === e.spd) continue;
     const pat = e.td.patterns[e.pat];
-    if (!_sidCellBytes(pat ? pat[v][e.row] : null, e.td.insts.length)[0]) continue;
+    const nb = _sidCellBytes(pat ? pat[v][e.row] : null, e.td.insts.length);
+    if (!nb[0] || nb[2] === 6) continue;
     s.gate = 0;
     if (a.ihr[s.inst]) { e.regs[e.base[v] + 5] = 0; e.regs[e.base[v] + 6] = 0; }
   }
@@ -52629,7 +53362,7 @@ function _sidDecodePcm16(base64) {
 }
 
 function _sidRenderNativeFrames(frames, sampleRate, sessionId) {
-  const payload = { sampleRate: Math.round(sampleRate), model: _sidPreviewModel, engine: _sidPreviewEngine, ntsc: _sidIsNtsc(), frames: frames };
+  const payload = { sampleRate: Math.round(sampleRate), model: _sidPreviewModel, engine: _sidPreviewEngine, digiBoost: _sidDigiBoost, ntsc: _sidIsNtsc(), frames: frames };
   if (sessionId) payload.sessionId = sessionId;
   return window.electronAPI.renderSidPreview(payload).then(function(base64) {
     const pcm = _sidDecodePcm16(base64);
@@ -52683,7 +53416,7 @@ function _sidInstExtBytes(ins) {
   const out = [flags, o.cutEnd & 0xFF, o.cutEnd >> 8, o.cutSpeed, o.vibDelay, o.vibSpeed, o.vibDepth,
     o.pwmSpeed, o.pwmMin & 0xFF, o.pwmMin >> 8, o.pwmMax & 0xFF, o.pwmMax >> 8,
     o.gateTimer, o.firstWave, o.tableSpeed, o.tableLoop < 0 ? 0xFF : o.tableLoop, o.table.length];
-  o.table.forEach(function(s){ out.push(s.w, s.n & 0xFF, s.abs ? 1 : 0); });
+  o.table.forEach(function(s){ out.push(s.w, s.n & 0xFF, (s.abs ? 1 : 0) | (s.off ? 2 : 0)); });
   const name = Array.from(new TextEncoder().encode(String(o.name || ""))).slice(0, 255);
   out.push(name.length);
   return out.concat(name);
@@ -52702,8 +53435,10 @@ function _sidReadInstExt(ins, src, p) {
   const len = src[p++] || 0;
   ins.table = [];
   for (let k = 0; k < len; k++) {
-    const w = src[p++] || 0, n = src[p++] || 0, abs = !!src[p++];
-    ins.table.push({ w: w, n: abs ? n : (n > 127 ? n - 256 : n), abs: abs });
+    const w = src[p++] || 0, n = src[p++] || 0, fl = src[p++] || 0, abs = !!(fl & 1);
+    const step = { w: w, n: abs ? n : (n > 127 ? n - 256 : n), abs: abs };
+    if (fl & 2) step.off = true;
+    ins.table.push(step);
   }
   const nameLen = src[p++] || 0;
   const name = new TextDecoder().decode(Uint8Array.from(Array.from(src.slice(p, p + nameLen))));
@@ -53175,7 +53910,7 @@ function _sidDumpImport(regs, meta) {
       }
     });
     if (extra.length) {
-      skip("legato notes (retriggered)");
+      vc.leg = new Set(extra);
       vc.ons = vc.ons.concat(extra).sort(function(a, c){ return a - c; });
     }
   });
@@ -53198,7 +53933,11 @@ function _sidDumpImport(regs, meta) {
     return 0;
   };
   const speed = gaps.length ? (pickL(0.97) || pickL(0.9) || pickL(0.75) || 1) : 6;
-  const rowStart = [times[0]];
+  // the player starts its first row on the first frame: silence before the first note is whole rows
+  // (what is left of it, less than a row, is dropped)
+  const rowStart = [];
+  for (let f = times[0] % speed; f < times[0]; f += speed) rowStart.push(f);
+  rowStart.push(times[0]);
   const pushRows = function(g, k) {
     const at = rowStart[rowStart.length - 1];
     for (let i = 1; i <= k; i++) rowStart.push(at + Math.round(i * g / k));
@@ -53238,7 +53977,7 @@ function _sidDumpImport(regs, meta) {
     Object.keys(cnt).forEach(function(k){ if (best === null || cnt[k] > cnt[best] || (cnt[k] === cnt[best] && first[k] < first[best])) best = k; });
     return best === null ? null : +best;
   };
-  const same = function(a, c) { return a.w === c.w && a.n === c.n && a.abs === c.abs; };
+  const same = function(a, c) { return a.w === c.w && a.n === c.n && a.abs === c.abs && !a.off === !c.off; };
   voices.forEach(function(vc, v) {
     const b = vc.b, at = vc.at;
     const freqAt = function(g) { return R(g, b) | (R(g, b + 1) << 8); };
@@ -53326,14 +54065,26 @@ function _sidDumpImport(regs, meta) {
       // frames of a note → the envelope decays at the release rate instead
       if (off >= 0) {
         const cr = rowOf(off), gap = next - off;
-        if (cr > row && (next >= frames || cr < rowOf(next))) {
+        // a release between two rows, less than a row before the next note: the gate timer is exact
+        const timer = next < frames && gap < speed && gap <= 15;
+        if (cr > row && (next >= frames || cr < rowOf(next)) && (!timer || rowStart[cr] === off)) {
           if (cr < totalRows && cols[v][cr].note == null && !cols[v][cr].fx) cols[v][cr] = { note: null, inst: 0, fx: "C", fxval: 0 };
-        } else if (next < frames && gap < speed && gap <= 15) {
+        } else if (timer) {
           ins.gateTimer = gap;
-          // the player zeroes ADSR with the gate: if the tune does it later, the release has to sound until then
-          ins.hr = R(off, b + 5) === 0 && R(off, b + 6) === 0;
+          // the player zeroes ADSR with the gate. A tune zeroing it a frame or two later (Hubbard) is
+          // close enough; one keeping the release until the next note is no hard restart
+          let zero = -1;
+          for (let g = off; g < next && zero < 0; g++) { if (R(g, b + 5) === 0 && R(g, b + 6) === 0) zero = g; }
+          ins.hr = zero >= 0 && zero - off <= 2;
         } else {
-          ins.s = 0; ins.d = ins.r;
+          // released within the note: a table step releases the gate there (the ADSR stays the
+          // tune's own); beyond the table the envelope decays at the release rate instead
+          if (off - f < raw.length && off - f < _SID_DUMP_TABLE_STEPS) raw[off - f].off = true;
+          else { ins.s = 0; ins.d = ins.r; }
+          // the tune zeroes ADSR a few frames before the next note: silence from there on
+          let zero = -1;
+          for (let g = off; g < next && g < frames && zero < 0; g++) { if (R(g, b + 5) === 0 && R(g, b + 6) === 0) zero = g; }
+          if (zero >= 0 && next < frames && next - zero < speed && next - zero <= 15) { ins.gateTimer = next - zero; ins.hr = true; }
         }
       }
 
@@ -53413,7 +54164,9 @@ function _sidDumpImport(regs, meta) {
           ins.cutSpeed = Math.min(127, Math.max(1, Math.ceil(Math.abs(ins.cutEnd - ins.cut) / frames2)));
         }
       }
-      cols[v][row] = { note: base, inst: 0, fx: null, fxval: 0 };
+      // a legato note (L): a note on under the held gate, the envelope goes on
+      const leg = !!(vc.leg && vc.leg.has(f));
+      cols[v][row] = { note: base, inst: 0, fx: leg ? "L" : null, fxval: 0 };
       recs.push({ v: v, row: row, base: base, w: w, ins: ins, raw: raw, vibFrom: vibFrom });
     });
   });
@@ -53447,10 +54200,12 @@ function _sidDumpImport(regs, meta) {
   recs.forEach(function(r) {
     const w = r.w, ins = r.ins, len = r.raw.length;
     const steps = r.raw.map(function(x, k) {
-      if (x.n == null || (r.vibFrom >= 0 && k >= r.vibFrom && x.w === w)) return { w: x.w, n: 0, abs: false };
-      return r.absAt[k] ? { w: x.w, n: x.n, abs: true } : { w: x.w, n: x.n - r.base, abs: false };
+      const st = x.n == null || (r.vibFrom >= 0 && k >= r.vibFrom && x.w === w) ? { w: x.w, n: 0, abs: false }
+        : r.absAt[k] ? { w: x.w, n: x.n, abs: true } : { w: x.w, n: x.n - r.base, abs: false };
+      if (x.off) st.off = true;
+      return st;
     });
-    const isPlain = function(st) { return st.w === w && st.n === 0 && !st.abs; };
+    const isPlain = function(st) { return st.w === w && st.n === 0 && !st.abs && !st.off; };
     if (!steps.every(isPlain)) {
       // a table step can last several frames: one step per common run length
       let runGcd = 0;
@@ -53574,8 +54329,10 @@ function _sidDumpImport(regs, meta) {
     // timing wins over a note cut: a missed speed change would shift the rest of the song
     let v = cols.findIndex(function(col){ return !col[r].fx; });
     if (v < 0) v = cols.findIndex(function(col){ return col[r].fx === "C"; });
+    if (v < 0) v = cols.findIndex(function(col){ return col[r].fx === "L"; });
     if (v < 0) { skip("speed changes"); continue; }
     if (cols[v][r].fx === "C") skip("note cuts dropped");
+    if (cols[v][r].fx === "L") skip("legato notes (retriggered)");
     cols[v][r].fx = "F"; cols[v][r].fxval = val;
   }
 
@@ -53868,7 +54625,7 @@ function _sidExportAsmPlayable() {
     "; pulse width modulation, gate timer / hard restart; the filter cutoff sweep",
     "; of the voice that last started a filter-routed instrument.",
     "; Effect column (once per row): V=vibrato, U/D=slide up/down, C=note cut,",
-    "; F=speed change.",
+    "; F=speed change, L=legato (new pitch under a held gate, no retrigger).",
     "; =========================================================",
     "",
     "* = $080D",
@@ -53887,7 +54644,7 @@ function _sidExportAsmPlayable() {
   const STATE_F = ["fown", "fcl", "fch", "fspd", "ftl", "fth", "fsl", "fsh", "fel", "feh", "fping", "fres", "fmode",
     "froute", "vol"];
   const STATE_G = STATE_F.concat(nv > 3 ? STATE_F.map(function(n){ return n + "2"; }) : [],
-    ["cv", "ci", "fxv", "tmp", "t0", "t1", "t3", "m0", "m1"]);
+    ["cv", "ci", "fxv", "tmp", "t0", "t1", "t3", "m0", "m1", "leg"]);
   const stateSize = STATE_V.length * nv + STATE_G.length;
 
   // ---- sid_init / sid_stop / sid_irq -------------------------------------
@@ -53998,6 +54755,12 @@ function _sidExportAsmPlayable() {
       "LDA (" + vi.notesPtr + "),Y",
       "BEQ sid_skip_" + vi.n,
       "STA $1A",               // note 1..96
+      "LDA (" + vi.fxPtr + "),Y",
+      "CMP #$06",              // L = legato: a note on under a held gate (sid_leg = gate)
+      "BNE sid_note_" + vi.n,
+      "LDA sid_gate+" + vi.i,
+      "STA sid_leg",
+      "sid_note_" + vi.n + ":",
       "LDA (" + vi.instsPtr + "),Y",
       "TAX",
       "LDA #" + hx(vi.i),
@@ -54155,10 +54918,13 @@ function _sidExportAsmPlayable() {
     "STX sid_ci",
     "LDX sid_cv",
     vbase,
+    "LDA sid_leg",
+    "BNE sid_sv_leg",
     "LDA sid_ctl,X",
     "AND #$FE",
     "STA sid_ctl,X",
     ...vreg(4),             // gate off: the gate on below retriggers the envelope
+    "sid_sv_leg:",
     "LDA sid_tmp",
     "STA sid_note,X",
     "LDA sid_ci",
@@ -54184,6 +54950,12 @@ function _sidExportAsmPlayable() {
     "LDY sid_ci",
     "LDA sid_iffw,Y",
     "STA sid_ffr,X",
+    "LDA sid_leg",             // legato: no first-frame waveform
+    "BEQ sid_sv_ffr",
+    "LDA #$00",
+    "STA sid_ffr,X",
+    "STA sid_leg",
+    "sid_sv_ffr:",
     "LDA sid_ipwl,Y",
     "STA sid_pwl,X",
     "LDA sid_ipwh,Y",
@@ -54308,7 +55080,15 @@ function _sidExportAsmPlayable() {
     "LDA sid_tn,Y",
     "STA sid_nof,X",
     "LDA sid_ta,Y",
+    "AND #$01",
     "STA sid_nab,X",
+    // bit 1: the gate is released from this step on
+    "LDA sid_ta,Y",
+    "AND #$02",
+    "BEQ sid_ta_gate",
+    "LDA #$00",
+    "STA sid_gate,X",
+    "sid_ta_gate:",
     "RTS",
     "");
 
@@ -54326,6 +55106,9 @@ function _sidExportAsmPlayable() {
       "BEQ sid_hr_" + vi.n,
       "LDY $FC",
       "LDA (" + vi.notesPtr + "),Y",
+      "BEQ sid_hr_" + vi.n,
+      "LDA (" + vi.fxPtr + "),Y",
+      "CMP #$06",              // a legato note keeps the gate
       "BEQ sid_hr_" + vi.n,
       "LDA #$00",
       "STA sid_gate+" + vi.i,
@@ -54778,7 +55561,9 @@ function _sidExportUbBlock() {
     for (let v = 0; v < 3; v++) {
       const cells = [];
       for (let r = 0; r < _SID_ROWS; r++) {
-        const c = _sidCellText(_sidPatterns[pi][v][r]);
+        // the UB player has no legato: an L note is a plain note on there
+        const cell = _sidPatterns[pi][v][r];
+        const c = _sidCellText(cell && cell.fx === "L" ? Object.assign({}, cell, { fx: null, fxval: 0 }) : cell);
         cells.push(c === "... .. ..." ? "..." : c);
       }
       while (cells.length && cells[cells.length - 1] === "...") cells.pop();
@@ -57887,12 +58672,14 @@ async function _w64Run() {
     showViceToast(t("nothingToRunAddSomeInstructionsFirst"), true);
     return;
   }
-  const prg = await buildRunPrgForCurrentMode();
+  const prg = await _runBuildWithProgress("workProgressRun");
   if (!prg.ok) {
     if (prg.errors?.length) { showCompileErrorDialog(prg.errors); return; }
     showViceToast(prg.error || t("launchingViceFailed"), true);
     return;
   }
+  setWorkStep("stepVice", { file: _workStepSource() || "PRG", bytes: prg.bytes.length });
+  await completeWorkProgress("workProgressSuccessRun", 400);
   await _w64Show();
   _w64S().session = null;
   _w64EndDebugView();

@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.7.9**
+**Version 2.8.0**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -8,6 +8,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 
 ## Table of Contents
 
+- [Version 2.8.0 Highlights](#version-280-highlights)
 - [Version 2.7.9 Highlights](#version-279-highlights)
 - [Version 2.7.8 Highlights](#version-278-highlights)
 - [Version 2.7.7 Highlights](#version-277-highlights)
@@ -240,6 +241,20 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
   - [Curve Editor](#curve-editor)
   - [Table Generator](#table-generator)
   - [Number Converter](#number-converter)
+
+---
+
+## Version 2.8.0 Highlights
+
+- **SID Editor: L (legato) effect** — a note under the held gate without an envelope retrigger. See [SID Editor](#sid-editor-3-voice-tracker).
+- **SID Editor: gate off in the wave table** — a table step can release the gate until the next note.
+- **.sid import** — legato notes as L notes, a gate released inside a note as a gate-off table step, a silent intro on whole rows.
+- **VA SID Core 1.3 and 8580 digi boost** — `$D418` digis are quiet on the 8580, as on the real chip; **Settings → General → SID preview → 8580 digi boost** makes them loud.
+- **Kick import through R65** — **Kick import** and **Import Kick project…** build the source with R65 and write VMA that builds the same bytes. See [Kick import](#kick-import-kick-assembler).
+- **Work window phases** — Run, Debug and Build show the phases of the work. See [Compile progress modal](#compile-progress-modal).
+- **Project tree** — open other files with their default app, show them in the file manager; an UltimateBasic project opens from Expert / Block mode in UltimateBasic mode.
+- **Toolbars** — Expert and UltimateBasic toolbars in the same order with the same icons; the UltimateBasic **New** button is removed (Ctrl+N).
+- **Fixes** — a label of hex letters (`BEQ bad`) stays a label through the blocks; Kick syntax highlighting of labels and calls.
 
 ---
 
@@ -793,7 +808,7 @@ During heavier actions, a centered progress modal appears with a progress bar:
 - **Debug** — building the PRG and launching RetroDebugger.
 - **Build project**, **Build D64** and **Exomizer** packing.
 
-The line under the bar names the step that is running, with the file — for example *Kick: preprocessing main.asm (14 files)…*, *VMA (Rust): compiling main.asm…*, *PRG ready: 2061 bytes from $0801*, *Exomizer: compressing …*, *VICE: starting …*. The modal closes automatically when the action completes or fails.
+Above the bar the phases of the work are listed — *Prepare*, *Compile*, *Analyze*, *Compress* (Exomizer), *Disk image* (D64), *Launch* — the running one highlighted and the finished ones checked; the window title follows the phase. The line under the bar names the step that is running, with the file — for example *Kick: preprocessing main.asm (14 files)…*, *VMA (Rust): compiling main.asm…*, *PRG ready: 2061 bytes from $0801*, *Exomizer: compressing …*, *VICE: starting …*. The modal closes automatically when the action completes or fails.
 
 ---
 
@@ -1022,7 +1037,11 @@ The Expert-mode `.asm` loader accepts common 6502 source patterns and converts t
 
 ### Kick import (Kick Assembler)
 
-The **Kick import** button on the Program menu ingests raw Kick Assembler source into a new block-mode tab. It is separate from the Expert-mode `Load .asm file` above — its custom tooltip flags that **only Kick Assembler code is supported** (other assemblers may parse partially but are not guaranteed to round-trip).
+The **Kick import** button on the Program menu ingests raw Kick Assembler source into a new block-mode tab.
+
+**Through R65 (desktop app):** the source is first built by the built-in R65 assembler, and its build is written as VMA: the source as it is when VMA builds the same bytes from it, otherwise R65's program, with labels for the `!+` / `!-` targets, the Kick constants that the operands name, Kick macros as VMA macros (`.invoke`; a call from a `.for` stays expanded) and `.pseudopc` code with its run addresses. The status bar says which way it went and whether the bytes match R65's. When R65 cannot build the source, the conversion below runs, and the status bar says so.
+
+The conversion without R65: It is separate from the Expert-mode `Load .asm file` above — its custom tooltip flags that **only Kick Assembler code is supported** (other assemblers may parse partially but are not guaranteed to round-trip).
 
 Supported patterns:
 
@@ -1047,6 +1066,8 @@ Known limitation:
 - Constants that resolve to a zero-page address (for example `.const BYTEADDR = $FC` used as `STA BYTEADDR`) currently compile to absolute-mode instructions (3 bytes) instead of zero-page (2 bytes). The compiled code still writes to the correct memory location, just with a small size and cycle overhead compared to the same source built by Kick Assembler.
 
 #### Kick projects (Import Kick project…)
+
+**Through R65 (desktop app):** R65 builds the project from its main file, and VA writes the result as `<name>_vma.asm` with a VMA `.proj` (startup file: that source) next to the Kick sources, which stay as they are; an existing file is overwritten only after a question. Without R65, or when R65 cannot build it, the Kick project below is made.
 
 **Import Kick project…** (Program menu, under **Kick import**) takes a whole KickAssembler source tree — a main file with `#import` modules and `.import binary` assets — and makes a VA project of it. Pick the main file (`main.asm`); VA follows every `#import` / `.import source` / `.import binary` (also inside `.if` branches that are not taken) and writes a `.proj` next to it, named after the folder (`src` / `source` / `asm` folders use the parent folder's name). The project lists every file in its folder tree; the sources stay where they are, so an existing KickAssembler build script keeps working. Files that cannot be found are listed in the error dialog.
 
@@ -1112,13 +1133,13 @@ color border 0
 print "HELLO FROM ULTIMATE BASIC"
 ```
 
-The UB mode works with `.ub` source files. **New**, **Open**, **Save**, and **Save As** operate on the active UB tab. Opening a `.ub` file activates the matching editor tab automatically.
+The UB mode works with `.ub` source files. **Open**, **Save**, and **Save As** operate on the active UB tab; **Ctrl+N** or **+** on the tab bar opens a new source tab. Opening a `.ub` file activates the matching editor tab automatically.
 
 The toolbar shows the current UB working folder. This folder is stored separately from the Block/Expert working folder. While UB mode is active, **File → Set working folder** selects the UB folder; its tooltip identifies the active scope. UB Open/Save dialogs start there, and unsaved sources use it as the base for relative `include` and `incbin` paths.
 
 ### Editor tools
 
-The UB toolbar follows the same visual language and custom tooltips as Expert mode. It provides:
+The UB toolbar follows the same visual language, custom tooltips and button order as Expert mode: project and side panels, files, format, build, the right-hand panels, editor view, find and bookmarks, zoom; the shared buttons have the same icons. It provides:
 
 - syntax highlighting based on the current Ultimate Basic language reference;
 - line numbers that remain synchronized with long files;
@@ -1140,6 +1161,8 @@ The command list is intentionally height-limited so the command-detail card can 
 
 Ultimate Basic projects use `.proj` files and can contain multiple `.ub` sources. The Project panel lists open files, marks unsaved tabs, and shows discovered labels, functions, and subroutines. Project actions let you create, open, save, and close a project or add another source file. The Version control dialog can commit, compare and restore all files of the project together — see [Project mode](#project-mode). A new project can also start from an UltimateBasic template — see [Project templates](#project-templates).
 
+An UltimateBasic `.proj` opened from Expert or Block mode (**Menu → File → Open project**) switches to UB mode, shows the project panel and opens the startup file (or the first `.ub` file).
+
 Click the star beside a project file to mark it as the **startup file**. Build, Run, D64, C64 Ultimate, and Debug commands compile that startup source even if a different tab is currently active. Without a startup selection, the active UB tab is used.
 
 The project panel toolbar has two add buttons, and file dialogs default to the **UB working folder** (Menu → File → Set working folder, UB-specific):
@@ -1153,7 +1176,7 @@ The **Save project** button disables itself and shows a "Saved" state once the p
 
 ### Building and diagnostics
 
-The **Build** button opens the same centered progress experience used by the other Visual Assembler run workflows. Successful builds update Build Output, Build Info, and Disassembly. Enable **Verbose** to include compiler memory-map details, internal zero-page allocations, and generated code data.
+The **Build** button opens the same centered progress experience used by the other Visual Assembler run workflows. Successful builds update Build Output, Build Info, and Disassembly. The **Build Info** button next to **Build** opens the Build Info dialog of the last build (variables, arrays, subroutines and the PRG size). Enable **Verbose** to include compiler memory-map details, internal zero-page allocations, and generated code data.
 
 When compilation fails:
 
@@ -1263,6 +1286,8 @@ Expert Mode is a full-featured direct-text 6502 assembly editor that lives along
 | **Go to line / Bookmarks** | `#expert-goto-line-btn`, `#expert-bookmark-*` | Ctrl+G jumps to a line; Ctrl+F2 toggles a bookmark, F2 / Shift+F2 go to the next / previous one |
 | **Build ACME** | `#expert-acme-build-btn` | In ACME mode: build the source with ACME — see [ACME mode](#acme-mode) |
 
+The buttons are grouped from left to right: project panel · palette and palette sync · Load / Save / Save as · Format · Build ACME / Build Info · Disasm / Monitor / Toolkit · autocomplete, line numbers, cycle counts, minimap, regions · Find, Go to line, bookmarks · zoom. The UltimateBasic toolbar uses the same order and icons (its build group: Build, Build Info, Explicit, Verbose).
+
 The panels you leave open (Palette, Disasm, Monitor, Toolkit, Project) and their widths are restored on the next start, whichever mode the app starts in.
 
 Editor shortcuts: `Ctrl+/` (`Cmd+/` on macOS) comments the current line or every selected line; adding `Shift` removes the leading comment marker from those lines.
@@ -1349,6 +1374,7 @@ Expert mode supports a **project panel** (`#expert-project-panel`) for multi-fil
 - The toolbar's **Add** button picks one or more files at once (any type, not just `.json`/`.asm`) and references them in the project without opening them — use it for binary assets like `incbin` data. Its dialog defaults to the VA working folder. The adjacent **Add folder** button references a whole folder (e.g. an asset directory) the same way. Reference-only entries show a delete (✕) button but are not opened by clicking them.
 - **Project settings** (the gear button in the panel header, or **Menu → File → Project settings…**) shows and edits the project: name, `.proj` path, startup file, assembler (VMA or ACME), **KickAssembler compatible**, and for a Kick project the preprocessor symbols (`#define`, like KickAssembler's `-define`) and the command-line variables (`cmdLineVars`, one `name=value` per line, like `:name=value`), for a VMA project its symbols (`.define`) and constants (`.const`, one `NAME=value` per line) — they come before the source the project builds, so `.if NAME` / `.if NAME == 3` switch a build without editing the source — plus the number of source and other files, and **Expert mode only**: block mode is closed for the files of the project, whatever their size. Everything is saved in the `.proj`.
 - Folders in the tree have a collapse/expand arrow, and **right-click a folder** to add one or more files nested under it (shown indented).
+- A file that VA does not open itself (a picture, a PDF, a PRG …) opens with its default app on a double-click or with **Open with default app** in the right-click menu. The right-click menu of files and folders also has **Show in Explorer** (Windows), **Show in Finder** (macOS) or **Show in file manager** (Linux).
 - The **Save project** button disables itself and shows a "Saved" state once the project has no pending changes, and re-enables automatically the moment you add, remove, or reorganize a file or folder.
 - The **symbols** section at the bottom of the project panel can be resized vertically with the divider between the file tree and the symbols list, so long symbol lists can take more space when needed.
 - **Version control** works for the whole project: with the **Project** switch of the Version control dialog one commit records every project file, and Checkout restores them all into the tabs. See [Project mode](#project-mode).
@@ -4750,7 +4776,7 @@ Arranges **Map Editor screens** into one level — a vertical shooter, a car gam
 
 Multi-instrument 3-voice tracker. Open it with the SID Editor toolbar button. Playback and every preview (**Play: All**, instrument Preview, virtual keyboard, note entry, chord / arpeggio, row and single-pattern playback) play on the emulated SID: a JS model of the exported 6502 player (frame for frame) sends its SID registers to the backend, which renders the sound. Outside the desktop app a small SID synthesizer plays instead.
 
-**Preview engine:** **Settings → General → SID preview** selects **reSID (resid-rs)**, the default, or **VA SID Core (Rust)**, the app's own SID emulation, and the chip (MOS 6581 / 8580). The editor's header shows the engine in use (e.g. *· reSID (MOS 8580)*). The instrument parameters are set with knobs.
+**Preview engine:** **Settings → General → SID preview** selects **reSID (resid-rs)**, the default, or **VA SID Core (Rust)**, the app's own SID emulation, and the chip (MOS 6581 / 8580). The editor's header shows the engine in use (e.g. *· reSID (MOS 8580)*). **8580 digi boost** drives a DC level on the EXT IN input, as VICE does: without it `$D418` digis are quiet on the 8580 (VA SID Core 1.3 models the small DC level of the 8580 voices, so they are not silent either); with it they are loud. The 6581 ignores it; it applies to the SID Player too, also while a tune plays. The instrument parameters are set with knobs.
 
 **Two SIDs:** **SID: 1 / 2** in the tracker toolbar switches the tune between 3 and 6 voices. With two SIDs, the list next to it sets the second SID's address: `$D420`–`$D7E0` or `$DE00`–`$DFE0`, in steps of `$20`. The columns are headed **S1 V1** … **S2 V3**. Each SID has its own filter and volume, and a voice controls only its own chip's. The two SIDs play in stereo (SID 1 left, SID 2 right). Note previews play on the first SID. Switching back to one SID deletes the second SID's voices, and asks first if they hold anything.
 
@@ -4762,7 +4788,7 @@ Multi-instrument 3-voice tracker. Open it with the SID Editor toolbar button. Pl
 - **Vibrato:** after **Delay** frames a triangle LFO that turns every **Speed** frames, **Depth** 0-15 scaled to the note's semitone (independent of the `V` effect).
 - **Pulse width modulation:** **Speed** added to the pulse width every frame, bouncing between **Min** and **Max**.
 - **Gate:** **Gate timer** releases the gate that many frames before the next note on the voice (keep it below Speed); **Hard restart** also zeroes ADSR then, for a clean attack; **First frame** writes a waveform on the note's first frame (e.g. `$09` test + gate).
-- **Wave / arpeggio table:** up to 32 steps of waveform (— = keep) and note (offset in semitones, or **abs** = absolute note), one step every **Speed** frames, **Loop** back to a step or stop on the last one. **Presets** (25, in groups; the list keeps the chosen preset until the table is edited by hand): arpeggios (major, minor, 7th chords, sus4, diminished, augmented, power chord, octave, trill), drums (kick, snare, tom, clap, closed / open hi-hat), lead and bass attacks, and sound effects (laser, pickup, explosion).
+- **Wave / arpeggio table:** up to 32 steps of waveform (— = keep) and note (offset in semitones, or **abs** = absolute note), one step every **Speed** frames, **Loop** back to a step or stop on the last one. **gate off** on a step releases the gate from that step until the next note (the release phase runs; for example a one-frame drum hit). **Presets** (25, in groups; the list keeps the chosen preset until the table is edited by hand): arpeggios (major, minor, 7th chords, sus4, diminished, augmented, power chord, octave, trill), drums (kick, snare, tom, clap, closed / open hi-hat), lead and bass attacks, and sound effects (laser, pickup, explosion).
 
 **Tracker grid:**
 - 3 voices (6 with a second SID) × up to 256 patterns × 32 rows; the song / order list holds up to 255 steps.
@@ -4798,6 +4824,7 @@ Each cell can carry one effect alongside its note and instrument, entered as a s
 | `D` | Slide down (portamento) | amount subtracted from the frequency each row |
 | `C` | Note cut | silences the voice without retriggering; value unused |
 | `F` | Speed change | new frames-per-row value, takes effect immediately |
+| `L` | Legato | with a note: under the held gate the note starts without retriggering the envelope (instrument, table, pulse width and vibrato start again, no first-frame waveform, no gate timer / hard restart before it); without a held gate a plain note |
 
 Effects update once per row (matching the exported player's timing), run identically in the Web Audio preview and the compiled 6502 export, and are saved/loaded losslessly in the versioned `.bin` format.
 
@@ -4836,9 +4863,9 @@ Effects update once per row (matching the exported player's timing), run identic
 - A gate released by the wavetable becomes a note-off on the next free row. Only the first subtune is imported.
 
 **.sid import:** **Files → Import .sid…** opens a PSID / RSID file (desktop app only, it uses VA SID Core). Choose the subtune and the length in seconds and press **Import**: the tune runs silently, its SID registers are recorded frame by frame and turned into a song in place of the current one. A progress bar follows the recording, then *Converting…* the conversion.
-- **Notes:** a note on is a gate edge (a retrigger within 2 frames counts as one note); a pitch change under a held gate that stays at least 5 frames becomes a new, retriggered (legato) note. The pitch is the most common semitone of the note's main waveform; NTSC tunes are retuned to the PAL note table.
+- **Notes:** a note on is a gate edge (a retrigger within 2 frames counts as one note); a pitch change under a held gate that stays at least 5 frames becomes a legato note with the `L` effect (when the row also needs an `F` speed change and no voice has a free effect cell, it becomes a retriggered note). Rows before the first note are whole rows of the tune's row length. The pitch is the most common semitone of the note's main waveform; NTSC tunes are retuned to the PAL note table.
 - **Rows:** rows start exactly on the note ons. The base length is the longest that fits almost all of them; rows of that length or one frame longer (funktempo, swing, tempo changes) are set with `F` effects one row ahead.
-- **Instruments:** AD / SR, the main waveform, pulse width and PWM, the filter (routing, mode, resonance, cutoff sweep) and the waveform and pitch of every frame of the note, up to the next one: the wave / arpeggio table (a prefix plus a repeating loop, up to 32 steps). A fixed-pitch drum attack keeps absolute notes and an arpeggio relative ones, decided over all notes of the same sound; a regular sub-semitone wobble becomes the instrument vibrato. The gate becomes a note cut, a gate timer (with hard restart when ADSR is zeroed) or a decay at the release rate. Identical instruments are shared, up to 128.
+- **Instruments:** AD / SR, the main waveform, pulse width and PWM, the filter (routing, mode, resonance, cutoff sweep) and the waveform and pitch of every frame of the note, up to the next one: the wave / arpeggio table (a prefix plus a repeating loop, up to 32 steps). A fixed-pitch drum attack keeps absolute notes and an arpeggio relative ones, decided over all notes of the same sound; a regular sub-semitone wobble becomes the instrument vibrato. The gate becomes a note cut, a gate timer (with hard restart when ADSR is zeroed) or, released inside the note, a **gate off** table step (a decay at the release rate beyond the table). Identical instruments are shared, up to 128.
 - A message lists what was approximated, for example slides that become semitone steps or tables longer than 32 steps. RSID tunes that start as a BASIC program are not supported.
 - **Filter and pulse movement:** a filter sweep counts over the whole note, also after the waveform went silent, and it ends where another note restarts the filter. A filter table that falls fast counts by when it gets there, within the player's 127 per frame. A filter LFO bounces between its extremes. An instrument holds the pulse range of all its notes. Pulse and filter still restart at each routed note, so a sweep that runs freely across many notes is only approximated, and pitches that lie between semitones are rounded to the nearest one.
 - **Several SIDs:** a 2SID tune becomes six voices and brings its second SID's address along. A 3SID tune imports its first two SIDs, and a message says so.

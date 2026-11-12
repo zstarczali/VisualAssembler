@@ -41,6 +41,8 @@ pub struct ResidChip {
     bus_ttl: u32,
     /// The idle level `settle_on_mixer` found, taken off every sample.
     dc_trim: i16,
+    mos8580: bool,
+    digi_boost: bool,
 }
 
 impl ResidChip {
@@ -69,7 +71,20 @@ impl ResidChip {
                 sid
             })
             .clone();
-        Self { sid, sample: 0, bus_value: 0, bus_ttl: 0, dc_trim: 0 }
+        Self { sid, sample: 0, bus_value: 0, bus_ttl: 0, dc_trim: 0, mos8580: model == SidModel::Mos8580, digi_boost: false }
+    }
+
+    /// VICE's 8580 digi boost: a DC level on EXT IN. The output stage settles on it first,
+    /// the step would be a click.
+    fn set_digi_boost(&mut self, enabled: bool) {
+        if self.digi_boost == enabled || !self.mos8580 {
+            return;
+        }
+        self.digi_boost = enabled;
+        self.sid.input(if enabled { -32_768 } else { 0 });
+        for _ in 0..RESID_SETTLE_CYCLES {
+            self.sid.clock();
+        }
     }
 
     fn write(&mut self, register: u8, value: u8) {
@@ -170,6 +185,14 @@ impl SidChip {
                 chip.clock();
             }
             chip.dc_trim = chip.sample;
+        }
+    }
+
+    /// The 8580 digi boost (a DC level on EXT IN), which makes $D418 digis loud on the 8580.
+    pub fn set_digi_boost(&mut self, enabled: bool) {
+        match self {
+            SidChip::VaCore(core) => core.set_digi_boost(enabled),
+            SidChip::Resid(chip) => chip.set_digi_boost(enabled),
         }
     }
 

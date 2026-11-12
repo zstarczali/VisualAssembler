@@ -256,6 +256,40 @@ const translations = {
     "snapshotEmpty": "Még nincs commit.",
     "close": "Bezárás",
     "workProgressTitle": "Fordítás folyamatban...",
+
+    "workProgressTitleLaunch": "Indítás...",
+
+    "workProgressTitleCrunch": "Tömörítés...",
+
+    "workProgressTitleDisk": "Lemezkép készítése...",
+
+
+    "workPhaseCompile": "Fordítás",
+
+
+    "workPhaseCrunch": "Tömörítés",
+
+
+    "workPhaseDisk": "Lemezkép",
+
+
+    "workPhaseLaunch": "Indítás",
+
+
+
+    "workPhasePrepare": "Előfeldolgozás",
+
+
+
+    "workPhaseAnalyze": "Elemzés",
+
+
+
+    "workProgressTitleAnalyze": "Elemzés...",
+
+
+
+    "stepAnalyze": "Disassembly, monitor és memóriatérkép frissítése…",
     "stepKickRead": "Kick: {file} forrásfájának beolvasása…",
     "stepKickPreprocess": "Kick: {file} előfeldolgozása ({files} fájl)…",
     "stepVma": "VMA ({engine}): {file} fordítása…",
@@ -599,6 +633,11 @@ const translations = {
     "kickProjectImported": "Kick projekt importálva: {name} ({count} fájl)",
     "kickProjectOverwrite": "Már létezik: {path}. Felülírja?",
     "kickImportUseProject": "Ez a fájl KickAssembler szkriptet használ (.function, .for, .var, LoadPicture…), amit a Kick import nem futtat le. Importálja inkább Kick projektként?",
+    "kickImportPlain": "{name}: Kick → VMA, a forrás változatlan (VMA-val bájtra azonos az R65-tel)",
+    "kickImportFlat": "{name}: Kick → VMA az R65 fordításából (bájtra azonos)",
+    "kickImportMacros": "{name}: Kick → VMA az R65 fordításából, {count} VMA makróval (bájtra azonos)",
+    "kickImportFlatDiff": "{name}: Kick → VMA az R65 fordításából, de a VMA más bájtokat fordít belőle",
+    "kickImportR65Failed": "Az R65 nem fordította le ({count} hiba), a régi Kick import fut",
     "kickImportMissing": "Nem található: {path}",
     "kickBuildOk": "KickAssembler forrás lefordítva: {bytes} bájt",
     "kickBuildOkPrint": "KickAssembler forrás lefordítva: {bytes} bájt · {count} .print üzenet (Build Info), az első: {first}",
@@ -1521,6 +1560,8 @@ const translations = {
     "sidTableAbsNote": "Abszolút hang (0 = C-0)",
     "sidTableNoteOffset": "Hangeltolás félhangokban",
     "sidTableAbs": "abs",
+    "sidTableGateOff": "gate ki",
+    "sidTableGateOffHint": "Ettől a lépéstől elengedi a gate-et (release), a következő hangig",
     "sidTableDelStep": "Lépés törlése",
     "sidRingTip": "Gyűrűmoduláció: a háromszöget az előző hang modulálja (1 ← 3, 2 ← 1, 3 ← 2)",
     "sidSyncTip": "Hard sync az előző hang oszcillátorához",
@@ -1938,6 +1979,7 @@ const translations = {
     "sidPreviewEngine": "SID motor",
     "sidPreviewSettings": "SID előnézet",
     "sidPreviewModel": "SID chip",
+    "sidDigiBoost": "8580 digi boost ($D418 minták hangosan)",
     "sidLcdColor": "LCD színe",
     "sidPlayerBuffer": "SID Player puffer",
     "sidPlayerBufferNote": "Nagyobb pufferrel nem recseg a hang, ha az app épp dolgozik: a dal 10 / 15 / 20 / 30 mp-re előre renderelődik.",
@@ -2775,6 +2817,40 @@ const translations = {
     "snapshotEmpty": "No commits yet.",
     "close": "Close",
     "workProgressTitle": "Compiling...",
+
+    "workProgressTitleLaunch": "Launching...",
+
+    "workProgressTitleCrunch": "Compressing...",
+
+    "workProgressTitleDisk": "Building disk image...",
+
+
+    "workPhaseCompile": "Compile",
+
+
+    "workPhaseCrunch": "Compress",
+
+
+    "workPhaseDisk": "Disk image",
+
+
+    "workPhaseLaunch": "Launch",
+
+
+
+    "workPhasePrepare": "Preprocess",
+
+
+
+    "workPhaseAnalyze": "Analysis",
+
+
+
+    "workProgressTitleAnalyze": "Analyzing...",
+
+
+
+    "stepAnalyze": "Updating disassembly, monitor and memory map…",
     "stepKickRead": "Kick: reading the source tree of {file}…",
     "stepKickPreprocess": "Kick: preprocessing {file} ({files} files)…",
     "stepVma": "VMA ({engine}): compiling {file}…",
@@ -3113,6 +3189,11 @@ const translations = {
     "kickProjectImported": "Kick project imported: {name} ({count} files)",
     "kickProjectOverwrite": "{path} already exists. Overwrite it?",
     "kickImportUseProject": "This file uses KickAssembler script (.function, .for, .var, LoadPicture…), which Kick import does not run. Import it as a Kick project instead?",
+    "kickImportPlain": "{name}: Kick → VMA, source kept (VMA builds the same bytes as R65)",
+    "kickImportFlat": "{name}: Kick → VMA from the R65 build (byte-identical)",
+    "kickImportMacros": "{name}: Kick → VMA from the R65 build, with {count} VMA macros (byte-identical)",
+    "kickImportFlatDiff": "{name}: Kick → VMA from the R65 build, but VMA builds different bytes from it",
+    "kickImportR65Failed": "R65 could not build it ({count} errors), using the old Kick import",
     "kickImportMissing": "Not found: {path}",
     "kickBuildOk": "KickAssembler source built: {bytes} bytes",
     "kickBuildOkPrint": "KickAssembler source built: {bytes} bytes · {count} .print message(s) (Build Info), the first: {first}",
@@ -4035,6 +4116,8 @@ const translations = {
     "sidTableAbsNote": "Absolute note (0 = C-0)",
     "sidTableNoteOffset": "Note offset in semitones",
     "sidTableAbs": "abs",
+    "sidTableGateOff": "gate off",
+    "sidTableGateOffHint": "Releases the gate from this step on (release phase) until the next note",
     "sidTableDelStep": "Delete step",
     "sidRingTip": "Ring modulation: the triangle is modulated by the previous voice (1 ← 3, 2 ← 1, 3 ← 2)",
     "sidSyncTip": "Hard sync to the previous voice's oscillator",
@@ -4452,6 +4535,7 @@ const translations = {
     "sidPreviewEngine": "SID engine",
     "sidPreviewSettings": "SID preview",
     "sidPreviewModel": "SID chip",
+    "sidDigiBoost": "8580 digi boost (loud $D418 samples)",
     "sidLcdColor": "LCD colour",
     "sidPlayerBuffer": "SID Player buffer",
     "sidPlayerBufferNote": "A larger buffer stops the crackle while the app is busy: the tune is rendered 10 / 15 / 20 / 30 s ahead.",
@@ -5466,6 +5550,40 @@ const translations = {
     "snapshotEmpty": "Todavía no hay commits.",
     "close": "Cerrar",
     "workProgressTitle": "Compilando...",
+
+    "workProgressTitleLaunch": "Iniciando...",
+
+    "workProgressTitleCrunch": "Comprimiendo...",
+
+    "workProgressTitleDisk": "Creando imagen de disco...",
+
+
+    "workPhaseCompile": "Compilar",
+
+
+    "workPhaseCrunch": "Comprimir",
+
+
+    "workPhaseDisk": "Imagen de disco",
+
+
+    "workPhaseLaunch": "Iniciar",
+
+
+
+    "workPhasePrepare": "Preprocesar",
+
+
+
+    "workPhaseAnalyze": "Análisis",
+
+
+
+    "workProgressTitleAnalyze": "Analizando...",
+
+
+
+    "stepAnalyze": "Actualizando desensamblado, monitor y mapa de memoria…",
     "stepKickRead": "Kick: leyendo el árbol de fuentes de {file}…",
     "stepKickPreprocess": "Kick: preprocesando {file} ({files} archivos)…",
     "stepVma": "VMA ({engine}): compilando {file}…",
@@ -5804,6 +5922,11 @@ const translations = {
     "kickProjectImported": "Proyecto Kick importado: {name} ({count} archivos)",
     "kickProjectOverwrite": "{path} ya existe. ¿Sobrescribirlo?",
     "kickImportUseProject": "Este archivo usa scripts de KickAssembler (.function, .for, .var, LoadPicture…), que la importación Kick no ejecuta. ¿Importarlo como proyecto Kick?",
+    "kickImportPlain": "{name}: Kick → VMA, fuente sin cambios (VMA genera los mismos bytes que R65)",
+    "kickImportFlat": "{name}: Kick → VMA desde la compilación de R65 (bytes idénticos)",
+    "kickImportMacros": "{name}: Kick → VMA desde la compilación de R65, con {count} macros VMA (bytes idénticos)",
+    "kickImportFlatDiff": "{name}: Kick → VMA desde la compilación de R65, pero VMA genera otros bytes",
+    "kickImportR65Failed": "R65 no pudo compilarlo ({count} errores), se usa la importación Kick antigua",
     "kickImportMissing": "No encontrado: {path}",
     "kickBuildOk": "Fuente KickAssembler compilada: {bytes} bytes",
     "kickBuildOkPrint": "Fuente KickAssembler compilada: {bytes} bytes · {count} mensaje(s) .print (Build Info), el primero: {first}",
@@ -6721,6 +6844,8 @@ const translations = {
     "sidTableAbsNote": "Nota absoluta (0 = C-0)",
     "sidTableNoteOffset": "Desplazamiento en semitonos",
     "sidTableAbs": "abs",
+    "sidTableGateOff": "gate off",
+    "sidTableGateOffHint": "Suelta el gate desde este paso (release) hasta la siguiente nota",
     "sidTableDelStep": "Borrar paso",
     "sidRingTip": "Modulación en anillo: el triángulo lo modula la voz anterior (1 ← 3, 2 ← 1, 3 ← 2)",
     "sidSyncTip": "Sincronización dura con el oscilador de la voz anterior",
@@ -7138,6 +7263,7 @@ const translations = {
     "sidPreviewEngine": "Motor SID",
     "sidPreviewSettings": "Vista previa SID",
     "sidPreviewModel": "Chip SID",
+    "sidDigiBoost": "Digi boost del 8580 (muestras $D418 audibles)",
     "sidLcdColor": "Color del LCD",
     "sidPlayerBuffer": "Búfer del SID Player",
     "sidPlayerBufferNote": "Un búfer mayor evita los chasquidos mientras la app está ocupada: la melodía se renderiza con 10 / 15 / 20 / 30 s de antelación.",
@@ -8157,6 +8283,40 @@ const translations = {
     "snapshotEmpty": "Noch keine Commits.",
     "close": "Schließen",
     "workProgressTitle": "Kompiliere...",
+
+    "workProgressTitleLaunch": "Starte...",
+
+    "workProgressTitleCrunch": "Komprimiere...",
+
+    "workProgressTitleDisk": "Erstelle Disk-Image...",
+
+
+    "workPhaseCompile": "Übersetzen",
+
+
+    "workPhaseCrunch": "Komprimieren",
+
+
+    "workPhaseDisk": "Disk-Image",
+
+
+    "workPhaseLaunch": "Starten",
+
+
+
+    "workPhasePrepare": "Vorverarbeiten",
+
+
+
+    "workPhaseAnalyze": "Analyse",
+
+
+
+    "workProgressTitleAnalyze": "Analysiere...",
+
+
+
+    "stepAnalyze": "Disassembly, Monitor und Speicherkarte werden aktualisiert…",
     "stepKickRead": "Kick: Quellbaum von {file} wird gelesen…",
     "stepKickPreprocess": "Kick: {file} wird vorverarbeitet ({files} Dateien)…",
     "stepVma": "VMA ({engine}): {file} wird übersetzt…",
@@ -8495,6 +8655,11 @@ const translations = {
     "kickProjectImported": "Kick-Projekt importiert: {name} ({count} Dateien)",
     "kickProjectOverwrite": "{path} existiert bereits. Überschreiben?",
     "kickImportUseProject": "Diese Datei nutzt KickAssembler-Skript (.function, .for, .var, LoadPicture…), das der Kick-Import nicht ausführt. Stattdessen als Kick-Projekt importieren?",
+    "kickImportPlain": "{name}: Kick → VMA, Quelle unverändert (VMA erzeugt dieselben Bytes wie R65)",
+    "kickImportFlat": "{name}: Kick → VMA aus dem R65-Build (bytegleich)",
+    "kickImportMacros": "{name}: Kick → VMA aus dem R65-Build, mit {count} VMA-Makros (bytegleich)",
+    "kickImportFlatDiff": "{name}: Kick → VMA aus dem R65-Build, aber VMA erzeugt andere Bytes",
+    "kickImportR65Failed": "R65 konnte es nicht übersetzen ({count} Fehler), der alte Kick-Import läuft",
     "kickImportMissing": "Nicht gefunden: {path}",
     "kickBuildOk": "KickAssembler-Quelle übersetzt: {bytes} Bytes",
     "kickBuildOkPrint": "KickAssembler-Quelle gebaut: {bytes} Bytes · {count} .print-Meldung(en) (Build Info), die erste: {first}",
@@ -9412,6 +9577,8 @@ const translations = {
     "sidTableAbsNote": "Absolute Note (0 = C-0)",
     "sidTableNoteOffset": "Notenversatz in Halbtönen",
     "sidTableAbs": "abs",
+    "sidTableGateOff": "Gate aus",
+    "sidTableGateOffHint": "Lässt das Gate ab diesem Schritt los (Release), bis zur nächsten Note",
     "sidTableDelStep": "Schritt löschen",
     "sidRingTip": "Ringmodulation: das Dreieck wird von der vorigen Stimme moduliert (1 ← 3, 2 ← 1, 3 ← 2)",
     "sidSyncTip": "Hard Sync zum Oszillator der vorigen Stimme",
@@ -9829,6 +9996,7 @@ const translations = {
     "sidPreviewEngine": "SID-Engine",
     "sidPreviewSettings": "SID-Vorschau",
     "sidPreviewModel": "SID-Chip",
+    "sidDigiBoost": "8580-Digi-Boost (laute $D418-Samples)",
     "sidLcdColor": "LCD-Farbe",
     "sidPlayerBuffer": "SID-Player-Puffer",
     "sidPlayerBufferNote": "Ein größerer Puffer verhindert Knacken, während die App beschäftigt ist: Das Stück wird 10 / 15 / 20 / 30 s im Voraus berechnet.",
@@ -10848,6 +11016,40 @@ const translations = {
     "snapshotEmpty": "Nog geen commits.",
     "close": "Sluiten",
     "workProgressTitle": "Bewerking bezig...",
+
+    "workProgressTitleLaunch": "Starten...",
+
+    "workProgressTitleCrunch": "Comprimeren...",
+
+    "workProgressTitleDisk": "Schijfkopie maken...",
+
+
+    "workPhaseCompile": "Compileren",
+
+
+    "workPhaseCrunch": "Comprimeren",
+
+
+    "workPhaseDisk": "Schijfkopie",
+
+
+    "workPhaseLaunch": "Starten",
+
+
+
+    "workPhasePrepare": "Voorbewerken",
+
+
+
+    "workPhaseAnalyze": "Analyse",
+
+
+
+    "workProgressTitleAnalyze": "Analyseren...",
+
+
+
+    "stepAnalyze": "Disassembly, monitor en geheugenkaart bijwerken…",
     "stepKickRead": "Kick: bronboom van {file} lezen…",
     "stepKickPreprocess": "Kick: {file} voorbewerken ({files} bestanden)…",
     "stepVma": "VMA ({engine}): {file} compileren…",
@@ -11186,6 +11388,11 @@ const translations = {
     "kickProjectImported": "Kick-project geïmporteerd: {name} ({count} bestanden)",
     "kickProjectOverwrite": "{path} bestaat al. Overschrijven?",
     "kickImportUseProject": "Dit bestand gebruikt KickAssembler-script (.function, .for, .var, LoadPicture…), dat de Kick-import niet uitvoert. In plaats daarvan als Kick-project importeren?",
+    "kickImportPlain": "{name}: Kick → VMA, bron ongewijzigd (VMA maakt dezelfde bytes als R65)",
+    "kickImportFlat": "{name}: Kick → VMA uit de R65-build (byte-identiek)",
+    "kickImportMacros": "{name}: Kick → VMA uit de R65-build, met {count} VMA-macro's (byte-identiek)",
+    "kickImportFlatDiff": "{name}: Kick → VMA uit de R65-build, maar VMA maakt er andere bytes van",
+    "kickImportR65Failed": "R65 kon het niet bouwen ({count} fouten), de oude Kick-import wordt gebruikt",
     "kickImportMissing": "Niet gevonden: {path}",
     "kickBuildOk": "KickAssembler-bron gebouwd: {bytes} bytes",
     "kickBuildOkPrint": "KickAssembler-bron gebouwd: {bytes} bytes · {count} .print-bericht(en) (Build Info), het eerste: {first}",
@@ -12108,6 +12315,8 @@ const translations = {
     "sidTableAbsNote": "Absolute noot (0 = C-0)",
     "sidTableNoteOffset": "Notenverschuiving in halve tonen",
     "sidTableAbs": "abs",
+    "sidTableGateOff": "gate uit",
+    "sidTableGateOffHint": "Laat de gate vanaf deze stap los (release), tot de volgende noot",
     "sidTableDelStep": "Stap verwijderen",
     "sidRingTip": "Ringmodulatie: de driehoek wordt door de vorige stem gemoduleerd (1 ← 3, 2 ← 1, 3 ← 2)",
     "sidSyncTip": "Hard sync met de oscillator van de vorige stem",
@@ -12525,6 +12734,7 @@ const translations = {
     "sidPreviewEngine": "SID-engine",
     "sidPreviewSettings": "SID-voorbeeld",
     "sidPreviewModel": "SID-chip",
+    "sidDigiBoost": "8580 digi boost (luide $D418-samples)",
     "sidLcdColor": "LCD-kleur",
     "sidPlayerBuffer": "SID Player-buffer",
     "sidPlayerBufferNote": "Een grotere buffer voorkomt gekraak terwijl de app bezig is: het nummer wordt 10 / 15 / 20 / 30 s vooruit berekend.",
@@ -13550,6 +13760,40 @@ const translations = {
     "snapshotEmpty": "Brak commitów.",
     "close": "Zamknij",
     "workProgressTitle": "Kompilowanie...",
+
+    "workProgressTitleLaunch": "Uruchamianie...",
+
+    "workProgressTitleCrunch": "Kompresja...",
+
+    "workProgressTitleDisk": "Tworzenie obrazu dysku...",
+
+
+    "workPhaseCompile": "Kompilacja",
+
+
+    "workPhaseCrunch": "Kompresja",
+
+
+    "workPhaseDisk": "Obraz dysku",
+
+
+    "workPhaseLaunch": "Uruchomienie",
+
+
+
+    "workPhasePrepare": "Przetwarzanie wstępne",
+
+
+
+    "workPhaseAnalyze": "Analiza",
+
+
+
+    "workProgressTitleAnalyze": "Analiza...",
+
+
+
+    "stepAnalyze": "Aktualizacja disasemblera, monitora i mapy pamięci…",
     "stepKickRead": "Kick: odczyt drzewa źródeł {file}…",
     "stepKickPreprocess": "Kick: wstępne przetwarzanie {file} ({files} plików)…",
     "stepVma": "VMA ({engine}): kompilacja {file}…",
@@ -13888,6 +14132,11 @@ const translations = {
     "kickProjectImported": "Zaimportowano projekt Kick: {name} ({count} plików)",
     "kickProjectOverwrite": "{path} już istnieje. Nadpisać?",
     "kickImportUseProject": "Ten plik używa skryptów KickAssemblera (.function, .for, .var, LoadPicture…), których import Kick nie wykonuje. Zaimportować go jako projekt Kick?",
+    "kickImportPlain": "{name}: Kick → VMA, źródło bez zmian (VMA daje te same bajty co R65)",
+    "kickImportFlat": "{name}: Kick → VMA z kompilacji R65 (identyczne bajty)",
+    "kickImportMacros": "{name}: Kick → VMA z kompilacji R65, z {count} makrami VMA (identyczne bajty)",
+    "kickImportFlatDiff": "{name}: Kick → VMA z kompilacji R65, ale VMA daje inne bajty",
+    "kickImportR65Failed": "R65 nie skompilował ({count} błędów), używany jest stary import Kick",
     "kickImportMissing": "Nie znaleziono: {path}",
     "kickBuildOk": "Źródło KickAssemblera skompilowane: {bytes} bajtów",
     "kickBuildOkPrint": "Źródło KickAssembler zbudowane: {bytes} bajtów · {count} komunikat(ów) .print (Build Info), pierwszy: {first}",
@@ -14810,6 +15059,8 @@ const translations = {
     "sidTableAbsNote": "Nuta bezwzględna (0 = C-0)",
     "sidTableNoteOffset": "Przesunięcie w półtonach",
     "sidTableAbs": "abs",
+    "sidTableGateOff": "gate off",
+    "sidTableGateOffHint": "Zwalnia gate od tego kroku (release) do następnej nuty",
     "sidTableDelStep": "Usuń krok",
     "sidRingTip": "Modulacja kołowa: trójkąt jest modulowany przez poprzedni głos (1 ← 3, 2 ← 1, 3 ← 2)",
     "sidSyncTip": "Twarda synchronizacja z oscylatorem poprzedniego głosu",
@@ -15227,6 +15478,7 @@ const translations = {
     "sidPreviewEngine": "Silnik SID",
     "sidPreviewSettings": "Podgląd SID",
     "sidPreviewModel": "Układ SID",
+    "sidDigiBoost": "Digi boost 8580 (głośne próbki $D418)",
     "sidLcdColor": "Kolor LCD",
     "sidPlayerBuffer": "Bufor SID Playera",
     "sidPlayerBufferNote": "Większy bufor zapobiega trzaskom, gdy aplikacja jest zajęta: utwór jest renderowany z wyprzedzeniem 10 / 15 / 20 / 30 s.",
@@ -16252,6 +16504,40 @@ const translations = {
     "snapshotEmpty": "Ancora nessun commit.",
     "close": "Chiudi",
     "workProgressTitle": "Compilazione...",
+
+    "workProgressTitleLaunch": "Avvio...",
+
+    "workProgressTitleCrunch": "Compressione...",
+
+    "workProgressTitleDisk": "Creazione immagine disco...",
+
+
+    "workPhaseCompile": "Compilazione",
+
+
+    "workPhaseCrunch": "Compressione",
+
+
+    "workPhaseDisk": "Immagine disco",
+
+
+    "workPhaseLaunch": "Avvio",
+
+
+
+    "workPhasePrepare": "Preelaborazione",
+
+
+
+    "workPhaseAnalyze": "Analisi",
+
+
+
+    "workProgressTitleAnalyze": "Analisi...",
+
+
+
+    "stepAnalyze": "Aggiornamento di disassembly, monitor e mappa di memoria…",
     "stepKickRead": "Kick: lettura dell'albero dei sorgenti di {file}…",
     "stepKickPreprocess": "Kick: preelaborazione di {file} ({files} file)…",
     "stepVma": "VMA ({engine}): compilazione di {file}…",
@@ -16590,6 +16876,11 @@ const translations = {
     "kickProjectImported": "Progetto Kick importato: {name} ({count} file)",
     "kickProjectOverwrite": "{path} esiste già. Sovrascriverlo?",
     "kickImportUseProject": "Questo file usa script KickAssembler (.function, .for, .var, LoadPicture…), che l'importazione Kick non esegue. Importarlo invece come progetto Kick?",
+    "kickImportPlain": "{name}: Kick → VMA, sorgente invariato (VMA produce gli stessi byte di R65)",
+    "kickImportFlat": "{name}: Kick → VMA dalla compilazione R65 (byte identici)",
+    "kickImportMacros": "{name}: Kick → VMA dalla compilazione R65, con {count} macro VMA (byte identici)",
+    "kickImportFlatDiff": "{name}: Kick → VMA dalla compilazione R65, ma VMA produce byte diversi",
+    "kickImportR65Failed": "R65 non è riuscito a compilarlo ({count} errori), si usa il vecchio import Kick",
     "kickImportMissing": "Non trovato: {path}",
     "kickBuildOk": "Sorgente KickAssembler compilato: {bytes} byte",
     "kickBuildOkPrint": "Sorgente KickAssembler compilato: {bytes} byte · {count} messaggio/i .print (Build Info), il primo: {first}",
@@ -17512,6 +17803,8 @@ const translations = {
     "sidTableAbsNote": "Nota assoluta (0 = C-0)",
     "sidTableNoteOffset": "Spostamento in semitoni",
     "sidTableAbs": "abs",
+    "sidTableGateOff": "gate off",
+    "sidTableGateOffHint": "Rilascia il gate da questo passo (release) fino alla nota successiva",
     "sidTableDelStep": "Elimina passo",
     "sidRingTip": "Modulazione ad anello: il triangolo è modulato dalla voce precedente (1 ← 3, 2 ← 1, 3 ← 2)",
     "sidSyncTip": "Hard sync con l'oscillatore della voce precedente",
@@ -17929,6 +18222,7 @@ const translations = {
     "sidPreviewEngine": "Motore SID",
     "sidPreviewSettings": "Anteprima SID",
     "sidPreviewModel": "Chip SID",
+    "sidDigiBoost": "Digi boost 8580 (campioni $D418 udibili)",
     "sidLcdColor": "Colore LCD",
     "sidPlayerBuffer": "Buffer del SID Player",
     "sidPlayerBufferNote": "Un buffer più grande evita i crepitii mentre l'app è occupata: il brano viene elaborato con 10 / 15 / 20 / 30 s di anticipo.",

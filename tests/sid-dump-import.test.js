@@ -198,15 +198,17 @@ test("funktempo rows (alternating 8 / 9 frames) keep every note on its frame via
   assert.deepEqual(on.slice(1, 11).map((f, i) => f - on[0]), want.slice(1, 11).map((f) => f - want[0]));
 });
 
-test("a pitch change under a held gate becomes a (legato) note", () => {
+test("a pitch change under a held gate becomes a legato note (L effect)", () => {
   const { imp } = load();
   const d = dump(48, [{ v: 0, frame: 0, note: 50, len: 48 }]);
   const { freq } = load();
   for (let f = 12; f < 48; f++) { const fr = freq(f < 24 ? 45 : f < 36 ? 40 : 52); d[f * FB] = fr & 0xFF; d[f * FB + 1] = fr >> 8; }
   const r = imp(d, {});
-  const notes = r.patterns[r.song[0]][0].filter((c) => c.note != null).map((c) => c.note);
-  assert.deepEqual(notes, [50, 45, 40, 52]);
-  assert.ok(r.skipped["legato notes (retriggered)"]);
+  const cells = r.patterns[r.song[0]][0].filter((c) => c.note != null);
+  assert.deepEqual(cells.map((c) => c.note), [50, 45, 40, 52]);
+  // L effect: the engine does not retrigger the envelope on the pitch changes
+  assert.deepEqual(cells.map((c) => c.fx), [null, "L", "L", "L"]);
+  assert.equal(gateOns(engineFrames(r, 48), 0).length, 1);
 });
 
 test("the release after a short gate keeps sounding: bass under a 1-frame drum hit", () => {
@@ -221,9 +223,11 @@ test("the release after a short gate keeps sounding: bass under a 1-frame drum h
   assert.deepEqual([ins.table[0].w, ins.table[0].n, ins.table[0].abs], [0x80, 67, true]);
   // the gate drops 11 frames before the next note: the gate timer does exactly that
   assert.equal(ins.gateTimer, 11);
-  // the last note has no next one: the envelope falls at the release rate instead
+  // the last note has no next one: its table releases the gate on the second frame, the ADSR stays
   const last = r.insts[p[0][2].inst];
-  assert.deepEqual([last.s, last.d], [0, last.r]);
+  assert.deepEqual([last.d, last.s], [9, 10]);
+  assert.equal(last.table[1].off, true);
+  assert.equal(last.table.filter((st) => st.off).length, 1);
 });
 
 test("gate off a few frames before the next note becomes the gate timer (hard restart)", () => {
