@@ -14,7 +14,7 @@
     rel="stylesheet">
   <link rel="icon" type="image/png" href="assets/icon.png">
   <link rel="shortcut icon" href="favicon.ico">
-  <link rel="stylesheet" href="style.css?v=2.7.9">
+  <link rel="stylesheet" href="style.css?v=2.8.0">
 </head>
 
 <body>
@@ -747,6 +747,7 @@ PRINTABLE CHARACTERS
           <button id="ub-format-btn" class="expert-hl-toggle" type="button" aria-label="Format UltimateBasic source"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M3 3h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M5 6.5h8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M5 10h8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M2 5.5l1.5 1.5-1.5 1.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 9l1.5 1.5-1.5 1.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
           <div class="expert-toolbar-sep"></div>
           <button id="ub-build-btn" class="expert-hl-toggle" type="button" aria-label="Build UltimateBasic source"><svg viewBox="0 0 16 16" fill="none" width="14" height="14" aria-hidden="true"><path d="m3 13 6.2-6.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M7.2 3.1 9 1.5l5.5 5.5-1.7 1.7-2-2-2 2-1.5-1.5 2-2-2.1-2.1Z" fill="currentColor" opacity=".9"/><path d="m2.3 11.7 2 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+          <button id="ub-build-info-btn" class="expert-hl-toggle" type="button" aria-label="Build Info"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2"/><path d="M8 7V12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="8" cy="5" r="0.8" fill="currentColor"/></svg></button>
           <button id="ub-explicit-btn" class="expert-hl-toggle" type="button" aria-label="Explicit type declarations" aria-pressed="false"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><text x="2" y="12" font-family="monospace" font-size="11" font-weight="bold" fill="currentColor">T</text><path d="M10 4v8M9 4h2M9 12h2" stroke="var(--hl-number, currentColor)" stroke-width="1.2" stroke-linecap="round"/></svg></button>
           <button id="ub-verbose-btn" class="expert-hl-toggle" type="button" aria-label="Verbose build output" aria-pressed="false" title="Verbose build output"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><rect x="1.5" y="2" width="13" height="12" rx="1.3" stroke="currentColor" stroke-width="1.1"/><path d="M4 5h5M4 8h8M4 11h6" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><circle cx="12" cy="5" r="1" fill="var(--hl-number, currentColor)"/></svg></button>
           <div class="expert-toolbar-sep"></div>
@@ -1545,7 +1546,7 @@ PRINTABLE CHARACTERS
           <img src="assets/logo-about.png" alt="C64 Visual Assembler" width="200" height="160">
         </div>
         <h2 class="about-title">C64 Visual Assembler</h2>
-        <p class="about-version" id="about-version">v2.7.9</p>
+        <p class="about-version" id="about-version">v2.8.0</p>
         <p class="about-version" id="about-ub-version"><span id="about-ub-version-label">UltimateBasic:</span> <span id="about-ub-version-value">v?</span></p>
         <p class="about-version" id="about-vma-version"><span id="about-vma-version-label">VMA:</span> <span id="about-vma-version-value">v?</span></p>
         <p class="about-version" id="about-r65-version"><span id="about-r65-version-label">R65:</span> <span id="about-r65-version-value">v?</span></p>
@@ -1583,7 +1584,31 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.7.9</p>
+      <p class="whats-new-version">v2.8.0</p>
+      <ul class="whats-new-list">
+        <li>
+          <strong>SID Editor legato:</strong> the new effect code <strong>L</strong> plays the note under the held gate: the instrument, its table and pulse width start again, the envelope is not retriggered. The wave / arpeggio table has a <strong>gate off</strong> box per step that releases the gate until the next note.
+        </li>
+        <li>
+          <strong>.sid import:</strong> legato notes become L notes, a gate released inside a note becomes a gate-off table step, and a silent intro starts on whole rows: the imported tunes follow the originals more closely.
+        </li>
+        <li>
+          <strong>VA SID Core 1.3:</strong> <code>$D418</code> digis play quietly on the 8580, as on the real chip; <strong>Settings → General → SID preview → 8580 digi boost</strong> makes them loud (reSID too).
+        </li>
+        <li>
+          <strong>Kick import through R65:</strong> <strong>Kick import</strong> and <strong>Import Kick project…</strong> let R65 build the source and write VMA that builds the same bytes, with Kick macros as VMA macros. A project becomes <code>&lt;name&gt;_vma.asm</code> and a VMA <code>.proj</code> next to the Kick sources.
+        </li>
+        <li>
+          <strong>Projects:</strong> files VA does not open start with their default app (double-click or right-click), and the right-click menu shows them in Explorer / Finder. An UltimateBasic <code>.proj</code> opened from Expert or Block mode opens in UltimateBasic mode.
+        </li>
+        <li>
+          <strong>Toolbars and work window:</strong> the Expert and the UltimateBasic toolbar have the same groups, order and icons (the UltimateBasic <strong>New</strong> button is gone, use Ctrl+N), and the work window lists the build phases.
+        </li>
+        <li>
+          <strong>Fixes:</strong> a label of hex letters (<code>BEQ bad</code>) stays a label through the blocks; Kick syntax highlighting of labels and calls.
+        </li>
+      </ul>
+      <p class="whats-new-previous">v2.7.9</p>
       <ul class="whats-new-list">
         <li>
           <strong>R65 assembler:</strong> R65, a KickAssembler-compatible assembler, is built in. Choose <strong>R65 mode (KickAssembler)</strong> in Settings → General → Assembler mode next to VMA and ACME, or in Project settings. Build, Run, the Disassembly / Monitor panels, the memory map and the debugger files all use its build; About shows its version.
@@ -4330,10 +4355,10 @@ PRINTABLE CHARACTERS
     </div>
   </div>
 
-  <script src="tauri-bridge.js?v=2.7.9"></script>
-  <script src="i18n.js?v=2.7.9"></script>
-  <script src="tutorial-data.js?v=2.7.9"></script>
-  <script src="app.js?v=2.7.9"></script>
+  <script src="tauri-bridge.js?v=2.8.0"></script>
+  <script src="i18n.js?v=2.8.0"></script>
+  <script src="tutorial-data.js?v=2.8.0"></script>
+  <script src="app.js?v=2.8.0"></script>
 
 </body>
 

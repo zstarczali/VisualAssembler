@@ -1,5 +1,7 @@
 # Linux Installation Guide (Ubuntu / Debian)
-Version 2.7.9
+Version 2.8.0
+
+2.8.0: SID Editor L (legato) effect and gate-off table steps, a closer .sid import; VA SID Core 1.3 with the 8580 digi boost option; Kick import and Import Kick project build through R65 and write VMA that builds the same bytes; build phases in the work window; project files open with their default app or show in the file manager; UltimateBasic projects open from Expert / Block mode; Expert and UltimateBasic toolbars in the same order with the same icons
 
 2.7.9: R65, a KickAssembler-compatible assembler, built in: choose it in Settings next to VMA and ACME (projects too, its version in About); Build shows a small window with the size and address range; Kick import fixes (statements over several lines, .errorif, labels in .pseudopc, < / > of numbers) and a single file using script features opens as a Kick project; separators around the UB file buttons.
 
@@ -92,7 +94,7 @@ Built on Ubuntu 22.04, so it runs there and on newer distributions; tested on Ub
 Download the `.deb` package from the releases page and install:
 
 ```bash
-  sudo dpkg -i "c64-visual-assembler_2.7.9_amd64.deb"
+  sudo dpkg -i "c64-visual-assembler_2.8.0_amd64.deb"
 sudo apt-get install -f   # fix any missing dependencies
 ```
 
@@ -211,4 +213,4 @@ The app propagates `DISPLAY`, `WAYLAND_DISPLAY`, `XDG_RUNTIME_DIR`, `DBUS_SESSIO
 - **Blank window, with `Failed to create GBM buffer` in the terminal:** start the application with `WEBKIT_DMABUF_RENDERER_DISABLE_GBM=1`, and if that does not help, with `WEBKIT_DISABLE_DMABUF_RENDERER=1` in front of its command.
 - **No sound, with `GStreamer element ... not found` in the terminal:** the SID Player seems to run, but stays silent. Install the plugins: `sudo apt install gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-alsa gstreamer1.0-pulseaudio`.
 
-**Version:** 2.7.9 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 2.8.0 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64

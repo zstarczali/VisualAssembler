@@ -1826,6 +1826,40 @@
   "error": null
  },
  {
+  "id": "samples-plasma-border",
+  "caseId": "samples-plasma-border",
+  "kind": "text",
+  "file": "samples/plasma-border.asm",
+  "baseDir": "samples",
+  "basicStub": true,
+  "ok": true,
+  "size": 49697,
+  "sha256": "50c28b53eac2de5f149f0aedcac316ea4b502237d7de33a750d36a2a033b3932",
+  "debug": {
+   "sym": "f092d5611fca491fea5a284081c1ccc2ac6c9afd20fab0f41093764055c60de2",
+   "vs": "471a09e879aac6fa8e9d42e9a18a709d6dc7f963388728783fc23dd0178657f2",
+   "dbg": "779b6c4e852a7b4e4b842b0708d79b70c6679b5a7a036f26ad7042b06a826e22"
+  },
+  "error": null
+ },
+ {
+  "id": "samples-plasma-border@nostub",
+  "caseId": "samples-plasma-border",
+  "kind": "text",
+  "file": "samples/plasma-border.asm",
+  "baseDir": "samples",
+  "basicStub": false,
+  "ok": true,
+  "size": 6690,
+  "sha256": "f392622b6ca4e835c885ef053f2be73a2d72f187827a5cbc28577798b5d6cd88",
+  "debug": {
+   "sym": "f092d5611fca491fea5a284081c1ccc2ac6c9afd20fab0f41093764055c60de2",
+   "vs": "471a09e879aac6fa8e9d42e9a18a709d6dc7f963388728783fc23dd0178657f2",
+   "dbg": "779b6c4e852a7b4e4b842b0708d79b70c6679b5a7a036f26ad7042b06a826e22"
+  },
+  "error": null
+ },
+ {
   "id": "samples-print-macro-blocks",
   "caseId": "samples-print-macro-blocks",
   "kind": "blocks",
