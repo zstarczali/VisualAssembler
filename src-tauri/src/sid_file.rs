@@ -131,6 +131,13 @@ impl Machine {
         }
     }
 
+    fn set_digi_boost(&mut self, enabled: bool) {
+        self.sid.set_digi_boost(enabled);
+        for sid in &mut self.extra_sids {
+            sid.core.set_digi_boost(enabled);
+        }
+    }
+
     fn set_output_enabled(&mut self, enabled: bool) {
         self.sid.set_output_enabled(enabled);
         for sid in &mut self.extra_sids {
@@ -561,6 +568,11 @@ impl SidFilePlayer {
         self.machine.set_output_enabled(true);
         self.frame_number += frames;
         Ok(count)
+    }
+
+    /// The 8580 digi boost on every SID of the tune (the 6581s ignore it).
+    pub fn set_digi_boost(&mut self, enabled: bool) {
+        self.machine.set_digi_boost(enabled);
     }
 
     /// The registers $00-$18 of every SID as last written (25 bytes per chip).

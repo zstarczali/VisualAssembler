@@ -4403,6 +4403,7 @@ function _applyEditorTranslations() {
   setAttr("#sid-vkbd-record", t("sidRecord"));
   setText("#sid-preview-engine-lbl", t("sidPreviewEngine"));
   setText("#sid-preview-model-lbl", t("sidPreviewModel"));
+  setText("#sid-digi-boost-label", t("sidDigiBoost"));
   setText("#sid-lcd-color-lbl", t("sidLcdColor"));
   setText("#sid-player-buffer-lbl", t("sidPlayerBuffer"));
   setText("#sid-player-buffer-note", t("sidPlayerBufferNote"));
@@ -25944,6 +25945,11 @@ function setupHardwareSettingsDialog() {
     _sidPlayerRenderList();
     _sidEditorEngineSync();
   });
+  // the SID Player sends it with every render, so a playing tune switches at once
+  document.getElementById("sid-digi-boost")?.addEventListener("change", function(e) {
+    _sidDigiBoost = !!e.target.checked;
+    try { localStorage.setItem("c64va-sid-digi-boost", _sidDigiBoost ? "1" : "0"); } catch (_) {}
+  });
 }
 
 // ── C64 Ultimate (1541 Ultimate REST API) ─────────────────────────────────────
@@ -37344,9 +37350,11 @@ function applyZoom() {
 }
 
 // Settings setup runs inside initPalette, before the SID editor code below.
-var _VA_SID_CORE_VERSION = "1.2";
+var _VA_SID_CORE_VERSION = "1.3";
 var _sidPreviewEngine = "resid";
 var _sidPreviewModel = "8580";
+// the 8580 "digi boost" hack (a DC level on EXT IN): loud $D418 samples on the 8580
+var _sidDigiBoost = false;
 initPalette();
 
 // ===== TUTORIAL SYSTEM =======================================================
@@ -47950,7 +47958,10 @@ function _sidLoadPreviewSettings() {
     if (savedEngine === "resid" || savedEngine === "va-core") _sidPreviewEngine = savedEngine;
     const savedModel = localStorage.getItem("c64va-sid-preview-model");
     if (savedModel === "6581" || savedModel === "8580") _sidPreviewModel = savedModel;
+    _sidDigiBoost = localStorage.getItem("c64va-sid-digi-boost") === "1";
   } catch (_) {}
+  const boostEl = document.getElementById("sid-digi-boost");
+  if (boostEl) boostEl.checked = _sidDigiBoost;
   const engineEl = document.getElementById("sid-preview-engine");
   if (engineEl) engineEl.value = _sidPreviewEngine;
   const modelEl = document.getElementById("sid-preview-model");
@@ -52490,7 +52501,7 @@ async function _vaSidPlayFileBytes(bytes, filename, song = 0) {
     try {
       do {
         const payload = { sessionId: state.sessionId, sampleRate: ac.sampleRate,
-          model: _sidPreviewModel, engine: _sidPreviewEngine, frames: 20, skipMs: Math.max(0, Math.round(state.skipMs)), song: state.song };
+          model: _sidPreviewModel, engine: _sidPreviewEngine, digiBoost: _sidDigiBoost, frames: 20, skipMs: Math.max(0, Math.round(state.skipMs)), song: state.song };
         if (state.fileBytes) payload.fileBytes = state.fileBytes;
         state.queue = window.electronAPI.renderSidFile(payload);
         const rendered = await state.queue;
@@ -53290,7 +53301,7 @@ function _sidDecodePcm16(base64) {
 }
 
 function _sidRenderNativeFrames(frames, sampleRate, sessionId) {
-  const payload = { sampleRate: Math.round(sampleRate), model: _sidPreviewModel, engine: _sidPreviewEngine, ntsc: _sidIsNtsc(), frames: frames };
+  const payload = { sampleRate: Math.round(sampleRate), model: _sidPreviewModel, engine: _sidPreviewEngine, digiBoost: _sidDigiBoost, ntsc: _sidIsNtsc(), frames: frames };
   if (sessionId) payload.sessionId = sessionId;
   return window.electronAPI.renderSidPreview(payload).then(function(base64) {
     const pcm = _sidDecodePcm16(base64);

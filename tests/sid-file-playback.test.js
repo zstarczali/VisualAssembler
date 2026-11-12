@@ -65,6 +65,7 @@ test("the backend renders an external PSID in chunks", async () => {
     _sidExternalCore: null,
     _VA_SID_CORE_VERSION: "1.0",
     _sidPreviewModel: "6581",
+    _sidDigiBoost: true,
     _sidPreviewEngine: "va-core",
     _sidPreviewSources: new Set(),
     _sidExtSources: new Set(),
@@ -85,6 +86,7 @@ test("the backend renders an external PSID in chunks", async () => {
   assert.equal(await ctx.play(bytes, "example.sid"), true);
   assert.ok(calls.render.length > 1);
   assert.equal(calls.render[0].model, "6581");
+  assert.equal(calls.render[0].digiBoost, true);
   assert.equal(calls.render[0].frames, 20);
   assert.deepEqual(Array.from(calls.render[0].fileBytes), Array.from(bytes));
   assert.equal(calls.render[1].fileBytes, undefined);
@@ -118,6 +120,7 @@ test("a stereo .sid render is timed by its samples per channel", async () => {
     _sidExternalCore: null,
     _VA_SID_CORE_VERSION: "1.0",
     _sidPreviewModel: "8580",
+    _sidDigiBoost: false,
     _sidPreviewEngine: "va-core",
     _sidExtSources: new Set(),
     _sidPlaylist: [],
@@ -179,7 +182,7 @@ test("the PSID header of a two-SID tune is v3 with the second SID's address", ()
 
 test("a two-SID VA Core preview is stereo, with one restart mask for six voices", async () => {
   const ctx = {
-    Math, Array, Promise, _sidPreviewModel: "8580", _sidPreviewEngine: "resid",
+    Math, Array, Promise, _sidPreviewModel: "8580", _sidPreviewEngine: "resid", _sidDigiBoost: false,
     window: { electronAPI: { renderSidPreview(p) { ctx.payload = p; return Promise.resolve("x"); } } },
     _sidDecodePcm16() { return new Float32Array(4); },
   };
