@@ -1486,7 +1486,6 @@ function initPalette() {
     setExpertMode(!expertMode);
   });
   ubModeTbBtn?.addEventListener("click", () => setUltimateBasicMode(!ultimateBasicMode));
-  document.getElementById("ub-new-btn")?.addEventListener("click", _ubNew);
   document.getElementById("ub-open-btn")?.addEventListener("click", () => _ubOpen(false));
   document.getElementById("ub-save-btn")?.addEventListener("click", () => _ubSave(false));
   document.getElementById("ub-save-as-btn")?.addEventListener("click", () => _ubSave(true));
@@ -3627,7 +3626,7 @@ function applyTranslations() {
   buildInfoBtn?.setAttribute("aria-label", t("buildInfoBtn"));
 
   const ubLabels = {
-    "ub-new-btn": "ubNewSource", "ub-open-btn": "ubOpenSource", "ub-save-btn": "ubSaveSource", "ub-save-as-btn": "ubSaveSourceAs", "ub-format-btn": "ubFormatSource",
+    "ub-open-btn": "ubOpenSource", "ub-save-btn": "ubSaveSource", "ub-save-as-btn": "ubSaveSourceAs", "ub-format-btn": "ubFormatSource",
     "ub-build-btn": "ubBuild", "ub-output-btn": "ubBuildOutput", "ub-explicit-btn": "ubExplicit", "ub-verbose-btn": "ubVerbose", "ub-disasm-btn": "expertDisasm", "ub-monitor-btn": "monitorOutputLabel", "ub-toolkit-btn": "expertToolkit", "ub-autocomplete-btn": "expertAutocomplete",
     "ub-project-btn": "expertProjectPanel", "ub-help-btn": "ubCommandHelpToggle", "ub-manual-btn": "ubManual", "ub-project-open-btn": "projOpenProjectBtn",
     "ub-project-new-btn": "projNewProjectBtn", "ub-project-save-btn": "projSaveProjectBtn",
@@ -9838,14 +9837,6 @@ function _ubRenderCommandReference() {
   const isBlock = /\n\s*(end|next|until|endtype|endw)\b/i.test(selected[1]);
   note.textContent = isBlock ? t("ubBlockCommandHint") : t("ubSingleCommandHint");
   detail.append(title, descriptionLabel, description, syntaxLabel, syntax, noteLabel, note);
-}
-
-function _ubNew() {
-  _tabNew();
-  if (ubBuildOutput) ubBuildOutput.textContent = "Ready.";
-  _ubSetStatus(t("ubNewSource"));
-  _ubRefreshEditor();
-  ubEditor.focus();
 }
 
 async function _ubOpen(addToProject = false) {
