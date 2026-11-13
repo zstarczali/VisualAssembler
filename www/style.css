@@ -9676,7 +9676,7 @@ html[data-theme="commodore77"] .splash-image {
 }
 
 /* ═══ Level Editor (builds on the Map Editor .me-* classes) ═══ */
-.lv-dialog { width: min(1320px, 97vw); min-width: min(760px, 97vw); min-height: min(440px, 94vh); }
+.lv-dialog { width: min(1320px, 97vw); min-width: min(760px, 97vw); min-height: min(570px, 94vh); }
 .lv-select {
   height: 28px; min-height: 0; padding: 3px 26px 3px 8px;
   font-family: inherit; font-size: 0.78rem;
@@ -13600,7 +13600,7 @@ dialog.dlg-active[open]:not(:modal) > :first-child > :first-child,
   cursor: nwse-resize; touch-action: none; z-index: 5;
 }
 /* the editor dialogs give every labelled button position: relative (tooltip anchor); keep the grip in its corner */
-#sid-editor-dialog button.sid-resize-grip[aria-label], dialog button.sid-resize-grip[aria-label] { position: absolute; }
+#sid-editor-dialog button.sid-resize-grip[aria-label], #level-editor-dialog button.sid-resize-grip[aria-label], dialog button.sid-resize-grip[aria-label] { position: absolute; }
 .sid-resize-grip svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 1; }
 .sid-resize-grip:hover, .sid-resize-grip:focus-visible { background: transparent; color: var(--primary); opacity: 1; }
 
