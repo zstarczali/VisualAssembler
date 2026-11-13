@@ -120,6 +120,7 @@
     loadSample: (sampleName) => invoke("load_sample", { sampleName }),
     listTemplates: () => invoke("list_templates"),
     openTemplatesFolder: () => invoke("open_templates_folder"),
+    openSamplesFolder: () => invoke("open_samples_folder"),
     listUserTutorials: () => invoke("list_user_tutorials"),
     saveUserTutorial: (lesson) => invoke("save_user_tutorial", { lesson }),
     deleteUserTutorial: (id) => invoke("delete_user_tutorial", { id }),

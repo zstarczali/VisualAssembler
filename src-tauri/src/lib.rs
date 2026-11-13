@@ -5181,6 +5181,19 @@ async fn open_templates_folder(app: AppHandle) -> Result<(), String> {
         .map_err(|e| e.to_string())
 }
 
+/// The bundled samples folder in the file manager (it sits in the install folder,
+/// which is hard to find by hand).
+#[tauri::command]
+async fn open_samples_folder(app: AppHandle) -> Result<(), String> {
+    let dir = resolve_resource_file(&app, "samples").map_err(|e| e.to_string())?;
+    if !dir.is_dir() {
+        return Err(format!("not found: {}", dir.display()));
+    }
+    app.opener()
+        .open_path(dir.to_string_lossy().as_ref(), None::<String>)
+        .map_err(|e| e.to_string())
+}
+
 #[tauri::command]
 async fn load_sample(app: AppHandle, sample_name: String) -> serde_json::Value {
     let file_path = match resolve_resource_file(&app, &format!("samples/{}.json", sample_name)) {
@@ -6170,6 +6183,7 @@ pub fn run() {
             load_sample,
             list_templates,
             open_templates_folder,
+            open_samples_folder,
             create_template_project,
             open_manual,
             open_ultimate_basic_manual,
