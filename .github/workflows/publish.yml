@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       run_id:
-        description: 'Successful manual "Build Tauri" run ID (from its Actions URL)'
+        description: 'Successful manual "Release" run ID (from its Actions URL)'
         required: true
         type: string
 

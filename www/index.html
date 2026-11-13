@@ -1667,76 +1667,7 @@ PRINTABLE CHARACTERS
         <li>
           <strong>Local labels:</strong> a local label of another scope or with an offset, such as <code>JMP Second.lp</code> or <code>LDA .lp+1,X</code>, compiles as an absolute operand.
         </li>
-      </ul>
-      <p class="whats-new-previous">v2.7.7</p>
-      <ul class="whats-new-list">
-        <li>
-          <strong>Ultimate 64 palette:</strong> three new macros set the video palette of an Ultimate 64 / C64 Ultimate through its Command Interface: <code>.u64_palette "file.vpl"</code> loads all 16 colours from a VICE, GIMP, hex or Photoshop palette file, <code>.u64_palette_color 6, $3050C0</code> changes one colour and <code>.u64_palette_reset</code> restores the menu's palette. They need firmware 3.15+ with the Command Interface on, and do nothing elsewhere.
-        </li>
-        <li>
-          <strong>Palette demo:</strong> the new <strong>Ultimate 64 palette demo</strong> sample switches between two palette files, two changed colours and the menu's palette with the keys 1, 2, 3 and 0. It runs on the hardware and in the Ultimate emulator run mode.
-        </li>
-        <li>
-          <strong>Hi-Res MIX:</strong> in multicolor the Hi-Res editor has a mix pen: 8 slots of 3 colours, painted in one of 8 patterns locked to the picture, with the pencil, spray, shapes and fill.
-        </li>
-        <li>
-          <strong>Built-in C64:</strong> Run no longer starts an empty program. The <strong>Rust + JavaScript check</strong> compiler setting is gone; JavaScript and Rust remain.
-        </li>
-      </ul>
-      <p class="whats-new-previous">v2.7.6</p>
-      <ul class="whats-new-list">
-        <li>
-          <strong>Star ratings:</strong> every SID Player playlist row has 1 to 5 stars in place of the single favourite mark. <strong>Keep only starred tunes</strong> removes the rest after a confirmation.
-        </li>
-        <li>
-          <strong>Remove duplicates:</strong> a new SID Player toolbar button removes the tunes that are in the playlist more than once. The first copy stays, with the most stars.
-        </li>
-        <li>
-          <strong>Normalize volume:</strong> when a quiet start was raised and a louder part follows, the level drops at once, before that part sounds, so it no longer distorts.
-        </li>
-        <li>
-          <strong>HVSC downloads:</strong> a tune that is still downloading shows a spinner in place of its + button, and a second click does not add it again.
-        </li>
-        <li>
-          <strong>Restore64 sources:</strong> a disassembly that writes its own BASIC line at $0801 after the code builds and runs like the original again.
-        </li>
-      </ul>
-      <p class="whats-new-previous">v2.7.5</p>
-      <ul class="whats-new-list">
-        <li>
-          <strong>Channel curves:</strong> a window shared by the SID Player and the SID Editor shows a scrolling level curve and a large note name for every voice (6 with two SIDs), following what is sounding at the moment. In the SID Editor it stays usable beside the tracker.
-        </li>
-        <li>
-          <strong>Spectrum by channel:</strong> the Spectrum window's new <strong>View</strong> list switches between the <strong>Mix</strong> of the output and a separate analyzer for every voice (<strong>Channels</strong>).
-        </li>
-        <li>
-          <strong>Play subtunes in sequence:</strong> the SID Player plays the remaining subtunes of a file before moving on, also with shuffle. A new toolbar toggle switches it, on by default.
-        </li>
-      </ul>
-      <p class="whats-new-previous">v2.7.4</p>
-      <ul class="whats-new-list">
-        <li>
-          <strong>Selection in the horizontal tracker:</strong> Shift+drag a frame or Ctrl+click notes, then cut, copy, paste or delete them with the new header buttons or Ctrl+X / C / V and Del.
-        </li>
-        <li>
-          <strong>Quantize:</strong> Q or the new button moves the selected notes to the grid (2, 4, 8 or 16 rows, in the tracker toolbar). With On record checked, a recording is quantized when it stops.
-        </li>
-        <li>
-          <strong>Undo / Redo in the horizontal tracker:</strong> the two buttons are in its header too.
-        </li>
-        <li>
-          <strong>Cleaner edits:</strong> deleting a note keeps the end of the note before it, and a paste over a longer note leaves no stray note-off.
-        </li>
-        <li>
-          <strong>Deleting instruments:</strong> − next to + deletes the current instrument; Files → Delete unused instruments removes the ones no note plays.
-        </li>
-        <li>
-          <strong>Song volume:</strong> Vol, a knob in the tracker toolbar, is the tune's volume; instruments no longer override it.
-        </li>
-        <li>
-          <strong>PAL / NTSC:</strong> the tune's timing, with the NTSC clock, note table and 60 frames a second.
-        </li>
-      </ul>
+      </ul>    
       <button id="whats-new-close" class="primary" type="button">OK</button>
     </div>
   </dialog>

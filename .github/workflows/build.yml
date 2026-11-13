@@ -1,4 +1,4 @@
-name: Build Tauri (Windows + macOS + Linux)
+name: Release
 
 on:
   push:
@@ -71,7 +71,7 @@ jobs:
   build:
     name: Build on ${{ matrix.os }} (${{ matrix.arch }})
     needs: test
-    # the installers only on a manual run (Actions → Build Tauri → Run workflow); a push / PR runs the tests
+    # the installers only on a manual run (Actions → Release → Run workflow); a push / PR runs the tests
     if: github.event_name == 'workflow_dispatch'
     runs-on: ${{ matrix.runner }}
     strategy:
