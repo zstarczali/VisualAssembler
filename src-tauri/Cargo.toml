@@ -36,7 +36,7 @@ r65 = { git = "https://github.com/zstarczali/R65.git", rev = "e28a167f74d18bc047
 # real time unoptimised. Dependencies build once at opt-level 2, the app at 1.
 # the version wry uses: it moves together with Tauri
 [target.'cfg(windows)'.dependencies]
-webview2-com = "0.38"
+webview2-com = "0.39"
 
 [profile.dev]
 opt-level = 1

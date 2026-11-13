@@ -11,11 +11,11 @@
     "build:win:arm64": "tauri build --target aarch64-pc-windows-msvc"
   },
   "devDependencies": {
-    "@tauri-apps/cli": "^2",
+    "@tauri-apps/cli": "^2.12.4",
     "concurrently": "^9",
     "serve": "^14"
   },
   "dependencies": {
-    "@tauri-apps/api": "^2"
+    "@tauri-apps/api": "^2.12.4"
   }
 }
