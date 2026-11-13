@@ -2,9 +2,16 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.8.0**
+**Current version: v2.8.1**
 
 Visual Assembler is free and open source (GPLv3): every feature — editors, builds, hardware runs, languages and themes — works without a registration or serial. At most once a day the app sends an anonymous startup ping (version, OS, UI language, launch count, a random install ID) for the usage statistics; no email, project or source code is sent.
+
+## What's New in v2.8.1
+
+- **Five new themes** — **Ruby** (deep red), **Amethyst** (cool purple), **Phosphor** (a green phosphor monitor with a soft glow on the code), **Retro 80s** (synthwave: a violet night, neon pink keys, cyan code, a sunset stripe and a neon grid rising from the bottom) and **Retro 8-bit** (an 8-bit home computer on a CRT: blue-violet panels, yellow keys, one monospace font, square corners, hard pixel shadows and scanlines). Pick them in the theme picker (**Menu → View**) or cycle to them with the theme button.
+- **Tauri 2.12** — the app runs on Tauri 2.12 (wry 0.57, WebView2 bindings 0.39).
+- **Manual** — the assembler language and macro reference moved to the [VMA manual](https://github.com/zstarczali/VMA/blob/main/docs/VMA-Manual.md), so it is kept in one place; the Visual Assembler manual links to it.
+- **Fixes** — the **Channel curves** window opened from the SID Editor can be resized again with its corner grip (the grip had slipped out of the window); the Hi-Res editor's **MIX** pattern list no longer stretches across the whole toolbar row.
 
 ## What's New in v2.8.0
 

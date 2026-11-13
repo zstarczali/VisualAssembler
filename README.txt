@@ -1,5 +1,7 @@
 C64 Visual Assembler - Installation Guide
-Version 2.8.0
+Version 2.8.1
+
+2.8.1: five new themes (Ruby, Amethyst, Phosphor, Retro 80s, Retro 8-bit); Tauri 2.12 runtime; the Channel curves window resizes inside the SID Editor again; the Hi-Res MIX pattern list no longer stretches across the toolbar
 
 2.8.0: SID Editor L (legato) effect and gate-off table steps, a closer .sid import; VA SID Core 1.3 with the 8580 digi boost option; Kick import and Import Kick project build through R65 and write VMA that builds the same bytes; build phases in the work window; project files open with their default app or show in the file manager; UltimateBasic projects open from Expert / Block mode; Expert and UltimateBasic toolbars in the same order with the same icons
 
