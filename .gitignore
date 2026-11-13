@@ -47,3 +47,7 @@ samples/*.snapshots.json
 /va-product-site/register/geoip-data/
 /out
 /Commodore
+
+# Python bytecode cache
+__pycache__/
+*.pyc

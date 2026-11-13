@@ -43,7 +43,7 @@ def validate_run():
     with urllib.request.urlopen(request, timeout=30) as response:
         run = json.load(response)
     if run.get('path', '').split('@')[0] != BUILD_WORKFLOW:
-        raise ValueError('The selected run is not a Build Tauri run.')
+        raise ValueError('The selected run is not a Release run.')
     if run.get('status') != 'completed' or run.get('conclusion') != 'success':
         raise ValueError('The selected build must have completed successfully.')
     sha = run['head_sha']
@@ -75,7 +75,7 @@ def collect_installers(root):
         files[path.name] = path
     if not files:
         # A push or pull request run only tests; installers come from a manual run.
-        raise ValueError('No installers in that run: choose a manual (Run workflow) Build Tauri run.')
+        raise ValueError('No installers in that run: choose a manual (Run workflow) Release run.')
     versions = {match.group(0) for match in (VERSION.search(name) for name in files) if match}
     if len(versions) != 1 or any(not VERSION.search(name) for name in files):
         raise ValueError('The installers must all carry one release version.')
