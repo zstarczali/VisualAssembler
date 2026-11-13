@@ -44188,6 +44188,14 @@ function setupLevelEditor() {
 
   // Runs during init, before the `let _lv*` declarations above are reached
   // (TDZ) — so state is only touched lazily, from event handlers.
+  try {
+    const size = JSON.parse(localStorage.getItem("c64va-level-editor-size") || "null");
+    if (size?.w > 0) dialog.style.width = size.w + "px";
+    if (size?.h > 0) dialog.style.height = size.h + "px";
+  } catch (_) {}
+  _sidSetupResizeHandle(dialog, function() {
+    try { localStorage.setItem("c64va-level-editor-size", JSON.stringify({ w: Math.round(dialog.offsetWidth), h: Math.round(dialog.offsetHeight) })); } catch (_) {}
+  });
   document.getElementById("level-editor-btn")?.addEventListener("click", function() {
     document.querySelector(".control-menu")?.removeAttribute("open");
     if (!_lvSettings) _lvSetSettings(_lvDefaultSettings());
