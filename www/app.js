@@ -17168,6 +17168,8 @@ function _openSampleDialog() {
   search.placeholder = t("sampleSearchPlaceholder");
   search.value = "";
   document.getElementById("sample-cancel").textContent = t("sampleCancel");
+  const sampleFolderBtn = document.getElementById("sample-open-folder");
+  if (sampleFolderBtn) { sampleFolderBtn.textContent = t("sampleOpenFolder"); sampleFolderBtn.hidden = !window.electronAPI?.openSamplesFolder; }
   document.getElementById("sample-load").textContent = t("sampleLoadBtn");
   _sampleDlgSelected = sampleSelect?.value || "";
   _sampleDlgRender();
@@ -17210,6 +17212,9 @@ document.getElementById("sample-dialog")?.addEventListener("keydown", (e) => {
 });
 document.getElementById("sample-load")?.addEventListener("click", _sampleDlgLoad);
 document.getElementById("sample-cancel")?.addEventListener("click", () => document.getElementById("sample-dialog")?.close());
+document.getElementById("sample-open-folder")?.addEventListener("click", async () => {
+  try { await window.electronAPI?.openSamplesFolder?.(); } catch (e) { showViceToast(String(e), true, true); }
+});
 document.getElementById("sample-dialog-close")?.addEventListener("click", () => document.getElementById("sample-dialog")?.close());
 
 document.getElementById("template-dialog-close")?.addEventListener("click", () => {
