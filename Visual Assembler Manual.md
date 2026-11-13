@@ -1352,7 +1352,7 @@ text    !scr "hello acme", 0
 The language of Visual Assembler is **VMA** (Visual Macro Assembler): Block mode, Expert mode and the ASM view all hold VMA source, and the built-in Rust VMA compiler builds it. Its full reference is kept in one place, the **VMA manual**:
 
 - [VMA Manual (English)](https://github.com/zstarczali/VMA/blob/main/docs/VMA-Manual.md) · [VMA kézikönyv (magyar)](https://github.com/zstarczali/VMA/blob/main/docs/VMA-Manual.hu.md)
-- online at [c64va.pro/docs.html](https://www.c64va.pro/docs.html), under **Visual Macro Assembler (VMA)**
+- online at [c64va.pro/docs.html](https://www.c64va.pro/docs.html), under **VMA**
 
 It covers:
 

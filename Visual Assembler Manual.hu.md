@@ -1339,7 +1339,7 @@ A `samples/ACME/acme-crt-demo.asm` kis ACME tesztprogram a Futtatáshoz, a Build
 A Visual Assembler nyelve a **VMA** (Visual Macro Assembler): a Blokk mód, az Expert mód és az ASM nézet is VMA forrást tartalmaz, és a beépített Rust VMA fordító fordítja. A teljes referenciája egy helyen, a **VMA kézikönyvben** található:
 
 - [VMA kézikönyv (magyar)](https://github.com/zstarczali/VMA/blob/main/docs/VMA-Manual.hu.md) · [VMA Manual (English)](https://github.com/zstarczali/VMA/blob/main/docs/VMA-Manual.md)
-- online a [c64va.pro/docs.html](https://www.c64va.pro/docs.html) oldalon, a **Visual Macro Assembler (VMA)** alatt
+- online a [c64va.pro/docs.html](https://www.c64va.pro/docs.html) oldalon, a **VMA** alatt
 
 Tartalma:
 
