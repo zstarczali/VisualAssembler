@@ -9906,7 +9906,7 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .hg-mix-slot:disabled, .hg-mix-col:disabled { cursor: default; }
 .hg-mix-cols { display: flex; gap: 3px; }
 .hg-mix-col { min-height: 0; padding: 0; border: 2px solid var(--panel-border); box-shadow: inset 0 0 0 1px rgba(0,0,0,0.25); }
-.hg-mix-select { height: 28px; min-height: 0; padding: 3px 26px 3px 8px; font-size: 0.76rem; }
+.hg-mix-select { width: auto; flex: 0 0 auto; height: 28px; min-height: 0; padding: 3px 26px 3px 8px; font-size: 0.76rem; background-position: calc(100% - 8px) 50%; }
 .hg-mix-hint { font-size: 0.72rem; color: var(--secondary); font-style: italic; }
 
 /* Canvas area */
@@ -12696,6 +12696,513 @@ html[data-theme="c64"] .websid-play-item--current .websid-play-item-del {
   color: #40318d;
 }
 
+/* ── Ruby / Amethyst / Phosphor ──────────────────────────────────────────────
+   Dark themes on the Dark theme's structure: deep red, cool purple and a green
+   phosphor monitor. Shared dark-family rules first, then the tokens. */
+html[data-theme="ruby"],
+html[data-theme="amethyst"],
+html[data-theme="phosphor"] {
+  color-scheme: dark;
+}
+html[data-theme="ruby"] {
+  background-color: #1c1214;
+  --hl-comment:   #8a6e70;
+  --hl-directive: #ff8a80;
+  --hl-mnem:      #ffd6a5;
+  --hl-number:    #f6a96c;
+  --hl-string:    #b5d99c;
+  --hl-label:     #ffb4c1;
+  --hl-macro:     #e08ad8;
+  --hl-macro-param: #7fd1c0;
+  --expert-editor-bg: #170e10;
+  --ub-editor-bg: #170e10;
+  --ub-chrome-bg: rgba(42, 28, 32, 0.98);
+  --ub-side-bg: rgba(36, 24, 27, 0.97);
+  --ub-selection-bg: rgba(229, 72, 77, 0.28);
+  --cg-canvas-bg: #20263a;
+  --bg: #1c1214;
+  --bg-accent: #160e10;
+  --panel: rgba(38, 26, 29, 0.97);
+  --panel-strong: rgba(46, 32, 36, 0.98);
+  --panel-border: rgba(255, 190, 190, 0.10);
+  --text: #f1e4e5;
+  --muted: #a8908f;
+  --primary: #e5484d;
+  --primary-deep: #c4262e;
+  --secondary: #b39a9b;
+  --secondary-soft: rgba(229, 72, 77, 0.10);
+  --surface-soft: rgba(229, 72, 77, 0.05);
+  --control-bg: rgba(31, 21, 23, 0.97);
+  --active-bg: #e5484d;
+  --active-fg: #ffffff;
+  --shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
+  --input-bg: rgba(20, 12, 14, 0.98);
+  --output-bg: #120a0c;
+  --output-text: #d9b8b8;
+  --monitor-text: #ffb4a8;
+  --error: #ff8a80;
+  --accent: #fff4f4;
+  --asm-mnemonic: #ffd6a5;
+  --asm-directive: #ff8a80;
+  --asm-macro: #e08ad8;
+  --asm-comment: #8a6e70;
+  --asm-label: #ffb4c1;
+  --asm-number: #f6a96c;
+  --asm-region: #b5d99c;
+  --asm-operand: #ffcf7a;
+}
+html[data-theme="amethyst"] {
+  background-color: #17131f;
+  --hl-comment:   #7a6f94;
+  --hl-directive: #c792ea;
+  --hl-mnem:      #82aaff;
+  --hl-number:    #f78c6c;
+  --hl-string:    #c3e88d;
+  --hl-label:     #ffcb6b;
+  --hl-macro:     #ff79c6;
+  --hl-macro-param: #89ddff;
+  --expert-editor-bg: #130f1a;
+  --ub-editor-bg: #130f1a;
+  --ub-chrome-bg: rgba(38, 31, 52, 0.98);
+  --ub-side-bg: rgba(33, 27, 45, 0.97);
+  --ub-selection-bg: rgba(169, 112, 255, 0.28);
+  --cg-canvas-bg: #20263a;
+  --bg: #17131f;
+  --bg-accent: #120f19;
+  --panel: rgba(33, 27, 45, 0.97);
+  --panel-strong: rgba(41, 34, 56, 0.98);
+  --panel-border: rgba(200, 180, 255, 0.10);
+  --text: #ece6f7;
+  --muted: #9c90b3;
+  --primary: #a970ff;
+  --primary-deep: #8a4fe8;
+  --secondary: #a89cc0;
+  --secondary-soft: rgba(169, 112, 255, 0.10);
+  --surface-soft: rgba(169, 112, 255, 0.05);
+  --control-bg: rgba(27, 22, 37, 0.97);
+  --active-bg: #a970ff;
+  --active-fg: #ffffff;
+  --shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
+  --input-bg: rgba(16, 12, 22, 0.98);
+  --output-bg: #0f0c15;
+  --output-text: #c7b8e6;
+  --monitor-text: #c9a7ff;
+  --error: #ff7a90;
+  --accent: #f8f4ff;
+  --asm-mnemonic: #82aaff;
+  --asm-directive: #c792ea;
+  --asm-macro: #ff79c6;
+  --asm-comment: #7a6f94;
+  --asm-label: #ffcb6b;
+  --asm-number: #f78c6c;
+  --asm-region: #c3e88d;
+  --asm-operand: #89ddff;
+}
+html[data-theme="phosphor"] {
+  background-color: #0b120d;
+  --hl-comment:   #4f7d5a;
+  --hl-directive: #9dffb8;
+  --hl-mnem:      #33ff77;
+  --hl-number:    #d4ff6b;
+  --hl-string:    #7fe0c9;
+  --hl-label:     #ffe36b;
+  --hl-macro:     #6bd3ff;
+  --hl-macro-param: #b8f5a0;
+  --expert-editor-bg: #08100a;
+  --ub-editor-bg: #08100a;
+  --ub-chrome-bg: rgba(21, 33, 24, 0.98);
+  --ub-side-bg: rgba(17, 27, 20, 0.97);
+  --ub-selection-bg: rgba(51, 255, 119, 0.22);
+  --cg-canvas-bg: #0d1a11;
+  --bg: #0b120d;
+  --bg-accent: #08100a;
+  --panel: rgba(17, 27, 20, 0.97);
+  --panel-strong: rgba(22, 35, 26, 0.98);
+  --panel-border: rgba(80, 255, 140, 0.13);
+  --text: #c8f5d2;
+  --muted: #6f9a7a;
+  --primary: #33ff77;
+  --primary-deep: #1fcc58;
+  --secondary: #82ad8d;
+  --secondary-soft: rgba(51, 255, 119, 0.08);
+  --surface-soft: rgba(51, 255, 119, 0.04);
+  --control-bg: rgba(13, 22, 15, 0.97);
+  --active-bg: #33ff77;
+  --active-fg: #04140a;
+  --shadow: 0 2px 12px rgba(0, 0, 0, 0.55);
+  --input-bg: rgba(6, 12, 8, 0.98);
+  --output-bg: #050b07;
+  --output-text: #8fdca2;
+  --monitor-text: #4dff91;
+  --error: #ff6b6b;
+  --accent: #eaffef;
+  --asm-mnemonic: #33ff77;
+  --asm-directive: #9dffb8;
+  --asm-macro: #6bd3ff;
+  --asm-comment: #4f7d5a;
+  --asm-label: #ffe36b;
+  --asm-number: #d4ff6b;
+  --asm-region: #7fe0c9;
+  --asm-operand: #ffe36b;
+}
+.theme-option-dot[data-theme-opt="ruby"] { background: #e5484d; border-color: #1c1214; }
+.theme-option-dot[data-theme-opt="amethyst"] { background: #a970ff; border-color: #17131f; }
+.theme-option-dot[data-theme-opt="phosphor"] { background: #0b120d; border-color: #33ff77; }
+html[data-theme="ruby"] .theme-toggle-glyph::after,
+html[data-theme="amethyst"] .theme-toggle-glyph::after,
+html[data-theme="phosphor"] .theme-toggle-glyph::after {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 6px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--panel);
+}
+html[data-theme="ruby"] .primary,
+html[data-theme="amethyst"] .primary,
+html[data-theme="ruby"] .emulator-actions .primary,
+html[data-theme="ruby"] .emulator-actions .link-button.primary,
+html[data-theme="amethyst"] .emulator-actions .primary,
+html[data-theme="amethyst"] .emulator-actions .link-button.primary {
+  color: #ffffff;
+  font-weight: 700;
+}
+html[data-theme="phosphor"] .primary,
+html[data-theme="phosphor"] .emulator-actions .primary,
+html[data-theme="phosphor"] .emulator-actions .link-button.primary {
+  color: #04140a;
+  font-weight: 700;
+}
+html[data-theme="ruby"] #add-selected,
+html[data-theme="amethyst"] #add-selected,
+html[data-theme="phosphor"] #add-selected {
+  background: var(--primary);
+  color: var(--active-fg);
+  border-color: var(--primary-deep);
+}
+html[data-theme="ruby"] #add-selected:hover,
+html[data-theme="amethyst"] #add-selected:hover,
+html[data-theme="phosphor"] #add-selected:hover {
+  background: var(--primary-deep);
+}
+html[data-theme="ruby"] .asm-block:has(.bp-toggle.bp-active),
+html[data-theme="amethyst"] .asm-block:has(.bp-toggle.bp-active),
+html[data-theme="phosphor"] .asm-block:has(.bp-toggle.bp-active) {
+  background: rgba(255, 68, 68, 0.18) !important;
+  border-color: rgba(255, 68, 68, 0.5) !important;
+}
+html[data-theme="ruby"] .expert-err-line,
+html[data-theme="amethyst"] .expert-err-line,
+html[data-theme="phosphor"] .expert-err-line {
+  background: color-mix(in srgb, #ff4444 18%, transparent);
+}
+html[data-theme="ruby"] .expert-hl mark.hl-find-match,
+html[data-theme="amethyst"] .expert-hl mark.hl-find-match,
+html[data-theme="phosphor"] .expert-hl mark.hl-find-match {
+  background: color-mix(in srgb, #d4880c 40%, transparent);
+}
+html[data-theme="ruby"] .expert-hl mark.hl-find-current,
+html[data-theme="amethyst"] .expert-hl mark.hl-find-current,
+html[data-theme="phosphor"] .expert-hl mark.hl-find-current {
+  background: color-mix(in srgb, #d4880c 80%, transparent);
+  outline-color: #d4880c;
+}
+html[data-theme="ruby"] .monitor-output {
+  background: #120a0c !important;
+  border-color: #3a1e22 !important;
+  text-shadow: 0 0 8px rgba(255, 120, 110, 0.40);
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.6), 0 0 0 1px #2a1416;
+}
+html[data-theme="amethyst"] .monitor-output {
+  background: #0f0c15 !important;
+  border-color: #2c2240 !important;
+  text-shadow: 0 0 8px rgba(169, 112, 255, 0.45);
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.6), 0 0 0 1px #1d1630;
+}
+html[data-theme="phosphor"] .monitor-output {
+  background: #050b07 !important;
+  border-color: #1a3322 !important;
+  text-shadow: 0 0 9px rgba(51, 255, 119, 0.55);
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.7), 0 0 0 1px #0d1a0d;
+}
+/* phosphor glow on the code views too */
+html[data-theme="phosphor"] .expert-hl,
+html[data-theme="phosphor"] .asm-output {
+  text-shadow: 0 0 3px rgba(51, 255, 119, 0.28);
+}
+html[data-theme="ruby"] ::selection { background: rgba(229, 72, 77, 0.40); color: #ffffff; }
+html[data-theme="amethyst"] ::selection { background: rgba(169, 112, 255, 0.40); color: #ffffff; }
+html[data-theme="phosphor"] ::selection { background: rgba(51, 255, 119, 0.35); color: #04140a; }
+html[data-theme="ruby"] .splash-panel .splash-loader-bar { background: #e5484d; }
+html[data-theme="amethyst"] .splash-panel .splash-loader-bar { background: #a970ff; }
+html[data-theme="phosphor"] .splash-panel .splash-loader-bar { background: #33ff77; }
+/* Retro 80s: synthwave — violet night, neon pink keys, cyan code, a sunset
+   stripe on top and a perspective grid glowing up from the bottom edge. */
+html[data-theme="retro80"] {
+  color-scheme: dark;
+  background-color: #1a1030;
+  --r80-sunset: linear-gradient(90deg, #ff3ea5 0%, #ff6f61 35%, #ffb347 65%, #fede5d 100%);
+  --hl-comment:   #7d68a8;
+  --hl-directive: #ff7edb;
+  --hl-mnem:      #36f9f6;
+  --hl-number:    #f97e72;
+  --hl-string:    #fede5d;
+  --hl-label:     #72f1b8;
+  --hl-macro:     #ff3ea5;
+  --hl-macro-param: #ffb347;
+  --expert-editor-bg: #150b28;
+  --ub-editor-bg: #150b28;
+  --ub-chrome-bg: rgba(41, 25, 72, 0.98);
+  --ub-side-bg: rgba(36, 22, 64, 0.97);
+  --ub-selection-bg: rgba(255, 62, 165, 0.30);
+  --cg-canvas-bg: #150b28;
+  --bg: #1a1030;
+  --bg-accent: #140c26;
+  --panel: rgba(36, 22, 64, 0.95);
+  --panel-strong: rgba(44, 27, 78, 0.97);
+  --panel-border: rgba(255, 126, 219, 0.18);
+  --text: #f3e9ff;
+  --muted: #a691c9;
+  --primary: #ff3ea5;
+  --primary-deep: #d61f85;
+  --secondary: #b39ddb;
+  --secondary-soft: rgba(255, 62, 165, 0.10);
+  --surface-soft: rgba(54, 249, 246, 0.05);
+  --control-bg: rgba(30, 18, 54, 0.97);
+  --active-bg: #ff3ea5;
+  --active-fg: #ffffff;
+  --shadow: 0 2px 14px rgba(255, 62, 165, 0.14), 0 2px 10px rgba(0, 0, 0, 0.5);
+  --input-bg: rgba(18, 10, 34, 0.98);
+  --output-bg: #10081f;
+  --output-text: #c9b8ec;
+  --monitor-text: #7df9ff;
+  --error: #ff6b8b;
+  --accent: #fff4fb;
+  --asm-mnemonic: #36f9f6;
+  --asm-directive: #ff7edb;
+  --asm-macro: #ff3ea5;
+  --asm-comment: #7d68a8;
+  --asm-label: #72f1b8;
+  --asm-number: #f97e72;
+  --asm-region: #fede5d;
+  --asm-operand: #ffb347;
+}
+html[data-theme="retro80"] body {
+  background:
+    linear-gradient(to top, rgba(255, 62, 165, 0.20), transparent 26%),
+    repeating-linear-gradient(to right, rgba(255, 62, 165, 0.10) 0 1px, transparent 1px 64px),
+    repeating-linear-gradient(to top, rgba(54, 249, 246, 0.08) 0 1px, transparent 1px 32px),
+    var(--bg);
+  background-attachment: fixed;
+  background-size: 100% 100%, 100% 22vh, 100% 22vh, auto;
+  background-position: 0 0, bottom, bottom, 0 0;
+  background-repeat: no-repeat, repeat-x, repeat-x, no-repeat;
+}
+html[data-theme="retro80"] body::after {
+  content: "";
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 3px;
+  background: var(--r80-sunset);
+  pointer-events: none;
+  z-index: 2147483000;
+}
+.theme-option-dot[data-theme-opt="retro80"] { background: linear-gradient(180deg, #ff3ea5, #ffb347 55%, #1a1030 56%); border-color: #36f9f6; }
+html[data-theme="retro80"] .theme-toggle-glyph::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: 50% 50% 0 0;
+  background: var(--r80-sunset);
+}
+html[data-theme="retro80"] .primary,
+html[data-theme="retro80"] .emulator-actions .primary,
+html[data-theme="retro80"] .emulator-actions .link-button.primary {
+  color: #ffffff;
+  font-weight: 700;
+  box-shadow: 0 0 12px rgba(255, 62, 165, 0.45);
+}
+html[data-theme="retro80"] #add-selected { background: var(--primary); color: var(--active-fg); border-color: var(--primary-deep); }
+html[data-theme="retro80"] #add-selected:hover { background: var(--primary-deep); }
+html[data-theme="retro80"] .asm-block:has(.bp-toggle.bp-active) {
+  background: rgba(255, 68, 68, 0.18) !important;
+  border-color: rgba(255, 68, 68, 0.5) !important;
+}
+html[data-theme="retro80"] .expert-err-line { background: color-mix(in srgb, #ff4444 18%, transparent); }
+html[data-theme="retro80"] .expert-hl mark.hl-find-match { background: color-mix(in srgb, #fede5d 32%, transparent); }
+html[data-theme="retro80"] .expert-hl mark.hl-find-current {
+  background: color-mix(in srgb, #fede5d 70%, transparent);
+  color: #1a1030;
+  outline-color: #fede5d;
+}
+html[data-theme="retro80"] .monitor-output {
+  background: #10081f !important;
+  border-color: #3d2766 !important;
+  text-shadow: 0 0 8px rgba(54, 249, 246, 0.55);
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.6), 0 0 0 1px #ff3ea5;
+}
+html[data-theme="retro80"] .eyebrow {
+  background: var(--r80-sunset);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+html[data-theme="retro80"] ::selection { background: rgba(255, 62, 165, 0.45); color: #ffffff; }
+html[data-theme="retro80"] .splash-panel .splash-loader-bar { background: var(--r80-sunset); }
+body.crt-mode[data-theme="retro80"] #crt-overlay::before,
+body.crt-mode[data-theme="ruby"] #crt-overlay::before,
+body.crt-mode[data-theme="amethyst"] #crt-overlay::before,
+body.crt-mode[data-theme="phosphor"] #crt-overlay::before {
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 3px,
+    rgba(255, 255, 255, 0.06) 3px,
+    rgba(255, 255, 255, 0.06) 4px
+  );
+}
+
+/* Retro 8-bit (from GitStar): an 8-bit home computer on a CRT monitor — C64 blue-violet
+   panels, yellow keys, one monospace font, square corners, hard pixel shadows, a rainbow
+   stripe on top and scanlines + vignette over the window. Round widgets keep their shape. */
+html[data-theme="retro8"] {
+  color-scheme: dark;
+  background-color: #2b2266;
+  --retro8-font: "Cascadia Mono", "Cascadia Code", Consolas, "Lucida Console", "Courier New", monospace;
+  --retro8-stripes: linear-gradient(180deg, #ff7a7a 0 20%, #ffb347 20% 40%, #ffe066 40% 60%, #8ee68e 60% 80%, #7fd6ff 80% 100%);
+  --hl-comment:   #7f74cc;
+  --hl-directive: #d68cff;
+  --hl-mnem:      #ffe066;
+  --hl-number:    #ffb347;
+  --hl-string:    #8ee68e;
+  --hl-label:     #7fd6ff;
+  --hl-macro:     #ff7a7a;
+  --hl-macro-param: #70e0c0;
+  --expert-editor-bg: #211a50;
+  --ub-editor-bg: #211a50;
+  --ub-chrome-bg: rgba(53, 42, 128, 0.99);
+  --ub-side-bg: rgba(36, 28, 87, 0.99);
+  --ub-selection-bg: rgba(143, 134, 224, 0.40);
+  --cg-canvas-bg: #211a50;
+  --bg: #2b2266;
+  --bg-accent: #241c57;
+  --panel: rgba(51, 41, 122, 0.99);
+  --panel-strong: rgba(53, 42, 128, 0.99);
+  --panel-border: #6c5eb5;
+  --text: #cfcaff;
+  --muted: #9a91e0;
+  --primary: #ffe066;
+  --primary-deep: #e6c34a;
+  --secondary: #9a91e0;
+  --secondary-soft: rgba(143, 134, 224, 0.16);
+  --surface-soft: rgba(143, 134, 224, 0.08);
+  --control-bg: #241c57;
+  --active-bg: #ffe066;
+  --active-fg: #1a1440;
+  --shadow: 6px 6px 0 rgba(10, 6, 30, 0.85);
+  --input-bg: #1c1548;
+  --output-bg: #211a50;
+  --output-text: #cfcaff;
+  --monitor-text: #8ee68e;
+  --error: #ff7a7a;
+  --accent: #ffe066;
+  --asm-mnemonic: #ffe066;
+  --asm-directive: #d68cff;
+  --asm-macro: #ff7a7a;
+  --asm-comment: #7f74cc;
+  --asm-label: #7fd6ff;
+  --asm-number: #ffb347;
+  --asm-region: #8ee68e;
+  --asm-operand: #70e0c0;
+}
+html[data-theme="retro8"] body,
+html[data-theme="retro8"] button,
+html[data-theme="retro8"] input,
+html[data-theme="retro8"] select,
+html[data-theme="retro8"] textarea {
+  font-family: var(--retro8-font);
+}
+html[data-theme="retro8"] :is(button, input, select, textarea, dialog, details, summary, pre, .panel, .secondary, .primary, .ed-file-menu):not([class*="knob"]):not(.theme-option-dot) {
+  border-radius: 0 !important;
+}
+/* rainbow stripe on top, CRT scanlines + vignette over the window (click-through) */
+html[data-theme="retro8"] body::before {
+  content: "";
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 5px;
+  background: var(--retro8-stripes);
+  pointer-events: none;
+  z-index: 2147483000;
+}
+html[data-theme="retro8"] body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2147483000;
+  background:
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.13) 0 1px, transparent 1px 3px),
+    radial-gradient(ellipse at center, transparent 62%, rgba(5, 2, 20, 0.45) 100%);
+}
+.theme-option-dot[data-theme-opt="retro8"] { background: #2b2266; border-color: #ffe066; }
+html[data-theme="retro8"] .theme-toggle-glyph::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  background: var(--retro8-stripes);
+}
+/* chunky keys with a hard pixel shadow that press in */
+html[data-theme="retro8"] .primary,
+html[data-theme="retro8"] .secondary {
+  border-width: 2px;
+  box-shadow: 3px 3px 0 rgba(10, 6, 30, 0.9);
+}
+html[data-theme="retro8"] .primary:active:not(:disabled),
+html[data-theme="retro8"] .secondary:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 rgba(10, 6, 30, 0.9);
+}
+html[data-theme="retro8"] .primary {
+  background: #ffe066;
+  color: #1a1440;
+  border-color: #fff3b0;
+  font-weight: 700;
+}
+html[data-theme="retro8"] .primary:hover:not(:disabled) { background: #fff0a0; }
+html[data-theme="retro8"] ::selection { background: #8f86e0; color: #1a1440; }
+html[data-theme="retro8"] .splash-loader-bar { background: repeating-linear-gradient(90deg, #ffe066 0 8px, transparent 8px 12px); }
+@media (prefers-reduced-motion: reduce) {
+  html[data-theme="retro8"] .primary:active:not(:disabled),
+  html[data-theme="retro8"] .secondary:active:not(:disabled) { transform: none; }
+}
+html[data-theme="retro8"] #add-selected { background: var(--primary); color: var(--active-fg); border-color: var(--primary-deep); }
+html[data-theme="retro8"] #add-selected:hover { background: var(--primary-deep); }
+html[data-theme="retro8"] .asm-block:has(.bp-toggle.bp-active) {
+  background: rgba(255, 68, 68, 0.20) !important;
+  border-color: rgba(255, 122, 122, 0.6) !important;
+}
+html[data-theme="retro8"] .expert-err-line { background: color-mix(in srgb, #ff4444 20%, transparent); }
+html[data-theme="retro8"] .expert-hl mark.hl-find-match { background: color-mix(in srgb, #ffe066 30%, transparent); }
+html[data-theme="retro8"] .expert-hl mark.hl-find-current {
+  background: color-mix(in srgb, #ffe066 75%, transparent);
+  color: #1a1440;
+  outline-color: #ffe066;
+}
+html[data-theme="retro8"] .monitor-output {
+  background: #1c1548 !important;
+  border-color: #6c5eb5 !important;
+  text-shadow: 0 0 6px rgba(142, 230, 142, 0.45);
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.4);
+}
+html[data-theme="retro8"] .eyebrow { color: #ffe066; text-transform: uppercase; letter-spacing: 1px; }
+
 /* ── Zero page foglaltsági térkép (memóriatérkép panel) ───────────── */
 .zp-grid {
   display: grid;
@@ -13092,6 +13599,8 @@ dialog.dlg-active[open]:not(:modal) > :first-child > :first-child,
   background: transparent; color: var(--secondary); opacity: .5;
   cursor: nwse-resize; touch-action: none; z-index: 5;
 }
+/* the editor dialogs give every labelled button position: relative (tooltip anchor); keep the grip in its corner */
+#sid-editor-dialog button.sid-resize-grip[aria-label], dialog button.sid-resize-grip[aria-label] { position: absolute; }
 .sid-resize-grip svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 1; }
 .sid-resize-grip:hover, .sid-resize-grip:focus-visible { background: transparent; color: var(--primary); opacity: 1; }
 

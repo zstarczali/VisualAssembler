@@ -77,54 +77,54 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "sid-legato-280",
+  id: "themes-281",
   url: "https://www.c64va.pro/docs.html",
   hu: {
-    eyebrow: "Újdonság a 2.8.0-ban",
+    eyebrow: "Újdonság a 2.8.1-ben",
     title: "Üdvözöl a Visual Assembler",
-    body: `<ul><li><strong>SID szerkesztő: legato</strong>: az új <strong>L</strong> effekt a tartott gate alatt indítja a hangot, a burkoló újraindítása nélkül; a wave tábla lépései <em>gate ki</em> jelölőt kaptak.</li><li><strong>.sid import</strong>: a legato hangokból L hangok, a hangon belül elengedett gate-ből táblalépés lesz: az importált dalok közelebb szólnak az eredetihez.</li><li><strong>VA SID Core 1.3</strong>: a <code>$D418</code> digik a 8580-on halkan szólnak, mint a valódi chipen; a <em>Beállítások → SID előnézet → 8580 digi boost</em> hangossá teszi őket.</li><li><strong>Kick import az R65-ön át</strong>: a Kick import és a Kick projekt importálása az R65-tel fordít, és ugyanazokat a bájtokat adó VMA forrást ír, a Kick makrókból VMA makrókat.</li><li><strong>Projektek és eszköztárak</strong>: a többi fájl az alapértelmezett programmal nyílik vagy megmutatható a fájlkezelőben; az Expert és az UltimateBasic eszköztár azonos sorrendű és ikonú; a munkaablak a fordítás fázisait mutatja.</li></ul>`,
+    body: `<ul><li><strong>Öt új téma</strong>: <strong>Ruby</strong> (mélyvörös), <strong>Amethyst</strong> (hűvös lila), <strong>Phosphor</strong> (zöld foszforos monitor), <strong>Retro 80s</strong> (synthwave neon) és <strong>Retro 8-bit</strong> (8 bites gép CRT-n). A témaválasztóban vagy a téma gombbal léptetve.</li><li><strong>Tauri 2.12</strong>: frissült a futtatókörnyezet.</li><li><strong>Javítások</strong>: a SID szerkesztőből nyitott <em>Csatornagörbék</em> ablak ismét átméretezhető; a Hi-Res szerkesztő MIX mintalistája nem nyúlik végig az eszköztáron.</li></ul>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
-    eyebrow: "New in 2.8.0",
+    eyebrow: "New in 2.8.1",
     title: "Welcome to Visual Assembler",
-    body: `<ul><li><strong>SID Editor: legato</strong>: the new <strong>L</strong> effect starts a note under the held gate without retriggering the envelope; wave table steps have a <em>gate off</em> box.</li><li><strong>.sid import</strong>: legato notes become L notes and a gate released inside a note becomes a table step: imported tunes sound closer to the originals.</li><li><strong>VA SID Core 1.3</strong>: <code>$D418</code> digis play quietly on the 8580, as on the real chip; <em>Settings → SID preview → 8580 digi boost</em> makes them loud.</li><li><strong>Kick import through R65</strong>: Kick import and Import Kick project build with R65 and write VMA source that builds the same bytes, with Kick macros as VMA macros.</li><li><strong>Projects and toolbars</strong>: other files open with their default app or show in the file manager; the Expert and UltimateBasic toolbars share their order and icons; the work window shows the build phases.</li></ul>`,
+    body: `<ul><li><strong>Five new themes</strong>: <strong>Ruby</strong> (deep red), <strong>Amethyst</strong> (cool purple), <strong>Phosphor</strong> (a green phosphor monitor), <strong>Retro 80s</strong> (synthwave neon) and <strong>Retro 8-bit</strong> (an 8-bit computer on a CRT). Pick them in the theme picker or cycle with the theme button.</li><li><strong>Tauri 2.12</strong>: the runtime is updated.</li><li><strong>Fixes</strong>: the <em>Channel curves</em> window opened from the SID Editor resizes again; the Hi-Res editor's MIX pattern list no longer stretches across the toolbar.</li></ul>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
-    eyebrow: "Novedad en la 2.8.0",
+    eyebrow: "Novedad en la 2.8.1",
     title: "Bienvenido a Visual Assembler",
-    body: `<ul><li><strong>Editor SID: legato</strong>: el nuevo efecto <strong>L</strong> inicia una nota con el gate mantenido, sin reiniciar la envolvente; los pasos de la tabla de ondas tienen una casilla <em>gate off</em>.</li><li><strong>Importación .sid</strong>: las notas legato pasan a ser notas L y un gate soltado dentro de una nota pasa a ser un paso de tabla: las canciones importadas suenan más cerca del original.</li><li><strong>VA SID Core 1.3</strong>: los digis de <code>$D418</code> suenan bajos en el 8580, como en el chip real; <em>Ajustes → Vista previa SID → Digi boost del 8580</em> los hace audibles.</li><li><strong>Importación Kick con R65</strong>: la importación Kick y la importación de proyectos Kick compilan con R65 y escriben código VMA que genera los mismos bytes, con las macros Kick como macros VMA.</li><li><strong>Proyectos y barras de herramientas</strong>: los demás archivos se abren con su programa predeterminado o se muestran en el explorador; las barras Experto y UltimateBasic comparten orden e iconos; la ventana de trabajo muestra las fases.</li></ul>`,
+    body: `<ul><li><strong>Cinco temas nuevos</strong>: <strong>Ruby</strong> (rojo intenso), <strong>Amethyst</strong> (morado frío), <strong>Phosphor</strong> (un monitor de fósforo verde), <strong>Retro 80s</strong> (neón synthwave) y <strong>Retro 8-bit</strong> (un ordenador de 8 bits en un CRT). Elígelos en el selector de temas o recórrelos con el botón de tema.</li><li><strong>Tauri 2.12</strong>: el entorno de ejecución está actualizado.</li><li><strong>Correcciones</strong>: la ventana <em>Curvas de canal</em> abierta desde el Editor SID vuelve a cambiar de tamaño; la lista de patrones MIX del editor Hi-Res ya no ocupa toda la barra.</li></ul>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
-    eyebrow: "Neu in 2.8.0",
+    eyebrow: "Neu in 2.8.1",
     title: "Willkommen bei Visual Assembler",
-    body: `<ul><li><strong>SID-Editor: Legato</strong>: der neue Effekt <strong>L</strong> startet eine Note bei gehaltenem Gate, ohne die Hüllkurve neu auszulösen; die Schritte der Wave-Tabelle haben ein Feld <em>gate off</em>.</li><li><strong>.sid-Import</strong>: Legato-Noten werden zu L-Noten, ein innerhalb einer Note gelöstes Gate wird zu einem Tabellenschritt: importierte Stücke klingen näher am Original.</li><li><strong>VA SID Core 1.3</strong>: <code>$D418</code>-Digis klingen auf dem 8580 leise wie auf dem echten Chip; <em>Einstellungen → SID-Vorschau → 8580 Digi-Boost</em> macht sie laut.</li><li><strong>Kick-Import über R65</strong>: Kick-Import und Kick-Projekt-Import übersetzen mit R65 und schreiben VMA-Quelltext mit denselben Bytes, Kick-Makros als VMA-Makros.</li><li><strong>Projekte und Werkzeugleisten</strong>: andere Dateien öffnen mit ihrem Standardprogramm oder lassen sich im Dateimanager zeigen; Experten- und UltimateBasic-Leiste haben dieselbe Reihenfolge und Symbole; das Arbeitsfenster zeigt die Phasen.</li></ul>`,
+    body: `<ul><li><strong>Fünf neue Themes</strong>: <strong>Ruby</strong> (tiefrot), <strong>Amethyst</strong> (kühles Lila), <strong>Phosphor</strong> (ein grüner Phosphormonitor), <strong>Retro 80s</strong> (Synthwave-Neon) und <strong>Retro 8-bit</strong> (ein 8-Bit-Rechner auf einem Röhrenmonitor). Auswahl im Theme-Menü oder mit dem Theme-Knopf.</li><li><strong>Tauri 2.12</strong>: die Laufzeitumgebung ist aktualisiert.</li><li><strong>Korrekturen</strong>: das aus dem SID-Editor geöffnete Fenster <em>Kanalkurven</em> lässt sich wieder vergrößern; die MIX-Musterliste des Hi-Res-Editors zieht sich nicht mehr über die ganze Leiste.</li></ul>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
-    eyebrow: "Nieuw in 2.8.0",
+    eyebrow: "Nieuw in 2.8.1",
     title: "Welkom bij Visual Assembler",
-    body: `<ul><li><strong>SID-editor: legato</strong>: het nieuwe effect <strong>L</strong> start een noot onder de vastgehouden gate zonder de envelope opnieuw te starten; stappen van de wavetabel hebben een vakje <em>gate off</em>.</li><li><strong>.sid-import</strong>: legato-noten worden L-noten en een binnen een noot losgelaten gate wordt een tabelstap: geïmporteerde nummers klinken dichter bij het origineel.</li><li><strong>VA SID Core 1.3</strong>: <code>$D418</code>-digi's klinken op de 8580 zacht, zoals op de echte chip; <em>Instellingen → SID-voorbeeld → 8580 digi boost</em> maakt ze luid.</li><li><strong>Kick-import via R65</strong>: Kick-import en Kick-project importeren compileren met R65 en schrijven VMA-broncode die dezelfde bytes geeft, met Kick-macro's als VMA-macro's.</li><li><strong>Projecten en werkbalken</strong>: andere bestanden openen met hun standaardprogramma of tonen zich in bestandsbeheer; de Expert- en UltimateBasic-werkbalk delen volgorde en pictogrammen; het werkvenster toont de fasen.</li></ul>`,
+    body: `<ul><li><strong>Vijf nieuwe thema's</strong>: <strong>Ruby</strong> (dieprood), <strong>Amethyst</strong> (koel paars), <strong>Phosphor</strong> (een groene fosformonitor), <strong>Retro 80s</strong> (synthwave-neon) en <strong>Retro 8-bit</strong> (een 8-bit computer op een CRT). Kies ze in de themakiezer of blader ernaar met de themaknop.</li><li><strong>Tauri 2.12</strong>: de runtime is bijgewerkt.</li><li><strong>Oplossingen</strong>: het venster <em>Kanaalcurven</em> vanuit de SID-editor is weer te vergroten; de MIX-patroonlijst van de Hi-Res-editor rekt niet meer over de hele werkbalk.</li></ul>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
-    eyebrow: "Nowość w 2.8.0",
+    eyebrow: "Nowość w 2.8.1",
     title: "Witamy w Visual Assembler",
-    body: `<ul><li><strong>Edytor SID: legato</strong>: nowy efekt <strong>L</strong> uruchamia nutę przy trzymanym gate bez ponownego startu obwiedni; kroki tablicy fal mają pole <em>gate off</em>.</li><li><strong>Import .sid</strong>: nuty legato stają się nutami L, a gate zwolniony w trakcie nuty krokiem tablicy: importowane utwory brzmią bliżej oryginału.</li><li><strong>VA SID Core 1.3</strong>: digi <code>$D418</code> grają na 8580 cicho, jak na prawdziwym układzie; <em>Ustawienia → Podgląd SID → 8580 digi boost</em> czyni je głośnymi.</li><li><strong>Import Kick przez R65</strong>: import Kick i import projektu Kick kompilują R65 i zapisują kod VMA dający te same bajty, z makrami Kick jako makrami VMA.</li><li><strong>Projekty i paski narzędzi</strong>: inne pliki otwierają się w domyślnym programie lub pokazują w menedżerze plików; paski Ekspert i UltimateBasic mają tę samą kolejność i ikony; okno pracy pokazuje fazy.</li></ul>`,
+    body: `<ul><li><strong>Pięć nowych motywów</strong>: <strong>Ruby</strong> (głęboka czerwień), <strong>Amethyst</strong> (chłodny fiolet), <strong>Phosphor</strong> (zielony monitor fosforowy), <strong>Retro 80s</strong> (neon synthwave) i <strong>Retro 8-bit</strong> (8-bitowy komputer na monitorze CRT). Wybierzesz je w selektorze motywów lub przyciskiem motywu.</li><li><strong>Tauri 2.12</strong>: zaktualizowane środowisko uruchomieniowe.</li><li><strong>Poprawki</strong>: okno <em>Krzywe kanałów</em> otwarte z edytora SID znów można powiększać; lista wzorów MIX edytora Hi-Res nie rozciąga się już na cały pasek.</li></ul>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
-    eyebrow: "Novità nella 2.8.0",
+    eyebrow: "Novità nella 2.8.1",
     title: "Benvenuto in Visual Assembler",
-    body: `<ul><li><strong>Editor SID: legato</strong>: il nuovo effetto <strong>L</strong> avvia una nota con il gate tenuto, senza riavviare l'inviluppo; i passi della tabella d'onda hanno una casella <em>gate off</em>.</li><li><strong>Importazione .sid</strong>: le note legato diventano note L e un gate rilasciato dentro una nota diventa un passo di tabella: i brani importati suonano più vicini all'originale.</li><li><strong>VA SID Core 1.3</strong>: i digi di <code>$D418</code> suonano piano sull'8580, come sul chip reale; <em>Impostazioni → Anteprima SID → Digi boost 8580</em> li rende forti.</li><li><strong>Import Kick tramite R65</strong>: l'import Kick e l'import di progetti Kick compilano con R65 e scrivono sorgente VMA che produce gli stessi byte, con le macro Kick come macro VMA.</li><li><strong>Progetti e barre degli strumenti</strong>: gli altri file si aprono con il programma predefinito o si mostrano nel file manager; le barre Esperto e UltimateBasic condividono ordine e icone; la finestra di lavoro mostra le fasi.</li></ul>`,
+    body: `<ul><li><strong>Cinque nuovi temi</strong>: <strong>Ruby</strong> (rosso intenso), <strong>Amethyst</strong> (viola freddo), <strong>Phosphor</strong> (un monitor a fosfori verdi), <strong>Retro 80s</strong> (neon synthwave) e <strong>Retro 8-bit</strong> (un computer a 8 bit su un CRT). Scegli nel selettore dei temi o con il pulsante tema.</li><li><strong>Tauri 2.12</strong>: l'ambiente di esecuzione è aggiornato.</li><li><strong>Correzioni</strong>: la finestra <em>Curve dei canali</em> aperta dall'Editor SID si ridimensiona di nuovo; l'elenco dei motivi MIX dell'editor Hi-Res non occupa più tutta la barra.</li></ul>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
@@ -19488,7 +19488,7 @@ function _christmasThemeSync() {
 }
 
 function toggleTheme() {
-  const next = { light: "dark", dark: "oled", oled: "black", black: "commodore77", commodore77: "starlight", starlight: "beige", beige: "c64", c64: "light" };
+  const next = { light: "dark", dark: "oled", oled: "black", black: "commodore77", commodore77: "starlight", starlight: "beige", beige: "c64", c64: "ruby", ruby: "amethyst", amethyst: "phosphor", phosphor: "retro80", retro80: "retro8", retro8: "light" };
   setTheme(next[document.documentElement.dataset.theme] || "dark");
 }
 

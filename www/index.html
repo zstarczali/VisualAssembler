@@ -6,7 +6,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>C64 Visual Assembler</title>
-  <script>(function(){var t=localStorage.getItem('c64-block-theme')||'light',d=new Date();if(t==='christmas'&&d.getMonth()!==11){t=localStorage.getItem('c64-block-theme-before-christmas')||'light';localStorage.setItem('c64-block-theme',t);}document.documentElement.dataset.theme=t;document.documentElement.style.background={'dark':'#1a1b26','oled':'#0d0d12','black':'#000000','commodore77':'#0a0a08','starlight':'#f4f1fa','beige':'#e4ddd0','c64':'#7869c4','christmas':'#0b2a5b','light':'#e8ecf1'}[t]||'#e8ecf1';})();</script>
+  <script>(function(){var t=localStorage.getItem('c64-block-theme')||'light',d=new Date();if(t==='christmas'&&d.getMonth()!==11){t=localStorage.getItem('c64-block-theme-before-christmas')||'light';localStorage.setItem('c64-block-theme',t);}document.documentElement.dataset.theme=t;document.documentElement.style.background={'dark':'#1a1b26','oled':'#0d0d12','black':'#000000','commodore77':'#0a0a08','starlight':'#f4f1fa','beige':'#e4ddd0','c64':'#7869c4','ruby':'#1c1214','amethyst':'#17131f','phosphor':'#0b120d','retro80':'#1a1030','retro8':'#2b2266','christmas':'#0b2a5b','light':'#e8ecf1'}[t]||'#e8ecf1';})();</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -14,7 +14,7 @@
     rel="stylesheet">
   <link rel="icon" type="image/png" href="assets/icon.png">
   <link rel="shortcut icon" href="favicon.ico">
-  <link rel="stylesheet" href="style.css?v=2.8.0">
+  <link rel="stylesheet" href="style.css?v=2.8.1">
 </head>
 
 <body>
@@ -185,6 +185,26 @@
                     <button class="secondary theme-option" data-theme-opt="c64" type="button">
                       <span class="theme-option-dot" data-theme-opt="c64" aria-hidden="true"></span>
                       <span>Commodore 64</span>
+                    </button>
+                    <button class="secondary theme-option" data-theme-opt="ruby" type="button">
+                      <span class="theme-option-dot" data-theme-opt="ruby" aria-hidden="true"></span>
+                      <span>Ruby</span>
+                    </button>
+                    <button class="secondary theme-option" data-theme-opt="amethyst" type="button">
+                      <span class="theme-option-dot" data-theme-opt="amethyst" aria-hidden="true"></span>
+                      <span>Amethyst</span>
+                    </button>
+                    <button class="secondary theme-option" data-theme-opt="phosphor" type="button">
+                      <span class="theme-option-dot" data-theme-opt="phosphor" aria-hidden="true"></span>
+                      <span>Phosphor</span>
+                    </button>
+                    <button class="secondary theme-option" data-theme-opt="retro80" type="button">
+                      <span class="theme-option-dot" data-theme-opt="retro80" aria-hidden="true"></span>
+                      <span>Retro 80s</span>
+                    </button>
+                    <button class="secondary theme-option" data-theme-opt="retro8" type="button">
+                      <span class="theme-option-dot" data-theme-opt="retro8" aria-hidden="true"></span>
+                      <span>Retro 8-bit</span>
                     </button>
                     <button class="secondary theme-option" data-theme-opt="christmas" type="button" hidden>
                       <span class="theme-option-dot" data-theme-opt="christmas" aria-hidden="true"></span>
@@ -1546,7 +1566,7 @@ PRINTABLE CHARACTERS
           <img src="assets/logo-about.png" alt="C64 Visual Assembler" width="200" height="160">
         </div>
         <h2 class="about-title">C64 Visual Assembler</h2>
-        <p class="about-version" id="about-version">v2.8.0</p>
+        <p class="about-version" id="about-version">v2.8.1</p>
         <p class="about-version" id="about-ub-version"><span id="about-ub-version-label">UltimateBasic:</span> <span id="about-ub-version-value">v?</span></p>
         <p class="about-version" id="about-vma-version"><span id="about-vma-version-label">VMA:</span> <span id="about-vma-version-value">v?</span></p>
         <p class="about-version" id="about-r65-version"><span id="about-r65-version-label">R65:</span> <span id="about-r65-version-value">v?</span></p>
@@ -1584,7 +1604,19 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.8.0</p>
+      <p class="whats-new-version">v2.8.1</p>
+      <ul class="whats-new-list">
+        <li>
+          <strong>Five new themes:</strong> <strong>Ruby</strong> (deep red), <strong>Amethyst</strong> (cool purple), <strong>Phosphor</strong> (a green phosphor monitor with a soft glow), <strong>Retro 80s</strong> (synthwave: neon pink and cyan, a sunset stripe and a neon grid) and <strong>Retro 8-bit</strong> (an 8-bit computer on a CRT: yellow keys, one monospace font, square corners, scanlines). Pick them in the theme picker or cycle with the theme button.
+        </li>
+        <li>
+          <strong>Tauri 2.12:</strong> the app runs on Tauri 2.12 (wry 0.57, WebView2 bindings 0.39).
+        </li>
+        <li>
+          <strong>Fixes:</strong> the <strong>Channel curves</strong> window opened from the SID Editor resizes again with its corner grip; the Hi-Res editor's <strong>MIX</strong> pattern list no longer stretches across the toolbar.
+        </li>
+      </ul>
+      <p class="whats-new-previous">v2.8.0</p>
       <ul class="whats-new-list">
         <li>
           <strong>SID Editor legato:</strong> the new effect code <strong>L</strong> plays the note under the held gate: the instrument, its table and pulse width start again, the envelope is not retriggered. The wave / arpeggio table has a <strong>gate off</strong> box per step that releases the gate until the next note.
@@ -4355,10 +4387,10 @@ PRINTABLE CHARACTERS
     </div>
   </div>
 
-  <script src="tauri-bridge.js?v=2.8.0"></script>
-  <script src="i18n.js?v=2.8.0"></script>
-  <script src="tutorial-data.js?v=2.8.0"></script>
-  <script src="app.js?v=2.8.0"></script>
+  <script src="tauri-bridge.js?v=2.8.1"></script>
+  <script src="i18n.js?v=2.8.1"></script>
+  <script src="tutorial-data.js?v=2.8.1"></script>
+  <script src="app.js?v=2.8.1"></script>
 
 </body>
 
