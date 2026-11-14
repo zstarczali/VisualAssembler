@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.8.1**
+**Version 2.8.2**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -8,6 +8,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 
 ## Table of Contents
 
+- [Version 2.8.2 Highlights](#version-282-highlights)
 - [Version 2.8.1 Highlights](#version-281-highlights)
 - [Version 2.8.0 Highlights](#version-280-highlights)
 - [Version 2.7.9 Highlights](#version-279-highlights)
@@ -148,6 +149,14 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
   - [Curve Editor](#curve-editor)
   - [Table Generator](#table-generator)
   - [Number Converter](#number-converter)
+
+---
+
+## Version 2.8.2 Highlights
+
+- **Examples folder** — the Examples dialog opens the bundled samples folder in the file manager. See [Example programs](#example-programs).
+- **Level Editor window** — resizes with its corner grip and remembers its size. See [Level Editor](#level-editor).
+- **GameMaker sample assets** — the charset, map, tiles and Level Editor project of the full-screen IRQ demo in `samples/gamemaker`.
 
 ---
 
@@ -932,6 +941,7 @@ Texts are saved in the current UI language; a student using another language see
 - Type into the search box to filter by name or category; the footer shows how many examples match.
 - Click an example to select it, **↑ / ↓** move the selection; **double-click**, **Enter** or **Load** loads it.
 - The dialog opens on the example you loaded last.
+- **Examples folder** opens the bundled samples folder in the file manager (it sits in the install folder). Besides the examples in the list it holds their data files, e.g. `samples/gamemaker` with the charset, map, tiles and Level Editor project of the full-screen IRQ demo.
 
 ### Load .asm file (quick reference)
 
@@ -1937,6 +1947,7 @@ Arranges **Map Editor screens** into one level — a vertical shooter, a car gam
 
 | Feature | Description |
 |---|---|
+| Window | Resize it with the corner grip; the size is remembered between sessions. |
 | Layout | **Vertical**, **Horizontal** or **Grid** (rows × columns, with add / remove row and column buttons). |
 | Screens | **New empty screen**, **Add from Map Editor** (the map currently open) or **Load map(s) (.bin)…** (several Map Editor exports at once). Drag a screen from the list onto a slot; drag slots onto each other to swap them. |
 | Editing | **Edit in Map Editor** opens the selected screen in the Map Editor and brings the changes back; duplicate, move up/left or down/right, remove; undo / redo. |

@@ -77,54 +77,54 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "themes-281",
+  id: "samples-282",
   url: "https://www.c64va.pro/docs.html",
   hu: {
-    eyebrow: "Újdonság a 2.8.1-ben",
+    eyebrow: "Újdonság a 2.8.2-ben",
     title: "Üdvözöl a Visual Assembler",
-    body: `<ul><li><strong>Öt új téma</strong>: <strong>Ruby</strong> (mélyvörös), <strong>Amethyst</strong> (hűvös lila), <strong>Phosphor</strong> (zöld foszforos monitor), <strong>Retro 80s</strong> (synthwave neon) és <strong>Retro 8-bit</strong> (8 bites gép CRT-n). A témaválasztóban vagy a téma gombbal léptetve.</li><li><strong>Tauri 2.12</strong>: frissült a futtatókörnyezet.</li><li><strong>Javítások</strong>: a SID szerkesztőből nyitott <em>Csatornagörbék</em> ablak ismét átméretezhető; a Hi-Res szerkesztő MIX mintalistája nem nyúlik végig az eszköztáron.</li></ul>`,
+    body: `<ul><li><strong>Példák mappája</strong>: a Példák ablak új gombja fájlkezelőben nyitja meg a beépített mintákat (a telepítési mappában vannak, kézzel nehéz megtalálni őket).</li><li><strong>Pálya szerkesztő</strong>: a sarokfogantyúval átméretezhető, és megjegyzi a méretét; a tartalmánál kisebbre nem zsugorodik.</li><li><strong>GameMaker minta</strong>: a <code>samples/gamemaker</code> mappában a teljes képernyős IRQ demó karakterkészlete, térképe, csempéi és pálya-projektje is ott van a forrás mellett.</li><li>A 2.8.1 újdonsága: öt új téma (<strong>Ruby</strong>, <strong>Amethyst</strong>, <strong>Phosphor</strong>, <strong>Retro 80s</strong>, <strong>Retro 8-bit</strong>).</li></ul>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
-    eyebrow: "New in 2.8.1",
+    eyebrow: "New in 2.8.2",
     title: "Welcome to Visual Assembler",
-    body: `<ul><li><strong>Five new themes</strong>: <strong>Ruby</strong> (deep red), <strong>Amethyst</strong> (cool purple), <strong>Phosphor</strong> (a green phosphor monitor), <strong>Retro 80s</strong> (synthwave neon) and <strong>Retro 8-bit</strong> (an 8-bit computer on a CRT). Pick them in the theme picker or cycle with the theme button.</li><li><strong>Tauri 2.12</strong>: the runtime is updated.</li><li><strong>Fixes</strong>: the <em>Channel curves</em> window opened from the SID Editor resizes again; the Hi-Res editor's MIX pattern list no longer stretches across the toolbar.</li></ul>`,
+    body: `<ul><li><strong>Examples folder</strong>: a new button in the Examples dialog opens the bundled samples in the file manager (they sit in the install folder, which is hard to find by hand).</li><li><strong>Level Editor</strong>: resize it with its corner grip and it remembers its size; it no longer shrinks below its content.</li><li><strong>GameMaker sample</strong>: the <code>samples/gamemaker</code> folder now has the charset, map, tiles and level project of the full-screen IRQ demo next to its source.</li><li>New in 2.8.1: five new themes (<strong>Ruby</strong>, <strong>Amethyst</strong>, <strong>Phosphor</strong>, <strong>Retro 80s</strong>, <strong>Retro 8-bit</strong>).</li></ul>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
-    eyebrow: "Novedad en la 2.8.1",
+    eyebrow: "Novedad en la 2.8.2",
     title: "Bienvenido a Visual Assembler",
-    body: `<ul><li><strong>Cinco temas nuevos</strong>: <strong>Ruby</strong> (rojo intenso), <strong>Amethyst</strong> (morado frío), <strong>Phosphor</strong> (un monitor de fósforo verde), <strong>Retro 80s</strong> (neón synthwave) y <strong>Retro 8-bit</strong> (un ordenador de 8 bits en un CRT). Elígelos en el selector de temas o recórrelos con el botón de tema.</li><li><strong>Tauri 2.12</strong>: el entorno de ejecución está actualizado.</li><li><strong>Correcciones</strong>: la ventana <em>Curvas de canal</em> abierta desde el Editor SID vuelve a cambiar de tamaño; la lista de patrones MIX del editor Hi-Res ya no ocupa toda la barra.</li></ul>`,
+    body: `<ul><li><strong>Carpeta de ejemplos</strong>: un nuevo botón del diálogo Ejemplos abre los ejemplos incluidos en el explorador de archivos (están en la carpeta de instalación, difícil de encontrar a mano).</li><li><strong>Editor de niveles</strong>: se redimensiona con la esquina y recuerda su tamaño; ya no se encoge por debajo de su contenido.</li><li><strong>Ejemplo GameMaker</strong>: la carpeta <code>samples/gamemaker</code> incluye ahora el juego de caracteres, el mapa, los tiles y el proyecto de nivel de la demo IRQ a pantalla completa junto a su código.</li><li>Novedad de la 2.8.1: cinco temas nuevos (<strong>Ruby</strong>, <strong>Amethyst</strong>, <strong>Phosphor</strong>, <strong>Retro 80s</strong>, <strong>Retro 8-bit</strong>).</li></ul>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
-    eyebrow: "Neu in 2.8.1",
+    eyebrow: "Neu in 2.8.2",
     title: "Willkommen bei Visual Assembler",
-    body: `<ul><li><strong>Fünf neue Themes</strong>: <strong>Ruby</strong> (tiefrot), <strong>Amethyst</strong> (kühles Lila), <strong>Phosphor</strong> (ein grüner Phosphormonitor), <strong>Retro 80s</strong> (Synthwave-Neon) und <strong>Retro 8-bit</strong> (ein 8-Bit-Rechner auf einem Röhrenmonitor). Auswahl im Theme-Menü oder mit dem Theme-Knopf.</li><li><strong>Tauri 2.12</strong>: die Laufzeitumgebung ist aktualisiert.</li><li><strong>Korrekturen</strong>: das aus dem SID-Editor geöffnete Fenster <em>Kanalkurven</em> lässt sich wieder vergrößern; die MIX-Musterliste des Hi-Res-Editors zieht sich nicht mehr über die ganze Leiste.</li></ul>`,
+    body: `<ul><li><strong>Beispielordner</strong>: ein neuer Knopf im Beispiele-Dialog öffnet die mitgelieferten Beispiele im Dateimanager (sie liegen im Installationsordner, der von Hand schwer zu finden ist).</li><li><strong>Level-Editor</strong>: lässt sich mit dem Eckgriff in der Größe ändern und merkt sich die Größe; er schrumpft nicht mehr unter seinen Inhalt.</li><li><strong>GameMaker-Beispiel</strong>: der Ordner <code>samples/gamemaker</code> enthält jetzt Zeichensatz, Karte, Tiles und Level-Projekt der Vollbild-IRQ-Demo neben ihrem Quelltext.</li><li>Neu in 2.8.1: fünf neue Themes (<strong>Ruby</strong>, <strong>Amethyst</strong>, <strong>Phosphor</strong>, <strong>Retro 80s</strong>, <strong>Retro 8-bit</strong>).</li></ul>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
-    eyebrow: "Nieuw in 2.8.1",
+    eyebrow: "Nieuw in 2.8.2",
     title: "Welkom bij Visual Assembler",
-    body: `<ul><li><strong>Vijf nieuwe thema's</strong>: <strong>Ruby</strong> (dieprood), <strong>Amethyst</strong> (koel paars), <strong>Phosphor</strong> (een groene fosformonitor), <strong>Retro 80s</strong> (synthwave-neon) en <strong>Retro 8-bit</strong> (een 8-bit computer op een CRT). Kies ze in de themakiezer of blader ernaar met de themaknop.</li><li><strong>Tauri 2.12</strong>: de runtime is bijgewerkt.</li><li><strong>Oplossingen</strong>: het venster <em>Kanaalcurven</em> vanuit de SID-editor is weer te vergroten; de MIX-patroonlijst van de Hi-Res-editor rekt niet meer over de hele werkbalk.</li></ul>`,
+    body: `<ul><li><strong>Map met voorbeelden</strong>: een nieuwe knop in het venster Voorbeelden opent de meegeleverde voorbeelden in de bestandsbeheerder (ze staan in de installatiemap, die met de hand lastig te vinden is).</li><li><strong>Level-editor</strong>: vergroot of verklein hem met de hoekgreep en hij onthoudt zijn grootte; hij wordt niet meer kleiner dan zijn inhoud.</li><li><strong>GameMaker-voorbeeld</strong>: de map <code>samples/gamemaker</code> bevat nu de tekenset, kaart, tiles en het levelproject van de schermvullende IRQ-demo naast de broncode.</li><li>Nieuw in 2.8.1: vijf nieuwe thema's (<strong>Ruby</strong>, <strong>Amethyst</strong>, <strong>Phosphor</strong>, <strong>Retro 80s</strong>, <strong>Retro 8-bit</strong>).</li></ul>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
-    eyebrow: "Nowość w 2.8.1",
+    eyebrow: "Nowość w 2.8.2",
     title: "Witamy w Visual Assembler",
-    body: `<ul><li><strong>Pięć nowych motywów</strong>: <strong>Ruby</strong> (głęboka czerwień), <strong>Amethyst</strong> (chłodny fiolet), <strong>Phosphor</strong> (zielony monitor fosforowy), <strong>Retro 80s</strong> (neon synthwave) i <strong>Retro 8-bit</strong> (8-bitowy komputer na monitorze CRT). Wybierzesz je w selektorze motywów lub przyciskiem motywu.</li><li><strong>Tauri 2.12</strong>: zaktualizowane środowisko uruchomieniowe.</li><li><strong>Poprawki</strong>: okno <em>Krzywe kanałów</em> otwarte z edytora SID znów można powiększać; lista wzorów MIX edytora Hi-Res nie rozciąga się już na cały pasek.</li></ul>`,
+    body: `<ul><li><strong>Folder przykładów</strong>: nowy przycisk w oknie Przykłady otwiera dołączone przykłady w menedżerze plików (leżą w folderze instalacji, trudnym do znalezienia ręcznie).</li><li><strong>Edytor poziomów</strong>: zmienisz jego rozmiar uchwytem w rogu, a on go zapamięta; nie kurczy się już poniżej swojej zawartości.</li><li><strong>Przykład GameMaker</strong>: folder <code>samples/gamemaker</code> zawiera teraz zestaw znaków, mapę, kafelki i projekt poziomu pełnoekranowego dema IRQ obok jego kodu.</li><li>Nowość w 2.8.1: pięć nowych motywów (<strong>Ruby</strong>, <strong>Amethyst</strong>, <strong>Phosphor</strong>, <strong>Retro 80s</strong>, <strong>Retro 8-bit</strong>).</li></ul>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
-    eyebrow: "Novità nella 2.8.1",
+    eyebrow: "Novità nella 2.8.2",
     title: "Benvenuto in Visual Assembler",
-    body: `<ul><li><strong>Cinque nuovi temi</strong>: <strong>Ruby</strong> (rosso intenso), <strong>Amethyst</strong> (viola freddo), <strong>Phosphor</strong> (un monitor a fosfori verdi), <strong>Retro 80s</strong> (neon synthwave) e <strong>Retro 8-bit</strong> (un computer a 8 bit su un CRT). Scegli nel selettore dei temi o con il pulsante tema.</li><li><strong>Tauri 2.12</strong>: l'ambiente di esecuzione è aggiornato.</li><li><strong>Correzioni</strong>: la finestra <em>Curve dei canali</em> aperta dall'Editor SID si ridimensiona di nuovo; l'elenco dei motivi MIX dell'editor Hi-Res non occupa più tutta la barra.</li></ul>`,
+    body: `<ul><li><strong>Cartella degli esempi</strong>: un nuovo pulsante nella finestra Esempi apre gli esempi inclusi nel file manager (si trovano nella cartella di installazione, difficile da trovare a mano).</li><li><strong>Editor dei livelli</strong>: si ridimensiona con la maniglia nell'angolo e ricorda la dimensione; non si restringe più sotto il suo contenuto.</li><li><strong>Esempio GameMaker</strong>: la cartella <code>samples/gamemaker</code> contiene ora il set di caratteri, la mappa, i tile e il progetto di livello della demo IRQ a schermo intero accanto al sorgente.</li><li>Novità della 2.8.1: cinque nuovi temi (<strong>Ruby</strong>, <strong>Amethyst</strong>, <strong>Phosphor</strong>, <strong>Retro 80s</strong>, <strong>Retro 8-bit</strong>).</li></ul>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
