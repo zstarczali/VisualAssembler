@@ -39,10 +39,11 @@ function buildCorpus() {
 }
 
 // The debugger files name the source (`--source-path`) and the files it includes: machine
-// independent with the repository as "<repo>".
+// independent with the repository as "<repo>" and "/" in the path after it (Windows writes "\").
 function stableText(text) {
   const forward = repo.split(path.sep).join("/");
-  return text.split(repo).join("<repo>").split(forward).join("<repo>").replace(/\r\n/g, "\n");
+  return text.split(repo).join("<repo>").split(forward).join("<repo>")
+    .replace(/<repo>[^\r\n,"<>]*/g, p => p.replace(/\\/g, "/")).replace(/\r\n/g, "\n");
 }
 
 // One case through the CLI: { ok, error, bytes, size, sha256, debug: { sym, vs, dbg } (sha256) }.
