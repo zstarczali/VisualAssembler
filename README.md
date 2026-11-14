@@ -1,3 +1,31 @@
+<p align="center">
+  <img src="assets/readme-logo.png" alt="C64 Visual Assembler" width="200">
+</p>
+
+<p align="center">
+  <a href="https://www.c64va.pro"><img src="https://img.shields.io/badge/website-c64va.pro-e05d44?style=flat" alt="Website"></a>
+  <a href="https://github.com/zstarczali/VisualAssembler/releases/latest"><img src="https://img.shields.io/badge/version-v2.8.1-4c1" alt="Version"></a>
+  <a href="https://github.com/zstarczali/VisualAssembler/actions/workflows/build.yml"><img src="https://img.shields.io/github/actions/workflow/status/zstarczali/VisualAssembler/build.yml?branch=main&label=build" alt="Build"></a>
+  <a href="https://github.com/zstarczali/VisualAssembler/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-GPLv3-blue" alt="License: GPLv3"></a>
+  <a href="https://www.c64va.pro/register/donate.php"><img src="https://img.shields.io/badge/donate-PayPal-00457C?logo=paypal&logoColor=white" alt="Donate"></a>
+</p>
+<p align="center">
+  <a href="https://tauri.app/"><img src="https://img.shields.io/badge/Tauri-2.12-24C8DB?logo=tauri&logoColor=white" alt="Tauri 2"></a>
+  <a href="https://www.rust-lang.org/"><img src="https://img.shields.io/badge/Rust-backend-B7410E?logo=rust&logoColor=white" alt="Rust"></a>
+  <a href="https://en.wikipedia.org/wiki/Commodore_64"><img src="https://img.shields.io/badge/target-C64%20%2F%206502-6c5eb5?logo=commodore&logoColor=white" alt="Target: C64 / 6502"></a>
+  <a href="https://www.c64va.pro/downloads/VA/"><img src="https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-555" alt="Platforms"></a>
+  <a href="https://github.com/zstarczali/VisualAssembler/commits/main"><img src="https://img.shields.io/github/last-commit/zstarczali/VisualAssembler/main" alt="Last commit"></a>
+  <a href="https://github.com/zstarczali/VisualAssembler/graphs/commit-activity"><img src="https://img.shields.io/github/commit-activity/m/zstarczali/VisualAssembler" alt="Commit activity"></a>
+  <a href="https://github.com/zstarczali/VisualAssembler/issues"><img src="https://img.shields.io/github/issues/zstarczali/VisualAssembler" alt="Issues"></a>
+  <a href="https://github.com/zstarczali/VisualAssembler/stargazers"><img src="https://img.shields.io/github/stars/zstarczali/VisualAssembler?style=flat" alt="Stars"></a>
+</p>
+<p align="center">
+  <a href="https://www.c64va.pro/docs.html?doc"><img src="https://img.shields.io/badge/manual-English%20%7C%20Magyar-ddd" alt="Manual"></a>
+  <a href="https://github.com/zstarczali/VMA"><img src="https://img.shields.io/badge/compiler-VMA-8a2be2" alt="VMA"></a>
+  <a href="https://github.com/zstarczali/UltimateBasic"><img src="https://img.shields.io/badge/sibling-Ultimate%20Basic-8a2be2" alt="Ultimate Basic"></a>
+  <a href="https://github.com/zstarczali/R65"><img src="https://img.shields.io/badge/sibling-R65-8a2be2" alt="R65"></a>
+</p>
+
 # C64 Visual Assembler
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
@@ -415,12 +443,6 @@ Visual Assembler is free and open source (GPLv3): every feature — editors, bui
 
 ---
 
-
-<img title="a title" alt="Alt text" src="/assets/logo.png" width="400">
-
-> *Drag blocks from the left panel, arrange them in the center, and see live ASM output on the right.*
-
----
 
 ## Features
 
