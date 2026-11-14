@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**Verzió: 2.8.1**
+**Verzió: 2.8.2**
 
 Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasításblokkok fogd-és-vidd módszerrel történő elrendezésével építed fel, a generált assembly és gépi kód pedig valós időben frissül.
 
@@ -10,6 +10,7 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 
 ## Tartalomjegyzék
 
+- [A 2.8.2 verzió újdonságai](#a-282-verzió-újdonságai)
 - [A 2.8.1 verzió újdonságai](#a-281-verzió-újdonságai)
 - [A 2.8.0 verzió újdonságai](#a-280-verzió-újdonságai)
 - [A 2.7.9 verzió újdonságai](#a-279-verzió-újdonságai)
@@ -150,6 +151,14 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
   - [Curve Editor](#curve-editor)
   - [Táblagenerátor](#táblagenerátor)
   - [Számrendszer-átváltó](#számrendszer-átváltó)
+
+---
+
+## A 2.8.2 verzió újdonságai
+
+- **Példák mappája** — a Példák ablak fájlkezelőben nyitja meg a beépített minták mappáját. Lásd: [Példaprogramok](#példaprogramok).
+- **Pálya szerkesztő ablak** — a sarokfogantyúval átméretezhető, és megjegyzi a méretét. Lásd: [Pálya szerkesztő](#pálya-szerkesztő-level-editor).
+- **GameMaker minta-fájlok** — a teljes képernyős IRQ demó karakterkészlete, térképe, csempéi és pálya-projektje a `samples/gamemaker` mappában.
 
 ---
 
@@ -926,6 +935,7 @@ A **Menu → Példák…** megnyitja a példaböngészőt: a beépített példap
 - A keresőmezőbe gépelve név vagy kategória szerint szűrhetsz; alul látszik a találatok száma.
 - Kattintás kijelöl, a **↑ / ↓** lépteti a kijelölést; **dupla kattintás**, **Enter** vagy a **Betöltés** gomb betölti a példát.
 - A dialógus a legutóbb betöltött példán nyílik meg.
+- A **Példák mappája** gomb fájlkezelőben nyitja meg a beépített minták mappáját (a telepítési mappában van). A listában szereplő példák mellett ott vannak az adatfájljaik is, pl. a `samples/gamemaker` a teljes képernyős IRQ demó karakterkészletével, térképével, csempéivel és pálya-projektjével.
 
 ### .asm fájl betöltése (gyorsreferencia)
 
@@ -1923,6 +1933,7 @@ Réteges tilemap szerkesztő statikus díszlethez, sprite spawn map-ekhez, ütk�
 
 | Funkció | Leírás |
 |---|---|
+| Ablak | A sarokfogantyúval átméretezhető; a méretet a következő indításkor is megjegyzi. |
 | Elrendezés | **Függőleges**, **Vízszintes** vagy **Rács** (sorok × oszlopok, sor/oszlop hozzáadása és törlése gombokkal). |
 | Képernyők | **Új üres képernyő**, **Hozzáadás a Map Editorból** (az éppen nyitott map) vagy **Map(ok) betöltése (.bin)…** (több Map Editor export egyszerre). Húzz egy képernyőt a listából egy helyre; a helyeket egymásra húzva felcserélheted. |
 | Szerkesztés | A **Szerkesztés a Map Editorban** megnyitja a kijelölt képernyőt a Map Editorban, és visszahozza a változásokat; duplikálás, mozgatás fel/balra vagy le/jobbra, eltávolítás; visszavonás / újra. |

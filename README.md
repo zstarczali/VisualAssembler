@@ -4,7 +4,7 @@
 
 <p align="center">
   <a href="https://www.c64va.pro"><img src="https://img.shields.io/badge/website-c64va.pro-e05d44?style=flat" alt="Website"></a>
-  <a href="https://github.com/zstarczali/VisualAssembler/releases/latest"><img src="https://img.shields.io/badge/version-v2.8.1-4c1" alt="Version"></a>
+  <a href="https://github.com/zstarczali/VisualAssembler/releases/latest"><img src="https://img.shields.io/badge/version-v2.8.2-4c1" alt="Version"></a>
   <a href="https://github.com/zstarczali/VisualAssembler/actions/workflows/build.yml"><img src="https://img.shields.io/github/actions/workflow/status/zstarczali/VisualAssembler/build.yml?branch=main&label=build" alt="Build"></a>
   <a href="https://github.com/zstarczali/VisualAssembler/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-GPLv3-blue" alt="License: GPLv3"></a>
   <a href="https://www.c64va.pro/register/donate.php"><img src="https://img.shields.io/badge/donate-PayPal-00457C?logo=paypal&logoColor=white" alt="Donate"></a>
@@ -30,9 +30,15 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.8.1**
+**Current version: v2.8.2**
 
 Visual Assembler is free and open source (GPLv3): every feature — editors, builds, hardware runs, languages and themes — works without a registration or serial. At most once a day the app sends an anonymous startup ping (version, OS, UI language, launch count, a random install ID) for the usage statistics; no email, project or source code is sent.
+
+## What's New in v2.8.2
+
+- **Examples folder** — the Examples dialog has an **Examples folder** button that opens the bundled samples in the file manager (they sit in the install folder, which is hard to find by hand).
+- **Level Editor** — the window resizes with its corner grip and remembers its size between sessions; it no longer shrinks below the size its content needs.
+- **GameMaker sample assets** — `samples/gamemaker` now holds the charset, map, tiles and Level Editor project of the full-screen IRQ demo next to its source, ready to open in the Char, Map and Level editors.
 
 ## What's New in v2.8.1
 

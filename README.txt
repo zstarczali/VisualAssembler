@@ -1,5 +1,7 @@
 C64 Visual Assembler - Installation Guide
-Version 2.8.1
+Version 2.8.2
+
+2.8.2: an Examples folder button in the Examples dialog opens the bundled samples in the file manager; the Level Editor resizes with its corner grip and remembers its size; the GameMaker full-screen IRQ sample comes with its charset, map, tiles and Level Editor project
 
 2.8.1: five new themes (Ruby, Amethyst, Phosphor, Retro 80s, Retro 8-bit); Tauri 2.12 runtime; the Channel curves window resizes inside the SID Editor again; the Hi-Res MIX pattern list no longer stretches across the toolbar
 
