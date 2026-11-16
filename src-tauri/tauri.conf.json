@@ -29,6 +29,7 @@
   },
   "bundle": {
     "active": true,
+    "license": "MIT",
     "targets": "all",
     "linux": {
       "appimage": { "bundleMediaFramework": true },

@@ -302,7 +302,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 ## Version 2.6.7 Highlights
 
 - **Rust VMA compiler** — **Settings → General → Program → VMA compiler** chooses the engine: **JavaScript** (the default), **Rust**, or **Rust + JavaScript check**, which builds with both and logs any difference. The Rust compiler gives the same bytes, memory view, segments and translated error messages; Kick projects build through it too, with errors at `file:line`. See [VMA compiler](#vma-compiler).
-- **VMA is open source** — the Visual Macro Assembler compiler lives in its own GPLv3 repository, [github.com/zstarczali/VMA](https://github.com/zstarczali/VMA) (version 2.0.0), with an English and a Hungarian language manual and a command-line compiler. The About box shows the VMA version and banner next to Ultimate Basic.
+- **VMA is open source** — the Visual Macro Assembler compiler lives in its own MIT-licensed repository, [github.com/zstarczali/VMA](https://github.com/zstarczali/VMA) (version 2.0.0), with an English and a Hungarian language manual and a command-line compiler. The About box shows the VMA version and banner next to Ultimate Basic.
 - **Project symbols and constants** — **Project settings** sets VMA symbols (`.define`, for `.if` / `.ifdef`) and constants (`.const`) for the whole project, saved in the `.proj`; error lines stay correct. See [Project panel & tabs](#project-panel--tabs).
 - **Compiling dialog** — a step line under the progress bar names the engine, the file and the PRG size.
 - **Build info** — shows the file it describes; an ACME source gets its own view from the real ACME build (origin, end, size, segments, labels). It no longer closes on an outside click.
@@ -843,7 +843,7 @@ If there are unsaved tabs, the app asks before closing. The same check runs quie
 
 ### Free and open source
 
-Visual Assembler is free: every feature — the visual editors (SID, Sprite, Char, Charset, Hi-Res, Map, Level, D64, Curve), the SID Player, **Build PRG**, **Build D64**, **Build CRT**, **Build project**, Exomizer packing, running on the C64 Ultimate and on the Kung Fu Flash 2, and every UI language and theme — works without a registration or a serial. The source code is available under the GNU General Public License v3.0 (see **Menu → About**). Up to version 2.5.9 the app had a Freemium / Professional split; since 2.6.0 a serial entered there is simply no longer needed.
+Visual Assembler is free: every feature — the visual editors (SID, Sprite, Char, Charset, Hi-Res, Map, Level, D64, Curve), the SID Player, **Build PRG**, **Build D64**, **Build CRT**, **Build project**, Exomizer packing, running on the C64 Ultimate and on the Kung Fu Flash 2, and every UI language and theme — works without a registration or a serial. Original project code is available under the MIT License (see **Menu → About** and [LICENSE](LICENSE)). VICE/reSID-derived code retains its GPL terms; distributing the combined application also requires GPL compliance (see [third-party licenses](THIRD_PARTY_NOTICES.md)). Up to version 2.5.9 the app had a Freemium / Professional split; since 2.6.0 a serial entered there is simply no longer needed.
 
 If you like the program, you can support its development with a donation: **Menu → Donation** (under View) opens the donation page on c64va.pro, where you can give any amount through PayPal.
 

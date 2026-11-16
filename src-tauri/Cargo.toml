@@ -2,6 +2,7 @@
 name = "c64-visual-assembler"
 version = "2.8.2"
 edition = "2021"
+license = "MIT"
 
 [lib]
 name = "c64_visual_assembler_lib"

@@ -304,7 +304,7 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 ## A 2.6.7 verzió újdonságai
 
 - **Rust VMA fordító** — a **Beállítások → Általános → Program → VMA fordító** választja a motort: **JavaScript** (alapértelmezett), **Rust**, vagy **Rust + JavaScript ellenőrzés**, amely mindkettővel fordít, és naplózza az eltérést. A Rust fordító ugyanazokat a bájtokat, memórianézetet, szegmenseket és lefordított hibaüzeneteket adja; a Kick projektek is rajta át fordulnak, a hibák `fájl:sor` alakban. Lásd: [VMA fordító](#vma-fordító).
-- **A VMA nyílt forráskódú** — a Visual Macro Assembler fordító saját GPLv3 tárolóban van: [github.com/zstarczali/VMA](https://github.com/zstarczali/VMA) (2.0.0), angol és magyar nyelvi kézikönyvvel és parancssori fordítóval. Az About ablak az Ultimate Basic mellett a VMA verzióját és logóját is mutatja.
+- **A VMA nyílt forráskódú** — a Visual Macro Assembler fordító saját MIT-licencű tárolóban van: [github.com/zstarczali/VMA](https://github.com/zstarczali/VMA) (2.0.0), angol és magyar nyelvi kézikönyvvel és parancssori fordítóval. Az About ablak az Ultimate Basic mellett a VMA verzióját és logóját is mutatja.
 - **Projekt szimbólumok és konstansok** — a **Projekt beállítások** a teljes projektre ad VMA szimbólumokat (`.define`, az `.if` / `.ifdef`-hez) és konstansokat (`.const`), a `.proj`-ba mentve; a hibák sorszáma helyes marad. Lásd: [Projekt panel és fülek](#projekt-panel-és-fülek).
 - **Fordítás ablak** — a folyamatjelző alatti sor kiírja a motort, a fájlt és a PRG méretét.
 - **Build info** — kiírja, melyik fájlról szól; ACME forrásnál a valódi ACME fordításból készül (kezdőcím, vég, méret, szegmensek, címkék). Mellékattintásra már nem zárul be.
@@ -837,7 +837,7 @@ Ha vannak mentetlen fülek, az app bezárás előtt rákérdez. Ugyanez az ellen
 
 ### Ingyenes és nyílt forrású
 
-A Visual Assembler ingyenes: minden funkció — a vizuális szerkesztők (SID, Sprite, Char, Charset, Hi-Res, Map, Level, D64, Curve), a SID Player, a **Build PRG**, **Build D64**, **Build CRT**, **Build project**, az Exomizer tömörítés, a futtatás C64 Ultimate-en és Kung Fu Flash 2-n, valamint minden felületi nyelv és téma — regisztráció és sorozatszám nélkül működik. A forráskód a GNU General Public License v3.0 alatt érhető el (lásd **Menu → About**). A 2.5.9-es verzióig az alkalmazás Freemium / Professional változatra oszlott; a 2.6.0 óta az ott megadott sorozatszámra már nincs szükség.
+A Visual Assembler ingyenes: minden funkció — a vizuális szerkesztők (SID, Sprite, Char, Charset, Hi-Res, Map, Level, D64, Curve), a SID Player, a **Build PRG**, **Build D64**, **Build CRT**, **Build project**, az Exomizer tömörítés, a futtatás C64 Ultimate-en és Kung Fu Flash 2-n, valamint minden felületi nyelv és téma — regisztráció és sorozatszám nélkül működik. A saját projektkód MIT-licenc alatt érhető el (lásd **Menu → About**, [LICENSE](LICENSE)). A VICE/reSID eredetű kód GPL-feltételei megmaradnak; a teljes alkalmazás terjesztésekor ezeket is be kell tartani (lásd [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)). A 2.5.9-es verzióig az alkalmazás Freemium / Professional változatra oszlott; a 2.6.0 óta az ott megadott sorozatszámra már nincs szükség.
 
 Ha tetszik a program, a fejlesztését adománnyal támogathatod: a **Menu → Adományozás** (a Nézet alatt) megnyitja a c64va.pro adományoldalát, ahol PayPallal tetszőleges összeget adhatsz.
 
