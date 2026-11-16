@@ -44765,14 +44765,15 @@ function setupSidPlayer() {
     document.getElementById("websid-hvsc-search")?.focus();
   });
   on("websid-hvsc-search", "keydown", function(e) {
-    if (e.key === "Enter" && _hvscResults.length) { e.preventDefault(); _hvscAddEntry(_hvscResults[0], true); }
+    if (e.key === "Enter" && _hvscResults.length) { e.preventDefault(); _sidSearchPlayEntry("hvsc", _hvscResults[0]); }
   });
   document.getElementById("websid-hvsc-list")?.addEventListener("click", function(e) {
     const li = e.target.closest(".websid-hvsc-item");
     const entry = li && _hvscResults[Number(li.dataset.index)];
     if (!entry) return;
     if (e.target.closest(".websid-hvsc-item-save")) _hvscSaveEntry(entry);
-    else _hvscAddEntry(entry, !e.target.closest(".websid-hvsc-item-add"));
+    else if (e.target.closest(".websid-hvsc-item-add")) _hvscAddEntry(entry, false);
+    else _sidSearchPlayEntry("hvsc", entry);
   });
   _sidKnobBind(document.getElementById("websid-play-vol"),
     function() { return Math.round(_sidMasterVol * 100); },
@@ -50844,7 +50845,8 @@ function _sidExtPlay() {
     _sidExtSetStatus("playing");
     return;
   }
-  if (_sidPlaylist.length) _sidPlayerPlayIndex(Math.max(0, _sidPlaylistIndex));
+  if (_sidSearchPlay) _sidSearchRestart();
+  else if (_sidPlaylist.length) _sidPlayerPlayIndex(Math.max(0, _sidPlaylistIndex));
   else if (_sidExtFile) _sidExtStartFile(_sidExtFile.bytes, _sidExtFile.name, _sidExtFile.song);
 }
 function _sidExtPause() {
@@ -50922,6 +50924,22 @@ function _sidPlayerEngineLabel() {
 const _SID_TUNE_LENGTH_MS = 180000;
 let _sidPlaylist = [];
 let _sidPlaylistIndex = -1;
+
+// A tune played from the HVSC / Modland results is not added to the playlist:
+// { source: "hvsc" | "modland", path, item }. Next, previous and the end of the
+// tune step through those results in order; playing a playlist entry ends it.
+// (var: a render may run before these lines)
+var _sidSearchPlay = null;
+
+// the result being downloaded to play ({ source, path }) and the newest such request
+var _sidSearchLoading = null;
+
+var _sidSearchSeq = 0;
+
+// The entry that plays (or Play would start): a search result or the playlist's current one.
+function _sidPlayerCurrent() {
+  return _sidSearchPlay ? _sidSearchPlay.item : _sidPlaylist[_sidPlaylistIndex];
+}
 // shuffle: the ids played in this round (in order), so Next never repeats a tune
 // until every entry has played and Previous steps back along the random order
 let _sidShuffle = false;
@@ -50986,6 +51004,12 @@ async function _sidPlayerAddFiles(fileList, playFirst) {
 function _sidPlayerPlayIndex(index) {
   const item = _sidPlaylist[index];
   if (!item) return;
+  if (_sidSearchPlay || _sidSearchLoading) {
+    _sidSearchPlay = null;
+    _sidSearchLoading = null;
+    _sidSearchSeq++;
+    _sidSearchRender();
+  }
   _sidPlaylistIndex = index;
   if (_sidShuffle && _sidShuffleHistory[_sidShuffleHistory.length - 1] !== item.id) _sidShuffleHistory.push(item.id);
   _sidPlayerRenderList();
@@ -50993,6 +51017,8 @@ function _sidPlayerPlayIndex(index) {
   _sidExtStartFile(item.bytes, item.name, item.song);
 }
 function _sidPlayerPrev() {
+  // like a CD player: back to the start first, a second press steps back
+  if (_sidSearchPlay) { _sidSearchStep(_sidExtElapsedMs() > 3000 ? 0 : -1); return; }
   if (!_sidPlaylist.length) return;
   if (_sidShuffle && _sidExtElapsedMs() <= 3000 && _sidShuffleHistory.length > 1) {
     _sidShuffleHistory.pop();
@@ -51008,16 +51034,18 @@ function _sidValidSong(song, info) {
 }
 // Steps the current entry's subtune; a running tune restarts on the new one.
 function _sidPlayerSong(delta) {
-  const item = _sidPlaylist[_sidPlaylistIndex];
+  const item = _sidPlayerCurrent();
   if (!item || item.info.songs < 2) return;
   const song = Math.max(1, Math.min(item.info.songs, item.song + delta));
   if (song === item.song) return;
   item.song = song;
   _sidPlayerPersist();
   if (_sidExtStatus === "stopped") _sidPlayerRenderList();
+  else if (_sidSearchPlay) _sidSearchRestart();
   else _sidPlayerPlayIndex(_sidPlaylistIndex);
 }
 function _sidPlayerNext() {
+  if (_sidSearchPlay) { _sidSearchStep(1); return; }
   if (_sidShuffle) {
     if (_sidPlaylist.length < 2) return;
     const current = _sidPlaylist[_sidPlaylistIndex]?.id;
@@ -51031,6 +51059,72 @@ function _sidPlayerNext() {
     return;
   }
   if (_sidPlaylistIndex < _sidPlaylist.length - 1) _sidPlayerPlayIndex(_sidPlaylistIndex + 1);
+}
+
+function _sidSearchResults() {
+  return _hvscResults;
+}
+
+function _sidSearchRender() {
+  _hvscRender();
+}
+
+function _sidSearchRestart() {
+  const item = _sidSearchPlay?.item;
+  if (item) _sidExtStartFile(item.bytes, item.name, item.song);
+}
+
+// The result after the one that plays (the first one when a new search replaced the results), or null.
+function _sidSearchNextEntry() {
+  const s = _sidSearchPlay;
+  if (!s) return null;
+  const list = _sidSearchResults(s.source);
+  return list[list.findIndex(function(e) { return e.p === s.path; }) + 1] || null;
+}
+
+// Plays an HVSC / Modland result without adding it to the playlist; a second
+// click while it downloads does nothing, a newer click wins.
+async function _sidSearchPlayEntry(source, entry) {
+  if (_sidSearchLoading?.path === entry.p) return false;
+  const seq = ++_sidSearchSeq;
+  _sidSearchLoading = { source, path: entry.p };
+  _sidSearchRender();
+  let bytes = null;
+  try { bytes = await _hvscFetchBytes(entry); }
+  finally {
+    if (seq === _sidSearchSeq) { _sidSearchLoading = null; _sidSearchRender(); }
+  }
+  if (!bytes || seq !== _sidSearchSeq) return false;
+  const e = { name: _hvscFileName(entry), bytes, lengths: entry.l, hvsc: entry.p };
+  const info = _sidPsidInfo(e.bytes);
+  if (!info) { showViceToast(tf("sidPlayerNotSid", { name: e.name }), true); return false; }
+  _sidSearchPlay = { source, path: entry.p, item: _sidPlayerItem(e, info) };
+  _sidPlayerShow();
+  _sidPlayerRenderList();
+  _sidSearchRender();
+  _sidSearchRestart();
+  return true;
+}
+
+// Steps through the results: 1 next, -1 previous, 0 the same tune again. A result
+// that does not load is skipped (three at most, so a lost connection does not run through the list).
+async function _sidSearchStep(delta) {
+  const s = _sidSearchPlay;
+  if (!s) return;
+  const list = _sidSearchResults(s.source);
+  let at = list.findIndex(function(e) { return e.p === s.path; });
+  for (let tries = 0; tries < 3; tries++) {
+    at += delta;
+    if (!delta || at < 0 || at >= list.length) {
+      // before the first result: it starts again; after the last one it plays on
+      if (delta <= 0) _sidSearchRestart();
+      return;
+    }
+    const before = _sidSearchSeq;
+    if (await _sidSearchPlayEntry(s.source, list[at])) return;
+    // something else was started meanwhile
+    if (_sidSearchSeq !== before + 1 || _sidSearchPlay !== s) return;
+  }
 }
 function _sidPlayerSetShuffle(on) {
   _sidShuffle = !!on;
@@ -51057,8 +51151,10 @@ function _sidPlayerRemove(id) {
   if (index < 0) return;
   _sidPlaylist.splice(index, 1);
   if (index === _sidPlaylistIndex) {
-    _sidExtStop();
-    _sidExtFile = null;
+    if (!_sidSearchPlay) {
+      _sidExtStop();
+      _sidExtFile = null;
+    }
     _sidPlaylistIndex = Math.min(index, _sidPlaylist.length - 1);
   } else if (index < _sidPlaylistIndex) {
     _sidPlaylistIndex--;
@@ -51067,11 +51163,13 @@ function _sidPlayerRemove(id) {
   _sidPlayerPersist();
 }
 function _sidPlayerClear() {
-  _sidExtStop();
+  if (!_sidSearchPlay) {
+    _sidExtStop();
+    _sidExtFile = null;
+  }
   _sidPlaylist = [];
   _sidPlaylistIndex = -1;
   _sidShuffleHistory = [];
-  _sidExtFile = null;
   _sidPlaylistName = "";
   _sidPlayerRenderList();
   _sidPlayerPersist();
@@ -51136,7 +51234,7 @@ async function _sidPlayerKeepStarred() {
   if (current && starred.includes(current)) {
     _sidPlaylistIndex = starred.indexOf(current);
   } else {
-    if (current) { _sidExtStop(); _sidExtFile = null; }
+    if (current && !_sidSearchPlay) { _sidExtStop(); _sidExtFile = null; }
     _sidPlaylistIndex = Math.min(before, starred.length - 1);
   }
   _sidShuffleHistory = _sidShuffleHistory.filter(function(id) { return starred.some(function(item) { return item.id === id; }); });
@@ -51146,7 +51244,7 @@ async function _sidPlayerKeepStarred() {
 
 // The current subtune's length when HVSC knows it, otherwise 0.
 function _sidPlayerTuneMs() {
-  const item = _sidPlaylist[_sidPlaylistIndex];
+  const item = _sidPlayerCurrent();
   const ms = item?.lengths?.[item.song - 1];
   return ms > 0 ? ms : 0;
 }
@@ -51159,12 +51257,16 @@ function _sidPlayerLengthMs() {
 // itself (Next renders the list while the status is still "playing") and
 // started every remaining tune of the playlist at once.
 function _sidPlayerAutoAdvance() {
-  if (_sidExtStatus !== "playing" || _sidExtStarting || _sidExtElapsedMs() < (_sidPlayerTuneMs() || _SID_TUNE_LENGTH_MS)) return;
-  const item = _sidPlaylist[_sidPlaylistIndex];
+  // while the next search result downloads the tune plays on
+  if (_sidExtStatus !== "playing" || _sidExtStarting || _sidSearchLoading || _sidExtElapsedMs() < (_sidPlayerTuneMs() || _SID_TUNE_LENGTH_MS)) return;
+  const item = _sidPlayerCurrent();
   // The file's remaining subtunes come first, also for a single file or with shuffle.
   if (_sidPlaySubtunes && item && item.song < item.info.songs) {
     item.song++;
-    _sidPlayerPlayIndex(_sidPlaylistIndex);
+    if (_sidSearchPlay) _sidSearchRestart();
+    else _sidPlayerPlayIndex(_sidPlaylistIndex);
+  } else if (_sidSearchPlay) {
+    if (_sidSearchNextEntry()) _sidSearchStep(1);
   } else if (_sidShuffle ? _sidPlaylist.length > 1 : _sidPlaylistIndex < _sidPlaylist.length - 1) {
     _sidPlayerNext();
   }
@@ -51181,9 +51283,9 @@ function _sidPlayerTickUi() {
   if (len) len.textContent = _sidExtFormatTime(_sidPlayerLengthMs());
   const hasPlaylist = _sidPlaylist.length > 0;
   const prev = document.getElementById("websid-play-prev");
-  if (prev) prev.disabled = !hasPlaylist;
+  if (prev) prev.disabled = !hasPlaylist && !_sidSearchPlay;
   const next = document.getElementById("websid-play-next");
-  if (next) next.disabled = _sidShuffle ? _sidPlaylist.length < 2 : _sidPlaylistIndex >= _sidPlaylist.length - 1;
+  if (next) next.disabled = _sidSearchPlay ? !_sidSearchNextEntry() : _sidShuffle ? _sidPlaylist.length < 2 : _sidPlaylistIndex >= _sidPlaylist.length - 1;
   ["websid-play-rew", "websid-play-fwd"].forEach(function(id) {
     const btn = document.getElementById(id);
     if (btn) btn.disabled = !_sidPlayerCanSeek();
@@ -51203,8 +51305,7 @@ function _sidPlayerTickUi() {
 let _sidPlayerShownIndex = -1;
 // Keeps the current entry visible in the playlist (only inside the list, the
 // floating window itself does not move).
-function _sidPlayerRevealCurrent(list) {
-  const li = list.children[_sidPlaylistIndex];
+function _sidPlayerRevealCurrent(list, li = list.children[_sidPlaylistIndex]) {
   if (!li) return;
   const lr = list.getBoundingClientRect(), ir = li.getBoundingClientRect();
   if (ir.top < lr.top) list.scrollTop -= lr.top - ir.top;
@@ -51218,7 +51319,7 @@ function _sidPlayerRenderList() {
     list.textContent = "";
     _sidPlaylist.forEach(function(item, index) {
       const li = document.createElement("li");
-      li.className = "websid-play-item" + (index === _sidPlaylistIndex ? " websid-play-item--current" : "");
+      li.className = "websid-play-item" + (index === _sidPlaylistIndex && !_sidSearchPlay ? " websid-play-item--current" : "");
       li.dataset.id = item.id;
       const no = document.createElement("span");
       no.className = "websid-play-item-no";
@@ -51254,7 +51355,7 @@ function _sidPlayerRenderList() {
       _sidPlayerRevealCurrent(list);
     }
   }
-  const current = _sidPlaylist[_sidPlaylistIndex];
+  const current = _sidPlayerCurrent();
   const fileEl = document.getElementById("websid-play-file");
   if (fileEl) fileEl.textContent = current ? (current.info.title || current.name) : "";
   const metaEl = document.getElementById("websid-play-meta");
@@ -51626,8 +51727,9 @@ function _hvscRender() {
   const inList = new Set(_sidPlaylist.map(function(item) { return item.hvsc; }).filter(Boolean));
   _hvscResults.forEach(function(entry, index) {
     const li = document.createElement("li");
-    const loading = !!_hvscAdding?.has(entry.p);
-    li.className = "websid-play-item websid-hvsc-item" + (inList.has(entry.p) ? " websid-hvsc-item--added" : "") + (loading ? " websid-hvsc-item--loading" : "");
+    const loading = (_sidSearchLoading?.source === "hvsc" && _sidSearchLoading.path === entry.p) || !!_hvscAdding?.has(entry.p);
+    const playing = _sidSearchPlay?.source === "hvsc" && _sidSearchPlay.path === entry.p;
+    li.className = "websid-play-item websid-hvsc-item" + (inList.has(entry.p) ? " websid-hvsc-item--added" : "") + (loading ? " websid-hvsc-item--loading" : "") + (playing ? " websid-play-item--current" : "");
     li.dataset.index = String(index);
     li.dataset.path = entry.p;
     if (loading) li.setAttribute("aria-busy", "true");
@@ -51653,6 +51755,7 @@ function _hvscRender() {
     save.setAttribute("aria-label", t("sidHvscSave"));
     li.append(name, who, len, add, save);
     list.appendChild(li);
+    if (playing && list._shown !== entry.p) { list._shown = entry.p; _sidPlayerRevealCurrent(list, li); }
   });
 }
 function _hvscFileName(entry) {
@@ -52613,7 +52716,7 @@ async function _vaSidPlayFileBytes(bytes, filename, song = 0) {
   if (!state.active) return false;
   // the core resolves "0 = start song" from the header; show what it plays
   window.electronAPI.sidFileInfo?.(state.sessionId).then(function(info) {
-    const item = _sidPlaylist[_sidPlaylistIndex];
+    const item = _sidPlayerCurrent();
     if (!state.active || !item || item.bytes !== bytes || !info?.song) return;
     item.song = info.song;
     _sidPlayerRenderList();
