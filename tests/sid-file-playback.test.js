@@ -18,6 +18,15 @@ function fnSource(name) {
   throw new Error(`Could not parse ${name}`);
 }
 
+// Every player context knows the search playback state (nothing plays from the results)
+// and the current-entry helper, unless a test defines them itself.
+const runInContext = vm.runInContext;
+vm.runInContext = function(code, ctx, ...rest) {
+  if (!/\b(var|let) _sidSearchPlay\b/.test(code)) code = "var _sidSearchPlay = null, _sidSearchLoading = null, _sidSearchSeq = 0;\n" + code;
+  if (!/function _sidPlayerCurrent\(/.test(code)) code = fnSource("_sidPlayerCurrent") + "\n" + code;
+  return runInContext.call(vm, code, ctx, ...rest);
+};
+
 // a GainNode stand-in for the player's normalization stage
 function fakeGain() {
   return { connect() {}, context: this, gain: { value: 1, setValueAtTime() {}, cancelScheduledValues() {}, setTargetAtTime() {} } };
@@ -745,4 +754,72 @@ test("SID playlist: Remove duplicates, Keep only starred (asks first), 1-5 stars
   release(new Uint8Array([1]));
   await Promise.all([first, second]);
   assert.equal(api.list().length, 1);
+});
+
+test("HVSC results: a click plays without adding to the playlist, playback goes on through the results", async () => {
+  const started = [];
+  let elapsed = 0, fetches = 0;
+  const ctx = {
+    Math, Number, Array, String, Promise, crypto: { randomUUID: () => "id" + Math.random() },
+    t: (k) => k, tf: (k) => k, showViceToast() {},
+    _sidPsidInfo: () => ({ songs: 1, startSong: 1 }),
+    _hvscFileName: (e) => e.p.split("/").pop(),
+    _hvscFetchBytes: async (e) => { fetches++; return new Uint8Array([e.p.length]); },
+    _hvscRender() {}, _sidPlayerShow() {}, _sidPlayerRenderList() {}, _sidPlayerPersist() {},
+    _sidExtStartFile(bytes, name) { started.push(name); },
+    _sidExtElapsedMs: () => elapsed,
+  };
+  vm.createContext(ctx);
+  vm.runInContext(`const _SID_TUNE_LENGTH_MS = 180000, _SID_STARS_MAX = 5;
+    var _sidPlaylist = [{ id: "p", name: "list.sid", bytes: new Uint8Array([9]), song: 1, info: { songs: 1 } }], _sidPlaylistIndex = 0,
+      _sidShuffle = false, _sidShuffleHistory = [], _sidPlaySubtunes = false, _sidExtStatus = "playing", _sidExtStarting = false,
+      _hvscResults = [{ p: "/A/one.sid", l: [1000] }, { p: "/A/two.sid", l: [] }, { p: "/A/three.sid", l: [] }];
+    ${["_sidStars", "_sidValidSong", "_sidPlayerItem", "_sidSearchResults", "_sidSearchRender", "_sidSearchRestart", "_sidSearchNextEntry",
+      "_sidSearchPlayEntry", "_sidSearchStep", "_sidPlayerPlayIndex", "_sidPlayerNext", "_sidPlayerPrev", "_sidPlayerTuneMs", "_sidPlayerAutoAdvance"].map(fnSource).join("\n")}
+    this.api = { play: _sidSearchPlayEntry, next: _sidPlayerNext, prev: _sidPlayerPrev, advance: _sidPlayerAutoAdvance, playIndex: _sidPlayerPlayIndex,
+      current: _sidPlayerCurrent, search: () => _sidSearchPlay, list: () => _sidPlaylist };`, ctx);
+  const { api } = ctx;
+  const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
+
+  assert.equal(await api.play("hvsc", ctx._hvscResults[0]), true);
+  assert.deepEqual(started, ["one.sid"]);
+  assert.equal(api.list().length, 1, "the playlist gets nothing");
+  assert.equal(api.current().hvsc, "/A/one.sid");
+
+  // the end of the tune (its HVSC length) moves on to the next result
+  elapsed = 999;
+  api.advance();
+  await settle();
+  assert.equal(started.length, 1);
+  elapsed = 1000;
+  api.advance();
+  await settle();
+  assert.deepEqual(started, ["one.sid", "two.sid"]);
+  api.next();
+  await settle();
+  assert.equal(started[started.length - 1], "three.sid");
+  // after the last result it plays on
+  elapsed = 200000;
+  api.advance();
+  await settle();
+  assert.equal(started.length, 3);
+
+  // Previous: the start first, then a step back
+  api.prev();
+  await settle();
+  assert.equal(started[started.length - 1], "three.sid");
+  elapsed = 0;
+  api.prev();
+  await settle();
+  assert.equal(started[started.length - 1], "two.sid");
+
+  // a playlist entry ends the result playback
+  api.playIndex(0);
+  assert.equal(api.search(), null);
+  assert.equal(api.current().id, "p");
+
+  // a second click while the result downloads does nothing
+  fetches = 0;
+  await Promise.all([api.play("hvsc", ctx._hvscResults[1]), api.play("hvsc", ctx._hvscResults[1])]);
+  assert.equal(fetches, 1);
 });
