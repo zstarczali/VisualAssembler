@@ -6,7 +6,7 @@
   <a href="https://www.c64va.pro"><img src="https://img.shields.io/badge/website-c64va.pro-e05d44?style=flat" alt="Website"></a>
   <a href="https://github.com/zstarczali/VisualAssembler/releases/latest"><img src="https://img.shields.io/badge/version-v2.8.2-4c1" alt="Version"></a>
   <a href="https://github.com/zstarczali/VisualAssembler/actions/workflows/build.yml"><img src="https://img.shields.io/github/actions/workflow/status/zstarczali/VisualAssembler/build.yml?branch=main&label=build" alt="Build"></a>
-  <a href="https://github.com/zstarczali/VisualAssembler/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-GPLv3-blue" alt="License: GPLv3"></a>
+  <a href="https://github.com/zstarczali/VisualAssembler/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="License: MIT"></a>
   <a href="https://www.c64va.pro/register/donate.php"><img src="https://img.shields.io/badge/donate-PayPal-00457C?logo=paypal&logoColor=white" alt="Donate"></a>
 </p>
 <p align="center">
@@ -32,7 +32,7 @@ A Tauri 2-based desktop application for visually composing Commodore 64 6502 ass
 
 **Current version: v2.8.2**
 
-Visual Assembler is free and open source (GPLv3): every feature — editors, builds, hardware runs, languages and themes — works without a registration or serial. At most once a day the app sends an anonymous startup ping (version, OS, UI language, launch count, a random install ID) for the usage statistics; no email, project or source code is sent.
+Visual Assembler is free and open source (MIT for original project code; see [third-party licenses](THIRD_PARTY_NOTICES.md)): every feature — editors, builds, hardware runs, languages and themes — works without a registration or serial. At most once a day the app sends an anonymous startup ping (version, OS, UI language, launch count, a random install ID) for the usage statistics; no email, project or source code is sent.
 
 ## What's New in v2.8.2
 
@@ -167,7 +167,7 @@ Visual Assembler is free and open source (GPLv3): every feature — editors, bui
 ## Earlier: v2.6.7
 
 - **Rust VMA compiler** — Settings → General → Program → *VMA compiler*: JavaScript (the default), Rust, or *Rust + JavaScript check*, which builds with both and logs any difference. The Rust compiler gives the same bytes, memory view, segments and translated error messages; Kick projects build through it too, with errors at `file:line`.
-- **VMA is open source** — the Visual Macro Assembler compiler lives in its own GPLv3 repository, [github.com/zstarczali/VMA](https://github.com/zstarczali/VMA) (version 2.0.0), with an English and a Hungarian language manual and a command-line compiler. The About box shows the VMA version and banner next to Ultimate Basic.
+- **VMA is open source** — the Visual Macro Assembler compiler lives in its own MIT-licensed repository, [github.com/zstarczali/VMA](https://github.com/zstarczali/VMA) (version 2.0.0), with an English and a Hungarian language manual and a command-line compiler. The About box shows the VMA version and banner next to Ultimate Basic.
 - **Project symbols and constants** — *Project settings* sets VMA symbols (`.define`, for `.if` / `.ifdef`) and constants (`.const`) for the whole project, saved in the `.proj`; error lines stay correct.
 - **Compiling dialog** — a step line under the progress bar names the engine, the file and the PRG size.
 - **Build info** — shows the file it describes; an ACME source gets its own view from the real ACME build (origin, end, size, segments, labels). It no longer closes on an outside click.
@@ -776,4 +776,4 @@ A gap BYTE macro aligns the code to `$2000` (size computed dynamically based on 
 
 ## License
 
-GPLv3 — see [LICENSE](LICENSE). Includes code ported from VICE (GPL v2 or later).
+MIT for original project code — see [LICENSE](LICENSE). VICE/reSID-derived code retains its GPL terms; see [third-party licenses](THIRD_PARTY_NOTICES.md). Distributing the combined application also requires compliance with those GPL terms.
