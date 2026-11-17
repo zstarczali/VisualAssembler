@@ -10,7 +10,7 @@ const read = (f) => fs.readFileSync(path.join(samples, f), "utf8").replace(/\r\n
 
 for (const name of ["ultimate-turbo-demo", "ultimate-box-demo"]) {
   test(`${name}: the menu sample has the text of the .asm`, () => {
-    const json = JSON.parse(read(`${name}.json`));
+    const json = JSON.parse(read(`${name}.vas`));
     assert.equal(json.useExpertTextProgram, true);
     assert.equal(json.expertText, read(`${name}.asm`));
   });

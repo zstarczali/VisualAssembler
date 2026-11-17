@@ -5,7 +5,7 @@
     "extras": [],
     "progName": ""
   },
-  "expertText": "* = $0801\n\n; .include \"hello.json\"\n\n.include \"hello.asm\"",
+  "expertText": "* = $0801\n\n; .include \"hello.vas\"\n\n.include \"hello.asm\"",
   "program": [
     {
       "_srcLine": 0,
@@ -42,13 +42,13 @@
       "base": "comment",
       "category": "Szerkezet",
       "collapsed": true,
-      "commentText": ".include \"hello.json\"",
+      "commentText": ".include \"hello.vas\"",
       "description": "",
       "id": "02410bd7-e4da-4465-b9dc-4d0820dbe79b",
       "isComment": true,
       "mnemonic": "COMMENT",
-      "operand": ".include \"hello.json\"",
-      "rawOperand": ".include \"hello.json\"",
+      "operand": ".include \"hello.vas\"",
+      "rawOperand": ".include \"hello.vas\"",
       "validationError": ""
     },
     {

@@ -164,7 +164,7 @@ test("the sample is in the menu with the text of the .asm", () => {
   const fs = require("node:fs");
   const path = require("node:path");
   const read = (f) => fs.readFileSync(path.join(__dirname, "..", f), "utf8").replace(/\r\n/g, "\n");
-  assert.equal(JSON.parse(read("samples/u64-palette-demo.json")).expertText, read("samples/u64-palette-demo.asm"));
+  assert.equal(JSON.parse(read("samples/u64-palette-demo.vas")).expertText, read("samples/u64-palette-demo.asm"));
   const html = read("www/index.html");
   const src = read("www/app.js");
   const options = [...html.slice(html.indexOf('id="sample-select"')).split("</select>")[0].matchAll(/<option value="([^"]+)"/g)].map((m) => m[1]);

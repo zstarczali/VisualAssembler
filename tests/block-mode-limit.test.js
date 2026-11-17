@@ -29,7 +29,7 @@ test('UB mode is available for new tabs and UB files, not bound ASM sources', ()
   assert.equal(allowed({ filePath: '' }), true);
   assert.equal(allowed({ filePath: null, name: 'imported.asm' }), false);
   assert.equal(allowed({ filePath: null, name: 'imported.a65' }), false);
-  assert.equal(allowed({ filePath: null, name: 'hello-loop-demo.c64va' }), false);
+  assert.equal(allowed({ filePath: null, name: 'hello-loop-demo.vas' }), false);
   assert.equal(allowed({ filePath: null, name: 'hello-loop-demo.json' }), false);
   assert.equal(allowed({ filePath: 'hello-loop-demo.json' }), false);
   assert.equal(allowed({ filePath: null, name: 'Untitled 3' }), true);

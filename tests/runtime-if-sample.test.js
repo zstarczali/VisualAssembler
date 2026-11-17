@@ -7,7 +7,7 @@ const samples = path.join(__dirname, "..", "samples");
 const read = (f) => fs.readFileSync(path.join(samples, f), "utf8").replace(/\r\n/g, "\n");
 
 test("the menu sample has the text of the .asm", () => {
-  const json = JSON.parse(read("runtime-if-demo.json"));
+  const json = JSON.parse(read("runtime-if-demo.vas"));
   assert.equal(json.useExpertTextProgram, true);
   assert.equal(json.expertText, read("runtime-if-demo.asm"));
 });

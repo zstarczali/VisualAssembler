@@ -2,11 +2,11 @@
 ; ==========================================
 ; INCLUDE demo — double-buffered hires drawing
 ; ==========================================
-; Uses macros-new.json library:
+; Uses macros-new.vas library:
 ; BitmapOn / BitmapOff / DbufSetup / DbufSwap
 ; ClearBitmap / SetColor / DrawLine / PlotPixel
 ; ==========================================
-.include "macros-new.json", $1500
+.include "macros-new.vas", $1500
 
 .region Main
     SEI

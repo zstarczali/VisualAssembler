@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**Verzió: 2.8.2**
+**Verzió: 2.8.3**
 
 Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasításblokkok fogd-és-vidd módszerrel történő elrendezésével építed fel, a generált assembly és gépi kód pedig valós időben frissül.
 
@@ -10,6 +10,7 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 
 ## Tartalomjegyzék
 
+- [A 2.8.3 verzió újdonságai](#a-283-verzió-újdonságai)
 - [A 2.8.2 verzió újdonságai](#a-282-verzió-újdonságai)
 - [A 2.8.1 verzió újdonságai](#a-281-verzió-újdonságai)
 - [A 2.8.0 verzió újdonságai](#a-280-verzió-újdonságai)
@@ -151,6 +152,16 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
   - [Curve Editor](#curve-editor)
   - [Táblagenerátor](#táblagenerátor)
   - [Számrendszer-átváltó](#számrendszer-átváltó)
+
+---
+
+## A 2.8.3 verzió újdonságai
+
+- **Elhalkulás a végén** — a SID Player az utolsó másodpercekben elhalkítja a számot, továbblép, az utolsó után megáll (**Ki / 5 / 10 / 15 mp**). Lásd: [SID Player](#sid-player).
+- **HVSC találatok lista nélkül** — kattintásra a találat csak szól, nem kerül a listára; a végén a következő találat jön. Lásd: [HVSC](#hvsc-high-voltage-sid-collection).
+- **Hézagmentes váltás a találatok közt** — a következő találat előre letöltődik, így nem szól újra egy pillanatra az előző szám eleje; a találatlista megtartja a görgetést.
+- **`.vas` projektek** — a blokk módú projektek és a beépített minták új kiterjesztése `.vas`; a `.json` projektek továbbra is megnyílnak.
+- **MIT-licenc** — a saját kód MIT-licencű; a VICE, reSID és SID eredetű részek GPL-feltételei megmaradnak.
 
 ---
 
@@ -858,7 +869,7 @@ A **Menü → Támogatás** egy csevegőablakot nyit a fejlesztővel: írd be a 
 
 ### Munkaterületek
 
-Egy **munkaterület** (`.vaws` fájl) megjegyzi, mely valós, lemezen lévő fájlok voltak nyitva az egyes füleken — beleértve minden fül szerkesztőmódját és azt, hogy melyik fül volt aktív —, így később újranyithatod pontosan ezt a készletet. Ez elkülönül a `.proj` projekttől: egy munkaterület átfoghatja a Block/Expert `.json` projektfájlok, önálló `.asm` fájlok és Ultimate Basic `.ub`/`.proj` források tetszőleges keverékét több fülön keresztül.
+Egy **munkaterület** (`.vaws` fájl) megjegyzi, mely valós, lemezen lévő fájlok voltak nyitva az egyes füleken — beleértve minden fül szerkesztőmódját és azt, hogy melyik fül volt aktív —, így később újranyithatod pontosan ezt a készletet. Ez elkülönül a `.proj` projekttől: egy munkaterület átfoghatja a Block/Expert `.vas` (vagy régebbi `.json`) projektfájlok, önálló `.asm` fájlok és Ultimate Basic `.ub`/`.proj` források tetszőleges keverékét több fülön keresztül.
 
 - A munkaterületek **automatikusan mentődnek** néhány száz milliszekundummal egy változtatás után, amint már mentetted vagy megnyitottad egyet.
 - Az app induláskor **automatikusan visszaállítja az utolsó munkaterületet**, így a nyitott füleid ott folytatódnak, ahol abbahagytad.
@@ -2076,9 +2087,10 @@ A **SID Player** toolbar gomb egy lebegő ablakot nyit, amely `.sid` zenefájlok
 - **Tekerés:** a pozíciósáv és a **Back / Forward 10 s**; a kihagyott rész némán fut le.
 - **Hangerő:** a tekerőgomb közös a SID szerkesztő master hangerejével.
 - **Puffer:** **Beállítások → Általános → SID előnézet → SID Player puffer** (10, 15, 20 vagy 30 mp). Nagyobb pufferrel nem recseg a hang, ha az app épp dolgozik: a következő számtól ennyire előre renderelődik.
+- **Elhalkulás a végén:** sok dalnak nincs vége, csak ismétlődik. A **Beállítások → Általános → SID előnézet → Elhalkulás a végén** (Ki, 5, 10 vagy 15 mp; alapból 10 mp) az utolsó másodpercekben elhalkítja a számot a HVSC szerinti hossznál, különben három perc után, majd a lejátszó továbblép; az utolsó szám után megáll. **Ki** állásban nincs elhalkulás, és az utolsó szám tovább szól.
 - **Motor:** az ablak kiírja, melyik motor szól (reSID vagy VA SID Core, a SID chippel); a **Beállítások → Általános → SID előnézet** alatt választható. Mindkettő natív Rust C64 magon futtatja a zenét: ciklusra pontos 6510 precíz interrupt-időzítéssel, CIA 6526A, VIC-II időzítés badline-okkal, sprite-DMA-val és raster interruptokkal, valamint a 6510 I/O port — így a raster IRQ-s, CIA-időzített és digi zenék is valódi gép időzítésével szólnak. A 2SID és 3SID dalok (PSID v3 / v4) sztereóban szólnak: SID 1 balra, SID 2 jobbra, a harmadik SID középre.
 - **Véletlen lejátszás:** a **Next** melletti kapcsoló véletlen sorrendben játssza a listát — egy szám sem ismétlődik, amíg mind le nem ment, a **Previous** pedig a véletlen sorrendben lép vissza. A beállítást megjegyzi.
-- **Belső zeneszámok egymás után:** a **Back 10 s** előtti, alapból bekapcsolt gomb a fájl hátralévő subtune-jait egymás után lejátssza, mielőtt a lista következő elemére lép, véletlen lejátszásnál és egyetlen fájlnál is. Egy subtune a HVSC szerinti hosszáig szól, ha ismert, különben három percig. Kikapcsolva a lista az aktuális subtune után lép tovább. A lista végén, véletlen lejátszás nélkül, az utolsó subtune addig szól, amíg le nem állítod.
+- **Belső zeneszámok egymás után:** a **Back 10 s** előtti, alapból bekapcsolt gomb a fájl hátralévő subtune-jait egymás után lejátssza, mielőtt a lista következő elemére lép, véletlen lejátszásnál és egyetlen fájlnál is. Egy subtune a HVSC szerinti hosszáig szól, ha ismert, különben három percig. Kikapcsolva a lista az aktuális subtune után lép tovább. A lista végén, véletlen lejátszás nélkül, a lejátszó az utolsó subtune elhalkulása után megáll; kikapcsolt **Elhalkulás a végén** mellett az utolsó subtune addig szól, amíg le nem állítod.
 - **Hangerő-kiegyenlítés:** a spektrum-analizátor melletti gomb minden dalt kb. azonos hangerővel játszik: egy szint felé emeli vagy halkítja, legfeljebb 12 dB-lel, torzítás nélkül. A dalt az első két másodpercén méri, utána a szint lassan követi. Ha a halk kezdetű dalt felerősítette, és hangosabb rész jön, a szint azonnal, még a rész megszólalása előtt csökken, így az nem torzul. A beállítást megjegyzi.
 - **Csillagok:** minden sorban 1–5 csillag van; egy csillagra kattintva értékeled a számot, ugyanarra újra kattintva törlöd. Az értékelés a mentett állapotban és a `.sidpl` lejátszási listákban is megmarad (a régi lista kedvence egy csillag lesz). Az eszköztár **Csak a csillagosak maradjanak** gombja megerősítés után törli a csillag nélküli számokat.
 - **Duplikátumok törlése:** az eszköztár gombja törli a listában többször szereplő számokat: azonos HVSC-útvonal, vagy azonos fájltartalom. Az első példány marad, a példányai közül a legtöbb csillaggal.
@@ -2089,7 +2101,7 @@ A SID Player eszköztárának **HVSC** gombja keresőpanelt nyit a [High Voltage
 
 - **Keresés:** írj be címet, zeneszerzőt vagy mappát (`hubbard commando`, `games/s-z`); minden szónak egyeznie kell. A **Véletlen dalok** 25 véletlenszerű dalt listáz.
 - **Zeneszerző:** a keresőmező melletti listában a **Minden** helyett a **Zeneszerző** csak a szerzők nevében keres (`hubbard`, `rob hubbard`, `galway`), és szerzők szerint rendezve listáz. A név a dal `MUSICIANS` alatti mappájából jön, ezért a szerzőt a mappa nevén találod meg, ami lehet művésznév is (`laxity`). A `GAMES` és `DEMOS` mappák kb. 4600 dalának nincs szerzői mappája: ezeket a **Minden** találja meg cím vagy mappa alapján.
-- **Lejátszás / hozzáadás / mentés:** kattintásra szól, a **+** a lejátszási listára teszi, a letöltés gomb elmenti a `.sid` fájlt. Letöltés közben a **+** helyén forgó jel látszik, és a második kattintás nem veszi fel újra. A **Minden találat a listára** legfeljebb 100 találatot vesz fel.
+- **Lejátszás / hozzáadás / mentés:** kattintásra (vagy **Enter**-re az első) szól, de nem kerül a lejátszási listára; a végén a következő találat jön sorban (a **Next** és a **Previous** is a találatokon lép). A következő találat az utolsó 30 másodpercben letöltődik, így a váltás hézagmentes. Lejátszási listás elem indítása visszavált a listára. A **+** a lejátszási listára teszi, a letöltés gomb elmenti a `.sid` fájlt. Letöltés közben a **+** helyén forgó jel látszik, és a második kattintás nem veszi fel újra. A **Minden találat a listára** legfeljebb 100 találatot vesz fel.
 - **Dalhosszak:** a HVSC minden aldal hosszát ismeri, ezért a pozíciósáv a valódi hosszt mutatja, és a lista az aldal végén lép tovább.
 - **Honnan jönnek a dalok:** a katalógus és az egyes dalok első használatkor egy HVSC tükörről töltődnek le, és az app gyorsítótárába kerülnek, így egyszer lejátszott dal offline is szól. A **Katalógus frissítése** a legújabb listát kéri le.
 - **A teljes gyűjtemény:** **A teljes gyűjtemény letöltése…** a hivatalos HVSC archívumot (kb. 85 MB) a választott mappába tölti és ott kibontja (kb. 380 MB); onnantól a lejátszó ezt a másolatot használja, offline is. A **Helyi HVSC mappa használata…** egy már meglévő gyűjteményre állítja.

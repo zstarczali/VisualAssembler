@@ -2510,6 +2510,7 @@ fn include_candidates(app: &AppHandle, raw_path: &str, base_dir: Option<&str>) -
                     let base = base.trim();
                     if !base.is_empty() {
                         let base_path = std::path::Path::new(base);
+                        guessed.push(base_path.join(format!("{}.vas", normalized_file_path)));
                         guessed.push(base_path.join(format!("{}.json", normalized_file_path)));
                         guessed.push(base_path.join(format!("{}.asm", normalized_file_path)));
                         guessed.push(base_path.join(format!("{}.inc", normalized_file_path)));
@@ -2517,6 +2518,7 @@ fn include_candidates(app: &AppHandle, raw_path: &str, base_dir: Option<&str>) -
                     }
                 }
                 if let Some(folder) = working_folder.as_ref() {
+                    guessed.push(folder.join(format!("{}.vas", normalized_file_path)));
                     guessed.push(folder.join(format!("{}.json", normalized_file_path)));
                     guessed.push(folder.join(format!("{}.asm", normalized_file_path)));
                     guessed.push(folder.join(format!("{}.inc", normalized_file_path)));
@@ -2529,6 +2531,11 @@ fn include_candidates(app: &AppHandle, raw_path: &str, base_dir: Option<&str>) -
                 candidates.push(p);
             }
             if input_path.extension().is_none() {
+                if let Ok(p) =
+                    resolve_resource_file(app, &format!("samples/{}.vas", normalized_file_path))
+                {
+                    candidates.push(p);
+                }
                 if let Ok(p) =
                     resolve_resource_file(app, &format!("samples/{}.json", normalized_file_path))
                 {
@@ -2572,6 +2579,16 @@ fn include_candidates(app: &AppHandle, raw_path: &str, base_dir: Option<&str>) -
     }
 
     push_bare_name_fallbacks(app, &mut candidates, raw_path, base_dir);
+    // A blokk-projekt .vas (régen .json): a másik kiterjesztésű társ is jelölt
+    let swapped: Vec<PathBuf> = candidates
+        .iter()
+        .filter_map(|p| match p.extension().and_then(|e| e.to_str()).map(|e| e.to_ascii_lowercase()) {
+            Some(e) if e == "vas" => Some(p.with_extension("json")),
+            Some(e) if e == "json" => Some(p.with_extension("vas")),
+            _ => None,
+        })
+        .collect();
+    candidates.extend(swapped);
     candidates
 }
 
@@ -2706,9 +2723,9 @@ async fn choose_include_file(app: AppHandle) -> serde_json::Value {
         .file()
         .add_filter(
             "Include (project or assembly)",
-            &["json", "inc", "asm", "s"],
+            &["vas", "json", "inc", "asm", "s"],
         )
-        .add_filter("C64 Visual Assembler project", &["json"])
+        .add_filter("C64 Visual Assembler project", &["vas", "json"])
         .add_filter("Assembly source", &["inc", "asm", "s"])
         .add_filter("All files", &["*"]);
     if let Some(folder) = working_folder {
@@ -2723,7 +2740,7 @@ async fn choose_include_file(app: AppHandle) -> serde_json::Value {
             let is_json = path_obj
                 .extension()
                 .and_then(|e| e.to_str())
-                .map(|e| e.eq_ignore_ascii_case("json"))
+                .map(|e| e.eq_ignore_ascii_case("vas") || e.eq_ignore_ascii_case("json"))
                 .unwrap_or(false);
             let file_name = path_obj
                 .file_stem()
@@ -2786,7 +2803,7 @@ async fn reload_include_file(
     let is_json = resolved
         .extension()
         .and_then(|e| e.to_str())
-        .map(|e| e.eq_ignore_ascii_case("json"))
+        .map(|e| e.eq_ignore_ascii_case("vas") || e.eq_ignore_ascii_case("json"))
         .unwrap_or(false);
     // Return the full basename with extension (e.g. "hello.asm"), matching INCBIN's
     // convention and the value parseExpertText assigns when reading `.include "hello.asm"`.
@@ -4356,7 +4373,7 @@ async fn save_project(app: AppHandle, payload: serde_json::Value) -> serde_json:
     let default_name = payload
         .get("_defaultName")
         .and_then(|v| v.as_str())
-        .unwrap_or("program.json")
+        .unwrap_or("program.vas")
         .to_string();
 
     let save_path: String = if !existing_path.is_empty() {
@@ -4369,7 +4386,7 @@ async fn save_project(app: AppHandle, payload: serde_json::Value) -> serde_json:
         let mut dialog = app
             .dialog()
             .file()
-            .add_filter("C64 Visual Assembler Project", &["json", "c64va"])
+            .add_filter("C64 Visual Assembler Project", &["vas", "json", "c64va"])
             .set_file_name(&default_name);
         if let Some(folder) = working_folder {
             dialog = dialog.set_directory(folder);
@@ -4916,7 +4933,7 @@ async fn choose_proj_member(app: AppHandle, ub: Option<bool>) -> serde_json::Val
     let mut dialog = app
         .dialog()
         .file()
-        .add_filter("C64 Visual Assembler Project", &["json", "c64va"])
+        .add_filter("C64 Visual Assembler Project", &["vas", "json", "c64va"])
         .add_filter("Assembly Source", &["asm", "s", "a65", "inc"])
         .add_filter("UltimateBasic Source", &["ub"])
         .add_filter("Binary files", &["bin", "prg", "sid", "raw"])
@@ -4985,7 +5002,7 @@ async fn load_project(app: AppHandle) -> serde_json::Value {
     let mut dialog = app
         .dialog()
         .file()
-        .add_filter("C64 Visual Assembler Project", &["json", "c64va"]);
+        .add_filter("C64 Visual Assembler Project", &["vas", "json", "c64va"]);
     if let Some(folder) = working_folder {
         dialog = dialog.set_directory(folder);
     }
@@ -5196,7 +5213,13 @@ async fn open_samples_folder(app: AppHandle) -> Result<(), String> {
 
 #[tauri::command]
 async fn load_sample(app: AppHandle, sample_name: String) -> serde_json::Value {
-    let file_path = match resolve_resource_file(&app, &format!("samples/{}.json", sample_name)) {
+    // A minták .vas fájlok; a régi .json is betölthető
+    let file_path = match resolve_resource_file(&app, &format!("samples/{}.vas", sample_name))
+        .ok()
+        .filter(|p| p.is_file())
+        .map(Ok)
+        .unwrap_or_else(|| resolve_resource_file(&app, &format!("samples/{}.json", sample_name)))
+    {
         Ok(p) => p,
         Err(e) => return serde_json::json!({ "ok": false, "error": e.to_string() }),
     };

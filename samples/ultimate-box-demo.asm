@@ -19,7 +19,7 @@
 ;   clock): 1, 2, 4, 8, 16, 32, 64 MHz and back. The bottom line shows the
 ;   speed and the frames drawn in the last second.
 
-.include "macros.json", $1500
+.include "macros.vas", $1500
 ; --------------------------------------------------
 ; RAM variables
 ; --------------------------------------------------

@@ -20,7 +20,7 @@ function fnSource(name) {
   }
 }
 
-const NORM = ["_normMeterNew", "_normMeterAdd", "_normLoudness", "_playerNormGain", "_playerNormOutput", "_playerNormApply"];
+const NORM = ["_normMeterNew", "_normMeterAdd", "_normLoudness", "_playerNormGain", "_playerNormOutput", "_sidExtFadeOutput", "_playerNormApply"];
 const CONSTS = "const _PLAYER_NORM_TARGET_DB = -18, _PLAYER_NORM_MAX_DB = 12;";
 
 test("the gain: to the target loudness, at most 12 dB, no clipping peaks", () => {
@@ -80,7 +80,7 @@ function player(normalize) {
     _sidPlaylist: [], _sidPlaylistIndex: -1, _sidPreviewModel: "8580", _sidPreviewEngine: "resid", _sidDigiBoost: false, _sidExternalCore: null,
   };
   vm.createContext(context);
-  vm.runInContext(`${CONSTS} var _playerNormalize = ${normalize}, _playerNormNode = null;
+  vm.runInContext(`${CONSTS} var _playerNormalize = ${normalize}, _playerNormNode = null, _sidExtFadeNode = null;
     ${NORM.map(fnSource).join("\n")}
     function _channelMonitorQueue() {}
     ${fnSource("_vaSidPlayFileBytes")}
@@ -92,7 +92,7 @@ test("on: the tune starts at its measured level, through the stage in front of t
   const { context, played, master } = player(true);
   assert.equal(await context.play([1], "t.sid"), true);
   const node = context.node();
-  assert.equal(node.to, master);
+  assert.equal(node.to.to, master, "through the end-of-tune fade stage");
   assert.ok(played.length >= 4, "the held 2 seconds are played too");
   assert.ok(played.every((p) => p.output === node));
   // constant 0.1 = -20 dB: raised by 2 dB

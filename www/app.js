@@ -77,54 +77,54 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "samples-282",
+  id: "fade-283",
   url: "https://www.c64va.pro/docs.html",
   hu: {
-    eyebrow: "Újdonság a 2.8.2-ben",
+    eyebrow: "Újdonság a 2.8.3-ban",
     title: "Üdvözöl a Visual Assembler",
-    body: `<ul><li><strong>Példák mappája</strong>: a Példák ablak új gombja fájlkezelőben nyitja meg a beépített mintákat (a telepítési mappában vannak, kézzel nehéz megtalálni őket).</li><li><strong>Pálya szerkesztő</strong>: a sarokfogantyúval átméretezhető, és megjegyzi a méretét; a tartalmánál kisebbre nem zsugorodik.</li><li><strong>GameMaker minta</strong>: a <code>samples/gamemaker</code> mappában a teljes képernyős IRQ demó karakterkészlete, térképe, csempéi és pálya-projektje is ott van a forrás mellett.</li><li>A 2.8.1 újdonsága: öt új téma (<strong>Ruby</strong>, <strong>Amethyst</strong>, <strong>Phosphor</strong>, <strong>Retro 80s</strong>, <strong>Retro 8-bit</strong>).</li></ul>`,
+    body: `<ul><li><strong>Elhalkulás a szám végén</strong>: sok SID-dalnak nincs vége, csak ismétlődik. A SID Player az utolsó másodpercekben elhalkítja a számot (a HVSC szerinti hossznál, különben 3 percnél), továbblép, az utolsó után megáll. Beállítás: <strong>Beállítások → Általános → SID előnézet → Elhalkulás a végén</strong> (Ki / 5 / 10 / 15 mp).</li><li><strong>HVSC találatok lista nélkül</strong>: kattintásra a találat csak szól, nem kerül a lejátszási listára; a végén a következő találat jön, a <strong>Next</strong> / <strong>Previous</strong> is a találatokon lép.</li><li><strong>Hézagmentes váltás</strong>: a következő találat az utolsó 30 mp-ben letöltődik, így váltáskor már nem szól újra egy pillanatra az előző szám eleje; a találatlista megtartja a görgetést.</li><li>A minta-projektek új kiterjesztése <code>.vas</code>; a saját kód MIT-licencű lett.</li><li>A 2.8.2 újdonsága: <strong>Példák mappája</strong> gomb, átméretezhető Pálya szerkesztő.</li></ul>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
-    eyebrow: "New in 2.8.2",
+    eyebrow: "New in 2.8.3",
     title: "Welcome to Visual Assembler",
-    body: `<ul><li><strong>Examples folder</strong>: a new button in the Examples dialog opens the bundled samples in the file manager (they sit in the install folder, which is hard to find by hand).</li><li><strong>Level Editor</strong>: resize it with its corner grip and it remembers its size; it no longer shrinks below its content.</li><li><strong>GameMaker sample</strong>: the <code>samples/gamemaker</code> folder now has the charset, map, tiles and level project of the full-screen IRQ demo next to its source.</li><li>New in 2.8.1: five new themes (<strong>Ruby</strong>, <strong>Amethyst</strong>, <strong>Phosphor</strong>, <strong>Retro 80s</strong>, <strong>Retro 8-bit</strong>).</li></ul>`,
+    body: `<ul><li><strong>Fade out at the end</strong>: many SID tunes never end, they just loop. The SID Player fades a tune out over its last seconds (at its HVSC length, otherwise at 3 minutes), moves on, and stops after the last one. Set it in <strong>Settings → General → SID preview → Fade out at the end</strong> (Off / 5 / 10 / 15 s).</li><li><strong>HVSC results without the playlist</strong>: a click only plays a result, it is not added to the playlist; when it ends the next result plays, and <strong>Next</strong> / <strong>Previous</strong> step through the results.</li><li><strong>Seamless switch</strong>: the next result is downloaded during the last 30 s, so the previous tune no longer starts again for a moment; the result list keeps its scroll position.</li><li>Sample projects use the new <code>.vas</code> extension; the original code is now MIT-licensed.</li><li>New in 2.8.2: the <strong>Examples folder</strong> button and a resizable Level Editor.</li></ul>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
-    eyebrow: "Novedad en la 2.8.2",
+    eyebrow: "Novedad en la 2.8.3",
     title: "Bienvenido a Visual Assembler",
-    body: `<ul><li><strong>Carpeta de ejemplos</strong>: un nuevo botón del diálogo Ejemplos abre los ejemplos incluidos en el explorador de archivos (están en la carpeta de instalación, difícil de encontrar a mano).</li><li><strong>Editor de niveles</strong>: se redimensiona con la esquina y recuerda su tamaño; ya no se encoge por debajo de su contenido.</li><li><strong>Ejemplo GameMaker</strong>: la carpeta <code>samples/gamemaker</code> incluye ahora el juego de caracteres, el mapa, los tiles y el proyecto de nivel de la demo IRQ a pantalla completa junto a su código.</li><li>Novedad de la 2.8.1: cinco temas nuevos (<strong>Ruby</strong>, <strong>Amethyst</strong>, <strong>Phosphor</strong>, <strong>Retro 80s</strong>, <strong>Retro 8-bit</strong>).</li></ul>`,
+    body: `<ul><li><strong>Desvanecer al final</strong>: muchas melodías SID no terminan, solo se repiten. El SID Player desvanece la melodía en sus últimos segundos (en su duración de HVSC, si no a los 3 minutos), pasa a la siguiente y se detiene tras la última. Ajústalo en <strong>Ajustes → General → Vista previa SID → Desvanecer al final</strong> (No / 5 / 10 / 15 s).</li><li><strong>Resultados de HVSC sin la lista</strong>: un clic solo reproduce el resultado, no lo añade a la lista; al terminar suena el siguiente, y <strong>Next</strong> / <strong>Previous</strong> recorren los resultados.</li><li><strong>Cambio sin cortes</strong>: el siguiente resultado se descarga en los últimos 30 s, así ya no vuelve a sonar un instante el inicio de la melodía anterior; la lista de resultados conserva su desplazamiento.</li><li>Los proyectos de ejemplo usan la nueva extensión <code>.vas</code>; el código propio tiene ahora licencia MIT.</li><li>Novedad de la 2.8.2: el botón <strong>Carpeta de ejemplos</strong> y un Editor de niveles redimensionable.</li></ul>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
-    eyebrow: "Neu in 2.8.2",
+    eyebrow: "Neu in 2.8.3",
     title: "Willkommen bei Visual Assembler",
-    body: `<ul><li><strong>Beispielordner</strong>: ein neuer Knopf im Beispiele-Dialog öffnet die mitgelieferten Beispiele im Dateimanager (sie liegen im Installationsordner, der von Hand schwer zu finden ist).</li><li><strong>Level-Editor</strong>: lässt sich mit dem Eckgriff in der Größe ändern und merkt sich die Größe; er schrumpft nicht mehr unter seinen Inhalt.</li><li><strong>GameMaker-Beispiel</strong>: der Ordner <code>samples/gamemaker</code> enthält jetzt Zeichensatz, Karte, Tiles und Level-Projekt der Vollbild-IRQ-Demo neben ihrem Quelltext.</li><li>Neu in 2.8.1: fünf neue Themes (<strong>Ruby</strong>, <strong>Amethyst</strong>, <strong>Phosphor</strong>, <strong>Retro 80s</strong>, <strong>Retro 8-bit</strong>).</li></ul>`,
+    body: `<ul><li><strong>Am Ende ausblenden</strong>: viele SID-Stücke enden nie, sie wiederholen sich nur. Der SID Player blendet ein Stück in seinen letzten Sekunden aus (bei seiner HVSC-Länge, sonst nach 3 Minuten), geht weiter und hält nach dem letzten an. Einstellung: <strong>Einstellungen → Allgemein → SID-Vorschau → Am Ende ausblenden</strong> (Aus / 5 / 10 / 15 s).</li><li><strong>HVSC-Treffer ohne Playlist</strong>: ein Klick spielt einen Treffer nur ab, er kommt nicht in die Playlist; danach folgt der nächste Treffer, und <strong>Next</strong> / <strong>Previous</strong> gehen durch die Treffer.</li><li><strong>Nahtloser Wechsel</strong>: der nächste Treffer wird in den letzten 30 s geladen, so klingt der Anfang des vorigen Stücks nicht mehr kurz an; die Trefferliste behält ihre Scrollposition.</li><li>Beispielprojekte nutzen die neue Endung <code>.vas</code>; der eigene Code steht jetzt unter der MIT-Lizenz.</li><li>Neu in 2.8.2: der Knopf <strong>Beispielordner</strong> und ein vergrößerbarer Level-Editor.</li></ul>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
-    eyebrow: "Nieuw in 2.8.2",
+    eyebrow: "Nieuw in 2.8.3",
     title: "Welkom bij Visual Assembler",
-    body: `<ul><li><strong>Map met voorbeelden</strong>: een nieuwe knop in het venster Voorbeelden opent de meegeleverde voorbeelden in de bestandsbeheerder (ze staan in de installatiemap, die met de hand lastig te vinden is).</li><li><strong>Level-editor</strong>: vergroot of verklein hem met de hoekgreep en hij onthoudt zijn grootte; hij wordt niet meer kleiner dan zijn inhoud.</li><li><strong>GameMaker-voorbeeld</strong>: de map <code>samples/gamemaker</code> bevat nu de tekenset, kaart, tiles en het levelproject van de schermvullende IRQ-demo naast de broncode.</li><li>Nieuw in 2.8.1: vijf nieuwe thema's (<strong>Ruby</strong>, <strong>Amethyst</strong>, <strong>Phosphor</strong>, <strong>Retro 80s</strong>, <strong>Retro 8-bit</strong>).</li></ul>`,
+    body: `<ul><li><strong>Uitfaden aan het einde</strong>: veel SID-nummers eindigen nooit, ze herhalen zich alleen. De SID Player laat een nummer in de laatste seconden uitfaden (bij zijn HVSC-lengte, anders na 3 minuten), gaat verder en stopt na het laatste. Instelling: <strong>Instellingen → Algemeen → SID-voorbeeld → Uitfaden aan het einde</strong> (Uit / 5 / 10 / 15 s).</li><li><strong>HVSC-resultaten zonder afspeellijst</strong>: een klik speelt een resultaat alleen af, het komt niet in de afspeellijst; daarna volgt het volgende resultaat, en <strong>Next</strong> / <strong>Previous</strong> stappen door de resultaten.</li><li><strong>Naadloze overgang</strong>: het volgende resultaat wordt in de laatste 30 s gedownload, dus het begin van het vorige nummer klinkt niet meer even opnieuw; de resultatenlijst houdt haar scrollpositie.</li><li>Voorbeeldprojecten gebruiken de nieuwe extensie <code>.vas</code>; de eigen code valt nu onder de MIT-licentie.</li><li>Nieuw in 2.8.2: de knop <strong>Map met voorbeelden</strong> en een vergrootbare Level-editor.</li></ul>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
-    eyebrow: "Nowość w 2.8.2",
+    eyebrow: "Nowość w 2.8.3",
     title: "Witamy w Visual Assembler",
-    body: `<ul><li><strong>Folder przykładów</strong>: nowy przycisk w oknie Przykłady otwiera dołączone przykłady w menedżerze plików (leżą w folderze instalacji, trudnym do znalezienia ręcznie).</li><li><strong>Edytor poziomów</strong>: zmienisz jego rozmiar uchwytem w rogu, a on go zapamięta; nie kurczy się już poniżej swojej zawartości.</li><li><strong>Przykład GameMaker</strong>: folder <code>samples/gamemaker</code> zawiera teraz zestaw znaków, mapę, kafelki i projekt poziomu pełnoekranowego dema IRQ obok jego kodu.</li><li>Nowość w 2.8.1: pięć nowych motywów (<strong>Ruby</strong>, <strong>Amethyst</strong>, <strong>Phosphor</strong>, <strong>Retro 80s</strong>, <strong>Retro 8-bit</strong>).</li></ul>`,
+    body: `<ul><li><strong>Wyciszanie na końcu</strong>: wiele utworów SID nigdy się nie kończy, tylko zapętla. SID Player wycisza utwór w ostatnich sekundach (przy długości z HVSC, w przeciwnym razie po 3 minutach), przechodzi dalej, a po ostatnim zatrzymuje się. Ustawienie: <strong>Ustawienia → Ogólne → Podgląd SID → Wyciszanie na końcu</strong> (Wył. / 5 / 10 / 15 s).</li><li><strong>Wyniki HVSC bez listy</strong>: kliknięcie tylko odtwarza wynik, nie dodaje go do listy; po nim gra następny wynik, a <strong>Next</strong> / <strong>Previous</strong> przechodzą po wynikach.</li><li><strong>Płynne przejście</strong>: następny wynik pobiera się w ostatnich 30 s, więc początek poprzedniego utworu nie odzywa się już na chwilę; lista wyników zachowuje przewinięcie.</li><li>Projekty przykładów mają nowe rozszerzenie <code>.vas</code>; własny kod jest teraz na licencji MIT.</li><li>Nowość w 2.8.2: przycisk <strong>Folder przykładów</strong> i edytor poziomów ze zmienianym rozmiarem.</li></ul>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
-    eyebrow: "Novità nella 2.8.2",
+    eyebrow: "Novità nella 2.8.3",
     title: "Benvenuto in Visual Assembler",
-    body: `<ul><li><strong>Cartella degli esempi</strong>: un nuovo pulsante nella finestra Esempi apre gli esempi inclusi nel file manager (si trovano nella cartella di installazione, difficile da trovare a mano).</li><li><strong>Editor dei livelli</strong>: si ridimensiona con la maniglia nell'angolo e ricorda la dimensione; non si restringe più sotto il suo contenuto.</li><li><strong>Esempio GameMaker</strong>: la cartella <code>samples/gamemaker</code> contiene ora il set di caratteri, la mappa, i tile e il progetto di livello della demo IRQ a schermo intero accanto al sorgente.</li><li>Novità della 2.8.1: cinque nuovi temi (<strong>Ruby</strong>, <strong>Amethyst</strong>, <strong>Phosphor</strong>, <strong>Retro 80s</strong>, <strong>Retro 8-bit</strong>).</li></ul>`,
+    body: `<ul><li><strong>Dissolvenza alla fine</strong>: molti brani SID non finiscono mai, si ripetono soltanto. Il SID Player sfuma un brano negli ultimi secondi (alla sua durata HVSC, altrimenti dopo 3 minuti), passa al successivo e si ferma dopo l'ultimo. Impostazione: <strong>Impostazioni → Generali → Anteprima SID → Dissolvenza alla fine</strong> (No / 5 / 10 / 15 s).</li><li><strong>Risultati HVSC senza playlist</strong>: un clic riproduce solo il risultato, senza aggiungerlo alla playlist; alla fine suona il successivo, e <strong>Next</strong> / <strong>Previous</strong> scorrono i risultati.</li><li><strong>Passaggio senza interruzioni</strong>: il risultato successivo viene scaricato negli ultimi 30 s, così l'inizio del brano precedente non si sente più per un attimo; l'elenco dei risultati mantiene lo scorrimento.</li><li>I progetti di esempio usano la nuova estensione <code>.vas</code>; il codice originale ora è con licenza MIT.</li><li>Novità della 2.8.2: il pulsante <strong>Cartella degli esempi</strong> e un Editor dei livelli ridimensionabile.</li></ul>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
@@ -4407,6 +4407,9 @@ function _applyEditorTranslations() {
   setText("#sid-lcd-color-lbl", t("sidLcdColor"));
   setText("#sid-player-buffer-lbl", t("sidPlayerBuffer"));
   setText("#sid-player-buffer-note", t("sidPlayerBufferNote"));
+  setText("#sid-player-fade-lbl", t("sidPlayerFade"));
+  setText("#sid-player-fade-off", t("sidPlayerFadeOff"));
+  setText("#sid-player-fade-note", t("sidPlayerFadeNote"));
   setText("#editor-settings-label", t("editorSettings"));
   setText("#editor-palette-label", t("editorPalette"));
   setText("#editor-palette-note", t("editorPaletteNote"));
@@ -6947,7 +6950,7 @@ function _blockToExpertLine(block) {
   if (block.isIncludeMacro) {
     // Preserve non-JSON extension (.inc/.asm/.s) so text round-trip doesn't lose it.
     const rawFile = (block.includeFile || "").split(/[\/\\]/).pop() || "";
-    const emitName = /\.(inc|asm|s)$/i.test(rawFile) ? rawFile : (block.includeFileName || "library.json");
+    const emitName = /\.(vas|inc|asm|s)$/i.test(rawFile) ? rawFile : (block.includeFileName || "library.vas");
     return `.include "${emitName}"${block.includeAddress ? ", $" + block.includeAddress.replace(/^\$/, "") : ""}`;
   }
   if (block.isLoopMacro)      return `.loop ${block.loopReg || "X"}, $${(block.loopCount || "0A").toUpperCase()}, ${block.loopLabel || "loop1"}`;
@@ -8529,7 +8532,7 @@ const _UB_COMMAND_REFERENCE = [
 
 function _canUseUltimateBasicMode(tab = _getActiveTab()) {
   // Az import és a beépített minta útvonal nélkül is assembler-forrás marad.
-  const file = tab?.filePath || (/\.(asm|s|a|a65|inc|acme|json|c64va|proj)$/i.test(tab?.name || "") ? tab.name : "");
+  const file = tab?.filePath || (/\.(asm|s|a|a65|inc|acme|vas|json|c64va|proj)$/i.test(tab?.name || "") ? tab.name : "");
   return !file || /\.ub$/i.test(file);
 }
 
@@ -13900,7 +13903,7 @@ function parseExpertText(text) {
     const includeDirM = line.match(/^\.include\s+"([^"]*)"\s*(?:,\s*\$([0-9A-Fa-f]{1,4}))?\s*$/i);
     if (includeDirM) {
       const _incName = includeDirM[1];
-      const _incFile = _incName ? (/\.(json|inc|asm|s)$/i.test(_incName) ? _incName : `${_incName}.json`) : "";
+      const _incFile = _incName ? (/\.(vas|json|inc|asm|s)$/i.test(_incName) ? _incName : `${_incName}.vas`) : "";
       const _incAddr = includeDirM[2] ? includeDirM[2].toUpperCase() : "";
       blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "INCLUDE", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: _incName.trim() ? "" : t("includeMacroNeedsFile"), collapsed: true, isIncludeMacro: true, includeFile: _incFile, includeFileName: _incName, includeAddress: _incAddr, includeCollapsed: false, includedBlocks: [] });
       if (commentText) blocks.push(_importMakeComment(commentText));
@@ -16209,7 +16212,7 @@ const _PROJ_SVG = {
 
 function _projFileIcon(name) {
   const ext = (name || "").split(".").pop().toLowerCase();
-  if (ext === "json" || ext === "c64va") return _PROJ_SVG.file_json;
+  if (ext === "vas" || ext === "json" || ext === "c64va") return _PROJ_SVG.file_json;
   return _PROJ_SVG.file_generic;
 }
 
@@ -16400,7 +16403,7 @@ function _projMoveEntry(container, entry, delta) {
 // set for its type. ub: the UltimateBasic tree (only .ub opens in VA).
 function _projOpensInSystem(name, ub = false) {
   const n = String(name || "");
-  return ub ? !/\.ub$/i.test(n) : !/\.(asm|s|a65|inc|json|c64va|proj)$/i.test(n);
+  return ub ? !/\.ub$/i.test(n) : !/\.(asm|s|a65|inc|vas|json|c64va|proj)$/i.test(n);
 }
 
 async function _projOpenInSystem(absPath) {
@@ -17369,7 +17372,7 @@ async function _expertProjectOpenFile(fileEntry) {
   for (const block of loadedProgram) {
     if (block.isIncludeMacro && !block.includeFile) {
       const name = block.includeFileName || "";
-      if (name) block.includeFile = /\.(json|inc|asm|s)$/i.test(name) ? name : `${name}.json`;
+      if (name) block.includeFile = /\.(vas|json|inc|asm|s)$/i.test(name) ? name : `${name}.vas`;
     }
     if (block.isIncBinMacro && !block.incBinFile) {
       const name = block.incBinFileName || "";
@@ -20657,7 +20660,7 @@ function _vcSmartDiff(oldPayload, newPayload) {
 // Fájltartalom (git show) → összehasonlítható payload a fájl típusa szerint
 function _vcParseFileContent(name, content) {
   if (/\.ub$/i.test(name)) return { ubText: content };
-  if (/\.json$/i.test(name)) {
+  if (/\.(vas|json)$/i.test(name)) {
     try { return JSON.parse(content); } catch { return { expertText: content, program: [] }; }
   }
   let program = [];
@@ -20743,7 +20746,7 @@ function _vcLineDiff(oldText, newText) {
 // A projekt-snapshot payloadja { kind: "project", files: { "<projektmappához relatív út>": szöveg } }.
 // A projektfa bináris fájljai (fontok, .koa, .bin, .sid…) "\0b64:<base64>" alakú szövegként kerülnek bele,
 // így az összehasonlítás és a hash ugyanúgy működik, mint a szövegfájloknál.
-const _VC_PROJECT_TEXT_RE = /\.(asm|s|a65|inc|ub|json)$/i;
+const _VC_PROJECT_TEXT_RE = /\.(asm|s|a65|inc|ub|vas|json)$/i;
 const _VC_BIN_PREFIX = "\0b64:";
 const _VC_BIN_MAX = 1024 * 1024;
 function _vcIsBin(content) {
@@ -20824,7 +20827,7 @@ function _vcProjectDiff(oldFiles, newFiles) {
     head.push(`--- ${status === "A" ? "/dev/null" : "a/" + path}`, `+++ ${status === "D" ? "/dev/null" : "b/" + path}`);
     const body = status === "A" ? after.split("\n").map(line => "+" + line).join("\n")
       : status === "D" ? before.split("\n").map(line => "-" + line).join("\n")
-      : /\.json$/i.test(path) ? _vcSmartDiff(_vcParseFileContent(path, before), _vcParseFileContent(path, after))
+      : /\.(vas|json)$/i.test(path) ? _vcSmartDiff(_vcParseFileContent(path, before), _vcParseFileContent(path, after))
       : _vcLineDiff(before, after);
     return head.concat(body ? [body] : []).join("\n");
   }).join("\n");
@@ -21089,13 +21092,13 @@ async function _vcResolveMode(tab) {
 // Egy korábbi verzió tartalma a szerkesztőbe kerül (nem a lemezre); mentéssel lesz végleges.
 async function _vcApplyText(tab, content) {
   const name = String(tab?.filePath || _vcUbFilePath(tab) || "");
-  if (/\.ub$/i.test(name) || (ultimateBasicMode && tab?.id === activeTabId && !/\.(json|asm|s|inc)$/i.test(name))) {
+  if (/\.ub$/i.test(name) || (ultimateBasicMode && tab?.id === activeTabId && !/\.(vas|json|asm|s|inc)$/i.test(name))) {
     if (!ultimateBasicMode || !ubEditor) { showViceToast(t("vcUnsupported"), true); return false; }
     ubEditor.value = content;
     ubEditor.dispatchEvent(new Event("input", { bubbles: true }));
     return true;
   }
-  if (/\.json$/i.test(name)) {
+  if (/\.(vas|json)$/i.test(name)) {
     let data = null;
     try { data = JSON.parse(content); } catch { data = null; }
     if (!data) { showViceToast(t("vcUnsupported"), true); return false; }
@@ -21152,9 +21155,9 @@ function _vcTabDirty(tab) {
 }
 function _vcTabText(tab, name) {
   if (_vcIsUbTab(tab)) return tab.id === activeTabId && ubEditor ? ubEditor.value : (tab.ubText || "");
-  if (tab.id === activeTabId && expertMode && expertEditor && !/\.json$/i.test(name)) return _expertGetSourceText();
+  if (tab.id === activeTabId && expertMode && expertEditor && !/\.(vas|json)$/i.test(name)) return _expertGetSourceText();
   const payload = _getCurrentProjectSnapshotPayload(tab);
-  return /\.json$/i.test(name) ? JSON.stringify(payload, null, 2) : _vcPayloadText(payload);
+  return /\.(vas|json)$/i.test(name) ? JSON.stringify(payload, null, 2) : _vcPayloadText(payload);
 }
 function _vcProjectContext(tab = _getActiveTab()) {
   const file = _vcTabFile(tab);
@@ -23060,7 +23063,7 @@ async function saveProjectToFile({ forceSaveAs = false } = {}) {
   }
 
   const tab = tabs?.find(t => t.id === activeTabId);
-  // A source file stays text: the VA JSON payload only goes to .json / .c64va (Ctrl+S on an .asm
+  // A source file stays text: the VA JSON payload only goes to .vas / .json / .c64va (Ctrl+S on an .asm
   // tab used to write the payload into the .asm, which only the app could read back).
   if (_isSourceFilePath(tab?.filePath)) {
     await _saveSourceTab(tab, forceSaveAs);
@@ -23068,7 +23071,7 @@ async function saveProjectToFile({ forceSaveAs = false } = {}) {
   }
   const existingPath = forceSaveAs ? "" : (tab?.filePath || "");
   const previousSnapshotPath = await _getProjectSnapshotStoragePath(tab);
-  const defaultName  = (tab?.name || "program").replace(/\.(json|c64va)$/i, "") + ".json";
+  const defaultName  = (tab?.name || "program").replace(/\.(vas|json|c64va)$/i, "") + ".vas";
 
   const payload = {
     ...getProjectPayload(),
@@ -23428,7 +23431,7 @@ function _collectBuildProjectTargets() {
   }
   if (!ultimateBasicMode && _expertProjectData) {
     return _flattenProjectFiles(_expertProjectData.files)
-      .filter(f => /\.(asm|s|a65|json)$/i.test(f.path))
+      .filter(f => /\.(asm|s|a65|vas|json)$/i.test(f.path))
       .map(f => ({ name: f.name, path: _projResolveAbsPath(f.path), kind: "asm", entry: f }));
   }
   return tabs.filter(_tabHasContent).map(tab => ({
@@ -23505,7 +23508,7 @@ async function buildProjectToFiles() {
       } else if (target.path) {
         const res = await window.electronAPI?.readTextFile?.(target.path);
         target.text = res?.ok ? res.content || "" : "";
-        if (/\.json$/i.test(target.path)) {
+        if (/\.(vas|json)$/i.test(target.path)) {
           try { target.blocks = JSON.parse(target.text).program; } catch (_) { target.blocks = null; }
           target.text = "";
         }
@@ -25934,6 +25937,13 @@ function setupHardwareSettingsDialog() {
     sidPlayerBuffer.value = String(_sidPlayerBufferSize());
     sidPlayerBuffer.addEventListener("change", function(e) {
       try { localStorage.setItem("c64va-sid-player-buffer", e.target.value); } catch (_) {}
+    });
+  }
+  const sidPlayerFade = document.getElementById("sid-player-fade");
+  if (sidPlayerFade) {
+    sidPlayerFade.value = String(_sidPlayerFadeSeconds());
+    sidPlayerFade.addEventListener("change", function(e) {
+      try { localStorage.setItem("c64va-sid-player-fade", e.target.value); } catch (_) {}
     });
   }
   document.getElementById("sid-preview-model")?.addEventListener("change", function(e) {
@@ -30991,7 +31001,7 @@ async function _applyProjectPayload(projectData, { sourceFilePath = "", keepFile
     if (hasIncludeFile) continue;
     const name = typeof block.includeFileName === "string" ? block.includeFileName.trim() : "";
     if (!name) continue;
-    block.includeFile = /\.(json|inc|asm|s)$/i.test(name) ? name : `${name}.json`;
+    block.includeFile = /\.(vas|json|inc|asm|s)$/i.test(name) ? name : `${name}.vas`;
   }
 
   // Backward compatibility for old INCBIN projects:
@@ -36958,7 +36968,7 @@ async function loadSampleFromFile(sampleName) {
   saveUiSettings();
 
   // Update file display with sample name
-  const displayName = `${sampleName}.c64va`;
+  const displayName = `${sampleName}.vas`;
   _setCurrentFile(displayName, displayName, null);
   markTabClean();
   _historyResetCurrent();
@@ -50670,6 +50680,15 @@ function _sidPlayerBufferSize() {
   try { n = parseInt(localStorage.getItem("c64va-sid-player-buffer"), 10) || 2048; } catch (_) {}
   return _sidPlayerAheadSeconds(n) ? n : 2048;
 }
+// Fade-out at the end of a tune in seconds (0 = off), c64va-sid-player-fade.
+function _sidPlayerFadeSeconds() {
+  let n = 10;
+  try {
+    const v = localStorage.getItem("c64va-sid-player-fade");
+    if (v !== null) n = parseInt(v, 10);
+  } catch (_) {}
+  return [0, 5, 10, 15].includes(n) ? n : 10;
+}
 
 function _buildPsidBytes(prgBytes, initAddr, playAddr, name, released = "2026", secondSid = 0) {
   const HEADER_LEN = 0x7C;
@@ -50815,7 +50834,7 @@ function _sidExtSetStatus(status) {
   }
   _sidExtStatus = status;
   if (status === "playing" && !_sidExtTick) {
-    _sidExtTick = setInterval(function() { _sidExtRender(); _sidPlayerAutoAdvance(); }, 250);
+    _sidExtTick = setInterval(function() { _sidExtRender(); _sidExtFadeUpdate(); _sidSearchPrefetchTick(); _sidPlayerAutoAdvance(); }, 250);
   }
   if (status !== "playing" && _sidExtTick) { clearInterval(_sidExtTick); _sidExtTick = null; }
   _sidExtRender();
@@ -50861,6 +50880,8 @@ function _sidExtPause() {
 function _sidExtStop() {
   if (_sidExternalCore) _sidExternalCoreStop(true);
   _sidExtSetStatus("stopped");
+  // the next tune starts at full volume
+  _sidExtFadeUpdate(true);
 }
 // The backend runs the skipped part silently. The counter and the bar jump at once; while a seek is running only the
 // newest target is kept, so quick clicks do not queue up several seeks.
@@ -50900,7 +50921,9 @@ async function _sidExtSeek(ms) {
 
 /* ── SID player window: playlist, skip, seek ───────────────────────────
  * A .sid file has no length, so every tune gets _SID_TUNE_LENGTH_MS on the
- * seek bar; after that the playlist moves on (the last tune keeps playing). */
+ * seek bar; the tune fades out over its last seconds (_sidPlayerFadeSeconds),
+ * then the playlist moves on (after the last tune it stops; with the fade off
+ * the last tune keeps playing). */
 function _sidEngineName() {
   return _sidPreviewEngine === "resid" ? "reSID" : "VA SID Core";
 }
@@ -51082,6 +51105,33 @@ function _sidSearchNextEntry() {
   return list[list.findIndex(function(e) { return e.p === s.path; }) + 1] || null;
 }
 
+// The next result is fetched during the last 30 s of a tune: a download at the
+// end let the ended tune run on into its loop, so its start was heard again.
+// { source, path, promise }; var: the tick may run before this point (TDZ).
+var _sidSearchPrefetch = null;
+function _sidSearchFetchBytes(source, entry) {
+  return _hvscFetchBytes(entry);
+}
+function _sidSearchFetch(source, entry) {
+  const pre = _sidSearchPrefetch;
+  if (pre && pre.source === source && pre.path === entry.p) {
+    _sidSearchPrefetch = null;
+    return pre.promise;
+  }
+  return _sidSearchFetchBytes(source, entry);
+}
+function _sidSearchPrefetchTick() {
+  const s = _sidSearchPlay;
+  if (!s || _sidExtStatus !== "playing" || _sidExtStarting || _sidSearchLoading) return;
+  // the file's next subtune comes first
+  if (_sidPlaySubtunes && s.item && s.item.song < s.item.info.songs) return;
+  if (_sidExtFadeEnd() - _sidExtElapsedMs() > 30000) return;
+  const next = _sidSearchNextEntry();
+  const pre = _sidSearchPrefetch;
+  if (!next || (pre && pre.source === s.source && pre.path === next.p)) return;
+  _sidSearchPrefetch = { source: s.source, path: next.p, promise: _sidSearchFetchBytes(s.source, next) };
+}
+
 // Plays an HVSC / Modland result without adding it to the playlist; a second
 // click while it downloads does nothing, a newer click wins.
 async function _sidSearchPlayEntry(source, entry) {
@@ -51090,7 +51140,7 @@ async function _sidSearchPlayEntry(source, entry) {
   _sidSearchLoading = { source, path: entry.p };
   _sidSearchRender();
   let bytes = null;
-  try { bytes = await _hvscFetchBytes(entry); }
+  try { bytes = await _sidSearchFetch(source, entry); }
   finally {
     if (seq === _sidSearchSeq) { _sidSearchLoading = null; _sidSearchRender(); }
   }
@@ -51267,8 +51317,12 @@ function _sidPlayerAutoAdvance() {
     else _sidPlayerPlayIndex(_sidPlaylistIndex);
   } else if (_sidSearchPlay) {
     if (_sidSearchNextEntry()) _sidSearchStep(1);
+    else if (_sidPlayerFadeSeconds() > 0) _sidExtStop();
   } else if (_sidShuffle ? _sidPlaylist.length > 1 : _sidPlaylistIndex < _sidPlaylist.length - 1) {
     _sidPlayerNext();
+  } else if (_sidPlayerFadeSeconds() > 0) {
+    // faded out with nothing after it: the end of the playlist
+    _sidExtStop();
   }
 }
 function _sidPlayerTickUi() {
@@ -51723,8 +51777,12 @@ function _hvscRender() {
   if (hvscField) hvscField.disabled = !ready;
   const list = document.getElementById("websid-hvsc-list");
   if (!list) return;
+  // emptying the list resets its scroll position: keep it (a new search starts at the top)
+  const scrollTop = list._results === _hvscResults ? list.scrollTop : 0;
+  list._results = _hvscResults;
   list.textContent = "";
   const inList = new Set(_sidPlaylist.map(function(item) { return item.hvsc; }).filter(Boolean));
+  let current = null;
   _hvscResults.forEach(function(entry, index) {
     const li = document.createElement("li");
     const loading = (_sidSearchLoading?.source === "hvsc" && _sidSearchLoading.path === entry.p) || !!_hvscAdding?.has(entry.p);
@@ -51755,8 +51813,12 @@ function _hvscRender() {
     save.setAttribute("aria-label", t("sidHvscSave"));
     li.append(name, who, len, add, save);
     list.appendChild(li);
-    if (playing && list._shown !== entry.p) { list._shown = entry.p; _sidPlayerRevealCurrent(list, li); }
+    if (playing) current = li;
   });
+  list.scrollTop = scrollTop;
+  const path = current ? current.dataset.path : null;
+  if (current && list._shown !== path) _sidPlayerRevealCurrent(list, current);
+  list._shown = path;
 }
 function _hvscFileName(entry) {
   return entry.p.slice(entry.p.lastIndexOf("/") + 1);
@@ -52817,9 +52879,44 @@ function _normLoudness(blocks) {
 function _playerNormOutput(ac) {
   if (!_playerNormNode || _playerNormNode.context !== ac) {
     _playerNormNode = ac.createGain();
-    _playerNormNode.connect(_sidExtGain);
+    _playerNormNode.connect(_sidExtFadeOutput(ac));
   }
   return _playerNormNode;
+}
+
+// The end-of-tune fade stage, between normalization and the master gain.
+let _sidExtFadeNode = null;
+function _sidExtFadeOutput(ac) {
+  if (!_sidExtFadeNode || _sidExtFadeNode.context !== ac) {
+    _sidExtFadeNode = ac.createGain();
+    _sidExtFadeNode.connect(_sidExtGain);
+  }
+  return _sidExtFadeNode;
+}
+// Gain at `elapsed` ms of a tune ending at `end` ms with a `fadeMs` fade; a short
+// tune fades over its last quarter at most.
+function _sidExtFadeLevel(elapsed, end, fadeMs) {
+  if (!(fadeMs > 0) || !(end > 0)) return 1;
+  const len = Math.min(fadeMs, end / 4);
+  return Math.max(0, Math.min(1, (end - elapsed) / len));
+}
+function _sidExtFadeEnd() {
+  return _sidPlayerTuneMs() || _SID_TUNE_LENGTH_MS;
+}
+// Called from the playback tick (250 ms): ramps to the level of the next tick.
+function _sidExtFadeUpdate(reset) {
+  const node = _sidExtFadeNode;
+  if (!node) return;
+  const param = node.gain, now = node.context.currentTime;
+  param.cancelScheduledValues(now);
+  if (reset) { param.setValueAtTime(1, now); return; }
+  const playing = _sidExtStatus === "playing";
+  const elapsed = _sidExtElapsedMs() + 250, end = _sidExtFadeEnd();
+  let level = playing ? _sidExtFadeLevel(elapsed, end, _sidPlayerFadeSeconds() * 1000) : 1;
+  // past its end while the next result still downloads the tune would loop back to its start
+  if (playing && _sidSearchLoading && elapsed >= end) level = 0;
+  param.setValueAtTime(param.value, now);
+  param.linearRampToValueAtTime(level, now + 0.25);
 }
 
 function _playerNormApply(smooth) {
@@ -60079,7 +60176,7 @@ const _supportFileCache = new Map();
 const _SUPPORT_MAX_FILES = 3;
 const _SUPPORT_MAX_BYTES = 4 * 1024 * 1024;
 // a register/lib.php VA_SUPPORT_FILE_EXT listája
-const _SUPPORT_FILE_EXT = ["png", "jpg", "jpeg", "gif", "webp", "txt", "log", "md", "asm", "s", "inc", "a65", "ub", "bas", "json", "csv",
+const _SUPPORT_FILE_EXT = ["png", "jpg", "jpeg", "gif", "webp", "txt", "log", "md", "asm", "s", "inc", "a65", "ub", "bas", "vas", "json", "csv",
   "proj", "prg", "d64", "d71", "d81", "t64", "crt", "sid", "bin", "seq", "koa", "kla", "zip", "7z"];
 function _supportSize(n) {
   return n >= 1048576 ? (n / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round(n / 1024)) + " KB";

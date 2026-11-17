@@ -394,16 +394,16 @@ function fileCases() {
     for (const f of fs.readdirSync(path.join(repo, dir)).sort()) {
       if (!filter(f)) continue;
       const file = path.join(repo, dir, f);
-      if (f.endsWith(".json")) {
+      if (/\.(vas|json)$/.test(f)) {
         const json = JSON.parse(fs.readFileSync(file, "utf8"));
         if (!Array.isArray(json.program)) continue;
-        out.push({ id: `${dir}-${f.replace(/\.json$/, "")}-blocks`, kind: "blocks", file: `${dir}/${f}`, blocks: json.program });
+        out.push({ id: `${dir}-${f.replace(/\.(vas|json)$/, "")}-blocks`, kind: "blocks", file: `${dir}/${f}`, blocks: json.program });
       } else {
         out.push({ id: `${dir}-${f.replace(/\.asm$/, "")}`, kind: "text", file: `${dir}/${f}`, text: fs.readFileSync(file, "utf8") });
       }
     }
   };
-  add("samples", f => /\.(asm|json)$/.test(f) && !f.endsWith(".snapshots.json"));
+  add("samples", f => /\.(asm|vas|json)$/.test(f) && !f.endsWith(".snapshots.json"));
   add("templates", f => f.endsWith(".asm") && !f.startsWith("acme-"));
   return out.map(c => ({ ...c, id: c.id.replace(/[^A-Za-z0-9_.-]+/g, "_"), baseDir: path.dirname(path.join(repo, c.file)) }));
 }

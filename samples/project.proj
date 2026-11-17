@@ -3,18 +3,18 @@
   "files": [
     {
       "type": "file",
-      "name": "include-demo.json",
-      "path": "include-demo.json"
+      "name": "include-demo.vas",
+      "path": "include-demo.vas"
     },
     {
       "type": "file",
-      "name": "macros.json",
-      "path": "macros.json"
+      "name": "macros.vas",
+      "path": "macros.vas"
     },
     {
       "type": "file",
-      "name": "macros-new.json",
-      "path": "macros-new.json"
+      "name": "macros-new.vas",
+      "path": "macros-new.vas"
     },
     {
       "type": "file",
@@ -22,5 +22,5 @@
       "path": "macros-new.asm"
     }
   ],
-  "startupFile": "include-demo.json"
+  "startupFile": "include-demo.vas"
 }
