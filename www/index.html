@@ -4156,6 +4156,16 @@ PRINTABLE CHARACTERS
               </select>
             </label>
             <p id="sid-player-buffer-note" class="menu-note">A larger buffer stops the crackle while the app is busy: the tune is rendered 10 / 15 / 20 / 30 s ahead.</p>
+            <label class="field compact-field hw-field">
+              <span id="sid-player-fade-lbl">Fade out at the end</span>
+              <select id="sid-player-fade" class="sid-select">
+                <option value="0" id="sid-player-fade-off">Off</option>
+                <option value="5">5 s</option>
+                <option value="10">10 s</option>
+                <option value="15">15 s</option>
+              </select>
+            </label>
+            <p id="sid-player-fade-note" class="menu-note">Many tunes never end, they just loop: the SID Player fades the tune out over its last seconds (the HVSC length, otherwise 3 minutes), then moves on, or stops after the last one.</p>
           </section>
           <section class="hw-settings-section">
             <h3 class="hw-settings-section-label" id="debugger-choice-section">Debugger</h3>
