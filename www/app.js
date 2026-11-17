@@ -6947,7 +6947,7 @@ function _blockToExpertLine(block) {
   if (block.isIncludeMacro) {
     // Preserve non-JSON extension (.inc/.asm/.s) so text round-trip doesn't lose it.
     const rawFile = (block.includeFile || "").split(/[\/\\]/).pop() || "";
-    const emitName = /\.(inc|asm|s)$/i.test(rawFile) ? rawFile : (block.includeFileName || "library.json");
+    const emitName = /\.(vas|inc|asm|s)$/i.test(rawFile) ? rawFile : (block.includeFileName || "library.vas");
     return `.include "${emitName}"${block.includeAddress ? ", $" + block.includeAddress.replace(/^\$/, "") : ""}`;
   }
   if (block.isLoopMacro)      return `.loop ${block.loopReg || "X"}, $${(block.loopCount || "0A").toUpperCase()}, ${block.loopLabel || "loop1"}`;
@@ -8529,7 +8529,7 @@ const _UB_COMMAND_REFERENCE = [
 
 function _canUseUltimateBasicMode(tab = _getActiveTab()) {
   // Az import és a beépített minta útvonal nélkül is assembler-forrás marad.
-  const file = tab?.filePath || (/\.(asm|s|a|a65|inc|acme|json|c64va|proj)$/i.test(tab?.name || "") ? tab.name : "");
+  const file = tab?.filePath || (/\.(asm|s|a|a65|inc|acme|vas|json|c64va|proj)$/i.test(tab?.name || "") ? tab.name : "");
   return !file || /\.ub$/i.test(file);
 }
 
@@ -13900,7 +13900,7 @@ function parseExpertText(text) {
     const includeDirM = line.match(/^\.include\s+"([^"]*)"\s*(?:,\s*\$([0-9A-Fa-f]{1,4}))?\s*$/i);
     if (includeDirM) {
       const _incName = includeDirM[1];
-      const _incFile = _incName ? (/\.(json|inc|asm|s)$/i.test(_incName) ? _incName : `${_incName}.json`) : "";
+      const _incFile = _incName ? (/\.(vas|json|inc|asm|s)$/i.test(_incName) ? _incName : `${_incName}.vas`) : "";
       const _incAddr = includeDirM[2] ? includeDirM[2].toUpperCase() : "";
       blocks.push({ id: crypto.randomUUID(), category: "Makrok", mnemonic: "INCLUDE", operand: "", rawOperand: "", description: "", addressingMode: "implied", base: "hex", validationError: _incName.trim() ? "" : t("includeMacroNeedsFile"), collapsed: true, isIncludeMacro: true, includeFile: _incFile, includeFileName: _incName, includeAddress: _incAddr, includeCollapsed: false, includedBlocks: [] });
       if (commentText) blocks.push(_importMakeComment(commentText));
@@ -16209,7 +16209,7 @@ const _PROJ_SVG = {
 
 function _projFileIcon(name) {
   const ext = (name || "").split(".").pop().toLowerCase();
-  if (ext === "json" || ext === "c64va") return _PROJ_SVG.file_json;
+  if (ext === "vas" || ext === "json" || ext === "c64va") return _PROJ_SVG.file_json;
   return _PROJ_SVG.file_generic;
 }
 
@@ -16400,7 +16400,7 @@ function _projMoveEntry(container, entry, delta) {
 // set for its type. ub: the UltimateBasic tree (only .ub opens in VA).
 function _projOpensInSystem(name, ub = false) {
   const n = String(name || "");
-  return ub ? !/\.ub$/i.test(n) : !/\.(asm|s|a65|inc|json|c64va|proj)$/i.test(n);
+  return ub ? !/\.ub$/i.test(n) : !/\.(asm|s|a65|inc|vas|json|c64va|proj)$/i.test(n);
 }
 
 async function _projOpenInSystem(absPath) {
@@ -17369,7 +17369,7 @@ async function _expertProjectOpenFile(fileEntry) {
   for (const block of loadedProgram) {
     if (block.isIncludeMacro && !block.includeFile) {
       const name = block.includeFileName || "";
-      if (name) block.includeFile = /\.(json|inc|asm|s)$/i.test(name) ? name : `${name}.json`;
+      if (name) block.includeFile = /\.(vas|json|inc|asm|s)$/i.test(name) ? name : `${name}.vas`;
     }
     if (block.isIncBinMacro && !block.incBinFile) {
       const name = block.incBinFileName || "";
@@ -20657,7 +20657,7 @@ function _vcSmartDiff(oldPayload, newPayload) {
 // Fájltartalom (git show) → összehasonlítható payload a fájl típusa szerint
 function _vcParseFileContent(name, content) {
   if (/\.ub$/i.test(name)) return { ubText: content };
-  if (/\.json$/i.test(name)) {
+  if (/\.(vas|json)$/i.test(name)) {
     try { return JSON.parse(content); } catch { return { expertText: content, program: [] }; }
   }
   let program = [];
@@ -20743,7 +20743,7 @@ function _vcLineDiff(oldText, newText) {
 // A projekt-snapshot payloadja { kind: "project", files: { "<projektmappához relatív út>": szöveg } }.
 // A projektfa bináris fájljai (fontok, .koa, .bin, .sid…) "\0b64:<base64>" alakú szövegként kerülnek bele,
 // így az összehasonlítás és a hash ugyanúgy működik, mint a szövegfájloknál.
-const _VC_PROJECT_TEXT_RE = /\.(asm|s|a65|inc|ub|json)$/i;
+const _VC_PROJECT_TEXT_RE = /\.(asm|s|a65|inc|ub|vas|json)$/i;
 const _VC_BIN_PREFIX = "\0b64:";
 const _VC_BIN_MAX = 1024 * 1024;
 function _vcIsBin(content) {
@@ -20824,7 +20824,7 @@ function _vcProjectDiff(oldFiles, newFiles) {
     head.push(`--- ${status === "A" ? "/dev/null" : "a/" + path}`, `+++ ${status === "D" ? "/dev/null" : "b/" + path}`);
     const body = status === "A" ? after.split("\n").map(line => "+" + line).join("\n")
       : status === "D" ? before.split("\n").map(line => "-" + line).join("\n")
-      : /\.json$/i.test(path) ? _vcSmartDiff(_vcParseFileContent(path, before), _vcParseFileContent(path, after))
+      : /\.(vas|json)$/i.test(path) ? _vcSmartDiff(_vcParseFileContent(path, before), _vcParseFileContent(path, after))
       : _vcLineDiff(before, after);
     return head.concat(body ? [body] : []).join("\n");
   }).join("\n");
@@ -21089,13 +21089,13 @@ async function _vcResolveMode(tab) {
 // Egy korábbi verzió tartalma a szerkesztőbe kerül (nem a lemezre); mentéssel lesz végleges.
 async function _vcApplyText(tab, content) {
   const name = String(tab?.filePath || _vcUbFilePath(tab) || "");
-  if (/\.ub$/i.test(name) || (ultimateBasicMode && tab?.id === activeTabId && !/\.(json|asm|s|inc)$/i.test(name))) {
+  if (/\.ub$/i.test(name) || (ultimateBasicMode && tab?.id === activeTabId && !/\.(vas|json|asm|s|inc)$/i.test(name))) {
     if (!ultimateBasicMode || !ubEditor) { showViceToast(t("vcUnsupported"), true); return false; }
     ubEditor.value = content;
     ubEditor.dispatchEvent(new Event("input", { bubbles: true }));
     return true;
   }
-  if (/\.json$/i.test(name)) {
+  if (/\.(vas|json)$/i.test(name)) {
     let data = null;
     try { data = JSON.parse(content); } catch { data = null; }
     if (!data) { showViceToast(t("vcUnsupported"), true); return false; }
@@ -21152,9 +21152,9 @@ function _vcTabDirty(tab) {
 }
 function _vcTabText(tab, name) {
   if (_vcIsUbTab(tab)) return tab.id === activeTabId && ubEditor ? ubEditor.value : (tab.ubText || "");
-  if (tab.id === activeTabId && expertMode && expertEditor && !/\.json$/i.test(name)) return _expertGetSourceText();
+  if (tab.id === activeTabId && expertMode && expertEditor && !/\.(vas|json)$/i.test(name)) return _expertGetSourceText();
   const payload = _getCurrentProjectSnapshotPayload(tab);
-  return /\.json$/i.test(name) ? JSON.stringify(payload, null, 2) : _vcPayloadText(payload);
+  return /\.(vas|json)$/i.test(name) ? JSON.stringify(payload, null, 2) : _vcPayloadText(payload);
 }
 function _vcProjectContext(tab = _getActiveTab()) {
   const file = _vcTabFile(tab);
@@ -23060,7 +23060,7 @@ async function saveProjectToFile({ forceSaveAs = false } = {}) {
   }
 
   const tab = tabs?.find(t => t.id === activeTabId);
-  // A source file stays text: the VA JSON payload only goes to .json / .c64va (Ctrl+S on an .asm
+  // A source file stays text: the VA JSON payload only goes to .vas / .json / .c64va (Ctrl+S on an .asm
   // tab used to write the payload into the .asm, which only the app could read back).
   if (_isSourceFilePath(tab?.filePath)) {
     await _saveSourceTab(tab, forceSaveAs);
@@ -23068,7 +23068,7 @@ async function saveProjectToFile({ forceSaveAs = false } = {}) {
   }
   const existingPath = forceSaveAs ? "" : (tab?.filePath || "");
   const previousSnapshotPath = await _getProjectSnapshotStoragePath(tab);
-  const defaultName  = (tab?.name || "program").replace(/\.(json|c64va)$/i, "") + ".json";
+  const defaultName  = (tab?.name || "program").replace(/\.(vas|json|c64va)$/i, "") + ".vas";
 
   const payload = {
     ...getProjectPayload(),
@@ -23428,7 +23428,7 @@ function _collectBuildProjectTargets() {
   }
   if (!ultimateBasicMode && _expertProjectData) {
     return _flattenProjectFiles(_expertProjectData.files)
-      .filter(f => /\.(asm|s|a65|json)$/i.test(f.path))
+      .filter(f => /\.(asm|s|a65|vas|json)$/i.test(f.path))
       .map(f => ({ name: f.name, path: _projResolveAbsPath(f.path), kind: "asm", entry: f }));
   }
   return tabs.filter(_tabHasContent).map(tab => ({
@@ -23505,7 +23505,7 @@ async function buildProjectToFiles() {
       } else if (target.path) {
         const res = await window.electronAPI?.readTextFile?.(target.path);
         target.text = res?.ok ? res.content || "" : "";
-        if (/\.json$/i.test(target.path)) {
+        if (/\.(vas|json)$/i.test(target.path)) {
           try { target.blocks = JSON.parse(target.text).program; } catch (_) { target.blocks = null; }
           target.text = "";
         }
@@ -30991,7 +30991,7 @@ async function _applyProjectPayload(projectData, { sourceFilePath = "", keepFile
     if (hasIncludeFile) continue;
     const name = typeof block.includeFileName === "string" ? block.includeFileName.trim() : "";
     if (!name) continue;
-    block.includeFile = /\.(json|inc|asm|s)$/i.test(name) ? name : `${name}.json`;
+    block.includeFile = /\.(vas|json|inc|asm|s)$/i.test(name) ? name : `${name}.vas`;
   }
 
   // Backward compatibility for old INCBIN projects:
@@ -36958,7 +36958,7 @@ async function loadSampleFromFile(sampleName) {
   saveUiSettings();
 
   // Update file display with sample name
-  const displayName = `${sampleName}.c64va`;
+  const displayName = `${sampleName}.vas`;
   _setCurrentFile(displayName, displayName, null);
   markTabClean();
   _historyResetCurrent();
@@ -60079,7 +60079,7 @@ const _supportFileCache = new Map();
 const _SUPPORT_MAX_FILES = 3;
 const _SUPPORT_MAX_BYTES = 4 * 1024 * 1024;
 // a register/lib.php VA_SUPPORT_FILE_EXT listája
-const _SUPPORT_FILE_EXT = ["png", "jpg", "jpeg", "gif", "webp", "txt", "log", "md", "asm", "s", "inc", "a65", "ub", "bas", "json", "csv",
+const _SUPPORT_FILE_EXT = ["png", "jpg", "jpeg", "gif", "webp", "txt", "log", "md", "asm", "s", "inc", "a65", "ub", "bas", "vas", "json", "csv",
   "proj", "prg", "d64", "d71", "d81", "t64", "crt", "sid", "bin", "seq", "koa", "kla", "zip", "7z"];
 function _supportSize(n) {
   return n >= 1048576 ? (n / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round(n / 1024)) + " KB";
