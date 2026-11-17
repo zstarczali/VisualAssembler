@@ -4,7 +4,7 @@
 
 <p align="center">
   <a href="https://www.c64va.pro"><img src="https://img.shields.io/badge/website-c64va.pro-e05d44?style=flat" alt="Website"></a>
-  <a href="https://github.com/zstarczali/VisualAssembler/releases/latest"><img src="https://img.shields.io/badge/version-v2.8.2-4c1" alt="Version"></a>
+  <a href="https://github.com/zstarczali/VisualAssembler/releases/latest"><img src="https://img.shields.io/badge/version-v2.8.3-4c1" alt="Version"></a>
   <a href="https://github.com/zstarczali/VisualAssembler/actions/workflows/build.yml"><img src="https://img.shields.io/github/actions/workflow/status/zstarczali/VisualAssembler/build.yml?branch=main&label=build" alt="Build"></a>
   <a href="https://github.com/zstarczali/VisualAssembler/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="License: MIT"></a>
   <a href="https://www.c64va.pro/register/donate.php"><img src="https://img.shields.io/badge/donate-PayPal-00457C?logo=paypal&logoColor=white" alt="Donate"></a>
@@ -30,9 +30,17 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.8.2**
+**Current version: v2.8.3**
 
 Visual Assembler is free and open source (MIT for original project code; see [third-party licenses](THIRD_PARTY_NOTICES.md)): every feature — editors, builds, hardware runs, languages and themes — works without a registration or serial. At most once a day the app sends an anonymous startup ping (version, OS, UI language, launch count, a random install ID) for the usage statistics; no email, project or source code is sent.
+
+## What's New in v2.8.3
+
+- **Fade out at the end** — many SID tunes and modules never end, they just loop. The SID Player now fades a tune out over its last seconds (its HVSC length, otherwise three minutes), then moves on, and stops after the last one. Set it in **Settings → General → SID preview → Fade out at the end** (Off / 5 / 10 / 15 s, 10 s by default); with it off, the last tune keeps playing as before.
+- **HVSC results without the playlist** — a click (or **Enter**) on a search result only plays it; when it ends, the next result plays, in order, and **Next** / **Previous** step through the results too. **+** still adds a tune to the playlist, and playing a playlist entry goes back to the playlist.
+- **Seamless switch between results** — the next result is downloaded during the last 30 seconds of a tune, so the previous tune no longer starts again for a moment while the next one downloads. The result list keeps its scroll position while it updates.
+- **`.vas` projects** — block-mode projects (Save offers `.vas`) and the bundled samples use the new `.vas` extension; file dialogs, includes, the project tree and version control accept it, and `.json` projects still open.
+- **MIT license** — the original Visual Assembler code is now MIT-licensed. VICE-, reSID- and SID-derived parts keep their GPL terms (see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)).
 
 ## What's New in v2.8.2
 

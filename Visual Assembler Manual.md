@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.8.2**
+**Version 2.8.3**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -8,6 +8,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 
 ## Table of Contents
 
+- [Version 2.8.3 Highlights](#version-283-highlights)
 - [Version 2.8.2 Highlights](#version-282-highlights)
 - [Version 2.8.1 Highlights](#version-281-highlights)
 - [Version 2.8.0 Highlights](#version-280-highlights)
@@ -149,6 +150,16 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
   - [Curve Editor](#curve-editor)
   - [Table Generator](#table-generator)
   - [Number Converter](#number-converter)
+
+---
+
+## Version 2.8.3 Highlights
+
+- **Fade out at the end** — the SID Player fades a tune out over its last seconds, then moves on, and stops after the last tune (**Off / 5 / 10 / 15 s**). See [SID Player](#sid-player).
+- **HVSC results without the playlist** — a click plays a result without adding it; when it ends the next result plays. See [HVSC](#hvsc-high-voltage-sid-collection).
+- **Seamless switch between results** — the next result is downloaded ahead, so the previous tune no longer starts again for a moment; the result list keeps its scroll position.
+- **`.vas` projects** — block-mode projects and the bundled samples use the new `.vas` extension; `.json` projects still open.
+- **MIT license** — the original code is MIT-licensed; VICE-, reSID- and SID-derived parts keep their GPL terms.
 
 ---
 
@@ -864,7 +875,7 @@ If you like the program, you can support its development with a donation: **Menu
 
 ### Workspaces
 
-A **workspace** (`.vaws` file) remembers which real, on-disk files were open across every tab — including each tab's editor mode and which tab was active — so you can reopen that exact set later. It is separate from a `.proj` project: a workspace can span any mix of Block/Expert `.json` project files, standalone `.asm` files, and Ultimate Basic `.ub`/`.proj` sources across multiple tabs.
+A **workspace** (`.vaws` file) remembers which real, on-disk files were open across every tab — including each tab's editor mode and which tab was active — so you can reopen that exact set later. It is separate from a `.proj` project: a workspace can span any mix of Block/Expert `.vas` (or older `.json`) project files, standalone `.asm` files, and Ultimate Basic `.ub`/`.proj` sources across multiple tabs.
 
 - Workspaces **auto-save** a few hundred milliseconds after you make a change once one has been saved or opened.
 - The app **auto-restores your last workspace** on launch, so your open tabs pick up where you left off.
@@ -2090,9 +2101,10 @@ The **SID Player** toolbar button opens a floating window that plays `.sid` musi
 - **Seek:** the position bar and **Back / Forward 10 s**; the skipped part runs silently.
 - **Volume:** the knob is shared with the SID Editor's master volume.
 - **Buffer:** **Settings → General → SID preview → SID Player buffer** (10, 15, 20 or 30 s). A larger buffer stops the crackle while the app is busy: the tune is rendered that far ahead, from the next tune on.
+- **Fade out at the end:** many tunes never end, they just loop. **Settings → General → SID preview → Fade out at the end** (Off, 5, 10 or 15 s; 10 s by default) fades a tune out over its last seconds, at its HVSC length or otherwise after three minutes, then the player moves on; after the last tune it stops. With **Off**, the tune ends without a fade and the last one keeps playing.
 - **Engine:** the window shows which engine is playing (reSID or VA SID Core, with the SID chip); choose it in **Settings → General → SID preview**. Both run the tune on a native Rust C64 core with a cycle-exact 6510, precise interrupt timing, CIA 6526A, VIC-II timing with bad lines, sprite DMA and raster interrupts, and the 6510 I/O port — so raster-IRQ, CIA-timed and digi tunes play with the timing of a real machine. 2SID and 3SID tunes play (PSID v3 / v4) in stereo: SID 1 left, SID 2 right, a third SID in the centre.
 - **Shuffle:** the shuffle button next to **Next** plays the playlist in random order — no tune repeats until every tune has played, and **Previous** steps back along the random order. The setting is remembered.
-- **Play subtunes in sequence:** the toggle before **Back 10 s**, on by default, plays the file's remaining subtunes one after the other before moving to the next playlist entry, also with shuffle and for a single file. A subtune lasts its HVSC length when known, otherwise three minutes. With the toggle off, the playlist moves on after the current subtune. At the end of the playlist, with shuffle off, the last subtune keeps playing until you stop it.
+- **Play subtunes in sequence:** the toggle before **Back 10 s**, on by default, plays the file's remaining subtunes one after the other before moving to the next playlist entry, also with shuffle and for a single file. A subtune lasts its HVSC length when known, otherwise three minutes. With the toggle off, the playlist moves on after the current subtune. At the end of the playlist, with shuffle off, the player stops after the last subtune has faded out; with **Fade out at the end** off, the last subtune keeps playing until you stop it.
 - **Normalize volume:** the button next to the spectrum analyzer plays every tune at about the same loudness: raised or lowered towards one level, by at most 12 dB, without clipping. A tune is measured on its first two seconds, then the level follows it slowly. If a tune with a quiet start was raised and a louder part follows, the level drops at once, before that part sounds, so it does not distort. The setting is remembered.
 - **Stars:** each row has 1 to 5 stars; click a star to rate the tune, click the same star again to clear it. The rating is kept in the saved state and in `.sidpl` playlists (an older playlist's favourite becomes one star). **Keep only starred tunes** in the toolbar removes every tune without a star, after a confirmation.
 - **Remove duplicates:** the toolbar button removes the tunes that are in the playlist more than once: the same HVSC path, or the same file bytes. The first copy stays, with the most stars any of its copies had.
@@ -2103,7 +2115,7 @@ The **HVSC** button in the SID Player toolbar opens a search panel for the [High
 
 - **Search:** type a title, composer or folder (`hubbard commando`, `games/s-z`); every word has to match. **Random tunes** lists 25 random ones.
 - **Composer:** the list next to the search field switches from **All** to **Composer**, which searches composer names only (`hubbard`, `rob hubbard`, `galway`) and lists the tunes by composer. The name comes from the tune's folder under `MUSICIANS`, so a composer is found by the folder's name, which may be a handle (`laxity`). About 4,600 tunes in `GAMES` and `DEMOS` have no composer folder: **All** finds them by title or folder.
-- **Play / add / save:** click a tune to play it, **+** adds it to the playlist, the download button saves the `.sid` file. While a tune downloads, a spinner replaces its **+**, and a second click does not add it again. **Add all results** adds up to 100 found tunes.
+- **Play / add / save:** click a tune (or press **Enter** for the first one) to play it; it is not added to the playlist, and when it ends the next result plays, in order (**Next** and **Previous** step through the results too). The next result is downloaded during the last 30 seconds, so the switch has no gap. Playing a playlist entry goes back to the playlist. **+** adds a tune to the playlist, the download button saves the `.sid` file. While a tune downloads, a spinner replaces its **+**, and a second click does not add it again. **Add all results** adds up to 100 found tunes.
 - **Tune lengths:** HVSC knows the length of every subtune, so the seek bar shows it and the playlist moves on when the subtune ends.
 - **Where tunes come from:** the catalog and single tunes are downloaded from an HVSC mirror on first use and kept in the app's cache, so a tune played once also plays offline. **Update catalog** fetches the newest list.
 - **Whole collection:** **Download the whole collection…** downloads the official HVSC archive (about 85 MB) into a folder you pick and unpacks it there (about 380 MB); from then on the player uses that copy and works offline. **Use a local HVSC folder…** points it at a collection you already have.
