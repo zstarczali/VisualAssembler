@@ -13,6 +13,7 @@
     getAppVersion: () => invoke("get_app_version"),
     getUltimateBasicVersion: () => invoke("get_ultimate_basic_version"),
     getVmaVersion: () => invoke("get_vma_version"),
+    getVaSidVersion: () => invoke("get_va_sid_version"),
     getR65Version: () => invoke("get_r65_version"),
     renderSidPreview: (payload) => invoke("render_sid_preview", { payload }),
     releaseSidPreview: (sessionId) => invoke("release_sid_preview", { sessionId }),

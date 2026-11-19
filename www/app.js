@@ -1367,6 +1367,9 @@ function initPalette() {
     const vmaVersion = await window.electronAPI?.getVmaVersion?.();
     const vmaVersionValue = document.getElementById("about-vma-version-value");
     if (vmaVersionValue) vmaVersionValue.textContent = vmaVersion ? `v${vmaVersion}` : "v?";
+    const vaSidVersion = await window.electronAPI?.getVaSidVersion?.();
+    const vaSidVersionValue = document.getElementById("about-va-sid-version-value");
+    if (vaSidVersionValue) vaSidVersionValue.textContent = vaSidVersion ? `v${vaSidVersion}` : "v?";
     const r65Version = await window.electronAPI?.getR65Version?.();
     const r65VersionValue = document.getElementById("about-r65-version-value");
     if (r65VersionValue) r65VersionValue.textContent = r65Version ? `v${r65Version}` : "v?";
@@ -3522,6 +3525,7 @@ function applyTranslations() {
     setText("#about-repo-label", t("aboutRepoLabel"));
     setText("#about-ub-version-label", t("aboutUbVersionLabel"));
     setText("#about-vma-version-label", t("aboutVmaVersionLabel"));
+    setText("#about-va-sid-version-label", t("aboutVaSidVersionLabel"));
     setText("#about-r65-version-label", t("aboutR65VersionLabel"));
   document.getElementById("undo-action")?.setAttribute("aria-label", t("undoAction"));
   document.getElementById("redo-action")?.setAttribute("aria-label", t("redoAction"));

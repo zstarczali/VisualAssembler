@@ -367,6 +367,13 @@ használja (`_textBuild` → `_buildR65Prg`, az eredmény ACME-alakban: `_r65Rep
 szövegek `_textKey("acme…")` → `r65…`). A projekt indítófájlját fordítja (`_r65Source`, az `#import`-okat az R65 olvassa).
 Teszt: `tests/r65-mode.test.js`. Ismert hiány: a Hires / Curve demó-generátorok R65-ben VA makrókat írnak.
 
+### SID emuláció — `va-sid` crate, külön repó
+
+**`F:\Development\VA-SID`** (GPL-3.0-or-later), a VA SID Studióval közös: `sid_core` (VA SID Core), `sid_chip` (+ `vendor/resid-rs`),
+`mos6510`, `c64/*`, `sid_file`, `session` (az előnézet és a .sid lejátszás session-logikája). Tauri-mentes; a `lib.rs` csak vékony
+`#[tauri::command]` wrappereket ad (`render_sid_preview`, `render_sid_file`, `sid_register_dump` …). Tesztek ott: `cargo test`.
+Függőség: `git = "https://github.com/zstarczali/VA-SID.git"` + `rev` (publikus repó); helyi munkához `[patch]` `path = "../../VA-SID"` (mint a VMA-nál, ne commitold).
+
 ### Exomizer
 `launch_exomizer` és `build_exomizer_prg` Tauri commands; tömörített SFX PRG.
 
