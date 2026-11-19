@@ -14,7 +14,7 @@
     rel="stylesheet">
   <link rel="icon" type="image/png" href="assets/icon.png">
   <link rel="shortcut icon" href="favicon.ico">
-  <link rel="stylesheet" href="style.css?v=2.8.3">
+  <link rel="stylesheet" href="style.css?v=2.8.4">
 </head>
 
 <body>
@@ -1567,7 +1567,7 @@ PRINTABLE CHARACTERS
           <img src="assets/logo-about.png" alt="C64 Visual Assembler" width="200" height="160">
         </div>
         <h2 class="about-title">C64 Visual Assembler</h2>
-        <p class="about-version" id="about-version">v2.8.3</p>
+        <p class="about-version" id="about-version">v2.8.4</p>
         <p class="about-version" id="about-ub-version"><span id="about-ub-version-label">UltimateBasic:</span> <span id="about-ub-version-value">v?</span></p>
         <p class="about-version" id="about-vma-version"><span id="about-vma-version-label">VMA:</span> <span id="about-vma-version-value">v?</span></p>
         <p class="about-version" id="about-r65-version"><span id="about-r65-version-label">R65:</span> <span id="about-r65-version-value">v?</span></p>
@@ -1605,7 +1605,16 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.8.3</p>
+      <p class="whats-new-version">v2.8.4</p>
+      <ul class="whats-new-list">
+        <li>
+          <strong>Top 50 in the HVSC panel:</strong> the star button next to <strong>Random tunes</strong> lists the 50 most popular C64 tunes, most popular first (the most remixed SID files and the originals most often in the C64 remix charts of Remix64). Click one to play it; when it ends the next one plays.
+        </li>
+        <li>
+          <strong>Resizable Spectrum window on macOS:</strong> the Spectrum window now has its own corner grip, like the Channel curves window, so it can be resized on macOS too; its size is remembered.
+        </li>
+      </ul>
+      <p class="whats-new-previous">v2.8.3</p>
       <ul class="whats-new-list">
         <li>
           <strong>Fade out at the end:</strong> many SID tunes never end, they just loop. The SID Player fades a tune out over its last seconds (its HVSC length, otherwise three minutes), then moves on, and stops after the last one. Set it in <strong>Settings → General → SID preview → Fade out at the end</strong> (Off / 5 / 10 / 15 s, 10 s by default).
@@ -1621,81 +1630,6 @@ PRINTABLE CHARACTERS
         </li>
         <li>
           <strong>MIT license:</strong> the original Visual Assembler code is now MIT-licensed; VICE-, reSID- and SID-derived parts keep their GPL terms.
-        </li>
-      </ul>
-      <p class="whats-new-previous">v2.8.2</p>
-      <ul class="whats-new-list">
-        <li>
-          <strong>Examples folder:</strong> the Examples dialog has an <strong>Examples folder</strong> button that opens the bundled samples in the file manager (they sit in the install folder, which is hard to find by hand).
-        </li>
-        <li>
-          <strong>Level Editor:</strong> the window resizes with its corner grip and remembers its size; it no longer shrinks below the size its content needs.
-        </li>
-        <li>
-          <strong>GameMaker sample assets:</strong> the <code>samples/gamemaker</code> folder now holds the charset, map, tiles and Level Editor project of the full-screen IRQ demo next to its source, ready to open in the Char, Map and Level editors.
-        </li>
-      </ul>
-      <p class="whats-new-previous">v2.8.1</p>
-      <ul class="whats-new-list">
-        <li>
-          <strong>Five new themes:</strong> <strong>Ruby</strong> (deep red), <strong>Amethyst</strong> (cool purple), <strong>Phosphor</strong> (a green phosphor monitor with a soft glow), <strong>Retro 80s</strong> (synthwave: neon pink and cyan, a sunset stripe and a neon grid) and <strong>Retro 8-bit</strong> (an 8-bit computer on a CRT: yellow keys, one monospace font, square corners, scanlines). Pick them in the theme picker or cycle with the theme button.
-        </li>
-        <li>
-          <strong>Tauri 2.12:</strong> the app runs on Tauri 2.12 (wry 0.57, WebView2 bindings 0.39).
-        </li>
-        <li>
-          <strong>Fixes:</strong> the <strong>Channel curves</strong> window opened from the SID Editor resizes again with its corner grip; the Hi-Res editor's <strong>MIX</strong> pattern list no longer stretches across the toolbar.
-        </li>
-      </ul>
-      <p class="whats-new-previous">v2.8.0</p>
-      <ul class="whats-new-list">
-        <li>
-          <strong>SID Editor legato:</strong> the new effect code <strong>L</strong> plays the note under the held gate: the instrument, its table and pulse width start again, the envelope is not retriggered. The wave / arpeggio table has a <strong>gate off</strong> box per step that releases the gate until the next note.
-        </li>
-        <li>
-          <strong>.sid import:</strong> legato notes become L notes, a gate released inside a note becomes a gate-off table step, and a silent intro starts on whole rows: the imported tunes follow the originals more closely.
-        </li>
-        <li>
-          <strong>VA SID Core 1.3:</strong> <code>$D418</code> digis play quietly on the 8580, as on the real chip; <strong>Settings → General → SID preview → 8580 digi boost</strong> makes them loud (reSID too).
-        </li>
-        <li>
-          <strong>Kick import through R65:</strong> <strong>Kick import</strong> and <strong>Import Kick project…</strong> let R65 build the source and write VMA that builds the same bytes, with Kick macros as VMA macros. A project becomes <code>&lt;name&gt;_vma.asm</code> and a VMA <code>.proj</code> next to the Kick sources.
-        </li>
-        <li>
-          <strong>Projects:</strong> files VA does not open start with their default app (double-click or right-click), and the right-click menu shows them in Explorer / Finder. An UltimateBasic <code>.proj</code> opened from Expert or Block mode opens in UltimateBasic mode.
-        </li>
-        <li>
-          <strong>Toolbars and work window:</strong> the Expert and the UltimateBasic toolbar have the same groups, order and icons (the UltimateBasic <strong>New</strong> button is gone, use Ctrl+N), and the work window lists the build phases.
-        </li>
-        <li>
-          <strong>Fixes:</strong> a label of hex letters (<code>BEQ bad</code>) stays a label through the blocks; Kick syntax highlighting of labels and calls.
-        </li>
-      </ul>
-      <p class="whats-new-previous">v2.7.9</p>
-      <ul class="whats-new-list">
-        <li>
-          <strong>R65 assembler:</strong> R65, a KickAssembler-compatible assembler, is built in. Choose <strong>R65 mode (KickAssembler)</strong> in Settings → General → Assembler mode next to VMA and ACME, or in Project settings. Build, Run, the Disassembly / Monitor panels, the memory map and the debugger files all use its build; About shows its version.
-        </li>
-        <li>
-          <strong>Build summary:</strong> the Build button of the Expert and the UltimateBasic toolbar shows the small work window of Run, ending with the size and the address range of the PRG.
-        </li>
-        <li>
-          <strong>Kick import:</strong> statements over several lines, <code>.errorif</code>, labels inside <code>.pseudopc</code> and <code>&lt;</code> / <code>&gt;</code> of a number import correctly, and a file that uses script features can open as a Kick project.
-        </li>
-        <li>
-          <strong>Smaller fixes:</strong> separators around the UltimateBasic file buttons; ACME and R65 sources without <code>* =</code> (for example with <code>BasicUpstart2</code>) run again.
-        </li>
-      </ul>
-      <p class="whats-new-previous">v2.7.8</p>
-      <ul class="whats-new-list">
-        <li>
-          <strong>Faster:</strong> building, running and the live views while you type are quicker: the native Rust compiler builds the program once, and every view reads that one build.
-        </li>
-        <li>
-          <strong>One compiler:</strong> every program is built by the Rust VMA compiler (VMA 2.3.0), and the disassembly, monitor, memory map, cycle gutter, hints and ASM view all read that same build. The JavaScript compiler and the <strong>VMA compiler</strong> setting are gone.
-        </li>
-        <li>
-          <strong>Local labels:</strong> a local label of another scope or with an offset, such as <code>JMP Second.lp</code> or <code>LDA .lp+1,X</code>, compiles as an absolute operand.
         </li>
       </ul>    
       <button id="whats-new-close" class="primary" type="button">OK</button>
@@ -3271,6 +3205,7 @@ PRINTABLE CHARACTERS
             <input id="websid-hvsc-search" class="websid-hvsc-search" type="search" spellcheck="false" autocomplete="off" placeholder="Search HVSC…">
             <div class="websid-play-tools">
               <button id="websid-hvsc-random" class="websid-play-tool" type="button" aria-label="Random tunes"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="2" width="12" height="12" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.2"/><circle cx="5.3" cy="5.3" r="1.1" fill="currentColor"/><circle cx="8" cy="8" r="1.1" fill="currentColor"/><circle cx="10.7" cy="10.7" r="1.1" fill="currentColor"/></svg></button>
+              <button id="websid-hvsc-classics" class="websid-play-tool" type="button" aria-label="Top 50"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.8l1.9 3.9 4.3.6-3.1 3 .7 4.3L8 11.6l-3.8 2 .7-4.3-3.1-3 4.3-.6z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg></button>
               <button id="websid-hvsc-add-all" class="websid-play-tool" type="button" aria-label="Add all results to the playlist"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 4h7M2 7.5h7M2 11h4.5M12 8.5v6M9 11.5h6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></button>
               <button id="websid-hvsc-refresh" class="websid-play-tool" type="button" aria-label="Update catalog"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13 8a5 5 0 1 1-1.5-3.6M13 2.5v3h-3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
               <button id="websid-hvsc-download" class="websid-play-tool" type="button" aria-label="Download the whole collection…"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5v7M5 5.5 8 8.5 11 5.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 9.5v3.5h12V9.5M4.5 11h7" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></button>
@@ -4359,10 +4294,10 @@ PRINTABLE CHARACTERS
     </div>
   </div>
 
-  <script src="tauri-bridge.js?v=2.8.3"></script>
-  <script src="i18n.js?v=2.8.3"></script>
-  <script src="tutorial-data.js?v=2.8.3"></script>
-  <script src="app.js?v=2.8.3"></script>
+  <script src="tauri-bridge.js?v=2.8.4"></script>
+  <script src="i18n.js?v=2.8.4"></script>
+  <script src="tutorial-data.js?v=2.8.4"></script>
+  <script src="app.js?v=2.8.4"></script>
 
 </body>
 

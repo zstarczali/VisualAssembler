@@ -1,5 +1,7 @@
 # Linux Installation Guide (Ubuntu / Debian)
-Version 2.8.3
+Version 2.8.4
+
+2.8.4: a Top 50 button in the SID Player's HVSC panel lists the 50 most popular C64 tunes (the most remixed ones, from Remix64); the Spectrum window resizes with its corner grip, also on macOS
 
 2.8.3: the SID Player fades tunes out at the end of their length (Settings, Fade out at the end: Off / 5 / 10 / 15 s) and stops after the last one; HVSC results play without going into the playlist, the next result is downloaded ahead so the switch is seamless, and the result list keeps its scroll position; sample projects use the new .vas extension; the original code is now MIT-licensed
 
@@ -100,7 +102,7 @@ Built on Ubuntu 22.04, so it runs there and on newer distributions; tested on Ub
 Download the `.deb` package from the releases page and install:
 
 ```bash
-  sudo dpkg -i "c64-visual-assembler_2.8.3_amd64.deb"
+  sudo dpkg -i "c64-visual-assembler_2.8.4_amd64.deb"
 sudo apt-get install -f   # fix any missing dependencies
 ```
 
@@ -219,4 +221,4 @@ The app propagates `DISPLAY`, `WAYLAND_DISPLAY`, `XDG_RUNTIME_DIR`, `DBUS_SESSIO
 - **Blank window, with `Failed to create GBM buffer` in the terminal:** start the application with `WEBKIT_DMABUF_RENDERER_DISABLE_GBM=1`, and if that does not help, with `WEBKIT_DISABLE_DMABUF_RENDERER=1` in front of its command.
 - **No sound, with `GStreamer element ... not found` in the terminal:** the SID Player seems to run, but stays silent. Install the plugins: `sudo apt install gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-alsa gstreamer1.0-pulseaudio`.
 
-**Version:** 2.8.3 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 2.8.4 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64

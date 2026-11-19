@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.8.3**
+**Version 2.8.4**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -8,6 +8,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 
 ## Table of Contents
 
+- [Version 2.8.4 Highlights](#version-284-highlights)
 - [Version 2.8.3 Highlights](#version-283-highlights)
 - [Version 2.8.2 Highlights](#version-282-highlights)
 - [Version 2.8.1 Highlights](#version-281-highlights)
@@ -150,6 +151,13 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
   - [Curve Editor](#curve-editor)
   - [Table Generator](#table-generator)
   - [Number Converter](#number-converter)
+
+---
+
+## Version 2.8.4 Highlights
+
+- **Top 50 in the HVSC panel** — the star button lists the 50 most popular C64 tunes (the most remixed ones, from Remix64). See [HVSC](#hvsc-high-voltage-sid-collection).
+- **Resizable Spectrum window on macOS** — the Spectrum window resizes with its own corner grip on every system. See [Spectrum analyzer](#spectrum-analyzer).
 
 ---
 
@@ -2114,6 +2122,7 @@ The **SID Player** toolbar button opens a floating window that plays `.sid` musi
 The **HVSC** button in the SID Player toolbar opens a search panel for the [High Voltage SID Collection](https://www.hvsc.c64.org/), about 61,000 C64 tunes.
 
 - **Search:** type a title, composer or folder (`hubbard commando`, `games/s-z`); every word has to match. **Random tunes** lists 25 random ones.
+- **Top 50:** the star button next to **Random tunes** lists the 50 most popular C64 tunes, most popular first. The list comes from Remix64 (remix64.com): the most remixed SID files and the originals most often in its C64 remix charts. The status line shows **top 50** with the number of tunes found in the catalog; typing a search or **Random tunes** leaves the list.
 - **Composer:** the list next to the search field switches from **All** to **Composer**, which searches composer names only (`hubbard`, `rob hubbard`, `galway`) and lists the tunes by composer. The name comes from the tune's folder under `MUSICIANS`, so a composer is found by the folder's name, which may be a handle (`laxity`). About 4,600 tunes in `GAMES` and `DEMOS` have no composer folder: **All** finds them by title or folder.
 - **Play / add / save:** click a tune (or press **Enter** for the first one) to play it; it is not added to the playlist, and when it ends the next result plays, in order (**Next** and **Previous** step through the results too). The next result is downloaded during the last 30 seconds, so the switch has no gap. Playing a playlist entry goes back to the playlist. **+** adds a tune to the playlist, the download button saves the `.sid` file. While a tune downloads, a spinner replaces its **+**, and a second click does not add it again. **Add all results** adds up to 100 found tunes.
 - **Tune lengths:** HVSC knows the length of every subtune, so the seek bar shows it and the playlist moves on when the subtune ends.
@@ -2122,7 +2131,7 @@ The **HVSC** button in the SID Player toolbar opens a search panel for the [High
 
 #### Spectrum analyzer
 
-The bar button in the SID Player toolbar opens the **Spectrum** window: LED-style bars from green through yellow to orange, cells that fade out slowly and a mirrored floor in perspective. It shows whatever the SID Player or the SID Editor plays, with either engine. **Bands** sets 8, 16, 24 or 32 bands. **View** chooses **Mix**, the analyzer of the output, or **Channels**, a separate analyzer for every voice (6 with two SIDs), calculated from the played registers rather than the sound. The window can be moved and resized, it closes and reopens together with the SID Player, and it draws only while it is open.
+The bar button in the SID Player toolbar opens the **Spectrum** window: LED-style bars from green through yellow to orange, cells that fade out slowly and a mirrored floor in perspective. It shows whatever the SID Player or the SID Editor plays, with either engine. **Bands** sets 8, 16, 24 or 32 bands. **View** chooses **Mix**, the analyzer of the output, or **Channels**, a separate analyzer for every voice (6 with two SIDs), calculated from the played registers rather than the sound. The window can be moved by its header and resized with the small grip in its lower right corner (on macOS too); its size is remembered. It closes and reopens together with the SID Player, and it draws only while it is open.
 
 The SID Editor has its own per-voice **Channel spectrum** window: see [SID Editor](#sid-editor-3-voice-tracker).
 

@@ -13557,7 +13557,7 @@ dialog.dlg-active[open]:not(:modal) > :first-child > :first-child,
 .sid-viz-card {
   width: 560px; height: 360px; min-width: 260px; min-height: 180px;
   max-width: calc(100vw - 16px); max-height: calc(100vh - 16px);
-  resize: both; overflow: hidden; box-sizing: border-box;
+  position: relative; overflow: hidden; box-sizing: border-box;
 }
 /* fit-content: "auto" plus the dialog's right: 0 stretched it to the window edge, so it could not be dragged sideways */
 .sid-viz-dialog { width: fit-content; right: auto; }

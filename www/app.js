@@ -77,54 +77,54 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "fade-283",
+  id: "top50-284",
   url: "https://www.c64va.pro/docs.html",
   hu: {
-    eyebrow: "Újdonság a 2.8.3-ban",
+    eyebrow: "Újdonság a 2.8.4-ben",
     title: "Üdvözöl a Visual Assembler",
-    body: `<ul><li><strong>Elhalkulás a szám végén</strong>: sok SID-dalnak nincs vége, csak ismétlődik. A SID Player az utolsó másodpercekben elhalkítja a számot (a HVSC szerinti hossznál, különben 3 percnél), továbblép, az utolsó után megáll. Beállítás: <strong>Beállítások → Általános → SID előnézet → Elhalkulás a végén</strong> (Ki / 5 / 10 / 15 mp).</li><li><strong>HVSC találatok lista nélkül</strong>: kattintásra a találat csak szól, nem kerül a lejátszási listára; a végén a következő találat jön, a <strong>Next</strong> / <strong>Previous</strong> is a találatokon lép.</li><li><strong>Hézagmentes váltás</strong>: a következő találat az utolsó 30 mp-ben letöltődik, így váltáskor már nem szól újra egy pillanatra az előző szám eleje; a találatlista megtartja a görgetést.</li><li>A minta-projektek új kiterjesztése <code>.vas</code>; a saját kód MIT-licencű lett.</li><li>A 2.8.2 újdonsága: <strong>Példák mappája</strong> gomb, átméretezhető Pálya szerkesztő.</li></ul>`,
+    body: `<ul><li><strong>Top 50</strong>: a SID Player HVSC paneljén a <strong>Véletlen dalok</strong> melletti csillag gomb az 50 legkedveltebb C64 dalt listázza (a Remix64 szerint legtöbbet remixelteket). Kattints egyre, és a végén jön a következő.</li><li><strong>Spectrum ablak</strong>: macOS-en is átméretezhető a jobb alsó sarkában lévő fogantyúval, és megjegyzi a méretét.</li><li>A 2.8.3 újdonsága: <strong>elhalkulás a szám végén</strong> (Beállítások → Általános → SID előnézet), HVSC találatok lejátszása lista nélkül, hézagmentes váltással.</li></ul>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
-    eyebrow: "New in 2.8.3",
+    eyebrow: "New in 2.8.4",
     title: "Welcome to Visual Assembler",
-    body: `<ul><li><strong>Fade out at the end</strong>: many SID tunes never end, they just loop. The SID Player fades a tune out over its last seconds (at its HVSC length, otherwise at 3 minutes), moves on, and stops after the last one. Set it in <strong>Settings → General → SID preview → Fade out at the end</strong> (Off / 5 / 10 / 15 s).</li><li><strong>HVSC results without the playlist</strong>: a click only plays a result, it is not added to the playlist; when it ends the next result plays, and <strong>Next</strong> / <strong>Previous</strong> step through the results.</li><li><strong>Seamless switch</strong>: the next result is downloaded during the last 30 s, so the previous tune no longer starts again for a moment; the result list keeps its scroll position.</li><li>Sample projects use the new <code>.vas</code> extension; the original code is now MIT-licensed.</li><li>New in 2.8.2: the <strong>Examples folder</strong> button and a resizable Level Editor.</li></ul>`,
+    body: `<ul><li><strong>Top 50</strong>: in the SID Player's HVSC panel the star button next to <strong>Random tunes</strong> lists the 50 most popular C64 tunes (the most remixed ones, from Remix64). Click one, and the next one follows when it ends.</li><li><strong>Spectrum window</strong>: resizes on macOS too, with the grip in its lower right corner, and remembers its size.</li><li>New in 2.8.3: <strong>fade out at the end</strong> of a tune (Settings → General → SID preview), HVSC results played without the playlist, with a seamless switch.</li></ul>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
-    eyebrow: "Novedad en la 2.8.3",
+    eyebrow: "Novedad en la 2.8.4",
     title: "Bienvenido a Visual Assembler",
-    body: `<ul><li><strong>Desvanecer al final</strong>: muchas melodías SID no terminan, solo se repiten. El SID Player desvanece la melodía en sus últimos segundos (en su duración de HVSC, si no a los 3 minutos), pasa a la siguiente y se detiene tras la última. Ajústalo en <strong>Ajustes → General → Vista previa SID → Desvanecer al final</strong> (No / 5 / 10 / 15 s).</li><li><strong>Resultados de HVSC sin la lista</strong>: un clic solo reproduce el resultado, no lo añade a la lista; al terminar suena el siguiente, y <strong>Next</strong> / <strong>Previous</strong> recorren los resultados.</li><li><strong>Cambio sin cortes</strong>: el siguiente resultado se descarga en los últimos 30 s, así ya no vuelve a sonar un instante el inicio de la melodía anterior; la lista de resultados conserva su desplazamiento.</li><li>Los proyectos de ejemplo usan la nueva extensión <code>.vas</code>; el código propio tiene ahora licencia MIT.</li><li>Novedad de la 2.8.2: el botón <strong>Carpeta de ejemplos</strong> y un Editor de niveles redimensionable.</li></ul>`,
+    body: `<ul><li><strong>Top 50</strong>: en el panel HVSC del SID Player, el botón de estrella junto a <strong>Temas aleatorios</strong> muestra las 50 músicas de C64 más populares (las más remezcladas, según Remix64). Haz clic en una y al terminar sigue la siguiente.</li><li><strong>Ventana Spectrum</strong>: ahora también se redimensiona en macOS con el asa de la esquina inferior derecha y recuerda su tamaño.</li><li>Novedad de la 2.8.3: <strong>desvanecer al final</strong> de la melodía (Ajustes → General → Vista previa SID) y resultados de HVSC sin la lista, con cambio sin cortes.</li></ul>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
-    eyebrow: "Neu in 2.8.3",
+    eyebrow: "Neu in 2.8.4",
     title: "Willkommen bei Visual Assembler",
-    body: `<ul><li><strong>Am Ende ausblenden</strong>: viele SID-Stücke enden nie, sie wiederholen sich nur. Der SID Player blendet ein Stück in seinen letzten Sekunden aus (bei seiner HVSC-Länge, sonst nach 3 Minuten), geht weiter und hält nach dem letzten an. Einstellung: <strong>Einstellungen → Allgemein → SID-Vorschau → Am Ende ausblenden</strong> (Aus / 5 / 10 / 15 s).</li><li><strong>HVSC-Treffer ohne Playlist</strong>: ein Klick spielt einen Treffer nur ab, er kommt nicht in die Playlist; danach folgt der nächste Treffer, und <strong>Next</strong> / <strong>Previous</strong> gehen durch die Treffer.</li><li><strong>Nahtloser Wechsel</strong>: der nächste Treffer wird in den letzten 30 s geladen, so klingt der Anfang des vorigen Stücks nicht mehr kurz an; die Trefferliste behält ihre Scrollposition.</li><li>Beispielprojekte nutzen die neue Endung <code>.vas</code>; der eigene Code steht jetzt unter der MIT-Lizenz.</li><li>Neu in 2.8.2: der Knopf <strong>Beispielordner</strong> und ein vergrößerbarer Level-Editor.</li></ul>`,
+    body: `<ul><li><strong>Top 50</strong>: im HVSC-Bereich des SID Players listet der Stern-Knopf neben <strong>Zufällige Stücke</strong> die 50 beliebtesten C64-Musiken (die meistgeremixten, laut Remix64). Ein Klick spielt eines, danach folgt das nächste.</li><li><strong>Spectrum-Fenster</strong>: lässt sich jetzt auch unter macOS mit dem Griff in der rechten unteren Ecke vergrößern und merkt sich die Größe.</li><li>Neu in 2.8.3: <strong>Ausblenden am Ende</strong> eines Stücks (Einstellungen → Allgemein → SID-Vorschau), HVSC-Treffer ohne Playlist mit nahtlosem Wechsel.</li></ul>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
-    eyebrow: "Nieuw in 2.8.3",
+    eyebrow: "Nieuw in 2.8.4",
     title: "Welkom bij Visual Assembler",
-    body: `<ul><li><strong>Uitfaden aan het einde</strong>: veel SID-nummers eindigen nooit, ze herhalen zich alleen. De SID Player laat een nummer in de laatste seconden uitfaden (bij zijn HVSC-lengte, anders na 3 minuten), gaat verder en stopt na het laatste. Instelling: <strong>Instellingen → Algemeen → SID-voorbeeld → Uitfaden aan het einde</strong> (Uit / 5 / 10 / 15 s).</li><li><strong>HVSC-resultaten zonder afspeellijst</strong>: een klik speelt een resultaat alleen af, het komt niet in de afspeellijst; daarna volgt het volgende resultaat, en <strong>Next</strong> / <strong>Previous</strong> stappen door de resultaten.</li><li><strong>Naadloze overgang</strong>: het volgende resultaat wordt in de laatste 30 s gedownload, dus het begin van het vorige nummer klinkt niet meer even opnieuw; de resultatenlijst houdt haar scrollpositie.</li><li>Voorbeeldprojecten gebruiken de nieuwe extensie <code>.vas</code>; de eigen code valt nu onder de MIT-licentie.</li><li>Nieuw in 2.8.2: de knop <strong>Map met voorbeelden</strong> en een vergrootbare Level-editor.</li></ul>`,
+    body: `<ul><li><strong>Top 50</strong>: in het HVSC-paneel van de SID Player toont de sterknop naast <strong>Willekeurige nummers</strong> de 50 populairste C64-nummers (de meest geremixte, volgens Remix64). Klik er één aan, daarna volgt het volgende.</li><li><strong>Spectrum-venster</strong>: is nu ook op macOS te vergroten met de greep rechtsonder en onthoudt zijn grootte.</li><li>Nieuw in 2.8.3: <strong>uitfaden aan het einde</strong> van een nummer (Instellingen → Algemeen → SID-voorbeeld), HVSC-resultaten zonder afspeellijst, met naadloze overgang.</li></ul>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
-    eyebrow: "Nowość w 2.8.3",
+    eyebrow: "Nowość w 2.8.4",
     title: "Witamy w Visual Assembler",
-    body: `<ul><li><strong>Wyciszanie na końcu</strong>: wiele utworów SID nigdy się nie kończy, tylko zapętla. SID Player wycisza utwór w ostatnich sekundach (przy długości z HVSC, w przeciwnym razie po 3 minutach), przechodzi dalej, a po ostatnim zatrzymuje się. Ustawienie: <strong>Ustawienia → Ogólne → Podgląd SID → Wyciszanie na końcu</strong> (Wył. / 5 / 10 / 15 s).</li><li><strong>Wyniki HVSC bez listy</strong>: kliknięcie tylko odtwarza wynik, nie dodaje go do listy; po nim gra następny wynik, a <strong>Next</strong> / <strong>Previous</strong> przechodzą po wynikach.</li><li><strong>Płynne przejście</strong>: następny wynik pobiera się w ostatnich 30 s, więc początek poprzedniego utworu nie odzywa się już na chwilę; lista wyników zachowuje przewinięcie.</li><li>Projekty przykładów mają nowe rozszerzenie <code>.vas</code>; własny kod jest teraz na licencji MIT.</li><li>Nowość w 2.8.2: przycisk <strong>Folder przykładów</strong> i edytor poziomów ze zmienianym rozmiarem.</li></ul>`,
+    body: `<ul><li><strong>Top 50</strong>: w panelu HVSC SID Playera przycisk z gwiazdką obok <strong>Losowe utwory</strong> pokazuje 50 najpopularniejszych utworów z C64 (najczęściej remiksowanych, wg Remix64). Kliknij jeden, a po nim zagra następny.</li><li><strong>Okno Spectrum</strong>: także na macOS zmienisz jego rozmiar uchwytem w prawym dolnym rogu; okno go zapamiętuje.</li><li>Nowość w 2.8.3: <strong>wyciszanie na końcu</strong> utworu (Ustawienia → Ogólne → Podgląd SID), wyniki HVSC bez listy, z płynnym przejściem.</li></ul>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
-    eyebrow: "Novità nella 2.8.3",
+    eyebrow: "Novità nella 2.8.4",
     title: "Benvenuto in Visual Assembler",
-    body: `<ul><li><strong>Dissolvenza alla fine</strong>: molti brani SID non finiscono mai, si ripetono soltanto. Il SID Player sfuma un brano negli ultimi secondi (alla sua durata HVSC, altrimenti dopo 3 minuti), passa al successivo e si ferma dopo l'ultimo. Impostazione: <strong>Impostazioni → Generali → Anteprima SID → Dissolvenza alla fine</strong> (No / 5 / 10 / 15 s).</li><li><strong>Risultati HVSC senza playlist</strong>: un clic riproduce solo il risultato, senza aggiungerlo alla playlist; alla fine suona il successivo, e <strong>Next</strong> / <strong>Previous</strong> scorrono i risultati.</li><li><strong>Passaggio senza interruzioni</strong>: il risultato successivo viene scaricato negli ultimi 30 s, così l'inizio del brano precedente non si sente più per un attimo; l'elenco dei risultati mantiene lo scorrimento.</li><li>I progetti di esempio usano la nuova estensione <code>.vas</code>; il codice originale ora è con licenza MIT.</li><li>Novità della 2.8.2: il pulsante <strong>Cartella degli esempi</strong> e un Editor dei livelli ridimensionabile.</li></ul>`,
+    body: `<ul><li><strong>Top 50</strong>: nel pannello HVSC del SID Player il pulsante a stella accanto a <strong>Brani casuali</strong> elenca le 50 musiche C64 più amate (le più remixate, secondo Remix64). Fai clic su una e alla fine parte la successiva.</li><li><strong>Finestra Spectrum</strong>: ora si ridimensiona anche su macOS con la maniglia nell'angolo in basso a destra e ricorda la dimensione.</li><li>Novità della 2.8.3: <strong>dissolvenza alla fine</strong> del brano (Impostazioni → Generali → Anteprima SID), risultati HVSC senza playlist, con passaggio senza interruzioni.</li></ul>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
@@ -4470,6 +4470,7 @@ function _applyEditorTranslations() {
   setText('#sid-viz-mode option[value="mix"]', t("sidVizMix"));
   setText('#sid-viz-mode option[value="channels"]', t("sidVizChannels"));
   setAttr("#websid-hvsc-random", t("sidHvscRandom"));
+  setAttr("#websid-hvsc-classics", t("sidHvscClassics"));
   setAttr("#websid-hvsc-add-all", t("sidHvscAddAll"));
   setAttr("#websid-hvsc-refresh", t("sidHvscRefresh"));
   setAttr("#websid-hvsc-search", t("sidHvscSearch"));
@@ -44754,6 +44755,7 @@ function setupSidPlayer() {
   on("websid-play-keep-starred", "click", _sidPlayerKeepStarred);
   on("websid-play-hvsc", "click", function() { _hvscSetOpen(!_hvscOpen()); });
   on("websid-hvsc-random", "click", _hvscShowRandom);
+  on("websid-hvsc-classics", "click", _hvscShowClassics);
   on("websid-hvsc-add-all", "click", _hvscAddAll);
   on("websid-hvsc-refresh", "click", function() { _hvscLoad(true); });
   on("websid-hvsc-folder", "click", _hvscToggleFolder);
@@ -51629,6 +51631,45 @@ function _hvscSearch(entries, query, limit = _HVSC_RESULT_LIMIT, field = "all") 
   hits.sort(function(a, b) { return rank(a) - rank(b) || a.t.localeCompare(b.t); });
   return { total: hits.length, items: hits.slice(0, limit) };
 }
+// Top 50 SID tunes (the Top 50 button), most popular first, as HVSC paths below
+// /MUSICIANS/ without ".sid". From Remix64 (remix64.com): the most remixed SID files
+// and the originals most often in its C64 remix charts (the SID Studio's list).
+const _HVSC_CLASSICS = [
+  "G/Gray_Matt/Last_Ninja_2", "D/Daglish_Ben/Last_Ninja", "H/Hubbard_Rob/Commando", "H/Huelsbeck_Chris/Great_Giana_Sisters",
+  "H/Hubbard_Rob/Delta", "H/Hubbard_Rob/Lightforce", "H/Hubbard_Rob/Monty_on_the_Run", "G/Galway_Martin/Parallax",
+  "H/Hubbard_Rob/Human_Race", "G/Galway_Martin/Wizball", "O/Ouwehand_Reyn/Last_Ninja_3", "T/Tel_Jeroen/Cybernoid_II",
+  "H/Hubbard_Rob/Sanxion", "G/Galway_Martin/Comic_Bakery", "S/Scarim_Nick/Spy_vs_Spy", "G/Galway_Martin/Arkanoid",
+  "H/Hubbard_Rob/International_Karate", "G/Galway_Martin/Green_Beret", "H/Hanlon_David/Enlightenment_Druid_II", "G/Galway_Martin/Rambo_First_Blood_Part_II",
+  "H/Hubbard_Rob/Warhawk", "H/Huelsbeck_Chris/R-Type", "C/Cooksey_Mark/Ghosts_n_Goblins", "O/Ouwehand_Reyn/Flimbos_Quest_intro",
+  "H/Hubbard_Rob/Spellbound", "H/Hubbard_Rob/Thrust", "H/Hubbard_Rob/Zoids", "H/Hubbard_Rob/Nemesis_the_Warlock",
+  "T/Tel_Jeroen/Supremacy", "G/Galway_Martin/Times_of_Lore", "B/Bjerregaard_Johannes/Sweet", "T/Tjelta_Geir/Artillery",
+  "D/Daglish_Ben/Bombo", "W/Whittaker_David/Armageddon_Man", "B/Beben_Wally/Tetris", "H/Hubbard_Rob/Last_V8",
+  "C/Cooksey_Mark/Battle_Ships", "H/Huelsbeck_Chris/Shades", "H/Hubbard_Rob/Thanatos", "H/Hubbard_Rob/ACE_II",
+  "G/Galway_Martin/Terra_Cresta", "T/Tel_Jeroen/Hawkeye", "D/Danko_Tomas/Plastic_Pop", "G/Galway_Martin/Rastan",
+  "D/Daglish_Ben/Firelord", "T/Tel_Jeroen/Dan_Dare_3", "S/Soulet_Gilles/Albedo", "G/Gray_Matt/Driller",
+  "T/Tjelta_Geir/Smile_to_the_Sky", "C/Clarke_Peter/Ocean_Loader_3",
+].map(function(p) { return "/MUSICIANS/" + p + ".sid"; });
+
+// What the result list shows when the search field is empty: "" (nothing / random) or "classics".
+// var: _hvscRunSearch can run before this line (TDZ).
+var _hvscListing = "";
+
+function _sidClassicEntries(entries, paths) {
+  const byPath = new Map((entries || []).map(function(e) { return [e.p, e]; }));
+  return paths.map(function(p) { return byPath.get(p); }).filter(Boolean);
+}
+
+function _hvscShowClassics() {
+  if (!_hvscEntries) return;
+  const search = document.getElementById("websid-hvsc-search");
+  if (search) search.value = "";
+  _hvscResults = _sidClassicEntries(_hvscEntries, _HVSC_CLASSICS);
+  _hvscTotal = _hvscResults.length;
+  _hvscListing = "classics";
+  _hvscRender();
+  _hvscPersist();
+}
+
 function _hvscRandom(entries, count) {
   const out = [];
   const used = new Set();
@@ -51697,7 +51738,10 @@ function _hvscFieldSync() {
 function _hvscRunSearch() {
   const query = document.getElementById("websid-hvsc-search")?.value || "";
   const res = _hvscSearch(_hvscEntries, query, _HVSC_RESULT_LIMIT, _hvscField());
-  _hvscResults = res.items;
+  if (query.trim() || _hvscListing !== "classics") {
+    _hvscListing = "";
+    _hvscResults = res.items;
+  }
   _hvscTotal = res.total;
   _hvscRender();
   _hvscPersist();
@@ -51707,6 +51751,7 @@ function _hvscShowRandom() {
   const search = document.getElementById("websid-hvsc-search");
   if (search) search.value = "";
   _hvscResults = _hvscRandom(_hvscEntries, 25);
+  _hvscListing = "";
   _hvscTotal = _hvscResults.length;
   _hvscRender();
   _hvscPersist();
@@ -51728,6 +51773,7 @@ function _hvscStatusText() {
   text += " · " + (_hvscSource === "local" ? t("sidHvscSourceLocal") : t("sidHvscSourceOnline"));
   const query = document.getElementById("websid-hvsc-search")?.value.trim();
   if (query) text += " · " + (_hvscTotal ? tf("sidHvscResults", { shown: _hvscResults.length, total: _hvscTotal }) : t("sidHvscNoResults"));
+  else if (_hvscListing === "classics") text += " · " + tf("sidClassicsShown", { count: _hvscResults.length });
   else if (!_hvscResults.length) text += " · " + t("sidHvscHint");
   return text;
 }
@@ -51755,6 +51801,11 @@ function _hvscRender() {
   const ready = !!_hvscEntries && !_hvscLoading;
   const random = document.getElementById("websid-hvsc-random");
   if (random) random.disabled = !ready;
+  const classics = document.getElementById("websid-hvsc-classics");
+  if (classics) {
+    classics.disabled = !ready;
+    classics.classList.toggle("websid-play-tool--active", _hvscListing === "classics");
+  }
   const refresh = document.getElementById("websid-hvsc-refresh");
   if (refresh) refresh.disabled = !_hvscAvailable() || !!_hvscLoading || _hvscSource === "local";
   const addAll = document.getElementById("websid-hvsc-add-all");
@@ -52399,11 +52450,10 @@ function setupSidVisualizer() {
     _sidVizWithPlayer = false;
   });
   const card = dlg.querySelector(".sid-viz-card");
-  if (card && typeof ResizeObserver !== "undefined") {
-    new ResizeObserver(function() {
-      if (dlg.open) _sidVizSave({ w: Math.round(card.offsetWidth), h: Math.round(card.offsetHeight) });
-    }).observe(card);
-  }
+  // own grip: CSS resize does not work in the macOS WebKit (the canvas covers its corner)
+  if (card) _sidSetupResizeHandle(card, function() {
+    _sidVizSave({ w: Math.round(card.offsetWidth), h: Math.round(card.offsetHeight) });
+  });
   const saved = _sidVizState();
   _sidVizSetBands(Number(saved.bands) || 16);
   if (saved.open && document.getElementById("websid-play-dialog")?.open) setTimeout(_sidVizShow, 0);
