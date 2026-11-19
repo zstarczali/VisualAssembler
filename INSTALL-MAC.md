@@ -1,5 +1,7 @@
 # macOS Installation Guide
-Version 2.8.3
+Version 2.8.4
+
+2.8.4: a Top 50 button in the SID Player's HVSC panel lists the 50 most popular C64 tunes (the most remixed ones, from Remix64); the Spectrum window resizes with its corner grip, also on macOS
 
 2.8.3: the SID Player fades tunes out at the end of their length (Settings, Fade out at the end: Off / 5 / 10 / 15 s) and stops after the last one; HVSC results play without going into the playlist, the next result is downloaded ahead so the switch is seamless, and the result list keeps its scroll position; sample projects use the new .vas extension; the original code is now MIT-licensed
 
@@ -141,7 +143,7 @@ Both `sfx sys` (Run/Build with Exomizer toggle) and `mem` mode (per-file EXO in 
 
 ---
 
-**Version:** 2.8.3 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 2.8.4 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
 
 ## Building from source: macOS app icon
 

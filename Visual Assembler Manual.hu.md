@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**Verzió: 2.8.3**
+**Verzió: 2.8.4**
 
 Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasításblokkok fogd-és-vidd módszerrel történő elrendezésével építed fel, a generált assembly és gépi kód pedig valós időben frissül.
 
@@ -10,6 +10,7 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 
 ## Tartalomjegyzék
 
+- [A 2.8.4 verzió újdonságai](#a-284-verzió-újdonságai)
 - [A 2.8.3 verzió újdonságai](#a-283-verzió-újdonságai)
 - [A 2.8.2 verzió újdonságai](#a-282-verzió-újdonságai)
 - [A 2.8.1 verzió újdonságai](#a-281-verzió-újdonságai)
@@ -152,6 +153,13 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
   - [Curve Editor](#curve-editor)
   - [Táblagenerátor](#táblagenerátor)
   - [Számrendszer-átváltó](#számrendszer-átváltó)
+
+---
+
+## A 2.8.4 verzió újdonságai
+
+- **Top 50 a HVSC panelen** — a csillag gomb az 50 legkedveltebb C64 dalt listázza (a Remix64 szerint legtöbbet remixelteket). Lásd: [HVSC](#hvsc-high-voltage-sid-collection).
+- **Átméretezhető Spectrum ablak macOS-en** — a Spectrum ablak minden rendszeren a saját sarokfogantyújával méretezhető. Lásd: [Spektrum-analizátor](#spektrum-analizátor).
 
 ---
 
@@ -2100,6 +2108,7 @@ A **SID Player** toolbar gomb egy lebegő ablakot nyit, amely `.sid` zenefájlok
 A SID Player eszköztárának **HVSC** gombja keresőpanelt nyit a [High Voltage SID Collection](https://www.hvsc.c64.org/) mintegy 61 000 C64 dalához.
 
 - **Keresés:** írj be címet, zeneszerzőt vagy mappát (`hubbard commando`, `games/s-z`); minden szónak egyeznie kell. A **Véletlen dalok** 25 véletlenszerű dalt listáz.
+- **Top 50:** a **Véletlen dalok** melletti csillag gomb az 50 legkedveltebb C64 dalt listázza, a legnépszerűbbel kezdve. A lista a Remix64-ről (remix64.com) származik: a legtöbbet remixelt SID-fájlok és a C64-es remix-toplistákon legtöbbször szereplő eredetik. Az állapotsor a **top 50** felirattal mutatja, hány dal van meg a katalógusban; kereséssel vagy a **Véletlen dalok** gombbal a lista eltűnik.
 - **Zeneszerző:** a keresőmező melletti listában a **Minden** helyett a **Zeneszerző** csak a szerzők nevében keres (`hubbard`, `rob hubbard`, `galway`), és szerzők szerint rendezve listáz. A név a dal `MUSICIANS` alatti mappájából jön, ezért a szerzőt a mappa nevén találod meg, ami lehet művésznév is (`laxity`). A `GAMES` és `DEMOS` mappák kb. 4600 dalának nincs szerzői mappája: ezeket a **Minden** találja meg cím vagy mappa alapján.
 - **Lejátszás / hozzáadás / mentés:** kattintásra (vagy **Enter**-re az első) szól, de nem kerül a lejátszási listára; a végén a következő találat jön sorban (a **Next** és a **Previous** is a találatokon lép). A következő találat az utolsó 30 másodpercben letöltődik, így a váltás hézagmentes. Lejátszási listás elem indítása visszavált a listára. A **+** a lejátszási listára teszi, a letöltés gomb elmenti a `.sid` fájlt. Letöltés közben a **+** helyén forgó jel látszik, és a második kattintás nem veszi fel újra. A **Minden találat a listára** legfeljebb 100 találatot vesz fel.
 - **Dalhosszak:** a HVSC minden aldal hosszát ismeri, ezért a pozíciósáv a valódi hosszt mutatja, és a lista az aldal végén lép tovább.
@@ -2108,7 +2117,7 @@ A SID Player eszköztárának **HVSC** gombja keresőpanelt nyit a [High Voltage
 
 #### Spektrum-analizátor
 
-A SID Player eszköztárának oszlopdiagram-gombja a **Spectrum** ablakot nyitja: LED-szerű oszlopok zöldtől sárgán át narancsig, lassan halványuló cellák és perspektivikus tükörpadló. Azt mutatja, ami a SID Playerben vagy a SID szerkesztőben szól, bármelyik motorral. A **Bands** 8, 16, 24 vagy 32 sávot állít. A **View** a **Mix** (a kimenet analizátora) és a **Channels** (hangonként külön analizátor, két SID-nél 6, a lejátszott regiszterekből számolva, nem a hangból) nézet között vált. Az ablak mozgatható és átméretezhető, a SID Playerrel együtt zárul és nyílik, és csak nyitva rajzol.
+A SID Player eszköztárának oszlopdiagram-gombja a **Spectrum** ablakot nyitja: LED-szerű oszlopok zöldtől sárgán át narancsig, lassan halványuló cellák és perspektivikus tükörpadló. Azt mutatja, ami a SID Playerben vagy a SID szerkesztőben szól, bármelyik motorral. A **Bands** 8, 16, 24 vagy 32 sávot állít. A **View** a **Mix** (a kimenet analizátora) és a **Channels** (hangonként külön analizátor, két SID-nél 6, a lejátszott regiszterekből számolva, nem a hangból) nézet között vált. Az ablak a fejlécénél mozgatható, a jobb alsó sarkában lévő kis fogantyúval átméretezhető (macOS-en is), a méretét megjegyzi. A SID Playerrel együtt zárul és nyílik, és csak nyitva rajzol.
 
 A SID Editornak saját, hangonkénti **Csatorna-spektrum** ablaka van: lásd [SID Editor](#sid-editor-3-voice-tracker).
 
