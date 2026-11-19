@@ -390,13 +390,12 @@ dependencies = [
 
 [[package]]
 name = "c64-visual-assembler"
-version = "2.8.4"
+version = "2.8.5"
 dependencies = [
  "base64 0.22.1",
  "emulator_6502",
  "r65",
  "reqwest 0.12.28",
- "resid-rs",
  "serde",
  "serde_json",
  "serialport",
@@ -410,6 +409,7 @@ dependencies = [
  "tauri-plugin-window-state",
  "ultimate-basic",
  "urlencoding",
+ "va-sid",
  "vma",
  "webview2-com",
 ]
@@ -3267,6 +3267,7 @@ dependencies = [
 [[package]]
 name = "resid-rs"
 version = "1.1.1"
+source = "git+https://github.com/zstarczali/VA-SID.git?rev=58d7206d13e7c5ba4c5e6888110ec78223f93a13#58d7206d13e7c5ba4c5e6888110ec78223f93a13"
 dependencies = [
  "bit_field",
 ]
@@ -4854,6 +4855,17 @@ dependencies = [
  "js-sys",
  "serde_core",
  "wasm-bindgen",
+]
+
+[[package]]
+name = "va-sid"
+version = "1.0.0"
+source = "git+https://github.com/zstarczali/VA-SID.git?rev=58d7206d13e7c5ba4c5e6888110ec78223f93a13#58d7206d13e7c5ba4c5e6888110ec78223f93a13"
+dependencies = [
+ "base64 0.22.1",
+ "resid-rs",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

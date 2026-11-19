@@ -45,8 +45,9 @@ test("the engine's name follows the setting, and the backend gets it", async () 
   assert.match(app.run(`_sidEngineLabel()`), /^VA SID Core v[\d.]+ \(MOS 6581\)$/);
 });
 
-test("the backend's engine names match the setting's values", () => {
-  const rust = fs.readFileSync(path.join(__dirname, "..", "src-tauri", "src", "sid_chip.rs"), "utf8");
+test("the backend's engine names match the setting's values", (t) => {
+  const rust = require("./helpers/va-sid-source.js").vaSidSource("sid_chip.rs");
+  if (rust === null) return t.skip("va-sid source not found");
   assert.ok(rust.includes('name.eq_ignore_ascii_case("resid")'));
   const html = read("index.html");
   assert.ok(html.includes('<option value="resid">') && html.includes('<option value="va-core">'));
