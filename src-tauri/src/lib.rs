@@ -616,7 +616,7 @@ fn get_vma_version() -> &'static str {
     env!("VMA_VERSION")
 }
 
-/// The va-sid crate's version and pinned commit (from Cargo.lock, build.rs).
+/// The va-sid crate's version (from Cargo.lock, build.rs).
 #[tauri::command]
 fn get_va_sid_version() -> &'static str {
     env!("VA_SID_VERSION")

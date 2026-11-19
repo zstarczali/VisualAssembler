@@ -77,54 +77,54 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "top50-284",
+  id: "va-sid-285",
   url: "https://www.c64va.pro/docs.html",
   hu: {
-    eyebrow: "Újdonság a 2.8.4-ben",
+    eyebrow: "Újdonság a 2.8.5-ben",
     title: "Üdvözöl a Visual Assembler",
-    body: `<ul><li><strong>Top 50</strong>: a SID Player HVSC paneljén a <strong>Véletlen dalok</strong> melletti csillag gomb az 50 legkedveltebb C64 dalt listázza (a Remix64 szerint legtöbbet remixelteket). Kattints egyre, és a végén jön a következő.</li><li><strong>Spectrum ablak</strong>: macOS-en is átméretezhető a jobb alsó sarkában lévő fogantyúval, és megjegyzi a méretét.</li><li>A 2.8.3 újdonsága: <strong>elhalkulás a szám végén</strong> (Beállítások → Általános → SID előnézet), HVSC találatok lejátszása lista nélkül, hézagmentes váltással.</li></ul>`,
+    body: `<ul><li><strong>Közös SID-emuláció</strong>: a VA SID Core, a reSID és a SID Player / SID szerkesztő mögötti ciklusra pontos C64 egyetlen könyvtárból, a <strong>va-sid</strong>-ből jön, amelyet a VA SID Studio is használ, így a két alkalmazás minden dalt ugyanúgy játszik le. A hangzás nem változik.</li><li>A <strong>Névjegy</strong> ablak a VA-SID verzióját is mutatja.</li><li>A 2.8.4 újdonsága: <strong>Top 50</strong> a SID Player HVSC paneljén, és macOS-en is átméretezhető Spectrum ablak.</li></ul>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
-    eyebrow: "New in 2.8.4",
+    eyebrow: "New in 2.8.5",
     title: "Welcome to Visual Assembler",
-    body: `<ul><li><strong>Top 50</strong>: in the SID Player's HVSC panel the star button next to <strong>Random tunes</strong> lists the 50 most popular C64 tunes (the most remixed ones, from Remix64). Click one, and the next one follows when it ends.</li><li><strong>Spectrum window</strong>: resizes on macOS too, with the grip in its lower right corner, and remembers its size.</li><li>New in 2.8.3: <strong>fade out at the end</strong> of a tune (Settings → General → SID preview), HVSC results played without the playlist, with a seamless switch.</li></ul>`,
+    body: `<ul><li><strong>Shared SID emulation</strong>: VA SID Core, reSID and the cycle-exact C64 behind the SID Player and the SID Editor now come from one library, <strong>va-sid</strong>, which VA SID Studio uses too, so both apps play every tune the same way. The sound does not change.</li><li>The <strong>About</strong> window shows the VA-SID version.</li><li>New in 2.8.4: <strong>Top 50</strong> in the SID Player's HVSC panel, and a Spectrum window that resizes on macOS too.</li></ul>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
-    eyebrow: "Novedad en la 2.8.4",
+    eyebrow: "Novedad en la 2.8.5",
     title: "Bienvenido a Visual Assembler",
-    body: `<ul><li><strong>Top 50</strong>: en el panel HVSC del SID Player, el botón de estrella junto a <strong>Temas aleatorios</strong> muestra las 50 músicas de C64 más populares (las más remezcladas, según Remix64). Haz clic en una y al terminar sigue la siguiente.</li><li><strong>Ventana Spectrum</strong>: ahora también se redimensiona en macOS con el asa de la esquina inferior derecha y recuerda su tamaño.</li><li>Novedad de la 2.8.3: <strong>desvanecer al final</strong> de la melodía (Ajustes → General → Vista previa SID) y resultados de HVSC sin la lista, con cambio sin cortes.</li></ul>`,
+    body: `<ul><li><strong>Emulación SID compartida</strong>: VA SID Core, reSID y el C64 con precisión de ciclo detrás del SID Player y del editor SID vienen ahora de una sola biblioteca, <strong>va-sid</strong>, que también usa VA SID Studio, así que ambas aplicaciones reproducen cada melodía igual. El sonido no cambia.</li><li>La ventana <strong>Acerca de</strong> muestra la versión de VA-SID.</li><li>Novedad de la 2.8.4: <strong>Top 50</strong> en el panel HVSC del SID Player y la ventana Spectrum redimensionable también en macOS.</li></ul>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
-    eyebrow: "Neu in 2.8.4",
+    eyebrow: "Neu in 2.8.5",
     title: "Willkommen bei Visual Assembler",
-    body: `<ul><li><strong>Top 50</strong>: im HVSC-Bereich des SID Players listet der Stern-Knopf neben <strong>Zufällige Stücke</strong> die 50 beliebtesten C64-Musiken (die meistgeremixten, laut Remix64). Ein Klick spielt eines, danach folgt das nächste.</li><li><strong>Spectrum-Fenster</strong>: lässt sich jetzt auch unter macOS mit dem Griff in der rechten unteren Ecke vergrößern und merkt sich die Größe.</li><li>Neu in 2.8.3: <strong>Ausblenden am Ende</strong> eines Stücks (Einstellungen → Allgemein → SID-Vorschau), HVSC-Treffer ohne Playlist mit nahtlosem Wechsel.</li></ul>`,
+    body: `<ul><li><strong>Gemeinsame SID-Emulation</strong>: VA SID Core, reSID und der zyklusgenaue C64 hinter SID Player und SID-Editor kommen jetzt aus einer Bibliothek, <strong>va-sid</strong>, die auch VA SID Studio nutzt, sodass beide Programme jedes Stück gleich abspielen. Der Klang ändert sich nicht.</li><li>Das <strong>Über</strong>-Fenster zeigt die VA-SID-Version.</li><li>Neu in 2.8.4: <strong>Top 50</strong> im HVSC-Bereich des SID Players und ein Spectrum-Fenster, das sich auch unter macOS vergrößern lässt.</li></ul>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
-    eyebrow: "Nieuw in 2.8.4",
+    eyebrow: "Nieuw in 2.8.5",
     title: "Welkom bij Visual Assembler",
-    body: `<ul><li><strong>Top 50</strong>: in het HVSC-paneel van de SID Player toont de sterknop naast <strong>Willekeurige nummers</strong> de 50 populairste C64-nummers (de meest geremixte, volgens Remix64). Klik er één aan, daarna volgt het volgende.</li><li><strong>Spectrum-venster</strong>: is nu ook op macOS te vergroten met de greep rechtsonder en onthoudt zijn grootte.</li><li>Nieuw in 2.8.3: <strong>uitfaden aan het einde</strong> van een nummer (Instellingen → Algemeen → SID-voorbeeld), HVSC-resultaten zonder afspeellijst, met naadloze overgang.</li></ul>`,
+    body: `<ul><li><strong>Gedeelde SID-emulatie</strong>: VA SID Core, reSID en de cyclusnauwkeurige C64 achter de SID Player en de SID-editor komen nu uit één bibliotheek, <strong>va-sid</strong>, die ook VA SID Studio gebruikt, zodat beide apps elk nummer hetzelfde afspelen. Het geluid verandert niet.</li><li>Het venster <strong>Over</strong> toont de VA-SID-versie.</li><li>Nieuw in 2.8.4: <strong>Top 50</strong> in het HVSC-paneel van de SID Player en een Spectrum-venster dat ook op macOS te vergroten is.</li></ul>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
-    eyebrow: "Nowość w 2.8.4",
+    eyebrow: "Nowość w 2.8.5",
     title: "Witamy w Visual Assembler",
-    body: `<ul><li><strong>Top 50</strong>: w panelu HVSC SID Playera przycisk z gwiazdką obok <strong>Losowe utwory</strong> pokazuje 50 najpopularniejszych utworów z C64 (najczęściej remiksowanych, wg Remix64). Kliknij jeden, a po nim zagra następny.</li><li><strong>Okno Spectrum</strong>: także na macOS zmienisz jego rozmiar uchwytem w prawym dolnym rogu; okno go zapamiętuje.</li><li>Nowość w 2.8.3: <strong>wyciszanie na końcu</strong> utworu (Ustawienia → Ogólne → Podgląd SID), wyniki HVSC bez listy, z płynnym przejściem.</li></ul>`,
+    body: `<ul><li><strong>Wspólna emulacja SID</strong>: VA SID Core, reSID i dokładny co do cyklu C64 za SID Playerem i edytorem SID pochodzą teraz z jednej biblioteki, <strong>va-sid</strong>, której używa też VA SID Studio, więc obie aplikacje odtwarzają każdy utwór tak samo. Brzmienie się nie zmienia.</li><li>Okno <strong>O programie</strong> pokazuje wersję VA-SID.</li><li>Nowość w 2.8.4: <strong>Top 50</strong> w panelu HVSC SID Playera i okno Spectrum o zmiennym rozmiarze także na macOS.</li></ul>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
-    eyebrow: "Novità nella 2.8.4",
+    eyebrow: "Novità nella 2.8.5",
     title: "Benvenuto in Visual Assembler",
-    body: `<ul><li><strong>Top 50</strong>: nel pannello HVSC del SID Player il pulsante a stella accanto a <strong>Brani casuali</strong> elenca le 50 musiche C64 più amate (le più remixate, secondo Remix64). Fai clic su una e alla fine parte la successiva.</li><li><strong>Finestra Spectrum</strong>: ora si ridimensiona anche su macOS con la maniglia nell'angolo in basso a destra e ricorda la dimensione.</li><li>Novità della 2.8.3: <strong>dissolvenza alla fine</strong> del brano (Impostazioni → Generali → Anteprima SID), risultati HVSC senza playlist, con passaggio senza interruzioni.</li></ul>`,
+    body: `<ul><li><strong>Emulazione SID condivisa</strong>: VA SID Core, reSID e il C64 preciso al ciclo dietro il SID Player e l'editor SID arrivano ora da un'unica libreria, <strong>va-sid</strong>, usata anche da VA SID Studio, così le due applicazioni riproducono ogni brano allo stesso modo. Il suono non cambia.</li><li>La finestra <strong>Informazioni</strong> mostra la versione di VA-SID.</li><li>Novità della 2.8.4: <strong>Top 50</strong> nel pannello HVSC del SID Player e la finestra Spectrum ridimensionabile anche su macOS.</li></ul>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }

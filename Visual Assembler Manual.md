@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.8.4**
+**Version 2.8.5**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -8,6 +8,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 
 ## Table of Contents
 
+- [Version 2.8.5 Highlights](#version-285-highlights)
 - [Version 2.8.4 Highlights](#version-284-highlights)
 - [Version 2.8.3 Highlights](#version-283-highlights)
 - [Version 2.8.2 Highlights](#version-282-highlights)
@@ -151,6 +152,13 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
   - [Curve Editor](#curve-editor)
   - [Table Generator](#table-generator)
   - [Number Converter](#number-converter)
+
+---
+
+## Version 2.8.5 Highlights
+
+- **Shared SID emulation** — VA SID Core, reSID and the cycle-exact C64 behind the SID Player and the SID Editor come from one library, [va-sid](https://github.com/zstarczali/VA-SID), shared with VA SID Studio, so both apps play every tune the same way; the sound does not change. See [SID Player](#sid-player).
+- **VA-SID version in About** — the About window shows the VA-SID version next to UltimateBasic, VMA and R65.
 
 ---
 

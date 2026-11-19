@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**Verzió: 2.8.4**
+**Verzió: 2.8.5**
 
 Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasításblokkok fogd-és-vidd módszerrel történő elrendezésével építed fel, a generált assembly és gépi kód pedig valós időben frissül.
 
@@ -10,6 +10,7 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 
 ## Tartalomjegyzék
 
+- [A 2.8.5 verzió újdonságai](#a-285-verzió-újdonságai)
 - [A 2.8.4 verzió újdonságai](#a-284-verzió-újdonságai)
 - [A 2.8.3 verzió újdonságai](#a-283-verzió-újdonságai)
 - [A 2.8.2 verzió újdonságai](#a-282-verzió-újdonságai)
@@ -153,6 +154,13 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
   - [Curve Editor](#curve-editor)
   - [Táblagenerátor](#táblagenerátor)
   - [Számrendszer-átváltó](#számrendszer-átváltó)
+
+---
+
+## A 2.8.5 verzió újdonságai
+
+- **Közös SID-emuláció** — a VA SID Core, a reSID és a SID Player / SID szerkesztő mögötti ciklusra pontos C64 egyetlen könyvtárból, a [va-sid](https://github.com/zstarczali/VA-SID)-ből jön, amelyet a VA SID Studio is használ, így a két alkalmazás minden dalt ugyanúgy játszik le; a hangzás nem változik. Lásd: [SID Player](#sid-player).
+- **VA-SID verzió a Névjegyben** — a Névjegy ablak az UltimateBasic, a VMA és az R65 mellett a VA-SID verzióját is mutatja.
 
 ---
 

@@ -1,5 +1,7 @@
 # macOS Installation Guide
-Version 2.8.4
+Version 2.8.5
+
+2.8.5: the SID emulation (VA SID Core, reSID and the C64 behind the SID Player and the SID Editor) is now the shared va-sid library, the same one VA SID Studio uses; the sound does not change, and About shows the VA-SID version
 
 2.8.4: a Top 50 button in the SID Player's HVSC panel lists the 50 most popular C64 tunes (the most remixed ones, from Remix64); the Spectrum window resizes with its corner grip, also on macOS
 
@@ -143,7 +145,7 @@ Both `sfx sys` (Run/Build with Exomizer toggle) and `mem` mode (per-file EXO in 
 
 ---
 
-**Version:** 2.8.4 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 2.8.5 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
 
 ## Building from source: macOS app icon
 
