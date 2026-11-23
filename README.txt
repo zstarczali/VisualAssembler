@@ -1,5 +1,7 @@
 C64 Visual Assembler - Installation Guide
-Version 2.8.5
+Version 2.8.6
+
+2.8.6: wave / arpeggio table steps in the SID Editor can have their own length, pulse width and filter (up to 64 steps per table), and .sid import turns speech and other GoatTracker table sounds into such steps; GoatTracker's hard restart is recognized. .bin files with the new steps need 2.8.6 or later
 
 2.8.5: the SID emulation (VA SID Core, reSID and the C64 behind the SID Player and the SID Editor) is now the shared va-sid library, the same one VA SID Studio uses; the sound does not change, and About shows the VA-SID version
 

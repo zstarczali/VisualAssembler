@@ -478,3 +478,51 @@ test("hard restart only when the ADSR is zeroed with the gate: otherwise the rel
   assert.deepEqual([late.gateTimer, late.hr], [4, false]);
   assert.deepEqual([early.gateTimer, early.hr], [4, true]);
 });
+
+// Speech: voice 3 takes the filter for itself and steps waveform, pulse width and filter.
+function speechDump() {
+  const d = dump(80, [{ v: 2, frame: 0, note: 43, len: 20, hold: 30, wave: 0x40, ad: 0, sr: 0xF4 }, { v: 2, frame: 40, note: 55, len: 20, hold: 30, wave: 0x40, ad: 0, sr: 0xF4 }]);
+  const { freq } = load();
+  [[0, 43], [40, 55]].forEach(([f0, note]) => {
+    for (let i = 0; i < 40; i++) {
+      const o = (f0 + i) * FB, gate = i < 20 ? 1 : 0;
+      const seg = i === 0 ? { w: 0, pw: 0 } : i < 5 ? { w: 0x80, n: 87, flt: [0x34, 0x44, 0x2F], pw: 0x800 } : i < 9 ? { w: 0x20, flt: [0x0D, 0xF4, 0x1F], pw: 0x800 }
+        : i < 12 ? { w: 0 , flt: [0x68, 0x24, 0x4F], pw: 0x140 } : { w: 0x40, flt: i < 25 ? [0x0E, 0xF4, 0x2F] : null, pw: 0x140 };
+      const fr = freq(seg.n || note);
+      d[o + 14] = fr & 0xFF; d[o + 15] = fr >> 8; d[o + 16] = seg.pw & 0xFF; d[o + 17] = seg.pw >> 8;
+      d[o + 18] = seg.w | gate; d[o + 19] = 0; d[o + 20] = 0xF4;
+      const x = seg.flt || [0x0C, 0x91, 0x1F];
+      d[o + 22] = x[0]; d[o + 23] = x[1]; d[o + 24] = x[2];
+    }
+  });
+  return d;
+}
+
+test("a speech note becomes a detailed table: waveform, pulse width and filter of every frame", () => {
+  const { imp } = load();
+  const d = speechDump(), r = imp(d, {});
+  const notes = r.patterns[r.song[0]][2].filter((c) => c.note != null);
+  assert.deepEqual(notes.map((c) => c.note), [43, 55]);
+  assert.equal(notes[0].inst, notes[1].inst, "the octave higher repeat shares the instrument");
+  const ins = r.insts[notes[0].inst];
+  assert.ok(ins.table.some((s) => s.flt && s.flt.mode === 4 && s.flt.res === 2 && s.flt.route === 4));
+  // the engine plays its first row at the end of the first row's length
+  const out = engineFrames(r, 80 + r.speed).slice(r.speed - 1);
+  for (let f = 1; f < 78; f++) {
+    const o = f * FB, x = out[f];
+    if (f === 40 || f === 0) continue;
+    assert.equal(x[18], d[o + 18], `control, frame ${f}`);
+    if (d[o + 18] & 0x40) assert.equal(x[16] | (x[17] << 8), 0x140, `pulse, frame ${f}`);
+    if (d[o + 18] & 0xF0) assert.equal(x[14] | (x[15] << 8), d[o + 14] | (d[o + 15] << 8), `pitch, frame ${f}`);
+    assert.deepEqual(x.slice(22, 25), Array.from(d.slice(o + 22, o + 25)), `filter, frame ${f}`);
+  }
+});
+
+test("GoatTracker's hard restart (ADSR 0F 00) is recognized", () => {
+  const { imp } = load();
+  const d = dump(30, [0, 1, 2, 3].map((k) => ({ v: 0, frame: k * 6, note: 40 + k, len: 4, hold: 6 })));
+  [4, 5, 10, 11, 16, 17].forEach((f) => { d[f * FB + 5] = 0x0F; d[f * FB + 6] = 0; });
+  const r = imp(d, {});
+  const ins = r.insts[r.patterns[r.song[0]][0][0].inst];
+  assert.deepEqual([ins.gateTimer, ins.hr], [2, true]);
+});

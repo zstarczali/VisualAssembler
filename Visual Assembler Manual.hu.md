@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**Verzió: 2.8.5**
+**Verzió: 2.8.6**
 
 Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasításblokkok fogd-és-vidd módszerrel történő elrendezésével építed fel, a generált assembly és gépi kód pedig valós időben frissül.
 
@@ -10,6 +10,7 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 
 ## Tartalomjegyzék
 
+- [A 2.8.6 verzió újdonságai](#a-286-verzió-újdonságai)
 - [A 2.8.5 verzió újdonságai](#a-285-verzió-újdonságai)
 - [A 2.8.4 verzió újdonságai](#a-284-verzió-újdonságai)
 - [A 2.8.3 verzió újdonságai](#a-283-verzió-újdonságai)
@@ -154,6 +155,13 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
   - [Curve Editor](#curve-editor)
   - [Táblagenerátor](#táblagenerátor)
   - [Számrendszer-átváltó](#számrendszer-átváltó)
+
+---
+
+## A 2.8.6 verzió újdonságai
+
+- **Részletes wave-tábla lépések** — a wave / arpeggio tábla egy lépése saját hosszt, pulzusszélességet és szűrőt kaphat a lépés **…** gombja alatt, és egy tábla 64 lépéses lehet; az exportált 6502 lejátszó is játssza. Lásd: [SID Editor](#sid-editor-3-voice-tracker).
+- **Beszéd a .sid importban** — a beszéd és más, a hullámformát, a pulzusszélességet és a szűrőt képkockánként léptető hangok (GoatTracker táblák) ilyen lépésekként jönnek be, és az import a GoatTracker hard restartját (ADSR `0F 00`) is felismeri.
 
 ---
 
@@ -2000,7 +2008,7 @@ Több-hangszeres 3-voice tracker. A SID Editor eszköztár-gombjával nyílik. A
 - **Vibrato:** **Késleltetés** frame után háromszög LFO, ami **Sebesség** frame-enként fordul, a **Mélység** 0-15 a hang félhangjához skálázva (független a `V` effekttől).
 - **Pulzusszélesség-moduláció:** frame-enként **Sebesség** adódik a pulzusszélességhez, **Min** és **Max** között pattogva.
 - **Gate:** a **Gate időzítő** ennyi frame-mel a hang következő hangja előtt elengedi a gate-et (legyen kisebb a Speednél); a **Hard restart** ekkor az ADSR-t is nullázza a tiszta indításhoz; az **Első frame** a hang első frame-jén hullámformát ír (pl. `$09` test + gate).
-- **Wave / arpeggio tábla:** legfeljebb 32 lépés hullámformával (— = marad) és hanggal (eltolás félhangban, vagy **abs** = abszolút hang), lépésenként **Sebesség** frame, **Ismétlés** egy lépésre vissza, vagy megáll az utolsón. A lépés **gate ki** jelölője attól a lépéstől a következő hangig elengedi a gate-et (a release fut; pl. egyframe-es dobütés). **Előbeállítások** (25, csoportosítva; a lista mutatja a választottat, amíg a táblát kézzel nem szerkeszted): arpeggiók (dúr, moll, szeptimakkordok, sus4, szűkített, bővített, power akkord, oktáv, trilla), dobok (lábdob, pergő, tam, taps, zárt / nyitott lábcin), lead- és basszus-indítások, hangeffektek (lézer, felvétel, robbanás).
+- **Wave / arpeggio tábla:** legfeljebb 64 lépés hullámformával (— = marad) és hanggal (eltolás félhangban, vagy **abs** = abszolút hang), lépésenként **Sebesség** frame, **Ismétlés** egy lépésre vissza, vagy megáll az utolsón. A lépés **gate ki** jelölője attól a lépéstől a következő hangig elengedi a gate-et (a release fut; pl. egyframe-es dobütés). A **…** gomb a lépés részleteit nyitja: **Képkocka** a saját hossza (üresen a tábla sebessége), **PW** a pulzusszélesség (üresen nem változik), **Szűrő** a cutoff, a rezonancia, a mód és a hang SID-jének szűrt hangjai; így készül a beszéd és más gyorsan változó hang. Az UltimateBasic export a pulzusszélességet és a szűrőt kihagyja, az ilyen lépéseket tartalmazó fájlokhoz a 2.8.6-os vagy újabb verzió kell. **Előbeállítások** (25, csoportosítva; a lista mutatja a választottat, amíg a táblát kézzel nem szerkeszted): arpeggiók (dúr, moll, szeptimakkordok, sus4, szűkített, bővített, power akkord, oktáv, trilla), dobok (lábdob, pergő, tam, taps, zárt / nyitott lábcin), lead- és basszus-indítások, hangeffektek (lézer, felvétel, robbanás).
 
 **Tracker rács:**
 - 3 voice (második SID-del 6) × akár 256 pattern × 32 sor; a song / sorrend lista legfeljebb 255 lépés.
@@ -2077,8 +2085,8 @@ Az effektek soronként egyszer frissülnek (megegyezően az exportált lejátsz�
 **.sid import:** a **Files → Import .sid…** egy PSID / RSID fájlt nyit meg (csak az asztali alkalmazásban, mert a VA SID Core-t használja). Válaszd ki a subtune-t és a hosszt másodpercben, majd **Import**: a dal némán lefut, a SID-regiszterek frame-ről frame-re rögzülnek, és ebből lesz a song az aktuális helyére. A felvételt folyamatjelző követi, az átalakítást az *Átalakítás…* állapot.
 - **Hangok:** a hangkezdet egy gate-él (2 frame-en belüli újragate egy hangnak számít); ha tartott gate mellett a hangmagasság új félhangra vált és legalább 5 frame-ig ott marad, `L` effektes legato hang lesz belőle (ha a sornak `F` tempóváltás is kell, és egyik hangnak sincs szabad effekt-cellája, újraindított hang). Az első hang előtti sorok a dal sorhosszának egész sorai. A hangmagasság a hang fő hullámformájának leggyakoribb félhangja; az NTSC dalok a PAL hangtáblára hangolódnak át.
 - **Sorok:** a sorok pontosan a hangkezdeteken indulnak. Az alapsorhossz a leghosszabb, amelyre szinte mind illeszkedik; az ennyi vagy egy frame-mel hosszabb sorokat (funktempo, swing, tempóváltás) egy sorral előbb álló `F` effekt állítja.
-- **Hangszerek:** AD / SR, a fő hullámforma, pulzusszélesség és PWM, a szűrő (routing, mód, rezonancia, cutoff-söprés), valamint a hang minden frame-jének hullámformája és hangmagassága a következő hangig: ez a wave / arpeggio tábla (előtag és ismétlődő loop, legfeljebb 32 lépés). A fix magasságú dob-attack abszolút, az arpeggio relatív hangokat kap, az azonos hangzású hangok közös döntése alapján; a szabályos, félhangnál kisebb kitérés a hangszer vibratója lesz. A gate-ből note cut, gate időzítő (hard restarttal, ha az ADSR nullázva van), vagy ha a hangon belül enged el, **gate ki** táblalépés lesz (a táblán túl release-sebességű lecsengés). Az azonos hangszerek közösek, legfeljebb 128.
-- Egy üzenet felsorolja, mi lett közelítve, például a félhanglépésekké váló glide-ok vagy a 32 lépésnél hosszabb táblák. A BASIC programként induló RSID dalok nem támogatottak.
+- **Hangszerek:** AD / SR, a fő hullámforma, pulzusszélesség és PWM, a szűrő (routing, mód, rezonancia, cutoff-söprés), valamint a hang minden frame-jének hullámformája és hangmagassága a következő hangig: ez a wave / arpeggio tábla (előtag és ismétlődő loop, legfeljebb 32 lépés). A beszédszerű hangokból, amelyek maguk léptetik a hullámformát, a pulzusszélességet és a szűrőt, legfeljebb 64 lépéses tábla lesz mindezekkel. A fix magasságú dob-attack abszolút, az arpeggio relatív hangokat kap, az azonos hangzású hangok közös döntése alapján; a szabályos, félhangnál kisebb kitérés a hangszer vibratója lesz. A gate-ből note cut, gate időzítő (hard restarttal, ha az ADSR nullázva van, vagy a GoatTracker `0F 00` értékén áll), vagy ha a hangon belül enged el, **gate ki** táblalépés lesz (a táblán túl release-sebességű lecsengés). Az azonos hangszerek közösek, legfeljebb 128.
+- Egy üzenet felsorolja, mi lett közelítve, például a félhanglépésekké váló glide-ok vagy a lerövidített wave táblák. A BASIC programként induló RSID dalok nem támogatottak.
 - **Szűrő és pulzus mozgása:** a szűrősöprés a teljes hangra számít, akkor is, ha a hullámforma már elnémult, és ott ér véget, ahol egy másik hang újraindítja a szűrőt. A gyorsan eső szűrőtáblát az számítja, mikor éri el a végét, a lejátszó frame-enkénti 127-es korlátján belül. A szűrő-LFO a szélsőértékei között pattog. Egy hangszer az összes hangjának pulzustartományát megtartja. A pulzus és a szűrő minden szűrőn átvezetett hangnál újraindul, ezért a sok hangon át szabadon futó söprés csak közelítés, a félhangok közé eső hangmagasság pedig a legközelebbi félhangra kerekül.
 - **Több SID:** a 2SID-es dal hat hangos lesz, és a második SID címe is átjön. A 3SID-es dalból az első két SID kerül át, erről üzenet is szól.
 

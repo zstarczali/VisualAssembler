@@ -358,3 +358,63 @@ test("an L (legato) note changes the pitch without retriggering the envelope", (
   const f = (k) => regs[k][7] | (regs[k][8] << 8);
   assert.notEqual(f(26), f(32), "the pitch moves to the legato note");
 });
+
+// Table steps with their own length, pulse width and filter (imported speech).
+function speechTune(voices, at) {
+  const tune = richTune();
+  tune.insts.push({ name: "Speech", saw: true, pul: false, a: 0, d: 0, s: 15, r: 4, vol: 15, tableLoop: -1, table: [
+    { w: 1, n: 0, pw: 0x123 }, { w: 0x80, n: 87, abs: true, dur: 4, flt: { cut: 0x345, res: 4, mode: 2, route: 4 } },
+    { w: 0x40, n: 1, dur: 3, pw: 0x800 }, { w: 0x20, n: -12, dur: 2, flt: { cut: 0x7FF, res: 15, mode: 1, route: 4 } },
+    { w: 0x40, n: 0, off: true, pw: 0x100, flt: { cut: 96, res: 9, mode: 1, route: 1 } }] },
+  { name: "Loop", pul: true, a: 0, d: 9, s: 9, r: 4, vol: 15, tableSpeed: 2, tableLoop: 1, table: [
+    { w: 0, n: 0, flt: { cut: 500, res: 7, mode: 4, route: 2 } }, { w: 0, n: 12, dur: 5, pw: 0x400 }, { w: 0, n: 0, pw: 0xC00 }] });
+  if (voices === 6) tune.patterns = tune.patterns.map((p) => p.concat(emptyPattern()));
+  tune.patterns[0][at][2] = { note: 40, inst: 5, fx: null, fxval: 0 };
+  tune.patterns[0][at][16] = { note: 52, inst: 6, fx: null, fxval: 0 };
+  tune.patterns[0][at][24] = { note: 45, inst: 5, fx: "L", fxval: 0 };
+  return tune;
+}
+
+test("table steps with length, pulse width and filter: the 6502 player equals the engine, and fits", () => {
+  const api = sandbox(speechTune(3, 2));
+  const frames = 32 * 4 * 6;
+  const r = runPlayer(api, frames), eng = runEngine(api, frames);
+  for (let k = 0; k < frames; k++) assert.deepEqual(r.out[k], eng[k], `frame ${k}`);
+  const max = Number(/const _SID_PLAYER_CODE_MAX = (0x[0-9A-Fa-f]+);/.exec(appJs)[1]) + 0xC0;
+  assert.ok(r.labels.sid_vbase - 0xC000 <= max, String(r.labels.sid_vbase - 0xC000));
+  // the note: row 2 at speed 5; 4 noise frames, then 3 of pulse, then 2 of saw
+  const from = eng.findIndex((x) => x[18] === 0x81 && x[22] === 0x345 >> 3);
+  assert.deepEqual(eng.slice(from, from + 9).map((x) => x[18]), [0x81, 0x81, 0x81, 0x81, 0x41, 0x41, 0x41, 0x21, 0x21]);
+  assert.deepEqual(eng.slice(from, from + 9).map((x) => x[23]), [0x44, 0x44, 0x44, 0x44, 0x44, 0x44, 0x44, 0xF4, 0xF4]);
+});
+
+test("two SIDs: table filter steps reach the chip of the voice", () => {
+  for (const v of [2, 4]) {
+    const api = sandbox(speechTune(6, v));
+    const { mem, labels } = assemble(api._sidExportAsmPlayable());
+    const max = [/const _SID_PLAYER_CODE_MAX = (0x[0-9A-Fa-f]+);/, /const _SID_PLAYER_2SID_EXTRA = (0x[0-9A-Fa-f]+);/]
+      .reduce((n, re) => n + Number(re.exec(appJs)[1]), 0xC0);
+    assert.ok(labels.sid_vbase - 0xC000 <= max);
+    const c = cpu(mem);
+    c.call(labels.sid_init);
+    const eng = runEngine(api, 400);
+    for (let k = 0; k < 400; k++) {
+      c.call(labels.sid_frame);
+      assert.deepEqual([...mem.slice(0xD400, 0xD419), ...mem.slice(0xD420, 0xD439)], eng[k], `voice ${v} frame ${k}`);
+    }
+    const chip = v > 2 ? 25 : 0;
+    assert.ok(eng.some((x) => x[chip + 23] === 0x44));
+  }
+});
+
+test("table steps with length, pulse width and filter survive save / load", () => {
+  const api = sandbox(speechTune(3, 2));
+  const ins = api._sidInstNorm(speechTune(3, 2).insts[5]);
+  const bytes = api._sidInstExtBytes(ins), back = {};
+  assert.equal(api._sidReadInstExt(back, Uint8Array.from(bytes), 0), bytes.length);
+  assert.deepEqual(JSON.parse(JSON.stringify(back.table)), JSON.parse(JSON.stringify(ins.table)));
+});
+
+test("a tune without such steps exports no tables for them", () => {
+  assert.ok(!/sid_td\b|sid_tcl\b/.test(sandbox(richTune())._sidExportAsmPlayable()));
+});
