@@ -10946,13 +10946,17 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 #sid-table-preset { flex: 1 1 140px; min-width: 120px; }
 .sid-table-steps { display: flex; flex-direction: column; gap: 3px; max-height: 145px; overflow-y: auto; overflow-x: hidden; padding-right: 4px; margin-bottom: 4px; }
 .sid-table-empty { font-size: 0.72rem; color: var(--muted); padding: 4px 0; }
-.sid-tstep { display: grid; grid-template-columns: 18px minmax(0, 1fr) 54px auto auto 24px; align-items: center; gap: 5px; }
+.sid-tstep { display: grid; grid-template-columns: 18px minmax(0, 1fr) 54px auto auto 26px 26px; align-items: center; gap: 5px; }
 .sid-tstep--loop .sid-tstep-idx { color: var(--primary); font-weight: 700; }
 .sid-tstep-idx { font-family: "IBM Plex Mono", monospace; font-size: 0.7rem; color: var(--secondary); text-align: right; }
 .sid-tstep .sid-select, .sid-tstep .sid-input { height: 26px; font-size: 0.74rem; min-width: 0; }
 .sid-tstep .sid-input { padding: 2px 6px; text-align: right; }
 .sid-tstep .sid-check { margin: 0; font-size: 0.7rem; }
 .sid-tstep-del { width: 26px; padding: 0; }
+.sid-tstep-more--set { border-color: var(--primary); color: var(--primary); }
+.sid-tstep-more { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin-left: 23px; padding: 2px 0 5px; font-size: 0.7rem; color: var(--secondary); }
+.sid-tstep-more label { display: inline-flex; align-items: center; gap: 4px; margin: 0; font-size: 0.7rem; }
+.sid-tstep-more .sid-input { width: 58px; height: 24px; padding: 2px 5px; font-size: 0.72rem; text-align: right; }
 .sid-song-row { border-top: 1px solid var(--panel-border); padding-top: 8px; }
 .sid-song-list { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; flex: 1; min-height: 28px; }
 .sid-song-chip {

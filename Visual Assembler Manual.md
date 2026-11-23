@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.8.5**
+**Version 2.8.6**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -8,6 +8,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 
 ## Table of Contents
 
+- [Version 2.8.6 Highlights](#version-286-highlights)
 - [Version 2.8.5 Highlights](#version-285-highlights)
 - [Version 2.8.4 Highlights](#version-284-highlights)
 - [Version 2.8.3 Highlights](#version-283-highlights)
@@ -152,6 +153,13 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
   - [Curve Editor](#curve-editor)
   - [Table Generator](#table-generator)
   - [Number Converter](#number-converter)
+
+---
+
+## Version 2.8.6 Highlights
+
+- **Detailed wave table steps** — a step of the wave / arpeggio table can have its own length, pulse width and filter, under the **…** button of the step, and a table can have 64 steps; the exported 6502 player plays them. See [SID Editor](#sid-editor-3-voice-tracker).
+- **Speech in .sid import** — speech and other sounds that step the waveform, pulse width and filter from frame to frame (GoatTracker tables) come in as such steps, and GoatTracker's hard restart (ADSR `0F 00`) is recognized.
 
 ---
 
@@ -2014,7 +2022,7 @@ Multi-instrument 3-voice tracker. Open it with the SID Editor toolbar button. Pl
 - **Vibrato:** after **Delay** frames a triangle LFO that turns every **Speed** frames, **Depth** 0-15 scaled to the note's semitone (independent of the `V` effect).
 - **Pulse width modulation:** **Speed** added to the pulse width every frame, bouncing between **Min** and **Max**.
 - **Gate:** **Gate timer** releases the gate that many frames before the next note on the voice (keep it below Speed); **Hard restart** also zeroes ADSR then, for a clean attack; **First frame** writes a waveform on the note's first frame (e.g. `$09` test + gate).
-- **Wave / arpeggio table:** up to 32 steps of waveform (— = keep) and note (offset in semitones, or **abs** = absolute note), one step every **Speed** frames, **Loop** back to a step or stop on the last one. **gate off** on a step releases the gate from that step until the next note (the release phase runs; for example a one-frame drum hit). **Presets** (25, in groups; the list keeps the chosen preset until the table is edited by hand): arpeggios (major, minor, 7th chords, sus4, diminished, augmented, power chord, octave, trill), drums (kick, snare, tom, clap, closed / open hi-hat), lead and bass attacks, and sound effects (laser, pickup, explosion).
+- **Wave / arpeggio table:** up to 64 steps of waveform (— = keep) and note (offset in semitones, or **abs** = absolute note), one step every **Speed** frames, **Loop** back to a step or stop on the last one. **gate off** on a step releases the gate from that step until the next note (the release phase runs; for example a one-frame drum hit). The **…** button opens the details of the step: **Frames** is its own length (empty: the table's speed), **PW** a pulse width (empty: unchanged), **Filter** sets cutoff, resonance, mode and the routed voices of the voice's SID; speech and other fast-changing sounds are made this way. The UltimateBasic export leaves the pulse width and the filter out, and files with such steps need version 2.8.6 or later. **Presets** (25, in groups; the list keeps the chosen preset until the table is edited by hand): arpeggios (major, minor, 7th chords, sus4, diminished, augmented, power chord, octave, trill), drums (kick, snare, tom, clap, closed / open hi-hat), lead and bass attacks, and sound effects (laser, pickup, explosion).
 
 **Tracker grid:**
 - 3 voices (6 with a second SID) × up to 256 patterns × 32 rows; the song / order list holds up to 255 steps.
@@ -2091,8 +2099,8 @@ Effects update once per row (matching the exported player's timing), run identic
 **.sid import:** **Files → Import .sid…** opens a PSID / RSID file (desktop app only, it uses VA SID Core). Choose the subtune and the length in seconds and press **Import**: the tune runs silently, its SID registers are recorded frame by frame and turned into a song in place of the current one. A progress bar follows the recording, then *Converting…* the conversion.
 - **Notes:** a note on is a gate edge (a retrigger within 2 frames counts as one note); a pitch change under a held gate that stays at least 5 frames becomes a legato note with the `L` effect (when the row also needs an `F` speed change and no voice has a free effect cell, it becomes a retriggered note). Rows before the first note are whole rows of the tune's row length. The pitch is the most common semitone of the note's main waveform; NTSC tunes are retuned to the PAL note table.
 - **Rows:** rows start exactly on the note ons. The base length is the longest that fits almost all of them; rows of that length or one frame longer (funktempo, swing, tempo changes) are set with `F` effects one row ahead.
-- **Instruments:** AD / SR, the main waveform, pulse width and PWM, the filter (routing, mode, resonance, cutoff sweep) and the waveform and pitch of every frame of the note, up to the next one: the wave / arpeggio table (a prefix plus a repeating loop, up to 32 steps). A fixed-pitch drum attack keeps absolute notes and an arpeggio relative ones, decided over all notes of the same sound; a regular sub-semitone wobble becomes the instrument vibrato. The gate becomes a note cut, a gate timer (with hard restart when ADSR is zeroed) or, released inside the note, a **gate off** table step (a decay at the release rate beyond the table). Identical instruments are shared, up to 128.
-- A message lists what was approximated, for example slides that become semitone steps or tables longer than 32 steps. RSID tunes that start as a BASIC program are not supported.
+- **Instruments:** AD / SR, the main waveform, pulse width and PWM, the filter (routing, mode, resonance, cutoff sweep) and the waveform and pitch of every frame of the note, up to the next one: the wave / arpeggio table (a prefix plus a repeating loop, up to 32 steps). Speech-like notes, which step the waveform, pulse width and filter by themselves, become tables of up to 64 steps with all of these. A fixed-pitch drum attack keeps absolute notes and an arpeggio relative ones, decided over all notes of the same sound; a regular sub-semitone wobble becomes the instrument vibrato. The gate becomes a note cut, a gate timer (with hard restart when ADSR is zeroed, or set to GoatTracker's `0F 00`) or, released inside the note, a **gate off** table step (a decay at the release rate beyond the table). Identical instruments are shared, up to 128.
+- A message lists what was approximated, for example slides that become semitone steps or wave tables that had to be shortened. RSID tunes that start as a BASIC program are not supported.
 - **Filter and pulse movement:** a filter sweep counts over the whole note, also after the waveform went silent, and it ends where another note restarts the filter. A filter table that falls fast counts by when it gets there, within the player's 127 per frame. A filter LFO bounces between its extremes. An instrument holds the pulse range of all its notes. Pulse and filter still restart at each routed note, so a sweep that runs freely across many notes is only approximated, and pitches that lie between semitones are rounded to the nearest one.
 - **Several SIDs:** a 2SID tune becomes six voices and brings its second SID's address along. A 3SID tune imports its first two SIDs, and a message says so.
 
