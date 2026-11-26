@@ -616,8 +616,9 @@ function _oscBmTrack(prev, text) {
   moved.forEach((l) => set.add(l));
 }
 
+// the shared Go to line dialog of the UB / Expert editors
 function _oscGotoAsk() {
-  _oscAsk(t("oscGotoLine"), String(_oscCaretLine() + 1)).then((v) => { const n = parseInt(v, 10); if (n > 0) _oscGotoLine(n - 1); });
+  _gotoLineOpen("oscar");
 }
 
 function _oscOpenFind() {
@@ -1792,7 +1793,7 @@ function _oscApplyTranslations() {
   _oscUpdateCursor();
 }
 
-function _oscOnInput() {
+function _oscOnInput(e) {
   const f = _oscCurrent();
   const ed = _oscEl("osc-editor");
   if (!f || !ed) return;
@@ -1802,7 +1803,8 @@ function _oscOnInput() {
   if (dirty !== f.dirty) { f.dirty = dirty; _oscRenderTabs(); _oscRenderTree(); }
   _oscRefreshEditor();
   _oscScheduleAuto();
-  _oscAcUpdate();
+  // only typing opens the completion list, not a text change made by the app
+  if (e && e.isTrusted === false) _oscAcHide(); else _oscAcUpdate();
 }
 
 // ── Code completion ─────────────────────────────────────────────────────────────

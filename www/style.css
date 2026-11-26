@@ -4939,6 +4939,8 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
 
 .expert-project-icon-btn:disabled {
   cursor: default;
+  opacity: 0.35;
+  pointer-events: none;
 }
 
 /* Kick-compatible project switch: on */
@@ -13396,7 +13398,7 @@ button.vm-prof-row:hover { outline: 1px solid var(--primary); }
 .memory-dock-btn:hover { color: var(--text); border-color: var(--panel-border); }
 .global-memory-summary .memory-dock-btn + .global-memory-toggle { margin-left: 4px; }
 .mem-float-hdr .memory-dock-btn { margin-left: auto; }
-.mem-float-hdr .websid-play-xbtn { margin-left: 0; }
+.mem-float-hdr .websid-play-xbtn { margin-left: auto; }
 .mem-float-badge-slot { min-width: 0; overflow: hidden; }
 /* a dialógus a kártya méretét veszi fel (nem zsugorodik a maradék helyhez), így a húzás korlátja helyes */
 .mem-float-dialog { width: max-content; max-width: none; }
@@ -14064,7 +14066,7 @@ html[data-theme="c64"] .va-studio { color: #ffffff; text-shadow: none; }
 @media (max-width: 720px) { .start-body { grid-template-columns: 1fr; } }
 
 /* template kinds: difficulty + description */
-.template-kind-desc { margin: 0; padding: 8px 18px 0; font-size: .8rem; color: var(--muted); }
+.template-kind-desc { margin: 0; padding: 8px 18px 0; font-size: .8rem; line-height: 1.4; min-height: calc(2 * 1.4em + 8px); box-sizing: border-box; color: var(--muted); }
 .template-kind-stars { color: #ffb347; letter-spacing: 1px; margin-right: 4px; }
 .git-panel { width: min(260px, 94vw); }
 /* Studio hint bar: the block-mode help line shows for a few seconds, then folds away */
@@ -14073,3 +14075,10 @@ html[data-theme="c64"] .va-studio { color: #ffffff; text-shadow: none; }
 #osc-output.osc-output--monitor { background: var(--output-bg); color: var(--monitor-text); font-family: 'JetBrains Mono', 'Fira Mono', 'Cascadia Code', 'Consolas', monospace; font-size: 0.78rem; line-height: 1.6; }
 .osc-toolkit-host { flex: 1 1 auto; overflow: auto; }
 .osc-toolkit-host[hidden] { display: none; }
+
+/* Menu → File → Recent projects */
+.menu-recent-projects { display: grid; gap: 2px; }
+.menu-recent-item { display: flex !important; align-items: center; justify-content: flex-start !important; gap: 8px; text-align: left; }
+.menu-recent-item .tab-lang { flex: none; min-width: 30px; text-align: center; }
+.menu-recent-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.menu-recent-empty { margin: 2px 4px; font-size: .76rem; color: var(--muted); }

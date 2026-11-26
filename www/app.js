@@ -654,8 +654,10 @@ function _applyMemoryOverlaysVisibility() {
   document.body.dataset.memoryOverlays = showMemoryOverlays ? "1" : "0";
 }
 
+// The memory map is a window (Tools → C64 memory map); the bottom panel only holds its content while
+// the window is closed, it is never shown.
 function _applyGlobalMemoryPanelVisibility() {
-  if (globalMemoryPanel) globalMemoryPanel.hidden = !showGlobalMemoryPanel;
+  if (globalMemoryPanel) globalMemoryPanel.hidden = true;
 }
 
 function _applyExpertProjectSymbolsHeight() {
@@ -1647,7 +1649,7 @@ function initPalette() {
   document.getElementById("ub-zoom-out-btn")?.addEventListener("click", () => _ubZoom(-1));
   _bindCtrlWheelZoom(document.querySelector(".ub-editor-wrap"), _ubZoom);
   ubEditor?.addEventListener("contextmenu", (e) => _edShowCtxMenu(e, document.body, _editorCtxItems(ubEditor, _ubAcHide)));
-  ubEditor?.addEventListener("input", (e) => { _ubDirty = true; markTabDirty(); _bmTrackEdit("ub"); _ubRefreshEditor(); if (_isPasteInput(e.inputType)) _ubAcHide(); else _ubAcUpdate(); _ubScheduleLint(); });
+  ubEditor?.addEventListener("input", (e) => { _ubDirty = true; markTabDirty(); _bmTrackEdit("ub"); _ubRefreshEditor(); if (!e.isTrusted || _isPasteInput(e.inputType)) _ubAcHide(); else _ubAcUpdate(); _ubScheduleLint(); });
   ubEditor?.addEventListener("keyup", _ubUpdateCursor);
   ubEditor?.addEventListener("click", _ubUpdateCursor);
   ubEditor?.addEventListener("select", _ubUpdateCursor);
@@ -1975,7 +1977,7 @@ function initPalette() {
     };
   });
 
-  expertEditor?.addEventListener("input", () => {
+  expertEditor?.addEventListener("input", (inputEvent) => {
     const displaySelStart = expertEditor.selectionStart ?? 0;
     const displaySelEnd = expertEditor.selectionEnd ?? displaySelStart;
     const pendingMeta = _expertPendingEditMeta;
@@ -1992,8 +1994,9 @@ function initPalette() {
     _expertValidate();
     _expertScheduleIncludeReload();
     renderExpertOriginInfo();
-    // Only typing opens the completion list; a paste or drop just closes it.
-    if (_isPasteInput(pendingMeta?.inputType)) _expertAcHide();
+    // Only typing opens the completion list; a paste or drop just closes it, and so does a text
+    // change made by the app itself (tab switch, reload, sync: an untrusted event).
+    if (!inputEvent?.isTrusted || _isPasteInput(pendingMeta?.inputType)) _expertAcHide();
     else _expertAcUpdate();
     _expertUpdateCaret();
   });
@@ -3735,6 +3738,7 @@ function applyTranslations() {
     setText("#git-group-branch", t("gitBranches"));
     setText("#git-branch-new-label", t("gitBranchNew"));
     setText("#menu-start-window", t("menuStartWindow"));
+    setText("#menu-recent-label", t("startRecent"));
     setText("#start-recent-label", t("startRecent"));
     setText("#start-actions-label", t("startActions"));
     setText("#start-new-label", t("startNew"));
@@ -4582,6 +4586,7 @@ function _applyEditorTranslations() {
   setText("#cg-load-bin", t("cgLoadBin"));
   setAttr("#cg-copy", t("cgCopy"));
   setAttr("#memory-undock-btn", t("memoryUndock"));
+  setAttr("#memory-window-btn", t("memoryTitle"));
   setAttr("#memory-dock-btn", t("memoryDock"));
   setAttr("#memory-float-close", t("memoryDock"));
   setText("#mem-float-title", t("memoryTitle"));
@@ -9020,16 +9025,19 @@ function _bmSet(kind, lines, refresh = true) {
 }
 
 function _bmText(kind) {
+  if (kind === "oscar") return document.getElementById("osc-editor")?.value || "";
   return kind === "ub" ? (ubEditor?.value || "") : _expertGetSourceText();
 }
 
 function _bmCaretLine(kind) {
+  if (kind === "oscar") return globalThis._oscCaretLine?.() ?? 0;
   if (kind === "ub") return ubEditor.value.slice(0, ubEditor.selectionStart).split("\n").length - 1;
   const sourcePos = _expertDisplayPosToSourcePos(expertEditor.selectionStart ?? 0);
   return _expertGetSourceText().slice(0, sourcePos).split("\n").length - 1;
 }
 
 function _bmGoto(kind, line) {
+  if (kind === "oscar") { globalThis._oscGotoLine?.(line); return; }
   if (kind === "ub") _ubGotoLine(line); else _expertGotoSourceLine(line);
 }
 
@@ -9100,7 +9108,7 @@ function _gotoLineOpen(kind) {
 function _gotoLineSubmit() {
   const dialog = document.getElementById("goto-line-dialog");
   const input = document.getElementById("goto-line-input");
-  const kind = dialog?.dataset.kind === "ub" ? "ub" : "expert";
+  const kind = ["ub", "oscar"].includes(dialog?.dataset.kind) ? dialog.dataset.kind : "expert";
   const max = _bmText(kind).split("\n").length;
   const line = /^\d+$/.test(String(input?.value || "").trim()) ? Number(input.value.trim()) : NaN;
   if (!Number.isInteger(line) || line < 1 || line > max) {
@@ -16306,6 +16314,12 @@ function _expertRenderProjectTree() {
   const treeEl = document.getElementById("expert-project-tree");
   if (!nameEl || !treeEl) return;
   _projUpdateSaveBtn("expert-project-save-btn", !!_expertProjectData, _expertProjectDirty);
+  // Project settings belong to a project file: off until one is opened or saved
+  const hasProjFile = !!_expertProjectData?._projPath;
+  const psBtn = document.getElementById("expert-project-settings-btn");
+  if (psBtn) psBtn.disabled = !hasProjFile;
+  const psMenu = document.getElementById("menu-project-settings");
+  if (psMenu) psMenu.disabled = !hasProjFile;
 
   if (!_expertProjectData) {
     nameEl.textContent = t("projNoProject");
@@ -16662,6 +16676,13 @@ async function _closeAllTabsWithConfirm() {
 }
 
 async function _closeProject() {
+  // C (Oscar64): every C file and project closes (unsaved files asked about), their tabs go
+  if (globalThis._oscActive?.()) {
+    if (!await _oscCloseAll()) return;
+    _oscTabsSync();
+    showViceToast?.(t("projClosed"));
+    return;
+  }
   if (ultimateBasicMode) {
     if (!_ubProjectData && tabs.every(tab => !_tabHasContent(tab))) {
       _ubSetStatus(t("projNoOpen"));
@@ -23375,14 +23396,55 @@ function _studioRenderRecent() {
     row.appendChild(del);
     const open = async () => {
       document.getElementById("start-dialog")?.close();
-      const ok = item.kind === "c" ? await _studioOpenCFolder(item.path) : await _studioOpenProject(item.path);
-      if (!ok) _studioShowStart();
+      if (!await _studioOpenRecent(item)) _studioShowStart();
     };
     row.addEventListener("click", open);
     row.addEventListener("keydown", e => { if (e.key === "Enter") open(); });
     host.appendChild(row);
   }
 }
+
+async function _studioOpenRecent(item) {
+  const ok = item.kind === "c" ? await _studioOpenCFolder(item.path) : await _studioOpenProject(item.path);
+  // a project that is gone leaves the list (the open call already said so)
+  if (!ok) {
+    const exists = item.kind === "c"
+      ? (await window.electronAPI?.oscarListDir?.(item.path))?.ok
+      : (await window.electronAPI?.readTextFile?.(item.path))?.ok;
+    if (exists === false) _studioForgetProject(item.path);
+  }
+  return ok;
+}
+
+// Menu → File → Recent projects: the same list as the start window, filled when the menu opens.
+function _studioRenderMenuRecent() {
+  const host = document.getElementById("menu-recent-projects");
+  if (!host) return;
+  const list = _studioRecent().slice(0, 8);
+  const badge = { asm: ["expert", "ASM"], acme: ["expert", "ACME"], ub: ["ub", "UB"], c: ["oscar", "C"], blk: ["block", "BLK"] };
+  host.innerHTML = "";
+  if (!list.length) {
+    const empty = document.createElement("p");
+    empty.className = "menu-recent-empty";
+    empty.textContent = t("startNoRecent");
+    host.appendChild(empty);
+    return;
+  }
+  for (const item of list) {
+    const [cls, text] = badge[item.kind] || badge.asm;
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "secondary menu-item-tooltip menu-recent-item";
+    btn.setAttribute("aria-label", item.path);
+    btn.innerHTML = `<span class="tab-lang tab-lang--${cls}" aria-hidden="true">${text}</span><span class="menu-recent-name">${_escHtml(item.name || item.path)}</span>`;
+    btn.addEventListener("click", async () => {
+      document.querySelector(".control-menu")?.removeAttribute("open");
+      await _studioOpenRecent(item);
+    });
+    host.appendChild(btn);
+  }
+}
+document.querySelector(".control-menu")?.addEventListener("toggle", (e) => { if (e.target.open) _studioRenderMenuRecent(); });
 
 function _studioShowStart() {
   const dlg = document.getElementById("start-dialog");
@@ -58595,14 +58657,28 @@ function _memSetDetached(on) {
     if (badge) globalMemoryPanel.querySelector(".global-memory-title-group")?.appendChild(badge);
     globalMemoryPanel.classList.remove("is-detached");
     globalMemoryPanel.open = false;
+    globalMemoryPanel.hidden = true;
     if (dlg.open) dlg.close();
   }
   _memFloatSave({ detached: on });
   try { renderMemoryMap(); } catch (_) {}
+  const winBtn = document.getElementById("memory-window-btn");
+  winBtn?.classList.toggle("main-tb-btn--active", on);
+  winBtn?.setAttribute("aria-pressed", String(on));
 }
 
 function setupMemoryFloat() {
   const dlg = document.getElementById("memory-float-dialog");
+  const winBtn = document.getElementById("memory-window-btn");
+  // the Tools item shows the window's state, like the Number converter
+  const syncBtn = () => {
+    const open = !!dlg?.open;
+    winBtn?.classList.toggle("main-tb-btn--active", open);
+    winBtn?.setAttribute("aria-pressed", String(open));
+  };
+  winBtn?.addEventListener("click", () => _memSetDetached(!_memDetached));
+  dlg?.addEventListener("close", syncBtn);
+  dlg?.addEventListener("toggle", syncBtn);
   document.getElementById("memory-undock-btn")?.addEventListener("click", (e) => {
     e.preventDefault();
     e.stopPropagation();
