@@ -173,7 +173,7 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 
 - **Visual Assembler Studio** — assembly (VMA, ACME, R65), blokkok, UltimateBasic és C egy ablakban. Minden nyitott fájl egy közös fülsáv fülje, nyelvjelvénnyel; az assembly fül **Blokkok** és **Forrás** nézet között vált, és minden fájl a saját nyelvének szerkesztőjében nyílik. Lásd: [Stúdió: egy ablak minden nyelvnek](#stúdió-egy-ablak-minden-nyelvnek).
 - **C az Oscar64-gyel** — C szerkesztő beépített Oscar64 fordítóval (az ACME 0.97 is beépített): kiemelés, kiegészítés a beinclude-olt fejlécekből, formázó, ciklusszámok, Disassembly / Monitor / Map nézet, projektfa indítófájllal, projekt build szkriptből. A C program minden futtatási módban fut. Lásd: [C mód (Oscar64)](#c-mód-oscar64).
-- **Forrásszintű hibakeresés C-ben és UltimateBasicben** — töréspont a forrássoron, léptetés C soronként, **Változók** panel és **Hívási lánc**. Lásd: [Forrásszintű hibakeresés](#forrásszintű-hibakeresés-c-és-ultimatebasic).
+- **Forrásszintű hibakeresés C-ben és UltimateBasicben** — töréspont a forrássoron, léptetés C és Basic soronként, **Változók** panel és **Hívási lánc**. Lásd: [Forrásszintű hibakeresés](#forrásszintű-hibakeresés-c-és-ultimatebasic).
 - **Induló ablak, Új / Eszközök / Verziókezelés menü** — lásd: [Induló ablak](#induló-ablak) és [Új, Eszközök és Verziókezelés menü](#új-eszközök-és-verziókezelés-menü).
 - **Projektek** — projektenként egy nyelv, minden forrásfájl fülként nyílik, a munkamenet a `<név>.proj.user`-ben (a munkaterületek helyett), mentetlen az, ami eltér a mentett fájltól, átméretezhető projektpanel. Lásd: [Projekt munkamenet (.proj.user)](#projekt-munkamenet-projuser).
 - **Memóriatérkép külön ablakban** (Eszközök → Gép), új sablonok (Hello World VMA-hoz és ACME-hez, 16 és 64 sprite-os multiplexer C-ben, 64 sprite-os UltimateBasicben) és **UltimateBasic 1.6.8** (`sprite multicolor`, összeomlás helyett fordítási hiba).
@@ -236,7 +236,7 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 - **VA SID Core 1.3 és 8580 digi boost** — a `$D418` digik a 8580-on halkan szólnak, mint a valódi chipen; a **Beállítások → Általános → SID előnézet → 8580 digi boost** hangossá teszi őket.
 - **Kick import az R65-ön át** — a **Kick import** és a **Kick projekt importálása…** az R65-tel fordítja a forrást, és ugyanazokat a bájtokat adó VMA-t ír. Lásd: [Kick import](#kick-import-kick-assembler).
 - **Munkaablak fázisai** — a Futtatás, a Debug és a Build mutatja a munka fázisait. Lásd: [Fordítási folyamat modal](#fordítási-folyamat-modal).
-- **Projektfa** — a többi fájl az alapértelmezett programmal nyílik, és megjeleníthető a fájlkezelőben; az UltimateBasic projekt Expert / Blokk módból is UltimateBasic módban nyílik.
+- **Projektfa** — a Koala kép (`.koa`) kattintásra a Hi-Res szerkesztőben, a karakterkészlet (`.64c`, `.chr`, `.fnt`, vagy legfeljebb 2 KB-os `.bin`, amelynek a neve vagy a mappája *font* / *char*) a Karakterszerkesztőben nyílik, a többi fájl az alapértelmezett programmal, és megjeleníthető a fájlkezelőben; az UltimateBasic projekt Expert / Blokk módból is UltimateBasic módban nyílik.
 - **Eszköztárak** — az Expert és az UltimateBasic eszköztár azonos sorrendű, azonos ikonokkal; az UltimateBasic **New** gomb kikerült (Ctrl+N).
 - **Javítások** — a hexa betűkből álló címke (`BEQ bad`) a blokkokon át is címke marad; a Kick kiemelés javult a címkéknél és a hívásoknál.
 
@@ -1633,7 +1633,7 @@ A **VICE Monitor** ablak továbbra is csak külső VICE-szal működik, ehhez a 
 A beépített C64 debuggere és a VICE / Ultimate emulátor debugger ablaka egy C vagy UltimateBasic program forrását követi, nem csak a 6502 kódját:
 
 - **Töréspontok** a C vagy UB szerkesztő sorszám-gutterében; megálláskor a szerkesztő megnyitja a fájlt és jelöli a sort.
-- **Léptetés C-ben:** a **Lépés be** és a **Lépés át** egy teljes C sort futtat (ahány 6502 utasítás kell hozzá); forrás nélküli könyvtári kódból kilép. Töréspont megállítja a lépést. UltimateBasicben egy lépés továbbra is egy 6502 utasítás.
+- **Léptetés C-ben és UltimateBasicben:** a **Lépés be** és a **Lépés át** egy teljes forrássort futtat (ahány 6502 utasítás kell hozzá); forrás nélküli könyvtári / futásidejű kódból kilép. Töréspont megállítja a lépést. Assemblyben egy lépés egy utasítás.
 - **Változók:** C-ben a program saját globálisai, függvényen belül pedig a paraméterei és lokálisai (csak azokban a sorokban, ahol élnek), típusuk szerint: int, unsigned, float, pointer, tömb (a `char` tömb szövegként), struct. Ehhez a **Debug** fordítás optimalizálás nélkül készül (`-O0`); ha a program így nem fér el, az optimalizált fordítással indul, és a lokálisai nem látszanak. UltimateBasicben: byte, word, előjeles integer, 5 bájtos lebegőpontos és tömb. A tömb és a struct kattintásra kinyílik (▸ / ▾): az elemei vagy mezői egy szinttel beljebb, mind a saját értékével (UltimateBasic tömb bájtonként). Egy változóra kattintva a memórianézet a bájtjait mutatja.
 - **Hívási lánc:** a megállás, majd a 6502 stack minden olyan visszatérési címe, amely előtt a programban `JSR` áll — C függvény, UltimateBasic `sub` vagy címke, illetve assembly címke szerint elnevezve. Egy sorra kattintva megnyílik a forrássora. Assembly programban is működik.
 

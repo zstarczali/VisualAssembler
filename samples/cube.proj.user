@@ -1,0 +1,20 @@
+{
+  "app": "va-proj-user",
+  "version": 1,
+  "active": 0,
+  "caret": 39,
+  "tabs": [
+    {
+      "path": "box.vas",
+      "view": "source"
+    },
+    {
+      "path": "macros.vas",
+      "view": "blocks"
+    },
+    {
+      "path": "data.asm",
+      "view": "blocks"
+    }
+  ]
+}

@@ -351,6 +351,47 @@ function _oscListingHtml(asm) {
   }).join("\n");
 }
 
+// The compiler's .map with colours: the part headers, addresses, sizes (with the byte count in
+// decimal), the kind of each object (code / data / bss, stack …) and the names.
+function _oscMapHtml(map) {
+  const addr = (h) => `<span class="dsm-addr">$${_oscEsc(h.toUpperCase())}</span>`;
+  const bytes = (n) => (n > 0 ? `  <span class="osc-comment">; ${n} ${n === 1 ? "byte" : "bytes"}</span>` : "");
+  const kind = (k) => {
+    const cls = /CODE/.test(k) ? "code" : /^(DATA|ZEROPAGE)$/.test(k) ? "data" : /^(START|END)$/.test(k) ? "mark" : "bss";
+    return `<span class="osc-map-kind osc-map-kind--${cls}">${_oscEsc(k)}</span>`;
+  };
+  // "NATIVE_CODE:code" / "DATA, code": the kind and the section it lives in
+  const kindAndSection = (text) => {
+    const m = /^(\w+)(?::|, )(.*)$/.exec(text);
+    return m ? `${kind(m[1])}<span class="osc-map-sep">${text.slice(m[1].length, text.length - m[2].length)}</span><span class="osc-map-sec">${_oscEsc(m[2])}</span>` : _oscEsc(text);
+  };
+  let part = "";
+  return String(map || "").split("\n").map((raw) => {
+    const line = raw.replace(/\r$/, "");
+    if (/^[a-z][a-z ]*$/.test(line.trim())) { part = line.trim(); return `<span class="osc-map-head">${_oscEsc(part.toUpperCase())}</span>`; }
+    let m = /^([0-9a-f]{4}) - ([0-9a-f]{4}) : (.*)$/i.exec(line);
+    if (m) {
+      const size = parseInt(m[2], 16) - parseInt(m[1], 16);
+      const rest = m[3];
+      let body;
+      if (part === "regions") {
+        const r = /^([0-9a-f]{4}), ([0-9a-f]{4}), (.*)$/i.exec(rest);
+        body = r ? `${addr(r[1])}<span class="osc-map-sep">, </span><span class="osc-map-size">$${_oscEsc(r[2].toUpperCase())}</span><span class="osc-map-sep">, </span><span class="osc-map-sec">${_oscEsc(r[3])}</span>` : _oscEsc(rest);
+      } else if (part === "sections") body = kindAndSection(rest);
+      else {
+        const o = /^(.*?), (\w+:.*)$/.exec(rest);
+        body = o ? `<span class="asm-tok-label">${_oscEsc(o[1])}</span><span class="osc-map-sep">, </span>${kindAndSection(o[2])}` : _oscEsc(rest);
+      }
+      return `${addr(m[1])} <span class="osc-map-sep">-</span> ${addr(m[2])} <span class="osc-map-sep">:</span> ${body}${bytes(size)}`;
+    }
+    m = /^([0-9a-f]{4}) \(([0-9a-f]{4})\) : (.*?), (\w+:.*)$/i.exec(line);
+    if (m) {
+      return `${addr(m[1])} <span class="osc-map-size">($${_oscEsc(m[2].toUpperCase())})</span> <span class="osc-map-sep">:</span> <span class="asm-tok-label">${_oscEsc(m[3])}</span><span class="osc-map-sep">, </span>${kindAndSection(m[4])}${bytes(parseInt(m[2], 16))}`;
+    }
+    return _oscEsc(line);
+  }).join("\n");
+}
+
 function _oscMonitorText(prg) {
   if (!prg || prg.length < 3) return t("oscBuildFirst");
   const load = prg[0] | (prg[1] << 8);
@@ -604,7 +645,7 @@ async function _oscSaveAll() {
   return true;
 }
 
-function _oscGotoLine(line, column = 0) {
+function _oscGotoLine(line, column = 0, length = 0) {
   const ed = _oscEl("osc-editor");
   if (!ed) return;
   const lines = ed.value.split("\n");
@@ -613,7 +654,7 @@ function _oscGotoLine(line, column = 0) {
   for (let i = 0; i < l; i++) pos += lines[i].length + 1;
   pos += Math.min(column, lines[l]?.length || 0);
   ed.focus({ preventScroll: true });
-  ed.setSelectionRange(pos, pos);
+  ed.setSelectionRange(pos, pos + Math.max(0, Math.min(length, (lines[l]?.length || 0) - column)));
   const lh = parseFloat(getComputedStyle(ed).lineHeight) || 21;
   const target = l * lh - ed.clientHeight / 3;
   if (l * lh < ed.scrollTop || l * lh > ed.scrollTop + ed.clientHeight - lh * 2) ed.scrollTop = Math.max(0, target);
@@ -1005,7 +1046,7 @@ function _oscRenderSymbols() {
     if (!list.length) continue;
     html.push(`<div class="expert-project-symbols-label">${_oscEsc(titles[kind])}</div>`);
     for (const e of list) {
-      html.push(`<div class="expert-project-item expert-project-item--file osc-symbol" data-line="${e.line}"><span class="expert-project-item-icon">${icons[kind]}</span>`
+      html.push(`<div class="expert-project-item expert-project-item--file osc-symbol" data-line="${e.line}" data-name="${_oscEsc(e.name)}"><span class="expert-project-item-icon">${icons[kind]}</span>`
         + `<span class="expert-project-item-name" aria-label="${_oscEsc(`${e.name} · ${t("ubLine")} ${e.line + 1}`)}">${_oscEsc(e.name)}</span></div>`);
     }
   }
@@ -1802,7 +1843,7 @@ function _oscRenderOutput(res = _osc.last) {
   out.classList.toggle("osc-output--monitor", _osc.view === "mon");
   if (_osc.view === "asm") { out.innerHTML = res?.asm ? _oscListingHtml(res.asm) : _oscEsc(t("oscBuildFirst")); return; }
   if (_osc.view === "mon") { out.textContent = _oscMonitorText(_osc.last?.ok ? _osc.last.bytes : null); return; }
-  if (_osc.view === "map") { out.textContent = res?.map || t("oscBuildFirst"); return; }
+  if (_osc.view === "map") { out.innerHTML = res?.map ? _oscMapHtml(res.map) : _oscEsc(t("oscBuildFirst")); return; }
   if (!res) { out.textContent = t("oscReady"); return; }
   const log = [res.ok ? t("oscBuildSucceeded") : (res.error || t("oscBuildFailed"))];
   if (res.compiler) log.push(`${res.compiler}`);
@@ -2436,6 +2477,9 @@ function setupOscar64() {
       _oscRenderTree();
     } else if (_OSC_TEXT_FILE.test(_oscBase(path)) || _osc.files.some((f) => _oscNorm(f.path) === _oscNorm(path))) {
       _oscOpenPath(path);
+    } else if (globalThis._studioAssetEditor?.(path)) {
+      _oscRenderTree();
+      globalThis._studioOpenAsset(path);
     } else {
       _oscRenderTree();
       _oscStatus(tf("projDblClickToOpen", { name: _oscBase(path) }));
@@ -2446,12 +2490,20 @@ function setupOscar64() {
     if (!row || row.dataset.dir === "1") return;
     const path = row.dataset.path;
     if (_OSC_PROJ_FILE.test(path)) return;
+    if (globalThis._studioAssetEditor?.(path)) return;
     if (!_OSC_TEXT_FILE.test(_oscBase(path))) { _projOpenInSystem(path); return; }
     if (_oscTargetIndex(path) >= 0) _oscSelectTarget(_oscTargetIndex(path));
   });
   _oscEl("osc-project-symbols")?.addEventListener("click", (e) => {
     const row = e.target.closest(".osc-symbol");
-    if (row) _oscGotoLine(+row.dataset.line);
+    if (!row) return;
+    // the name is selected on its line, as in the assembly / UB symbol lists
+    const line = +row.dataset.line;
+    const name = row.dataset.name || "";
+    const text = (_oscEl("osc-editor")?.value || "").split("\n")[line] || "";
+    const at = name ? text.search(new RegExp(`(?<![\\w$])${name.replace(/[$.*+?^()[\]{}|\\]/g, "\\$&")}(?![\\w$])`)) : -1;
+    if (at >= 0) _oscGotoLine(line, at, name.length);
+    else _oscGotoLine(line);
   });
   const symbolsSplitter = _oscEl("osc-symbols-splitter");
   const applySymbolsHeight = () => _oscEl("osc-panel")?.style.setProperty("--ub-project-symbols-height", `${_osc.symbolsHeight || 190}px`);
