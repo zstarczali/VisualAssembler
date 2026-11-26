@@ -1481,17 +1481,24 @@ function initPalette() {
     return true;
   };
   expertModeToggle?.addEventListener("change", () => {
-    if (globalThis._oscActive?.()) _oscSetMode(false);
+    if (globalThis._oscActive?.()) _oscLeave();
     if (acmeBlocksBlocked(!expertModeToggle.checked)) return;
     setExpertMode(expertModeToggle.checked);
   });
+  document.getElementById("view-blocks-btn")?.addEventListener("click", () => {
+    if (!expertMode || acmeBlocksBlocked(true)) return;
+    setExpertMode(false);
+  });
+  document.getElementById("view-source-btn")?.addEventListener("click", () => {
+    if (!expertMode) setExpertMode(true);
+  });
   expertModeTbBtn?.addEventListener("click", () => {
-    if (globalThis._oscActive?.()) { _oscSetMode(false); if (!expertMode) setExpertMode(true); return; }
+    if (globalThis._oscActive?.()) { _oscLeave(); if (!expertMode && !ultimateBasicMode) setExpertMode(true); return; }
     if (acmeBlocksBlocked(expertMode)) return;
     setExpertMode(!expertMode);
   });
   ubModeTbBtn?.addEventListener("click", () => {
-    if (globalThis._oscActive?.()) { _oscSetMode(false); if (!ultimateBasicMode) setUltimateBasicMode(true); return; }
+    if (globalThis._oscActive?.()) { _oscLeave(); if (!ultimateBasicMode) setUltimateBasicMode(true); return; }
     setUltimateBasicMode(!ultimateBasicMode);
   });
   document.getElementById("ub-open-btn")?.addEventListener("click", () => _ubOpen(false));
@@ -1504,7 +1511,7 @@ function initPalette() {
   document.getElementById("ub-project-btn")?.addEventListener("click", _ubToggleProject);
   document.getElementById("ub-help-btn")?.addEventListener("click", _ubToggleCommands);
   document.getElementById("ub-manual-btn")?.addEventListener("click", () => window.electronAPI?.openUltimateBasicManual?.());
-  document.getElementById("ub-project-open-btn")?.addEventListener("click", _ubOpenProject);
+  document.getElementById("ub-project-open-btn")?.addEventListener("click", () => _studioOpenProject());
   document.getElementById("ub-project-new-btn")?.addEventListener("click", _ubNewProject);
   document.getElementById("ub-project-save-btn")?.addEventListener("click", _ubSaveProject);
   document.getElementById("ub-project-add-btn")?.addEventListener("click", () => _ubAddFile());
@@ -1938,7 +1945,7 @@ function initPalette() {
     });
   }
 
-  document.getElementById("expert-project-open-btn")?.addEventListener("click", _expertOpenProject);
+  document.getElementById("expert-project-open-btn")?.addEventListener("click", () => _studioOpenProject());
   document.getElementById("expert-project-new-btn")?.addEventListener("click",  _expertNewProject);
   document.getElementById("expert-project-save-btn")?.addEventListener("click", _expertSaveProject);
   document.getElementById("expert-project-add-btn")?.addEventListener("click",  _expertAddProjMember);
@@ -2243,10 +2250,14 @@ function initPalette() {
     await _openTemplateDialog();
   });
   document.getElementById("menu-open-project")?.addEventListener("click", async () => {
-    if (ultimateBasicMode) await _ubOpenProject();
-    else if (expertMode) await _openProjectFromMenu();
-    else await loadProjectFromFile();
     document.querySelector(".control-menu")?.removeAttribute("open");
+    // block mode keeps its own .vas / .json project dialog; every other editor opens a .proj
+    if (!ultimateBasicMode && !expertMode && !globalThis._oscActive?.()) await loadProjectFromFile();
+    else await _studioOpenProject();
+  });
+  document.getElementById("menu-start-window")?.addEventListener("click", () => {
+    document.querySelector(".control-menu")?.removeAttribute("open");
+    _studioShowStart();
   });
   document.getElementById("menu-save-project")?.addEventListener("click", async () => {
     if (ultimateBasicMode) {
@@ -2746,6 +2757,22 @@ function _updateEditorModeIndicator() {
     ubModeTbBtn.setAttribute("aria-disabled", String(blocked));
     if (blocked) ubModeTbBtn.setAttribute("title", t("ubAsmFileBlocked"));
     else ubModeTbBtn.removeAttribute("title");
+  }
+  // Blocks | Source: the view of an assembler file; UB and C tabs have none
+  const viewSwitch = document.getElementById("view-switch");
+  if (viewSwitch) {
+    viewSwitch.hidden = ultimateBasicMode || !!globalThis._oscActive?.();
+    document.getElementById("view-blocks-btn")?.setAttribute("aria-pressed", String(!expertMode));
+    const blocksBtn = document.getElementById("view-blocks-btn");
+    if (blocksBtn) blocksBtn.disabled = typeof _textOnlyAssembler === "function" && _textOnlyAssembler();
+    document.getElementById("view-source-btn")?.setAttribute("aria-pressed", String(expertMode));
+  }
+  // the active tab's language badge follows a mode switch (Block ⇄ Expert)
+  const badge = document.querySelector("#tab-bar .tab-item--active .tab-lang");
+  if (badge && !badge.classList.contains("tab-lang--oscar")) {
+    const mode = ultimateBasicMode ? "ub" : expertMode ? "expert" : "block";
+    badge.className = `tab-lang tab-lang--${mode}`;
+    badge.textContent = { block: "BLK", expert: "ASM", ub: "UB" }[mode];
   }
   const el = document.getElementById("editor-mode-indicator");
   if (!el) return;
@@ -3701,6 +3728,40 @@ function applyTranslations() {
     setText("#hw-settings-tab-files", t("hardwareSettingsFilesTab"));
     setText("#hw-settings-tab-compilers", t("hardwareSettingsCompilersTab"));
     setText("#hw-settings-tab-sid", t("hardwareSettingsSidTab"));
+    setText("#tools-btn-label", t("toolsMenu"));
+    document.getElementById("git-btn")?.setAttribute("aria-label", t("gitMenuHint"));
+    document.getElementById("about-tb-btn")?.setAttribute("aria-label", t("aboutTb"));
+    setText("#git-commit-label", t("gitCommit"));
+    setText("#git-group-branch", t("gitBranches"));
+    setText("#git-branch-new-label", t("gitBranchNew"));
+    setText("#menu-start-window", t("menuStartWindow"));
+    setText("#start-recent-label", t("startRecent"));
+    setText("#start-actions-label", t("startActions"));
+    setText("#start-new-label", t("startNew"));
+    setText("#start-new-desc", t("startNewDesc"));
+    setText("#start-open-label", t("startOpen"));
+    setText("#start-open-desc", t("startOpenDesc"));
+    setText("#start-folder-label", t("startFolder"));
+    setText("#start-folder-desc", t("startFolderDesc"));
+    setText("#start-continue", t("startContinue"));
+    setText("#start-show-label", t("startShowOnLaunch"));
+    setText("#new-btn-label", t("newMenu"));
+    document.getElementById("new-btn")?.setAttribute("aria-label", t("newMenuHint"));
+    setText("#new-group-file", t("newGroupFile"));
+    setText("#new-group-project", t("newGroupProject"));
+    setText("#new-asm-btn-label", t("newAsm"));
+    setText("#new-blocks-btn-label", t("newBlocks"));
+    setText("#new-ub-btn-label", t("newUb"));
+    setText("#new-c-btn-label", t("newC"));
+    setText("#new-project-btn-label", t("newFromTemplate"));
+    setText("#view-blocks-btn", t("viewBlocks"));
+    setText("#view-source-btn", t("viewSource"));
+    document.getElementById("view-switch")?.setAttribute("aria-label", t("viewSwitchHint"));
+    document.getElementById("tools-btn")?.setAttribute("aria-label", t("toolsMenuHint"));
+    setText("#tools-group-graphics", t("toolsGroupGraphics"));
+    setText("#tools-group-sound", t("toolsGroupSound"));
+    setText("#tools-group-data", t("toolsGroupData"));
+    setText("#tools-group-machine", t("toolsGroupMachine"));
     setText("#sid-player-settings-label", t("sidPlayerSettingsLabel"));
     setText("#hw-compilers-note", t("hwCompilersNote"));
     setText("#hw-settings-tab-integrations", t("hardwareSettingsIntegrationsTab"));
@@ -9312,7 +9373,9 @@ function _toolkitPlace() {
   if (ubPanelEl) ubPanelEl.hidden = !_ubToolkitVisible;
   _ubSetToggle("expert-toolkit-btn", _expertToolkitVisible);
   _ubSetToggle("ub-toolkit-btn", _ubToolkitVisible);
-  const host = ultimateBasicMode && _ubToolkitVisible ? ubPanelEl
+  const oscHost = document.getElementById("osc-toolkit-host");
+  const host = globalThis._oscActive?.() && oscHost && !oscHost.hidden ? oscHost
+    : ultimateBasicMode && _ubToolkitVisible ? ubPanelEl
     : expertMode && !ultimateBasicMode && _expertToolkitVisible ? expertPanelEl
     : document.querySelector(".output-section-label.toolkit-label");
   if (host && content.parentElement !== host) host.appendChild(content);
@@ -9613,6 +9676,7 @@ function _ubRenderProjectFiles() {
       if (startup.contains(event.target) || remove.contains(event.target)) return;
       if (tab) _tabActivate(tab.id);
       else if (isUb) _ubOpenProjectFile(file);
+      else _studioOpenForeign(absPath, "ub");
     });
     item.addEventListener("dblclick", event => {
       if (startup.contains(event.target) || remove.contains(event.target) || tab) return;
@@ -16424,7 +16488,33 @@ function _projMoveEntry(container, entry, delta) {
 // set for its type. ub: the UltimateBasic tree (only .ub opens in VA).
 function _projOpensInSystem(name, ub = false) {
   const n = String(name || "");
-  return ub ? !/\.ub$/i.test(n) : !/\.(asm|s|a65|inc|vas|json|c64va|proj)$/i.test(n);
+  if (_studioEditorOf(n)) return false;
+  return ub || !/\.(json|c64va|proj)$/i.test(n);
+}
+
+// Studio: which editor a file belongs to: "c" (Oscar64), "ub", "asm" (Expert / blocks), or "".
+function _studioEditorOf(name) {
+  const n = String(name || "").toLowerCase();
+  if (/\.(c|h)$/.test(n)) return "c";
+  if (/\.ub$/.test(n)) return "ub";
+  if (/\.(asm|s|a65|inc|vas)$/.test(n)) return "asm";
+  return "";
+}
+
+// Opens a file of another language from a project tree in its own editor; false = not handled here.
+async function _studioOpenForeign(absPath, current) {
+  const kind = _studioEditorOf(absPath);
+  if (!kind || kind === current) return false;
+  if (kind === "c") return !!(await globalThis._oscOpenPath?.(absPath));
+  const res = await window.electronAPI?.readTextFile?.(absPath);
+  if (!res?.ok) { showViceToast?.(tf("cannotOpen", { error: res?.error || "?" }), true); return true; }
+  const existing = tabs.find(tb => _normFilePath(tb.filePath) === _normFilePath(absPath));
+  if (existing) { _tabActivate(existing.id); return true; }
+  if (kind === "ub") { _ubCreateFileTab(absPath, res.content || ""); return true; }
+  if (ultimateBasicMode) setUltimateBasicMode(false, { restoreAssemblerMode: false });
+  await _expertLoadAsmFromPath(absPath, res.content || "");
+  if (!expertMode) setExpertMode(true, { keepText: true });
+  return true;
 }
 
 async function _projOpenInSystem(absPath) {
@@ -16649,12 +16739,111 @@ async function _closeProject() {
   renderAsmOutput();
 }
 
-async function _openProjectFromMenu() {
+// ── Studio: projects ────────────────────────────────────────────────────────
+// One kind of project is open at a time: opening or creating one closes the tabs and the project of
+// the other kinds (several C projects may stay open side by side). The start window lists the recent
+// projects (localStorage c64va-recent-projects: {path, name, kind}, kind = asm | acme | ub | c; for a
+// C project path is its folder).
+const _STUDIO_RECENT = "c64va-recent-projects";
+
+function _studioRecent() {
+  try {
+    const list = JSON.parse(localStorage.getItem(_STUDIO_RECENT) || "[]");
+    return Array.isArray(list) ? list.filter(p => p && typeof p.path === "string") : [];
+  } catch (_) { return []; }
+}
+
+function _studioRememberProject(path, name, kind) {
+  if (!path) return;
+  const base = String(path).replace(/\\/g, "/").split("/").pop().replace(/\.proj$/i, "");
+  const list = _studioRecent().filter(p => _normFilePath(p.path) !== _normFilePath(path));
+  list.unshift({ path, name: name || base, kind: kind || "asm" });
+  localStorage.setItem(_STUDIO_RECENT, JSON.stringify(list.slice(0, 12)));
+}
+
+function _studioForgetProject(path) {
+  localStorage.setItem(_STUDIO_RECENT, JSON.stringify(_studioRecent().filter(p => _normFilePath(p.path) !== _normFilePath(path))));
+}
+
+function _studioProjectKind(proj) {
+  if (proj?.app === "oscar64") return "c";
+  if (_projIsUb(proj)) return "ub";
+  return _projAssemblerSyntax(proj) === "acme" ? "acme" : "asm";
+}
+
+// Closes the tabs and projects before another project opens. keep = "c": the C files and projects stay.
+async function _studioCloseAll(keep = "") {
+  if (!await _confirmCloseAllTabs()) return false;
+  if (keep !== "c" && globalThis._oscCloseAll && !await _oscCloseAll()) return false;
+  if (globalThis._oscActive?.() && keep !== "c") _oscSetMode(false);
+  if (ultimateBasicMode) {
+    if (ubEditor) ubEditor.value = "";
+    _ubFilePath = "";
+    _ubDirty = false;
+  }
+  _closeAllTabsNow();
+  if (ultimateBasicMode) setUltimateBasicMode(false, { restoreAssemblerMode: false });
+  _ubProjectData = null;
+  _ubProjectDirty = false;
+  _ubRenderProjectFiles();
+  _expertProjectData = null;
+  _expertProjectDirty = false;
+  _expertRenderProjectTree();
+  if (keep === "c") globalThis._oscTabsSync?.();
+  return true;
+}
+
+// Opens a project of any kind: a .proj path, or the file dialog when path is empty.
+async function _studioOpenProject(path = "") {
+  let res;
+  if (path) {
+    const read = await window.electronAPI?.readTextFile?.(path);
+    let project = null;
+    try { project = read?.ok ? JSON.parse(read.content) : null; } catch (_) {}
+    if (!project) { showViceToast?.(tf("startNotFound", { path }), true); return false; }
+    res = { ok: true, project, filePath: path };
+  } else {
+    res = await window.electronAPI?.openProjFile?.();
+    if (!res || res.canceled) return false;
+    if (!res.ok) { showViceToast?.(t("projError") + ": " + res.error, true); return false; }
+  }
+  const proj = res.project || {};
+  if (proj.app === "c64-visual-assembler" && Array.isArray(proj.program)) {
+    if (!await _studioCloseAll()) return false;
+    _studioRememberProject(res.filePath, proj.name, "blk");
+    await _applyProjectPayload(proj, { sourceFilePath: res.filePath || "" });
+    return true;
+  }
+  const kind = _studioProjectKind(proj);
+  if (kind === "c") return _studioOpenCFolder(res.filePath.replace(/[\\/][^\\/]*$/, ""));
+  if (!await _studioCloseAll()) return false;
+  _studioRememberProject(res.filePath, proj.name, kind);
+  if (kind === "ub") { await _ubApplyOpenedProject(proj, res.filePath, { dropBlank: true }); return true; }
+  await _openProjectFromMenu(res);
+  return true;
+}
+
+// A C (Oscar64) project folder; the file dialog when dir is empty.
+async function _studioOpenCFolder(dir = "") {
+  if (!dir) {
+    const pick = await window.electronAPI?.oscarChooseFolder?.("");
+    if (!pick || pick.canceled) return false;
+    dir = pick.path;
+  }
+  const listed = await window.electronAPI?.oscarListDir?.(dir);
+  if (listed && !listed.ok) { showViceToast?.(tf("startNotFound", { path: dir }), true); return false; }
+  if (!await _studioCloseAll("c")) return false;
+  await _oscOpenProject(dir);
+  _oscEnter();
+  return true;
+}
+
+async function _openProjectFromMenu(opened = null) {
   // Ask user for each dirty tab before loading
-  if (!await _closeAllTabsWithConfirm()) return;
+  if (!opened && !await _closeAllTabsWithConfirm()) return;
 
   // Load the .proj file first (shared with expert mode)
-  const res = await window.electronAPI?.openProjFile?.();
+  const res = opened || await window.electronAPI?.openProjFile?.();
   if (!res || res.canceled) return;
   if (!res.ok) { _expertSetStatus(t("projError") + ": " + res.error, "error"); return; }
   const proj = res.project || {};
@@ -16825,7 +17014,7 @@ function _parseTemplateSource(fileName, content, source) {
   const meta = {};
   let i = 0;
   for (; i < lines.length; i++) {
-    const m = lines[i].match(/^\s*[;#]\s*@([a-z]+)(?:\.([a-z]{2}))?\s+(.+?)\s*$/i);
+    const m = lines[i].match(/^\s*(?:[;#]|\/\/)\s*@([a-z]+)(?:\.([a-z]{2}))?\s+(.+?)\s*$/i);
     if (!m) break;
     const key = m[1].toLowerCase();
     (meta[key] ||= {})[(m[2] || "").toLowerCase()] = m[3];
@@ -16835,7 +17024,7 @@ function _parseTemplateSource(fileName, content, source) {
     id: `${source}:${fileName}`,
     fileName,
     source,
-    kind: /\.ub$/i.test(fileName) ? "ub" : meta.assembler?.[""]?.toLowerCase() === "acme" ? "acme" : "asm",
+    kind: /\.ub$/i.test(fileName) ? "ub" : /\.c$/i.test(fileName) ? "c" : meta.assembler?.[""]?.toLowerCase() === "acme" ? "acme" : "asm",
     meta,
     order: Number.parseInt(meta.order?.[""] ?? "", 10) || 1000,
     body: lines.slice(i).join("\n").replace(/\s*$/, "\n")
@@ -16864,7 +17053,7 @@ function _templateTargetPaths(projectName, location, kind = "asm") {
   const base = String(location || "").trim();
   if (!name || !base) return null;
   const dir = _templateJoinPath(base, name);
-  return { name, dir, projPath: `${dir}/${name}.proj`, mainPath: `${dir}/main.${kind === "ub" ? "ub" : "asm"}` };
+  return { name, dir, projPath: `${dir}/${name}.proj`, mainPath: `${dir}/main.${kind === "ub" ? "ub" : kind === "c" ? "c" : "asm"}` };
 }
 
 function _templateSelected() {
@@ -16918,6 +17107,10 @@ function _templateRenderPreview() {
     previewEl.innerHTML = _ubHighlightSource(source).replace(/\n$/, "");
     return;
   }
+  if (tpl?.kind === "c" && typeof _oscHighlight === "function") {
+    previewEl.innerHTML = _oscHighlight(source).join("\n");
+    return;
+  }
   previewEl.innerHTML = source.split("\n").map(line => {
     try { return tpl?.kind === "acme" ? _expertHighlightAcmeLine(line) : _expertHighlightLine(line); } catch { return _escHtml(line); }
   }).join("\n");
@@ -16945,6 +17138,13 @@ function _templateRenderList() {
   if (!listEl) return;
   const visible = _templateList.filter(tpl => tpl.kind === _templateKind);
   if (!_templateSelected()) _templateSelectedId = visible[0]?.id || "";
+  const kindDesc = document.getElementById("template-kind-desc");
+  if (kindDesc) {
+    // difficulty: UB easiest, C medium, assembler hardest
+    const level = { ub: 1, c: 2 }[_templateKind] || 3;
+    const key = { ub: "templateKindDescUb", c: "templateKindDescC", acme: "templateKindDescAcme" }[_templateKind] || "templateKindDescAsm";
+    kindDesc.innerHTML = `<span class="template-kind-stars" aria-hidden="true">${"★".repeat(level)}${"☆".repeat(3 - level)}</span>${_escHtml(t(key))}`;
+  }
   document.querySelectorAll("#template-kinds .template-kind").forEach(btn => {
     const active = btn.dataset.templateKind === _templateKind;
     btn.classList.toggle("template-kind--active", active);
@@ -16954,7 +17154,7 @@ function _templateRenderList() {
   if (!visible.length) {
     const empty = document.createElement("p");
     empty.className = "template-empty";
-    empty.textContent = t(_templateKind === "ub" ? "templateNoTemplatesUb" : _templateKind === "acme" ? "templateNoTemplatesAcme" : "templateNoTemplates");
+    empty.textContent = t(_templateKind === "ub" ? "templateNoTemplatesUb" : _templateKind === "acme" ? "templateNoTemplatesAcme" : _templateKind === "c" ? "templateNoTemplatesC" : "templateNoTemplates");
     listEl.appendChild(empty);
   }
   const groups = new Map();
@@ -16976,7 +17176,7 @@ function _templateRenderList() {
       btn.type = "button";
       btn.className = "template-item";
       btn.dataset.templateId = tpl.id;
-      btn.textContent = _templateText(tpl, "name") || tpl.fileName.replace(/\.(asm|ub)$/i, "");
+      btn.textContent = _templateText(tpl, "name") || tpl.fileName.replace(/\.(asm|ub|c)$/i, "");
       btn.addEventListener("click", () => {
         _templateSelectedId = tpl.id;
         _templateRenderDetail();
@@ -16989,7 +17189,7 @@ function _templateRenderList() {
 }
 
 function _templateNormalizeKind(kind) {
-  return kind === "ub" || kind === "acme" ? kind : "asm";
+  return kind === "ub" || kind === "acme" || kind === "c" ? kind : "asm";
 }
 
 async function _openTemplateDialog(kind = "") {
@@ -16998,7 +17198,7 @@ async function _openTemplateDialog(kind = "") {
   const nameInput = document.getElementById("template-project-name");
   const locationInput = document.getElementById("template-location");
   await _templateLoadList();
-  _templateKind = _templateNormalizeKind(kind || (ultimateBasicMode ? "ub" : assemblerSyntax === "acme" ? "acme" : "asm"));
+  _templateKind = _templateNormalizeKind(kind || (globalThis._oscActive?.() ? "c" : ultimateBasicMode ? "ub" : assemblerSyntax === "acme" ? "acme" : "asm"));
   if (_templateKind === "acme" && !await (_acmeAvailabilityCheck || _acmeAvailabilitySync())) _templateKind = "asm";
   if (nameInput) nameInput.value = "NewProject";
   if (locationInput && !locationInput.value.trim()) {
@@ -17025,7 +17225,25 @@ async function _templateCreateProject() {
       return;
     }
   }
-  if (!await _confirmCloseAllTabs()) return;
+  // one kind of project at a time: the others close (C projects may stay side by side)
+  if (!await _studioCloseAll(tpl.kind === "c" ? "c" : "")) return;
+
+  if (tpl.kind === "c") {
+    const proj = JSON.stringify({ app: "oscar64", name: paths.name, startupFile: "main.c", optimize: "O2", defines: [], includeDirs: [] }, null, 2) + "\n";
+    const cres = await api.createTemplateProject(paths.projPath, proj, paths.mainPath, tpl.body.replaceAll("{{PROJECT}}", paths.name));
+    if (!cres?.ok) {
+      _templateUpdateTarget(cres?.exists
+        ? tf("templateExists", { path: _templateDisplayPath(paths.dir) })
+        : `${t("templateWriteError")}: ${cres?.error || _templateDisplayPath(paths.dir)}`);
+      return;
+    }
+    localStorage.setItem("templateProjectLocation", document.getElementById("template-location")?.value.trim() || "");
+    document.getElementById("template-dialog")?.close();
+    await _oscOpenProject(paths.dir);
+    _oscEnter();
+    _studioRememberProject(paths.dir, paths.name, "c");
+    return;
+  }
 
   const isUb = tpl.kind === "ub";
   const syntax = tpl.kind === "acme" ? "acme" : "kick";
@@ -17042,6 +17260,7 @@ async function _templateCreateProject() {
   }
   localStorage.setItem("templateProjectLocation", document.getElementById("template-location")?.value.trim() || "");
   document.getElementById("template-dialog")?.close();
+  _studioRememberProject(paths.projPath, paths.name, isUb ? "ub" : tpl.kind);
 
   if (isUb) {
     _closeAllTabsNow();
@@ -17326,6 +17545,7 @@ async function _expertAddProjFolder() {
 
 async function _expertProjectOpenFile(fileEntry) {
   const absPath = _projResolveAbsPath(fileEntry.path);
+  if (!tabs.some(tb => _normFilePath(tb.filePath) === _normFilePath(absPath)) && await _studioOpenForeign(absPath, "asm")) return;
   const normAbs = _normFilePath(absPath);
   const lowerPath = normAbs.toLowerCase();
   const isAsmSource = /\.(asm|s|a65|inc)$/.test(lowerPath);
@@ -21694,7 +21914,7 @@ async function _restoreLatestProjectSnapshot() {
 
 function _vcTabsUnder(dir) {
   const prefix = _normFilePath(dir) + "/";
-  return tabs.filter(tab => _normFilePath(_vcUbFilePath(tab) || tab.filePath || "").startsWith(prefix));
+  return tabs.filter(tab => tab.editorMode !== "oscar" && _normFilePath(_vcUbFilePath(tab) || tab.filePath || "").startsWith(prefix));
 }
 
 // A fülek tartalma a lemezről (git restore / switch után), tisztán; visszaadja a sikertelenek nevét.
@@ -22306,6 +22526,8 @@ function _tabSaveCurrent() {
   if (programList.contains(document.activeElement)) document.activeElement.blur();
   const tab = tabs.find(t => t.id === activeTabId);
   if (!tab) return;
+  // a C tab: its text lives in oscar64.js (_osc.files)
+  if (tab.editorMode === "oscar") { globalThis._oscSyncFromEditor?.(); return; }
   tab.editorMode = ultimateBasicMode ? "ub" : expertMode ? "expert" : "block";
   if (ultimateBasicMode && ubEditor && _ubEditorTabId === tab.id) {
     tab.ubText = ubEditor.value;
@@ -22330,6 +22552,17 @@ function _tabActivate(tabId) {
   activeTabId = tabId;
   const tab = tabs.find(t => t.id === tabId);
   if (!tab) return;
+
+  // Studio: the editor follows the file. A C tab shows the Oscar64 editor; any other tab leaves it.
+  if (tab.editorMode === "oscar") {
+    if (ultimateBasicMode) setUltimateBasicMode(false, { restoreAssemblerMode: false });
+    globalThis._oscShowFile?.(tab.oscId);
+    updateWindowTitle(tab.name || "");
+    renderTabBar();
+    return;
+  }
+  if (globalThis._oscActive?.()) _oscSetMode(false);
+  _studioLastTabId = tab.id;
 
   program = JSON.parse(JSON.stringify(tab.program));
   userMacros = JSON.parse(JSON.stringify(tab.userMacros));
@@ -22389,7 +22622,12 @@ function _tabActivate(tabId) {
   if (_expertProjectVisible && _expertProjectData) _expertRenderProjectTree();
 }
 
+// The tab the assembler / UB side used last (the C button returns there).
+let _studioLastTabId = null;
+
 function _tabNew() {
+  // a new tab in the C editor is a new C file
+  if (globalThis._oscActive?.()) { _oscNewFile(); return; }
   _tabSaveCurrent();
   const tab = _tabCreate();
   tab.program = [makeDefaultOrgBlock()];
@@ -22425,6 +22663,7 @@ function _tabNew() {
 }
 
 function _tabHasContent(tab) {
+  if (tab.editorMode === "oscar") return false; // oscar64.js asks about its own unsaved files
   if (tab.editorMode === "ub") {
     const text = tab.id === activeTabId && ultimateBasicMode ? ubEditor?.value : tab.ubText;
     return !!tab.filePath || !!String(text || "").trim();
@@ -22619,8 +22858,25 @@ async function _updateInstall() {
   document.querySelectorAll("[data-update-status]").forEach(el => el.addEventListener("click", _updateShowAvailable));
 })();
 
+// Takes a tab off the bar without asking (oscar64.js, after it closed the file); the neighbour
+// becomes active, the last tab gives its place to an empty one.
+function _tabDrop(tabId) {
+  const idx = tabs.findIndex(t => t.id === tabId);
+  if (idx < 0) return;
+  tabs.splice(idx, 1);
+  if (!tabs.length) {
+    activeTabId = null;
+    if (globalThis._oscActive?.()) _oscSetMode(false);
+    _tabNew();
+    return;
+  }
+  if (activeTabId === tabId) _tabActivate(tabs[Math.min(idx, tabs.length - 1)].id);
+  else renderTabBar();
+}
+
 async function _tabClose(tabId) {
   const tab = tabs.find(t => t.id === tabId);
+  if (tab?.editorMode === "oscar") return !!(await globalThis._oscCloseById?.(tab.oscId));
   if (tab && _tabHasContent(tab)) {
     const key = tab.filePath ? "tabCloseConfirmUnsaved" : "tabCloseConfirm";
     const msg = tf(key, { name: tab.name });
@@ -22680,6 +22936,7 @@ function _workspaceBuildPayload(name = "") {
   const entries = [];
   let activeIndex = -1;
   tabs.forEach(tab => {
+    if (tab.editorMode === "oscar") return; // oscar64.js reopens its own files
     const idx = entries.length;
     // Every tab's live in-memory content is embedded directly in the workspace
     // file, regardless of whether it's file-backed. This is what makes restore
@@ -22964,6 +23221,16 @@ function renderTabBar() {
     div.className = "tab-item" + (tab.id === activeTabId ? " tab-item--active" : "");
     div.dataset.tabId = tab.id;
 
+    // Studio: the badge names the editor the tab opens in
+    const mode = tab.editorMode === "oscar" ? "oscar"
+      : tab.id === activeTabId ? (ultimateBasicMode ? "ub" : expertMode ? "expert" : "block")
+      : (tab.editorMode || "block");
+    const lang = document.createElement("span");
+    lang.className = `tab-lang tab-lang--${mode}`;
+    lang.textContent = { block: "BLK", expert: "ASM", ub: "UB", oscar: "C" }[mode] || "ASM";
+    lang.setAttribute("aria-hidden", "true");
+    div.appendChild(lang);
+
     const nameSpan = document.createElement("span");
     nameSpan.className = "tab-name";
     if (tab.dirty) {
@@ -23013,6 +23280,160 @@ function _updateTabScrollButtons() {
   wrap.classList.toggle("can-scroll-left",  canLeft);
   wrap.classList.toggle("can-scroll-right", canRight);
 }
+
+// Studio toolbar menus (Tools, New): a popover under its button.
+function _initToolbarPopover(btnId, panelId, width) {
+  const btn = document.getElementById(btnId);
+  const panel = document.getElementById(panelId);
+  if (!btn || !panel?.showPopover) return;
+  // the button opens it (popovertarget), the browser closes it on an outside click or Esc
+  const place = () => {
+    const r = btn.getBoundingClientRect();
+    const w = Math.min(width, window.innerWidth * 0.94);
+    panel.style.left = `${Math.max(6, Math.min(r.left, window.innerWidth - w - 6))}px`;
+    panel.style.top = `${r.bottom + 4}px`;
+  };
+  panel.addEventListener("beforetoggle", e => { if (e.newState === "open") place(); });
+  panel.addEventListener("toggle", e => btn.setAttribute("aria-expanded", String(e.newState === "open")));
+  panel.addEventListener("click", e => { if (e.target.closest("button")) panel.hidePopover(); });
+  window.addEventListener("resize", () => { if (panel.matches(":popover-open")) place(); });
+}
+_initToolbarPopover("tools-btn", "tools-panel", 560);
+_initToolbarPopover("new-btn", "new-panel", 300);
+_initToolbarPopover("git-btn", "git-panel", 260);
+
+// Studio Git menu: pull / push straight away (the result comes as a toast), the rest in the
+// Version control window's Git mode.
+async function _studioGit(action) {
+  if (action === "pull") return _vcGitSimple(["pull", "--ff-only"], "pull");
+  if (action === "push") return _vcGitSimple(["push"], "push");
+  await _openProjectSnapshotDialog();
+  if (_vcMode !== "git") document.getElementById("vc-mode-git")?.click();
+  if (action === "commit") return;
+  await new Promise(resolve => setTimeout(resolve, 250));
+  if (action === "branch") return _vcBranchNew();
+  if (action === "merge") return _vcBranchMerge();
+  if (action === "stash") return _vcStashSave();
+}
+document.getElementById("git-commit")?.addEventListener("click", () => _studioGit("commit"));
+document.getElementById("git-pull")?.addEventListener("click", () => _studioGit("pull"));
+document.getElementById("git-push")?.addEventListener("click", () => _studioGit("push"));
+document.getElementById("git-branch-new")?.addEventListener("click", () => _studioGit("branch"));
+document.getElementById("git-merge")?.addEventListener("click", () => _studioGit("merge"));
+document.getElementById("git-stash")?.addEventListener("click", () => _studioGit("stash"));
+document.getElementById("about-tb-btn")?.addEventListener("click", () => document.getElementById("about-btn")?.click());
+
+// Studio hint bar: the block-mode help line folds away after a few seconds; it comes back when
+// block mode is entered again.
+(function _initHintBar() {
+  const hint = document.querySelector(".hero-copy");
+  if (!hint) return;
+  let timer = 0;
+  const show = () => {
+    hint.classList.remove("hero-copy--gone");
+    clearTimeout(timer);
+    timer = setTimeout(() => hint.classList.add("hero-copy--gone"), 9000);
+  };
+  let block = !document.body.classList.contains("expert-mode");
+  new MutationObserver(() => {
+    const now = !document.body.classList.contains("expert-mode") && !document.body.classList.contains("ub-mode") && !document.body.classList.contains("oscar-mode");
+    if (now && !block) show();
+    block = now;
+  }).observe(document.body, { attributes: true, attributeFilter: ["class"] });
+  hint.addEventListener("mouseenter", () => clearTimeout(timer));
+  hint.addEventListener("mouseleave", () => { timer = setTimeout(() => hint.classList.add("hero-copy--gone"), 3000); });
+  show();
+}());
+
+// Studio start window: recent projects, new project (template dialog), open project / C folder.
+function _studioRenderRecent() {
+  const host = document.getElementById("start-recent");
+  if (!host) return;
+  const list = _studioRecent();
+  host.innerHTML = "";
+  if (!list.length) {
+    const p = document.createElement("p");
+    p.className = "start-recent-empty";
+    p.textContent = t("startNoRecent");
+    host.appendChild(p);
+    return;
+  }
+  const badge = { asm: ["expert", "ASM"], acme: ["expert", "ACME"], ub: ["ub", "UB"], c: ["oscar", "C"], blk: ["block", "BLK"] };
+  for (const item of list) {
+    const row = document.createElement("div");
+    row.className = "start-recent-item";
+    row.tabIndex = 0;
+    const [cls, text] = badge[item.kind] || badge.asm;
+    row.innerHTML = `<span class="tab-lang tab-lang--${cls}" aria-hidden="true">${text}</span>`
+      + `<span><span class="start-recent-name">${_escHtml(item.name || "")}</span><span class="start-recent-path">${_escHtml(item.path)}</span></span>`;
+    const del = document.createElement("button");
+    del.type = "button";
+    del.className = "start-recent-del";
+    del.textContent = "×";
+    del.setAttribute("aria-label", t("startRemoveRecent"));
+    del.addEventListener("click", e => { e.stopPropagation(); _studioForgetProject(item.path); _studioRenderRecent(); });
+    row.appendChild(del);
+    const open = async () => {
+      document.getElementById("start-dialog")?.close();
+      const ok = item.kind === "c" ? await _studioOpenCFolder(item.path) : await _studioOpenProject(item.path);
+      if (!ok) _studioShowStart();
+    };
+    row.addEventListener("click", open);
+    row.addEventListener("keydown", e => { if (e.key === "Enter") open(); });
+    host.appendChild(row);
+  }
+}
+
+function _studioShowStart() {
+  const dlg = document.getElementById("start-dialog");
+  if (!dlg || dlg.open) return;
+  const show = document.getElementById("start-show-on-launch");
+  if (show) show.checked = localStorage.getItem("c64va-start-window") !== "off";
+  _studioRenderRecent();
+  dlg.showModal();
+  setTimeout(() => dlg.querySelector(".start-recent-item, .start-action")?.focus(), 0);
+}
+
+(function _initStartWindow() {
+  const dlg = document.getElementById("start-dialog");
+  if (!dlg) return;
+  const close = () => dlg.close();
+  document.getElementById("start-close")?.addEventListener("click", close);
+  document.getElementById("start-continue")?.addEventListener("click", close);
+  document.getElementById("start-new")?.addEventListener("click", async () => { close(); await _openTemplateDialog(); });
+  document.getElementById("start-open")?.addEventListener("click", async () => { close(); if (!await _studioOpenProject()) _studioShowStart(); });
+  document.getElementById("start-folder")?.addEventListener("click", async () => { close(); if (!await _studioOpenCFolder()) _studioShowStart(); });
+  document.getElementById("start-show-on-launch")?.addEventListener("change", e => {
+    localStorage.setItem("c64va-start-window", e.target.checked ? "on" : "off");
+  });
+  if (localStorage.getItem("c64va-start-window") === "off") return;
+  // at startup, once the splash and the welcome / news dialogs are gone
+  const started = Date.now();
+  const wait = () => {
+    const busy = document.querySelector("dialog[open]") || document.getElementById("splash-screen");
+    if (!busy) { _studioShowStart(); return; }
+    if (Date.now() - started < 120000) setTimeout(wait, 400);
+  };
+  setTimeout(wait, 1800);
+}());
+
+// Studio New menu: a new tab in the chosen language ("expert", "block", "ub", "oscar").
+function _studioNewFile(kind) {
+  if (kind === "oscar") { _oscNewFile(); return; }
+  if (globalThis._oscActive?.()) _oscSetMode(false);
+  _tabNew();
+  if (kind === "ub") { if (!ultimateBasicMode) setUltimateBasicMode(true); return; }
+  if (ultimateBasicMode) setUltimateBasicMode(false, { restoreAssemblerMode: false });
+  if (kind === "block" && _textOnlyAssembler()) {
+    showViceToast?.(t(_textKey("acmeNoBlockMode")), true);
+    kind = "expert";
+  }
+  setExpertMode(kind === "expert");
+}
+document.getElementById("new-asm-btn")?.addEventListener("click", () => _studioNewFile("expert"));
+document.getElementById("new-blocks-btn")?.addEventListener("click", () => _studioNewFile("block"));
+document.getElementById("new-ub-btn")?.addEventListener("click", () => _studioNewFile("ub"));
+document.getElementById("new-c-btn")?.addEventListener("click", () => _studioNewFile("oscar"));
 
 // Wire scroll buttons (called once at startup)
 (function _initTabScrollButtons() {
@@ -31202,6 +31623,7 @@ async function loadProjectFromFile() {
   if (emulatorStatus) {
     emulatorStatus.textContent = `${t("projectLoaded")}: ${result.filePath}`;
   }
+  _studioRememberProject(result.filePath, projectData.name, "blk");
 
   return _applyProjectPayload(projectData, { sourceFilePath: result.filePath || "" });
 }

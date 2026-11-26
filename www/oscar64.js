@@ -8,7 +8,7 @@
 const _OSC_STORE = "c64va-oscar64";
 const _OSC_SOURCE_EXT = /\.(c|h|cpp|hpp|cc|s|asm|inc)$/i;
 // Text the editor opens; anything else (png, prg, sid, d64, bin …) goes to the system's program.
-const _OSC_TEXT_FILE = /\.(c|h|cpp|hpp|cc|hh|s|asm|a65|inc|txt|md|sh|bat|cmd|mk|proj|json|cfg|ini|py|js|lua|csv|xml|html?)$|^(makefile|gnumakefile|readme|license|copying)$/i;
+const _OSC_TEXT_FILE = /\.(c|h|cpp|hpp|cc|hh|s|asm|a65|inc|ub|txt|md|sh|bat|cmd|mk|proj|json|cfg|ini|py|js|lua|csv|xml|html?)$|^(makefile|gnumakefile|readme|license|copying)$/i;
 
 const _OSC_KEYWORDS = new Set(("auto break case const continue default do else enum extern for goto if inline "
   + "register restrict return sizeof static struct switch typedef union volatile while "
@@ -48,6 +48,9 @@ const _osc = {
   diags: [],
   // every project opened in this session: normalized root → { root, projPath, proj, tree }
   projects: new Map(),
+  bms: new Map(),
+  minimap: true,
+  find: { matches: [], index: -1 },
 };
 
 const _oscEl = (id) => document.getElementById(id);
@@ -262,6 +265,8 @@ function _oscSave() {
       expanded: [..._osc.expanded],
       projects: [..._osc.projects.values()].filter((pr) => pr.projPath).map((pr) => ({ root: pr.root, projPath: pr.projPath })),
       bps: [..._osc.bps].map(([file, set]) => [file, [...set]]).filter(([, l]) => l.length),
+      minimap: _osc.minimap,
+      bms: [..._osc.bms].filter(([file, set]) => !file.startsWith("untitled:") && set.size).map(([file, set]) => [file, [...set]]),
     }));
   } catch (_) {}
 }
@@ -280,6 +285,8 @@ function _oscSetMode(on) {
   }
   _osc.active = on;
   document.body.classList.toggle("oscar-mode", on);
+  // the shared Toolkit goes back to the block / Expert / UB view when C closes
+  if (!on) globalThis._toolkitPlace?.();
   const panel = _oscEl("osc-panel");
   if (panel) panel.hidden = !on;
   const btn = _oscEl("oscar-mode-tb-btn");
@@ -289,7 +296,6 @@ function _oscSetMode(on) {
   if (on && label) label.textContent = t("editorModeOscar64");
   else _updateEditorModeIndicator();
   if (on) {
-    if (!_osc.files.length) _oscNewFile();
     _oscRenderAll();
     _oscRefreshCompilerInfo();
     _oscEl("osc-editor")?.focus();
@@ -297,6 +303,91 @@ function _oscSetMode(on) {
   }
   try { renderMemoryMap(); } catch (_) {}
   _oscSave();
+}
+
+// ── Studio tabs ─────────────────────────────────────────────────────────────
+// Every C file is a tab of the shared tab bar (app.js `tabs`, editorMode "oscar", oscId = the file's
+// id). Activating that tab shows this editor (_oscShowFile); any other tab hides it (_tabActivate).
+
+function _oscTabOf(id) {
+  return typeof tabs === "undefined" ? null : tabs.find((tb) => tb.editorMode === "oscar" && tb.oscId === id) || null;
+}
+
+// The shared tab bar after a change of the file list: new files get a tab, closed ones lose it,
+// names and the unsaved dot follow. focusId: the file whose tab becomes active.
+function _oscTabsSync(focusId = null) {
+  if (typeof tabs === "undefined" || typeof _tabCreate !== "function") return;
+  for (const f of _osc.files) {
+    let tab = _oscTabOf(f.id);
+    if (!tab) {
+      tab = _tabCreate(f.name);
+      Object.assign(tab, { editorMode: "oscar", oscId: f.id, program: [] });
+      tabs.push(tab);
+    }
+    tab.name = f.name;
+    tab.filePath = f.path || null;
+    tab.dirty = !!f.dirty;
+  }
+  const tab = focusId != null && !_osc.restoring ? _oscTabOf(focusId) : null;
+  if (tab && tab.id !== activeTabId) _tabActivate(tab.id);
+  const ids = new Set(_osc.files.map((f) => f.id));
+  const gone = tabs.filter((tb) => tb.editorMode === "oscar" && !ids.has(tb.oscId));
+  gone.forEach((tb) => _tabDrop(tb.id));
+  if (!gone.length) renderTabBar();
+}
+
+// The shared tab bar activated a C file's tab.
+function _oscShowFile(id) {
+  const idx = _osc.files.findIndex((f) => f.id === id);
+  if (idx < 0) return;
+  _oscSetMode(true);
+  if (idx !== _osc.current) _oscActivate(idx);
+  else _oscRefreshEditor();
+  _oscEl("osc-editor")?.focus();
+  _oscSave();
+}
+
+// The C toolbar button: the last C file, or a new one.
+function _oscEnter() {
+  const f = _oscCurrent() || _osc.files[0];
+  const tab = f ? _oscTabOf(f.id) : null;
+  if (tab) _tabActivate(tab.id);
+  else _oscNewFile();
+}
+
+// Back to the assembler / UltimateBasic side: the tab used last there, or a new one.
+function _oscLeave() {
+  const other = tabs.find((tb) => tb.id === _studioLastTabId && tb.editorMode !== "oscar")
+    || [...tabs].reverse().find((tb) => tb.editorMode !== "oscar");
+  if (other) { _tabActivate(other.id); return; }
+  _oscSetMode(false);
+  _tabNew();
+}
+
+// Before a project of another kind opens: every C file closes (unsaved ones asked about), the
+// C projects with them. false = the user kept a file.
+async function _oscCloseAll() {
+  _oscSyncFromEditor();
+  for (const f of _osc.files) {
+    if (f.dirty && !(await _showConfirm(tf("oscCloseUnsaved", { name: f.name })))) return false;
+  }
+  _osc.files = [];
+  _osc.current = -1;
+  _osc.projects.clear();
+  _osc.root = "";
+  _osc.projPath = "";
+  _osc.proj = { startupFile: "", optimize: "O2", defines: [], includeDirs: [] };
+  _osc.tree = [];
+  if (_osc.active) _oscSetMode(false);
+  _oscRenderTree();
+  _oscSave();
+  return true;
+}
+
+async function _oscCloseById(id) {
+  const idx = _osc.files.findIndex((f) => f.id === id);
+  if (idx < 0) { const tab = _oscTabOf(id); if (tab) _tabDrop(tab.id); return true; }
+  return _oscCloseFile(idx);
 }
 
 // ── Files ───────────────────────────────────────────────────────────────────
@@ -319,6 +410,9 @@ function _oscNewFile(text = "#include <stdio.h>\n\nint main(void)\n{\n    printf
 }
 
 async function _oscOpenPath(path, line = -1) {
+  // Studio: an assembler or UltimateBasic file opens in its own editor
+  const kind = typeof _studioEditorOf === "function" ? _studioEditorOf(path) : "";
+  if (kind === "asm" || kind === "ub") return _studioOpenForeign(path, "c");
   const norm = _oscNorm(path);
   let idx = _osc.files.findIndex((f) => _oscNorm(f.path) === norm);
   if (idx < 0) {
@@ -329,7 +423,7 @@ async function _oscOpenPath(path, line = -1) {
     const lone = _osc.files.length === 1 && !_osc.files[0].path && !_osc.files[0].dirty;
     const entry = { id: _oscNextId++, path, name: _oscBase(path), text: res.content.replace(/\r\n/g, "\n"), dirty: false, scrollTop: 0 };
     entry.saved = entry.text;
-    if (lone) _osc.files = [entry]; else _osc.files.push(entry);
+    if (lone) { entry.id = _osc.files[0].id; _osc.files = [entry]; _osc.current = -1; } else _osc.files.push(entry);
     idx = lone ? 0 : _osc.files.length - 1;
   }
   _oscActivate(idx);
@@ -350,7 +444,7 @@ function _oscActivate(idx) {
     if (f.sel) ed.setSelectionRange(f.sel[0], f.sel[1]);
   }
   _osc.selected = f?.path || _osc.selected;
-  _oscRenderTabs();
+  _oscTabsSync(f?.id ?? null);
   _oscRefreshEditor();
   _oscRenderTree();
   if (f && !_osc.entries.some((e) => e.key === _oscKey(f))) _oscScheduleAuto(300);
@@ -358,14 +452,18 @@ function _oscActivate(idx) {
 
 async function _oscCloseFile(idx) {
   const f = _osc.files[idx];
-  if (!f) return;
+  if (!f) return false;
   if (idx === _osc.current) _oscSyncFromEditor();
-  if (f.dirty && !(await _showConfirm(tf("oscCloseUnsaved", { name: f.name })))) return;
+  if (f.dirty && !(await _showConfirm(tf("oscCloseUnsaved", { name: f.name })))) return false;
+  const shown = _osc.active && idx === _osc.current;
   _osc.files.splice(idx, 1);
-  if (!_osc.files.length) { _osc.current = -1; _oscNewFile(""); return; }
-  _osc.current = -1;
-  _oscActivate(Math.min(idx, _osc.files.length - 1));
+  if (idx === _osc.current) _osc.current = -1;
+  else if (idx < _osc.current) _osc.current--;
+  // the next C file takes the closed one's place; the last one hands over to the other tabs
+  if (shown && _osc.files.length) _oscActivate(Math.min(idx, _osc.files.length - 1));
+  else _oscTabsSync();
   _oscSave();
+  return true;
 }
 
 async function _oscSaveFile(idx = _osc.current, saveAs = false) {
@@ -444,12 +542,13 @@ function _oscRefreshEditor() {
   }).join("\n");
   const cyc = _osc.cycles && f && _osc.last?.ok ? _oscCycleMap(_osc.last.bytes, _osc.entries, _oscKey(f)) : null;
   const bps = _oscBpSet();
+  const bms = _oscBmSet();
   let cycChars = 0;
   gutter.innerHTML = lines.map((_, i) => {
     const c = cyc?.get(i);
     const cText = c ? (c.min === c.max ? String(c.min) : `${c.min}-${c.max}`) : "";
     cycChars = Math.max(cycChars, cText.length);
-    const cls = ["source-line-number", "bp-toggle", bps.has(i) ? "bp-active" : "", i === dbg ? "ub-execution-gutter-line" : ""].filter(Boolean).join(" ");
+    const cls = ["source-line-number", "bp-toggle", bps.has(i) ? "bp-active" : "", bms.has(i) ? "bm-active" : "", i === dbg ? "ub-execution-gutter-line" : ""].filter(Boolean).join(" ");
     return `<button type="button" class="${cls}" data-line="${i}">${cyc ? `<span class="osc-cyc${c?.warn ? " osc-cyc--warn" : ""}">${cText}</span>` : ""}${i + 1}</button>`;
   }).join("");
   // both columns from the gutter font's advance: a larger font must not clip the cycle text
@@ -466,6 +565,272 @@ function _oscRefreshEditor() {
   _oscRenderSymbols();
   _oscSyncScroll();
   _oscUpdateCursor();
+  _oscDrawMinimap();
+}
+
+// ── Expert-style tools: bookmarks, find, format, minimap, build info ─────────────────
+
+function _oscBmSet(key = _oscKey(_oscCurrent())) {
+  if (!_osc.bms.has(key)) _osc.bms.set(key, new Set());
+  return _osc.bms.get(key);
+}
+
+function _oscCaretLine() {
+  const ed = _oscEl("osc-editor");
+  return ed ? ed.value.slice(0, ed.selectionStart).split("\n").length - 1 : 0;
+}
+
+function _oscBmToggle(line = _oscCaretLine()) {
+  const set = _oscBmSet();
+  if (set.has(line)) set.delete(line); else set.add(line);
+  _oscRefreshEditor();
+  _oscSave();
+}
+
+function _oscBmJump(dir) {
+  const lines = [..._oscBmSet()].sort((a, b) => a - b);
+  if (!lines.length) return;
+  const cur = _oscCaretLine();
+  const target = dir > 0 ? (lines.find((l) => l > cur) ?? lines[0]) : ([...lines].reverse().find((l) => l < cur) ?? lines[lines.length - 1]);
+  _oscGotoLine(target);
+}
+
+function _oscBmClear() {
+  _oscBmSet().clear();
+  _oscRefreshEditor();
+  _oscSave();
+}
+
+// Bookmarks follow the edited text: above the change they stay, below it they shift.
+function _oscBmTrack(prev, text) {
+  const set = _oscBmSet();
+  if (!set.size || typeof prev !== "string" || prev === text) return;
+  const a = prev.split("\n"), b = text.split("\n");
+  let p = 0;
+  while (p < a.length && p < b.length && a[p] === b[p]) p++;
+  let s = 0;
+  while (s < a.length - p && s < b.length - p && a[a.length - 1 - s] === b[b.length - 1 - s]) s++;
+  const oldEnd = a.length - s, newEnd = b.length - s, delta = b.length - a.length;
+  const moved = [...set].map((l) => (l < p ? l : l >= oldEnd ? l + delta : Math.min(l, Math.max(p, newEnd - 1))));
+  set.clear();
+  moved.forEach((l) => set.add(l));
+}
+
+function _oscGotoAsk() {
+  _oscAsk(t("oscGotoLine"), String(_oscCaretLine() + 1)).then((v) => { const n = parseInt(v, 10); if (n > 0) _oscGotoLine(n - 1); });
+}
+
+function _oscOpenFind() {
+  const bar = _oscEl("osc-find-bar");
+  const ed = _oscEl("osc-editor");
+  if (!bar || !ed) return;
+  bar.hidden = false;
+  _oscEl("osc-find-btn")?.classList.add("expert-hl-toggle--on");
+  const input = _oscEl("osc-find-input");
+  const sel = ed.value.slice(ed.selectionStart, ed.selectionEnd);
+  if (sel && sel.length < 80 && !sel.includes("\n")) input.value = sel;
+  input.focus();
+  input.select();
+  _oscFind(0);
+}
+
+function _oscCloseFind() {
+  const bar = _oscEl("osc-find-bar");
+  if (bar) bar.hidden = true;
+  _oscEl("osc-find-btn")?.classList.remove("expert-hl-toggle--on");
+  _osc.find = { matches: [], index: -1 };
+  _oscEl("osc-editor")?.focus();
+}
+
+function _oscFind(direction = 0) {
+  const ed = _oscEl("osc-editor");
+  const term = _oscEl("osc-find-input")?.value || "";
+  if (!ed) return;
+  const matches = [];
+  if (term) {
+    const hay = ed.value.toLowerCase(), needle = term.toLowerCase();
+    for (let at = hay.indexOf(needle); at >= 0; at = hay.indexOf(needle, at + Math.max(1, needle.length))) matches.push(at);
+  }
+  let index = _osc.find.index;
+  if (!matches.length) index = -1;
+  else if (direction === 0) index = 0;
+  else index = (index + direction + matches.length) % matches.length;
+  _osc.find = { matches, index };
+  const count = _oscEl("osc-find-count");
+  if (count) {
+    count.textContent = !term ? "" : index < 0 ? "0 / 0" : `${index + 1} / ${matches.length}`;
+    count.style.color = term && index < 0 ? "var(--error, #f44)" : "";
+  }
+  if (index < 0) return;
+  const start = matches[index];
+  const line = ed.value.slice(0, start).split("\n").length - 1;
+  _oscGotoLine(line, start - ed.value.lastIndexOf("\n", start - 1) - 1);
+  ed.setSelectionRange(start, start + term.length);
+  if (direction === 0) _oscEl("osc-find-input")?.focus();
+}
+
+// Re-indents C by brace depth (4 spaces): case / default one level out inside a switch, the body
+// of an if / for / while / else without braces one level in; comments and strings do not count;
+// lines inside a block comment and preprocessor lines keep their text.
+function _oscFormat(text) {
+  const out = [];
+  const stack = [];
+  let comment = false;
+  let pending = false;
+  let switchNext = false;
+  for (const raw of String(text).split("\n")) {
+    const line = raw.replace(/\s+$/, "");
+    if (comment) {
+      out.push(line);
+      if (line.includes("*/")) comment = false;
+      continue;
+    }
+    const body = line.trim();
+    if (!body) { out.push(""); continue; }
+    if (body.startsWith("#")) { out.push(body); continue; }
+    let code = body.replace(/"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'/g, '""').replace(/\/\*.*?\*\//g, " ").replace(/\/\/.*$/, "");
+    const open = code.indexOf("/*");
+    if (open >= 0) { code = code.slice(0, open); comment = true; }
+    const lead = (code.match(/^}+/) || [""])[0].length;
+    let depth = stack.length - Math.min(lead, stack.length);
+    const inSwitch = stack[depth - 1] === "switch";
+    if (inSwitch && !/^(case\b|default\s*:)/.test(body) && !body.startsWith("}")) depth++;
+    if (pending && !code.startsWith("{")) depth++;
+    out.push("    ".repeat(Math.max(0, depth)) + body);
+    for (const ch of code) {
+      if (ch === "{") { stack.push(switchNext ? "switch" : "block"); switchNext = false; }
+      else if (ch === "}") stack.pop();
+    }
+    if (/^switch\b/.test(code) && !code.includes("{")) switchNext = true;
+    if (/^switch\b/.test(code) && code.includes("{")) stack[stack.length - 1] = "switch";
+    const c = code.trim();
+    pending = !pending && /^(if|for|while|else(\s+if)?)\b/.test(c) && !/[;{}]$/.test(c);
+  }
+  return out.join("\n");
+}
+
+function _oscFormatCurrent() {
+  const ed = _oscEl("osc-editor");
+  if (!ed) return;
+  const formatted = _oscFormat(ed.value);
+  if (formatted === ed.value) return;
+  const caret = _oscCaretLine();
+  ed.focus();
+  ed.select();
+  if (!document.execCommand?.("insertText", false, formatted)) {
+    ed.value = formatted;
+    ed.dispatchEvent(new Event("input"));
+  }
+  _oscGotoLine(caret);
+}
+
+function _oscToggleMinimap() {
+  _osc.minimap = !_osc.minimap;
+  _oscApplyMinimap();
+  _oscSave();
+}
+
+function _oscApplyMinimap() {
+  _oscEl("osc-panel")?.classList.toggle("ub-show-minimap", _osc.minimap);
+  const btn = _oscEl("osc-minimap-btn");
+  btn?.classList.toggle("expert-hl-toggle--on", _osc.minimap);
+  btn?.setAttribute("aria-pressed", String(_osc.minimap));
+  _oscDrawMinimap();
+}
+
+function _oscDrawMinimap() {
+  const canvas = _oscEl("osc-minimap");
+  const ed = _oscEl("osc-editor");
+  if (!_osc.minimap || !canvas || !ed || !canvas.offsetWidth || !canvas.offsetHeight) return;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const width = canvas.offsetWidth, height = canvas.offsetHeight;
+  if (canvas.width !== Math.round(width * dpr) || canvas.height !== Math.round(height * dpr)) {
+    canvas.width = Math.round(width * dpr);
+    canvas.height = Math.round(height * dpr);
+  }
+  const ctx = canvas.getContext("2d");
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const css = getComputedStyle(document.documentElement);
+  const color = (name, fb) => css.getPropertyValue(name).trim() || fb;
+  ctx.fillStyle = color("--expert-editor-bg", "#1a1b26");
+  ctx.fillRect(0, 0, width, height);
+  const lines = ed.value.split("\n");
+  const linePx = 2;
+  const lh = ed.scrollHeight / (lines.length || 1);
+  const top = ed.scrollTop / lh, visible = ed.clientHeight / lh;
+  const offset = lines.length * linePx > height ? Math.max(0, Math.min(lines.length * linePx - height, (top + visible / 2) * linePx - height / 2)) : 0;
+  const first = Math.floor(offset / linePx);
+  const cols = { comment: color("--hl-comment", "#6a9955"), pp: color("--hl-macro", "#c586c0"), kw: color("--hl-mnem", "#dcdcaa"), text: color("--hl-label", "#9cdcfe") };
+  let comment = false;
+  for (let i = 0; i < lines.length; i++) {
+    const t = lines[i].trim();
+    const isComment = comment || t.startsWith("//") || t.startsWith("/*");
+    if (t.includes("/*") && !t.includes("*/")) comment = true;
+    else if (comment && t.includes("*/")) comment = false;
+    if (i < first || !t) continue;
+    const y = i * linePx - offset;
+    if (y > height) break;
+    const indent = lines[i].length - lines[i].trimStart().length;
+    ctx.fillStyle = isComment ? cols.comment : t.startsWith("#") ? cols.pp : /^(if|for|while|return|switch|else|do|static|const|void|int|char|unsigned)\b/.test(t) ? cols.kw : cols.text;
+    ctx.globalAlpha = 0.75;
+    ctx.fillRect(4 + Math.min(indent, 40) * 1.2, y, Math.min(t.length, 70) * 1.1, 1.4);
+  }
+  ctx.globalAlpha = 0.12;
+  ctx.fillStyle = color("--primary", "#2563eb");
+  ctx.fillRect(0, top * linePx - offset, width, Math.max(6, visible * linePx));
+  ctx.globalAlpha = 1;
+  canvas._oscOffset = offset;
+}
+
+function _oscMinimapScroll(e) {
+  const canvas = _oscEl("osc-minimap");
+  const ed = _oscEl("osc-editor");
+  if (!canvas || !ed) return;
+  const lines = ed.value.split("\n").length || 1;
+  const line = (e.clientY - canvas.getBoundingClientRect().top + (canvas._oscOffset || 0)) / 2;
+  const lh = ed.scrollHeight / lines;
+  ed.scrollTop = Math.max(0, line * lh - ed.clientHeight / 2);
+  _oscSyncScroll();
+  _oscDrawMinimap();
+}
+
+// The output panel on a view (Listing / Monitor buttons of the toolbar).
+function _oscShowView(view) {
+  if (!_osc.output) _oscToggle("output", true);
+  _osc.view = view;
+  _oscRenderOutput();
+  _oscSave();
+  if (!_osc.last?.ok) _oscScheduleAuto(0);
+}
+
+function _oscBuildInfo() {
+  const dlg = document.getElementById("build-info-dialog");
+  const content = document.getElementById("build-info-content");
+  if (!dlg || !content) return;
+  const title = document.getElementById("build-info-title");
+  if (title) title.textContent = t("buildInfoTitle");
+  const res = _osc.last;
+  const hex = (v) => `$${(v & 0xFFFF).toString(16).toUpperCase().padStart(4, "0")}`;
+  const file = res?.primary || _oscCurrent()?.path || "";
+  let html = `<div class="build-info-path"><span class="build-info-path-key">${_oscEsc(t("buildInfoFile"))}</span><code class="build-info-path-val">${_oscEsc(file || t("buildInfoUnsaved"))}</code></div>`;
+  if (!res?.ok || !res.bytes || res.bytes.length < 3) {
+    const errs = _osc.diags.filter((d) => d.level === "error");
+    html += errs.length
+      ? `<section class="build-info-section"><div class="build-info-section-label">${_oscEsc(t("buildInfoErrors"))} <span class="build-info-count">${errs.length}</span></div><ul class="build-info-list build-info-list--err">${errs.map((d) => `<li>${_oscEsc(`${_oscBase(d.file || "")}:${d.line}: ${d.message}`)}</li>`).join("")}</ul></section>`
+      : `<p>${_oscEsc(t("oscBuildFirst"))}</p>`;
+  } else {
+    const load = res.bytes[0] | (res.bytes[1] << 8);
+    const size = res.bytes.length - 2;
+    const stats = [[t("buildInfoOrigin"), hex(load)], [t("buildInfoEnd"), hex(load + size - 1)], [t("buildInfoSize"), `${size} bytes`], ["Oscar64", `-${_osc.optimize}`]];
+    html += `<div class="build-info-stats">${stats.map(([k, v]) => `<div class="build-info-stat"><span class="build-info-stat-key">${_oscEsc(k)}</span><span class="build-info-stat-val">${_oscEsc(v)}</span></div>`).join("")}</div>`;
+    const syms = (res.symbols || []).slice().sort((a, b) => a.address - b.address);
+    if (syms.length) {
+      html += `<section class="build-info-section"><div class="build-info-section-label">${_oscEsc(t("buildInfoLabels"))} <span class="build-info-count">${syms.length}</span></div>`
+        + `<div class="build-info-grid">${syms.map((s) => `<div class="build-info-item"><span class="build-info-item-key">${_oscEsc(s.name)}</span><span class="build-info-item-val">${hex(s.address)}</span></div>`).join("")}</div></section>`;
+    }
+  }
+  content.innerHTML = html;
+  dlg.showModal();
 }
 
 // Functions, types and macros of the current file (the panel under the project tree).
@@ -568,8 +933,9 @@ function _oscUpdateCursor() {
 }
 
 function _oscRenderTabs() {
+  _oscTabsSync();
   const host = _oscEl("osc-tabs");
-  if (!host) return;
+  if (!host || host.hidden) return;
   host.innerHTML = _osc.files.map((f, i) => {
     const startup = _osc.proj.startupFile && _oscNorm(f.path) === _oscNorm(_oscProjAbs(_osc.proj.startupFile));
     return `<div class="osc-tab${i === _osc.current ? " osc-tab--active" : ""}" role="tab" data-index="${i}" title="${_oscEsc(f.path || f.name)}">`
@@ -668,6 +1034,7 @@ async function _oscOpenProject(root) {
     if (main) _osc.proj.startupFile = main.name;
   }
   _oscRegisterProject();
+  if (!_osc.restoring) globalThis._studioRememberProject?.(root, _osc.proj.name || _oscBase(root), "c");
   if (_osc.proj.startupFile) await _oscOpenPath(_oscProjAbs(_osc.proj.startupFile));
   _oscRenderAll();
   _oscSave();
@@ -1213,11 +1580,19 @@ function _oscRenderOutput(res = _osc.last) {
   const list = _oscEl("osc-diagnostics");
   if (!out || !list) return;
   document.querySelectorAll(".osc-out-tab").forEach((b) => b.classList.toggle("osc-out-tab--active", b.dataset.view === _osc.view));
+  // Toolkit (the C64 palette, a click copies the colour number): the shared #toolkit-output moves here
+  const tk = _oscEl("osc-toolkit-host");
+  if (tk) tk.hidden = _osc.view !== "tk";
+  out.hidden = _osc.view === "tk";
+  _oscEl("osc-toolkit-btn")?.classList.toggle("expert-hl-toggle--on", _osc.view === "tk");
+  if (_osc.view === "tk") { globalThis._toolkitPlace?.(); list.hidden = true; return; }
   list.hidden = _osc.view !== "log" || !_osc.diags.length;
   list.innerHTML = _osc.diags.map((d, i) => `<li class="osc-diag osc-diag--${d.level}" data-index="${i}" tabindex="0">`
     + `<span class="osc-diag-loc">${_oscEsc(d.file ? `${_oscBase(d.file)}:${d.line}:${d.column}` : "oscar64")}</span> `
     + `<span class="osc-diag-msg">${_oscEsc(d.message)}</span></li>`).join("");
   out.classList.toggle("ub-build-output--error", _osc.view === "log" && !!res && !res.ok);
+  // the Monitor view looks like the Expert mode's monitor panel
+  out.classList.toggle("osc-output--monitor", _osc.view === "mon");
   if (_osc.view === "asm") { out.innerHTML = res?.asm ? _oscListingHtml(res.asm) : _oscEsc(t("oscBuildFirst")); return; }
   if (_osc.view === "mon") { out.textContent = _oscMonitorText(_osc.last?.ok ? _osc.last.bytes : null); return; }
   if (_osc.view === "map") { out.textContent = res?.map || t("oscBuildFirst"); return; }
@@ -1351,6 +1726,7 @@ function _oscZoom(step) {
 
 function _oscRenderAll() {
   ["project", "output", "hl", "lines", "cycles", "ac"].forEach((n) => _oscToggle(n, _osc[n]));
+  _oscApplyMinimap();
   _oscRenderTabs();
   _oscRenderTree();
   _oscRenderOutput();
@@ -1372,6 +1748,17 @@ function _oscApplyTranslations() {
   set("osc-lines-btn", "oscLineNumbers");
   set("osc-cycles-btn", "oscCycles");
   set("osc-ac-btn", "expertAutocomplete");
+  set("osc-format-btn", "oscFormat");
+  set("osc-build-info-btn", "buildInfoBtn");
+  set("osc-listing-btn", "expertDisasm");
+  set("osc-monitor-btn", "monitorOutputLabel");
+  set("osc-minimap-btn", "ubMinimap");
+  set("osc-find-btn", "ubFind");
+  set("osc-goto-btn", "gotoLineBtn");
+  set("osc-bm-toggle-btn", "bmToggle");
+  set("osc-bm-prev-btn", "bmPrev");
+  set("osc-bm-next-btn", "bmNext");
+  set("osc-bm-clear-btn", "bmClear");
   const optLabel = _oscEl("osc-optimize-label");
   if (optLabel) optLabel.textContent = t("oscOptimize");
   const optNote = _oscEl("osc-optimize-note");
@@ -1390,6 +1777,7 @@ function _oscApplyTranslations() {
   text("osc-out-tab-asm", "oscViewListing");
   text("osc-out-tab-mon", "oscViewMonitor");
   text("osc-out-tab-map", "oscViewMap");
+  set("osc-toolkit-btn", "expertToolkit");
   text("choose-oscar64", "chooseOscar64");
   text("oscar64-path-label", "oscar64Executable");
   text("acme-use-bundled", "toolUseBundled");
@@ -1408,6 +1796,7 @@ function _oscOnInput() {
   const f = _oscCurrent();
   const ed = _oscEl("osc-editor");
   if (!f || !ed) return;
+  _oscBmTrack(f.text, ed.value);
   f.text = ed.value;
   const dirty = f.text !== (f.saved ?? "");
   if (dirty !== f.dirty) { f.dirty = dirty; _oscRenderTabs(); _oscRenderTree(); }
@@ -1695,11 +2084,10 @@ function _oscKeydown(e) {
   if (mod && e.code === "Space") { e.preventDefault(); _oscAcUpdate(true); return; }
   if (mod && e.key.toLowerCase() === "s") { e.preventDefault(); e.stopPropagation(); _oscSaveFile(_osc.current, e.shiftKey); return; }
   if (mod && e.key.toLowerCase() === "b") { e.preventDefault(); e.stopPropagation(); _oscBuild(); return; }
-  if (mod && e.key.toLowerCase() === "g") {
-    e.preventDefault(); e.stopPropagation();
-    _oscAsk(t("oscGotoLine"), "").then((v) => { const n = parseInt(v, 10); if (n > 0) _oscGotoLine(n - 1); });
-    return;
-  }
+  if (mod && e.key.toLowerCase() === "g") { e.preventDefault(); e.stopPropagation(); _oscGotoAsk(); return; }
+  if (mod && e.key.toLowerCase() === "f") { e.preventDefault(); e.stopPropagation(); _oscOpenFind(); return; }
+  if (e.key === "F2" && !e.altKey) { e.preventDefault(); if (mod) _oscBmToggle(); else _oscBmJump(e.shiftKey ? -1 : 1); return; }
+  if (e.key === "Escape" && !_oscEl("osc-find-bar")?.hidden) { e.preventDefault(); _oscCloseFind(); return; }
   if (e.key === "Tab" && !mod && !e.altKey) {
     e.preventDefault();
     const { selectionStart: s, selectionEnd: en, value } = ed;
@@ -1737,18 +2125,48 @@ function setupOscar64() {
   const prefs = _oscLoadPrefs();
   Object.assign(_osc, {
     hl: prefs.hl !== false, lines: prefs.lines !== false, cycles: prefs.cycles !== false, ac: prefs.ac !== false, optimize: /^O[0-3s]$/.test(prefs.optimize) ? prefs.optimize : "O2",
-    output: prefs.output !== false, project: prefs.project !== false,
-    outputWidth: Number(prefs.outputWidth) || 0, symbolsHeight: Number(prefs.symbolsHeight) || 0, fontSize: Number(prefs.fontSize) || 14, view: ["log", "asm", "mon", "map"].includes(prefs.view) ? prefs.view : "log",
+    output: prefs.output !== false, project: prefs.project !== false, minimap: prefs.minimap !== false,
+    outputWidth: Number(prefs.outputWidth) || 0, symbolsHeight: Number(prefs.symbolsHeight) || 0, fontSize: Number(prefs.fontSize) || 14, view: ["log", "asm", "mon", "map", "tk"].includes(prefs.view) ? prefs.view : "log",
   });
   (prefs.expanded || []).forEach((p) => _osc.expanded.add(p));
   (prefs.bps || []).forEach(([file, lines]) => _osc.bps.set(file, new Set(lines)));
+  (prefs.bms || []).forEach(([file, lines]) => _osc.bms.set(file, new Set(lines)));
 
   const ed = _oscEl("osc-editor");
-  _oscEl("oscar-mode-tb-btn")?.addEventListener("click", () => _oscSetMode(!_osc.active));
+  _oscEl("oscar-mode-tb-btn")?.addEventListener("click", () => (_osc.active ? _oscLeave() : _oscEnter()));
   _oscEl("osc-project-btn")?.addEventListener("click", () => _oscToggle("project"));
   _oscEl("osc-output-btn")?.addEventListener("click", () => _oscToggle("output"));
   _oscEl("osc-hl-btn")?.addEventListener("click", () => _oscToggle("hl"));
   _oscEl("osc-lines-btn")?.addEventListener("click", () => _oscToggle("lines"));
+  _oscEl("osc-format-btn")?.addEventListener("click", _oscFormatCurrent);
+  _oscEl("osc-build-info-btn")?.addEventListener("click", _oscBuildInfo);
+  _oscEl("osc-listing-btn")?.addEventListener("click", () => _oscShowView("asm"));
+  _oscEl("osc-monitor-btn")?.addEventListener("click", () => _oscShowView("mon"));
+  _oscEl("osc-toolkit-btn")?.addEventListener("click", () => _oscShowView(_osc.view === "tk" ? "log" : "tk"));
+  _oscEl("osc-minimap-btn")?.addEventListener("click", _oscToggleMinimap);
+  _oscEl("osc-find-btn")?.addEventListener("click", () => (_oscEl("osc-find-bar")?.hidden ? _oscOpenFind() : _oscCloseFind()));
+  _oscEl("osc-goto-btn")?.addEventListener("click", _oscGotoAsk);
+  _oscEl("osc-bm-toggle-btn")?.addEventListener("click", () => _oscBmToggle());
+  _oscEl("osc-bm-prev-btn")?.addEventListener("click", () => _oscBmJump(-1));
+  _oscEl("osc-bm-next-btn")?.addEventListener("click", () => _oscBmJump(1));
+  _oscEl("osc-bm-clear-btn")?.addEventListener("click", _oscBmClear);
+  _oscEl("osc-find-input")?.addEventListener("input", () => _oscFind(0));
+  _oscEl("osc-find-input")?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") { e.preventDefault(); _oscFind(e.shiftKey ? -1 : 1); }
+    else if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); _oscCloseFind(); }
+  });
+  _oscEl("osc-find-prev")?.addEventListener("click", () => _oscFind(-1));
+  _oscEl("osc-find-next")?.addEventListener("click", () => _oscFind(1));
+  _oscEl("osc-find-close")?.addEventListener("click", _oscCloseFind);
+  _oscEl("osc-minimap")?.addEventListener("mousedown", (e) => {
+    e.preventDefault();
+    _oscMinimapScroll(e);
+    const move = (ev) => _oscMinimapScroll(ev);
+    const up = () => { window.removeEventListener("mousemove", move); window.removeEventListener("mouseup", up); };
+    window.addEventListener("mousemove", move);
+    window.addEventListener("mouseup", up);
+  });
+  window.addEventListener("resize", () => { if (_osc.active) _oscDrawMinimap(); });
   _oscEl("osc-cycles-btn")?.addEventListener("click", () => _oscToggle("cycles"));
   _oscEl("osc-ac-btn")?.addEventListener("click", () => _oscToggle("ac"));
   _oscEl("osc-zoom-in-btn")?.addEventListener("click", () => _oscZoom(1));
@@ -1769,7 +2187,7 @@ function setupOscar64() {
     if (_osc.active) _oscScheduleAuto(0);
   });
   _oscEl("osc-project-import-btn")?.addEventListener("click", () => _oscImportBuildScript());
-  _oscEl("osc-project-open-btn")?.addEventListener("click", () => _oscOpenProject());
+  _oscEl("osc-project-open-btn")?.addEventListener("click", () => (typeof _studioOpenCFolder === "function" ? _studioOpenCFolder() : _oscOpenProject()));
   _oscEl("osc-project-new-btn")?.addEventListener("click", () => _oscNewProject());
   _oscEl("osc-project-add-btn")?.addEventListener("click", () => _oscCreateFile());
   _oscEl("osc-project-add-folder-btn")?.addEventListener("click", () => _oscCreateFolder());
@@ -1878,7 +2296,7 @@ function setupOscar64() {
 
   if (ed) {
     ed.addEventListener("input", _oscOnInput);
-    ed.addEventListener("scroll", () => { _oscSyncScroll(); _oscAcHide(); });
+    ed.addEventListener("scroll", () => { _oscSyncScroll(); _oscAcHide(); _oscDrawMinimap(); });
     ed.addEventListener("blur", () => setTimeout(() => { if (document.activeElement !== ed) _oscAcHide(); }, 100));
     ed.addEventListener("mousedown", _oscAcHide);
     ed.addEventListener("keydown", _oscKeydown);
@@ -1941,6 +2359,7 @@ function setupOscar64() {
 
   // after app.js has applied the saved editor mode
   setTimeout(async () => {
+    _osc.restoring = true; // the files come back as tabs, without taking the focus
     for (const pr of prefs.projects || []) {
       if (_oscNorm(pr.root) !== _oscNorm(prefs.root)) await _oscLoadProjectMeta(pr.root, pr.projPath);
     }
@@ -1951,7 +2370,9 @@ function setupOscar64() {
     for (const p of prefs.open || []) await _oscOpenPath(p);
     const cur = _osc.files.findIndex((f) => _oscNorm(f.path) === _oscNorm(prefs.current));
     if (cur >= 0) _oscActivate(cur);
-    if (prefs.active) _oscSetMode(true);
+    _osc.restoring = false;
+    _oscTabsSync();
+    if (prefs.active) _oscEnter();
   }, 600);
 }
 

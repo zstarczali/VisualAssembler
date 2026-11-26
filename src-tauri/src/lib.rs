@@ -4208,7 +4208,7 @@ async fn open_proj_file(app: AppHandle, initial_dir: Option<String>) -> serde_js
     let mut dialog = app
         .dialog()
         .file()
-        .add_filter("Visual Assembler Project", &["proj"])
+        .add_filter("Visual Assembler Project", &["proj", "vas", "json", "c64va"])
         .add_filter("All files", &["*"]);
     if let Some(folder) = working_folder {
         dialog = dialog.set_directory(folder);
@@ -4784,7 +4784,7 @@ fn collect_templates(dir: &Path, source: &str, out: &mut Vec<serde_json::Value>)
                 && path
                     .extension()
                     .and_then(|ext| ext.to_str())
-                    .map(|ext| ext.eq_ignore_ascii_case("asm") || ext.eq_ignore_ascii_case("ub"))
+                    .map(|ext| ext.eq_ignore_ascii_case("asm") || ext.eq_ignore_ascii_case("ub") || ext.eq_ignore_ascii_case("c"))
                     .unwrap_or(false)
         })
         .collect();

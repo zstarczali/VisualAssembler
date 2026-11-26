@@ -105,7 +105,7 @@ test("an @assembler acme header makes an ACME template", () => {
 
 test("every built-in template has a name, category and description in EN and HU", () => {
   const all = fs.readdirSync(templatesDir);
-  const files = all.filter(f => /\.(asm|ub)$/i.test(f));
+  const files = all.filter(f => /\.(asm|ub|c)$/i.test(f));
   assert.ok(all.filter(f => /\.asm$/i.test(f)).length >= 4, "Expected at least 4 assembler templates");
   assert.ok(all.filter(f => /\.ub$/i.test(f)).length >= 3, "Expected at least 3 UltimateBasic templates");
   for (const file of files) {
@@ -116,8 +116,8 @@ test("every built-in template has a name, category and description in EN and HU"
     assert.ok(out.texts.every(Boolean), `${file}: missing @name / @category / @desc`);
     assert.ok(out.tpl.meta.name.hu && out.tpl.meta.desc.hu && out.tpl.meta.category.hu, `${file}: missing Hungarian header`);
     assert.ok(out.tpl.order < 1000, `${file}: missing @order`);
-    assert.ok(!/^\s*[;#]\s*@/m.test(out.tpl.body), `${file}: header line left in the body`);
-    if (out.tpl.kind !== "ub") assert.ok(out.tpl.body.includes("* = $0801"), `${file}: no origin`);
+    assert.ok(!/^\s*(?:[;#]|\/\/)\s*@/m.test(out.tpl.body), `${file}: header line left in the body`);
+    if (out.tpl.kind === "asm" || out.tpl.kind === "acme") assert.ok(out.tpl.body.includes("* = $0801"), `${file}: no origin`);
   }
 });
 

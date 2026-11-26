@@ -236,3 +236,46 @@ test("completion: declarations of a header and the context at the caret", () => 
   assert.equal(context.c.ctx("/* joy_p", 8), null);
   assert.deepEqual(ctx("#inc"), { kind: "directive", word: "inc" });
 });
+
+test("C files are tabs of the shared tab bar", async () => {
+  const stubs = `
+    let ultimateBasicMode = false; let tabs = [{ id: 1, name: "main.asm", editorMode: "expert" }]; let activeTabId = 1; let _n = 1; let _studioLastTabId = 1;
+    function _tabCreate(name) { return { id: ++_n, name }; }
+    function _tabActivate(id) { activeTabId = id; const tb = tabs.find((x) => x.id === id); if (tb.editorMode === "oscar") _oscShowFile(tb.oscId); else _osc.active = false; }
+    function _tabDrop(id) { const i = tabs.findIndex((x) => x.id === id); tabs.splice(i, 1); if (activeTabId === id) _tabActivate(tabs[Math.min(i, tabs.length - 1)].id); }
+    function _tabNew() {}
+    function renderTabBar() {}
+    function renderMemoryMap() {}
+    function _updateEditorModeIndicator() {}
+    function _showConfirm() { return Promise.resolve(true); }
+  `;
+  const context = {
+    document: { readyState: "loading", addEventListener() {}, getElementById: () => null, querySelectorAll: () => [], body: { classList: { toggle() {} } } },
+    localStorage: { getItem: () => null, setItem() {} },
+    window: {}, requestAnimationFrame: () => 0, setTimeout: () => 0, clearTimeout() {},
+    t: (k) => k, tf: (k) => k,
+  };
+  vm.createContext(context);
+  vm.runInContext(stubs + oscJs + `
+    this.s = { get tabs() { return tabs; }, get active() { return activeTabId; }, osc: _osc,
+      add: (name) => { _osc.files.push({ id: _oscNextId++, path: "F:/p/" + name, name, text: "", saved: "", dirty: false }); _oscActivate(_osc.files.length - 1); },
+      close: (i) => _oscCloseFile(i), leave: _oscLeave };`, context);
+  const s = context.s;
+  s.add("a.c");
+  s.add("b.c");
+  assert.deepEqual(plain(s.tabs.map((tb) => tb.name)), ["main.asm", "a.c", "b.c"]);
+  assert.equal(s.tabs.find((tb) => tb.id === s.active).name, "b.c");
+  assert.equal(s.osc.active, true);
+  // the closed file's tab goes, the neighbour C file takes over
+  assert.equal(await s.close(1), true);
+  assert.deepEqual(plain(s.tabs.map((tb) => tb.name)), ["main.asm", "a.c"]);
+  assert.equal(s.tabs.find((tb) => tb.id === s.active).name, "a.c");
+  // leaving C returns to the assembler tab
+  s.leave();
+  assert.equal(s.active, 1);
+  assert.equal(s.osc.active, false);
+  // closing the last C file while an assembler tab is shown keeps that tab
+  assert.equal(await s.close(0), true);
+  assert.deepEqual(plain(s.tabs.map((tb) => tb.name)), ["main.asm"]);
+  assert.equal(s.active, 1);
+});
