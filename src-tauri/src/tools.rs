@@ -139,6 +139,8 @@ pub struct Oscar64BuildPayload {
     pub debug: Option<bool>,
     /// -n: native code (default); false = Oscar64's byte code, as a build script without -n has it.
     pub native: Option<bool>,
+    /// -v: Oscar64 lists its steps on stdout (shown in the C Output view).
+    pub verbose: Option<bool>,
     pub extra_args: Option<Vec<String>>,
 }
 
@@ -209,6 +211,9 @@ pub async fn build_oscar64_prg(app: AppHandle, payload: Oscar64BuildPayload) -> 
     }
     if payload.native.unwrap_or(true) {
         command.arg("-n");
+    }
+    if payload.verbose.unwrap_or(false) {
+        command.arg("-v");
     }
     command.arg(format!("-o={}", output.to_string_lossy()));
     if payload.debug.unwrap_or(true) {

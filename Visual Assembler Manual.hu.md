@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**Verzió: 2.8.6**
+**Verzió: 2.9.0**
 
 Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasításblokkok fogd-és-vidd módszerrel történő elrendezésével építed fel, a generált assembly és gépi kód pedig valós időben frissül.
 
@@ -10,6 +10,7 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 
 ## Tartalomjegyzék
 
+- [A 2.9.0 verzió újdonságai](#a-290-verzió-újdonságai)
 - [A 2.8.6 verzió újdonságai](#a-286-verzió-újdonságai)
 - [A 2.8.5 verzió újdonságai](#a-285-verzió-újdonságai)
 - [A 2.8.4 verzió újdonságai](#a-284-verzió-újdonságai)
@@ -58,6 +59,9 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 - [A 2.4.0 verzió újdonságai](#a-240-verzió-újdonságai)
 - [A 2.3.9 verzió újdonságai](#a-239-verzió-újdonságai)
 - [1. A felület áttekintése](#1-a-felület-áttekintése)
+  - [Stúdió: egy ablak minden nyelvnek](#stúdió-egy-ablak-minden-nyelvnek)
+  - [Induló ablak](#induló-ablak)
+  - [Új, Eszközök és Git menü](#új-eszközök-és-git-menü)
 - [2. Blokk paletta](#2-blokk-paletta)
   - [Paraméterek az operandus mezőben](#paraméterek-az-operandus-mezőben)
 - [3. Programterület](#3-programterület)
@@ -78,7 +82,7 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
   - [Ingyenes és nyílt forrású](#ingyenes-és-nyílt-forrású)
   - [Hibabejelentés](#hibabejelentés)
   - [Támogatás](#támogatás)
-  - [Munkaterületek](#munkaterületek)
+  - [Projekt munkamenet (.proj.user)](#projekt-munkamenet-projuser)
   - [Memóriaablak és zero page foglaltság](#memóriaablak-és-zero-page-foglaltság)
   - [Projekt sablonok](#projekt-sablonok)
   - [Tutorials és a lecke-szerkesztő](#tutorials-és-a-lecke-szerkesztő)
@@ -98,6 +102,11 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
   - [Futtatás, D64 és Exomizer](#futtatás-d64-és-exomizer)
   - [Debugger szimbólumok és disassembly](#debugger-szimbólumok-és-disassembly)
   - [Ultimate Basic kézikönyv és forrás](#ultimate-basic-kézikönyv-és-forrás)
+- [C mód (Oscar64)](#c-mód-oscar64)
+  - [C fájlok megnyitása és létrehozása](#c-fájlok-megnyitása-és-létrehozása)
+  - [A C szerkesztő eszközei](#a-c-szerkesztő-eszközei)
+  - [C projektek, build szkriptek és indítófájl](#c-projektek-build-szkriptek-és-indítófájl)
+  - [Fordítás, futtatás és nézetek](#fordítás-futtatás-és-nézetek)
 - [6. Expert mód](#6-expert-mód)
   - [Módváltás](#módváltás)
   - [Szerkesztő elrendezés](#szerkesztő-elrendezés)
@@ -119,6 +128,7 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
   - [Debugger flag-ek](#debugger-flag-ek)
   - [VICE Monitor (hot reload, élő változók, profiler)](#vice-monitor-hot-reload-élő-változók-profiler)
   - [Beépített C64 és debugger](#beépített-c64-és-debugger)
+  - [Forrásszintű hibakeresés (C és UltimateBasic)](#forrásszintű-hibakeresés-c-és-ultimatebasic)
 - [9. Tudásbázis linkek](#9-tudásbázis-linkek)
 - [10. D64 export és futtatás](#10-d64-export-és-futtatás)
   - [Osztott Run gomb](#osztott-run-gomb)
@@ -132,6 +142,7 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
   - [Kompatibilitás](#kompatibilitás)
 - [11. Beállítások](#11-beállítások)
   - [VMA fordító](#vma-fordító)
+  - [Fordítók (ACME, Oscar64)](#fordítók-acme-oscar64)
   - [VICE emulátor](#vice-emulátor)
   - [Exomizer](#exomizer)
   - [Retro Debugger](#retro-debugger)
@@ -155,6 +166,17 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
   - [Curve Editor](#curve-editor)
   - [Táblagenerátor](#táblagenerátor)
   - [Számrendszer-átváltó](#számrendszer-átváltó)
+
+---
+
+## A 2.9.0 verzió újdonságai
+
+- **Visual Assembler Studio** — assembly (VMA, ACME, R65), blokkok, UltimateBasic és C egy ablakban. Minden nyitott fájl egy közös fülsáv fülje, nyelvjelvénnyel; az assembly fül **Blokkok** és **Forrás** nézet között vált, és minden fájl a saját nyelvének szerkesztőjében nyílik. Lásd: [Stúdió: egy ablak minden nyelvnek](#stúdió-egy-ablak-minden-nyelvnek).
+- **C az Oscar64-gyel** — C szerkesztő beépített Oscar64 fordítóval (az ACME 0.97 is beépített): kiemelés, kiegészítés a beinclude-olt fejlécekből, formázó, ciklusszámok, Disassembly / Monitor / Map nézet, projektfa indítófájllal, projekt build szkriptből. A C program minden futtatási módban fut. Lásd: [C mód (Oscar64)](#c-mód-oscar64).
+- **Forrásszintű hibakeresés C-ben és UltimateBasicben** — töréspont a forrássoron, léptetés C soronként, **Változók** panel és **Hívási lánc**. Lásd: [Forrásszintű hibakeresés](#forrásszintű-hibakeresés-c-és-ultimatebasic).
+- **Induló ablak, Új / Eszközök / Git menü** — lásd: [Induló ablak](#induló-ablak) és [Új, Eszközök és Git menü](#új-eszközök-és-git-menü).
+- **Projektek** — projektenként egy nyelv, minden forrásfájl fülként nyílik, a munkamenet a `<név>.proj.user`-ben (a munkaterületek helyett), mentetlen az, ami eltér a mentett fájltól, átméretezhető projektpanel. Lásd: [Projekt munkamenet (.proj.user)](#projekt-munkamenet-projuser).
+- **Memóriatérkép külön ablakban** (Eszközök → Gép), új sablonok (Hello World VMA-hoz és ACME-hez, 16 és 64 sprite-os multiplexer C-ben, 64 sprite-os UltimateBasicben) és **UltimateBasic 1.6.8** (`sprite multicolor`, összeomlás helyett fordítási hiba).
 
 ---
 
@@ -637,9 +659,39 @@ Az app három fő panelre oszlik:
 | **Közép — Program** | A programod. Ide húzod a blokkokat, itt rendezed át őket, itt szerkeszted az operandusokat. |
 | **Jobb — Kimenet** | Élő ASM nézet és/vagy memória monitor kimenet. |
 
-A fejléc jobb szélén lévő mód-jelvény mutatja az aktív **Blokk**, **Expert** vagy **Ultimate Basic** szerkesztőt. Azonnal frissül, amikor a szerkesztőmód változik.
+A fejléc jobb szélén lévő mód-jelvény mutatja az aktív **Blokk**, **Expert**, **Ultimate Basic** vagy **C** szerkesztőt. Azonnal frissül, amikor az aktív fül vagy a nézete változik.
 
 Blokk módban a Program és a Kimenet panel között egy vékony **függőleges elválasztó** található. Húzással bármelyik panelnek több helyet adhatsz (mindkettő legalább 260 px marad), a ←/→ billentyűkkel 16 px-es lépésekben léptethető, dupla kattintásra pedig visszaáll az 50/50 arány. A pozíció a UI beállításokkal együtt mentődik. Expert és Ultimate Basic módban, illetve amikor az ablak annyira keskeny, hogy a panelek egymás alá kerülnek, az elválasztó rejtve van.
+
+### Stúdió: egy ablak minden nyelvnek
+
+Az assembly (VMA, ACME vagy R65), a blokkprogram, az UltimateBasic és a C (Oscar64) ugyanabban az ablakban él:
+
+- **Egy fülsáv.** Minden nyitott fájl egy fül, bármilyen nyelvű. A fülön kis jelvény mutatja a nyelvet: **BLK** (blokkprogram), **ASM** (assembly forrás), **UB** (UltimateBasic) vagy **C**. A fülre kattintva a nyelvének szerkesztője jelenik meg.
+- **Blokkok | Forrás.** Assembly fülön a felső sáv kapcsolója választja a nézetet: a blokk-szerkesztőt vagy a szöveges szerkesztőt (Expert mód). UltimateBasic és C fülön rejtett, ACME és R65 mellett csak a **Forrás** választható.
+- **Minden fájl a saját szerkesztőjében nyílik.** A `.ub` az UltimateBasic, a `.c` / `.h` a C, az `.asm` az assembly szerkesztőben, akkor is, ha egy másik nyelv projektfájából nyitod meg.
+- **Egy projekt egy nyelvű.** Lásd: [Projekt munkamenet (.proj.user)](#projekt-munkamenet-projuser).
+- **A projektpanel** minden nézetben ugyanolyan széles: a jobb szélén lévő fogantyúval húzható (200–560 px, dupla kattintás visszaállítja). A szélesség megmarad.
+- **A Blokk mód súgósora** indításonként egyszer, az ablak alján jelenik meg, és két perc után eltűnik.
+
+### Induló ablak
+
+Induláskor megnyílik az **Induló ablak** (a **Menü → Induló ablak…** is ezt nyitja):
+
+- **Legutóbbiak megnyitása** — a nemrég megnyitott projektek a nyelvükkel. Kattintásra megnyílik, a × törli a listából.
+- **Új projekt létrehozása** — a sablon dialógus, lásd: [Projekt sablonok](#projekt-sablonok).
+- **Projekt megnyitása** — bármilyen nyelvű `.proj`: VMA, ACME, R65, UltimateBasic vagy Oscar64.
+- **C mappa megnyitása** — egy Oscar64 forrásmappa, build szkripttel is.
+- **Folytatás projekt nélkül** — bezárja az ablakot.
+
+Ha a **Megjelenítés induláskor** ki van kapcsolva, az ablak nem nyílik meg; helyette az a projekt nyílik meg újra, amely a bezáráskor nyitva volt.
+
+### Új, Eszközök és Git menü
+
+- **Új** — az **Assembly forrás**, **Blokkprogram**, **UltimateBasic program** vagy **C program (Oscar64)** új fület nyit az adott nyelven (ACME és R65 mellett blokkprogram helyett assembly forrást); a **Sablonból…** a sablon dialógust nyitja.
+- **Eszközök** — a szerkesztők és segédeszközök négy csoportban: **Grafika** (C64 karakter ROM, karakterkészlet-szerkesztő, Charset Canvas szerkesztő, Map szerkesztő, Pálya szerkesztő, Hi-Res grafikus szerkesztő, Sprite szerkesztő), **Hang** (SID szerkesztő, SID Player), **Adat és lemez** (Görbe szerkesztő, Táblagenerátor, D64 szerkesztő, Számrendszer-átváltó) és **Gép** (C64 memóriatérkép, VICE Monitor). A **Beépített C64** gombja az eszköztáron maradt.
+- **Git** — a **Pull** és a **Push** azonnal fut; a **Commit, változások, előzmények…**, **Új ág…**, **Merge…** és **Stash** a Verziókezelés ablakot nyitja Git módban. Lásd: [Git](#git).
+- A **Névjegy**nek saját eszköztár-gombja van a Súgó után.
 
 ---
 
@@ -774,19 +826,17 @@ A sáv fölött a munka fázisai látszanak — *Előkészítés*, *Fordítás*,
 | **Nyelv** | A felület nyelvének váltása angol, magyar, spanyol, német, holland (Nederlands), lengyel és olasz között (**Menu → Beállítások**) |
 | **Téma** | Light / Dark / OLED / Black / Commodore 77 / Commodore Starlight / Commodore Beige / Commodore 64 / Ruby / Amethyst / Phosphor / Retro 80s / Retro 8-bit — a **Menu → Nézet** témaválasztójából. Az OLED tiszta fekete hátteret használ AMOLED kijelzőkhöz. A Commodore 77 egy neon-sárga-feketén téma; ha ez az aktív téma, az indítási splash panel a téma panel-színét használja (a message card-hoz igazítva), egy kisebb, dedikált Commodore 77 logót és egy sárga progress bárt mutat. A Commodore Starlight világos téma az átlátszó C64 tok nyomán: jégfehér, áttetsző panelek, amelyeken átdereng a szivárványos RGB-fény, magenta kiemelés, szivárványos szintaxisszínek és füstös, sötét monitornézet. A Commodore Beige a klasszikus „kenyérdoboz”: bézs tok, mustársárga funkcióbillentyű-gombok, a logó szivárványcsíkja és C64 kék képernyő a monitornézetben. A Ruby sötét téma mélyvörös kiemeléssel, az Amethyst hűvös sötétlila, a Phosphor zöld foszforos monitor, amelynek kódnézetei finoman izzanak. A Retro 80s synthwave: ibolya éjszaka, neonpink gombok és cián kód, felül naplemente-csík, alulról felderengő neonrács. A Retro 8-bit egy CRT-n futó 8 bites otthoni számítógép: kéklila panelek, sárga gombok, egyetlen monospace betű, szögletes sarkok, éles pixelárnyékok, szivárványcsík és scanline-ok. Decemberben a választóban a Karácsony téma is megjelenik (éjkék, fenyőzöld és fehér, minden kiemelés díszszínű); utána az app visszaáll a korábbi témára. A választott téma a következő indításkor az első kirajzolás előtt érvényesül. |
 | **CRT retro mód** | Teljes képernyős CRT szűrőt kapcsol: scanline-ok, foszfor vignettálás, villódzás és hordódisztorzió. Az állapot munkamenetek között mentődik. |
-| **Show memory panel** | Globális kapcsoló (**Beállítások → Általános → ASM kimenet**), amely megjeleníti vagy elrejti a teljes C64 memória panelt |
+| **C64 memóriatérkép** (**Eszközök → Gép**) | A teljes C64 memóriatérképet külön ablakban nyitja — lásd: [Memóriaablak és zero page foglaltság](#memóriaablak-és-zero-page-foglaltság) |
 | **BASIC SYS stub** | (**Beállítások → Általános → Program**) Egy BASIC sort tesz a program elé, amely SYS-szel hívja a program originjét (az első ORG-ot). Az első ORG-nál alacsonyabbra tett szegmens a saját címén marad. Ha a program a BASIC sor alá vagy rá töltődik (`$0801`–`$080C`, például egy `$071C`-tól induló importált dump), a Futtatás és a Build helyette kis indító töltőt tesz elé: a `SYS 2061` egy másolót tesz a kazettapufferbe (`$033C`), az a helyére rakja a programot, és az első ORG-ra ugrik. |
 | **Példák…** | Megnyitja a példaböngészőt, és betölt egy beépített példaprogramot — lásd [Példaprogramok](#példaprogramok) |
 | **Zoom in / out** | A blokk-felület méretezése (minden blokk-elemre hat) |
 | **Program mentése** (`Menu → File`) | Az aktuális fül mentése: a blokkprogram `.json` fájlként, a forrásfájl (`.asm`, `.s`, `.inc` …) sima szövegként (a Ctrl+S ugyanezt teszi) |
 | **Program mentése másként** (`Menu → File`) | Ugyanez, minden alkalommal új fájl-dialógussal |
 | **Program betöltése** (`Menu → File`) | Korábban mentett program betöltése |
-| **Save Workspace** | A jelenleg nyitott, fájlhoz kötött fülek pontos halmazának mentése — az aktív füllel és minden fül szerkesztőmódjával (Block/Expert/Ultimate Basic) — `.vaws` munkaterület-fájlba |
-| **Save Workspace As** | Az aktuális munkaterület mentése, minden alkalommal új fájl-dialógussal |
-| **Open Workspace** | Minden nyitott fül bezárása és a `.vaws` munkaterület-fájlban tárolt fájlkészlet újranyitása |
+| **Induló ablak…** (`Menu`) | Legutóbbi projektek, új projekt, projekt vagy C mappa megnyitása — lásd: [Induló ablak](#induló-ablak) |
 | **Set working folder** | A fájlválasztók és mentés-dialógusok alapértelmezett mappájának kiválasztása. Az útvonal az app konfigjában tárolódik, és a menü-előnézetek az útvonal végét tartják láthatóan. |
-| **Új projekt sablonból…** (`Menu → Új projekt`, vagy a **Menu** melletti toolbar gomb) | Új `.proj` projekt létrehozása Visual Assembler, ACME vagy UltimateBasic sablonból, saját mappában — lásd: [Projekt sablonok](#projekt-sablonok) |
-| **Open Project** (`Menu → File`) | Több-fájlos `.proj` projekt megnyitása, minden forrásfájl fülként megnyitva |
+| **Új projekt…** (`Menu → File`, **Új → Sablonból…** vagy az Induló ablak) | Új `.proj` projekt létrehozása UltimateBasic, C, Visual Assembler vagy ACME sablonból, saját mappában — lásd: [Projekt sablonok](#projekt-sablonok) |
+| **Open Project** (`Menu → File`) | Bármilyen nyelvű `.proj` projekt megnyitása, minden forrásfájlja fülként megnyitva |
 | **Save Project** (`Menu → File`) | Az aktuális `.proj` projekt mentése (a projekt panelnek nyitva kell lennie) |
 | **Close Project** (`Menu → File`) | A jelenleg nyitott projekt és minden fájlfülének bezárása. Rákérdez a nem mentett változtatások mentésére. A projekt panel visszaáll üres állapotba. |
 | **Load .asm file** (Expert eszköztár) | `.asm` fájl megnyitása Expert módban, új fülön |
@@ -794,11 +844,11 @@ A sáv fölött a munka fázisai látszanak — *Előkészítés*, *Fordítás*,
 | **Build D64** (`Menu → Build`) | A program és az extra fájlok `.d64` lemezképbe csomagolása — lásd: [Export to D64 dialógus](#export-to-d64-dialógus) |
 | **Build CRT** | A program exportja 64K Magic Desk (`.crt`, cartridge type 19) fájlként. Lásd a [10b. szakaszt](#10b-crt-export-magic-desk-64k-cartridge). |
 | **Build projekt** (`Menu → Build`) | A projekt (vagy a nyitott fülek) minden fordítható fájlját a forrás mellé fordítja `.prg`-be — lásd: [Build projekt](#build-projekt) |
-| **Run (osztott gomb)** | A fő **▶ Run** gomb az aktuális módot futtatja; a **▾** nyíllal válthatsz: **Run as PRG** (fordítás és VICE közvetlen indítása), **Run via D64** (.d64 lemezképbe csomagolás és VICE indítása), **Run on hardware** (PRG küldése egy C64 Ultimate / 1541 Ultimate eszközre), **D64 on hardware** (D64 küldése ugyanoda), vagy **Kung Fu Flash 2** (a PRG feltöltése USB-n egy Kung Fu Flash 2 cartridge-dzsel felszerelt valódi C64/C128-ra). Lásd a [12.](#10-d64-export-és-futtatás) és [11. szakaszt](#11-beállítások). A **Beépített C64** az appon belüli C64-en futtatja a programot, lásd: [Beépített C64 és debugger](#beépített-c64-és-debugger). |
+| **Run (osztott gomb)** | A fő **▶ Run** gomb az aktuális módot futtatja; a **▾** nyíllal válthatsz: **Run as PRG (VICE)** (fordítás és VICE közvetlen indítása), **Run via D64 (VICE)** (.d64 lemezképbe csomagolás és VICE indítása), **Run on hardware** (PRG küldése egy C64 Ultimate / 1541 Ultimate eszközre), **D64 on hardware** (D64 küldése ugyanoda), vagy **Kung Fu Flash 2** (a PRG feltöltése USB-n egy Kung Fu Flash 2 cartridge-dzsel felszerelt valódi C64/C128-ra). Lásd a [12.](#10-d64-export-és-futtatás) és [11. szakaszt](#11-beállítások). A **Beépített C64** az appon belüli C64-en futtatja a programot, lásd: [Beépített C64 és debugger](#beépített-c64-és-debugger). |
 | **Debug (RetroDebugger)** | Fordítás és indítás RetroDebuggerben breakpointokkal, szimbólumokkal és autostart flag-ekkel (lásd a [8. szakaszt](#8-debugger-integráció)) |
 | **Run with Exomizer** | Jelölőnégyzet a **Beállítások → Általános → Program** alatt — bekapcsolva minden Run és Build művelet `exomizer sfx`-szel tömöríti a PRG-t indítás vagy mentés előtt (BASIC sorral kezdődő PRG-nél `sfx basic`, így a program visszatérése után a RUN újra működik; egyébként `sfx $<betöltési cím>`). Működik a Run as PRG, Run via D64, Run on Hardware, Build PRG és Build D64 műveletekkel. Először állítsd be az Exomizer futtathatót a **Beállítások → Fájlok és útvonalak** alatt. |
 | **Automatikus mentések a verziókezelésbe** | Jelölőnégyzet a **Beállítások → Általános → Verziókezelés** alatt. Bekapcsolva az app kb. 2,5 másodperccel azután, hogy abbahagytad egy fül szerkesztését, automatikus mentést tesz a verziótörténetbe (projekthez tartozó fülnél a projekt történetébe is). Kapcsold ki, ha csak a saját commitjaidat szeretnéd. Lásd: [Verziókezelés](#verziókezelés). |
-| **Beállítások** (korábban Hardware Settings) | Megnyitja a beállítások dialógust három füllel: **Általános** (assembler mód, VMA fordító, BASIC SYS stub, Exomizer, ASM kimenet, SID előnézet, debugger kiválasztása és paraméterei, verziókezelés), **Fájlok és útvonalak** (VICE, RetroDebugger, frissítési szerver, ACME, Exomizer, git) és **Integrációk** (C64 Ultimate, Ultimate emulátor, Kung Fu Flash 2). Lásd a [11. szakaszt](#11-beállítások). |
+| **Beállítások** (korábban Hardware Settings) | Megnyitja a beállítások dialógust négy füllel: **Általános** (assembler mód, VMA fordító, BASIC SYS stub, Exomizer, ASM kimenet, SID előnézet, debugger kiválasztása és paraméterei, verziókezelés), **Fájlok és útvonalak** (VICE, RetroDebugger, frissítési szerver, Exomizer, git), **Fordítók** (ACME, Oscar64, Oscar64 optimalizálás) és **Integrációk** (C64 Ultimate, Ultimate emulátor, Kung Fu Flash 2). Lásd a [11. szakaszt](#11-beállítások). |
 | **Új program…** (`Menu → Program`) | Megerősítő dialógust nyit, majd törli az összes blokkot a programterületről |
 | **ASM export** (`Menu → Program`) | A generált assembly forrás másolása |
 | **Collapse All** | Minden blokk becsukása |
@@ -809,7 +859,7 @@ A sáv fölött a munka fázisai látszanak — *Előkészítés*, *Fordítás*,
 
 ### Verziókezelés
 
-Minden fülnek saját verziótörténete van, mint egy kis git repónak; a megnyitott `.proj` projekthez tartozó fül egész projektként is verziókezelhető (lásd: [Projekt mód](#projekt-mód)). A **Menu → Versioning → Verziókezelés…** (vagy **Commit…**) megnyitja a dialógust; a **Változások elvetése (vissza a HEAD-re)** megerősítés után visszaállítja az utolsó commitot (Git módban a lemezen lévő fájlokat is).
+Minden fülnek saját verziótörténete van, mint egy kis git repónak; a megnyitott `.proj` projekthez tartozó fül egész projektként is verziókezelhető (lásd: [Projekt mód](#projekt-mód)). Az eszköztár **Git → Commit, változások, előzmények…** pontja megnyitja a dialógust (Git módban; a **Beépített** kapcsolója a beépített előzményeket mutatja); a **Változások elvetése (vissza a HEAD-re)** megerősítés után visszaállítja az utolsó commitot (Git módban a lemezen lévő fájlokat is).
 
 A szokásos menet: írj **commit üzenetet**, és nyomd meg a **Commit** gombot (vagy Ctrl+Enter) → dolgozz tovább → a **Diff** megmutatja, mi változott → újra commit.
 
@@ -891,20 +941,19 @@ A **Menu → Hiba bejelentése** egy űrlapot nyit, amely a bejelentést közvet
 
 A **Menü → Támogatás** egy csevegőablakot nyit a fejlesztővel: írd be a kérdést, ötletet vagy problémát, majd kattints a **Küldés** gombra (vagy nyomd meg a **Ctrl+Enter**-t). Legfeljebb 3 fájlt csatolhatsz (összesen 4 MB): képet, forrásfájlt (`.asm`, `.ub`, `.txt` …), C64-fájlt (`.prg`, `.d64`, `.sid`, `.crt` …) vagy `.zip`-et — a **Fájl csatolása…** gombbal, beillesztéssel (**Ctrl+V**) vagy az ablakra húzva. A válasz ugyanebben az ablakban jelenik meg, akár fájlokkal együtt: a képek előnézetként látszanak, egy fájlra kattintva elmented. Az ablak nem modális: a fejlécénél fogva mozgatható, a jobb alsó sarkánál átméretezhető, és közben tovább dolgozhatsz. Az alkalmazás indításkor és utána percenként ellenőrzi, érkezett-e válasz; új válasznál rövid hangjelzés szól (az ablak fejlécében lévő hangszóró gombbal némítható), a tálcaikon villog, ha az alkalmazás a háttérben van, piros pötty jelenik meg a **Menü** gombon, és az ablak egyszer magától megnyílik. Ha már van beszélgetésed, a **Menü** gomb mellett egy boríték-ikon nyitja meg; olvasatlan válasznál pirosan villog, a darabszámmal. Egy üzenet melletti **×** az adott üzenetet, az ablak fejlécében lévő kuka gomb a teljes beszélgetést törli a csatolmányokkal együtt (a fejlesztőnél is; mindkettő előbb rákérdez). Az e-mail cím nem kötelező: ha megadod, a választ e-mailben is megkapod. A beszélgetés az alkalmazás véletlen telepítés-azonosítójához kötődik, így nincs fiók és jelszó.
 
-### Munkaterületek
+### Projekt munkamenet (.proj.user)
 
-Egy **munkaterület** (`.vaws` fájl) megjegyzi, mely valós, lemezen lévő fájlok voltak nyitva az egyes füleken — beleértve minden fül szerkesztőmódját és azt, hogy melyik fül volt aktív —, így később újranyithatod pontosan ezt a készletet. Ez elkülönül a `.proj` projekttől: egy munkaterület átfoghatja a Block/Expert `.vas` (vagy régebbi `.json`) projektfájlok, önálló `.asm` fájlok és Ultimate Basic `.ub`/`.proj` források tetszőleges keverékét több fülön keresztül.
+Egy projektnek **egy nyelve** van: assembly (VMA, ACME vagy R65, blokkokkal), UltimateBasic vagy C (Oscar64). A forrásai ennek a nyelvnek a fájljai — assemblyben `.asm .s .a65 .inc .vas`, UltimateBasicben `.ub`, C-ben `.c .h` és assembly; minden más eszközfájlként vehető fel (`incbin` adat, kép …). Más nyelvű forrás nem vehető fel, a projekt megnyitása pedig minden forrását fülként nyitja meg, az indítófájl lesz az aktív. Egyszerre egy projekt lehet nyitva: egy másik megnyitása előbb bezárja a nyitottat.
 
-- A munkaterületek **automatikusan mentődnek** néhány száz milliszekundummal egy változtatás után, amint már mentetted vagy megnyitottad egyet.
-- Az app induláskor **automatikusan visszaállítja az utolsó munkaterületet**, így a nyitott füleid ott folytatódnak, ahol abbahagytad.
-- Csak a lemezen lévő valós fájlhoz kötött fülek mentődnek a munkaterületbe; egy nem mentett mintát vagy csak memóriában lévő programot tartalmazó fülnek nincs mit megőriznie, így az kihagyódik (értesítéssel, ha egyik nyitott fül sem alkalmas).
-- Egy munkaterület megnyitása először bezár minden jelenleg nyitott fület — a folytatás előtt megerősítést kér.
-- Ha egy munkaterület olyan fájlra hivatkozik, amelyet azóta áthelyeztek vagy töröltek, az a bejegyzés kihagyódik, és betöltés után név szerint jelentődik.
-- A nyitott Expert és Ultimate Basic **projektek** is mentődnek: a projektfa (a mentetlen hozzáadásokkal és törlésekkel együtt), a startup fájl és a `.proj` mentési célja a munkaterülettel együtt áll vissza. A régebbi verzióval mentett munkaterületek ezek nélkül nyílnak meg.
+A `<név>.proj` mellett az app a **`<név>.proj.user`** fájlban tartja a projekt munkamenetét: a nyitott füleket (relatív útvonallal), minden assembly fül **Blokkok / Forrás** nézetét, a töréspontokat, az aktív fület és benne a kurzor sorát. Fájltartalom nincs benne — a fülek mindig a lemezről olvasnak. A projekt megnyitása visszaállítja ezt a munkamenetet; a fájl nélkül minden forrás fülként nyílik meg. A fájl röviddel a fülek változása után és a projekt bezárásakor íródik; ne tedd verziókezelésbe (személyes, mint a `.vs` vagy `.idea` mappák).
+
+Egy fül csak akkor **mentetlen**, ha a szövege (blokkprogramnál a forrássorai) eltér a legutóbb mentettől: egy változtatás visszavonása vagy ugyanannak a szövegnek a visszaírása eltünteti a pontot, a bezárás és a projektváltás pedig csak valódi változásnál kérdez.
+
+A **munkaterületek** (`.vaws`) kivezetve: a menüpontjaik eltűntek, és az app induláskor már nem nyitja vissza az utolsó munkaterületet. Kikapcsolt Induló ablaknál az app azt a projektet nyitja meg újra, amely a bezáráskor nyitva volt; a **Close project** (`Menu → File`) bármilyen nyelvű projektet bezár.
 
 ### Memóriaablak és zero page foglaltság
 
-A **Teljes C64 memória** panel leválasztható: a fejlécében lévő **leválasztás** gomb külön, nem modális ablakba teszi, amely szerkesztés közben is mozgatható és átméretezhető (az ütközés-jelvény vele megy). A **visszadokkolás** gomb (vagy × / Esc) visszarakja. Az ablak megjegyzi, hogy le volt-e választva, és a méretét.
+Az **Eszközök → Gép → C64 memóriatérkép** a teljes C64 memóriatérképet külön, nem modális ablakban nyitja, amely szerkesztés közben is mozgatható és átméretezhető (az ütközés-jelvény vele megy); a × vagy az Esc bezárja. Az ablak megjegyzi, hogy nyitva volt-e, és a méretét. Az aktív fület követi: a blokkprogramot, az assembly forrást, az UltimateBasic programot vagy a C programot (az Oscar64 map fájlából).
 
 Ha a program használja a zero page-et, a memóriatérkép tetején megjelenik a **Zero page foglaltság** rész: egy 16 × 16-os rács a `$00–$FF` címekről, területenként színezve — CPU port (`$00–$01`), szabad (`$02`, `$FB–$FE`), BASIC (`$03–$8F`, `$FF`) és KERNAL (`$90–$FA`). A használt cellák kitöltöttek; a keret **írást**, a sraffozás **pointert** jelöl (`(zp),Y` / `(zp,X)`). Egy használt cellára kattintva látod, mely sorok érik el (a sorra kattintva oda ugrik), és figyelmeztetést kapsz, ha BASIC- vagy KERNAL-területre írsz.
 
@@ -912,22 +961,23 @@ Ha a programban benne van a SID Editor exportált lejátszója (`sid_` címkék)
 
 ### Projekt sablonok
 
-A **Menu → Új projekt → Új projekt sablonból…** — vagy a **Menu** és a **Tutorials** közötti toolbar gomb — megnyitja a sablon dialógust:
+Az **Új → Sablonból…**, a **Menu → File → Új projekt…** vagy az Induló ablak **Új projekt létrehozása** pontja megnyitja a sablon dialógust:
 
-1. Fent válassz szekciót: **Visual Assembler**, **ACME** vagy **UltimateBasic** (a dialógus az aktuális szerkesztőmódnak megfelelő szekción nyílik). Az **ACME** szekció csak akkor látszik, ha a **Beállítások → Fájlok és útvonalak → ACME** alatt működő ACME van beállítva.
+1. Fent válassz szekciót: **UltimateBasic**, **C (Oscar64)**, **Visual Assembler** vagy **ACME**, a legkönnyebbtől a legnehezebbig; alattuk egy sor írja le, mire jó az adott nyelv (a dialógus az aktuális szerkesztőnek megfelelő szekción nyílik). Az ACME be van építve az appba, így az **ACME** szekció mindig látszik.
 2. Válassz sablont a listából; jobb oldalon a leírása és a szintaxiskiemelt előnézete látszik, a projekt nevével kitöltve.
 3. Add meg a **projekt nevét** és a **helyet** (**Tallózás…**). Az űrlap alatti sor mutatja a pontos `.proj` útvonalat, ami létrejön.
 4. Kattints a **Projekt létrehozása** gombra.
 
 | Szekció | Beépített sablonok |
 |---|---|
-| **Visual Assembler** | Üres program, Üres játék (cím / játék / vége állapotok, joystick, játékos sprite), Hires bitmap, Multicolor bitmap, Sprite multiplexer (16 sprite, képkockánként Y szerint rendezve, raszter IRQ-lánccal megjelenítve) |
-| **ACME** | Üres ACME projekt, Raszter IRQ, Sprite multiplexer (16 sprite) |
-| **UltimateBasic** | Üres program, Üres játék (ugyanaz az állapotgép UB-ben), Hires bitmap (`line` / `rect` / `circle` `color pen`-nel), Raszter IRQ (egy `sub`, amit a raszter megszakítás minden képkockában meghív) |
+| **UltimateBasic** | Üres program, Üres játék (ugyanaz az állapotgép UB-ben), Hires bitmap (`line` / `rect` / `circle` `color pen`-nel), Raszter IRQ (egy `sub`, amit a raszter megszakítás minden képkockában meghív), Sprite multiplexer (64 sprite: nyolc sor, soronként nyolc többszínű labda egy forgó hengeren, a raszter megszakítás egy UB `sub`) |
+| **C (Oscar64)** | Hello C64, Raszter csíkok, Sprite és joystick, Szöveges képernyő, Sprite multiplexer (16 virtuális sprite az Oscar64 `vspr_*` könyvtárával), Sprite multiplexer (64 sprite, soronként egy raszter megszakítás) |
+| **Visual Assembler** | Üres program, Hello World (a `.print` makró és egy CHROUT ciklus), Üres játék (cím / játék / vége állapotok, joystick, játékos sprite), Hires bitmap, Multicolor bitmap, Sprite multiplexer (16 sprite, képkockánként Y szerint rendezve, raszter IRQ-lánccal megjelenítve) |
+| **ACME** | Üres ACME projekt, Hello World, Raszter IRQ, Sprite multiplexer (16 sprite) |
 
-A projekt saját mappában jön létre: `<hely>/<név>/<név>.proj`, mellette `main.asm` (Visual Assembler vagy ACME) vagy `main.ub` (UltimateBasic; a `.proj` Ultimate Basic projektként van jelölve). Az ACME projekt `.proj`-ja az ACME assemblert rögzíti, és a létrehozása a **Beállítások → Általános → Assembler mód**-ot ACME módra állítja (Visual Assembler projekt visszaállítja VMA módra). Meglévő projektet sosem ír felül — ilyenkor a dialógus jelez. A nyitott fülek előbb bezáródnak (mentetlen változásnál rákérdez), majd az új projekt Expert vagy Ultimate Basic módban nyílik meg, látható projekt panellel, a fő fájl startup fájlként beállítva.
+A projekt saját mappában jön létre: `<hely>/<név>/<név>.proj`, mellette `main.asm` (Visual Assembler vagy ACME), `main.ub` (UltimateBasic; a `.proj` Ultimate Basic projektként van jelölve) vagy `main.c` (C; a `.proj` Oscar64 projektként van jelölve). Az ACME projekt `.proj`-ja az ACME assemblert rögzíti, és a létrehozása a **Beállítások → Általános → Assembler mód**-ot ACME módra állítja (Visual Assembler projekt visszaállítja VMA módra). Meglévő projektet sosem ír felül — ilyenkor a dialógus jelez. A nyitott fülek előbb bezáródnak (mentetlen változásnál rákérdez), majd az új projekt a saját szerkesztőjében (assembly forrás, Ultimate Basic vagy C) nyílik meg, látható projekt panellel, a fő fájl startup fájlként beállítva.
 
-**Saját sablonok:** a **Saját sablonok mappája** (a dialógus bal alsó sarkában) megnyitja a felhasználói sablonok mappáját az app config könyvtárában. Minden oda bedobott `.asm` vagy `.ub` fájl megjelenik a megfelelő szekcióban (a `; @assembler acme` fejlécsoros `.asm` az **ACME** alatt) (a *Saját sablonok* alatt, hacsak nem ad meg kategóriát). A sablon egy közönséges forrásfájl, a tetején opcionális, kommentsorokból álló fejléccel — assemblerben `;`, Ultimate Basicben `#`:
+**Saját sablonok:** a **Saját sablonok mappája** (a dialógus bal alsó sarkában) megnyitja a felhasználói sablonok mappáját az app config könyvtárában. Minden oda bedobott `.asm`, `.ub` vagy `.c` fájl megjelenik a megfelelő szekcióban (a `; @assembler acme` fejlécsoros `.asm` az **ACME** alatt) (a *Saját sablonok* alatt, hacsak nem ad meg kategóriát). A sablon egy közönséges forrásfájl, a tetején opcionális, kommentsorokból álló fejléccel — assemblerben `;`, Ultimate Basicben `#`, C-ben `//`:
 
 ```asm
 ; @name Raster bars
@@ -1079,7 +1129,7 @@ A Visual Assembler tartalmaz egy teljes **Ultimate Basic IDE**-t. Az Ultimate Ba
 
 ### A UB szerkesztő megnyitása
 
-Válaszd a **UB** ikont a fő eszköztáron az Ultimate Basic módra váltáshoz. A választott szerkesztőmód megmarad az alkalmazás újraindításai között. Egy új forrás így kezdődik:
+Nyiss meg egy `.ub` fájlt vagy UltimateBasic `.proj`-ot, vagy válaszd az **Új → UltimateBasic program** pontot: a fül az Ultimate Basic szerkesztőben nyílik meg. Egy új forrás így kezdődik:
 
 ```basic
 color bg 0
@@ -1189,9 +1239,52 @@ Az Ultimate Basic önálló nyílt forráskódú projektként is elérhető:
 
 A fordító be van csomagolva a Visual Assemblerbe, így futásidőben nincs szükség külön `ub` futtathatóra.
 
+## C mód (Oscar64)
+
+A Visual Assemblerben C programot is írhatsz, az [Oscar64](https://github.com/drmortalwombat/oscar64)-gyel, Martin Lemke optimalizáló 6502-es C fordítójával. A fordító az appal érkezik (lásd: [Fordítók](#fordítók-acme-oscar64)); a C fájlok ugyanannak a fülsávnak a fülei, **C** jelvénnyel.
+
+### C fájlok megnyitása és létrehozása
+
+- Az **Új → C program (Oscar64)** üres C fület nyit; az **Új → Sablonból…** → **C (Oscar64)** projektet hoz létre (`main.c` + `<név>.proj`).
+- Egy `.c` vagy `.h` fájl, egy Oscar64 `.proj` vagy egy mappa megnyitása a **C mappa megnyitása** ponttal (Induló ablak) a C szerkesztőt nyitja.
+- Egy C projekt minden `.c` / `.h` fájlját fülként nyitja meg, a fában lévő `.asm`, `.ub` fájl a saját szerkesztőjében nyílik.
+
+### A C szerkesztő eszközei
+
+- **Kiemelés**: C, előfeldolgozó és `__asm { }` blokkok (bennük a 6502 mnemonikok is); sorszámok, nagyítás (Ctrl + görgő), minimap.
+- **Kódkiegészítés** (Ctrl+Space, vagy bekapcsolva az eszköztáron): kulcsszavak, típusok, és a fájl, valamint az általa beinclude-olt fejlécek függvényei (paraméterekkel), makrói, típusai, enum-konstansai és változói, három szint mélyen — a fájl mappájából, a projekt include mappáiból és az Oscar64 `include` mappájából. Kommentben és sztringben nem.
+- A **C forrás formázása** kapcsos-zárójel mélység szerint húz be (4 szóköz), a `case` / `default` egy szinttel kijjebb, a kapcsos nélküli `if` / `for` / `while` / `else` törzse egy szinttel beljebb; a kommentek és a `#` sorok változatlanok.
+- **Ciklusszámok** minden kódot adó sor mellett, a legutóbbi fordítás debug-információjából.
+- **Keresés** (Ctrl+F), **Ugrás sorra** (Ctrl+G), **könyvjelzők** (Ctrl+F2 tesz, F2 / Shift+F2 ugrik), **Build info** (cím, méret, szimbólumok), **Mentés** (Ctrl+S) és **Mentés másként**.
+- Ha abbahagyod a gépelést, a program csendben, a háttérben lefordul, így a hibák, a ciklusszámok és a nézetek frissek maradnak.
+
+### C projektek, build szkriptek és indítófájl
+
+A bal oldali projektfa a projekt mappáját mutatja. Az eszköztára fájlt és mappát hoz létre és projektmappát nyit; a jobb klikkes menü megnyit, átnevez és töröl, az **Indítófájl beállítása** pedig megjelöli (★) azt a fájlt, amelyet a **Build** és a **Run** fordít, bármelyik fül aktív. A projekten kívüli fájl önmagát fordítja. A fa alatti lista a nyitott fájl függvényeit, típusait és makróit mutatja; kattintásra oda ugrik.
+
+A **Projekt beállítások** (a fa fogaskerék gombja, vagy aktív C fájlnál a **Menü → Projekt beállítások…**) a projekt `.proj`-ját szerkeszti:
+
+- **Név** és **Indítófájl** (a projekt bármely `.c` fájlja).
+- **Optimalizálás** — O0, O1, O2, O3 vagy Os ennek a projektnek; **A Beállítások szerint** a **Beállítások → Fordítók** szintjét használja. Egy build szkript program saját `-O` kapcsolója továbbra is erősebb.
+- **Define-ok (-d)** — soronként egy `NÉV` vagy `NÉV=érték`, mintha minden fájl elején `#define NÉV érték` állna.
+- **Include mappák (-i)** — soronként egy mappa, a projekt mappájához képest; az `#include` és a kódkiegészítés ezekben keres. A projekt mappáját mindig átnézi.
+- **Build szkript** — hány program jött a build szkriptből; a saját kapcsolóik ezek fölé kerülnek.
+
+Az a mappa, amelyben van `build.sh`, `make.bat` vagy `makefile`, de nincs Oscar64 `.proj`, ebből a szkriptből lesz projekt (a fában a **Projekt betöltése build szkriptből** is ezt teszi): a szkript minden `oscar64` hívása — `cd`-n, al-szkripteken és makefile-szabályokon át — a projekt egy programja lesz, a fában ◆ jelöli. Dupla kattintás teszi indítófájllá; a saját kapcsolói (`-O…`, `-n`, `-d…`, `-i=…`) érvényesek, a kimeneti kapcsolók (`-tf=`, `-d64=`, `-o=` …) kimaradnak, és ezt a státuszsor jelzi.
+
+### Fordítás, futtatás és nézetek
+
+A **Build** (Ctrl+B) az Oscar64-gyel fordítja az indítófájlt (vagy a nyitott fájlt); a hibák és figyelmeztetések a **Kimenet** nézetben jelennek meg fájllal és sorral — kattintásra oda ugrik. A **Kimenet** a fordító lépéseit is mutatja (az Oscar64 `-v`-vel fut): a fordított és beolvasott fájlokat, a fázisokat és a kiírt fájlokat. A szerkesztő alatti többi nézet:
+
+- **Disassembly** — a fordító saját listája, a C sorok a belőlük készült 6502 kóddal.
+- **Monitor** — a program memóriája hex dumpként.
+- **Map** — a fordító map fájljának szekciói és szimbólumai.
+
+A C program minden futtatási módban fut — VICE, D64, beépített C64, C64 Ultimate, Ultimate emulátor, Kung Fu Flash 2 —, és megjelenik a memóriatérképen. A **Debug** a forrásszintű debuggert indítja, lásd: [Forrásszintű hibakeresés](#forrásszintű-hibakeresés-c-és-ultimatebasic).
+
 ## 6. Expert mód
 
-Az Expert mód egy teljes értékű, közvetlen szöveges 6502 assembly szerkesztő, amely a blokk-szerkesztő mellett él. Minden fül lehet Blokk vagy Expert módban — bármikor szabadon válthatsz köztük a felső sávban lévő **Block / Expert** kapcsolóval.
+Az Expert mód egy teljes értékű, közvetlen szöveges 6502 assembly szerkesztő, amely a blokk-szerkesztő mellett él. Minden assembly fül lehet Blokk vagy Expert módban — bármikor szabadon válthatsz köztük a felső sávban lévő **Blokkok | Forrás** kapcsolóval.
 
 ### Módváltás
 
@@ -1318,7 +1411,8 @@ Az Expert mód támogat egy **projekt panelt** (`#expert-project-panel`) több-f
 - A `.proj` fájl egy JSON manifeszt, amely felsorolja a forrásfájlokat és metaadataikat.
 - **Projekt beállítások** (fogaskerék a panel fejlécében, vagy **Menu → File → Projekt beállítások…**): megmutatja és szerkeszti a projektet: név, `.proj` útvonal, indítófájl, assembler (VMA vagy ACME), **KickAssembler-kompatibilis**, Kick projektnél a preprocesszor-szimbólumok (`#define`, mint a KickAssembler `-define`-ja) és a parancssori változók (`cmdLineVars`, soronként egy `név=érték`, mint a `:név=érték`), VMA projektnél a szimbólumok (`.define`) és konstansok (`.const`, soronként egy `NÉV=érték`) — a projekt által fordított forrás elé kerülnek, így a `.if NÉV` / `.if NÉV == 3` a forrás szerkesztése nélkül vált buildet —, valamint a forrás- és egyéb fájlok száma, és a **Csak Expert mód**: a projekt fájljain a blokk mód ki van kapcsolva, méretüktől függetlenül. Minden a `.proj`-ba mentődik.
 - Nyiss meg egy projektet a **Menu → File → Open project** menüvel, vagy húzz egy `.proj` fájlt az ablakra.
-- A projekt minden fájlja külön **fülként** nyílik meg a szerkesztő tetején lévő fül-sávban.
+- A projekt minden fájlja külön **fülként** nyílik meg a szerkesztő tetején lévő fül-sávban; a nyitott fülek, a nézetek, a töréspontok és a kurzor a `<név>.proj.user`-ből jönnek vissza (lásd: [Projekt munkamenet (.proj.user)](#projekt-munkamenet-projuser)).
+- A projekt egy nyelvű: `.ub` vagy `.c` fájl nem vehető fel, a mappában már meglévő pedig a saját szerkesztőjében nyílik.
 - A **Close Project** (`Menu → File → Close project` / `#menu-close-project`) egyszerre bezárja az aktuális projektet és minden fájlfülét. A bezárás előtt rákérdez a nem mentett változtatások mentésére. A projekt panel visszaáll üres állapotba.
 - Minden fájl megjelölhető **startup fájlként** (★ csillag ikon). Ha van startup fájl beállítva, a **Run** gomb (PRG, D64, Ultimate) mindig annak a fájlnak a kódját assembleálja és futtatja — függetlenül attól, melyik fül aktív éppen. Ez Blokk és Expert módban is működik.
 - Az eszköztár **Add** gombja egyszerre több fájlt is kiválaszt (bármilyen típus, nem csak `.json`/`.asm`), és hivatkozásként adja hozzá a projekthez anélkül, hogy megnyitná — ezzel vihetők bináris assetek (pl. `incbin` adat). A dialógus alapból a VA working foldert nyitja meg. A mellette lévő **Add folder** gomb egy teljes mappát (pl. egy asset mappát) ad hozzá ugyanígy, hivatkozásként.
@@ -1333,10 +1427,11 @@ A fül-sáv a szerkesztő fölött jelenik meg, ha egynél több fül van nyitva
 
 | Funkció | Leírás |
 |---------|-------------|
-| **Dirty pont** | A fül nevén lévő kis kiemelt színű pont nem mentett változtatást jelez |
+| **Dirty pont** | A fül nevén lévő kis kiemelt színű pont nem mentett változtatást jelez: a szöveg eltér a mentett fájltól |
 | **Görgető nyilak** | Bal/jobb görgető gombok jelennek meg, ha több fül van, mint amennyi elfér a sávban |
 | **Bezárás (×)** | Bezárja a fület; ha dirty, rákérdez a mentésre |
-| **Fájlkiterjesztés** | A teljes fájlnév a kiterjesztéssel együtt (`.json`, `.asm`, `.ub` …) látszik |
+| **Fájlkiterjesztés** | A teljes fájlnév a kiterjesztéssel együtt (`.vas`, `.asm`, `.ub`, `.c` …) látszik |
+| **Nyelvjelvény** | **BLK**, **ASM**, **UB** vagy **C**: a szerkesztő, amelyben a fül nyílik |
 | **Ctrl+N** | Új, üres fület nyit (modális ablak alatt nem) |
 | **Jobbklikk menü** | Jobbklikk egy fülre (vagy üres fül-sáv területre): **New tab**, **Close tab**, **Close other tabs**, **Close tabs to the right**, **Close all tabs**. A csoportos bezárás dirty fülönként rákérdez, és megáll, ha megszakítod. A **Close all** mindig hagy egy üres fület. |
 
@@ -1347,10 +1442,10 @@ A fül-sáv a szerkesztő fölött jelenik meg, ha egynél több fül van nyitva
 A **Beállítások → Általános → Assembler mód** választja ki az Expert szerkesztő assemblerét:
 
 - **VMA mód** (alapértelmezett) — a Visual Assembler beépített assemblere a blokkjaival, makróival és `.` direktíváival.
-- **ACME mód** — a forrás ACME 0.97 szöveg, és a **Beállítások → Fájlok és útvonalak → ACME** alatt beállított ACME futtatható fordítja (**ACME kiválasztása**). A nyelvet az `ACME-0.97-reference.pdf` írja le.
+- **ACME mód** — a forrás ACME 0.97 szöveg, és az ACME fordítja: az appba épített, vagy a **Beállítások → Fordítók** alatt beállított saját (**ACME kiválasztása**). A nyelvet az `ACME-0.97-reference.pdf` írja le.
 - **R65 mód (KickAssembler)** — a forrás KickAssembler szöveg (script nyelv, `#import`, `.pseudopc`, `BasicUpstart2` …), és az alkalmazásba épített KickAssembler-kompatibilis R65 fordítja; semmit nem kell telepíteni. Projektben az indítófájl fordul, az `#import` fájlokat az R65 maga olvassa. Ami lent az ACME-ről áll, az R65-re is igaz, és az R65 `.dbg` fájlt is ír. Az R65 verzióját a Névjegy mutatja.
 
-A mód a `.proj` projekttel együtt mentődik, így minden projekt a saját assemblerével nyílik meg. ACME módban csak szöveges szerkesztés van: a Blokk / Expert kapcsoló zárolt, és a **Tutorialok** gombja nem jelenik meg (a leckék VMA programot építenek blokkokból).
+A mód a `.proj` projekttel együtt mentődik, így minden projekt a saját assemblerével nyílik meg. ACME módban csak szöveges szerkesztés van: a **Blokkok** nézet tiltott, és a **Tutorialok** gombja nem jelenik meg (a leckék VMA programot építenek blokkokból).
 
 Ami az ACME fordítását követi:
 
@@ -1503,7 +1598,7 @@ A státuszsor mutatja, mi van csatolva, valamint a 8-as meghajtó LED-jét és a
 
 Az eszköztáron van még **Reset**, **Szünet**, **Gyorsítás (warp)**, **Hang**, **CRT szűrő** és **Teljes képernyő**. A CRT szűrő a VICE CRT-emulációját, sima nagyítást és scanline-okat ad; a scanline-ok akkor jelennek meg, ha egy C64-sor legalább 3 képpont magas. A teljes képernyő a képernyőre duplán kattintva is indul, Esc-kel vagy újabb dupla kattintással lehet kilépni. Az ablak a fejlécénél mozgatható, a jobb alsó sarkánál méretezhető. A helye, mérete, nyitott állapota és a beállításai a következő indításkor visszatérnek.
 
-**Hibakeresés:** nyomd meg a **Debug** gombot, miközben a futtatási mód **Beépített C64**. A Debug gomb a valódi hardveres módokban is ezt a debuggert használja, ha a **Visual Assembler** a választott debugger. VMA-val, Kick projekttel, ACME-vel és Ultimate Basic-kel egyaránt működik. A program az első elért töréspontnál áll meg, töréspont nélkül az első utasításánál. Az ablak bezárása vagy a debugger-panel elrejtése lezárja a munkamenetet: a töréspontok megszűnnek, a megállított program pedig fut tovább (bezárt ablaknál az újranyitás után). Az Ultimate emulátor és a VICE debugger-ablaka bezáráskor ugyanígy tesz.
+**Hibakeresés:** nyomd meg a **Debug** gombot, miközben a futtatási mód **Beépített C64**. A Debug gomb a valódi hardveres módokban is ezt a debuggert használja, ha a **Visual Assembler** a választott debugger. VMA-val, Kick projekttel, ACME-vel, Ultimate Basic-kel és C-vel (Oscar64) egyaránt működik. A program az első elért töréspontnál áll meg, töréspont nélkül az első utasításánál. Az ablak bezárása vagy a debugger-panel elrejtése lezárja a munkamenetet: a töréspontok megszűnnek, a megállított program pedig fut tovább (bezárt ablaknál az újranyitás után). Az Ultimate emulátor és a VICE debugger-ablaka bezáráskor ugyanígy tesz.
 
 **A debugger kiválasztása:** a **Beállítások → Általános → Debugger → Debug gomb** értéke **Visual Assembler** vagy **RetroDebugger**. A **RetroDebugger** csak akkor választható, ha az útvonala be van állítva a **Beállítások → Fájlok és útvonalak** alatt; ha még nem választottál, RetroDebugger, amennyiben be van állítva, különben Visual Assembler. A **Visual Assembler** a futtatási mód gépén keres hibát: a saját VICE-odban (*Run as PRG*, *Run via D64*), az Ultimate emulátoron vagy a beépített C64-en (a valódi hardveres módokban, C64 Ultimate és Kung Fu Flash 2, is ezen). A **RetroDebugger** a VICE-os és a hardveres módokban a külső programot nyitja. A *Beépített C64* és az *Ultimate emulátor* futtatási mód mindig a saját debuggerét használja.
 
@@ -1527,10 +1622,22 @@ A **Debugger panel** tartalma:
 - **Disassembly** a PC körül, a programod címkéivel. A sor elején lévő pontra kattintva tehetsz vagy vehetsz le töréspontot.
 - **Memória:** a címet `$hex`, decimális szám vagy címke alakban add meg. Az olvasásnak nincs mellékhatása, így a `$DC0D` megnézése nem nyugtáz megszakítást.
 - **Töréspontok:** mindegyik címe és `fájl:sor` helye.
+- **Hívási lánc** és **Változók** — lásd: [Forrásszintű hibakeresés](#forrásszintű-hibakeresés-c-és-ultimatebasic).
 
 A töréspontok a szerkesztő sorszám-gutteréből (a build minden nyitott füle), a Block módú töréspontokból és a disassemblyből jönnek. A szerkesztőbeli változás a következő Folytatásnál vagy lépésnél számít. Megálláskor a szerkesztő megnyitja a fájlt és jelöli a sort, Block módban a blokkot jelöli ki.
 
 A **VICE Monitor** ablak továbbra is csak külső VICE-szal működik, ehhez a géphez nem kapcsolódik.
+
+### Forrásszintű hibakeresés (C és UltimateBasic)
+
+A beépített C64 debuggere és a VICE / Ultimate emulátor debugger ablaka egy C vagy UltimateBasic program forrását követi, nem csak a 6502 kódját:
+
+- **Töréspontok** a C vagy UB szerkesztő sorszám-gutterében; megálláskor a szerkesztő megnyitja a fájlt és jelöli a sort.
+- **Léptetés C-ben:** a **Lépés be** és a **Lépés át** egy teljes C sort futtat (ahány 6502 utasítás kell hozzá); forrás nélküli könyvtári kódból kilép. Töréspont megállítja a lépést. UltimateBasicben egy lépés továbbra is egy 6502 utasítás.
+- **Változók:** C-ben a program saját globálisai, függvényen belül pedig a paraméterei és lokálisai (csak azokban a sorokban, ahol élnek), típusuk szerint: int, unsigned, float, pointer, tömb (a `char` tömb szövegként), struct. Ehhez a **Debug** fordítás optimalizálás nélkül készül (`-O0`); ha a program így nem fér el, az optimalizált fordítással indul, és a lokálisai nem látszanak. UltimateBasicben: byte, word, előjeles integer, 5 bájtos lebegőpontos és tömb. A tömb és a struct kattintásra kinyílik (▸ / ▾): az elemei vagy mezői egy szinttel beljebb, mind a saját értékével (UltimateBasic tömb bájtonként). Egy változóra kattintva a memórianézet a bájtjait mutatja.
+- **Hívási lánc:** a megállás, majd a 6502 stack minden olyan visszatérési címe, amely előtt a programban `JSR` áll — C függvény, UltimateBasic `sub` vagy címke, illetve assembly címke szerint elnevezve. Egy sorra kattintva megnyílik a forrássora. Assembly programban is működik.
+
+A VICE / Ultimate emulátor debugger ablaka ugyanazokat a paneleket mutatja ugyanabban az egy oszlopban, mint a beépített C64 debuggere, alul a munkamenet állapotával.
 
 ## 10. D64 export és futtatás
 
@@ -1673,13 +1780,17 @@ Mivel a payload lineárisan tárolódik — egyetlen lapos kép a legalacsonyabb
 
 ## 11. Beállítások
 
-A **Menu → Beállítások…** nyitja meg (korábban *Hardware Settings*). A dialógusnak három füle van: **Általános** (assembler mód, VMA fordító, BASIC SYS stub, Run with Exomizer, ASM kimenet, SID előnézet, debugger kiválasztása és C64 Debugger paraméterek, snapshot / verziókezelés), **Fájlok és útvonalak** (VICE, RetroDebugger, frissítési szerver, ACME, Exomizer, git) és **Integrációk** (C64 Ultimate, Ultimate emulátor, Kung Fu Flash 2). Az alábbi szakaszok a külső eszközöket és hardvereket írják le.
+A **Menu → Beállítások…** nyitja meg (korábban *Hardware Settings*). A dialógusnak négy füle van: **Általános** (assembler mód, VMA fordító, BASIC SYS stub, Run with Exomizer, ASM kimenet, SID előnézet, debugger kiválasztása és C64 Debugger paraméterek, snapshot / verziókezelés), **Fájlok és útvonalak** (VICE, RetroDebugger, frissítési szerver, Exomizer, git), **Fordítók** (ACME, Oscar64) és **Integrációk** (C64 Ultimate, Ultimate emulátor, Kung Fu Flash 2). Az alábbi szakaszok a külső eszközöket és hardvereket írják le.
 
 ### VMA fordító
 
 Minden VMA (és Kick projekt) forrást a nyílt forráskódú, Rustban írt [VMA fordító](https://github.com/zstarczali/VMA) fordít, amely az alkalmazásba van építve: a Futtatás, a Build, a D64, a CRT, a debugger és minden élő nézet (disassembly, monitor, memóriatérkép, ciklus-gutter, tippek, ASM nézet) ugyanazt a fordítást használja. Fordító-beállítás már nincs (a 2.7.7-ig JavaScript fordító is volt). A fordításhoz az asztali alkalmazás kell. A VMA verziója az About ablakban látszik.
 
 Ugyanez a fordító parancssorból is fut (VMA 2.1.0-tól): a `vma build game.asm` a `game.prg`-t írja, a `--crt game.crt` Magic Desk cartridge-et (ugyanazokkal a bájtokkal, mint a **Build CRT**), a `--d64` pedig 1541-es lemezképet a programmal (a `--add` további fájlokat tesz rá) — c1541 nélkül. Részletek a [VMA tároló](https://github.com/zstarczali/VMA) kézikönyvében.
+
+### Fordítók (ACME, Oscar64)
+
+Az ACME 0.97 és az Oscar64 (v1.32.273) az appal érkezik, így az ACME módhoz és a C programokhoz nem kell semmit telepíteni. A **Fordítók** fülön az **ACME kiválasztása** / **Oscar64 kiválasztása** saját futtathatót állít be helyettük, a **Beépített használata** visszavált (a már nem létező útvonal helyett is a beépített fut). Az **Optimalizálás** (O0, O1, O2, O3, Os; alapból O2) minden Oscar64 fordítás szintje; a build szkript saját `-O` kapcsolója erősebb. A Névjegy mindkét verziót mutatja; a licencek a `THIRD_PARTY_NOTICES.md`-ben.
 
 ### VICE emulátor
 

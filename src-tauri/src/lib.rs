@@ -5060,6 +5060,29 @@ mod tests {
         std::thread::sleep(Duration::from_millis(300));
         assert_eq!(counter(), before, "the loop stands after Break");
 
+        // Polled the way the debugger window polls a running CPU (every 120 ms), VICE runs at full
+        // speed: the jiffy clock ($A0-$A2) goes on by about 60 a second.
+        let jiffy = || {
+            with_debug(|session| {
+                let cpu = session.monitor.bank_id("cpu")?;
+                session.monitor.read_memory(0x00A0, 0x00A2, cpu)
+            })
+            .map(|b| (b[0] as u32) << 16 | (b[1] as u32) << 8 | b[2] as u32)
+            .unwrap()
+        };
+        let start = jiffy();
+        with_debug(|session| continue_cpu(session, &[])).unwrap();
+        let polled = std::time::Instant::now();
+        while polled.elapsed() < Duration::from_millis(1000) {
+            let stop = with_debug(|session| wait_stop(session, Duration::from_millis(1))).unwrap();
+            assert_eq!(stop, None, "no stop while polled");
+            std::thread::sleep(Duration::from_millis(120));
+        }
+        with_debug(debugger::break_cpu).unwrap();
+        let ticks = jiffy().wrapping_sub(start);
+        eprintln!("jiffies in {:?} of polling: {ticks}", polled.elapsed());
+        assert!(ticks >= 45, "VICE ran slow while polled: {ticks} jiffies in a second");
+
         // A second session in the same VICE, as the next Debug press does.
         debugger::end_debug();
         std::thread::sleep(Duration::from_millis(300));

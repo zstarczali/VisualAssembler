@@ -77,54 +77,54 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "sid-table-286",
+  id: "studio-290",
   url: "https://www.c64va.pro/docs.html",
   hu: {
-    eyebrow: "Újdonság a 2.8.6-ben",
+    eyebrow: "Újdonság a 2.9.0-ban",
     title: "Üdvözöl a Visual Assembler",
-    body: `<ul><li><strong>Részletes wave-tábla lépések</strong>: a SID szerkesztőben a wave / arpeggio tábla egy lépése saját hosszt, pulzusszélességet és szűrőt kaphat (a lépés <strong>…</strong> gombja), és egy tábla 64 lépéses lehet.</li><li><strong>Beszéd a .sid importban</strong>: a beszéd és más, képkockánként változó hangok (GoatTracker táblák) az eredetihez hűen jönnek be.</li><li>A 2.8.5 újdonsága: közös SID-emuláció (<strong>va-sid</strong>) a VA SID Studióval.</li></ul>`,
+    body: `<ul><li><strong>Visual Assembler Studio</strong>: assembly (VMA, ACME, R65), blokkok, UltimateBasic és C egy ablakban, közös fülsávval; minden fájl a saját nyelvének szerkesztőjében nyílik. Az <strong>Induló ablak</strong>ból a legutóbbi projekt, egy új projekt sablonból vagy egy C mappa egy kattintás.</li><li><strong>C az Oscar64-gyel</strong>: beépített fordító, kódkiegészítés, ciklusszámok, Disassembly / Monitor nézet, projekt build szkriptből; a C program minden futtatási módban fut.</li><li><strong>Forrásszintű hibakeresés C-ben és UltimateBasicben</strong>: töréspont a forrássoron, léptetés C soronként, <strong>Változók</strong> és <strong>Hívási lánc</strong> panel.</li><li>Új <strong>Új</strong>, <strong>Eszközök</strong> és <strong>Git</strong> menü, a projekt munkamenete a <code>.proj.user</code> fájlban, külön ablakos memóriatérkép, UltimateBasic 1.6.8.</li></ul>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
-    eyebrow: "New in 2.8.6",
+    eyebrow: "New in 2.9.0",
     title: "Welcome to Visual Assembler",
-    body: `<ul><li><strong>Detailed wave table steps</strong>: in the SID Editor a step of the wave / arpeggio table can have its own length, pulse width and filter (the <strong>…</strong> button of the step), and a table can have 64 steps.</li><li><strong>Speech in .sid import</strong>: speech and other sounds that change from frame to frame (GoatTracker tables) come in true to the original.</li><li>New in 2.8.5: SID emulation shared with VA SID Studio (<strong>va-sid</strong>).</li></ul>`,
+    body: `<ul><li><strong>Visual Assembler Studio</strong>: assembly (VMA, ACME, R65), blocks, UltimateBasic and C in one window with one tab bar; every file opens in the editor of its own language. From the <strong>Start window</strong> the last project, a new project from a template or a C folder is one click away.</li><li><strong>C with Oscar64</strong>: compiler built in, code completion, cycle counts, Disassembly / Monitor views, projects from build scripts; a C program runs in every Run mode.</li><li><strong>Source-level debugging in C and UltimateBasic</strong>: breakpoints on source lines, stepping one C line at a time, <strong>Variables</strong> and <strong>Call stack</strong> panels.</li><li>New <strong>New</strong>, <strong>Tools</strong> and <strong>Git</strong> menus, the project session in <code>.proj.user</code>, the memory map in its own window, UltimateBasic 1.6.8.</li></ul>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
-    eyebrow: "Novedad en la 2.8.6",
+    eyebrow: "Novedad en la 2.9.0",
     title: "Bienvenido a Visual Assembler",
-    body: `<ul><li><strong>Pasos de tabla detallados</strong>: en el editor SID, un paso de la tabla de onda / arpegio puede tener su propia duración, ancho de pulso y filtro (botón <strong>…</strong> del paso), y una tabla puede tener 64 pasos.</li><li><strong>Voz en la importación .sid</strong>: la voz y otros sonidos que cambian en cada cuadro (tablas de GoatTracker) se importan fieles al original.</li><li>Novedad de la 2.8.5: emulación SID compartida con VA SID Studio (<strong>va-sid</strong>).</li></ul>`,
+    body: `<ul><li><strong>Visual Assembler Studio</strong>: ensamblador (VMA, ACME, R65), bloques, UltimateBasic y C en una sola ventana con una barra de pestañas común; cada archivo se abre en el editor de su lenguaje. Desde la <strong>ventana de inicio</strong>, el último proyecto, un proyecto nuevo a partir de una plantilla o una carpeta C están a un clic.</li><li><strong>C con Oscar64</strong>: compilador integrado, autocompletado, recuento de ciclos, vistas Disassembly / Monitor, proyectos a partir de scripts de compilación; un programa C funciona en todos los modos de ejecución.</li><li><strong>Depuración a nivel de código en C y UltimateBasic</strong>: puntos de interrupción en las líneas, paso a paso por líneas de C, paneles <strong>Variables</strong> y <strong>Pila de llamadas</strong>.</li><li>Nuevos menús <strong>Nuevo</strong>, <strong>Herramientas</strong> y <strong>Git</strong>, la sesión del proyecto en <code>.proj.user</code>, el mapa de memoria en su propia ventana, UltimateBasic 1.6.8.</li></ul>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
-    eyebrow: "Neu in 2.8.6",
+    eyebrow: "Neu in 2.9.0",
     title: "Willkommen bei Visual Assembler",
-    body: `<ul><li><strong>Detaillierte Tabellenschritte</strong>: im SID-Editor kann ein Schritt der Wellen- / Arpeggio-Tabelle eine eigene Länge, Pulsbreite und einen eigenen Filter haben (Knopf <strong>…</strong> des Schritts), und eine Tabelle kann 64 Schritte haben.</li><li><strong>Sprache im .sid-Import</strong>: Sprache und andere Klänge, die sich Frame für Frame ändern (GoatTracker-Tabellen), werden originalgetreu übernommen.</li><li>Neu in 2.8.5: mit VA SID Studio gemeinsame SID-Emulation (<strong>va-sid</strong>).</li></ul>`,
+    body: `<ul><li><strong>Visual Assembler Studio</strong>: Assembler (VMA, ACME, R65), Blöcke, UltimateBasic und C in einem Fenster mit einer gemeinsamen Tableiste; jede Datei öffnet sich im Editor ihrer Sprache. Im <strong>Startfenster</strong> sind das letzte Projekt, ein neues Projekt aus einer Vorlage oder ein C-Ordner einen Klick entfernt.</li><li><strong>C mit Oscar64</strong>: eingebauter Compiler, Codevervollständigung, Taktzyklen, Ansichten Disassembly / Monitor, Projekte aus Build-Skripten; ein C-Programm läuft in jedem Startmodus.</li><li><strong>Debuggen auf Quelltextebene in C und UltimateBasic</strong>: Haltepunkte auf Quellzeilen, Schritte Zeile für Zeile in C, Bereiche <strong>Variablen</strong> und <strong>Aufrufliste</strong>.</li><li>Neue Menüs <strong>Neu</strong>, <strong>Werkzeuge</strong> und <strong>Git</strong>, die Projektsitzung in <code>.proj.user</code>, die Speicherkarte im eigenen Fenster, UltimateBasic 1.6.8.</li></ul>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
-    eyebrow: "Nieuw in 2.8.6",
+    eyebrow: "Nieuw in 2.9.0",
     title: "Welkom bij Visual Assembler",
-    body: `<ul><li><strong>Gedetailleerde tabelstappen</strong>: in de SID-editor kan een stap van de golf- / arpeggiotabel een eigen lengte, pulsbreedte en filter hebben (de knop <strong>…</strong> van de stap), en een tabel kan 64 stappen hebben.</li><li><strong>Spraak in .sid-import</strong>: spraak en andere klanken die per frame veranderen (GoatTracker-tabellen) worden getrouw aan het origineel geïmporteerd.</li><li>Nieuw in 2.8.5: SID-emulatie gedeeld met VA SID Studio (<strong>va-sid</strong>).</li></ul>`,
+    body: `<ul><li><strong>Visual Assembler Studio</strong>: assembly (VMA, ACME, R65), blokken, UltimateBasic en C in één venster met één tabbalk; elk bestand opent in de editor van zijn eigen taal. Vanuit het <strong>startvenster</strong> zijn het laatste project, een nieuw project uit een sjabloon of een C-map één klik verwijderd.</li><li><strong>C met Oscar64</strong>: ingebouwde compiler, codeaanvulling, cyclustellingen, Disassembly- / Monitor-weergave, projecten uit buildscripts; een C-programma draait in elke uitvoermodus.</li><li><strong>Debuggen op bronniveau in C en UltimateBasic</strong>: breakpoints op bronregels, stappen per C-regel, panelen <strong>Variabelen</strong> en <strong>Aanroepstack</strong>.</li><li>Nieuwe menu's <strong>Nieuw</strong>, <strong>Hulpmiddelen</strong> en <strong>Git</strong>, de projectsessie in <code>.proj.user</code>, de geheugenkaart in een eigen venster, UltimateBasic 1.6.8.</li></ul>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
-    eyebrow: "Nowość w 2.8.6",
+    eyebrow: "Nowość w 2.9.0",
     title: "Witamy w Visual Assembler",
-    body: `<ul><li><strong>Szczegółowe kroki tabeli</strong>: w edytorze SID krok tabeli fal / arpeggio może mieć własną długość, szerokość impulsu i filtr (przycisk <strong>…</strong> kroku), a tabela może mieć 64 kroki.</li><li><strong>Mowa w imporcie .sid</strong>: mowa i inne dźwięki zmieniające się co ramkę (tabele GoatTrackera) są importowane wiernie wobec oryginału.</li><li>Nowość w 2.8.5: emulacja SID wspólna z VA SID Studio (<strong>va-sid</strong>).</li></ul>`,
+    body: `<ul><li><strong>Visual Assembler Studio</strong>: asembler (VMA, ACME, R65), bloki, UltimateBasic i C w jednym oknie ze wspólnym paskiem kart; każdy plik otwiera się w edytorze swojego języka. Z <strong>okna startowego</strong> ostatni projekt, nowy projekt z szablonu albo folder C są o jedno kliknięcie.</li><li><strong>C z Oscar64</strong>: wbudowany kompilator, uzupełnianie kodu, liczba cykli, widoki Disassembly / Monitor, projekty ze skryptów budowania; program C działa w każdym trybie uruchamiania.</li><li><strong>Debugowanie na poziomie źródła w C i UltimateBasic</strong>: punkty przerwania na liniach źródła, krokowanie po liniach C, panele <strong>Zmienne</strong> i <strong>Stos wywołań</strong>.</li><li>Nowe menu <strong>Nowy</strong>, <strong>Narzędzia</strong> i <strong>Git</strong>, sesja projektu w <code>.proj.user</code>, mapa pamięci we własnym oknie, UltimateBasic 1.6.8.</li></ul>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
-    eyebrow: "Novità nella 2.8.6",
+    eyebrow: "Novità nella 2.9.0",
     title: "Benvenuto in Visual Assembler",
-    body: `<ul><li><strong>Passi di tabella dettagliati</strong>: nell'editor SID un passo della tabella d'onda / arpeggio può avere durata, larghezza d'impulso e filtro propri (pulsante <strong>…</strong> del passo), e una tabella può avere 64 passi.</li><li><strong>Voce nell'importazione .sid</strong>: la voce e altri suoni che cambiano a ogni frame (tabelle GoatTracker) vengono importati fedeli all'originale.</li><li>Novità della 2.8.5: emulazione SID condivisa con VA SID Studio (<strong>va-sid</strong>).</li></ul>`,
+    body: `<ul><li><strong>Visual Assembler Studio</strong>: assembly (VMA, ACME, R65), blocchi, UltimateBasic e C in un'unica finestra con una barra delle schede comune; ogni file si apre nell'editor del suo linguaggio. Dalla <strong>finestra iniziale</strong> l'ultimo progetto, un nuovo progetto da un modello o una cartella C sono a un clic.</li><li><strong>C con Oscar64</strong>: compilatore integrato, completamento del codice, conteggio dei cicli, viste Disassembly / Monitor, progetti dagli script di build; un programma C funziona in ogni modalità di esecuzione.</li><li><strong>Debug a livello di sorgente in C e UltimateBasic</strong>: breakpoint sulle righe del sorgente, passo per riga di C, pannelli <strong>Variabili</strong> e <strong>Stack delle chiamate</strong>.</li><li>Nuovi menu <strong>Nuovo</strong>, <strong>Strumenti</strong> e <strong>Git</strong>, la sessione del progetto in <code>.proj.user</code>, la mappa di memoria in una finestra propria, UltimateBasic 1.6.8.</li></ul>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
@@ -3330,9 +3330,11 @@ function showCustomerMessageIfNeeded() {
   if (customerMessageCloseButton) customerMessageCloseButton.textContent = content.close;
   customerMessageDialog.showModal();
   if (title) {
-    title.textContent = content.title;
+    // the Studio mark of the splash and the About box after the name and the version
+    const studio = `<span class="va-studio customer-message-studio" aria-hidden="true">Studio</span>`;
+    title.innerHTML = `${_escHtml(content.title)} ${studio}`;
     getAppVersionText().then(version => {
-      title.textContent = `${content.title} ${version}`;
+      title.innerHTML = `${_escHtml(`${content.title} ${version}`)} ${studio}`;
     });
   }
   requestAnimationFrame(() => customerMessageCloseButton?.focus());
@@ -3940,6 +3942,14 @@ function applyTranslations() {
     setText("#ps-vma-consts-label", t("psVmaConsts"));
     setText("#ps-vma-consts-hint", t("psVmaConstsHint"));
     setText("#ps-files-label", t("psFiles"));
+    setText("#ps-section-c", t("psSectionC"));
+    setText("#ps-c-optimize-label", t("psCOptimize"));
+    setText("#ps-c-optimize-default", t("psCOptimizeDefault"));
+    setText("#ps-c-targets-label", t("psCTargetsLabel"));
+    setText("#ps-c-defines-label", t("psCDefines"));
+    setText("#ps-c-defines-hint", t("psCDefinesHint"));
+    setText("#ps-c-includes-label", t("psCIncludes"));
+    setText("#ps-c-includes-hint", t("psCIncludesHint"));
     setText("#ps-cancel", t("cancel"));
     setText("#ps-save", t("psSave"));
     document.getElementById("import-kick-project")?.setAttribute("aria-label", t("importKickProjectTip"));
@@ -8661,7 +8671,7 @@ const _UB_COMMAND_REFERENCE = [
   ["circle4", "circle4 x, y, radius", "Draws a circle in block-pixel mode."],
   ["paint", "paint x, y", "Flood-fills a connected hires bitmap area. Set the drawing color with COLOR PEN."],
   ["fill", "fill screen value\nfill color value\nfill address, length, value", "Fills screen RAM, color RAM, or an arbitrary memory range."],
-  ["sprite control", "sprite id, on|off|color value|multi on|off|expand x|y|priority front|back", "Controls hardware sprite attributes."],
+  ["sprite control", "sprite id, on|off|color value|multi on|off|multicolor on|off|expand x|y|priority front|back", "Controls hardware sprite attributes."],
   ["sprite_frame", "sprite_frame id, data_address [, frame]", "Selects a sprite animation frame. The optional frame indexes consecutive 64-byte images from data_address; without it, the command selects the base image."],
   ["sprite collision", "sprite_hit()               # short form: sprhit()\nsprite_bg_hit()            # short form: sprbghit()", "Reads sprite/sprite or sprite/background collision flags."],
   ["sprite position", "sprite_x(id)\nsprite_y(id)", "Reads a hardware sprite coordinate."],
@@ -17497,7 +17507,7 @@ async function _templateCreateProject() {
   if (!await _studioCloseAll()) return;
 
   if (tpl.kind === "c") {
-    const proj = JSON.stringify({ app: "oscar64", name: paths.name, startupFile: "main.c", optimize: "O2", defines: [], includeDirs: [] }, null, 2) + "\n";
+    const proj = JSON.stringify({ app: "oscar64", name: paths.name, startupFile: "main.c", defines: [], includeDirs: [] }, null, 2) + "\n";
     const cres = await api.createTemplateProject(paths.projPath, proj, paths.mainPath, tpl.body.replaceAll("{{PROJECT}}", paths.name));
     if (!cres?.ok) {
       _templateUpdateTarget(cres?.exists
@@ -30653,6 +30663,8 @@ function _projFlatFiles(nodes, out = []) {
 async function openProjectSettings() {
   const dlg = document.getElementById("project-settings-dialog");
   if (!dlg) return;
+  if (globalThis._oscActive?.()) { globalThis._oscOpenProjectSettings?.(); return; }
+  dlg.dataset.kind = "asm";
   if (!_expertProjectData) { _expertSetStatus(t("projNoProject"), "error"); return; }
   const data = _expertProjectData;
   const files = _projFlatFiles(data.files);
@@ -30698,6 +30710,11 @@ async function openProjectSettings() {
 // Kick options only for a Kick-compatible VMA project.
 // The Kick-compatible switch belongs to VMA only: ACME is not Kick, R65 is Kick already.
 function _projSettingsSync() {
+  const dlg = document.getElementById("project-settings-dialog");
+  const c = dlg?.dataset.kind === "c";
+  dlg?.querySelectorAll(".ps-c-only").forEach(el => { el.hidden = !c; });
+  dlg?.querySelectorAll(".ps-asm-only").forEach(el => { el.hidden = c; });
+  if (c) { dlg.querySelectorAll(".ps-kick-only, .ps-vma-only").forEach(el => { el.hidden = true; }); return; }
   const vma = _assemblerNormalize(document.getElementById("ps-assembler")?.value) === "kick";
   const kickBox = document.getElementById("ps-kick");
   if (kickBox) {
@@ -30714,6 +30731,7 @@ function _projSettingsSync() {
 async function _projSettingsSave() {
   const data = _expertProjectData;
   const dlg = document.getElementById("project-settings-dialog");
+  if (dlg?.dataset.kind === "c") { await globalThis._oscProjectSettingsSave?.(); return; }
   if (!data) { dlg?.close(); return; }
   const name = document.getElementById("ps-name")?.value.trim();
   if (name) data.name = name;
@@ -60487,10 +60505,35 @@ function _w64RenderRegisters() {
 }
 
 // The variables of the C / UltimateBasic program at the stop (the section only shows for those).
+// An array or a struct unfolds (its key in _w64VarOpen): its elements / members follow one level in.
+var _w64VarOpen = new Set();
 function _w64VarRows(session, pc, peek) {
-  if (session?.kind === "oscar") return globalThis._oscDebugVarRows?.(session.vars, pc, peek, _w64SourceAt(pc, session)?.line ?? null) || [];
-  if (session?.kind === "ub") return (session.ubVars || []).map(v => ({ name: v.name, address: v.address, scope: "", value: _ubFormatValue(v, peek) }));
+  if (session?.kind === "oscar") return globalThis._oscDebugVarRows?.(session.vars, pc, peek, _w64SourceAt(pc, session)?.line ?? null, _w64VarOpen) || [];
+  if (session?.kind === "ub") {
+    const rows = [];
+    for (const v of session.ubVars || []) {
+      const key = `/${v.name}`;
+      const isArray = v.type === "array" || /_array$/.test(v.type);
+      const open = isArray && (v.size || 0) > 0 && _w64VarOpen.has(key);
+      rows.push({ name: v.name, address: v.address, scope: "", key, depth: 0, expandable: isArray && (v.size || 0) > 0, open, value: _ubFormatValue(v, peek) });
+      // the map gives an array's size in bytes, not its element type: it unfolds byte by byte
+      if (open) for (let i = 0; i < Math.min(v.size, 256); i++) {
+        const a = (v.address + i) & 0xFFFF;
+        rows.push({ name: `[${i}]`, address: a, scope: "", key: `${key}[${i}]`, depth: 1, value: _ubFormatValue({ type: "int", address: a }, peek) });
+      }
+    }
+    return rows;
+  }
   return [];
+}
+// Unfolds / folds the variable of a clicked row; true if it was an array or a struct.
+function _w64VarToggle(btn) {
+  const key = btn?.dataset.key;
+  if (!key || btn.dataset.expandable !== "1") return false;
+  if (_w64VarOpen.has(key)) {
+    for (const k of [..._w64VarOpen]) if (k === key || k.startsWith(key + "[") || k.startsWith(key + ".")) _w64VarOpen.delete(k);
+  } else _w64VarOpen.add(key);
+  return true;
 }
 function _w64VarsHtml(rows) {
   if (!rows.length) return `<div class="w64-muted">${_vcEsc(t("w64VarsNone"))}</div>`;
@@ -60498,7 +60541,9 @@ function _w64VarsHtml(rows) {
   return rows.map(r => {
     const head = r.scope !== scope ? `<div class="w64-var-scope">${_vcEsc(r.scope ? `${r.scope}()` : t("w64VarsGlobal"))}</div>` : "";
     scope = r.scope;
-    return `${head}<button type="button" class="w64-var" data-addr="${r.address}" aria-label="${_w64Hex(r.address, 4)}"><span class="w64-var-name">${_vcEsc(r.name)}</span><span class="w64-var-val">${_vcEsc(r.value)}</span></button>`;
+    const tog = r.expandable ? `<span class="w64-var-tog" aria-hidden="true">${r.open ? "▾" : "▸"}</span>` : "";
+    const indent = r.depth ? ` style="padding-left: ${8 + r.depth * 12}px"` : "";
+    return `${head}<button type="button" class="w64-var${r.depth ? " w64-var--child" : ""}" data-addr="${r.address}" data-key="${_vcEsc(r.key || "")}" data-expandable="${r.expandable ? 1 : 0}"${r.expandable ? ` aria-expanded="${r.open}"` : ""}${indent} aria-label="${_w64Hex(r.address, 4)}: ${_vcEsc(r.value)}"><span class="w64-var-name">${tog}${_vcEsc(r.name)}</span><span class="w64-var-val">${_vcEsc(r.value)}</span></button>`;
   }).join("");
 }
 function _w64RenderVariables() {
@@ -60889,6 +60934,7 @@ function setupVice() {
     _w64S().memAddr = a;
     const input = document.getElementById("w64-mem-addr");
     if (input) input.value = _w64Hex(a, 4);
+    if (_w64VarToggle(btn)) _w64RenderVariables();
     _w64RenderMemory();
   });
   on("w64-mem-form", "submit", (e) => {
@@ -61245,6 +61291,7 @@ function setupUe2Debugger() {
   on("ud-vars", "click", async (e) => {
     const btn = e.target.closest(".w64-var");
     if (!btn) return;
+    _w64VarToggle(btn); // the refresh reads the unfolded parts too (_udVarRanges)
     _ud.memAddr = Number(btn.dataset.addr) & 0xFFFF;
     const input = document.getElementById("ud-mem-addr");
     if (input) input.value = _w64Hex(_ud.memAddr, 4);

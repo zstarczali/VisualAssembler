@@ -13321,19 +13321,10 @@ html[data-theme="retro8"] .eyebrow { color: #ffe066; text-transform: uppercase; 
 .expert-lint-ln { flex-shrink: 0; min-width: 32px; color: #d97706; font-family: 'JetBrains Mono', 'Consolas', monospace; text-align: right; }
 
 /* ── VICE Monitor (nem modális) ───────────────────────────────────── */
-.vm-dialog.ud-dialog { width: 760px; max-width: 96vw; }
-/* disassembly on the left, registers / memory / breakpoints on the right: half the height of one column */
-.ud-body { padding: 10px 12px; max-height: calc(92vh - 96px); overflow-y: auto; }
-.ud-body .w64-debug { flex: 1 1 auto; overflow: visible; display: grid; gap: 12px 16px; align-items: start;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  grid-template-areas: "disasm regs" "disasm mem" "disasm bps"; }
-.ud-body .w64-debug > .w64-sec:nth-child(1) { grid-area: regs; }
-.ud-body .w64-debug > .w64-sec:nth-child(2) { grid-area: disasm; }
-.ud-body .w64-debug > .w64-sec:nth-child(3) { grid-area: mem; }
-.ud-body .w64-debug > .w64-sec:nth-child(4) { grid-area: bps; }
-@media (max-width: 720px) {
-  .ud-body .w64-debug { grid-template-columns: minmax(0, 1fr); grid-template-areas: "regs" "disasm" "mem" "bps"; }
-}
+/* the VICE / UE2 debugger: the same single column as the built-in C64's debug panel */
+.vm-dialog.ud-dialog { width: 400px; max-width: 96vw; }
+.ud-body { padding: 10px 12px; max-height: calc(92vh - 120px); overflow-y: auto; }
+.ud-body .w64-debug { flex: none; overflow: visible; }
 .vm-dialog { max-width: 620px; z-index: 9400; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35); border-radius: 8px; }
 .vm-status { font-size: 0.72rem; color: var(--secondary); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .vm-status--ok { color: #22c55e; }
@@ -13658,14 +13649,16 @@ dialog.dlg-active[open]:not(:modal) > :first-child > :first-child,
 .w64-sec-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .w64-muted { color: var(--secondary); font-family: inherit; }
 .w64-regs { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; }
-.w64-vars { display: grid; max-height: 180px; overflow-y: auto; border: 1px solid var(--panel-border); border-radius: 3px; background: var(--panel-bg); padding: 2px 0; font-family: var(--mono-font, ui-monospace, monospace); font-size: .74rem; }
+.w64-vars { display: grid; grid-template-columns: minmax(0, 1fr); max-height: 180px; overflow-y: auto; overflow-x: hidden; border: 1px solid var(--panel-border); border-radius: 3px; background: var(--panel-bg); padding: 2px 0; font-family: var(--mono-font, ui-monospace, monospace); font-size: .74rem; }
 .w64-var-scope { padding: 3px 8px 1px; font-size: .68rem; font-weight: 700; color: var(--muted); }
-.w64-var { display: flex; gap: 10px; justify-content: space-between; min-height: 0; height: auto; margin: 0; padding: 1px 8px; border: none; border-radius: 0; background: transparent; color: var(--text); font: inherit; text-align: left; cursor: pointer; box-shadow: none; }
+.w64-var { display: flex; gap: 10px; justify-content: space-between; min-width: 0; min-height: 0; height: auto; margin: 0; padding: 1px 8px; border: none; border-radius: 0; background: transparent; color: var(--text); font: inherit; text-align: left; cursor: pointer; box-shadow: none; }
 .w64-var:hover, .w64-frame:hover { background: color-mix(in srgb, var(--primary) 14%, transparent); }
 .w64-frame { display: flex; gap: 10px; justify-content: space-between; min-height: 0; height: auto; margin: 0; padding: 1px 8px; border: none; border-radius: 0; background: transparent; color: var(--text); font: inherit; text-align: left; cursor: pointer; box-shadow: none; }
 .w64-frame--top { font-weight: 700; }
 .w64-var-name { flex: none; color: var(--secondary); }
-.w64-var-val { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.w64-var-tog { display: inline-block; width: 1em; margin-left: -2px; color: var(--muted); }
+.w64-var--child .w64-var-name { color: color-mix(in srgb, var(--secondary) 75%, var(--muted)); }
+.w64-var-val { min-width: 0; text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .w64-reg { display: inline-flex; align-items: center; gap: 4px; color: var(--secondary); }
 .w64-reg .w64-reg-in { width: 52px; height: 24px; text-align: right; font-family: inherit; }
 .w64-flags { display: flex; gap: 2px; }
@@ -13954,7 +13947,9 @@ body.oscar-mode.ub-mode .workspace { grid-template-columns: 1fr; gap: 14px; }
 .osc-line--warning { background: color-mix(in srgb, #e0a800 16%, transparent); }
 .osc-line--debug { background: color-mix(in srgb, var(--accent) 22%, transparent); box-shadow: inset 2px 0 var(--accent); }
 .osc-highlight .osc-line { display: inline-block; min-width: 100%; }
-.osc-panel .source-line-number { display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
+/* left-aligned: an overflow never pushes the cycle text under the breakpoint dot (left 2-11px) */
+.osc-panel .source-line-number { display: flex; align-items: center; justify-content: flex-start; gap: 6px; padding-left: 14px; }
+.osc-panel .source-line-number:not(:has(.osc-cyc)) { justify-content: flex-end; }
 .osc-cyc { flex: 0 0 var(--osc-cyc-width, 38px); white-space: nowrap; overflow: visible; margin-right: auto; color: color-mix(in srgb, var(--hl-number) 80%, transparent); font-size: .85em; text-align: left; cursor: pointer; }
 .osc-cyc--warn { color: var(--error, #f44); }
 .osc-tree { padding: 4px 0; overflow: auto; }
@@ -13987,7 +13982,8 @@ body.oscar-mode.ub-mode .workspace { grid-template-columns: 1fr; gap: 14px; }
 .osc-panel .ub-statusbar #osc-cursor-pos { margin-left: auto; }
 /* the grid row must not grow with the tree: the tree and the symbols scroll inside the panel */
 .osc-panel .ub-editor-layout { grid-template-rows: minmax(0, 1fr); }
-.osc-panel .ub-project-panel { min-height: 0; height: 100%; overflow: hidden; }
+/* visible: the project header tooltips reach past the panel (the tree and the symbols scroll themselves) */
+.osc-panel .ub-project-panel { min-height: 0; height: 100%; overflow: visible; }
 .osc-panel .osc-tree { flex: 1 1 auto; min-height: 48px; overflow-y: auto; }
 .osc-panel .osc-symbol { cursor: pointer; }
 @keyframes osc-tree-flash { 0%, 40% { background: color-mix(in srgb, var(--accent) 45%, transparent); } 100% { background: transparent; } }
@@ -14052,7 +14048,7 @@ html[data-theme="c64"] .va-studio { color: #ffffff; text-shadow: none; }
 :is(#new-panel, #git-panel) .new-item { justify-content: flex-start; }
 
 /* Studio start window (Visual Studio style): recent projects left, actions right */
-.start-card { width: min(860px, 94vw); }
+.start-dialog { width: min(860px, 94vw); }
 .start-body { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 24px; padding: 16px 18px; min-height: 340px; }
 .start-col-title { margin: 0 0 10px; font-size: .95rem; font-weight: 600; }
 .start-recent { display: grid; gap: 2px; align-content: start; max-height: 52vh; overflow: auto; }
@@ -14122,4 +14118,5 @@ body.block-project-on:not(.expert-mode):not(.ub-mode):not(.oscar-mode) .workspac
 .proj-width-grip:hover, .proj-width-grip.is-dragging { background: color-mix(in srgb, var(--primary) 45%, transparent); }
 body.proj-width-dragging { cursor: col-resize; user-select: none; }
 /* About: the same "Studio" mark after the title */
+#customer-message-title .customer-message-studio { display: inline-block; margin: 0 0 0 6px; font-size: 1.25em; font-weight: 400; vertical-align: -1px; }
 .about-title .about-studio { display: inline-block; margin: 0 0 0 4px; font-size: 1.35rem; font-weight: 400; vertical-align: 2px; }

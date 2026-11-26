@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.8.6**
+**Version 2.9.0**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -8,6 +8,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 
 ## Table of Contents
 
+- [Version 2.9.0 Highlights](#version-290-highlights)
 - [Version 2.8.6 Highlights](#version-286-highlights)
 - [Version 2.8.5 Highlights](#version-285-highlights)
 - [Version 2.8.4 Highlights](#version-284-highlights)
@@ -56,6 +57,9 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 - [Version 2.4.0 Highlights](#version-240-highlights)
 - [Version 2.3.9 Highlights](#version-239-highlights)
 - [1. Interface Overview](#1-interface-overview)
+  - [Studio: one window for every language](#studio-one-window-for-every-language)
+  - [Start window](#start-window)
+  - [New, Tools and Git menus](#new-tools-and-git-menus)
 - [2. Block Palette](#2-block-palette)
   - [Parameters in the operand field](#parameters-in-the-operand-field)
 - [3. Program Area](#3-program-area)
@@ -76,7 +80,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
   - [Free and open source](#free-and-open-source)
   - [Reporting a bug](#reporting-a-bug)
   - [Support](#support)
-  - [Workspaces](#workspaces)
+  - [Project session (.proj.user)](#project-session-projuser)
   - [Memory window and zero page usage](#memory-window-and-zero-page-usage)
   - [Project templates](#project-templates)
   - [Tutorials and the Lesson Editor](#tutorials-and-the-lesson-editor)
@@ -96,6 +100,11 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
   - [Running, D64, and Exomizer](#running-d64-and-exomizer)
   - [Debugger symbols and disassembly](#debugger-symbols-and-disassembly)
   - [Ultimate Basic manual and source](#ultimate-basic-manual-and-source)
+- [C Mode (Oscar64)](#c-mode-oscar64)
+  - [Opening and creating C files](#opening-and-creating-c-files)
+  - [C editor tools](#c-editor-tools)
+  - [C projects, build scripts and the startup file](#c-projects-build-scripts-and-the-startup-file)
+  - [Building, running and views](#building-running-and-views)
 - [6. Expert Mode](#6-expert-mode)
   - [Switching modes](#switching-modes)
   - [Editor layout](#editor-layout)
@@ -117,6 +126,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
   - [Debugger flags](#debugger-flags)
   - [VICE Monitor (hot reload, live watch, profiler)](#vice-monitor-hot-reload-live-watch-profiler)
   - [Built-in C64 and debugger](#built-in-c64-and-debugger)
+  - [Source-level debugging (C and UltimateBasic)](#source-level-debugging-c-and-ultimatebasic)
 - [9. Knowledge Base Links](#9-knowledge-base-links)
 - [10. D64 Export & Run](#10-d64-export--run)
   - [Split Run button](#split-run-button)
@@ -130,6 +140,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
   - [Compatibility](#compatibility)
 - [11. Settings](#11-settings)
   - [VMA compiler](#vma-compiler)
+  - [Compilers (ACME, Oscar64)](#compilers-acme-oscar64)
   - [VICE Emulator](#vice-emulator)
   - [Exomizer](#exomizer)
   - [Retro Debugger](#retro-debugger)
@@ -153,6 +164,17 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
   - [Curve Editor](#curve-editor)
   - [Table Generator](#table-generator)
   - [Number Converter](#number-converter)
+
+---
+
+## Version 2.9.0 Highlights
+
+- **Visual Assembler Studio** — assembly (VMA, ACME, R65), blocks, UltimateBasic and C in one window. Every open file is a tab of one tab bar with a language badge; an assembly tab switches between **Blocks** and **Source**, and every file opens in the editor of its own language. See [Studio: one window for every language](#studio-one-window-for-every-language).
+- **C with Oscar64** — a C editor with the Oscar64 compiler built in (ACME 0.97 is bundled too): highlighting, completion from the included headers, formatter, cycle counts, Disassembly / Monitor / Map views, project tree with a startup file, projects from build scripts. A C program runs in every Run mode. See [C Mode (Oscar64)](#c-mode-oscar64).
+- **Source-level debugging in C and UltimateBasic** — breakpoints on source lines, stepping one C line at a time, a **Variables** panel and a **Call stack**. See [Source-level debugging](#source-level-debugging-c-and-ultimatebasic).
+- **Start window, New / Tools / Git menus** — see [Start window](#start-window) and [New, Tools and Git menus](#new-tools-and-git-menus).
+- **Projects** — one language per project, all source files open as tabs, the session in `<name>.proj.user` (it replaces workspaces), unsaved means different from the saved file, resizable project panel. See [Project session (.proj.user)](#project-session-projuser).
+- **Memory map window** (Tools → Machine), new templates (Hello World for VMA and ACME, sprite multiplexers with 16 and 64 sprites in C, 64 sprites in UltimateBasic) and **UltimateBasic 1.6.8** (`sprite multicolor`, compile errors instead of a crash).
 
 ---
 
@@ -643,9 +665,39 @@ The app is split into three main panels:
 | **Center — Program** | Your program. Drag blocks here, reorder them, edit operands. |
 | **Right — Output** | Live ASM view and/or memory monitor output. |
 
-The mode badge at the far right of the header identifies the active **Block**, **Expert**, or **Ultimate Basic** editor. It updates immediately when the editing mode changes.
+The mode badge at the far right of the header identifies the active **Block**, **Expert**, **Ultimate Basic** or **C** editor. It updates immediately when the active tab or its view changes.
 
 In Block mode, a thin **vertical splitter** sits between the Program and Output panels. Drag it to give either panel more room (each keeps at least 260 px), use ← / → to nudge it in 16 px steps, or double-click it to reset the split to 50/50. The position is saved with the UI settings. The splitter is hidden in Expert and Ultimate Basic mode and when the window is narrow enough for the panels to stack.
+
+### Studio: one window for every language
+
+Assembly (VMA, ACME or R65), block programs, UltimateBasic and C (Oscar64) live in the same window:
+
+- **One tab bar.** Every open file is a tab, whatever its language. A small badge on the tab shows the language: **BLK** (block program), **ASM** (assembly source), **UB** (UltimateBasic) or **C**. Clicking a tab brings up the editor of its language.
+- **Blocks | Source.** For an assembly tab the switch in the top bar chooses the view: the block editor or the text editor (Expert mode). It is hidden on UltimateBasic and C tabs, and with ACME or R65 only **Source** is available.
+- **A file opens in its own editor.** A `.ub` file opens in the UltimateBasic editor, a `.c` / `.h` in the C editor, an `.asm` in the assembly editor, also when you open it from the project tree of another language.
+- **Projects have one language.** See [Project session (.proj.user)](#project-session-projuser).
+- **The project panel** has the same width in every view: drag the grip at its right edge (200–560 px, double-click resets it). The width is remembered.
+- **The hint bar** of Block mode shows once per launch at the bottom of the window and goes away after two minutes.
+
+### Start window
+
+At startup the **Start window** opens (also **Menu → Start window…**):
+
+- **Open recent** — the projects you opened lately, with their language. Click one to open it; the × removes it from the list.
+- **Create a new project** — the template dialog, see [Project templates](#project-templates).
+- **Open a project** — a `.proj` of any language: VMA, ACME, R65, UltimateBasic or Oscar64.
+- **Open a C folder** — an Oscar64 source folder, also one with a build script.
+- **Continue without a project** — closes the window.
+
+With **Show at startup** switched off the window does not open; the app reopens the project that was open when you closed it instead.
+
+### New, Tools and Git menus
+
+- **New** — **Assembly source**, **Block program**, **UltimateBasic program** or **C program (Oscar64)** opens a new tab in that language (with ACME or R65 an assembly source instead of a block program); **From template…** opens the template dialog.
+- **Tools** — the editors and helpers in four groups: **Graphics** (C64 Character ROM, Character Set Editor, Charset Canvas Editor, Map Editor, Level Editor, Hi-Res Graphics Editor, Sprite Editor), **Sound** (SID Editor, SID Player), **Data and disk** (Curve Editor, Table Generator, D64 Editor, Number converter) and **Machine** (C64 memory map, VICE Monitor). The **Built-in C64** keeps its own toolbar button.
+- **Git** — **Pull** and **Push** run at once; **Commit, changes, history…**, **New branch…**, **Merge…** and **Stash** open the Version control dialog in Git mode. See [Git](#git).
+- **About** has its own toolbar button after Help.
 
 ---
 
@@ -780,19 +832,17 @@ Above the bar the phases of the work are listed — *Prepare*, *Compile*, *Analy
 | **Language** | Switch the user interface between English, Hungarian, Spanish, German, Dutch (Nederlands), Polish and Italian (**Menu → Settings**) |
 | **Theme** | Light / Dark / OLED / Black / Commodore 77 / Commodore Starlight / Commodore Beige / Commodore 64 / Ruby / Amethyst / Phosphor / Retro 80s / Retro 8-bit — select from the theme picker in **Menu → View**. OLED uses a pure-black background for AMOLED displays. Commodore 77 is a neon-yellow-on-black theme; when it is the active theme the startup splash panel uses the theme's panel colour (matching the message card), shows a smaller dedicated Commodore 77 logo, and a yellow progress bar. Commodore Starlight is a light theme after the translucent C64 breadbin: frosted clear glass panels with the rainbow RGB glow shining through, a magenta accent, rainbow syntax colours and a smoky dark monitor view. Commodore Beige is the classic breadbin: a beige case, mustard function-key buttons, the rainbow badge stripes and a C64 blue screen for the monitor view. Ruby is a dark theme with a deep red accent, Amethyst a cool dark purple, and Phosphor a green phosphor monitor whose code views glow softly. Retro 80s is synthwave: a violet night, neon pink keys and cyan code, a sunset stripe on top and a neon grid rising from the bottom. Retro 8-bit is an 8-bit home computer on a CRT: blue-violet panels, yellow keys, one monospace font, square corners, hard pixel shadows, a rainbow stripe and scanlines. In December the picker also offers Christmas (night blue, pine green and white, every accent in an ornament's colour); after that the app goes back to the theme you had before. The chosen theme is applied before the first paint on the next launch. |
 | **CRT retro mode** | Toggles a full-screen CRT filter: scanlines, phosphor vignette, flicker, and barrel distortion. State is saved between sessions. |
-| **Show memory panel** | Global toggle (**Settings → General → ASM output**) that shows or hides the full C64 memory panel |
+| **C64 memory map** (**Tools → Machine**) | Opens the full C64 memory map in its own window — see [Memory window and zero page usage](#memory-window-and-zero-page-usage) |
 | **BASIC SYS stub** | (**Settings → General → Program**) Prepends a BASIC line that calls SYS to your program's origin (the first ORG). A segment placed lower than the first ORG stays at its own address. When the program loads below or across the BASIC line (`$0801`–`$080C`, for example an imported dump from `$071C`), Run and Build add a small start loader instead: `SYS 2061` copies a mover to the tape buffer (`$033C`), which puts the program in place and jumps to the first ORG. |
 | **Examples…** | Open the example browser and load a built-in example program — see [Example programs](#example-programs) |
 | **Zoom in / out** | Scale the block UI (affects all block elements) |
 | **Save program** (`Menu → File`) | Save the current tab: a block program as a `.json` file, a source file (`.asm`, `.s`, `.inc` …) as plain text (Ctrl+S does the same) |
 | **Save Program As** (`Menu → File`) | The same, with a new file dialog every time |
 | **Load program** (`Menu → File`) | Load a previously saved program |
-| **Save Workspace** | Save the exact set of currently open, file-backed tabs — including the active tab and each tab's editor mode (Block/Expert/Ultimate Basic) — to a `.vaws` workspace file |
-| **Save Workspace As** | Save the current workspace using a new file dialog every time |
-| **Open Workspace** | Close all open tabs and reopen the set of files stored in a `.vaws` workspace file |
+| **Start window…** (`Menu`) | Recent projects, new project, open a project or a C folder — see [Start window](#start-window) |
 | **Set working folder** | Choose the default folder used by file pickers and save dialogs. The path is stored in the app config, and menu previews keep the end of the path visible. |
-| **New project from template…** (`Menu → New project`, or the toolbar button next to **Menu**) | Create a new `.proj` project from a Visual Assembler, ACME or UltimateBasic template in its own folder — see [Project templates](#project-templates) |
-| **Open Project** (`Menu → File`) | Open a multi-file `.proj` project and open all source files as tabs |
+| **New project…** (`Menu → File`, **New → From template…** or the Start window) | Create a new `.proj` project from an UltimateBasic, C, Visual Assembler or ACME template in its own folder — see [Project templates](#project-templates) |
+| **Open Project** (`Menu → File`) | Open a `.proj` project of any language and open all its source files as tabs |
 | **Save Project** (`Menu → File`) | Save the current `.proj` project (project panel must be open) |
 | **Close Project** (`Menu → File`) | Close the currently open project and all its file tabs. Prompts to save unsaved changes. The project panel resets to its empty state. |
 | **Load .asm file** (Expert toolbar) | Opens a `.asm` file in Expert mode in a new tab |
@@ -800,11 +850,11 @@ Above the bar the phases of the work are listed — *Prepare*, *Compile*, *Analy
 | **Build D64** (`Menu → Build`) | Package the program and extra files into a `.d64` disk image — see [Export to D64 dialog](#export-to-d64-dialog) |
 | **Build CRT** | Export the program as a 64K Magic Desk (`.crt`, cartridge type 19) file. See [Section 10b](#10b-crt-export-magic-desk-64k-cartridge). |
 | **Build project** (`Menu → Build`) | Compile every buildable file of the project (or of the open tabs) to a `.prg` next to its source — see [Build project](#build-project) |
-| **Run (split button)** | The main **▶ Run** button runs the current mode; click the **▾** arrow to switch between: **Run as PRG** (compile and launch VICE directly), **Run via D64** (package into a .d64 disk image and launch VICE), **Run on hardware** (send PRG to a C64 Ultimate / 1541 Ultimate device), **D64 on hardware** (send a D64 to the same device), or **Kung Fu Flash 2** (upload the PRG over USB to a real C64/C128 with a Kung Fu Flash 2 cartridge). See [Section 10](#10-d64-export--run) and [Section 11](#11-settings). **Built-in C64** runs the program on the C64 inside the app, see [Built-in C64 and debugger](#built-in-c64-and-debugger). |
+| **Run (split button)** | The main **▶ Run** button runs the current mode; click the **▾** arrow to switch between: **Run as PRG (VICE)** (compile and launch VICE directly), **Run via D64 (VICE)** (package into a .d64 disk image and launch VICE), **Run on hardware** (send PRG to a C64 Ultimate / 1541 Ultimate device), **D64 on hardware** (send a D64 to the same device), or **Kung Fu Flash 2** (upload the PRG over USB to a real C64/C128 with a Kung Fu Flash 2 cartridge). See [Section 10](#10-d64-export--run) and [Section 11](#11-settings). **Built-in C64** runs the program on the C64 inside the app, see [Built-in C64 and debugger](#built-in-c64-and-debugger). |
 | **Debug (RetroDebugger)** | Compile and launch in RetroDebugger with breakpoints, symbols, and autostart flags (see [Section 8](#8-debugger-integration)) |
 | **Run with Exomizer** | Checkbox in **Settings → General → Program** — when enabled, all Run and Build operations crunch the PRG through `exomizer sfx` before launching or saving (`sfx basic` for a PRG that starts with a BASIC line, so RUN works again after the program returns; `sfx $<load address>` otherwise). Works with Run as PRG, Run via D64, Run on Hardware, Build PRG, and Build D64. Configure the Exomizer executable in **Settings → Files and paths** first. |
 | **Automatic autosave entries** | Checkbox in **Settings → General → Version control**. When enabled, the app adds an autosave entry to the version history about 2.5 seconds after you stop editing a tab (for a tab of a project also to the project history). Turn it off if you only want your own commits. See [Version control](#version-control). |
-| **Settings** (formerly Hardware Settings) | Open the settings dialog with three tabs: **General** (assembler mode, VMA compiler, BASIC SYS stub, Exomizer, ASM output, SID preview, debugger choice and parameters, version control), **Files and paths** (VICE, RetroDebugger, update server, ACME, Exomizer, git) and **Integrations** (C64 Ultimate, Ultimate emulator, Kung Fu Flash 2). See [Section 11](#11-settings). |
+| **Settings** (formerly Hardware Settings) | Open the settings dialog with four tabs: **General** (assembler mode, VMA compiler, BASIC SYS stub, Exomizer, ASM output, SID preview, debugger choice and parameters, version control), **Files and paths** (VICE, RetroDebugger, update server, Exomizer, git), **Compilers** (ACME, Oscar64, Oscar64 optimisation) and **Integrations** (C64 Ultimate, Ultimate emulator, Kung Fu Flash 2). See [Section 11](#11-settings). |
 | **New program…** (`Menu → Program`) | Opens a confirmation dialog, then clears all blocks from the program area |
 | **Export ASM** (`Menu → Program`) | Copies the generated assembly source |
 | **Collapse All** | Collapse all blocks |
@@ -815,7 +865,7 @@ Above the bar the phases of the work are listed — *Prepare*, *Compile*, *Analy
 
 ### Version control
 
-Every tab has its own version history, like a small git repository; a tab that belongs to an open `.proj` project can also be versioned as a whole project (see [Project mode](#project-mode)). **Menu → Versioning → Version control…** (or **Commit…**) opens the dialog; **Discard changes (back to HEAD)** restores the last commit after a confirmation (in Git mode the files on disk too).
+Every tab has its own version history, like a small git repository; a tab that belongs to an open `.proj` project can also be versioned as a whole project (see [Project mode](#project-mode)). **Git → Commit, changes, history…** in the toolbar opens the dialog (in Git mode; its **Built-in** switch shows the built-in history); **Discard changes (back to HEAD)** restores the last commit after a confirmation (in Git mode the files on disk too).
 
 The usual workflow: write a **commit message** and press **Commit** (or Ctrl+Enter) → keep editing → press **Diff** to see what changed → commit again.
 
@@ -897,20 +947,19 @@ If you like the program, you can support its development with a donation: **Menu
 
 **Menu → Support** opens a chat with the developer: write a question, an idea or a problem and press **Send** (or **Ctrl+Enter**). You can attach up to 3 files (4 MB in total): images, source files (`.asm`, `.ub`, `.txt` …), C64 files (`.prg`, `.d64`, `.sid`, `.crt` …) or a `.zip` — with **Attach file…**, by pasting (**Ctrl+V**) or by dragging them onto the window. The reply appears in the same window, also with files: images show as previews, a click saves a file. The window is not modal: drag it by its header, resize it from its lower right corner, and keep working while it is open. The app checks for replies at startup and every minute; a new reply plays a short beep (the speaker button in the window's header mutes it), flashes the taskbar icon when the app is in the background, shows a red dot on the **Menu** button and opens the window once. Once you have a conversation, an envelope icon next to the **Menu** button opens it; it turns red and blinks with the number of unread replies. The **×** next to a message deletes that message, the bin button in the window's header deletes the whole conversation with its attachments (also for the developer; both ask first). An email address is optional: if you give one, the reply also arrives by email. The conversation is tied to the app's random install ID, so there is no account and no password.
 
-### Workspaces
+### Project session (.proj.user)
 
-A **workspace** (`.vaws` file) remembers which real, on-disk files were open across every tab — including each tab's editor mode and which tab was active — so you can reopen that exact set later. It is separate from a `.proj` project: a workspace can span any mix of Block/Expert `.vas` (or older `.json`) project files, standalone `.asm` files, and Ultimate Basic `.ub`/`.proj` sources across multiple tabs.
+A project has **one language**: assembly (VMA, ACME or R65, with blocks), UltimateBasic or C (Oscar64). Its sources are the files of that language — `.asm .s .a65 .inc .vas` for assembly, `.ub` for UltimateBasic, `.c .h` and assembly for C; anything else can be added as an asset (`incbin` data, pictures …). A source of another language cannot be added, and opening the project opens all its sources as tabs with the startup file active. Only one project is open at a time: opening another closes the open one first.
 
-- Workspaces **auto-save** a few hundred milliseconds after you make a change once one has been saved or opened.
-- The app **auto-restores your last workspace** on launch, so your open tabs pick up where you left off.
-- Only tabs backed by a real file on disk are saved into the workspace; a tab holding an unsaved sample or an in-memory-only program has nothing to persist and is skipped (with a notice if none of the open tabs qualify).
-- Opening a workspace closes all currently open tabs first — you are asked to confirm before it proceeds.
-- If a workspace references a file that has since been moved or deleted, that entry is skipped and reported by name after loading.
-- The open Expert and Ultimate Basic **projects** are stored too: the project tree (including unsaved additions and removals), the startup file and the `.proj` save target come back with the workspace. Workspaces saved by older versions open without them.
+Next to `<name>.proj` the app keeps **`<name>.proj.user`**, the project's session: the open tabs (relative paths), the **Blocks / Source** view of each assembly tab, the breakpoints, the active tab and its cursor line. It holds no file contents — the tabs always read the files from disk. Opening the project restores this session; without the file every source opens as a tab. The file is written shortly after the tabs change and when the project closes; keep it out of version control (it is personal, like `.vs` or `.idea` folders).
+
+A tab counts as **unsaved** only when its text (for a block program, its source lines) differs from what was last saved: undoing a change or typing the same text back clears the dot, and closing or switching projects asks only about real changes.
+
+**Workspaces** (`.vaws`) are retired: their menu items are gone and the app no longer reopens the last workspace at startup. With the Start window switched off, the app reopens the project that was open when you closed it; **Close project** (`Menu → File`) closes the project of any language.
 
 ### Memory window and zero page usage
 
-The **Full C64 memory** panel can float: the **undock** button in its header moves it into a separate, non-modal window that you can drag and resize while you keep editing (the overlap badge goes with it). **Dock** (or × / Esc) puts it back. The window remembers whether it was detached and its size.
+**Tools → Machine → C64 memory map** opens the full C64 memory map in a separate, non-modal window that you can drag and resize while you keep editing (the overlap badge goes with it); × or Esc closes it. The window remembers whether it was open and its size. It follows the active tab: the block program, the assembly source, the UltimateBasic program or the C program (from the Oscar64 map).
 
 When the program touches the zero page, a **Zero page usage** section appears at the top of the memory map: a 16 × 16 grid of `$00–$FF`, coloured by area — CPU port (`$00–$01`), free (`$02`, `$FB–$FE`), BASIC (`$03–$8F`, `$FF`) and KERNAL (`$90–$FA`). Used cells are filled; a frame marks a **write**, a hatch a **pointer** (`(zp),Y` / `(zp,X)`). Click a used cell to see which lines access it (click a line to jump there) and a warning when you write into the BASIC or KERNAL area.
 
@@ -918,22 +967,23 @@ If the program contains the SID Editor's exported player (`sid_` labels), the pl
 
 ### Project templates
 
-**Menu → New project → New project from template…** — or the toolbar button between **Menu** and **Tutorials** — opens the template dialog:
+**New → From template…**, **Menu → File → New project…** or **Create a new project** in the Start window opens the template dialog:
 
-1. Pick a section at the top: **Visual Assembler**, **ACME** or **UltimateBasic** (the dialog opens on the section that matches the current editor mode). The **ACME** section appears only when a working ACME is set in **Settings → Files and paths → ACME**.
+1. Pick a section at the top: **UltimateBasic**, **C (Oscar64)**, **Visual Assembler** or **ACME**, from the easiest to the hardest; the line below them says what each language is good for (the dialog opens on the section that matches the current editor). ACME is built into the app, so the **ACME** section is always there.
 2. Choose a template from the list; the right side shows its description and a syntax-highlighted preview with your project name filled in.
 3. Enter the **project name** and the **location** (**Browse…**). The line below the form shows the exact `.proj` path that will be created.
 4. Click **Create project**.
 
 | Section | Built-in templates |
 |---|---|
-| **Visual Assembler** | Empty program, Empty game (title / play / game over states, joystick, player sprite), Hires bitmap, Multicolor bitmap, Sprite multiplexer (16 sprites sorted by Y every frame, shown by a raster IRQ chain) |
-| **ACME** | Empty ACME project, Raster IRQ, Sprite multiplexer (16 sprites) |
-| **UltimateBasic** | Empty program, Empty game (same state machine in UB), Hires bitmap (`line` / `rect` / `circle` with `color pen`), Raster IRQ (a `sub` called every frame from the raster interrupt) |
+| **UltimateBasic** | Empty program, Empty game (same state machine in UB), Hires bitmap (`line` / `rect` / `circle` with `color pen`), Raster IRQ (a `sub` called every frame from the raster interrupt), Sprite multiplexer (64 sprites: eight rows of eight multicolour balls on a turning cylinder, the raster interrupt is a UB `sub`) |
+| **C (Oscar64)** | Hello C64, Raster bars, Sprite and joystick, Text screen, Sprite multiplexer (16 virtual sprites with the Oscar64 `vspr_*` library), Sprite multiplexer (64 sprites, one raster interrupt per row) |
+| **Visual Assembler** | Empty program, Hello World (the `.print` macro and a CHROUT loop), Empty game (title / play / game over states, joystick, player sprite), Hires bitmap, Multicolor bitmap, Sprite multiplexer (16 sprites sorted by Y every frame, shown by a raster IRQ chain) |
+| **ACME** | Empty ACME project, Hello World, Raster IRQ, Sprite multiplexer (16 sprites) |
 
-The project is created in its own folder: `<location>/<name>/<name>.proj` plus `main.asm` (Visual Assembler or ACME) or `main.ub` (UltimateBasic, the `.proj` is marked as an Ultimate Basic project). An ACME project's `.proj` records the ACME assembler, and creating it switches **Settings → General → Assembler mode** to ACME mode (a Visual Assembler project switches it back to VMA mode). An existing project is never overwritten — the dialog reports it instead. Open tabs are closed first (you are asked about unsaved changes), then the new project opens in Expert mode or Ultimate Basic mode with the project panel visible and the main file set as the startup file.
+The project is created in its own folder: `<location>/<name>/<name>.proj` plus `main.asm` (Visual Assembler or ACME), `main.ub` (UltimateBasic, the `.proj` is marked as an Ultimate Basic project) or `main.c` (C, the `.proj` is marked as an Oscar64 project). An ACME project's `.proj` records the ACME assembler, and creating it switches **Settings → General → Assembler mode** to ACME mode (a Visual Assembler project switches it back to VMA mode). An existing project is never overwritten — the dialog reports it instead. Open tabs are closed first (you are asked about unsaved changes), then the new project opens in its editor (assembly source, Ultimate Basic or C) with the project panel visible and the main file set as the startup file.
 
-**Your own templates:** **My templates folder** (bottom left of the dialog) opens the user templates folder in the app config directory. Every `.asm` or `.ub` file dropped there appears in the matching section (an `.asm` with a `; @assembler acme` header line goes to **ACME**) (under *My templates* unless it names a category). A template is an ordinary source file with an optional header of comment lines at the top — `;` in assembler, `#` in Ultimate Basic:
+**Your own templates:** **My templates folder** (bottom left of the dialog) opens the user templates folder in the app config directory. Every `.asm`, `.ub` or `.c` file dropped there appears in the matching section (an `.asm` with a `; @assembler acme` header line goes to **ACME**) (under *My templates* unless it names a category). A template is an ordinary source file with an optional header of comment lines at the top — `;` in assembler, `#` in Ultimate Basic, `//` in C:
 
 ```asm
 ; @name Raster bars
@@ -1085,7 +1135,7 @@ Visual Assembler includes a complete **Ultimate Basic IDE**. Ultimate Basic is a
 
 ### Opening the UB editor
 
-Select the **UB** icon in the main toolbar to switch to Ultimate Basic mode. The selected editor mode is remembered across application restarts. A new source begins with:
+Open a `.ub` file or an UltimateBasic `.proj`, or choose **New → UltimateBasic program**: the tab opens in the Ultimate Basic editor. A new source begins with:
 
 ```basic
 color bg 0
@@ -1195,9 +1245,52 @@ Ultimate Basic is also available as a standalone open-source project:
 
 The compiler is bundled into Visual Assembler, so no separate `ub` executable is required at runtime.
 
+## C Mode (Oscar64)
+
+Visual Assembler writes C programs too, with [Oscar64](https://github.com/drmortalwombat/oscar64), an optimising C compiler for the 6502 by Martin Lemke. The compiler comes with the app (see [Compilers](#compilers-acme-oscar64)); C files are tabs of the same tab bar, with the **C** badge.
+
+### Opening and creating C files
+
+- **New → C program (Oscar64)** opens an empty C tab; **New → From template…** → **C (Oscar64)** creates a project (`main.c` + `<name>.proj`).
+- Opening a `.c` or `.h` file, an Oscar64 `.proj`, or a folder with **Open a C folder** (Start window) opens the C editor.
+- A C project opens all its `.c` / `.h` files as tabs, and an `.asm`, `.ub` file of the tree opens in its own editor.
+
+### C editor tools
+
+- **Highlighting** of C, the preprocessor and `__asm { }` blocks (their 6502 mnemonics too); line numbers, zoom (Ctrl + wheel), minimap.
+- **Completion** (Ctrl+Space, or switched on in the toolbar): keywords, types, and the functions (with their parameters), macros, types, enum constants and variables of the file and of the headers it includes, three levels deep — from the file's folder, the project's include folders and the Oscar64 `include` folder. Not inside comments and strings.
+- **Format C source** indents by brace depth (4 spaces), `case` / `default` one level out, the body of `if` / `for` / `while` / `else` without braces one level in; comments and `#` lines stay as they are.
+- **Cycle counts** next to every line that has code, from the debug information of the last build.
+- **Find** (Ctrl+F), **Go to line** (Ctrl+G), **bookmarks** (Ctrl+F2 sets, F2 / Shift+F2 jumps), **Build info** (address, size, symbols), **Save** (Ctrl+S) and **Save as**.
+- After you stop typing, the program is built quietly in the background, so errors, cycle counts and the views stay current.
+
+### C projects, build scripts and the startup file
+
+The project tree on the left shows the project folder. Its toolbar creates files and folders and opens a project folder; the right-click menu opens, renames and deletes, and **Set as startup file** marks the file (★) that **Build** and **Run** compile, whatever tab is active. A file outside the project builds itself. Below the tree a list shows the functions, types and macros of the open file; click one to jump to it.
+
+**Project settings** (the gear button of the tree, or **Menu → Project settings…** while a C file is active) edits the project's `.proj`:
+
+- **Name** and **Startup file** (any `.c` file of the project).
+- **Optimization** — O0, O1, O2, O3 or Os for this project; **As in Settings** uses the level of **Settings → Compilers**. A build script program's own `-O` switch still takes precedence.
+- **Defines (-d)** — one `NAME` or `NAME=value` per line, the same as `#define NAME value` at the top of every file.
+- **Include folders (-i)** — one folder per line, relative to the project folder; `#include` and code completion search them. The project folder itself is always searched.
+- **Build script** — how many programs came from the build script; their own switches come on top of these.
+
+A folder with a `build.sh`, `make.bat` or `makefile` but no Oscar64 `.proj` becomes a project from that script (also **Load project from build script** in the tree): every `oscar64` call of the script — through `cd`, sub-scripts and makefile rules — becomes a program of the project, marked ◆ in the tree. Double-click one to make it the startup file; its own switches (`-O…`, `-n`, `-d…`, `-i=…`) are used, output switches (`-tf=`, `-d64=`, `-o=` …) are skipped and reported.
+
+### Building, running and views
+
+**Build** (Ctrl+B) compiles the startup file (or the open file) with Oscar64; errors and warnings show in **Output** with their file and line — click one to jump there. **Output** also lists the compiler's steps (Oscar64 runs with `-v`): the files compiled and included, the passes and the files written. The other views below the editor:
+
+- **Disassembly** — the compiler's own listing, C lines with the 6502 code made of them.
+- **Monitor** — the memory of the program as a hex dump.
+- **Map** — the sections and symbols of the compiler's map file.
+
+A C program runs in every Run mode — VICE, D64, built-in C64, C64 Ultimate, Ultimate emulator, Kung Fu Flash 2 — and shows in the memory map. **Debug** starts the source-level debugger, see [Source-level debugging](#source-level-debugging-c-and-ultimatebasic).
+
 ## 6. Expert Mode
 
-Expert Mode is a full-featured direct-text 6502 assembly editor that lives alongside the block editor. Every tab can be in either Block mode or Expert mode — you switch between them freely at any time using the **Block / Expert** toggle in the top bar.
+Expert Mode is a full-featured direct-text 6502 assembly editor that lives alongside the block editor. Every assembly tab can be in either Block mode or Expert mode — you switch between them freely at any time using the **Blocks | Source** switch in the top bar.
 
 ### Switching modes
 
@@ -1329,7 +1422,8 @@ Expert mode supports a **project panel** (`#expert-project-panel`) for multi-fil
 
 - A `.proj` file is a JSON manifest that lists source files and their metadata.
 - Open a project with **Menu → File → Open project** or drag a `.proj` file onto the window.
-- Each file in the project opens as a separate **tab** in the tab bar at the top of the editor.
+- Each file in the project opens as a separate **tab** in the tab bar at the top of the editor; the open tabs, views, breakpoints and the cursor come back from `<name>.proj.user` (see [Project session (.proj.user)](#project-session-projuser)).
+- The project has one language: a `.ub` or `.c` file cannot be added, and one already in the folder opens in its own editor.
 - **Close Project** (`Menu → File → Close project` / `#menu-close-project`) closes the current project and all its file tabs at once. Prompts to save any unsaved changes before closing. The project panel resets to its empty state.
 - Each file can be marked as the **startup file** (★ star icon). When a startup file is set, the **Run** button (PRG, D64, Ultimate) always assembles and runs that file's code — regardless of which tab is currently active. This works in both block mode and Expert mode.
 - The toolbar's **Add** button picks one or more files at once (any type, not just `.json`/`.asm`) and references them in the project without opening them — use it for binary assets like `incbin` data. Its dialog defaults to the VA working folder. The adjacent **Add folder** button references a whole folder (e.g. an asset directory) the same way. Reference-only entries show a delete (✕) button but are not opened by clicking them.
@@ -1346,10 +1440,11 @@ The tab bar appears above the editor when there is more than one tab open.
 
 | Feature | Description |
 |---------|-------------|
-| **Dirty dot** | A small accent-coloured dot on the tab name indicates unsaved changes |
+| **Dirty dot** | A small accent-coloured dot on the tab name indicates unsaved changes: the text differs from the saved file |
 | **Scroll arrows** | Left/right scroll buttons appear when there are more tabs than fit the bar |
 | **Close (×)** | Closes the tab; prompts to save if the tab is dirty |
-| **File extension** | The full filename including extension (`.json`, `.asm`, `.ub` …) is shown |
+| **File extension** | The full filename including extension (`.vas`, `.asm`, `.ub`, `.c` …) is shown |
+| **Language badge** | **BLK**, **ASM**, **UB** or **C**: the editor the tab opens in |
 | **Ctrl+N** | Opens a new, empty tab (not while a modal dialog is open) |
 | **Right-click menu** | Right-click a tab (or empty tab-bar space) for: **New tab**, **Close tab**, **Close other tabs**, **Close tabs to the right**, **Close all tabs**. Batch-close operations prompt per dirty tab and stop if you cancel. **Close all** always keeps one empty tab. |
 
@@ -1360,10 +1455,10 @@ The tab bar appears above the editor when there is more than one tab open.
 **Settings → General → Assembler mode** selects the assembler of the Expert editor:
 
 - **VMA mode** (default) — the built-in Visual Assembler assembler with its blocks, macros and `.` directives.
-- **ACME mode** — the source is ACME 0.97 text and is built by the ACME executable set in **Settings → Files and paths → ACME** (**Choose ACME**). `ACME-0.97-reference.pdf` describes the language.
+- **ACME mode** — the source is ACME 0.97 text and is built by ACME: the one built into the app, or your own set in **Settings → Compilers** (**Choose ACME**). `ACME-0.97-reference.pdf` describes the language.
 - **R65 mode (KickAssembler)** — the source is KickAssembler text (script language, `#import`, `.pseudopc`, `BasicUpstart2` …) and is built by R65, the KickAssembler-compatible assembler built into the app; nothing needs to be installed. A project builds its startup file, and R65 reads the `#import` files itself. Everything below about ACME holds for R65 too, and R65 writes its own `.dbg` as well. About shows the R65 version.
 
-The mode is saved with a `.proj` project, so every project opens with its own assembler. ACME mode is text editing only: the Block / Expert switch is locked, and the **Tutorials** button is hidden (the lessons build VMA programs from blocks).
+The mode is saved with a `.proj` project, so every project opens with its own assembler. ACME mode is text editing only: the **Blocks** view is disabled, and the **Tutorials** button is hidden (the lessons build VMA programs from blocks).
 
 What follows the ACME build:
 
@@ -1516,7 +1611,7 @@ The status bar shows what is attached and the LED of drive 8 with the track of t
 
 The toolbar also has **Reset**, **Pause**, **Warp**, **Sound**, **CRT filter** and **Full screen**. The CRT filter uses the CRT emulation of VICE, smooth scaling and scanlines; the scanlines appear once a C64 line is at least 3 pixels high. Full screen also starts with a double click on the screen, and Esc or another double click leaves it. The window can be moved by its header and resized at its bottom right corner. Its place, size, open state and settings come back on the next start.
 
-**Debugging:** press **Debug** while the run mode is **Built-in C64**. The Debug button also uses this debugger in the real hardware modes when **Visual Assembler** is the chosen debugger. It works with VMA, Kick projects, ACME and Ultimate Basic alike. The program stops at the first breakpoint it reaches, or at its first instruction if there are no breakpoints. Closing the window or hiding the debugger panel ends the session: the breakpoints go, and a stopped program runs on (in a closed window once it is opened again). The Ultimate emulator and VICE debugger windows do the same when closed.
+**Debugging:** press **Debug** while the run mode is **Built-in C64**. The Debug button also uses this debugger in the real hardware modes when **Visual Assembler** is the chosen debugger. It works with VMA, Kick projects, ACME, Ultimate Basic and C (Oscar64) alike. The program stops at the first breakpoint it reaches, or at its first instruction if there are no breakpoints. Closing the window or hiding the debugger panel ends the session: the breakpoints go, and a stopped program runs on (in a closed window once it is opened again). The Ultimate emulator and VICE debugger windows do the same when closed.
 
 **Choosing the debugger:** **Settings → General → Debugger → Debug button** is **Visual Assembler** or **RetroDebugger**. **RetroDebugger** can only be selected once its path is set in **Settings → Files and paths**; never chosen, it is RetroDebugger when one is configured, else Visual Assembler. **Visual Assembler** debugs on the machine of the run mode: in your own VICE (*Run as PRG*, *Run via D64*), on the Ultimate emulator, or on the built-in C64 (also for the real hardware modes, C64 Ultimate and Kung Fu Flash 2). **RetroDebugger** opens the external program for the VICE and hardware modes. The *Built-in C64* and *Ultimate emulator* run modes always use their own debugger.
 
@@ -1540,10 +1635,22 @@ The **Debugger panel** shows:
 - **Disassembly** around PC, with the labels of your program. Click the dot at the start of a line to set or remove a breakpoint.
 - **Memory:** type an address as `$hex`, a decimal number or a label. Reading has no side effects, so looking at `$DC0D` does not acknowledge an interrupt.
 - **Breakpoints:** the address and the `file:line` of each one.
+- **Call stack** and **Variables** — see [Source-level debugging](#source-level-debugging-c-and-ultimatebasic).
 
 Breakpoints come from the line gutter of the editor (every open tab of the build), from Block-mode breakpoints and from the disassembly. A change in the editor counts at the next Continue or step. When the CPU stops, the editor opens the file and marks the line; in Block mode the block is selected.
 
 The **VICE Monitor** window keeps working with an external VICE only; it does not connect to this machine.
+
+### Source-level debugging (C and UltimateBasic)
+
+The debugger of the built-in C64 and the VICE / Ultimate emulator debugger window follow the source of a C or UltimateBasic program, not only its 6502 code:
+
+- **Breakpoints** are set in the line gutter of the C or UB editor; when the CPU stops, the editor opens the file and marks the line.
+- **Stepping in C:** **Step into** and **Step over** run one whole C line (as many 6502 instructions as it takes); in library code without source they step out of it. A breakpoint stops the step. In UltimateBasic a step is still one 6502 instruction.
+- **Variables:** in C the program's own globals and, inside a function, its parameters and locals (only within the lines where they live), shown by their type: int, unsigned, float, pointer, array (a `char` array as text), struct. For this the **Debug** build is compiled without optimisation (`-O0`); a program that does not fit that way is debugged with the optimised build, and its locals are not shown. In UltimateBasic: bytes, words, signed integers, 5-byte floats and arrays. An array or a struct opens with a click (▸ / ▾): its elements or members follow one level in, each with its own value (an UltimateBasic array byte by byte). Click a variable to show its bytes in the memory view.
+- **Call stack:** the stop, then every return address on the 6502 stack that follows a `JSR` of the program — named by C function, UltimateBasic `sub` or label, or assembly label. Click a line to open its source line. It works in assembly programs too.
+
+The VICE / Ultimate emulator debugger window has the same panels in the same single column as the built-in C64's debugger, with the status of the session at the bottom.
 
 ## 10. D64 Export & Run
 
@@ -1687,13 +1794,17 @@ Because the payload is stored linearly — one flat image from the lowest to the
 
 ## 11. Settings
 
-Open via **Menu → Settings…** (formerly *Hardware Settings*). The dialog has three tabs: **General** (assembler mode, VMA compiler, BASIC SYS stub, Run with Exomizer, ASM output, SID preview, debugger choice and C64 Debugger parameters, snapshots / version control), **Files and paths** (VICE, RetroDebugger, update server, ACME, Exomizer, git) and **Integrations** (C64 Ultimate, Ultimate emulator, Kung Fu Flash 2). The sections below describe the external tools and devices.
+Open via **Menu → Settings…** (formerly *Hardware Settings*). The dialog has four tabs: **General** (assembler mode, VMA compiler, BASIC SYS stub, Run with Exomizer, ASM output, SID preview, debugger choice and C64 Debugger parameters, snapshots / version control), **Files and paths** (VICE, RetroDebugger, update server, Exomizer, git), **Compilers** (ACME, Oscar64) and **Integrations** (C64 Ultimate, Ultimate emulator, Kung Fu Flash 2). The sections below describe the external tools and devices.
 
 ### VMA compiler
 
 Every VMA (and Kick project) source is built by the open-source [VMA compiler](https://github.com/zstarczali/VMA), written in Rust and built into the app: Run, Build, D64, CRT, the debugger and every live view (disassembly, monitor, memory map, cycle gutter, hints, ASM view) use the same build. There is no compiler setting any more (until 2.7.7 the app also had a JavaScript compiler). Building needs the desktop app. The VMA version is shown in the About box.
 
 The same compiler runs on the command line (VMA 2.1.0 and later): `vma build game.asm` writes `game.prg`, `--crt game.crt` a Magic Desk cartridge (the same bytes as **Build CRT**), and `--d64` a 1541 disk image with the program (`--add` puts further files on it) — no c1541 needed. See the manual in the [VMA repository](https://github.com/zstarczali/VMA).
+
+### Compilers (ACME, Oscar64)
+
+ACME 0.97 and Oscar64 (v1.32.273) come with the app, so ACME mode and C programs need no installation. On the **Compilers** tab **Choose ACME** / **Choose Oscar64** sets your own executable instead, and **Use bundled** switches back (a path that no longer exists falls back to the bundled one). **Optimization** (O0, O1, O2, O3, Os; O2 by default) is the level of every Oscar64 build; a build script's own `-O` switch takes precedence. The About box shows both versions; the licences are in `THIRD_PARTY_NOTICES.md`.
 
 ### VICE Emulator
 

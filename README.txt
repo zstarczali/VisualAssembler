@@ -1,5 +1,7 @@
 C64 Visual Assembler - Installation Guide
-Version 2.8.6
+Version 2.9.0
+
+2.9.0: Visual Assembler Studio - assembly (VMA, ACME, R65), blocks, UltimateBasic and C (Oscar64, compiler built in) in one window with one tab bar; source-level debugging in C and UltimateBasic (variables, call stack, C line stepping); Start window, New / Tools / Git menus; projects keep their session in <name>.proj.user (workspaces retired); memory map in its own window; UltimateBasic 1.6.8
 
 2.8.6: wave / arpeggio table steps in the SID Editor can have their own length, pulse width and filter (up to 64 steps per table), and .sid import turns speech and other GoatTracker table sounds into such steps; GoatTracker's hard restart is recognized. .bin files with the new steps need 2.8.6 or later
 

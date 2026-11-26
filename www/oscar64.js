@@ -8,7 +8,9 @@
 const _OSC_STORE = "c64va-oscar64";
 const _OSC_SOURCE_EXT = /\.(c|h|cpp|hpp|cc|s|asm|inc)$/i;
 // Text the editor opens; anything else (png, prg, sid, d64, bin …) goes to the system's program.
-const _OSC_TEXT_FILE = /\.(c|h|cpp|hpp|cc|hh|s|asm|a65|inc|ub|txt|md|sh|bat|cmd|mk|proj|json|cfg|ini|py|js|lua|csv|xml|html?)$|^(makefile|gnumakefile|readme|license|copying)$/i;
+// the project file and its session (.proj / .proj.user) are only selected, never opened
+const _OSC_PROJ_FILE = /\.proj(\.user)?$/i;
+const _OSC_TEXT_FILE = /\.(c|h|cpp|hpp|cc|hh|s|asm|a65|inc|ub|txt|md|sh|bat|cmd|mk|json|cfg|ini|py|js|lua|csv|xml|html?)$|^(makefile|gnumakefile|readme|license|copying)$/i;
 
 const _OSC_KEYWORDS = new Set(("auto break case const continue default do else enum extern for goto if inline "
   + "register restrict return sizeof static struct switch typedef union volatile while "
@@ -25,7 +27,7 @@ const _osc = {
   active: false,
   root: "",
   projPath: "",
-  proj: { startupFile: "", optimize: "O2", defines: [], includeDirs: [] },
+  proj: { startupFile: "", defines: [], includeDirs: [] },
   tree: [],
   expanded: new Set(),
   selected: "",
@@ -243,14 +245,38 @@ function _oscFormatValue(info, typeid, address, peek, depth = 0) {
   return Array.from(bytes.slice(0, Math.min(size || 1, 8))).map((b) => b.toString(16).toUpperCase().padStart(2, "0")).join(" ");
 }
 
+// The parts a C value unfolds into in the debugger: the elements of an array (at most 256), the members
+// of a struct / union; [] for anything else.
+function _oscVarChildren(info, typeid, address) {
+  const ty = info?.types?.[typeid];
+  if (ty?.type === "array") {
+    const elSize = info.types[ty.eid]?.size || 1;
+    const count = Math.min(Math.floor((ty.size || 0) / elSize), 256);
+    return Array.from({ length: count }, (_, i) => ({ name: `[${i}]`, suffix: `[${i}]`, typeid: ty.eid, address: (address + i * elSize) & 0xFFFF }));
+  }
+  if (ty?.type === "struct" || ty?.type === "union") {
+    return (ty.members || []).map((m) => ({ name: m.name, suffix: `.${m.name}`, typeid: m.typeid, address: (address + m.offset) & 0xFFFF }));
+  }
+  return [];
+}
+
 // The debugger's variable rows at a stop: the locals of the function at PC (innermost), then the globals.
 // line: the C line of the stop; a local whose .dbj line range (enter..leave) does not hold it is out of scope.
-function _oscDebugVarRows(info, pc, peek, line = null) {
+// open: the keys ("scope/name[3].x") of the arrays / structs unfolded, their parts follow them one level in.
+function _oscDebugVarRows(info, pc, peek, line = null, open = null) {
   if (!info) return [];
   const fn = (info.funcs || []).filter((f) => pc >= f.start && pc < f.end).sort((a, b) => (a.end - a.start) - (b.end - b.start))[0];
-  const row = (v, scope) => ({ name: v.name, address: v.address, scope, value: _oscFormatValue(info, v.typeid, v.address, peek) });
+  const rows = [];
+  const add = (name, typeid, address, scope, key, depth) => {
+    const kids = _oscVarChildren(info, typeid, address);
+    const isOpen = kids.length > 0 && !!open?.has(key);
+    rows.push({ name, address, scope, key, depth, expandable: kids.length > 0, open: isOpen, value: _oscFormatValue(info, typeid, address, peek) });
+    if (isOpen && depth < 8) for (const k of kids) add(k.name, k.typeid, k.address, scope, key + k.suffix, depth + 1);
+  };
   const inScope = (v) => line == null || v.enter == null || v.leave == null || (line >= v.enter && line <= v.leave);
-  return [...(fn ? fn.vars.filter(inScope).map((v) => row(v, fn.name)) : []), ...(info.globals || []).map((v) => row(v, ""))];
+  if (fn) for (const v of fn.vars.filter(inScope)) add(v.name, v.typeid, v.address, fn.name, `${fn.name}/${v.name}`, 0);
+  for (const v of info.globals || []) add(v.name, v.typeid, v.address, "", `/${v.name}`, 0);
+  return rows;
 }
 
 // Static cycles of the C lines of one file: the instructions in the line's address ranges.
@@ -454,7 +480,7 @@ async function _oscCloseAll() {
   _osc.projects.clear();
   _osc.root = "";
   _osc.projPath = "";
-  _osc.proj = { startupFile: "", optimize: "O2", defines: [], includeDirs: [] };
+  _osc.proj = { startupFile: "", defines: [], includeDirs: [] };
   _osc.tree = [];
   if (_osc.active) _oscSetMode(false);
   _oscRenderTree();
@@ -639,7 +665,8 @@ function _oscRefreshEditor() {
   const charW = c2d.measureText("0000000000").width / 10 || 8;
   const cycW = cyc ? Math.ceil(Math.max(3, cycChars) * charW * 0.85 + charW) : 0;
   panel?.style.setProperty("--osc-cyc-width", `${cycW}px`);
-  const width = (cycW ? cycW + 8 : 0) + Math.max(48, Math.ceil(22 + digits * charW));
+  // 14px left padding (the breakpoint dot), the gap, the number in bold (about 10% wider), 8px to the right
+  const width = (cycW ? cycW + 6 : 0) + Math.max(48, Math.ceil(14 + digits * charW * 1.1 + 8));
   panel?.style.setProperty("--ub-line-number-width", `${width}px`);
   panel?.classList.toggle("ub-show-lines", _osc.lines);
   _oscRenderSymbols();
@@ -1039,6 +1066,79 @@ function _oscProjRel(abs) {
   return n.startsWith(root) ? String(abs).replace(/\\/g, "/").slice(root.length) : abs;
 }
 
+// ── Project settings (the shared #project-settings-dialog, C branch) ─────────────────
+
+// The files of the project tree, relative to the project folder.
+function _oscTreeFiles(nodes = _osc.tree, out = []) {
+  for (const n of nodes || []) {
+    if (n.dir) _oscTreeFiles(n.children, out);
+    else out.push(_oscProjRel(n.path));
+  }
+  return out;
+}
+
+function _oscOpenProjectSettings() {
+  const dlg = document.getElementById("project-settings-dialog");
+  if (!dlg) return;
+  if (!_osc.root) { _oscStatus(t("projNoProject"), true); return; }
+  dlg.dataset.kind = "c";
+  const p = _osc.proj;
+  const set = (id, prop, value) => { const el = document.getElementById(id); if (el) el[prop] = value; };
+  const name = p.name || _oscBase(_osc.root);
+  set("ps-name", "value", name);
+  set("ps-meta", "textContent", name);
+  set("ps-path", "textContent", _osc.projPath || _oscJoin(_osc.root, `${_oscBase(_osc.root)}.proj`));
+  const files = _oscTreeFiles().filter((f) => !/\.proj(\.user)?$/i.test(f));
+  const sources = files.filter((f) => /\.(c|h|asm|s|a65|inc)$/i.test(f));
+  const startup = document.getElementById("ps-startup");
+  if (startup) {
+    startup.innerHTML = "";
+    const add = (value, text) => { const o = document.createElement("option"); o.value = value; o.textContent = text; startup.appendChild(o); };
+    add("", t("psNone"));
+    const mains = files.filter((f) => /\.c$/i.test(f));
+    if (p.startupFile && !mains.includes(p.startupFile)) mains.unshift(p.startupFile);
+    for (const f of mains) add(f, f);
+    startup.value = p.startupFile || "";
+  }
+  set("ps-c-optimize", "value", p.optLevel || "");
+  set("ps-c-optimize-default", "textContent", tf("psCOptimizeDefault", { level: _osc.optimize || "O2" }));
+  set("ps-c-defines", "value", (p.defines || []).join("\n"));
+  set("ps-c-includes", "value", (p.includeDirs || []).join("\n"));
+  const targets = (p.targets || []).length;
+  set("ps-c-targets", "textContent", targets ? tf("psCTargets", { count: targets }) : t("psCNoTargets"));
+  set("ps-files", "textContent", tf("psFileCount", { count: files.length, sources: sources.length, assets: files.length - sources.length }));
+  _projSettingsSync();
+  dlg._applyPosition?.();
+  dlg.showModal();
+}
+
+async function _oscProjectSettingsSave() {
+  const dlg = document.getElementById("project-settings-dialog");
+  dlg?.close();
+  if (!_osc.root) return;
+  const p = _osc.proj;
+  const val = (id) => String(document.getElementById(id)?.value || "");
+  const lines = (id) => val(id).split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  const name = val("ps-name").trim();
+  if (name && name !== _oscBase(_osc.root)) p.name = name; else delete p.name;
+  const startup = val("ps-startup");
+  if (startup) p.startupFile = startup; else delete p.startupFile;
+  const opt = val("ps-c-optimize");
+  if (opt) p.optLevel = opt; else delete p.optLevel;
+  delete p.optimize; // the old, never used default ("O2")
+  const defines = lines("ps-c-defines").filter((d) => /^[A-Za-z_]\w*(=.*)?$/.test(d));
+  if (defines.length) p.defines = defines; else delete p.defines;
+  const dirs = lines("ps-c-includes");
+  if (dirs.length) p.includeDirs = dirs; else delete p.includeDirs;
+  await _oscWriteProj();
+  _oscRegisterProject();
+  _oscAc.headers.clear();
+  _oscRenderTree();
+  _oscRenderTabs();
+  _oscStatus(t("psSaved"));
+  _oscScheduleAuto(0);
+}
+
 async function _oscWriteProj() {
   if (!_osc.root) return;
   if (!_osc.projPath) _osc.projPath = _oscJoin(_osc.root, `${_oscBase(_osc.root)}.proj`);
@@ -1080,7 +1180,7 @@ async function _oscLoadProjectMeta(root, projPath) {
   try {
     const data = JSON.parse(res?.content || "");
     if (data?.app !== "oscar64") return;
-    _osc.projects.set(_oscNorm(root).replace(/\/+$/, ""), { root, projPath, proj: { startupFile: "", optimize: "O2", defines: [], includeDirs: [], ...data }, tree: null });
+    _osc.projects.set(_oscNorm(root).replace(/\/+$/, ""), { root, projPath, proj: { startupFile: "", defines: [], includeDirs: [], ...data }, tree: null });
   } catch (_) {}
 }
 
@@ -1092,7 +1192,7 @@ async function _oscOpenProject(root) {
   }
   _osc.root = root;
   _osc.projPath = "";
-  _osc.proj = { startupFile: "", optimize: "O2", defines: [], includeDirs: [] };
+  _osc.proj = { startupFile: "", defines: [], includeDirs: [] };
   await _oscRefreshTree();
   for (const e of _osc.tree.filter((x) => !x.dir && /\.proj$/i.test(x.name))) {
     const res = await window.electronAPI?.readTextFile?.(e.path);
@@ -1153,7 +1253,7 @@ async function _oscNewProject() {
   const res = await window.electronAPI?.saveTextFile?.(main, source);
   if (!res?.ok) { _oscStatus(res?.error || t("oscSaveFailed"), true); return; }
   _osc.root = root;
-  _osc.proj = { startupFile: "main.c", optimize: "O2", defines: [], includeDirs: [] };
+  _osc.proj = { startupFile: "main.c", defines: [], includeDirs: [] };
   _osc.projPath = "";
   await _oscWriteProj();
   await _oscOpenProject(root);
@@ -1549,7 +1649,7 @@ async function _oscImportBuildScript(scriptPath) {
   }
   _osc.root = root;
   _osc.projPath = _oscJoin(root, `${_oscBase(root)}.proj`);
-  _osc.proj = { startupFile: targets[0].source, optimize: "O2", defines: [], includeDirs: [], targets, target: 0, buildScript: _oscBase(scriptPath) };
+  _osc.proj = { startupFile: targets[0].source, defines: [], includeDirs: [], targets, target: 0, buildScript: _oscBase(scriptPath) };
   await _oscWriteProj();
   await _oscOpenProject(root);
   _oscStatus(tf("oscScriptImported", { count: targets.length, script: _oscBase(scriptPath) }));
@@ -1620,11 +1720,13 @@ async function _oscBuild({ quiet = false, debug = false } = {}) {
       source: target.source ?? null,
       includeDirs,
       defines: [...(_osc.proj.defines || []), ...(topt?.defines || [])],
-      // a build script's own -O wins; otherwise Settings → Compilers
-      optimize: (_osc.lastOptimize = debug ? "O0" : topt?.optimize || _osc.optimize || "O2"),
+      // a build script's own -O wins, then the project's (Project settings), then Settings → Compilers
+      optimize: (_osc.lastOptimize = debug ? "O0" : topt?.optimize || _osc.proj.optLevel || _osc.optimize || "O2"),
       debug: true,
       native: topt ? topt.native : true,
-      extraArgs: topt?.extra || [],
+      // -v: the compiler's steps (files compiled / included, passes, files written) for the Output view
+      verbose: true,
+      extraArgs: (topt?.extra || []).filter((a) => !/^-v\d?$/.test(a)),
     });
   } catch (error) {
     res = { ok: false, error: error?.message || String(error) };
@@ -1876,6 +1978,7 @@ function _oscApplyTranslations() {
   set("osc-project-add-folder-btn", "oscNewFolder");
   set("osc-project-refresh-btn", "oscRefresh");
   set("osc-project-reveal-btn", "oscRevealCurrent");
+  set("osc-project-settings-btn", "projectSettings");
   set("osc-project-import-btn", "oscImportScript");
   const text = (id, key) => { const el = _oscEl(id); if (el) el.textContent = t(key); };
   text("osc-out-tab-log", "oscViewOutput");
@@ -2299,6 +2402,7 @@ function setupOscar64() {
   _oscEl("osc-project-add-folder-btn")?.addEventListener("click", () => _oscCreateFolder());
   _oscEl("osc-project-refresh-btn")?.addEventListener("click", () => _oscRefreshTree());
   _oscEl("osc-project-reveal-btn")?.addEventListener("click", () => _oscRevealCurrent());
+  _oscEl("osc-project-settings-btn")?.addEventListener("click", _oscOpenProjectSettings);
 
   _oscEl("osc-ask")?.addEventListener("submit", (e) => { e.preventDefault(); _oscAskClose(true); });
   _oscEl("osc-ask-input")?.addEventListener("keydown", (e) => { if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); _oscAskClose(false); } });
@@ -2315,6 +2419,8 @@ function setupOscar64() {
       if (_osc.expanded.has(n)) _osc.expanded.delete(n); else _osc.expanded.add(n);
       _oscRenderTree();
       _oscSave();
+    } else if (_OSC_PROJ_FILE.test(path)) {
+      _oscRenderTree();
     } else if (_OSC_TEXT_FILE.test(_oscBase(path)) || _osc.files.some((f) => _oscNorm(f.path) === _oscNorm(path))) {
       _oscOpenPath(path);
     } else {
@@ -2326,6 +2432,7 @@ function setupOscar64() {
     const row = e.target.closest(".osc-tree-item");
     if (!row || row.dataset.dir === "1") return;
     const path = row.dataset.path;
+    if (_OSC_PROJ_FILE.test(path)) return;
     if (!_OSC_TEXT_FILE.test(_oscBase(path))) { _projOpenInSystem(path); return; }
     if (_oscTargetIndex(path) >= 0) _oscSelectTarget(_oscTargetIndex(path));
   });

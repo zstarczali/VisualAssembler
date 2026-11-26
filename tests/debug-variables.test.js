@@ -8,7 +8,7 @@ const loadApp = require("./helpers/load-app");
 
 const app = loadApp();
 const oscar = fs.readFileSync(path.join(__dirname, "..", "www", "oscar64.js"), "utf8");
-for (const name of ["_oscParseDbjVars", "_oscFormatValue", "_oscDebugVarRows"]) {
+for (const name of ["_oscParseDbjVars", "_oscFormatValue", "_oscVarChildren", "_oscDebugVarRows"]) {
   const start = oscar.indexOf(`function ${name}(`);
   let depth = 0, i = oscar.indexOf("{", start);
   for (; i < oscar.length; i++) { if (oscar[i] === "{") depth++; else if (oscar[i] === "}" && --depth === 0) break; }
@@ -107,4 +107,23 @@ test("call stack: the stop, then the JSR sites found on the 6502 stack, named by
       .map(f => \`\${f.name}@\${f.addr.toString(16)}:\${f.src ? f.src.line : "-"}\`);
   })()`);
   assert.equal(JSON.stringify(frames), JSON.stringify(["mul()@a05:-", "add()@904:12", "main()@885:5"]));
+});
+
+test("C: an unfolded array lists its elements, an unfolded struct its members, one level in", () => {
+  const open = (keys) => app.run(`_oscDebugVarRows(_oscParseDbjVars(${JSON.stringify(dbj)}), 0x0890, __peek, null, new Set(${JSON.stringify(keys)}))`
+    + `.map(r => \`\${r.depth}|\${r.name}|\${r.address}|\${r.expandable ? (r.open ? "-" : "+") : ""}|\${r.value}\`)`);
+  const r = [...open(["/name", "/pos"])];
+  assert.equal(r[1], '0|name|4098|-|"abc"');
+  assert.deepEqual(r.slice(2, 4), ["1|[0]|4098||97 ($61 'a')", "1|[1]|4099||98 ($62 'b')"]);
+  assert.equal(r.filter(x => x.startsWith("1|[")).length, 8);
+  const pos = r.indexOf("0|pos|4106|-|{ x: 7, y: 4660 }");
+  assert.deepEqual(r.slice(pos + 1, pos + 3), ["1|x|4106||7 ($07)", "1|y|4107||4660 ($1234)"]);
+  assert.equal([...open([])].length, 4);
+});
+
+test("UltimateBasic: an unfolded array lists its bytes", () => {
+  const ub = (open) => app.run(`(() => { _w64VarOpen.clear(); ${open ? '_w64VarOpen.add("/b()");' : ""}`
+    + ` return _w64VarRows({ kind: "ub", ubVars: [{ name: "b()", address: 0xC100, type: "array", size: 3 }] }, 0, __peek).map(r => r.name + "=" + r.value); })()`);
+  assert.deepEqual([...ub(false)], ["b()=[01 02 03]"]);
+  assert.deepEqual([...ub(true)], ["b()=[01 02 03]", "[0]=1 ($01)", "[1]=2 ($02)", "[2]=3 ($03)"]);
 });

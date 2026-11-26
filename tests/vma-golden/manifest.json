@@ -1894,6 +1894,40 @@
   "error": null
  },
  {
+  "id": "samples-print-sample-blocks",
+  "caseId": "samples-print-sample-blocks",
+  "kind": "blocks",
+  "file": "samples/print-sample.vas",
+  "baseDir": "samples",
+  "basicStub": true,
+  "ok": true,
+  "size": 66,
+  "sha256": "d0c0275ff3f42339815b107fe819a2ef4cf2ef26f300588b16415eee5eb48b72",
+  "debug": {
+   "sym": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "vs": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "dbg": "8f62384c40a0e26c8a5a925cb44deb7b19cdc5dad541299cdfb4a9866bb32844"
+  },
+  "error": null
+ },
+ {
+  "id": "samples-print-sample-blocks@nostub",
+  "caseId": "samples-print-sample-blocks",
+  "kind": "blocks",
+  "file": "samples/print-sample.vas",
+  "baseDir": "samples",
+  "basicStub": false,
+  "ok": true,
+  "size": 54,
+  "sha256": "25d12713a36b30c5783022d7bd3f6006ca4efd73981bc4b19475a5ecf80d14a6",
+  "debug": {
+   "sym": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "vs": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "dbg": "1eed68303243ad4b26c31d9ef6cd4308b989737361089b7accff016ba86aac0d"
+  },
+  "error": null
+ },
+ {
   "id": "samples-push-pull-demo-blocks",
   "caseId": "samples-push-pull-demo-blocks",
   "kind": "blocks",
@@ -2900,6 +2934,40 @@
    "sym": "a0813a6112f0c4285fd6e08500d22c79c4d82ba1c12da432a6975f9eeef2364a",
    "vs": "7335fede607d88b8da6229908652758cf9cb551b44c1a427b3b1c1604295742f",
    "dbg": "b5d50e4d5e4ffc6a75bc7003eb37e8ed1e0828ed973957cef75996cd3abeecb8"
+  },
+  "error": null
+ },
+ {
+  "id": "templates-hello-world",
+  "caseId": "templates-hello-world",
+  "kind": "text",
+  "file": "templates/hello-world.asm",
+  "baseDir": "templates",
+  "basicStub": true,
+  "ok": true,
+  "size": 78,
+  "sha256": "8c931a84b99ee5c9525e17f4f42abb1cf16a98bda54eb7f680365beeb07ead82",
+  "debug": {
+   "sym": "c2970164bc52ef66e50c6539f65d106ba48f937947430c54fe01ba78d3b52edf",
+   "vs": "031b82f29ace058f848bdd48aee1b70fb660f1616bb825c3df07ce7ff2ff6a77",
+   "dbg": "e1e2a7a18ed403878b791751f6c8db2e6f0bcbdee55362fb6a9004091504d5c4"
+  },
+  "error": null
+ },
+ {
+  "id": "templates-hello-world@nostub",
+  "caseId": "templates-hello-world",
+  "kind": "text",
+  "file": "templates/hello-world.asm",
+  "baseDir": "templates",
+  "basicStub": false,
+  "ok": true,
+  "size": 66,
+  "sha256": "daaa9587ba4aa0406de980e2951ffc6688e02231f9e857ddd3330dc5d3b0487a",
+  "debug": {
+   "sym": "7e2e84e773bfb8dbc04682441eba0b9489adb2a6e7bf6dfe7ca2ec8eafdaf376",
+   "vs": "732156229b3f4293ff5dd62ab5bb6649102af6cf96b9e47005df3e83297a61bf",
+   "dbg": "048b0d8035b9b5ed25d84c2b3f52214612ed4ae17a749756ba92f2990026d837"
   },
   "error": null
  },

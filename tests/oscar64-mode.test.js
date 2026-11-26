@@ -279,3 +279,36 @@ test("C files are tabs of the shared tab bar", async () => {
   assert.deepEqual(plain(s.tabs.map((tb) => tb.name)), ["main.asm"]);
   assert.equal(s.active, 1);
 });
+
+test("C project settings write optimize, defines and include folders to the .proj", async () => {
+  const fields = {
+    "ps-name": { value: "game" }, "ps-startup": { value: "src/main.c" }, "ps-c-optimize": { value: "O3" },
+    "ps-c-defines": { value: "DEBUG\nLEVEL=3\n9bad\n" }, "ps-c-includes": { value: " include \n\n../common" },
+  };
+  let written = null;
+  const context = {
+    document: { readyState: "loading", addEventListener() {}, getElementById: (id) => fields[id] || (id === "project-settings-dialog" ? { close() {} } : null), querySelectorAll: () => [] },
+    localStorage: { getItem: () => null, setItem() {} },
+    window: { electronAPI: { saveTextFile: async (p, text) => { written = { p, data: JSON.parse(text) }; } } },
+    t: (k) => k, tf: (k) => k, setTimeout() {}, clearTimeout() {},
+  };
+  vm.createContext(context);
+  vm.runInContext(oscJs + "\nthis.c = { osc: _osc, save: _oscProjectSettingsSave };"
+    + "\n_oscRenderTree = _oscRenderTabs = _oscStatus = _oscScheduleAuto = () => {};", context);
+  const { osc, save } = context.c;
+  osc.root = "F:\proj\game";
+  osc.projPath = "F:\proj\game\game.proj";
+  osc.proj = { app: "oscar64", targets: [] };
+  await save();
+  assert.equal(written.p, "F:\proj\game\game.proj");
+  assert.equal(written.data.name, "game");
+  assert.equal(written.data.startupFile, "src/main.c");
+  assert.equal(written.data.optLevel, "O3");
+  assert.deepEqual(written.data.defines, ["DEBUG", "LEVEL=3"]);
+  assert.deepEqual(written.data.includeDirs, ["include", "../common"]);
+  fields["ps-c-optimize"].value = "";
+  fields["ps-c-defines"].value = "";
+  await save();
+  assert.equal(written.data.optLevel, undefined);
+  assert.equal(written.data.defines, undefined);
+});

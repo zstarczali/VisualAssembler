@@ -2,8 +2,8 @@
 # @name.hu Sprite multiplexer (64 sprite)
 # @category Graphics
 # @category.hu Grafika
-# @desc 64 multicolour balls on the 8 hardware sprites: eight rows of eight on a turning cylinder. UltimateBasic computes the rows' X positions every frame into a table, a chain of raster interrupts (one asm block) moves the sprites row by row.
-# @desc.hu 64 többszínű labda a 8 hardveres sprite-on: nyolc sor, soronként nyolc, egy forgó hengeren. Az UltimateBasic frame-enként kiszámolja a sorok X pozícióit egy táblába, a raszter megszakítások lánca (egy asm blokk) soronként áthelyezi a sprite-okat.
+# @desc 64 multicolour balls on the 8 hardware sprites: eight rows of eight on a turning cylinder, in plain UltimateBasic: the main loop computes the rows' X positions every frame into a table, a raster interrupt sub (irq) moves the sprites row by row.
+# @desc.hu 64 többszínű labda a 8 hardveres sprite-on: nyolc sor, soronként nyolc, egy forgó hengeren, tisztán UltimateBasicben: a főciklus frame-enként kiszámolja a sorok X pozícióit egy táblába, egy raszter megszakítás sub (irq) soronként áthelyezi a sprite-okat.
 # @order 50
 
 # {{PROJECT}}
@@ -12,7 +12,8 @@
 #   $CC00  two buffers of 8 rows x 10 bytes: X low bytes of sprites 0-7, $D010, colour order
 #   $CCA0  the buffer the interrupts show (0 or 80)
 #   $CCA1  frame counter, +1 after the last row
-#   $CCA2  the row the next interrupt sets up (8 = end of frame)
+#   $CCB0  row Y, $CCB8 / $CCC0 row offsets in buffer 0 / 1, $CCC8 the interrupts' raster lines
+#   $CCD8  the sprite bits 1, 2, 4 ... 128 (for the $D010 byte)
 
 # A multicolour ball: black rim (multicolour 0), the sprite colour, a white spot (multicolour 1)
 sprdef 0
@@ -40,21 +41,40 @@ color border 0
 cls
 print at 9, 24, "PRESS A KEY TO EXIT"
 
-var pg = peek($07F8)
+# every sprite shows the ball of sprdef 0 (its pointer is the image's address / 64)
+var img: word = peek($07F8) * 64
+# (sprite commands take a constant sprite number)
+sprite_frame 0, img
+sprite multi 0, on
+sprite on 0
+sprite_frame 1, img
+sprite multi 1, on
+sprite on 1
+sprite_frame 2, img
+sprite multi 2, on
+sprite on 2
+sprite_frame 3, img
+sprite multi 3, on
+sprite on 3
+sprite_frame 4, img
+sprite multi 4, on
+sprite on 4
+sprite_frame 5, img
+sprite multi 5, on
+sprite on 5
+sprite_frame 6, img
+sprite multi 6, on
+sprite on 6
+sprite_frame 7, img
+sprite multi 7, on
+sprite on 7
 var i = 0
-for i = 1 to 7
-  poke $07F8 + i, pg
-next
-poke $D01C, $FF      # all multicolour
-poke $D025, 0        # multicolour 0: black rim
-poke $D026, 1        # multicolour 1: white spot
-poke $D017, 0
-poke $D01D, 0
-poke $D015, $FF      # all 8 on
+# the two shared multicolours have no sprite command: black rim, white spot
+poke $D025, 0
+poke $D026, 1
 
 poke $CCA0, 0
 poke $CCA1, 0
-poke $CCA2, 0
 
 var phase = 0
 var buf = 0
@@ -65,172 +85,80 @@ var hi = 0
 var neg = 0
 var half = 0
 var msb = 0
-var bit = 0
+var bit = 1
 var f = 0
+var o = 0
+var xl = 0
+var xh = 0
 var x: word = 0
-var base: word = 0
+# the interrupt's own variables (nothing it shares with the main program)
+var irow = 0
+var iw = 0
+var io = 0
+
+for i = 0 to 7
+  poke $CCD8 + i, bit
+  bit = bit shl 1
+next
 
 gosub compute
 poke $CCA0, buf
 
-# the raster interrupt chain: one interrupt per row, 8 lines above it, then one at line 250
-asm {
-    SEI
-    LDA #$7F
-    STA $DC0D          ; CIA1 timer IRQ off
-    LDA $DC0D
-    LDA #<row_irq
-    STA $0314
-    LDA #>row_irq
-    STA $0315
-    LDA $D011
-    AND #$7F
-    STA $D011
-    LDA #44
-    STA $D012
-    LDA #$FF
-    STA $D019
-    LDA #$01
-    STA $D01A          ; raster IRQ on
-    CLI
-    JMP setup_done
+# tables of the interrupt: row Y (52 + 25 * row), the row's offset in the two buffers, and the
+# raster line of each interrupt (row Y - 8, then 250 for the end of the frame)
+for i = 0 to 7
+  poke $CCB0 + i, 52 + 25 * i
+  poke $CCB8 + i, 10 * i
+  poke $CCC0 + i, 80 + 10 * i
+  poke $CCC8 + i, 44 + 25 * i
+next
+poke $CCD0, 250
 
-row_irq:
-    LDA #$FF
-    STA $D019
-    LDX $CCA2
-    CPX #8
-    BNE set_row
-    JMP frame_end      ; too far for a branch
-set_row:
-    ; the new Y first: it only takes effect once the current row is done
-    LDA row_y,X
-    STA $D001
-    STA $D003
-    STA $D005
-    STA $D007
-    STA $D009
-    STA $D00B
-    STA $D00D
-    STA $D00F
-    ; wait for the gap between the rows (row Y - 3), then X, $D010 and the colours
-    SEC
-    SBC #4
-wait:
-    CMP $D012
-    BCS wait
-    LDA row_off,X
-    CLC
-    ADC $CCA0
-    TAY
-    LDA $CC00,Y
-    STA $D000
-    LDA $CC01,Y
-    STA $D002
-    LDA $CC02,Y
-    STA $D004
-    LDA $CC03,Y
-    STA $D006
-    LDA $CC04,Y
-    STA $D008
-    LDA $CC05,Y
-    STA $D00A
-    LDA $CC06,Y
-    STA $D00C
-    LDA $CC07,Y
-    STA $D00E
-    LDA $CC08,Y
-    STA $D010
-    LDA $CC09,Y
-    BEQ cols_back
-    LDA #8
-    STA $D027
-    LDA #9
-    STA $D028
-    LDA #10
-    STA $D029
-    LDA #11
-    STA $D02A
-    LDA #12
-    STA $D02B
-    LDA #13
-    STA $D02C
-    LDA #14
-    STA $D02D
-    LDA #15
-    STA $D02E
-    JMP next_irq
-cols_back:
-    LDA #15
-    STA $D027
-    LDA #14
-    STA $D028
-    LDA #13
-    STA $D029
-    LDA #12
-    STA $D02A
-    LDA #11
-    STA $D02B
-    LDA #10
-    STA $D02C
-    LDA #9
-    STA $D02D
-    LDA #8
-    STA $D02E
-next_irq:
-    INC $CCA2
-    LDX $CCA2
-    LDA irq_line,X
-    STA $D012
-    JMP $EA81          ; restore the registers, RTI
+# one raster interrupt per row, 8 lines above it (row_irq moves itself on to the next row)
+irq row_irq, 44
 
-frame_end:
-    LDA #0
-    STA $CCA2
-    INC $CCA1
-    LDA #44
-    STA $D012
-    JMP $EA31          ; once a frame through the KERNAL: keyboard scan, then RTI
-
-row_y:                 ; 52 + 25 * row
-    $34 $4D $66 $7F $98 $B1 $CA $E3
-row_off:               ; 10 * row
-    $00 $0A $14 $1E $28 $32 $3C $46
-irq_line:              ; row Y - 8, then 250 (end of frame)
-    $2C $45 $5E $77 $90 $A9 $C2 $DB $FA
-
-setup_done:
-}
+# the keyboard is read straight from its matrix (the KERNAL scan does not run, every row
+# selected): first wait until no key is down, so the RETURN of RUN still held does not end it
+poke $DC00, 0
+label wait_release
+  if peek($DC01) <> 255 then goto wait_release end
 
 # every frame: the next phase into the other buffer, shown from the next frame on
 label main_loop
-  phase = phase + 3
+  phase = phase + 5
   buf = 80 - buf
   gosub compute
   f = peek($CCA1)
 label wait_frame
   if peek($CCA1) == f then goto wait_frame end
   poke $CCA0, buf
-  if inkey() == 0 then goto main_loop end
+  # any key ends it
+  if peek($DC01) == 255 then goto main_loop end
+# the key let go first, or the KERNAL would type it after the exit
+label wait_up
+  if peek($DC01) <> 255 then goto wait_up end
+  poke $DC00, 255
 
-# back to the KERNAL IRQ: raster IRQ off, vector $EA31, CIA1 timer IRQ on
-asm {
-    SEI
-    LDA #$00
-    STA $D01A
-    STA $D015
-    LDA #$31
-    STA $0314
-    LDA #$EA
-    STA $0315
-    LDA #$81
-    STA $DC0D
-    CLI
-}
+# back to the KERNAL IRQ: raster IRQ off first, then the vector, CIA1 timer IRQ on
+poke $D01A, 0
+sprite off 0
+sprite off 1
+sprite off 2
+sprite off 3
+sprite off 4
+sprite off 5
+sprite off 6
+sprite off 7
+poke16 $0314, $EA31
+poke $DC0D, $81
 bye
 
-# fills the buffer that is not on screen, row by row
+# fills the buffer that is not on screen, row by row. It has to fit in one frame next to the
+# interrupts, so the inner loops use byte arithmetic only: X is a low byte (xl) and a high bit
+# (xh), the table is written with "constant + byte variable" (STA $CC00,Y), the $D010 bit comes
+# from the table at $CCD8.
 label compute
+  o = buf
   for r = 0 to 7
     ph = phase + r * 11
     a = cosv[ph]
@@ -241,28 +169,99 @@ label compute
     end
     hi = 0
     if ph >= 128 then hi = 1 end
-    base = $CC00
-    base = base + buf
-    base = base + r * 10
+    # the row is 7 gaps wide around X = 172; it starts at its left or its right end
     half = (a * 7) shr 1
-    x = 172
-    x = x - half
+    x = 172 - half
     if hi == neg then
       x = x + a * 7
     end
+    xl = x and 255
+    xh = 0
+    if x > 255 then xh = 1 end
     msb = 0
-    bit = 1
-    for i = 0 to 7
-      poke base + i, x and 255
-      if x > 255 then msb = msb or bit end
-      bit = bit shl 1
-      if hi == neg then
-        x = x - a
-      else
-        x = x + a
-      end
-    next
-    poke base + 8, msb
-    poke base + 9, hi
+    if hi == neg then
+      for i = 0 to 7
+        poke $CC00 + o, xl
+        if xh == 1 then msb = msb or peek($CCD8 + i) end
+        if xl < a then xh = 0 end
+        xl = xl - a
+        o = o + 1
+      next
+    else
+      for i = 0 to 7
+        poke $CC00 + o, xl
+        if xh == 1 then msb = msb or peek($CCD8 + i) end
+        xl = xl + a
+        if xl < a then xh = 1 end
+        o = o + 1
+      next
+    end
+    poke $CC00 + o, msb
+    poke $CC01 + o, hi
+    o = o + 2
   next
   return
+
+# The raster interrupt of a row: the new Y at once (it only takes effect once the current row is
+# done), then, in the gap between the rows, X, $D010 and the colours. Positions are poked straight
+# into the VIC: the gap is about four raster lines, and "sprite id, x, y" would also rewrite Y and
+# do the $D010 bit sprite by sprite. It only reads with "constant + byte variable" addresses
+# (LDA $CC00,Y): no zero-page pointer the main program also uses.
+sub row_irq()
+  poke $D019, $FF
+  if irow == 8 then
+    # end of the frame: the main program may swap the buffers
+    irow = 0
+    poke $CCA1, peek($CCA1) + 1
+    poke $D012, peek($CCC8)
+    irq_exit
+  end
+  iw = peek($CCB0 + irow)
+  poke $D001, iw
+  poke $D003, iw
+  poke $D005, iw
+  poke $D007, iw
+  poke $D009, iw
+  poke $D00B, iw
+  poke $D00D, iw
+  poke $D00F, iw
+  iw = iw - 4
+  while peek($D012) <= iw
+  end
+  if peek($CCA0) == 0 then
+    io = peek($CCB8 + irow)
+  else
+    io = peek($CCC0 + irow)
+  end
+  poke $D000, peek($CC00 + io)
+  poke $D002, peek($CC01 + io)
+  poke $D004, peek($CC02 + io)
+  poke $D006, peek($CC03 + io)
+  poke $D008, peek($CC04 + io)
+  poke $D00A, peek($CC05 + io)
+  poke $D00C, peek($CC06 + io)
+  poke $D00E, peek($CC07 + io)
+  poke $D010, peek($CC08 + io)
+  if peek($CC09 + io) == 0 then
+    sprite color 0, 15
+    sprite color 1, 14
+    sprite color 2, 13
+    sprite color 3, 12
+    sprite color 4, 11
+    sprite color 5, 10
+    sprite color 6, 9
+    sprite color 7, 8
+  else
+    sprite color 0, 8
+    sprite color 1, 9
+    sprite color 2, 10
+    sprite color 3, 11
+    sprite color 4, 12
+    sprite color 5, 13
+    sprite color 6, 14
+    sprite color 7, 15
+  end
+  irow = irow + 1
+  poke $D012, peek($CCC8 + irow)
+  irq_exit
+end

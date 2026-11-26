@@ -390,7 +390,7 @@ dependencies = [
 
 [[package]]
 name = "c64-visual-assembler"
-version = "2.8.6"
+version = "2.9.0"
 dependencies = [
  "base64 0.22.1",
  "emulator_6502",
@@ -4336,7 +4336,7 @@ dependencies = [
  "serde_with",
  "swift-rs",
  "thiserror 2.0.18",
- "toml 1.1.0+spec-1.1.0",
+ "toml 0.9.12+spec-1.1.0",
  "url",
  "urlpattern",
  "uuid",
@@ -4769,8 +4769,8 @@ dependencies = [
 
 [[package]]
 name = "ultimate-basic"
-version = "1.6.7"
-source = "git+https://github.com/zstarczali/UltimateBasic.git?rev=6392b79b41bd3231cd4ec2a54708570b0111cadc#6392b79b41bd3231cd4ec2a54708570b0111cadc"
+version = "1.6.8"
+source = "git+https://github.com/zstarczali/UltimateBasic.git?rev=d19117667ad516c11377461cc30a978aaf71f0c8#d19117667ad516c11377461cc30a978aaf71f0c8"
 dependencies = [
  "winresource",
 ]
