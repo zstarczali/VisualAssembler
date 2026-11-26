@@ -33,12 +33,13 @@ test("a UB project is recognized by its app field", () => {
   assert.equal(app.run("_projIsUb(null)"), false);
 });
 
-test("the startup file opens in UB mode, the blank tab goes", async () => {
+test("every .ub file opens in UB mode, the startup file last (active), the blank tab goes", async () => {
   await setup({ app: "ultimate-basic", name: "Game", files: [{ type: "file", name: "main.ub", path: "main.ub" }, { type: "file", name: "lib.ub", path: "lib.ub" }], startupFile: "lib.ub" });
   const calls = app.run("__calls");
   assert.equal(calls.ub, 1);
-  assert.deepEqual([...calls.opened], ["lib.ub"]);
-  assert.deepEqual([...app.run("tabs.map(tab => tab.id)")], ["t1"]);
+  assert.deepEqual([...calls.opened], ["main.ub", "lib.ub"]);
+  assert.deepEqual([...app.run("tabs.map(tab => tab.id)")], ["t1", "t2"]);
+  assert.equal(app.run("activeTabId"), "t2");
   assert.equal(app.run("_ubProjectData.name"), "Game");
   assert.equal(app.run("_ubProjectData._projPath"), "F:/p/game.proj");
   assert.equal(app.run("_ubProjectVisible"), true);

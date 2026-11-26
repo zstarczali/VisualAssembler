@@ -4,7 +4,7 @@
 
 <p align="center">
   <a href="https://www.c64va.pro"><img src="https://img.shields.io/badge/website-c64va.pro-e05d44?style=flat" alt="Website"></a>
-  <a href="https://github.com/zstarczali/VisualAssembler/releases/latest"><img src="https://img.shields.io/badge/version-v2.8.6-4c1" alt="Version"></a>
+  <a href="https://github.com/zstarczali/VisualAssembler/releases/latest"><img src="https://img.shields.io/badge/version-v2.9.0-4c1" alt="Version"></a>
   <a href="https://github.com/zstarczali/VisualAssembler/actions/workflows/build.yml"><img src="https://img.shields.io/github/actions/workflow/status/zstarczali/VisualAssembler/build.yml?branch=main&label=build" alt="Build"></a>
   <a href="https://github.com/zstarczali/VisualAssembler/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="License: MIT"></a>
   <a href="https://www.c64va.pro/register/donate.php"><img src="https://img.shields.io/badge/donate-PayPal-00457C?logo=paypal&logoColor=white" alt="Donate"></a>
@@ -30,9 +30,22 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.8.6**
+**Current version: v2.9.0**
 
 Visual Assembler is free and open source (MIT for original project code; see [third-party licenses](THIRD_PARTY_NOTICES.md)): every feature — editors, builds, hardware runs, languages and themes — works without a registration or serial. At most once a day the app sends an anonymous startup ping (version, OS, UI language, launch count, a random install ID) for the usage statistics; no email, project or source code is sent.
+
+## What's New in v2.9.0
+
+- **Visual Assembler Studio** — assembly (VMA, ACME, R65), blocks, UltimateBasic and C in one window. Every open file is a tab of one tab bar with a language badge (**BLK / ASM / UB / C**); an assembly tab switches between **Blocks** and **Source**, and a file opens in the editor of its own language.
+- **C with Oscar64** — a C editor with the [Oscar64](https://github.com/drmortalwombat/oscar64) compiler built in (ACME 0.97 is bundled too, nothing to install; **Settings → Compilers** can point to your own builds): C highlighting with `__asm` blocks, completion from the included headers (Ctrl+Space), formatter, cycle counts, find / go to line / bookmarks, minimap, Build info, **Output / Disassembly / Monitor / Map** views, a project tree with a startup file and a function / type / macro list, and projects loaded from `build.sh`, `make.bat` or a makefile. A C program runs in every Run mode and shows in the memory map.
+- **Source-level debugging in C and UltimateBasic** — breakpoints on source lines, **Step into / over** one C line at a time, a **Variables** panel (C globals, parameters and locals by their type; UltimateBasic bytes, words, integers, floats and arrays) and a **Call stack** built from the 6502 stack. In the built-in C64 and in the VICE / Ultimate emulator debugger.
+- **Start window** — recent projects, *Create a new project*, *Open a project*, *Open a C folder* or *Continue without a project*. Turned off, the app reopens the last project.
+- **New, Tools and Git menus** — **New** opens a file in any language or a project from a template; **Tools** holds the 15 editors in groups (Graphics, Sound, Data and disk, Machine); **Git** offers Pull, Push, Commit, New branch, Merge and Stash. About has its own toolbar button.
+- **Projects** — a project has one language and opens all its source files as tabs, the startup file active. The open tabs, the Blocks / Source view, the breakpoints, the active tab and its cursor line are kept in `<name>.proj.user` next to the `.proj` (workspace files are retired). A tab counts as unsaved only when its text differs from the saved file. The project panel can be resized (200–560 px, remembered).
+- **Memory map window** — the C64 memory map opens in its own window from **Tools → Machine**.
+- **Templates** — the template dialog has UltimateBasic, C, VMA and ACME tabs, easiest first, with a short description; new templates: Hello World for VMA and ACME, sprite multiplexers with 16 and 64 sprites in C and with 64 sprites in UltimateBasic.
+- **UltimateBasic 1.6.8** — `sprite multicolor id, on|off`; a sprite number that is not a constant 0–7, an inline-asm branch further than 128 bytes and an undefined inline-asm label are compile errors instead of a crash or wrong code.
+- Smaller things: the Run menu says **Run as PRG (VICE)** and **Run via D64 (VICE)**; a tutorial step that waits for an address also takes it in lower case or with `$`; the block palette is as wide in the Blocks view as in Source; the Block mode hint shows once per launch at the bottom and goes after two minutes.
 
 ## What's New in v2.8.6
 

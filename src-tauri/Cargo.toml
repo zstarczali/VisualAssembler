@@ -1,6 +1,6 @@
 [package]
 name = "c64-visual-assembler"
-version = "2.8.6"
+version = "2.9.0"
 edition = "2021"
 license = "MIT"
 
@@ -28,9 +28,9 @@ emulator_6502 = { version = "1.1.0", features = ["implementation_transparency"] 
 urlencoding = "2"
 serialport = { version = "4.7", default-features = false }
 sevenz-rust2 = { version = "0.24", default-features = false, features = ["ppmd"] }
-ultimate-basic = { git = "https://github.com/zstarczali/UltimateBasic.git", rev = "6392b79b41bd3231cd4ec2a54708570b0111cadc" }
+ultimate-basic = { git = "https://github.com/zstarczali/UltimateBasic.git", rev = "d19117667ad516c11377461cc30a978aaf71f0c8" }
 # the VMA compiler: its own repository; for local work on it, a [patch] with path = "../../VMA"
-vma = { git = "https://github.com/zstarczali/VMA.git", rev = "7a7d7fff6b86d065ad5174ba7b771a75e0cc8f4a" }
+vma = { git = "https://github.com/zstarczali/VMA.git", rev = "6d8b0b1f6cfde1b6fc4261121bd7535e09358418" }
 # the R65 KickAssembler compatible assembler (library, without its editor window); local work: [patch] path = "../../R65"
 r65 = { git = "https://github.com/zstarczali/R65.git", rev = "e28a167f74d18bc0472ddb8d129533eab3c2f607", default-features = false }
 

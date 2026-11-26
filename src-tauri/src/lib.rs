@@ -18,6 +18,7 @@ use tauri_plugin_opener::OpenerExt;
 mod debugger;
 mod hvsc;
 mod midi_permission;
+mod tools;
 mod tutorials;
 mod ue2emu;
 mod vice_monitor;
@@ -1470,13 +1471,10 @@ fn crunch_with_exomizer(
 #[tauri::command]
 async fn build_acme_prg(app: AppHandle, payload: BuildAcmePayload) -> serde_json::Value {
     let cfg = read_config(&app);
-    let acme_path = cfg["acmePath"].as_str().unwrap_or("").trim().to_string();
-    if acme_path.is_empty() {
+    // the path set in Settings, else the bundled ACME (tools/acme)
+    let Some(acme_path) = tools::tool_path(&app, &cfg, "acme") else {
         return serde_json::json!({ "ok": false, "error": "ACME nincs beállítva. A Beállításokban válaszd ki az acme.exe fájlt." });
-    }
-    if !Path::new(&acme_path).is_file() {
-        return serde_json::json!({ "ok": false, "error": format!("ACME executable not found: {}", acme_path) });
-    }
+    };
     let temp_dir = std::env::temp_dir().join("c64-visual-assembler");
     if let Err(error) = fs::create_dir_all(&temp_dir) {
         return serde_json::json!({ "ok": false, "error": error.to_string() });
@@ -4210,8 +4208,7 @@ async fn open_proj_file(app: AppHandle, initial_dir: Option<String>) -> serde_js
     let mut dialog = app
         .dialog()
         .file()
-        .add_filter("Visual Assembler Project", &["proj"])
-        .add_filter("All files", &["*"]);
+        .add_filter("Visual Assembler Project", &["proj"]);
     if let Some(folder) = working_folder {
         dialog = dialog.set_directory(folder);
     }
@@ -4592,7 +4589,7 @@ fn compile_ultimate_basic(
                 "map": {
                     "loadAddress": map.load_addr,
                     "codeSize": map.code_size,
-                    "variables": map.variables.iter().map(|v| serde_json::json!({"name": v.name, "address": v.zp_addr, "type": v.type_str})).collect::<Vec<_>>(),
+                    "variables": map.variables.iter().map(|v| serde_json::json!({"name": v.name, "address": v.addr(), "type": v.type_str})).collect::<Vec<_>>(),
                     "subroutines": map.subroutines.iter().map(|s| serde_json::json!({"name": s.name, "address": s.addr})).collect::<Vec<_>>(),
                     "labels": map.labels.iter().map(|label| serde_json::json!({"name": label.name, "address": label.addr})).collect::<Vec<_>>(),
                     "arrays": map.arrays.iter().map(|a| serde_json::json!({"name": a.name, "address": a.base_addr, "size": a.size})).collect::<Vec<_>>(),
@@ -4786,7 +4783,7 @@ fn collect_templates(dir: &Path, source: &str, out: &mut Vec<serde_json::Value>)
                 && path
                     .extension()
                     .and_then(|ext| ext.to_str())
-                    .map(|ext| ext.eq_ignore_ascii_case("asm") || ext.eq_ignore_ascii_case("ub"))
+                    .map(|ext| ext.eq_ignore_ascii_case("asm") || ext.eq_ignore_ascii_case("ub") || ext.eq_ignore_ascii_case("c"))
                     .unwrap_or(false)
         })
         .collect();
@@ -5062,6 +5059,29 @@ mod tests {
         let before = counter();
         std::thread::sleep(Duration::from_millis(300));
         assert_eq!(counter(), before, "the loop stands after Break");
+
+        // Polled the way the debugger window polls a running CPU (every 120 ms), VICE runs at full
+        // speed: the jiffy clock ($A0-$A2) goes on by about 60 a second.
+        let jiffy = || {
+            with_debug(|session| {
+                let cpu = session.monitor.bank_id("cpu")?;
+                session.monitor.read_memory(0x00A0, 0x00A2, cpu)
+            })
+            .map(|b| (b[0] as u32) << 16 | (b[1] as u32) << 8 | b[2] as u32)
+            .unwrap()
+        };
+        let start = jiffy();
+        with_debug(|session| continue_cpu(session, &[])).unwrap();
+        let polled = std::time::Instant::now();
+        while polled.elapsed() < Duration::from_millis(1000) {
+            let stop = with_debug(|session| wait_stop(session, Duration::from_millis(1))).unwrap();
+            assert_eq!(stop, None, "no stop while polled");
+            std::thread::sleep(Duration::from_millis(120));
+        }
+        with_debug(debugger::break_cpu).unwrap();
+        let ticks = jiffy().wrapping_sub(start);
+        eprintln!("jiffies in {:?} of polling: {ticks}", polled.elapsed());
+        assert!(ticks >= 45, "VICE ran slow while polled: {ticks} jiffies in a second");
 
         // A second session in the same VICE, as the next Debug press does.
         debugger::end_debug();
@@ -5846,6 +5866,16 @@ pub fn run() {
             choose_ub_working_folder,
             build_exomizer_prg,
             build_acme_prg,
+            tools::get_tools_info,
+            tools::choose_oscar64_executable,
+            tools::clear_tool_path,
+            tools::build_oscar64_prg,
+            tools::oscar_list_dir,
+            tools::oscar_create_dir,
+            tools::oscar_rename_path,
+            tools::oscar_delete_path,
+            tools::oscar_choose_folder,
+            tools::oscar_choose_file,
             build_exomizer_raw,
             launch_vice,
             launch_exomizer,

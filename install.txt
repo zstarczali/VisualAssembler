@@ -1,5 +1,5 @@
 C64 VISUAL ASSEMBLER - INSTALLATION GUIDE
-Version 2.8.6
+Version 2.9.0
 ==========================================================================
 
 Download: https://www.c64va.pro/
@@ -13,7 +13,7 @@ Contents
   PART 2  TOOLS
           2.1 VICE (C64 emulator, also c1541 for D64 images)
           2.2 Exomizer (optional)
-          2.3 ACME (optional)
+          2.3 ACME and Oscar64 (built in)
           2.4 RetroDebugger (optional)
           2.5 Git (optional)
   PART 3  WHERE YOUR PROGRAM RUNS
@@ -40,8 +40,8 @@ PART 1  INSTALLING THE APP
 Requirements: Windows 10 or 11, x64 or ARM64.
 
 1. Download the installer for your system:
-     C64 Visual Assembler_2.8.6_x64-setup.exe    (Intel / AMD)
-     C64 Visual Assembler_2.8.6_arm64-setup.exe  (ARM64)
+     C64 Visual Assembler_2.9.0_x64-setup.exe    (Intel / AMD)
+     C64 Visual Assembler_2.9.0_arm64-setup.exe  (ARM64)
 2. Run it and follow the installer.
 3. Launch C64 Visual Assembler from the Start menu.
 
@@ -59,8 +59,8 @@ https://developer.microsoft.com/en-us/microsoft-edge/webview2/
 Requirements: macOS 11 or newer, Apple Silicon or Intel.
 
 1. Download the DMG for your Mac:
-     C64 Visual Assembler_2.8.6_aarch64.dmg  (Apple Silicon: M1, M2, M3 ...)
-     C64 Visual Assembler_2.8.6_x64.dmg      (Intel)
+     C64 Visual Assembler_2.9.0_aarch64.dmg  (Apple Silicon: M1, M2, M3 ...)
+     C64 Visual Assembler_2.9.0_x64.dmg      (Intel)
 2. Open the DMG and drag C64 Visual Assembler into Applications.
 3. Remove the quarantine flag once, in Terminal:
 
@@ -89,11 +89,11 @@ pull them in.
 Debian / Ubuntu (.deb):
 
   sudo apt update
-  sudo apt install "./C64 Visual Assembler_2.8.6_amd64.deb"
+  sudo apt install "./C64 Visual Assembler_2.9.0_amd64.deb"
 
 Fedora (.rpm):
 
-  sudo dnf install "./C64 Visual Assembler-2.8.6-1.x86_64.rpm"
+  sudo dnf install "./C64 Visual Assembler-2.9.0-1.x86_64.rpm"
 
 Use the file name you actually downloaded. Launch the app from the
 Applications menu or with:
@@ -102,8 +102,8 @@ Applications menu or with:
 
 AppImage (no installation):
 
-  chmod +x "./C64 Visual Assembler_2.8.6_amd64.AppImage"
-  "./C64 Visual Assembler_2.8.6_amd64.AppImage"
+  chmod +x "./C64 Visual Assembler_2.9.0_amd64.AppImage"
+  "./C64 Visual Assembler_2.9.0_amd64.AppImage"
 
 If the AppImage fails with a FUSE error, start it with
 --appimage-extract-and-run after the file name.
@@ -195,19 +195,15 @@ Then: Menu -> Settings -> Files and paths -> Choose Exomizer, and switch on
 crunch every PRG.
 
 
-2.3 ACME (optional)
--------------------
-Only for ACME mode (Settings -> General -> Assembler mode -> ACME), where
-the Expert editor's source is ACME 0.97 text. The default VMA mode does not
-need it.
+2.3 ACME and Oscar64 (built in)
+-------------------------------
+Nothing to install: the app comes with ACME 0.97 (for ACME mode and the ACME
+project templates) and the Oscar64 C compiler (for C programs, see the C tab
+of "New project from template" and the New menu).
 
-Windows:  download ACME from https://sourceforge.net/projects/acme-crossass/
-          and keep acme.exe in a folder of its own.
-macOS:    brew install acme
-Linux:    sudo apt install acme
-
-Then: Menu -> Settings -> Files and paths -> Choose ACME. The ACME tab of
-"New project from template" appears once ACME is set.
+To use your own build instead: Menu -> Settings -> Compilers -> Choose ACME
+or Choose Oscar64; "Use bundled" switches back. The Oscar64
+optimisation level (O2 by default) is on the same tab.
 
 
 2.4 RetroDebugger (optional)

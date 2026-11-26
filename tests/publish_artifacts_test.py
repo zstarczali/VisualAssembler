@@ -20,7 +20,7 @@ DMG = 'C64 Visual Assembler_2.7.5_aarch64.dmg'
 IMAGE = 'C64 Visual Assembler_2.7.5_amd64.AppImage'
 DEB = 'c64-visual-assembler_2.7.5_amd64.deb'
 RPM = 'C64 Visual Assembler-2.7.5-1.x86_64.rpm'
-DOCS = {'Visual Assembler Manual.pdf', 'Visual Assembler Manual.hu.pdf', 'README.txt', 'install.txt'}
+DOCS = {'Visual Assembler Manual.pdf', 'Visual Assembler Manual.hu.pdf', 'Oscar64 C Help.pdf', 'README.txt', 'install.txt'}
 ENV = {'FTP_HOST': 'example.test', 'FTP_USERNAME': 'test', 'FTP_PASSWORD': 'test-password', 'FTP_DIRECTORY': '/www/downloads/VA/'}
 
 
@@ -92,7 +92,7 @@ class PublishTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'one release version'):
             publish.collect_installers(self.root)
 
-    def test_all_four_documents_are_required_before_connecting(self):
+    def test_all_documents_are_required_before_connecting(self):
         self.artifact(EXE)
         for document in publish.DOCUMENTS:
             path = self.source / document
@@ -125,7 +125,7 @@ class PublishTests(unittest.TestCase):
         stored = [c.args[0][len('STOR '):] for c in ftp.storbinary.call_args_list]
         self.assertEqual(stored[0], EXE)
         self.assertEqual(set(stored[1:]), DOCS | {'va-samples.zip'})
-        self.assertEqual(ftp.size.call_count, 6)
+        self.assertEqual(ftp.size.call_count, 1 + len(DOCS) + 1)
 
     def test_the_samples_folder_is_uploaded_as_a_zip_with_its_subfolders(self):
         self.artifact(f'windows-x64/{EXE}')

@@ -21,6 +21,7 @@ INSTALLERS = {'.exe', '.dmg', '.deb', '.rpm', '.appimage'}
 DOCUMENTS = (
     'docs/Visual Assembler Manual.pdf',
     'docs/Visual Assembler Manual.hu.pdf',
+    'docs/Oscar64 C Help.pdf',
     'README.txt',
     'install.txt',
 )

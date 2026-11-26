@@ -141,6 +141,17 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # cl / rc for the bundled tools; arm64 uses the cross compiler of the x64 runner
+      - name: MSVC environment
+        if: matrix.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: ${{ matrix.arch == 'arm64' && 'amd64_arm64' || 'amd64' }}
+
+      # Oscar64 + ACME, bundled as the tools/ resource
+      - name: Build bundled tools
+        run: node scripts/build-tools.mjs --target ${{ matrix.target }}
+
       - name: Build Tauri app
         run: npx tauri build --target ${{ matrix.target }}
         env:

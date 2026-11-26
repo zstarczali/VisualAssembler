@@ -77,54 +77,54 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "sid-table-286",
+  id: "studio-290",
   url: "https://www.c64va.pro/docs.html",
   hu: {
-    eyebrow: "Újdonság a 2.8.6-ben",
+    eyebrow: "Újdonság a 2.9.0-ban",
     title: "Üdvözöl a Visual Assembler",
-    body: `<ul><li><strong>Részletes wave-tábla lépések</strong>: a SID szerkesztőben a wave / arpeggio tábla egy lépése saját hosszt, pulzusszélességet és szűrőt kaphat (a lépés <strong>…</strong> gombja), és egy tábla 64 lépéses lehet.</li><li><strong>Beszéd a .sid importban</strong>: a beszéd és más, képkockánként változó hangok (GoatTracker táblák) az eredetihez hűen jönnek be.</li><li>A 2.8.5 újdonsága: közös SID-emuláció (<strong>va-sid</strong>) a VA SID Studióval.</li></ul>`,
+    body: `<ul><li><strong>Visual Assembler Studio</strong>: assembly (VMA, ACME, R65), blokkok, UltimateBasic és C egy ablakban, közös fülsávval; minden fájl a saját nyelvének szerkesztőjében nyílik. Az <strong>Induló ablak</strong>ból a legutóbbi projekt, egy új projekt sablonból vagy egy C mappa egy kattintás.</li><li><strong>C az Oscar64-gyel</strong>: beépített fordító, kódkiegészítés, ciklusszámok, Disassembly / Monitor nézet, projekt build szkriptből; a C program minden futtatási módban fut.</li><li><strong>Forrásszintű hibakeresés C-ben és UltimateBasicben</strong>: töréspont a forrássoron, léptetés C soronként, <strong>Változók</strong> és <strong>Hívási lánc</strong> panel.</li><li>Új <strong>Új</strong>, <strong>Eszközök</strong> és <strong>Git</strong> menü, a projekt munkamenete a <code>.proj.user</code> fájlban, külön ablakos memóriatérkép, UltimateBasic 1.6.8.</li></ul>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
-    eyebrow: "New in 2.8.6",
+    eyebrow: "New in 2.9.0",
     title: "Welcome to Visual Assembler",
-    body: `<ul><li><strong>Detailed wave table steps</strong>: in the SID Editor a step of the wave / arpeggio table can have its own length, pulse width and filter (the <strong>…</strong> button of the step), and a table can have 64 steps.</li><li><strong>Speech in .sid import</strong>: speech and other sounds that change from frame to frame (GoatTracker tables) come in true to the original.</li><li>New in 2.8.5: SID emulation shared with VA SID Studio (<strong>va-sid</strong>).</li></ul>`,
+    body: `<ul><li><strong>Visual Assembler Studio</strong>: assembly (VMA, ACME, R65), blocks, UltimateBasic and C in one window with one tab bar; every file opens in the editor of its own language. From the <strong>Start window</strong> the last project, a new project from a template or a C folder is one click away.</li><li><strong>C with Oscar64</strong>: compiler built in, code completion, cycle counts, Disassembly / Monitor views, projects from build scripts; a C program runs in every Run mode.</li><li><strong>Source-level debugging in C and UltimateBasic</strong>: breakpoints on source lines, stepping one C line at a time, <strong>Variables</strong> and <strong>Call stack</strong> panels.</li><li>New <strong>New</strong>, <strong>Tools</strong> and <strong>Git</strong> menus, the project session in <code>.proj.user</code>, the memory map in its own window, UltimateBasic 1.6.8.</li></ul>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
-    eyebrow: "Novedad en la 2.8.6",
+    eyebrow: "Novedad en la 2.9.0",
     title: "Bienvenido a Visual Assembler",
-    body: `<ul><li><strong>Pasos de tabla detallados</strong>: en el editor SID, un paso de la tabla de onda / arpegio puede tener su propia duración, ancho de pulso y filtro (botón <strong>…</strong> del paso), y una tabla puede tener 64 pasos.</li><li><strong>Voz en la importación .sid</strong>: la voz y otros sonidos que cambian en cada cuadro (tablas de GoatTracker) se importan fieles al original.</li><li>Novedad de la 2.8.5: emulación SID compartida con VA SID Studio (<strong>va-sid</strong>).</li></ul>`,
+    body: `<ul><li><strong>Visual Assembler Studio</strong>: ensamblador (VMA, ACME, R65), bloques, UltimateBasic y C en una sola ventana con una barra de pestañas común; cada archivo se abre en el editor de su lenguaje. Desde la <strong>ventana de inicio</strong>, el último proyecto, un proyecto nuevo a partir de una plantilla o una carpeta C están a un clic.</li><li><strong>C con Oscar64</strong>: compilador integrado, autocompletado, recuento de ciclos, vistas Disassembly / Monitor, proyectos a partir de scripts de compilación; un programa C funciona en todos los modos de ejecución.</li><li><strong>Depuración a nivel de código en C y UltimateBasic</strong>: puntos de interrupción en las líneas, paso a paso por líneas de C, paneles <strong>Variables</strong> y <strong>Pila de llamadas</strong>.</li><li>Nuevos menús <strong>Nuevo</strong>, <strong>Herramientas</strong> y <strong>Git</strong>, la sesión del proyecto en <code>.proj.user</code>, el mapa de memoria en su propia ventana, UltimateBasic 1.6.8.</li></ul>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
-    eyebrow: "Neu in 2.8.6",
+    eyebrow: "Neu in 2.9.0",
     title: "Willkommen bei Visual Assembler",
-    body: `<ul><li><strong>Detaillierte Tabellenschritte</strong>: im SID-Editor kann ein Schritt der Wellen- / Arpeggio-Tabelle eine eigene Länge, Pulsbreite und einen eigenen Filter haben (Knopf <strong>…</strong> des Schritts), und eine Tabelle kann 64 Schritte haben.</li><li><strong>Sprache im .sid-Import</strong>: Sprache und andere Klänge, die sich Frame für Frame ändern (GoatTracker-Tabellen), werden originalgetreu übernommen.</li><li>Neu in 2.8.5: mit VA SID Studio gemeinsame SID-Emulation (<strong>va-sid</strong>).</li></ul>`,
+    body: `<ul><li><strong>Visual Assembler Studio</strong>: Assembler (VMA, ACME, R65), Blöcke, UltimateBasic und C in einem Fenster mit einer gemeinsamen Tableiste; jede Datei öffnet sich im Editor ihrer Sprache. Im <strong>Startfenster</strong> sind das letzte Projekt, ein neues Projekt aus einer Vorlage oder ein C-Ordner einen Klick entfernt.</li><li><strong>C mit Oscar64</strong>: eingebauter Compiler, Codevervollständigung, Taktzyklen, Ansichten Disassembly / Monitor, Projekte aus Build-Skripten; ein C-Programm läuft in jedem Startmodus.</li><li><strong>Debuggen auf Quelltextebene in C und UltimateBasic</strong>: Haltepunkte auf Quellzeilen, Schritte Zeile für Zeile in C, Bereiche <strong>Variablen</strong> und <strong>Aufrufliste</strong>.</li><li>Neue Menüs <strong>Neu</strong>, <strong>Werkzeuge</strong> und <strong>Git</strong>, die Projektsitzung in <code>.proj.user</code>, die Speicherkarte im eigenen Fenster, UltimateBasic 1.6.8.</li></ul>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
-    eyebrow: "Nieuw in 2.8.6",
+    eyebrow: "Nieuw in 2.9.0",
     title: "Welkom bij Visual Assembler",
-    body: `<ul><li><strong>Gedetailleerde tabelstappen</strong>: in de SID-editor kan een stap van de golf- / arpeggiotabel een eigen lengte, pulsbreedte en filter hebben (de knop <strong>…</strong> van de stap), en een tabel kan 64 stappen hebben.</li><li><strong>Spraak in .sid-import</strong>: spraak en andere klanken die per frame veranderen (GoatTracker-tabellen) worden getrouw aan het origineel geïmporteerd.</li><li>Nieuw in 2.8.5: SID-emulatie gedeeld met VA SID Studio (<strong>va-sid</strong>).</li></ul>`,
+    body: `<ul><li><strong>Visual Assembler Studio</strong>: assembly (VMA, ACME, R65), blokken, UltimateBasic en C in één venster met één tabbalk; elk bestand opent in de editor van zijn eigen taal. Vanuit het <strong>startvenster</strong> zijn het laatste project, een nieuw project uit een sjabloon of een C-map één klik verwijderd.</li><li><strong>C met Oscar64</strong>: ingebouwde compiler, codeaanvulling, cyclustellingen, Disassembly- / Monitor-weergave, projecten uit buildscripts; een C-programma draait in elke uitvoermodus.</li><li><strong>Debuggen op bronniveau in C en UltimateBasic</strong>: breakpoints op bronregels, stappen per C-regel, panelen <strong>Variabelen</strong> en <strong>Aanroepstack</strong>.</li><li>Nieuwe menu's <strong>Nieuw</strong>, <strong>Hulpmiddelen</strong> en <strong>Git</strong>, de projectsessie in <code>.proj.user</code>, de geheugenkaart in een eigen venster, UltimateBasic 1.6.8.</li></ul>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
-    eyebrow: "Nowość w 2.8.6",
+    eyebrow: "Nowość w 2.9.0",
     title: "Witamy w Visual Assembler",
-    body: `<ul><li><strong>Szczegółowe kroki tabeli</strong>: w edytorze SID krok tabeli fal / arpeggio może mieć własną długość, szerokość impulsu i filtr (przycisk <strong>…</strong> kroku), a tabela może mieć 64 kroki.</li><li><strong>Mowa w imporcie .sid</strong>: mowa i inne dźwięki zmieniające się co ramkę (tabele GoatTrackera) są importowane wiernie wobec oryginału.</li><li>Nowość w 2.8.5: emulacja SID wspólna z VA SID Studio (<strong>va-sid</strong>).</li></ul>`,
+    body: `<ul><li><strong>Visual Assembler Studio</strong>: asembler (VMA, ACME, R65), bloki, UltimateBasic i C w jednym oknie ze wspólnym paskiem kart; każdy plik otwiera się w edytorze swojego języka. Z <strong>okna startowego</strong> ostatni projekt, nowy projekt z szablonu albo folder C są o jedno kliknięcie.</li><li><strong>C z Oscar64</strong>: wbudowany kompilator, uzupełnianie kodu, liczba cykli, widoki Disassembly / Monitor, projekty ze skryptów budowania; program C działa w każdym trybie uruchamiania.</li><li><strong>Debugowanie na poziomie źródła w C i UltimateBasic</strong>: punkty przerwania na liniach źródła, krokowanie po liniach C, panele <strong>Zmienne</strong> i <strong>Stos wywołań</strong>.</li><li>Nowe menu <strong>Nowy</strong>, <strong>Narzędzia</strong> i <strong>Git</strong>, sesja projektu w <code>.proj.user</code>, mapa pamięci we własnym oknie, UltimateBasic 1.6.8.</li></ul>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
-    eyebrow: "Novità nella 2.8.6",
+    eyebrow: "Novità nella 2.9.0",
     title: "Benvenuto in Visual Assembler",
-    body: `<ul><li><strong>Passi di tabella dettagliati</strong>: nell'editor SID un passo della tabella d'onda / arpeggio può avere durata, larghezza d'impulso e filtro propri (pulsante <strong>…</strong> del passo), e una tabella può avere 64 passi.</li><li><strong>Voce nell'importazione .sid</strong>: la voce e altri suoni che cambiano a ogni frame (tabelle GoatTracker) vengono importati fedeli all'originale.</li><li>Novità della 2.8.5: emulazione SID condivisa con VA SID Studio (<strong>va-sid</strong>).</li></ul>`,
+    body: `<ul><li><strong>Visual Assembler Studio</strong>: assembly (VMA, ACME, R65), blocchi, UltimateBasic e C in un'unica finestra con una barra delle schede comune; ogni file si apre nell'editor del suo linguaggio. Dalla <strong>finestra iniziale</strong> l'ultimo progetto, un nuovo progetto da un modello o una cartella C sono a un clic.</li><li><strong>C con Oscar64</strong>: compilatore integrato, completamento del codice, conteggio dei cicli, viste Disassembly / Monitor, progetti dagli script di build; un programma C funziona in ogni modalità di esecuzione.</li><li><strong>Debug a livello di sorgente in C e UltimateBasic</strong>: breakpoint sulle righe del sorgente, passo per riga di C, pannelli <strong>Variabili</strong> e <strong>Stack delle chiamate</strong>.</li><li>Nuovi menu <strong>Nuovo</strong>, <strong>Strumenti</strong> e <strong>Git</strong>, la sessione del progetto in <code>.proj.user</code>, la mappa di memoria in una finestra propria, UltimateBasic 1.6.8.</li></ul>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
@@ -654,8 +654,10 @@ function _applyMemoryOverlaysVisibility() {
   document.body.dataset.memoryOverlays = showMemoryOverlays ? "1" : "0";
 }
 
+// The memory map is a window (Tools → C64 memory map); the bottom panel only holds its content while
+// the window is closed, it is never shown.
 function _applyGlobalMemoryPanelVisibility() {
-  if (globalMemoryPanel) globalMemoryPanel.hidden = !showGlobalMemoryPanel;
+  if (globalMemoryPanel) globalMemoryPanel.hidden = true;
 }
 
 function _applyExpertProjectSymbolsHeight() {
@@ -736,6 +738,96 @@ function saveUiSettings() {
   savedUiSettings = settings;
   window.electronAPI?.saveUiSettingsGlobal?.(settings);
 }
+
+// Block view: the Expert project panel moves to the workspace's first column; in Expert mode it is
+// back in .expert-body. One state for both views: _expertProjectVisible (#expert-project-btn and
+// #block-project-btn toggle the same panel).
+function _blockProjectSync() {
+  const panel = document.getElementById("expert-project-panel");
+  const ws = document.querySelector(".workspace");
+  const expertBody = document.querySelector("#expert-panel .expert-body");
+  if (!panel || !ws || !expertBody) return;
+  const block = !document.body.classList.contains("expert-mode") && !document.body.classList.contains("ub-mode") && !document.body.classList.contains("oscar-mode");
+  const show = block && _expertProjectVisible;
+  document.body.classList.toggle("block-project-on", show);
+  const btn = document.getElementById("block-project-btn");
+  btn?.setAttribute("aria-pressed", String(_expertProjectVisible));
+  expertProjectBtn?.classList.toggle("expert-hl-toggle--on", _expertProjectVisible);
+  expertProjectBtn?.setAttribute("aria-pressed", String(_expertProjectVisible));
+  if (show) {
+    // after the mnemonic palette, before the program blocks: where it is in the Source view
+    const palette = ws.querySelector(":scope > .palette-panel");
+    if (panel.parentElement !== ws || panel.previousElementSibling !== palette) ws.insertBefore(panel, palette ? palette.nextElementSibling : ws.firstElementChild);
+    panel.hidden = false;
+    _expertRenderProjectTree();
+  } else {
+    if (panel.parentElement !== expertBody) expertBody.insertBefore(panel, expertBody.firstElementChild);
+    panel.hidden = !_expertProjectVisible;
+  }
+}
+document.getElementById("block-project-btn")?.addEventListener("click", () => {
+  _expertProjectVisible = !_expertProjectVisible;
+  _blockProjectSync();
+  if (_expertProjectVisible) _applyExpertProjectSymbolsHeight?.();
+  saveUiSettings();
+});
+// The project panel's width: one value for the Blocks, Source, UltimateBasic and C views; the panel's
+// right edge drags it (double click: back to the default), kept in c64va-proj-width.
+const _PROJ_WIDTH_KEY = "c64va-proj-width";
+const _PROJ_WIDTH_MIN = 200; // the header icons and a file name still fit
+function _projWidthSet(px, save = false) {
+  const root = document.documentElement;
+  if (px) px = Math.round(Math.min(560, Math.max(_PROJ_WIDTH_MIN, px)));
+  if (!px) root.style.removeProperty("--proj-w");
+  else root.style.setProperty("--proj-w", `${px}px`);
+  if (save) try { px ? localStorage.setItem(_PROJ_WIDTH_KEY, String(Math.round(px))) : localStorage.removeItem(_PROJ_WIDTH_KEY); } catch (_) {}
+}
+(function _projWidthInit() {
+  const saved = Number(localStorage.getItem(_PROJ_WIDTH_KEY));
+  if (saved > 0) _projWidthSet(saved);
+  for (const panel of document.querySelectorAll(".expert-project-panel")) {
+    const grip = document.createElement("div");
+    grip.className = "proj-width-grip";
+    grip.setAttribute("role", "separator");
+    grip.setAttribute("aria-orientation", "vertical");
+    panel.appendChild(grip);
+    grip.addEventListener("pointerdown", (e) => {
+      if (e.button !== 0) return;
+      e.preventDefault();
+      const startX = e.clientX;
+      // the column's width (in the Blocks view the panel's margin is inside it), not the panel's box
+      const startW = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--proj-w")) || 220;
+      let w = startW;
+      grip.setPointerCapture(e.pointerId);
+      grip.classList.add("is-dragging");
+      document.body.classList.add("proj-width-dragging");
+      const move = (ev) => { w = startW + ev.clientX - startX; _projWidthSet(w); };
+      const up = () => {
+        grip.removeEventListener("pointermove", move);
+        grip.classList.remove("is-dragging");
+        document.body.classList.remove("proj-width-dragging");
+        _projWidthSet(w, true);
+      };
+      grip.addEventListener("pointermove", move);
+      grip.addEventListener("pointerup", up, { once: true });
+      grip.addEventListener("pointercancel", up, { once: true });
+    });
+    grip.addEventListener("dblclick", () => _projWidthSet(0, true));
+  }
+}());
+let _studioViewClass = "";
+new MutationObserver(() => {
+  _blockProjectSync();
+  const view = ["expert-mode", "ub-mode", "oscar-mode"].filter(c => document.body.classList.contains(c)).join(" ");
+  if (view === _studioViewClass) return;
+  _studioViewClass = view;
+  const tab = tabs?.find(t => t.id === activeTabId);
+  if (tab && !tab.dirty && (tab.filePath || tab.ubFilePath) && tab.editorMode !== "oscar") {
+    if (_tabDirtyPending === tab.id) { clearTimeout(_tabDirtyTimer); _tabDirtyTimer = null; _tabDirtyPending = null; }
+    tab.savedSig = _tabSig(tab);
+  }
+}).observe(document.body, { attributes: true, attributeFilter: ["class"] });
+setTimeout(_blockProjectSync, 0);
 
 function _applyWorkspaceColumns() {
   const ws = document.querySelector(".workspace");
@@ -1481,14 +1573,26 @@ function initPalette() {
     return true;
   };
   expertModeToggle?.addEventListener("change", () => {
+    if (globalThis._oscActive?.()) _oscLeave();
     if (acmeBlocksBlocked(!expertModeToggle.checked)) return;
     setExpertMode(expertModeToggle.checked);
   });
+  document.getElementById("view-blocks-btn")?.addEventListener("click", () => {
+    if (!expertMode || acmeBlocksBlocked(true)) return;
+    setExpertMode(false);
+  });
+  document.getElementById("view-source-btn")?.addEventListener("click", () => {
+    if (!expertMode) setExpertMode(true);
+  });
   expertModeTbBtn?.addEventListener("click", () => {
+    if (globalThis._oscActive?.()) { _oscLeave(); if (!expertMode && !ultimateBasicMode) setExpertMode(true); return; }
     if (acmeBlocksBlocked(expertMode)) return;
     setExpertMode(!expertMode);
   });
-  ubModeTbBtn?.addEventListener("click", () => setUltimateBasicMode(!ultimateBasicMode));
+  ubModeTbBtn?.addEventListener("click", () => {
+    if (globalThis._oscActive?.()) { _oscLeave(); if (!ultimateBasicMode) setUltimateBasicMode(true); return; }
+    setUltimateBasicMode(!ultimateBasicMode);
+  });
   document.getElementById("ub-open-btn")?.addEventListener("click", () => _ubOpen(false));
   document.getElementById("ub-save-btn")?.addEventListener("click", () => _ubSave(false));
   document.getElementById("ub-save-as-btn")?.addEventListener("click", () => _ubSave(true));
@@ -1499,7 +1603,7 @@ function initPalette() {
   document.getElementById("ub-project-btn")?.addEventListener("click", _ubToggleProject);
   document.getElementById("ub-help-btn")?.addEventListener("click", _ubToggleCommands);
   document.getElementById("ub-manual-btn")?.addEventListener("click", () => window.electronAPI?.openUltimateBasicManual?.());
-  document.getElementById("ub-project-open-btn")?.addEventListener("click", _ubOpenProject);
+  document.getElementById("ub-project-open-btn")?.addEventListener("click", () => _studioOpenProject());
   document.getElementById("ub-project-new-btn")?.addEventListener("click", _ubNewProject);
   document.getElementById("ub-project-save-btn")?.addEventListener("click", _ubSaveProject);
   document.getElementById("ub-project-add-btn")?.addEventListener("click", () => _ubAddFile());
@@ -1635,7 +1739,7 @@ function initPalette() {
   document.getElementById("ub-zoom-out-btn")?.addEventListener("click", () => _ubZoom(-1));
   _bindCtrlWheelZoom(document.querySelector(".ub-editor-wrap"), _ubZoom);
   ubEditor?.addEventListener("contextmenu", (e) => _edShowCtxMenu(e, document.body, _editorCtxItems(ubEditor, _ubAcHide)));
-  ubEditor?.addEventListener("input", (e) => { _ubDirty = true; markTabDirty(); _bmTrackEdit("ub"); _ubRefreshEditor(); if (_isPasteInput(e.inputType)) _ubAcHide(); else _ubAcUpdate(); _ubScheduleLint(); });
+  ubEditor?.addEventListener("input", (e) => { _ubDirty = true; markTabDirty(); _bmTrackEdit("ub"); _ubRefreshEditor(); if (!e.isTrusted || _isPasteInput(e.inputType)) _ubAcHide(); else _ubAcUpdate(); _ubScheduleLint(); });
   ubEditor?.addEventListener("keyup", _ubUpdateCursor);
   ubEditor?.addEventListener("click", _ubUpdateCursor);
   ubEditor?.addEventListener("select", _ubUpdateCursor);
@@ -1933,7 +2037,7 @@ function initPalette() {
     });
   }
 
-  document.getElementById("expert-project-open-btn")?.addEventListener("click", _expertOpenProject);
+  document.getElementById("expert-project-open-btn")?.addEventListener("click", () => _studioOpenProject());
   document.getElementById("expert-project-new-btn")?.addEventListener("click",  _expertNewProject);
   document.getElementById("expert-project-save-btn")?.addEventListener("click", _expertSaveProject);
   document.getElementById("expert-project-add-btn")?.addEventListener("click",  _expertAddProjMember);
@@ -1963,7 +2067,7 @@ function initPalette() {
     };
   });
 
-  expertEditor?.addEventListener("input", () => {
+  expertEditor?.addEventListener("input", (inputEvent) => {
     const displaySelStart = expertEditor.selectionStart ?? 0;
     const displaySelEnd = expertEditor.selectionEnd ?? displaySelStart;
     const pendingMeta = _expertPendingEditMeta;
@@ -1980,8 +2084,9 @@ function initPalette() {
     _expertValidate();
     _expertScheduleIncludeReload();
     renderExpertOriginInfo();
-    // Only typing opens the completion list; a paste or drop just closes it.
-    if (_isPasteInput(pendingMeta?.inputType)) _expertAcHide();
+    // Only typing opens the completion list; a paste or drop just closes it, and so does a text
+    // change made by the app itself (tab switch, reload, sync: an untrusted event).
+    if (!inputEvent?.isTrusted || _isPasteInput(pendingMeta?.inputType)) _expertAcHide();
     else _expertAcUpdate();
     _expertUpdateCaret();
   });
@@ -2188,6 +2293,8 @@ function initPalette() {
     if (e.target.closest("#zoom-in, #zoom-out")) return;
     // Don't close when toggling CRT mode
     if (e.target.closest("#crt-toggle")) return;
+    // Open recent only opens its flyout
+    if (e.target.closest("#menu-open-recent")) return;
     // Small delay so the button's own handler can fire first
     setTimeout(() => { controlMenu.removeAttribute("open"); }, 80);
   });
@@ -2238,10 +2345,13 @@ function initPalette() {
     await _openTemplateDialog();
   });
   document.getElementById("menu-open-project")?.addEventListener("click", async () => {
-    if (ultimateBasicMode) await _ubOpenProject();
-    else if (expertMode) await _openProjectFromMenu();
-    else await loadProjectFromFile();
     document.querySelector(".control-menu")?.removeAttribute("open");
+    // a .proj in every editor; a .vas block program is a file (Load program)
+    await _studioOpenProject();
+  });
+  document.getElementById("menu-start-window")?.addEventListener("click", () => {
+    document.querySelector(".control-menu")?.removeAttribute("open");
+    _studioShowStart();
   });
   document.getElementById("menu-save-project")?.addEventListener("click", async () => {
     if (ultimateBasicMode) {
@@ -2290,6 +2400,7 @@ function initPalette() {
     }
     if ((e.ctrlKey || e.metaKey) && e.key === "s") {
       e.preventDefault();
+      if (globalThis._oscActive?.()) { _oscSaveFile(); return; }
       if (ultimateBasicMode) { _ubSave(); return; }
       saveProjectToFile().then(() => {
         markTabClean();
@@ -2741,9 +2852,25 @@ function _updateEditorModeIndicator() {
     if (blocked) ubModeTbBtn.setAttribute("title", t("ubAsmFileBlocked"));
     else ubModeTbBtn.removeAttribute("title");
   }
+  // Blocks | Source: the view of an assembler file; UB and C tabs have none
+  const viewSwitch = document.getElementById("view-switch");
+  if (viewSwitch) {
+    viewSwitch.hidden = ultimateBasicMode || !!globalThis._oscActive?.();
+    document.getElementById("view-blocks-btn")?.setAttribute("aria-pressed", String(!expertMode));
+    const blocksBtn = document.getElementById("view-blocks-btn");
+    if (blocksBtn) blocksBtn.disabled = typeof _textOnlyAssembler === "function" && _textOnlyAssembler();
+    document.getElementById("view-source-btn")?.setAttribute("aria-pressed", String(expertMode));
+  }
+  // the active tab's language badge follows a mode switch (Block ⇄ Expert)
+  const badge = document.querySelector("#tab-bar .tab-item--active .tab-lang");
+  if (badge && !badge.classList.contains("tab-lang--oscar")) {
+    const mode = ultimateBasicMode ? "ub" : expertMode ? "expert" : "block";
+    badge.className = `tab-lang tab-lang--${mode}`;
+    badge.textContent = { block: "BLK", expert: "ASM", ub: "UB" }[mode];
+  }
   const el = document.getElementById("editor-mode-indicator");
   if (!el) return;
-  const key = ultimateBasicMode ? "editorModeUltimateBasic" : (expertMode ? "editorModeExpert" : "editorModeBlock");
+  const key = globalThis._oscActive?.() ? "editorModeOscar64" : ultimateBasicMode ? "editorModeUltimateBasic" : (expertMode ? "editorModeExpert" : "editorModeBlock");
   const label = document.getElementById("editor-mode-indicator-label");
   if (label) label.textContent = t(key); else el.textContent = t(key);
 }
@@ -3203,9 +3330,11 @@ function showCustomerMessageIfNeeded() {
   if (customerMessageCloseButton) customerMessageCloseButton.textContent = content.close;
   customerMessageDialog.showModal();
   if (title) {
-    title.textContent = content.title;
+    // the Studio mark of the splash and the About box after the name and the version
+    const studio = `<span class="va-studio customer-message-studio" aria-hidden="true">Studio</span>`;
+    title.innerHTML = `${_escHtml(content.title)} ${studio}`;
     getAppVersionText().then(version => {
-      title.textContent = `${content.title} ${version}`;
+      title.innerHTML = `${_escHtml(`${content.title} ${version}`)} ${studio}`;
     });
   }
   requestAnimationFrame(() => customerMessageCloseButton?.focus());
@@ -3467,7 +3596,7 @@ function applySavedUiSettings() {
         // Silently reopen the last-used workspace (its real, on-disk files) so the
         // app continues where it was closed — but only into the still-untouched
         // startup state, never over anything the user may have already started.
-        if (globalSettings.lastWorkspacePath) _workspaceAutoRestore(globalSettings.lastWorkspacePath);
+        // (the .vaws workspace no longer reopens by itself: the last project does, see _studioContinueLast)
       }
     }).catch(() => {});
   }
@@ -3491,6 +3620,7 @@ function handleLanguageChange() {
 }
 
 function applyTranslations() {
+  queueMicrotask(() => globalThis._oscApplyTranslations?.());
   document.title = currentLanguage === "hu" ? "C64 Block Assembler" : "C64 Visual Assembler";
   const setText = (selector, value) => {
     const node = document.querySelector(selector);
@@ -3522,6 +3652,10 @@ function applyTranslations() {
     setText("#about-vice-credit-license", t("aboutLicenseLabel"));
     setText("#about-ue2-credit-label", t("aboutUe2CreditLabel"));
     setText("#about-ue2-credit-license", t("aboutLicenseLabel"));
+    setText("#about-oscar64-credit-label", t("aboutOscar64CreditLabel"));
+    setText("#about-oscar64-credit-license", t("aboutLicenseLabel"));
+    setText("#about-acme-credit-label", t("aboutAcmeCreditLabel"));
+    setText("#about-acme-credit-license", t("aboutLicenseLabel"));
     setText("#about-repo-label", t("aboutRepoLabel"));
     setText("#about-ub-version-label", t("aboutUbVersionLabel"));
     setText("#about-vma-version-label", t("aboutVmaVersionLabel"));
@@ -3594,6 +3728,7 @@ function applyTranslations() {
   expertPaletteBtn?.setAttribute("title", t("expertPaletteToggle"));
   expertPaletteBtn?.setAttribute("aria-label", t("expertPaletteToggle"));
   expertProjectBtn?.setAttribute("title", t("expertProjectPanel"));
+  document.getElementById("block-project-btn")?.setAttribute("aria-label", t("expertProjectPanel"));
   expertProjectBtn?.setAttribute("aria-label", t("expertProjectPanel"));
   document.getElementById("expert-project-open-btn")?.setAttribute("title", t("projOpenProjectBtn"));
   document.getElementById("expert-project-open-btn")?.setAttribute("aria-label", t("projOpenProjectBtn"));
@@ -3688,6 +3823,46 @@ function applyTranslations() {
     setText("#hardware-settings-title", t("hardwareSettingsTitle"));
     setText("#hw-settings-tab-general", t("hardwareSettingsGeneralTab"));
     setText("#hw-settings-tab-files", t("hardwareSettingsFilesTab"));
+    setText("#hw-settings-tab-compilers", t("hardwareSettingsCompilersTab"));
+    setText("#hw-settings-tab-sid", t("hardwareSettingsSidTab"));
+    setText("#tools-btn-label", t("toolsMenu"));
+    setText("#git-btn-label", t("gitMenu"));
+    document.getElementById("git-btn")?.setAttribute("aria-label", t("gitMenuHint"));
+    document.getElementById("about-tb-btn")?.setAttribute("aria-label", t("aboutTb"));
+    setText("#git-commit-label", t("gitCommit"));
+    setText("#git-group-branch", t("gitBranches"));
+    setText("#git-branch-new-label", t("gitBranchNew"));
+    setText("#menu-start-window", t("menuStartWindow"));
+    setText("#menu-recent-label", t("startRecent"));
+    setText("#start-recent-label", t("startRecent"));
+    setText("#start-actions-label", t("startActions"));
+    setText("#start-new-label", t("startNew"));
+    setText("#start-new-desc", t("startNewDesc"));
+    setText("#start-open-label", t("startOpen"));
+    setText("#start-open-desc", t("startOpenDesc"));
+    setText("#start-folder-label", t("startFolder"));
+    setText("#start-folder-desc", t("startFolderDesc"));
+    setText("#start-continue", t("startContinue"));
+    setText("#start-show-label", t("startShowOnLaunch"));
+    setText("#new-btn-label", t("newMenu"));
+    document.getElementById("new-btn")?.setAttribute("aria-label", t("newMenuHint"));
+    setText("#new-group-file", t("newGroupFile"));
+    setText("#new-group-project", t("newGroupProject"));
+    setText("#new-asm-btn-label", t("newAsm"));
+    setText("#new-blocks-btn-label", t("newBlocks"));
+    setText("#new-ub-btn-label", t("newUb"));
+    setText("#new-c-btn-label", t("newC"));
+    setText("#new-project-btn-label", t("newFromTemplate"));
+    setText("#view-blocks-btn", t("viewBlocks"));
+    setText("#view-source-btn", t("viewSource"));
+    document.getElementById("view-switch")?.setAttribute("aria-label", t("viewSwitchHint"));
+    document.getElementById("tools-btn")?.setAttribute("aria-label", t("toolsMenuHint"));
+    setText("#tools-group-graphics", t("toolsGroupGraphics"));
+    setText("#tools-group-sound", t("toolsGroupSound"));
+    setText("#tools-group-data", t("toolsGroupData"));
+    setText("#tools-group-machine", t("toolsGroupMachine"));
+    setText("#sid-player-settings-label", t("sidPlayerSettingsLabel"));
+    setText("#hw-compilers-note", t("hwCompilersNote"));
     setText("#hw-settings-tab-integrations", t("hardwareSettingsIntegrationsTab"));
     _acmeBuildButtonSync();
     setText("#sid-preview-settings-label", t("sidPreviewSettings"));
@@ -3768,6 +3943,14 @@ function applyTranslations() {
     setText("#ps-vma-consts-label", t("psVmaConsts"));
     setText("#ps-vma-consts-hint", t("psVmaConstsHint"));
     setText("#ps-files-label", t("psFiles"));
+    setText("#ps-section-c", t("psSectionC"));
+    setText("#ps-c-optimize-label", t("psCOptimize"));
+    setText("#ps-c-optimize-default", t("psCOptimizeDefault"));
+    setText("#ps-c-targets-label", t("psCTargetsLabel"));
+    setText("#ps-c-defines-label", t("psCDefines"));
+    setText("#ps-c-defines-hint", t("psCDefinesHint"));
+    setText("#ps-c-includes-label", t("psCIncludes"));
+    setText("#ps-c-includes-hint", t("psCIncludesHint"));
     setText("#ps-cancel", t("cancel"));
     setText("#ps-save", t("psSave"));
     document.getElementById("import-kick-project")?.setAttribute("aria-label", t("importKickProjectTip"));
@@ -3776,7 +3959,7 @@ function applyTranslations() {
     document.getElementById("save-project")?.setAttribute("aria-label", t("saveProjectTip"));
     setText("#save-project-as", t("saveProgramAs"));
     document.getElementById("save-project-as")?.setAttribute("aria-label", t("saveProgramAsTip"));
-    setText("#menu-new-from-template", t("menuNewFromTemplate"));
+    setText("#menu-new-from-template", t("menuNewProject"));
     document.getElementById("menu-new-from-template")?.setAttribute("aria-label", t("menuNewFromTemplateTip"));
     document.getElementById("new-project-btn")?.setAttribute("aria-label", t("menuNewFromTemplate").replace(/…$/, ""));
     setText("#template-dialog-title", t("templateDialogTitle"));
@@ -4506,6 +4689,7 @@ function _applyEditorTranslations() {
   setText("#cg-load-bin", t("cgLoadBin"));
   setAttr("#cg-copy", t("cgCopy"));
   setAttr("#memory-undock-btn", t("memoryUndock"));
+  setAttr("#memory-window-btn", t("memoryTitle"));
   setAttr("#memory-dock-btn", t("memoryDock"));
   setAttr("#memory-float-close", t("memoryDock"));
   setText("#mem-float-title", t("memoryTitle"));
@@ -4534,10 +4718,14 @@ function _applyEditorTranslations() {
   setText('#w64-reu option[value="0"]', t("w64ReuOff"));
   setText("#ud-title", t(document.getElementById("ue2-debug-dialog")?.dataset.target === "vice" ? "viceDbgTitle" : "ue2DbgTitle"));
   setText("#ud-regs-lbl", t("w64Registers"));
+  setText("#ud-vars-lbl", t("w64Variables"));
   setText("#ud-disasm-lbl", t("w64Disassembly"));
   setText("#ud-mem-lbl", t("w64Memory"));
   setText("#ud-bps-lbl", t("w64Breakpoints"));
   setText("#w64-regs-lbl", t("w64Registers"));
+  setText("#w64-vars-lbl", t("w64Variables"));
+  setText("#w64-stack-lbl", t("w64CallStack"));
+  setText("#ud-stack-lbl", t("w64CallStack"));
   setText("#w64-disasm-lbl", t("w64Disassembly"));
   setText("#w64-mem-lbl", t("w64Memory"));
   setText("#w64-bps-lbl", t("w64Breakpoints"));
@@ -4784,7 +4972,7 @@ function _applyEditorTranslations() {
   const kbTitles = {
     "6502 Opcodes Reference": "kbOpcodes", "C64 KERNAL Functions": "kbKernal", "C64 Memory Map": "kbMemoryMap",
     "C64 Color Codes": "kbColorCodes", "VIC-II Article": "kbVicArticle", "Spritemate — C64 Sprite Editor": "kbSpritemate",
-    "C64 OS Programmer's Guide: Development Environment": "kbC64os", "png2c64 Image Converter": "kbPng2c64", "Restore64 Disassembler": "kbRestore64",
+    "C64 OS Programmer's Guide: Development Environment": "kbC64os", "png2c64 Image Converter": "kbPng2c64", "Restore64 Disassembler": "kbRestore64", "Oscar64 C Compiler": "kbOscar64",
     "VICE Emulator": "hwViceSectionLabel"
   };
   document.querySelectorAll("#knowledge-base-dialog .knowledge-base-link-title").forEach((el) => {
@@ -7249,6 +7437,7 @@ function _isNoCodeBlock(b) {
   return b.isOrgMacro || b.isRegionMacro || b.isEndRegionMacro || b.isComment || b.isDefineMacro || b.isBlankLine;
 }
 function isProgramEmpty() {
+  if (globalThis._oscActive?.()) return !_oscHasSource();
   // ACME / R65: the source is theirs, not VA blocks (BasicUpstart2, no "* ="); the assembler
   // reports what is wrong with it, here only an empty source (comments only) counts.
   if (expertMode && _textOnlyAssembler()) {
@@ -7290,14 +7479,16 @@ function _blockModeBlocked(blocks = program) {
   return _blockModeLimitExceeded(blocks) ? "blockModeLimit" : "";
 }
 
-function setExpertMode(on, { keepText = false, switchingToUb = false } = {}) {
+// keepProgram: a tab switch leaves the Source view; the program is already the new tab's (the old
+// tab's text was saved by _tabSaveCurrent), so it is not rebuilt from the editor's text.
+function setExpertMode(on, { keepText = false, switchingToUb = false, keepProgram = false } = {}) {
   if (on && _isBoundUbTab()) {
     showViceToast?.(t("asmUbFileBlocked"), true);
     return;
   }
   if (on && ultimateBasicMode) setUltimateBasicMode(false, { restoreAssemblerMode: false });
   let cursorSourceLine = -1;
-  if (!on && expertMode) {
+  if (!on && expertMode && !keepProgram) {
     // Capture the caret's source line BEFORE syncing / rebuilding, so we can
     // reselect the equivalent block after the switch.
     if (expertEditor) {
@@ -8481,7 +8672,7 @@ const _UB_COMMAND_REFERENCE = [
   ["circle4", "circle4 x, y, radius", "Draws a circle in block-pixel mode."],
   ["paint", "paint x, y", "Flood-fills a connected hires bitmap area. Set the drawing color with COLOR PEN."],
   ["fill", "fill screen value\nfill color value\nfill address, length, value", "Fills screen RAM, color RAM, or an arbitrary memory range."],
-  ["sprite control", "sprite id, on|off|color value|multi on|off|expand x|y|priority front|back", "Controls hardware sprite attributes."],
+  ["sprite control", "sprite id, on|off|color value|multi on|off|multicolor on|off|expand x|y|priority front|back", "Controls hardware sprite attributes."],
   ["sprite_frame", "sprite_frame id, data_address [, frame]", "Selects a sprite animation frame. The optional frame indexes consecutive 64-byte images from data_address; without it, the command selects the base image."],
   ["sprite collision", "sprite_hit()               # short form: sprhit()\nsprite_bg_hit()            # short form: sprbghit()", "Reads sprite/sprite or sprite/background collision flags."],
   ["sprite position", "sprite_x(id)\nsprite_y(id)", "Reads a hardware sprite coordinate."],
@@ -8943,16 +9134,19 @@ function _bmSet(kind, lines, refresh = true) {
 }
 
 function _bmText(kind) {
+  if (kind === "oscar") return document.getElementById("osc-editor")?.value || "";
   return kind === "ub" ? (ubEditor?.value || "") : _expertGetSourceText();
 }
 
 function _bmCaretLine(kind) {
+  if (kind === "oscar") return globalThis._oscCaretLine?.() ?? 0;
   if (kind === "ub") return ubEditor.value.slice(0, ubEditor.selectionStart).split("\n").length - 1;
   const sourcePos = _expertDisplayPosToSourcePos(expertEditor.selectionStart ?? 0);
   return _expertGetSourceText().slice(0, sourcePos).split("\n").length - 1;
 }
 
 function _bmGoto(kind, line) {
+  if (kind === "oscar") { globalThis._oscGotoLine?.(line); return; }
   if (kind === "ub") _ubGotoLine(line); else _expertGotoSourceLine(line);
 }
 
@@ -9023,7 +9217,7 @@ function _gotoLineOpen(kind) {
 function _gotoLineSubmit() {
   const dialog = document.getElementById("goto-line-dialog");
   const input = document.getElementById("goto-line-input");
-  const kind = dialog?.dataset.kind === "ub" ? "ub" : "expert";
+  const kind = ["ub", "oscar"].includes(dialog?.dataset.kind) ? dialog.dataset.kind : "expert";
   const max = _bmText(kind).split("\n").length;
   const line = /^\d+$/.test(String(input?.value || "").trim()) ? Number(input.value.trim()) : NaN;
   if (!Number.isInteger(line) || line < 1 || line > max) {
@@ -9296,7 +9490,9 @@ function _toolkitPlace() {
   if (ubPanelEl) ubPanelEl.hidden = !_ubToolkitVisible;
   _ubSetToggle("expert-toolkit-btn", _expertToolkitVisible);
   _ubSetToggle("ub-toolkit-btn", _ubToolkitVisible);
-  const host = ultimateBasicMode && _ubToolkitVisible ? ubPanelEl
+  const oscHost = document.getElementById("osc-toolkit-host");
+  const host = globalThis._oscActive?.() && oscHost && !oscHost.hidden ? oscHost
+    : ultimateBasicMode && _ubToolkitVisible ? ubPanelEl
     : expertMode && !ultimateBasicMode && _expertToolkitVisible ? expertPanelEl
     : document.querySelector(".output-section-label.toolkit-label");
   if (host && content.parentElement !== host) host.appendChild(content);
@@ -9597,6 +9793,7 @@ function _ubRenderProjectFiles() {
       if (startup.contains(event.target) || remove.contains(event.target)) return;
       if (tab) _tabActivate(tab.id);
       else if (isUb) _ubOpenProjectFile(file);
+      else if (_projFileRole("ub", absPath) === "foreign") _projForeignNote("ub", absPath);
     });
     item.addEventListener("dblclick", event => {
       if (startup.contains(event.target) || remove.contains(event.target) || tab) return;
@@ -9643,7 +9840,7 @@ async function _ubAddFile(intoContainer = null) {
   if (!_ubProjectData) _ubProjectData = { name: "New UltimateBasic project", files: [], startupFile: null, _projPath: null };
   const container = intoContainer || _ubProjectData.files;
   let openedCount = 0;
-  for (const f of res.files) {
+  for (const f of _projFilterAddable("ub", res.files, msg => _ubSetStatus(msg, true))) {
     const isUb = /\.ub$/i.test(f.fileName || f.filePath || "");
     if (isUb && !intoContainer) {
       const read = await window.electronAPI?.readTextFile?.(f.filePath);
@@ -9698,6 +9895,7 @@ function _ubCreateFileTab(path, content) {
   _ubBreakpointLines = [];
   _ubFilePath = path;
   _ubDirty = false;
+  _tabMarkSaved(tab);
   updateWindowTitle(fileName);
   _ubRefreshEditor();
   renderTabBar();
@@ -9735,7 +9933,14 @@ async function _ubApplyOpenedProject(project, projPath, { dropBlank = false } = 
     return null;
   };
   const startup = _projFindEntry(_ubProjectData.files, _ubProjectData.startupFile) || (dropBlank ? firstUb(_ubProjectData.files) : null);
-  const opened = startup ? await _ubOpenProjectFile(startup) : null;
+  // every .ub file of the project opens as a tab, the startup file is the active one
+  const allUb = [];
+  const walkUb = (nodes) => (nodes || []).forEach(n => n.type === "folder" ? walkUb(n.children) : (/\.ub$/i.test(n.path || n.name || "") && allUb.push(n)));
+  walkUb(_ubProjectData.files);
+  // the saved session (.proj.user) first; without it every .ub file
+  const restored = await _projUserRestore("ub", projPath);
+  if (!restored) for (const node of allUb) if (node !== startup) await _ubOpenProjectFile(node);
+  const opened = restored ? _getActiveTab() : startup ? await _ubOpenProjectFile(startup) : null;
   if (blankId && opened && opened.id !== blankId) {
     const blankIdx = tabs.findIndex(tab => tab.id === blankId && !tab.filePath);
     if (blankIdx >= 0) { tabs.splice(blankIdx, 1); renderTabBar(); }
@@ -9878,7 +10083,7 @@ async function _ubSave(forceSaveAs = false) {
   _ubSetFile(result.filePath || _ubFilePath);
   _ubDirty = false;
   const tab = _getActiveTab();
-  if (tab) { tab.ubText = ubEditor.value; tab.dirty = false; }
+  if (tab) { tab.ubText = ubEditor.value; _tabMarkSaved(tab); }
   renderTabBar();
   _ubSetStatus(t("ubSaved"));
   return true;
@@ -10269,6 +10474,50 @@ async function _ubCompileSource(source, sourcePath, label = "startup file", opti
   _ubSetBuildOutput(`${label}\n\n${_ubFormatMap(result.map)}${packedInfo}`);
   _ubSetStatus(`${label}: build successful — ${(result.outputPrg || result.prg).length} PRG bytes${result.outputPrg ? " (Exomizer)" : ""}`);
   return result;
+}
+
+// The debugger's UltimateBasic variables (the compiler's memory map): scalars with their type, arrays.
+function _ubDebugVars(build) {
+  const map = build?.map || {};
+  const out = [];
+  for (const v of map.variables || []) {
+    const address = Number(v?.address);
+    if (v?.name && Number.isFinite(address)) out.push({ name: String(v.name), address: address & 0xFFFF, type: String(v.type || "int") });
+  }
+  for (const a of map.arrays || []) {
+    const address = Number(a?.address);
+    if (a?.name && Number.isFinite(address)) out.push({ name: `${a.name}()`, address: address & 0xFFFF, type: "array", size: Number(a.size) || 0 });
+  }
+  return out;
+}
+
+// One UltimateBasic value: byte ("int"), word, signed integer, 5-byte Commodore float ("single"), arrays as bytes.
+function _ubFormatValue(v, peek) {
+  const hex = (n, w) => `$${n.toString(16).toUpperCase().padStart(w, "0")}`;
+  const t = v.type.replace(/_array$/, "");
+  if (v.type === "array" || /_array$/.test(v.type)) {
+    const n = Math.min(v.size || 8, 8);
+    const b = peek(v.address, n);
+    return `[${Array.from(b).map(x => x.toString(16).toUpperCase().padStart(2, "0")).join(" ")}${(v.size || 0) > n ? " …" : ""}]`;
+  }
+  if (t === "word" || t === "integer") {
+    const b = peek(v.address, 2);
+    const u = b[0] | (b[1] << 8);
+    return `${t === "integer" && u >= 0x8000 ? u - 0x10000 : u} (${hex(u, 4)})`;
+  }
+  if (t === "single") {
+    const b = peek(v.address, 5);
+    if (!b[0]) return "0";
+    const m = (((b[1] | 0x80) * 256 + b[2]) * 256 + b[3]) * 256 + b[4];
+    const val = (m / 2 ** 32) * 2 ** (b[0] - 128) * (b[1] & 0x80 ? -1 : 1);
+    return String(+val.toPrecision(9));
+  }
+  if (t === "string") {
+    const b = peek(v.address, 2);
+    return `→ ${hex(b[0] | (b[1] << 8), 4)}`;
+  }
+  const x = peek(v.address, 1)[0];
+  return `${x} (${hex(x, 2)})`;
 }
 
 function _ubDebuggerSymbols(build) {
@@ -16226,6 +16475,12 @@ function _expertRenderProjectTree() {
   const treeEl = document.getElementById("expert-project-tree");
   if (!nameEl || !treeEl) return;
   _projUpdateSaveBtn("expert-project-save-btn", !!_expertProjectData, _expertProjectDirty);
+  // Project settings belong to a project file: off until one is opened or saved
+  const hasProjFile = !!_expertProjectData?._projPath;
+  const psBtn = document.getElementById("expert-project-settings-btn");
+  if (psBtn) psBtn.disabled = !hasProjFile;
+  const psMenu = document.getElementById("menu-project-settings");
+  if (psMenu) psMenu.disabled = !hasProjFile;
 
   if (!_expertProjectData) {
     nameEl.textContent = t("projNoProject");
@@ -16367,7 +16622,7 @@ async function _expertAddFileIntoFolder(folderEntry) {
   const res = await window.electronAPI?.chooseProjMember?.();
   if (!res || res.canceled || !res.files?.length) return;
   if (!folderEntry.children) folderEntry.children = [];
-  for (const f of res.files) {
+  for (const f of _projFilterAddable("asm", res.files, msg => _expertSetStatus(msg, "error"))) {
     let relPath = f.filePath;
     if (_expertProjectData._projPath) {
       const projDir = _expertProjectData._projPath.replace(/\\/g, "/").replace(/\/[^/]+$/, "");
@@ -16408,7 +16663,62 @@ function _projMoveEntry(container, entry, delta) {
 // set for its type. ub: the UltimateBasic tree (only .ub opens in VA).
 function _projOpensInSystem(name, ub = false) {
   const n = String(name || "");
-  return ub ? !/\.ub$/i.test(n) : !/\.(asm|s|a65|inc|vas|json|c64va|proj)$/i.test(n);
+  if (_studioEditorOf(n)) return false;
+  return ub || !/\.(json|c64va|proj)$/i.test(n);
+}
+
+// Studio: which editor a file belongs to: "c" (Oscar64), "ub", "asm" (Expert / blocks), or "".
+function _studioEditorOf(name) {
+  const n = String(name || "").toLowerCase();
+  if (/\.(c|h)$/.test(n)) return "c";
+  if (/\.ub$/.test(n)) return "ub";
+  if (/\.(asm|s|a65|inc|vas)$/.test(n)) return "asm";
+  return "";
+}
+
+// One language per project (STUDIO-PROJECT-PLAN.md 2.1): the source files a project of a kind may hold.
+// Anything that is not a source file of any language is a data file (any project may hold it).
+const _PROJ_SOURCES = {
+  asm: /\.(asm|s|a65|inc|vas)$/i,
+  ub: /\.ub$/i,
+  c: /\.(c|h|asm|s|a65|inc)$/i,
+};
+// "source" | "asset" | "foreign" (a source file of another language)
+function _projFileRole(kind, path) {
+  const name = String(path || "");
+  if (_PROJ_SOURCES[kind]?.test(name)) return "source";
+  return _studioEditorOf(name) ? "foreign" : "asset";
+}
+// The files that may go into the project; the others are named in a status message.
+function _projFilterAddable(kind, files, setStatus) {
+  const ok = [], refused = [];
+  for (const f of files || []) (_projFileRole(kind, f.fileName || f.filePath) === "foreign" ? refused : ok).push(f);
+  if (refused.length) {
+    const msg = tf("projForeignRefused", { files: refused.map(f => f.fileName || f.filePath).join(", "), kind: t(`projKind_${kind}`) });
+    setStatus?.(msg);
+    showViceToast?.(msg, true);
+  }
+  return ok;
+}
+function _projForeignNote(kind, path) {
+  const name = String(path || "").replace(/\\/g, "/").split("/").pop();
+  showViceToast?.(tf("projForeignFile", { file: name, kind: t(`projKind_${kind}`) }), true);
+}
+
+// Opens a file of another language from a project tree in its own editor; false = not handled here.
+async function _studioOpenForeign(absPath, current) {
+  const kind = _studioEditorOf(absPath);
+  if (!kind || kind === current) return false;
+  if (kind === "c") return !!(await globalThis._oscOpenPath?.(absPath));
+  const res = await window.electronAPI?.readTextFile?.(absPath);
+  if (!res?.ok) { showViceToast?.(tf("cannotOpen", { error: res?.error || "?" }), true); return true; }
+  const existing = tabs.find(tb => _normFilePath(tb.filePath) === _normFilePath(absPath));
+  if (existing) { _tabActivate(existing.id); return true; }
+  if (kind === "ub") { _ubCreateFileTab(absPath, res.content || ""); return true; }
+  if (ultimateBasicMode) setUltimateBasicMode(false, { restoreAssemblerMode: false });
+  await _expertLoadAsmFromPath(absPath, res.content || "");
+  if (!expertMode) setExpertMode(true, { keepText: true });
+  return true;
 }
 
 async function _projOpenInSystem(absPath) {
@@ -16516,7 +16826,7 @@ function _expertTouchProject() {
 async function _confirmCloseAllTabs() {
   // For each tab that has content, ask user. If user cancels any, stop and return false.
   for (const tab of [...tabs]) {
-    if (_tabHasContent(tab)) {
+    if (_tabNeedsSaveAsk(tab)) {
       const key = tab.filePath ? "tabCloseConfirmUnsaved" : "tabCloseConfirm";
       const msg = tf(key, { name: tab.name });
       if (!await _showConfirm(msg)) return false;
@@ -16556,89 +16866,276 @@ async function _closeAllTabsWithConfirm() {
 }
 
 async function _closeProject() {
-  if (ultimateBasicMode) {
-    if (!_ubProjectData && tabs.every(tab => !_tabHasContent(tab))) {
-      _ubSetStatus(t("projNoOpen"));
-      return;
-    }
-
-    if (!await _closeAllTabsWithConfirm()) return;
-
-    _ubProjectData = null;
-    _ubProjectDirty = false;
-    _ubFilePath = "";
-    _ubDirty = false;
-    _ubLastResult = null;
-    if (ubEditor) ubEditor.value = "";
-
-    const blank = _getActiveTab();
-    if (blank) {
-      blank.editorMode = "ub";
-      blank.ubText = "";
-      blank.ubFilePath = "";
-      blank.filePath = null;
-      blank.dirty = false;
-    }
-
-    _ubProjectVisible = false;
-    _ubApplyLeftViews(false);
-    _ubRenderProjectFiles();
-    _ubRefreshEditor();
-    _ubSetStatus(t("projClosed"));
-    renderTabBar();
-    renderProgram();
-    renderAsmOutput();
-    return;
-  }
-
-  if (!expertMode) {
-    const activeTab = _getActiveTab();
-    if (!activeTab || !_tabHasContent(activeTab)) {
-      if (emulatorStatus) emulatorStatus.textContent = t("projNoOpen");
-      return;
-    }
-    if (!await _tabClose(activeTab.id)) return;
-    if (emulatorStatus) emulatorStatus.textContent = t("projClosed");
-    renderProgram();
-    renderAsmOutput();
-    return;
-  }
-
-  if (!_expertProjectData && tabs.every(t => !_tabHasContent(t))) {
-    _expertSetStatus(t("projNoOpen"), "ok");
-    return;
-  }
-
-  // Confirm closing project tabs
-  if (!await _closeAllTabsWithConfirm()) return;
-
-  // Clear project data
-  _expertProjectData = null;
-  _expertProjectDirty = false;
-
-  // Hide project panel
-  _expertProjectVisible = false;
-  expertProjectBtn?.classList.remove("expert-hl-toggle--on");
-  expertProjectBtn?.setAttribute("aria-pressed", "false");
-  expertProjectPanel?.setAttribute("hidden", "");
-
-  if (expertMode) {
-    _expertRenderProjectTree();
-    _expertSetStatus(t("projClosed"), "ok");
-  } else {
-    _expertSetStatus(t("projClosed"), "ok");
-  }
-
+  // one project at a time, of any language: its session is written, its tabs close (unsaved ones asked about)
+  const open = !!(_expertProjectData || _ubProjectData || globalThis._oscProjUserTarget?.());
+  if (!open && tabs.every(tab => !_tabHasContent(tab))) { showViceToast?.(t("projNoOpen")); return; }
+  if (!await _studioCloseAll()) return;
+  try { localStorage.removeItem(_STUDIO_OPEN_PROJECT); } catch (_) {}
+  renderTabBar();
   renderProgram();
-  renderAsmOutput();
+  showViceToast?.(t("projClosed"));
 }
 
-async function _openProjectFromMenu() {
+// ── Studio: projects ────────────────────────────────────────────────────────
+// One kind of project is open at a time: opening or creating one closes the tabs and the project of
+// the other kinds (several C projects may stay open side by side). The start window lists the recent
+// projects (localStorage c64va-recent-projects: {path, name, kind}, kind = asm | acme | ub | c; for a
+// C project path is its folder).
+const _STUDIO_RECENT = "c64va-recent-projects";
+
+function _studioRecent() {
+  try {
+    const list = JSON.parse(localStorage.getItem(_STUDIO_RECENT) || "[]");
+    return Array.isArray(list) ? list.filter(p => p && typeof p.path === "string") : [];
+  } catch (_) { return []; }
+}
+
+// The project left open at exit (the Start window off: it opens again at launch).
+const _STUDIO_OPEN_PROJECT = "c64va-open-project";
+function _studioRememberProject(path, name, kind) {
+  if (!path) return;
+  try { localStorage.setItem(_STUDIO_OPEN_PROJECT, JSON.stringify({ path, kind: kind || "asm" })); } catch (_) {}
+  const base = String(path).replace(/\\/g, "/").split("/").pop().replace(/\.proj$/i, "");
+  const list = _studioRecent().filter(p => _normFilePath(p.path) !== _normFilePath(path));
+  list.unshift({ path, name: name || base, kind: kind || "asm" });
+  localStorage.setItem(_STUDIO_RECENT, JSON.stringify(list.slice(0, 12)));
+}
+
+function _studioForgetProject(path) {
+  localStorage.setItem(_STUDIO_RECENT, JSON.stringify(_studioRecent().filter(p => _normFilePath(p.path) !== _normFilePath(path))));
+}
+
+function _studioProjectKind(proj) {
+  if (proj?.app === "oscar64") return "c";
+  if (_projIsUb(proj)) return "ub";
+  return _projAssemblerSyntax(proj) === "acme" ? "acme" : "asm";
+}
+
+// Closes the tabs and projects before another project opens. keep = "c": the C files and projects stay.
+// ── Project session: <name>.proj.user (STUDIO-PROJECT-PLAN.md 2.3) ──────────
+// Next to the .proj: the open tabs (paths relative to the project), the view of each assembly tab
+// (blocks / source), the active tab with its caret line, the breakpoints. Never the content: a tab
+// always reads its file from disk. Written a moment after the tabs change and before a project closes.
+let _projUserRestoring = false;
+let _projUserTimer = null;
+const _projUserWritten = new Map();
+
+function _projUserTarget() {
+  const c = globalThis._oscProjUserTarget?.();
+  if (c) return c;
+  if (_ubProjectData?._projPath) return { kind: "ub", projPath: _ubProjectData._projPath };
+  if (_expertProjectData?._projPath) return { kind: "asm", projPath: _expertProjectData._projPath };
+  return null;
+}
+function _projUserDir(projPath) {
+  return String(projPath || "").replace(/\\/g, "/").replace(/\/[^/]*$/, "");
+}
+function _projUserTabPath(tab) {
+  if (tab.editorMode === "oscar") return globalThis._oscTabPath?.(tab.oscId) || "";
+  return tab.editorMode === "ub" ? (tab.ubFilePath || tab.filePath || "") : (tab.filePath || "");
+}
+function _projUserState(target = _projUserTarget()) {
+  if (!target) return null;
+  const dir = _projUserDir(target.projPath);
+  const rel = (p) => {
+    const n = String(p).replace(/\\/g, "/");
+    return n.toLowerCase().startsWith(dir.toLowerCase() + "/") ? n.slice(dir.length + 1) : n;
+  };
+  const out = [];
+  let active = -1;
+  let caret = -1;
+  for (const tab of tabs) {
+    const path = _projUserTabPath(tab);
+    if (!path || /^untitled:/i.test(path)) continue;
+    const isActive = tab.id === activeTabId;
+    const mode = isActive && tab.editorMode !== "oscar" ? (ultimateBasicMode ? "ub" : expertMode ? "expert" : "block") : tab.editorMode;
+    const entry = { path: rel(path) };
+    if (mode === "expert" || mode === "block") entry.view = mode === "expert" ? "source" : "blocks";
+    const bps = mode === "ub"
+      ? (isActive ? _ubBreakpointLines : tab.ubBreakpointLines)
+      : mode === "expert" ? (isActive ? _expertBreakpointLines : tab.expertBreakpointLines) : null;
+    if (Array.isArray(bps) && bps.length) entry.bps = [...bps].sort((a, b) => a - b);
+    if (isActive) {
+      active = out.length;
+      try { caret = mode === "block" ? -1 : _bmCaretLine(mode === "oscar" ? "oscar" : mode); } catch (_) { caret = -1; }
+    }
+    out.push(entry);
+  }
+  return { app: "va-proj-user", version: 1, active, caret, tabs: out };
+}
+async function _projUserSave() {
+  clearTimeout(_projUserTimer);
+  _projUserTimer = null;
+  if (_projUserRestoring || !window.electronAPI?.saveTextFile) return;
+  const target = _projUserTarget();
+  const state = _projUserState(target);
+  if (!state || !state.tabs.length) return;
+  const path = `${target.projPath}.user`;
+  const text = JSON.stringify(state, null, 2) + "\n";
+  if (_projUserWritten.get(path) === text) return;
+  _projUserWritten.set(path, text);
+  try { await window.electronAPI.saveTextFile(path, text); } catch (_) {}
+}
+function _projUserSchedule() {
+  if (_projUserRestoring) return;
+  clearTimeout(_projUserTimer);
+  _projUserTimer = setTimeout(_projUserSave, 800);
+}
+
+// The saved session of a project that was just opened: its tabs come back instead of "every file";
+// false = no session (or none of its files exist any more).
+async function _projUserRestore(kind, projPath) {
+  if (!projPath || !window.electronAPI?.readTextFile) return false;
+  const read = await window.electronAPI.readTextFile(`${projPath}.user`);
+  if (!read?.ok) return false;
+  let data = null;
+  try { data = JSON.parse(read.content); } catch (_) { return false; }
+  if (data?.app !== "va-proj-user" || !Array.isArray(data.tabs) || !data.tabs.length) return false;
+  _projUserWritten.set(`${projPath}.user`, read.content.replace(/\r\n/g, "\n"));
+  const dir = _projUserDir(projPath);
+  const abs = (p) => (/^([A-Za-z]:)?[\\/]/.test(p) ? p : `${dir}/${p}`).replace(/\\/g, "/");
+  const findNode = (nodes, path) => {
+    const flat = [];
+    const walk = (list) => (list || []).forEach(n => n.type === "folder" ? walk(n.children) : flat.push(n));
+    walk(nodes);
+    return flat.find(n => _normFilePath(_projResolveAbsPathOf(n.path, dir)) === _normFilePath(path)) || null;
+  };
+  const tabOf = (path) => tabs.find(tb => _normFilePath(_projUserTabPath(tb)) === _normFilePath(path)) || null;
+  const opened = [];
+  _projUserRestoring = true;
+  try {
+    for (const entry of data.tabs) {
+      const path = abs(String(entry?.path || ""));
+      let tab = null;
+      if (kind === "c") {
+        if (await globalThis._oscOpenPath?.(path.replace(/\//g, globalThis._oscSep?.(dir) || "/"))) tab = tabOf(path);
+      } else if (kind === "ub") {
+        const node = findNode(_ubProjectData?.files, path);
+        if (node) tab = (await _ubOpenProjectFile(node)) || tabOf(path);
+      } else {
+        const node = findNode(_expertProjectData?.files, path);
+        if (node) { await _expertProjectOpenFile(node); tab = tabOf(path); }
+      }
+      opened.push(tab ? { tab, entry, path } : null);
+    }
+  } finally {
+    _projUserRestoring = false;
+  }
+  const live = opened.filter(Boolean);
+  if (!live.length) return false;
+  await _studioDropBlankTab();
+  const act = opened[data.active] || live[live.length - 1];
+  // the active one first: the views below are set on tabs that are not the live one
+  if (act.tab.editorMode !== "oscar") _tabActivate(act.tab.id);
+  // the view of each assembly tab; a source view needs the file's own text (not one made from blocks)
+  for (const { tab, entry, path } of live) {
+    if (tab.editorMode === "ub") { if (Array.isArray(entry.bps)) tab.ubBreakpointLines = [...entry.bps]; continue; }
+    if (tab.editorMode === "oscar" || !entry.view || tab.id === activeTabId) continue;
+    tab.editorMode = entry.view === "source" ? "expert" : "block";
+    if (tab.editorMode === "expert" && !tab.expertText && /\.(asm|s|a65|inc)$/i.test(path)) {
+      const res = await window.electronAPI.readTextFile(path);
+      if (res?.ok) tab.expertText = res.content.replace(/\r\n/g, "\n");
+    }
+    if (Array.isArray(entry.bps)) tab.expertBreakpointLines = [...entry.bps];
+  }
+  if (act.tab.editorMode === "oscar") globalThis._oscShowFile?.(act.tab.oscId);
+  else {
+    if (act.entry.view === "source" && !expertMode && !ultimateBasicMode) document.getElementById("view-source-btn")?.click();
+    else if (act.entry.view === "blocks" && expertMode && !ultimateBasicMode) document.getElementById("view-blocks-btn")?.click();
+    if (Array.isArray(act.entry.bps)) {
+      if (ultimateBasicMode) { _ubBreakpointLines = [...act.entry.bps]; _ubRefreshEditor(); }
+      else if (expertMode) { _expertBreakpointLines = [...act.entry.bps]; _expertUpdateLineNumbers(); }
+    }
+  }
+  if (Number.isInteger(data.caret) && data.caret >= 0) {
+    const caretKind = act.tab.editorMode === "oscar" ? "oscar" : ultimateBasicMode ? "ub" : expertMode ? "expert" : "";
+    if (caretKind) setTimeout(() => { try { _bmGoto(caretKind, data.caret); } catch (_) {} }, 0);
+  }
+  renderTabBar();
+  return true;
+}
+function _projResolveAbsPathOf(relPath, dir) {
+  if (!relPath) return relPath;
+  if (/^([A-Za-z]:)?[\\/]/.test(relPath)) return relPath.replace(/\\/g, "/");
+  return `${dir}/${String(relPath).replace(/\\/g, "/")}`;
+}
+window.addEventListener("beforeunload", () => { if (_projUserTimer) _projUserSave(); });
+
+async function _studioCloseAll(keep = "") {
+  // the closing project's session is written while its tabs are still there
+  await _projUserSave();
+  if (!await _confirmCloseAllTabs()) return false;
+  if (keep !== "c" && globalThis._oscCloseAll && !await _oscCloseAll()) return false;
+  if (globalThis._oscActive?.() && keep !== "c") _oscSetMode(false);
+  if (ultimateBasicMode) {
+    if (ubEditor) ubEditor.value = "";
+    _ubFilePath = "";
+    _ubDirty = false;
+  }
+  _closeAllTabsNow();
+  if (ultimateBasicMode) setUltimateBasicMode(false, { restoreAssemblerMode: false });
+  _ubProjectData = null;
+  _ubProjectDirty = false;
+  _ubRenderProjectFiles();
+  _expertProjectData = null;
+  _expertProjectDirty = false;
+  _expertRenderProjectTree();
+  if (keep === "c") globalThis._oscTabsSync?.();
+  return true;
+}
+
+// Opens a project of any kind: a .proj path, or the file dialog when path is empty.
+async function _studioOpenProject(path = "") {
+  let res;
+  if (path) {
+    const read = await window.electronAPI?.readTextFile?.(path);
+    let project = null;
+    try { project = read?.ok ? JSON.parse(read.content) : null; } catch (_) {}
+    if (!project) { showViceToast?.(tf("startNotFound", { path }), true); return false; }
+    res = { ok: true, project, filePath: path };
+  } else {
+    res = await window.electronAPI?.openProjFile?.();
+    if (!res || res.canceled) return false;
+    if (!res.ok) { showViceToast?.(t("projError") + ": " + res.error, true); return false; }
+  }
+  const proj = res.project || {};
+  // a block program (.vas / old .json) is a file, not a project: it opens as a tab, the rest stays
+  if (proj.app === "c64-visual-assembler" && Array.isArray(proj.program)) {
+    if (globalThis._oscActive?.()) globalThis._oscLeave?.();
+    await _expertProjectOpenFile({ name: res.filePath.split(/[\/\\]/).pop(), path: res.filePath });
+    return true;
+  }
+  const kind = _studioProjectKind(proj);
+  if (kind === "c") return _studioOpenCFolder(res.filePath.replace(/[\\/][^\\/]*$/, ""));
+  if (!await _studioCloseAll()) return false;
+  _studioRememberProject(res.filePath, proj.name, kind);
+  if (kind === "ub") { await _ubApplyOpenedProject(proj, res.filePath, { dropBlank: true }); return true; }
+  await _openProjectFromMenu(res);
+  return true;
+}
+
+// A C (Oscar64) project folder; the file dialog when dir is empty.
+async function _studioOpenCFolder(dir = "") {
+  if (!dir) {
+    const pick = await window.electronAPI?.oscarChooseFolder?.("");
+    if (!pick || pick.canceled) return false;
+    dir = pick.path;
+  }
+  const listed = await window.electronAPI?.oscarListDir?.(dir);
+  if (listed && !listed.ok) { showViceToast?.(tf("startNotFound", { path: dir }), true); return false; }
+  if (!await _studioCloseAll()) return false;
+  await _oscOpenProject(dir);
+  _oscEnter();
+  await _studioDropBlankTab();
+  return true;
+}
+
+async function _openProjectFromMenu(opened = null) {
   // Ask user for each dirty tab before loading
-  if (!await _closeAllTabsWithConfirm()) return;
+  if (!opened && !await _closeAllTabsWithConfirm()) return;
 
   // Load the .proj file first (shared with expert mode)
-  const res = await window.electronAPI?.openProjFile?.();
+  const res = opened || await window.electronAPI?.openProjFile?.();
   if (!res || res.canceled) return;
   if (!res.ok) { _expertSetStatus(t("projError") + ": " + res.error, "error"); return; }
   const proj = res.project || {};
@@ -16661,47 +17158,33 @@ async function _openProjectFromMenu() {
   _setAssemblerSyntax(_expertProjectData.assemblerSyntax);
   _expertProjectDirty = false;
 
-  if (expertMode) {
-    // In expert mode: just update the panel as usual
-    _expertRenderProjectTree();
-    // Auto-open startup file if set
-    if (_expertProjectData.startupFile) {
-      const sf = _projFindEntry(_expertProjectData.files, _expertProjectData.startupFile);
-      if (sf) await _expertProjectOpenFile(sf);
-    }
-    _expertSetStatus(t("projOpened") + ": " + _expertProjectData.name, "ok");
-    return;
-  }
-
-  // In block mode: open every file as a tab
-  const files = (_expertProjectData.files || []).filter(f => !f.type || f.type === "file");
-  if (files.length === 0) {
-    _expertSetStatus(t("projOpened") + ": " + _expertProjectData.name, "ok");
-    return;
-  }
-  for (const file of files) {
-    await _expertProjectOpenFile(file);
-  }
-
-  // Remove the initial blank placeholder tab left by _closeAllTabsWithConfirm
-  // (only if at least one real tab was opened)
-  if (tabs.length > 1) {
-    const blankIdx = tabs.findIndex(t =>
-      !t.filePath && (t.program || []).length <= 1 && ((t.program || [])[0]?.isOrgMacro ?? true)
-    );
-    if (blankIdx >= 0) {
-      tabs.splice(blankIdx, 1);
-      // Make sure activeTabId still points to a valid tab
-      if (!tabs.find(t => t.id === activeTabId)) {
-        activeTabId = tabs[0].id;
-        _tabActivate(activeTabId);
-      } else {
-        renderTabBar();
-      }
-    }
-  }
-
+  // Every file of the project opens as a tab (folders too), in Expert and in block mode alike;
+  // the startup file is the active one.
+  _expertRenderProjectTree();
+  if (!await _projUserRestore("asm", res.filePath)) await _projOpenAllFiles();
   _expertSetStatus(t("projOpened") + ": " + _expertProjectData.name, "ok");
+}
+
+// The blank placeholder tab left by closing the previous project goes once a project file is open.
+async function _studioDropBlankTab() {
+  if (tabs.length < 2) return;
+  const blankIdx = tabs.findIndex(tab => !tab.filePath && !tab.ubFilePath && tab.editorMode !== "oscar" && !_tabHasContent(tab));
+  if (blankIdx < 0) return;
+  const wasActive = tabs[blankIdx].id === activeTabId;
+  tabs.splice(blankIdx, 1);
+  if (wasActive) await _tabActivate(tabs[0].id);
+  renderTabBar();
+}
+
+async function _projOpenAllFiles() {
+  const flat = [];
+  const walk = (nodes) => (nodes || []).forEach(n => n.type === "folder" ? walk(n.children) : flat.push(n));
+  walk(_expertProjectData?.files);
+  for (const file of flat) await _expertProjectOpenFile(file);
+  await _studioDropBlankTab();
+  const sf = _expertProjectData?.startupFile ? _projFindEntry(_expertProjectData.files, _expertProjectData.startupFile) : null;
+  if (sf) await _expertProjectOpenFile(sf);
+  renderTabBar();
 }
 
 function _projResolveAbsPath(relPath) {
@@ -16760,6 +17243,7 @@ async function _expertNewProject() {
 
 // A megnyitott projekt mentetlen, fájlhoz kötött fülei (a projekten kívüli fülek maradnak)
 async function _expertSaveProjectTabs() {
+  _tabDirtyFlush();
   const originId = activeTabId;
   for (const tab of [...tabs]) {
     if (!tab.dirty || !tab.filePath || !_projHasFile(tab.filePath)) continue;
@@ -16809,7 +17293,7 @@ function _parseTemplateSource(fileName, content, source) {
   const meta = {};
   let i = 0;
   for (; i < lines.length; i++) {
-    const m = lines[i].match(/^\s*[;#]\s*@([a-z]+)(?:\.([a-z]{2}))?\s+(.+?)\s*$/i);
+    const m = lines[i].match(/^\s*(?:[;#]|\/\/)\s*@([a-z]+)(?:\.([a-z]{2}))?\s+(.+?)\s*$/i);
     if (!m) break;
     const key = m[1].toLowerCase();
     (meta[key] ||= {})[(m[2] || "").toLowerCase()] = m[3];
@@ -16819,7 +17303,7 @@ function _parseTemplateSource(fileName, content, source) {
     id: `${source}:${fileName}`,
     fileName,
     source,
-    kind: /\.ub$/i.test(fileName) ? "ub" : meta.assembler?.[""]?.toLowerCase() === "acme" ? "acme" : "asm",
+    kind: /\.ub$/i.test(fileName) ? "ub" : /\.c$/i.test(fileName) ? "c" : meta.assembler?.[""]?.toLowerCase() === "acme" ? "acme" : "asm",
     meta,
     order: Number.parseInt(meta.order?.[""] ?? "", 10) || 1000,
     body: lines.slice(i).join("\n").replace(/\s*$/, "\n")
@@ -16848,7 +17332,7 @@ function _templateTargetPaths(projectName, location, kind = "asm") {
   const base = String(location || "").trim();
   if (!name || !base) return null;
   const dir = _templateJoinPath(base, name);
-  return { name, dir, projPath: `${dir}/${name}.proj`, mainPath: `${dir}/main.${kind === "ub" ? "ub" : "asm"}` };
+  return { name, dir, projPath: `${dir}/${name}.proj`, mainPath: `${dir}/main.${kind === "ub" ? "ub" : kind === "c" ? "c" : "asm"}` };
 }
 
 function _templateSelected() {
@@ -16902,6 +17386,10 @@ function _templateRenderPreview() {
     previewEl.innerHTML = _ubHighlightSource(source).replace(/\n$/, "");
     return;
   }
+  if (tpl?.kind === "c" && typeof _oscHighlight === "function") {
+    previewEl.innerHTML = _oscHighlight(source).join("\n");
+    return;
+  }
   previewEl.innerHTML = source.split("\n").map(line => {
     try { return tpl?.kind === "acme" ? _expertHighlightAcmeLine(line) : _expertHighlightLine(line); } catch { return _escHtml(line); }
   }).join("\n");
@@ -16929,6 +17417,13 @@ function _templateRenderList() {
   if (!listEl) return;
   const visible = _templateList.filter(tpl => tpl.kind === _templateKind);
   if (!_templateSelected()) _templateSelectedId = visible[0]?.id || "";
+  const kindDesc = document.getElementById("template-kind-desc");
+  if (kindDesc) {
+    // difficulty: UB easiest, C medium, assembler hardest
+    const level = { ub: 1, c: 2 }[_templateKind] || 3;
+    const key = { ub: "templateKindDescUb", c: "templateKindDescC", acme: "templateKindDescAcme" }[_templateKind] || "templateKindDescAsm";
+    kindDesc.innerHTML = `<span class="template-kind-stars" aria-hidden="true">${"★".repeat(level)}${"☆".repeat(3 - level)}</span>${_escHtml(t(key))}`;
+  }
   document.querySelectorAll("#template-kinds .template-kind").forEach(btn => {
     const active = btn.dataset.templateKind === _templateKind;
     btn.classList.toggle("template-kind--active", active);
@@ -16938,7 +17433,7 @@ function _templateRenderList() {
   if (!visible.length) {
     const empty = document.createElement("p");
     empty.className = "template-empty";
-    empty.textContent = t(_templateKind === "ub" ? "templateNoTemplatesUb" : _templateKind === "acme" ? "templateNoTemplatesAcme" : "templateNoTemplates");
+    empty.textContent = t(_templateKind === "ub" ? "templateNoTemplatesUb" : _templateKind === "acme" ? "templateNoTemplatesAcme" : _templateKind === "c" ? "templateNoTemplatesC" : "templateNoTemplates");
     listEl.appendChild(empty);
   }
   const groups = new Map();
@@ -16960,7 +17455,7 @@ function _templateRenderList() {
       btn.type = "button";
       btn.className = "template-item";
       btn.dataset.templateId = tpl.id;
-      btn.textContent = _templateText(tpl, "name") || tpl.fileName.replace(/\.(asm|ub)$/i, "");
+      btn.textContent = _templateText(tpl, "name") || tpl.fileName.replace(/\.(asm|ub|c)$/i, "");
       btn.addEventListener("click", () => {
         _templateSelectedId = tpl.id;
         _templateRenderDetail();
@@ -16973,7 +17468,7 @@ function _templateRenderList() {
 }
 
 function _templateNormalizeKind(kind) {
-  return kind === "ub" || kind === "acme" ? kind : "asm";
+  return kind === "ub" || kind === "acme" || kind === "c" ? kind : "asm";
 }
 
 async function _openTemplateDialog(kind = "") {
@@ -16982,7 +17477,7 @@ async function _openTemplateDialog(kind = "") {
   const nameInput = document.getElementById("template-project-name");
   const locationInput = document.getElementById("template-location");
   await _templateLoadList();
-  _templateKind = _templateNormalizeKind(kind || (ultimateBasicMode ? "ub" : assemblerSyntax === "acme" ? "acme" : "asm"));
+  _templateKind = _templateNormalizeKind(kind || (globalThis._oscActive?.() ? "c" : ultimateBasicMode ? "ub" : assemblerSyntax === "acme" ? "acme" : "asm"));
   if (_templateKind === "acme" && !await (_acmeAvailabilityCheck || _acmeAvailabilitySync())) _templateKind = "asm";
   if (nameInput) nameInput.value = "NewProject";
   if (locationInput && !locationInput.value.trim()) {
@@ -17009,7 +17504,25 @@ async function _templateCreateProject() {
       return;
     }
   }
-  if (!await _confirmCloseAllTabs()) return;
+  // one project at a time: the open one closes
+  if (!await _studioCloseAll()) return;
+
+  if (tpl.kind === "c") {
+    const proj = JSON.stringify({ app: "oscar64", name: paths.name, startupFile: "main.c", defines: [], includeDirs: [] }, null, 2) + "\n";
+    const cres = await api.createTemplateProject(paths.projPath, proj, paths.mainPath, tpl.body.replaceAll("{{PROJECT}}", paths.name));
+    if (!cres?.ok) {
+      _templateUpdateTarget(cres?.exists
+        ? tf("templateExists", { path: _templateDisplayPath(paths.dir) })
+        : `${t("templateWriteError")}: ${cres?.error || _templateDisplayPath(paths.dir)}`);
+      return;
+    }
+    localStorage.setItem("templateProjectLocation", document.getElementById("template-location")?.value.trim() || "");
+    document.getElementById("template-dialog")?.close();
+    await _oscOpenProject(paths.dir);
+    _oscEnter();
+    _studioRememberProject(paths.dir, paths.name, "c");
+    return;
+  }
 
   const isUb = tpl.kind === "ub";
   const syntax = tpl.kind === "acme" ? "acme" : "kick";
@@ -17026,6 +17539,7 @@ async function _templateCreateProject() {
   }
   localStorage.setItem("templateProjectLocation", document.getElementById("template-location")?.value.trim() || "");
   document.getElementById("template-dialog")?.close();
+  _studioRememberProject(paths.projPath, paths.name, isUb ? "ub" : tpl.kind);
 
   if (isUb) {
     _closeAllTabsNow();
@@ -17268,7 +17782,7 @@ async function _expertAddProjMember() {
   if (!_expertProjectData) {
     _expertProjectData = { name: "Névtelen projekt", files: [], _projPath: null };
   }
-  for (const f of res.files) {
+  for (const f of _projFilterAddable("asm", res.files, msg => _expertSetStatus(msg, "error"))) {
     // Compute relative path if project has a saved path
     let relPath = f.filePath;
     if (_expertProjectData._projPath) {
@@ -17310,6 +17824,8 @@ async function _expertAddProjFolder() {
 
 async function _expertProjectOpenFile(fileEntry) {
   const absPath = _projResolveAbsPath(fileEntry.path);
+  if (_projHasFile?.(absPath) && _projFileRole("asm", absPath) === "foreign") { _projForeignNote("asm", absPath); return; }
+  if (!tabs.some(tb => _normFilePath(tb.filePath) === _normFilePath(absPath)) && await _studioOpenForeign(absPath, "asm")) return;
   const normAbs = _normFilePath(absPath);
   const lowerPath = normAbs.toLowerCase();
   const isAsmSource = /\.(asm|s|a65|inc)$/.test(lowerPath);
@@ -20014,6 +20530,7 @@ function _acmeDebuggerTargets(prg, sourceLines) {
 }
 
 function _buildDebuggerSidecarPayload(prg, { force = false, layout = null, sourcePath = "" } = {}) {
+  if (globalThis._oscActive?.()) return null;
   // Skip generation unless the user explicitly opted in via the settings toggle.
   // `force` bypasses the setting (used by launch_debugger where RetroDebugger
   // needs the .dbg/.sym files regardless of user preference).
@@ -20085,6 +20602,11 @@ function _debuggerTargets(prg) {
 }
 
 async function runInDebugger() {
+  // Oscar64: the built-in C64 or, with the VA debugger, VICE / the Ultimate emulator (no RetroDebugger files)
+  if (globalThis._oscActive?.() && !(runMode === "ue2" || runMode === "ue2-d64") && !(_debuggerChoice() === "va" && (runMode === "prg" || runMode === "d64"))) {
+    await _w64Debug();
+    return;
+  }
   // The built-in C64 and the Ultimate emulator debug on themselves whatever is chosen:
   // RetroDebugger runs the program in its own emulator.
   if (runMode === "ue2" || runMode === "ue2-d64") {
@@ -21672,7 +22194,7 @@ async function _restoreLatestProjectSnapshot() {
 
 function _vcTabsUnder(dir) {
   const prefix = _normFilePath(dir) + "/";
-  return tabs.filter(tab => _normFilePath(_vcUbFilePath(tab) || tab.filePath || "").startsWith(prefix));
+  return tabs.filter(tab => tab.editorMode !== "oscar" && _normFilePath(_vcUbFilePath(tab) || tab.filePath || "").startsWith(prefix));
 }
 
 // A fülek tartalma a lemezről (git restore / switch után), tisztán; visszaadja a sikertelenek nevét.
@@ -21688,7 +22210,7 @@ async function _vcReloadTabsFromDisk(list) {
     if (tab.id !== activeTabId) _tabActivate(tab.id);
     if (!await _vcApplyText(tab, content)) { failed.push(tab.name || full); continue; }
     if (_vcIsUbTab(tab)) { _ubDirty = false; tab.ubText = content; }
-    tab.dirty = false;
+    if (typeof _tabMarkSaved === "function") _tabMarkSaved(tab); else tab.dirty = false;
     _clearProjectSnapshotTimer(tab.id);
   }
   if (activeTabId !== originId && tabs.some(tab => tab.id === originId)) _tabActivate(originId);
@@ -22261,29 +22783,96 @@ async function _migrateProjectSnapshotHistory(tab, oldSnapshotPath) {
   _PROJECT_SNAPSHOT_HISTORY_CACHE.delete(oldSnapshotPath);
 }
 
+// Unsaved state by comparison (STUDIO-PROJECT-PLAN.md 2.5): a tab keeps the signature of the content
+// it was loaded / saved with (savedSig); an edit only schedules a comparison, so a view switch, a tab
+// switch or an internal sync (none of them change the text) never marks a tab, and undoing an edit
+// makes it clean again. A tab without a signature yet falls back to "any edit = unsaved".
+function _tabSigText(tab) {
+  const active = tab.id === activeTabId;
+  const mode = tab.editorMode;
+  if (mode === "ub") return active && ultimateBasicMode && ubEditor ? ubEditor.value : (tab.ubText || "");
+  if (active && expertMode && !ultimateBasicMode) return _expertGetSourceText();
+  if (!active && mode === "expert" && tab.expertText) return tab.expertText;
+  const prog = (active ? program : tab.program) || [];
+  return prog.map(block => { try { return _blockToExpertLine(block); } catch (_) { return JSON.stringify(block); } }).join("\n");
+}
+function _tabSig(tab) {
+  const text = String(_tabSigText(tab) || "").replace(/\r\n/g, "\n").replace(/[ \t]+$/gm, "").replace(/\n+$/, "");
+  let h = 0x811c9dc5;
+  for (let i = 0; i < text.length; i++) h = Math.imul(h ^ text.charCodeAt(i), 0x01000193);
+  return `${text.length}:${(h >>> 0).toString(16)}`;
+}
+// The tab's content as it is now is the saved one; defer: the content is put in place right after
+// the call (signed a timer tick later).
+function _tabMarkSaved(tab, { defer = false } = {}) {
+  if (!tab) return;
+  tab.dirty = false;
+  if (_tabDirtyPending === tab.id) { clearTimeout(_tabDirtyTimer); _tabDirtyTimer = null; _tabDirtyPending = null; }
+  if (!defer) { tab.savedSig = _tabSig(tab); return; }
+  tab.savedSig = null;
+  setTimeout(() => { if (tabs.includes(tab) && !tab.dirty) tab.savedSig = _tabSig(tab); }, 0);
+}
+let _tabDirtyTimer = null;
+let _tabDirtyPending = null;
+function _tabDirtyCheck(tabId) {
+  _tabDirtyTimer = null;
+  _tabDirtyPending = null;
+  const tab = tabs?.find(t => t.id === tabId);
+  if (!tab || tab.editorMode === "oscar") return;
+  // a tab whose signature is still being taken (deferred) is left as it is
+  if (tab.savedSig === null && !tab.dirty) return;
+  const dirty = tab.savedSig == null ? true : _tabSig(tab) !== tab.savedSig;
+  if (tab.id === activeTabId && ultimateBasicMode && tab.editorMode === "ub") _ubDirty = dirty;
+  if (dirty !== !!tab.dirty) {
+    tab.dirty = dirty;
+    renderTabBar();
+  }
+}
+// A pending comparison runs now (before a close / quit question).
+function _tabDirtyFlush() {
+  if (_tabDirtyTimer == null) return;
+  clearTimeout(_tabDirtyTimer);
+  _tabDirtyCheck(_tabDirtyPending);
+}
+// Whether closing the tab loses something: an untitled tab with content, or content that differs from
+// the saved one (compared here, not taken from the flag alone).
+function _tabNeedsSaveAsk(tab) {
+  if (!tab || tab.editorMode === "oscar") return false;
+  _tabDirtyFlush();
+  if (!tab.filePath && !tab.ubFilePath) return _tabHasContent(tab);
+  if (tab.savedSig == null) return !!tab.dirty || (tab.id === activeTabId && ultimateBasicMode && !!_ubDirty);
+  return _tabSig(tab) !== tab.savedSig;
+}
+
 function markTabDirty() {
   const tab = tabs?.find(t => t.id === activeTabId);
   if (!tab) return;
   _vmScheduleAutoReload();
   _historyScheduleObserve();
   _scheduleProjectSnapshot(tab.id);
-  if (tab.dirty) return;
-  tab.dirty = true;
-  renderTabBar();
+  if (_tabDirtyTimer != null && _tabDirtyPending !== tab.id) _tabDirtyFlush();
+  clearTimeout(_tabDirtyTimer);
+  _tabDirtyPending = tab.id;
+  _tabDirtyTimer = setTimeout(() => _tabDirtyCheck(tab.id), 150);
 }
 
 function markTabClean() {
   const tab = tabs?.find(t => t.id === activeTabId);
-  if (!tab || !tab.dirty) return;
-  tab.dirty = false;
-  _clearProjectSnapshotTimer(tab.id);
-  renderTabBar();
+  if (!tab) return;
+  const was = !!tab.dirty;
+  _tabMarkSaved(tab);
+  if (was) {
+    _clearProjectSnapshotTimer(tab.id);
+    renderTabBar();
+  }
 }
 
 function _tabSaveCurrent() {
   if (programList.contains(document.activeElement)) document.activeElement.blur();
   const tab = tabs.find(t => t.id === activeTabId);
   if (!tab) return;
+  // a C tab: its text lives in oscar64.js (_osc.files)
+  if (tab.editorMode === "oscar") { globalThis._oscSyncFromEditor?.(); return; }
   tab.editorMode = ultimateBasicMode ? "ub" : expertMode ? "expert" : "block";
   if (ultimateBasicMode && ubEditor && _ubEditorTabId === tab.id) {
     tab.ubText = ubEditor.value;
@@ -22309,6 +22898,17 @@ function _tabActivate(tabId) {
   const tab = tabs.find(t => t.id === tabId);
   if (!tab) return;
 
+  // Studio: the editor follows the file. A C tab shows the Oscar64 editor; any other tab leaves it.
+  if (tab.editorMode === "oscar") {
+    if (ultimateBasicMode) setUltimateBasicMode(false, { restoreAssemblerMode: false });
+    globalThis._oscShowFile?.(tab.oscId);
+    updateWindowTitle(tab.name || "");
+    renderTabBar();
+    return;
+  }
+  if (globalThis._oscActive?.()) _oscSetMode(false);
+  _studioLastTabId = tab.id;
+
   program = JSON.parse(JSON.stringify(tab.program));
   userMacros = JSON.parse(JSON.stringify(tab.userMacros));
   selectedBlockId = tab.selectedBlockId;
@@ -22328,7 +22928,7 @@ function _tabActivate(tabId) {
     _expertBreakpointLines = Array.isArray(tab.expertBreakpointLines) ? [...tab.expertBreakpointLines] : [];
     if (ultimateBasicMode) setUltimateBasicMode(false);
     if (tab.editorMode === "expert" && !expertMode) setExpertMode(true, { keepText: !!tab.expertText });
-    else if (tab.editorMode !== "expert" && expertMode) setExpertMode(false);
+    else if (tab.editorMode !== "expert" && expertMode) setExpertMode(false, { keepProgram: true });
   }
 
   // Update file display
@@ -22353,7 +22953,10 @@ function _tabActivate(tabId) {
       _expertSourceText = tab.expertText;
       _expertResetRegionHighlight();
       _expertRefreshProjection(0, 0);
+      // the input handler refreshes the views; showing the tab's text is not an edit
+      const wasDirty = !!tab.dirty;
       expertEditor.dispatchEvent(new Event("input"));
+      tab.dirty = wasDirty;
     } else {
       _expertSyncFromProgram();
     }
@@ -22364,10 +22967,19 @@ function _tabActivate(tabId) {
   renderProgram();
   if (ultimateBasicMode) renderMemoryMap();
   _historySyncCurrent();
+  if (!tab.dirty && (tab.filePath || tab.ubFilePath)) {
+    if (_tabDirtyPending === tab.id) { clearTimeout(_tabDirtyTimer); _tabDirtyTimer = null; _tabDirtyPending = null; }
+    if (tab.savedSig == null) tab.savedSig = _tabSig(tab);
+  }
   if (_expertProjectVisible && _expertProjectData) _expertRenderProjectTree();
 }
 
+// The tab the assembler / UB side used last (the C button returns there).
+let _studioLastTabId = null;
+
 function _tabNew() {
+  // a new tab in the C editor is a new C file
+  if (globalThis._oscActive?.()) { _oscNewFile(); return; }
   _tabSaveCurrent();
   const tab = _tabCreate();
   tab.program = [makeDefaultOrgBlock()];
@@ -22403,6 +23015,7 @@ function _tabNew() {
 }
 
 function _tabHasContent(tab) {
+  if (tab.editorMode === "oscar") return false; // oscar64.js asks about its own unsaved files
   if (tab.editorMode === "ub") {
     const text = tab.id === activeTabId && ultimateBasicMode ? ubEditor?.value : tab.ubText;
     return !!tab.filePath || !!String(text || "").trim();
@@ -22551,6 +23164,7 @@ async function checkForAppUpdate({ silent = false } = {}) {
 async function _updateInstall() {
   const version = _updateInfo?.latestVersion;
   if (_updateBusy || !version || !_updateInfo.updateAvailable) return;
+  _tabDirtyFlush();
   if (tabs.some(tab => tab.dirty) && !await _showConfirm(t("updateUnsavedConfirm"))) return;
 
   const els = _updateEls();
@@ -22597,9 +23211,26 @@ async function _updateInstall() {
   document.querySelectorAll("[data-update-status]").forEach(el => el.addEventListener("click", _updateShowAvailable));
 })();
 
+// Takes a tab off the bar without asking (oscar64.js, after it closed the file); the neighbour
+// becomes active, the last tab gives its place to an empty one.
+function _tabDrop(tabId) {
+  const idx = tabs.findIndex(t => t.id === tabId);
+  if (idx < 0) return;
+  tabs.splice(idx, 1);
+  if (!tabs.length) {
+    activeTabId = null;
+    if (globalThis._oscActive?.()) _oscSetMode(false);
+    _tabNew();
+    return;
+  }
+  if (activeTabId === tabId) _tabActivate(tabs[Math.min(idx, tabs.length - 1)].id);
+  else renderTabBar();
+}
+
 async function _tabClose(tabId) {
   const tab = tabs.find(t => t.id === tabId);
-  if (tab && _tabHasContent(tab)) {
+  if (tab?.editorMode === "oscar") return !!(await globalThis._oscCloseById?.(tab.oscId));
+  if (tab && _tabNeedsSaveAsk(tab)) {
     const key = tab.filePath ? "tabCloseConfirmUnsaved" : "tabCloseConfirm";
     const msg = tf(key, { name: tab.name });
     if (!await _showConfirm(msg)) return false;
@@ -22658,6 +23289,7 @@ function _workspaceBuildPayload(name = "") {
   const entries = [];
   let activeIndex = -1;
   tabs.forEach(tab => {
+    if (tab.editorMode === "oscar") return; // oscar64.js reopens its own files
     const idx = entries.length;
     // Every tab's live in-memory content is embedded directly in the workspace
     // file, regardless of whether it's file-backed. This is what makes restore
@@ -22901,8 +23533,15 @@ async function _workspaceRestoreFromPayload(workspace, workspacePath, { silent =
   return true;
 }
 
+// The Start window decides what opens at launch: with it on, nothing comes back by itself (the
+// projects are picked there); with it off the app continues with the last session.
+function _studioStartWindowOn() {
+  try { return localStorage.getItem("c64va-start-window") !== "off"; } catch (_) { return true; }
+}
+
 async function _workspaceAutoRestore(path) {
   if (!path || !window.electronAPI?.readTextFile) return;
+  if (_studioStartWindowOn()) return;
   // Only ever auto-restore into the pristine, untouched app-launch state —
   // never clobber real work the user may have already started before this
   // async settings fetch resolved.
@@ -22933,6 +23572,7 @@ async function _workspaceOpenViaDialog() {
 
 function renderTabBar() {
   _updateEditorModeIndicator();
+  _projUserSchedule();
   const tabBar = document.getElementById("tab-bar");
   if (!tabBar) return;
   tabBar.innerHTML = "";
@@ -22941,6 +23581,16 @@ function renderTabBar() {
     const div = document.createElement("div");
     div.className = "tab-item" + (tab.id === activeTabId ? " tab-item--active" : "");
     div.dataset.tabId = tab.id;
+
+    // Studio: the badge names the editor the tab opens in
+    const mode = tab.editorMode === "oscar" ? "oscar"
+      : tab.id === activeTabId ? (ultimateBasicMode ? "ub" : expertMode ? "expert" : "block")
+      : (tab.editorMode || "block");
+    const lang = document.createElement("span");
+    lang.className = `tab-lang tab-lang--${mode}`;
+    lang.textContent = { block: "BLK", expert: "ASM", ub: "UB", oscar: "C" }[mode] || "ASM";
+    lang.setAttribute("aria-hidden", "true");
+    div.appendChild(lang);
 
     const nameSpan = document.createElement("span");
     nameSpan.className = "tab-name";
@@ -22991,6 +23641,259 @@ function _updateTabScrollButtons() {
   wrap.classList.toggle("can-scroll-left",  canLeft);
   wrap.classList.toggle("can-scroll-right", canRight);
 }
+
+// Studio toolbar menus (Tools, New): a popover under its button.
+function _initToolbarPopover(btnId, panelId, width) {
+  const btn = document.getElementById(btnId);
+  const panel = document.getElementById(panelId);
+  if (!btn || !panel?.showPopover) return;
+  // the button opens it (popovertarget), the browser closes it on an outside click or Esc
+  const place = () => {
+    const r = btn.getBoundingClientRect();
+    const w = Math.min(width, window.innerWidth * 0.94);
+    panel.style.left = `${Math.max(6, Math.min(r.left, window.innerWidth - w - 6))}px`;
+    panel.style.top = `${r.bottom + 4}px`;
+  };
+  panel.addEventListener("beforetoggle", e => { if (e.newState === "open") place(); });
+  panel.addEventListener("toggle", e => btn.setAttribute("aria-expanded", String(e.newState === "open")));
+  panel.addEventListener("click", e => { if (e.target.closest("button")) panel.hidePopover(); });
+  window.addEventListener("resize", () => { if (panel.matches(":popover-open")) place(); });
+}
+_initToolbarPopover("tools-btn", "tools-panel", 560);
+_initToolbarPopover("new-btn", "new-panel", 300);
+_initToolbarPopover("git-btn", "git-panel", 260);
+
+// Studio Git menu: pull / push straight away (the result comes as a toast), the rest in the
+// Version control window's Git mode.
+async function _studioGit(action) {
+  if (action === "pull") return _vcGitSimple(["pull", "--ff-only"], "pull");
+  if (action === "push") return _vcGitSimple(["push"], "push");
+  await _openProjectSnapshotDialog();
+  if (_vcMode !== "git") document.getElementById("vc-mode-git")?.click();
+  if (action === "commit") return;
+  await new Promise(resolve => setTimeout(resolve, 250));
+  if (action === "branch") return _vcBranchNew();
+  if (action === "merge") return _vcBranchMerge();
+  if (action === "stash") return _vcStashSave();
+}
+document.getElementById("git-commit")?.addEventListener("click", () => _studioGit("commit"));
+document.getElementById("git-pull")?.addEventListener("click", () => _studioGit("pull"));
+document.getElementById("git-push")?.addEventListener("click", () => _studioGit("push"));
+document.getElementById("git-branch-new")?.addEventListener("click", () => _studioGit("branch"));
+document.getElementById("git-merge")?.addEventListener("click", () => _studioGit("merge"));
+document.getElementById("git-stash")?.addEventListener("click", () => _studioGit("stash"));
+document.getElementById("about-tb-btn")?.addEventListener("click", () => document.getElementById("about-btn")?.click());
+
+// Studio hint bar: the block-mode help line shows once per launch (the first time the Blocks view is
+// on screen) and goes after two minutes; it does not come back until the next start.
+(function _initHintBar() {
+  const hint = document.querySelector(".hero-copy");
+  if (!hint) return;
+  const HINT_MS = 120000;
+  let timer = 0;
+  let shown = false;
+  const isBlock = () => !["expert-mode", "ub-mode", "oscar-mode"].some(c => document.body.classList.contains(c));
+  const hide = () => { clearTimeout(timer); hint.classList.add("hero-copy--gone"); };
+  hint.classList.add("hero-copy--gone");
+  const showOnce = () => {
+    if (shown || !isBlock()) return;
+    shown = true;
+    observer.disconnect();
+    hint.classList.remove("hero-copy--gone");
+    timer = setTimeout(hide, HINT_MS);
+  };
+  const observer = new MutationObserver(showOnce);
+  observer.observe(document.body, { attributes: true, attributeFilter: ["class"] });
+  showOnce();
+}());
+
+// Studio start window: recent projects, new project (template dialog), open project / C folder.
+function _studioRenderRecent() {
+  const host = document.getElementById("start-recent");
+  if (!host) return;
+  const list = _studioRecent();
+  host.innerHTML = "";
+  if (!list.length) {
+    const p = document.createElement("p");
+    p.className = "start-recent-empty";
+    p.textContent = t("startNoRecent");
+    host.appendChild(p);
+    return;
+  }
+  const badge = { asm: ["expert", "ASM"], acme: ["expert", "ACME"], ub: ["ub", "UB"], c: ["oscar", "C"], blk: ["block", "BLK"] };
+  for (const item of list) {
+    const row = document.createElement("div");
+    row.className = "start-recent-item";
+    row.tabIndex = 0;
+    const [cls, text] = badge[item.kind] || badge.asm;
+    row.innerHTML = `<span class="tab-lang tab-lang--${cls}" aria-hidden="true">${text}</span>`
+      + `<span><span class="start-recent-name">${_escHtml(item.name || "")}</span><span class="start-recent-path">${_escHtml(item.path)}</span></span>`;
+    const del = document.createElement("button");
+    del.type = "button";
+    del.className = "start-recent-del";
+    del.textContent = "×";
+    del.setAttribute("aria-label", t("startRemoveRecent"));
+    del.addEventListener("click", e => { e.stopPropagation(); _studioForgetProject(item.path); _studioRenderRecent(); });
+    row.appendChild(del);
+    const open = async () => {
+      document.getElementById("start-dialog")?.close();
+      if (!await _studioOpenRecent(item)) _studioShowStart();
+    };
+    row.addEventListener("click", open);
+    row.addEventListener("keydown", e => { if (e.key === "Enter") open(); });
+    host.appendChild(row);
+  }
+}
+
+async function _studioContinueLast() {
+  let last = null;
+  try { last = JSON.parse(localStorage.getItem(_STUDIO_OPEN_PROJECT) || "null"); } catch (_) {}
+  if (!last?.path) return;
+  // only into the untouched launch state
+  if (tabs.length !== 1 || tabs[0].filePath || _tabHasContent(tabs[0]) || _expertProjectData || _ubProjectData) return;
+  await _studioOpenRecent(last);
+}
+
+async function _studioOpenRecent(item) {
+  const ok = item.kind === "c" ? await _studioOpenCFolder(item.path) : await _studioOpenProject(item.path);
+  // a project that is gone leaves the list (the open call already said so)
+  if (!ok) {
+    const exists = item.kind === "c"
+      ? (await window.electronAPI?.oscarListDir?.(item.path))?.ok
+      : (await window.electronAPI?.readTextFile?.(item.path))?.ok;
+    if (exists === false) _studioForgetProject(item.path);
+  }
+  return ok;
+}
+
+// Menu → File → Recent projects: the same list as the start window, filled when the menu opens.
+function _studioRenderMenuRecent() {
+  const host = document.getElementById("menu-recent-projects");
+  if (!host) return;
+  const list = _studioRecent().slice(0, 8);
+  const badge = { asm: ["expert", "ASM"], acme: ["expert", "ACME"], ub: ["ub", "UB"], c: ["oscar", "C"], blk: ["block", "BLK"] };
+  host.innerHTML = "";
+  if (!list.length) {
+    const empty = document.createElement("p");
+    empty.className = "menu-recent-empty";
+    empty.textContent = t("startNoRecent");
+    host.appendChild(empty);
+    return;
+  }
+  for (const item of list) {
+    const [cls, text] = badge[item.kind] || badge.asm;
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "secondary menu-item-tooltip menu-recent-item";
+    btn.setAttribute("aria-label", item.path);
+    btn.innerHTML = `<span class="tab-lang tab-lang--${cls}" aria-hidden="true">${text}</span><span class="menu-recent-name">${_escHtml(item.name || item.path)}</span>`;
+    btn.setAttribute("role", "menuitem");
+    btn.addEventListener("click", async () => {
+      _studioRecentFlyout(false);
+      document.querySelector(".control-menu")?.removeAttribute("open");
+      await _studioOpenRecent(item);
+    });
+    host.appendChild(btn);
+  }
+}
+// Open recent: a flyout beside the menu entry (top layer, so the menu panel does not clip it).
+function _studioRecentFlyout(show) {
+  const fly = document.getElementById("menu-recent-projects");
+  const btn = document.getElementById("menu-open-recent");
+  if (!fly || !btn) return;
+  const open = fly.matches(":popover-open");
+  if (show === undefined) show = !open;
+  btn.setAttribute("aria-expanded", String(show));
+  if (!show) { if (open) fly.hidePopover(); return; }
+  _studioRenderMenuRecent();
+  if (!open) fly.showPopover();
+  const r = btn.getBoundingClientRect();
+  const w = fly.offsetWidth, h = fly.offsetHeight;
+  let left = r.right + 4;
+  if (left + w > innerWidth - 8) left = Math.max(8, r.left - w - 4);
+  fly.style.left = `${left}px`;
+  fly.style.top = `${Math.max(8, Math.min(r.top, innerHeight - h - 8))}px`;
+}
+document.getElementById("menu-open-recent")?.addEventListener("click", (e) => { e.stopPropagation(); _studioRecentFlyout(); });
+document.querySelector(".control-menu")?.addEventListener("toggle", (e) => { if (!e.target.open) _studioRecentFlyout(false); });
+// Like a submenu: pointing at Open recent opens it, pointing at another menu entry (or scrolling the menu) closes it.
+let _studioRecentHoverTimer = 0;
+document.querySelector(".control-menu")?.addEventListener("pointerover", (e) => {
+  if (!(e.target instanceof Element) || e.target.closest("#menu-recent-projects")) return;
+  clearTimeout(_studioRecentHoverTimer);
+  const onRecent = !!e.target.closest("#menu-open-recent");
+  if (!onRecent && !e.target.closest("button, a, label, select, input")) return;
+  _studioRecentHoverTimer = setTimeout(() => _studioRecentFlyout(onRecent), onRecent ? 150 : 100);
+});
+document.querySelector(".control-menu")?.addEventListener("scroll", () => _studioRecentFlyout(false), true);
+// a dialog opened from the menu, the focus moved on, or another window came forward: the flyout must not stay behind them
+document.addEventListener("focusin", (e) => {
+  if (e.target instanceof Element && e.target.closest("#menu-recent-projects, #menu-open-recent")) return;
+  _studioRecentFlyout(false);
+});
+window.addEventListener("blur", () => _studioRecentFlyout(false));
+document.addEventListener("pointerdown", (e) => {
+  if (!(e.target instanceof Element) || e.target.closest("#menu-recent-projects, #menu-open-recent")) return;
+  _studioRecentFlyout(false);
+}, true);
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "Escape" || !document.getElementById("menu-recent-projects")?.matches(":popover-open")) return;
+  _studioRecentFlyout(false);
+  document.getElementById("menu-open-recent")?.focus();
+  e.stopPropagation();
+}, true);
+
+function _studioShowStart() {
+  const dlg = document.getElementById("start-dialog");
+  if (!dlg || dlg.open) return;
+  const show = document.getElementById("start-show-on-launch");
+  if (show) show.checked = localStorage.getItem("c64va-start-window") !== "off";
+  _studioRenderRecent();
+  dlg.showModal();
+  setTimeout(() => dlg.querySelector(".start-recent-item, .start-action")?.focus(), 0);
+}
+
+(function _initStartWindow() {
+  const dlg = document.getElementById("start-dialog");
+  if (!dlg) return;
+  const close = () => dlg.close();
+  document.getElementById("start-close")?.addEventListener("click", close);
+  document.getElementById("start-continue")?.addEventListener("click", close);
+  document.getElementById("start-new")?.addEventListener("click", async () => { close(); await _openTemplateDialog(); });
+  document.getElementById("start-open")?.addEventListener("click", async () => { close(); if (!await _studioOpenProject()) _studioShowStart(); });
+  document.getElementById("start-folder")?.addEventListener("click", async () => { close(); if (!await _studioOpenCFolder()) _studioShowStart(); });
+  document.getElementById("start-show-on-launch")?.addEventListener("change", e => {
+    localStorage.setItem("c64va-start-window", e.target.checked ? "on" : "off");
+  });
+  // at startup, once the splash and the welcome / news dialogs are gone: the Start window, or (turned
+  // off) the project left open at the last exit, with its session
+  const off = localStorage.getItem("c64va-start-window") === "off";
+  const started = Date.now();
+  const wait = () => {
+    const busy = document.querySelector("dialog[open]") || document.getElementById("splash-screen");
+    if (!busy) { if (off) _studioContinueLast(); else _studioShowStart(); return; }
+    if (Date.now() - started < 120000) setTimeout(wait, 400);
+  };
+  setTimeout(wait, 1800);
+}());
+
+// Studio New menu: a new tab in the chosen language ("expert", "block", "ub", "oscar").
+function _studioNewFile(kind) {
+  if (kind === "oscar") { _oscNewFile(); return; }
+  if (globalThis._oscActive?.()) _oscSetMode(false);
+  _tabNew();
+  if (kind === "ub") { if (!ultimateBasicMode) setUltimateBasicMode(true); return; }
+  if (ultimateBasicMode) setUltimateBasicMode(false, { restoreAssemblerMode: false });
+  if (kind === "block" && _textOnlyAssembler()) {
+    showViceToast?.(t(_textKey("acmeNoBlockMode")), true);
+    kind = "expert";
+  }
+  setExpertMode(kind === "expert");
+}
+document.getElementById("new-asm-btn")?.addEventListener("click", () => _studioNewFile("expert"));
+document.getElementById("new-blocks-btn")?.addEventListener("click", () => _studioNewFile("block"));
+document.getElementById("new-ub-btn")?.addEventListener("click", () => _studioNewFile("ub"));
+document.getElementById("new-c-btn")?.addEventListener("click", () => _studioNewFile("oscar"));
 
 // Wire scroll buttons (called once at startup)
 (function _initTabScrollButtons() {
@@ -23305,6 +24208,7 @@ function _workStepName(path) {
 
 // The source a VA build compiles, for the step line: the project's startup file or the active tab.
 function _workStepSource() {
+  if (globalThis._oscActive?.()) return _oscBase(_oscBuildTarget()?.path) || "main.c";
   const startup = _expertProjectData?.startupFile;
   if (startup) return _workStepName(startup);
   const tab = tabs.find(tb => tb.id === activeTabId);
@@ -25367,6 +26271,7 @@ async function _runBuildWithProgress(messageKey) {
 }
 
 async function buildRunPrgForCurrentMode() {
+  if (globalThis._oscActive?.()) return _oscBuildForRun();
   if (ultimateBasicMode) {
     const target = await _ubBuildTarget();
     if (target.error) return { ok: false, error: target.error };
@@ -29775,6 +30680,8 @@ function _projFlatFiles(nodes, out = []) {
 async function openProjectSettings() {
   const dlg = document.getElementById("project-settings-dialog");
   if (!dlg) return;
+  if (globalThis._oscActive?.()) { globalThis._oscOpenProjectSettings?.(); return; }
+  dlg.dataset.kind = "asm";
   if (!_expertProjectData) { _expertSetStatus(t("projNoProject"), "error"); return; }
   const data = _expertProjectData;
   const files = _projFlatFiles(data.files);
@@ -29818,23 +30725,35 @@ async function openProjectSettings() {
 }
 
 // Kick options only for a Kick-compatible VMA project.
+// The Kick-compatible switch belongs to VMA only: ACME is not Kick, R65 is Kick already.
 function _projSettingsSync() {
-  const acme = document.getElementById("ps-assembler")?.value === "acme";
+  const dlg = document.getElementById("project-settings-dialog");
+  const c = dlg?.dataset.kind === "c";
+  dlg?.querySelectorAll(".ps-c-only").forEach(el => { el.hidden = !c; });
+  dlg?.querySelectorAll(".ps-asm-only").forEach(el => { el.hidden = c; });
+  if (c) { dlg.querySelectorAll(".ps-kick-only, .ps-vma-only").forEach(el => { el.hidden = true; }); return; }
+  const vma = _assemblerNormalize(document.getElementById("ps-assembler")?.value) === "kick";
   const kickBox = document.getElementById("ps-kick");
-  if (kickBox) { kickBox.disabled = acme; if (acme) kickBox.checked = false; }
-  const on = !acme && !!kickBox?.checked;
+  if (kickBox) {
+    kickBox.disabled = !vma;
+    if (!vma) kickBox.checked = false;
+    const row = kickBox.closest(".ps-check");
+    if (row) row.hidden = !vma;
+  }
+  const on = vma && !!kickBox?.checked;
   document.querySelectorAll("#project-settings-dialog .ps-kick-only").forEach(el => { el.hidden = !on; });
-  document.querySelectorAll("#project-settings-dialog .ps-vma-only").forEach(el => { el.hidden = acme || on; });
+  document.querySelectorAll("#project-settings-dialog .ps-vma-only").forEach(el => { el.hidden = !vma || on; });
 }
 
 async function _projSettingsSave() {
   const data = _expertProjectData;
   const dlg = document.getElementById("project-settings-dialog");
+  if (dlg?.dataset.kind === "c") { await globalThis._oscProjectSettingsSave?.(); return; }
   if (!data) { dlg?.close(); return; }
   const name = document.getElementById("ps-name")?.value.trim();
   if (name) data.name = name;
   data.startupFile = document.getElementById("ps-startup")?.value || null;
-  const syntax = document.getElementById("ps-assembler")?.value === "acme" ? "acme" : "kick";
+  const syntax = _assemblerNormalize(document.getElementById("ps-assembler")?.value);
   const kick = syntax === "kick" && !!document.getElementById("ps-kick")?.checked;
   if (kick) data.kick = true; else delete data.kick;
   const defines = String(document.getElementById("ps-defines")?.value || "").split(/[\s,]+/).filter(d => /^[A-Za-z_]\w*$/.test(d));
@@ -31060,6 +31979,7 @@ async function _applyProjectPayload(projectData, { sourceFilePath = "", keepFile
   tab.filePath = loadedFilePath || null;
   tab.name = importedName || sourceName || tab.name || tab._untitledName || "Untitled";
   tab.dirty = !!importedName;
+  if (!importedName) _tabMarkSaved(tab, { defer: true });
 
   program = JSON.parse(JSON.stringify(loadedProgram));
   userMacros = {};
@@ -31178,7 +32098,6 @@ async function loadProjectFromFile() {
   if (emulatorStatus) {
     emulatorStatus.textContent = `${t("projectLoaded")}: ${result.filePath}`;
   }
-
   return _applyProjectPayload(projectData, { sourceFilePath: result.filePath || "" });
 }
 
@@ -32367,7 +33286,8 @@ function _ubMemoryUsage(result = _getActiveTab()?._ubBuildResult || null) {
 
     const internal = map.internal || {};
     const zpEnds = [
-      ...(map.variables || []).map(v => Number(v.address) + 1),
+      // zero-page variables only (a spilled / float variable has a RAM address)
+      ...(map.variables || []).map(v => Number(v.address)).filter(a => a < 0x100).map(a => a + 1),
       internal.plotZp != null ? internal.plotZp + 5 : null,
       internal.lineZp != null ? internal.lineZp + 14 : null,
       internal.rectZp != null ? internal.rectZp + 8 : null,
@@ -32488,6 +33408,7 @@ function _acmeMemoryUsage(preview = _acmePreview?.tabId === activeTabId ? _acmeP
 // The memory panel's usage of a layout (_vmaLayout); without one the editor's live analysis
 // (the panel is drawn again when it is there).
 function getMemoryUsage(layout) {
+  if (globalThis._oscActive?.()) return _oscMemoryUsage();
   if (ultimateBasicMode) return _ubMemoryUsage();
   if (_textOnlyAssembler() && expertMode) return _acmeMemoryUsage();
   if (!layout) {
@@ -38617,10 +39538,12 @@ function _tourTargetValueMatches(step, actualValue) {
 
   const actual = String(actualValue ?? "").trim();
   const expected = String(step.targetValue).trim();
-  const allowCaseInsensitiveHex = step.target === "#operand-input" && /^[0-9A-F]+$/i.test(expected);
-
-  if (allowCaseInsensitiveHex) {
-    return actual.toUpperCase() === expected.toUpperCase();
+  // a numeric operand ($D021, #$06, ($FB),Y, D021): letter case and the "$" of a bare hex number do
+  // not matter; text (a TEXT macro's string) still has to match exactly
+  const numeric = /^[#<>(]*\$?[0-9A-F]+\)?(\s*,\s*[XY])?\)?$/i;
+  if (step.target === "#operand-input" && numeric.test(expected) && numeric.test(actual)) {
+    const norm = (v) => v.toUpperCase().replace(/\s+/g, "").replace(/^([#<>(]*)\$/, "$1");
+    return norm(actual) === norm(expected);
   }
 
   return actual === expected;
@@ -58148,14 +59071,28 @@ function _memSetDetached(on) {
     if (badge) globalMemoryPanel.querySelector(".global-memory-title-group")?.appendChild(badge);
     globalMemoryPanel.classList.remove("is-detached");
     globalMemoryPanel.open = false;
+    globalMemoryPanel.hidden = true;
     if (dlg.open) dlg.close();
   }
   _memFloatSave({ detached: on });
   try { renderMemoryMap(); } catch (_) {}
+  const winBtn = document.getElementById("memory-window-btn");
+  winBtn?.classList.toggle("main-tb-btn--active", on);
+  winBtn?.setAttribute("aria-pressed", String(on));
 }
 
 function setupMemoryFloat() {
   const dlg = document.getElementById("memory-float-dialog");
+  const winBtn = document.getElementById("memory-window-btn");
+  // the Tools item shows the window's state, like the Number converter
+  const syncBtn = () => {
+    const open = !!dlg?.open;
+    winBtn?.classList.toggle("main-tb-btn--active", open);
+    winBtn?.setAttribute("aria-pressed", String(open));
+  };
+  winBtn?.addEventListener("click", () => _memSetDetached(!_memDetached));
+  dlg?.addEventListener("close", syncBtn);
+  dlg?.addEventListener("toggle", syncBtn);
   document.getElementById("memory-undock-btn")?.addEventListener("click", (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -59166,7 +60103,7 @@ function _w64OnDialogClose() {
     s.aqLen = 0;
     s.audioCtx?.suspend().catch(() => {});
   }
-  _w64DebugLine = null;
+  _w64DebugLine = null; globalThis._oscClearDebugLine?.();
   if (expertMode) _expertApplyHighlight();
   _w64SyncButtons();
 }
@@ -59280,6 +60217,7 @@ function _w64ParseDbg(text) {
 
 // The build and its source map for a debug session.
 async function _w64DebugBuild() {
+  if (globalThis._oscActive?.()) return _oscDebugSession();
   if (ultimateBasicMode) {
     const target = await _ubBuildTarget();
     if (target.error) { _ubSetStatus(target.error, true); return null; }
@@ -59288,7 +60226,8 @@ async function _w64DebugBuild() {
     const build = await _ubCompileTarget(target, { skipExomizer: true });
     if (!build) return null;
     const entries = _w64ParseDbg(build.debug?.dbg).map(e => ({ ...e, file: e.file || sourcePath }));
-    return { bytes: Uint8Array.from(build.prg || []), entries, symbols: _ubDebuggerSymbols(build), blockBps: [], blockAt: null, kind: "ub", primary: sourcePath };
+    return { bytes: Uint8Array.from(build.prg || []), entries, symbols: _ubDebuggerSymbols(build), blockBps: [], blockAt: null, kind: "ub", primary: sourcePath, ubVars: _ubDebugVars(build),
+      codeSyms: [...(build?.map?.subroutines || []), ...(build?.map?.labels || [])].filter(e => e?.name && Number.isFinite(Number(e.address))).map(e => ({ name: String(e.name), address: Number(e.address) & 0xFFFF })) };
   }
   if (isProgramEmpty()) { showViceToast(t("nothingToRunAddSomeInstructionsFirst"), true); return null; }
   const acme = _textOnlyAssembler();
@@ -59362,6 +60301,10 @@ function _w64BreakpointAddresses(session = _w64S().session, manual = _w64S().man
   const out = new Set(manual);
   if (!session) return out;
   (session.blockBps || []).forEach(a => out.add(a & 0xFFFF));
+  if (session.kind === "oscar") {
+    _oscBreakpointAddresses(session).forEach(a => out.add(a));
+    return out;
+  }
   const kind = session.kind === "ub" ? "ub" : "expert";
   const key = kind === "ub" ? "ubBreakpointLines" : "expertBreakpointLines";
   const byFile = new Map();
@@ -59408,6 +60351,8 @@ async function _w64OnStop() {
   const s = _w64S();
   s.mod._vice_web_monitor_breakpoint_hit_clear();
   clearTimeout(s.resumeTimer);
+  // the next 6502 step of a C line: stopped as after any step, the stop is not shown
+  if (_w64SrcStepNext(s, _w64Reg(0))) { s.stopped = true; return; }
   s.stopped = true;
   s.stopPc = _w64Reg(0);
   if (s.tempBp >= 0 && s.tempBp === s.stopPc) {
@@ -59428,7 +60373,7 @@ function _w64OnResume() {
   clearTimeout(s.resumeTimer);
   s.resumeTimer = setTimeout(() => {
     if (s.stopped) return;
-    _w64DebugLine = null;
+    _w64DebugLine = null; globalThis._oscClearDebugLine?.();
     if (expertMode) _expertApplyHighlight();
     _w64RenderDebug();
     _w64SyncButtons();
@@ -59438,19 +60383,39 @@ function _w64OnResume() {
 function _w64Continue() {
   const s = _w64S();
   if (!s.stopped) return;
+  s.srcStep = null;
   _w64ApplyBreakpoints();
   s.mod._vice_web_monitor_breakpoint_hit_clear();
   s.mod._vice_web_monitor_continue();
 }
+// C (Oscar64) source: a step is a C line, made of 6502 steps (_w64SrcStepNext), not one instruction.
+const _W64_SRC_STEP_MAX = 4000;
 function _w64Step(mode) {
   const s = _w64S();
   if (!s.stopped) return;
   _w64ApplyBreakpoints();
   s.mod._vice_web_monitor_breakpoint_hit_clear();
+  const from = s.session?.kind === "oscar" && mode !== 2 ? _w64SourceAt(s.stopPc) : null;
+  s.srcStep = from ? { mode, key: `${from.key || from.file}:${from.line}`, n: 0, sp: _w64Reg(4) } : null;
   s.mod._vice_web_monitor_step(mode, 1);
+}
+// After a 6502 step of a C-line step: true = keep going (the stop is not shown).
+function _w64SrcStepNext(s, pc) {
+  const st = s.srcStep;
+  if (!st) return false;
+  const src = _w64SourceAt(pc);
+  const hitBp = s.applied.has(pc);
+  if (!hitBp && ++st.n < _W64_SRC_STEP_MAX) {
+    // code without a source line: a called routine (runtime library, deeper stack) is left at once
+    if (!src) { s.mod._vice_web_monitor_step(_w64Reg(4) < st.sp ? 2 : 1, 1); return true; }
+    if (`${src.key || src.file}:${src.line}` === st.key) { s.mod._vice_web_monitor_step(st.mode, 1); return true; }
+  }
+  s.srcStep = null;
+  return false;
 }
 function _w64Break() {
   const s = _w64S();
+  s.srcStep = null;
   if (!s.mod || s.stopped) return;
   if (!s.session) s.session = { adhoc: true, entries: [], symbols: [], labels: new Map(), blockBps: [], kind: "va", primary: "" };
   if (s.mod._vice_web_pause_status()) s.mod._vice_web_resume();
@@ -59460,6 +60425,10 @@ function _w64Break() {
 // The editor follows the CPU: the file of the stop is opened, its line marked.
 async function _w64ShowSource(pc, session = _w64S().session) {
   if (!session) return;
+  if (session.kind === "oscar") {
+    await _oscShowDebugLine(_w64SourceAt(pc, session));
+    return;
+  }
   if (session.blockAt && !expertMode && !ultimateBasicMode) {
     const id = session.blockAt(pc);
     if (id) {
@@ -59470,7 +60439,7 @@ async function _w64ShowSource(pc, session = _w64S().session) {
     return;
   }
   const src = _w64SourceAt(pc, session);
-  if (!src) { _w64DebugLine = null; if (expertMode) _expertApplyHighlight(); return; }
+  if (!src) { _w64DebugLine = null; globalThis._oscClearDebugLine?.(); if (expertMode) _expertApplyHighlight(); return; }
   if (ultimateBasicMode) {
     const active = _normFilePath(_ubFilePath || _getActiveTab()?.filePath || "");
     if (!active || !src.file || _normFilePath(src.file) === active) _ubGotoLine(src.line - 1);
@@ -59528,12 +60497,14 @@ function _w64EndDebugView() {
   const s = _w64S();
   s.tempBp = -1;
   _w64ClearBreakpoints();
-  _w64DebugLine = null;
+  _w64DebugLine = null; globalThis._oscClearDebugLine?.();
   if (expertMode) _expertApplyHighlight();
 }
 
 function _w64RenderDebug() {
   _w64RenderRegisters();
+  _w64RenderStack();
+  _w64RenderVariables();
   _w64RenderDisassembly();
   _w64RenderMemory();
   _w64RenderBreakpoints();
@@ -59548,6 +60519,106 @@ function _w64RenderRegisters() {
     return;
   }
   el.innerHTML = _w64RegsHtml(_w64Reg);
+}
+
+// The variables of the C / UltimateBasic program at the stop (the section only shows for those).
+// An array or a struct unfolds (its key in _w64VarOpen): its elements / members follow one level in.
+var _w64VarOpen = new Set();
+function _w64VarRows(session, pc, peek) {
+  if (session?.kind === "oscar") return globalThis._oscDebugVarRows?.(session.vars, pc, peek, _w64SourceAt(pc, session)?.line ?? null, _w64VarOpen) || [];
+  if (session?.kind === "ub") {
+    const rows = [];
+    for (const v of session.ubVars || []) {
+      const key = `/${v.name}`;
+      const isArray = v.type === "array" || /_array$/.test(v.type);
+      const open = isArray && (v.size || 0) > 0 && _w64VarOpen.has(key);
+      rows.push({ name: v.name, address: v.address, scope: "", key, depth: 0, expandable: isArray && (v.size || 0) > 0, open, value: _ubFormatValue(v, peek) });
+      // the map gives an array's size in bytes, not its element type: it unfolds byte by byte
+      if (open) for (let i = 0; i < Math.min(v.size, 256); i++) {
+        const a = (v.address + i) & 0xFFFF;
+        rows.push({ name: `[${i}]`, address: a, scope: "", key: `${key}[${i}]`, depth: 1, value: _ubFormatValue({ type: "int", address: a }, peek) });
+      }
+    }
+    return rows;
+  }
+  return [];
+}
+// Unfolds / folds the variable of a clicked row; true if it was an array or a struct.
+function _w64VarToggle(btn) {
+  const key = btn?.dataset.key;
+  if (!key || btn.dataset.expandable !== "1") return false;
+  if (_w64VarOpen.has(key)) {
+    for (const k of [..._w64VarOpen]) if (k === key || k.startsWith(key + "[") || k.startsWith(key + ".")) _w64VarOpen.delete(k);
+  } else _w64VarOpen.add(key);
+  return true;
+}
+function _w64VarsHtml(rows) {
+  if (!rows.length) return `<div class="w64-muted">${_vcEsc(t("w64VarsNone"))}</div>`;
+  let scope = null;
+  return rows.map(r => {
+    const head = r.scope !== scope ? `<div class="w64-var-scope">${_vcEsc(r.scope ? `${r.scope}()` : t("w64VarsGlobal"))}</div>` : "";
+    scope = r.scope;
+    const tog = r.expandable ? `<span class="w64-var-tog" aria-hidden="true">${r.open ? "▾" : "▸"}</span>` : "";
+    const indent = r.depth ? ` style="padding-left: ${8 + r.depth * 12}px"` : "";
+    return `${head}<button type="button" class="w64-var${r.depth ? " w64-var--child" : ""}" data-addr="${r.address}" data-key="${_vcEsc(r.key || "")}" data-expandable="${r.expandable ? 1 : 0}"${r.expandable ? ` aria-expanded="${r.open}"` : ""}${indent} aria-label="${_w64Hex(r.address, 4)}: ${_vcEsc(r.value)}"><span class="w64-var-name">${tog}${_vcEsc(r.name)}</span><span class="w64-var-val">${_vcEsc(r.value)}</span></button>`;
+  }).join("");
+}
+function _w64RenderVariables() {
+  const el = document.getElementById("w64-vars");
+  const s = _w64S();
+  if (!el) return;
+  const has = s.session?.kind === "oscar" || s.session?.kind === "ub";
+  el.closest(".w64-sec").hidden = !has;
+  if (!has) return;
+  if (!s.stopped || !s.mod) { el.innerHTML = `<div class="w64-muted">${_vcEsc(t("w64Running"))}</div>`; return; }
+  el.innerHTML = _w64VarsHtml(_w64VarRows(s.session, s.stopPc, _w64Peek));
+}
+
+// Call stack: the stop, then every return address on the 6502 stack that follows a JSR of the program
+// (checked in the built image, so pushed data and ROM frames are left out), innermost first.
+function _w64CallStack(session, pc, sp, peek) {
+  const prg = session?.bytes;
+  if (!prg || prg.length < 3 || pc < 0) return [];
+  const load = prg[0] | (prg[1] << 8);
+  const end = load + prg.length - 2;
+  const code = (a) => (a >= load && a < end ? prg[a - load + 2] : -1);
+  const stack = peek(0x0100, 256);
+  const frames = [{ addr: pc & 0xFFFF, call: false }];
+  for (let s = (sp + 1) & 0xFF; s < 0xFF && frames.length < 24; s++) {
+    const site = ((stack[s] | (stack[s + 1] << 8)) + 1 - 3) & 0xFFFF;
+    if (code(site) === 0x20) { frames.push({ addr: site, call: true }); s++; }
+  }
+  return frames.map(f => ({ ...f, name: _w64FrameName(session, f.addr), src: _w64SourceAt(f.addr, session) }));
+}
+// The routine an address is in: the C function (.dbj ranges), else the nearest code symbol before it.
+function _w64FrameName(session, addr) {
+  if (session.kind === "oscar") {
+    const fn = (session.vars?.fns || []).filter(f => addr >= f.start && addr < f.end).sort((a, b) => (a.end - a.start) - (b.end - b.start))[0];
+    if (fn) return `${fn.name}()`;
+  }
+  const syms = session.kind === "ub" ? session.codeSyms : session.symbols;
+  let best = null;
+  for (const sym of syms || []) {
+    if (Number.isFinite(sym.address) && sym.address <= addr && (!best || sym.address > best.address)) best = sym;
+  }
+  return best ? (best.address === addr ? best.name : `${best.name}+${addr - best.address}`) : _w64Hex(addr, 4);
+}
+function _w64StackHtml(frames) {
+  if (!frames.length) return "";
+  return frames.map((f, i) => {
+    const where = f.src ? `${String(f.src.file || "").replace(/\\/g, "/").split("/").pop()}:${f.src.line}` : _w64Hex(f.addr, 4);
+    return `<button type="button" class="w64-frame${i === 0 ? " w64-frame--top" : ""}" data-addr="${f.addr}" aria-label="${_w64Hex(f.addr, 4)}"><span class="w64-var-name">${_vcEsc(f.name)}</span><span class="w64-var-val">${_vcEsc(where)}</span></button>`;
+  }).join("");
+}
+function _w64RenderStack() {
+  const el = document.getElementById("w64-stack");
+  const s = _w64S();
+  if (!el) return;
+  const has = !!s.session?.entries?.length;
+  el.closest(".w64-sec").hidden = !has;
+  if (!has) return;
+  if (!s.stopped || !s.mod) { el.innerHTML = `<div class="w64-muted">${_vcEsc(t("w64Running"))}</div>`; return; }
+  el.innerHTML = _w64StackHtml(_w64CallStack(s.session, s.stopPc, _w64Reg(4), _w64Peek));
 }
 
 // Register id: 0 PC, 1 A, 2 X, 3 Y, 4 SP, 5 status.
@@ -59868,6 +60939,21 @@ function setupVice() {
     _w64ApplyBreakpoints();
     _w64RenderDebug();
   });
+  on("w64-stack", "click", (e) => {
+    const btn = e.target.closest(".w64-frame");
+    if (btn) _w64ShowSource(Number(btn.dataset.addr), _w64S().session);
+  });
+  // a variable shows its bytes in the memory view
+  on("w64-vars", "click", (e) => {
+    const btn = e.target.closest(".w64-var");
+    if (!btn) return;
+    const a = Number(btn.dataset.addr) & 0xFFFF;
+    _w64S().memAddr = a;
+    const input = document.getElementById("w64-mem-addr");
+    if (input) input.value = _w64Hex(a, 4);
+    if (_w64VarToggle(btn)) _w64RenderVariables();
+    _w64RenderMemory();
+  });
   on("w64-mem-form", "submit", (e) => {
     e.preventDefault();
     const input = document.getElementById("w64-mem-addr");
@@ -59964,6 +61050,18 @@ function _udRender() {
     }
   }
   if (mem) mem.innerHTML = snap ? _w64MemHtml(snap.memoryBase, Uint8Array.from(snap.memory)) : "";
+  const stack = document.getElementById("ud-stack");
+  if (stack) {
+    const has = !!_ud.session?.entries?.length;
+    stack.closest(".w64-sec").hidden = !has;
+    if (has) stack.innerHTML = snap ? _w64StackHtml(_w64CallStack(_ud.session, _ud.pc, snap.registers.SP ?? 0xFF, _udVarPeek)) : "";
+  }
+  const vars = document.getElementById("ud-vars");
+  if (vars) {
+    const has = _ud.session?.kind === "oscar" || _ud.session?.kind === "ub";
+    vars.closest(".w64-sec").hidden = !has;
+    if (has) vars.innerHTML = snap ? _w64VarsHtml(_w64VarRows(_ud.session, _ud.pc, _udVarPeek)) : `<div class="w64-muted">${_vcEsc(t(_ud.running ? "w64Running" : "ue2DbgEnded"))}</div>`;
+  }
   _udRenderBreakpoints();
   _udSyncButtons();
 }
@@ -59973,8 +61071,35 @@ function _udRenderBreakpoints() {
   if (el) el.innerHTML = _w64BpsHtml(_w64BreakpointAddresses(_ud.session, _ud.manual), _ud.session, _ud.manual);
 }
 
+// The memory the variable rows read at a PC (a dry run with a recording peek), merged into ranges.
+function _udVarRanges(pc) {
+  const want = [];
+  _w64VarRows(_ud.session, pc, (a, n) => { want.push([a & 0xFFFF, Math.max(1, n)]); return new Uint8Array(n); });
+  want.sort((x, y) => x[0] - y[0]);
+  const out = [];
+  for (const [a, n] of want) {
+    const last = out[out.length - 1];
+    if (last && a <= last[0] + last[1] && a + n - last[0] <= 256) last[1] = Math.max(last[1], a + n - last[0]);
+    else out.push([a, Math.min(n, 256)]);
+  }
+  return out;
+}
+function _udVarPeek(a, n) {
+  const out = new Uint8Array(n);
+  for (const [start, bytes] of _ud.snap?.ranges || []) {
+    for (let i = 0; i < n; i++) {
+      const off = ((a + i) & 0xFFFF) - start;
+      if (off >= 0 && off < bytes.length) out[i] = bytes[off];
+    }
+  }
+  return out;
+}
+
 async function _udRefresh() {
-  const result = await window.electronAPI.dbgSnapshot(_ud.memAddr & 0xFFFF);
+  const hasVars = _ud.session?.kind === "oscar" || _ud.session?.kind === "ub";
+  const ranges = hasVars ? _udVarRanges(_ud.pc) : [];
+  if (_ud.session?.entries?.length) ranges.push([0x0100, 256]); // the stack page: the call stack
+  const result = await window.electronAPI.dbgSnapshot(_ud.memAddr & 0xFFFF, ranges.length ? ranges : null);
   if (!result?.ok) { _udSetStatus(result?.error || "", true); return false; }
   _ud.snap = result.value;
   _ud.pc = result.value.registers.PC ?? _ud.pc;
@@ -59999,7 +61124,7 @@ function _udOnEnded() {
   _ud.running = false;
   _ud.stopped = false;
   _ud.snap = null;
-  _w64DebugLine = null;
+  _w64DebugLine = null; globalThis._oscClearDebugLine?.();
   if (expertMode) _expertApplyHighlight();
   _udSetStatus(t("ue2DbgEnded"));
   _udRender();
@@ -60029,7 +61154,7 @@ async function _udResume(action) {
   clearTimeout(_ud.resumeTimer);
   _ud.resumeTimer = setTimeout(() => {
     if (_ud.stopped || !_ud.running) return;
-    _w64DebugLine = null;
+    _w64DebugLine = null; globalThis._oscClearDebugLine?.();
     if (expertMode) _expertApplyHighlight();
     _udSetStatus(t("w64Running"));
     _udRender();
@@ -60042,8 +61167,28 @@ function _udContinue() {
   return _udResume(() => window.electronAPI.dbgContinue(_udBreakpoints()));
 }
 function _udStep(mode) {
-  return _udResume(() => window.electronAPI.dbgStep(mode, _udBreakpoints()));
+  const from = _ud.session?.kind === "oscar" && mode !== 2 ? _w64SourceAt(_ud.pc, _ud.session) : null;
+  if (!from) return _udResume(() => window.electronAPI.dbgStep(mode, _udBreakpoints()));
+  // C (Oscar64): a C line, made of 6502 steps; out of code without a source line (runtime library)
+  const key = `${from.key || from.file}:${from.line}`;
+  return _udResume(async () => {
+    const bps = _udBreakpoints();
+    const hit = new Set(bps);
+    let result = null;
+    for (let n = 0, m = mode; n < _UD_SRC_STEP_MAX; n++) {
+      result = await window.electronAPI.dbgStep(m, bps);
+      if (!result?.ok) return result;
+      const poll = await window.electronAPI.dbgPoll();
+      const pc = poll?.ok ? poll.value : null;
+      if (pc === null || pc === undefined || hit.has(pc)) break;
+      const src = _w64SourceAt(pc, _ud.session);
+      if (src && `${src.key || src.file}:${src.line}` !== key) break;
+      m = src ? mode : (mode === 0 ? 2 : 1);
+    }
+    return result;
+  });
 }
+const _UD_SRC_STEP_MAX = 1500;
 async function _udBreak() {
   if (!_ud.running || _ud.stopped || _ud.busy) return;
   _ud.busy = true;
@@ -60155,6 +61300,19 @@ function setupUe2Debugger() {
     if (!button) return;
     _ud.manual.delete(Number(button.dataset.unbp));
     _udRender();
+  });
+  on("ud-stack", "click", (e) => {
+    const btn = e.target.closest(".w64-frame");
+    if (btn) _w64ShowSource(Number(btn.dataset.addr), _ud.session);
+  });
+  on("ud-vars", "click", async (e) => {
+    const btn = e.target.closest(".w64-var");
+    if (!btn) return;
+    _w64VarToggle(btn); // the refresh reads the unfolded parts too (_udVarRanges)
+    _ud.memAddr = Number(btn.dataset.addr) & 0xFFFF;
+    const input = document.getElementById("ud-mem-addr");
+    if (input) input.value = _w64Hex(_ud.memAddr, 4);
+    if (_ud.stopped && await _udRefresh()) _udRender();
   });
   on("ud-mem-form", "submit", async (e) => {
     e.preventDefault();

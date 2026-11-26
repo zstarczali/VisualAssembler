@@ -14,7 +14,7 @@
     rel="stylesheet">
   <link rel="icon" type="image/png" href="assets/icon.png">
   <link rel="shortcut icon" href="favicon.ico">
-  <link rel="stylesheet" href="style.css?v=2.8.6">
+  <link rel="stylesheet" href="style.css?v=2.9.0">
 </head>
 
 <body>
@@ -34,6 +34,7 @@
       <div class="splash-loader">
         <div class="splash-loader-bar"></div>
       </div>
+      <span class="va-studio splash-studio" aria-hidden="true">Studio</span>
       <div class="splash-ready" aria-live="polite"><span id="splash-ready-text"></span><span class="splash-cursor" aria-hidden="true"></span></div>
       <p class="splash-version" id="splash-version"></p>
       <div class="splash-powered">
@@ -46,6 +47,7 @@
       <div class="hero-copy-block">
         <div class="eyebrow-row">
           <p class="eyebrow">Commodore 64 visual assembler</p>
+          <span class="va-studio" aria-hidden="true">Studio</span>
         </div>
         <div class="hero-menu-row">
           <div class="main-toolbar">
@@ -57,18 +59,22 @@
             <div class="control-menu-panel">
               <section class="control-menu-group">
                 <h3 class="control-menu-label" id="menu-file-label">File</h3>
+                <button id="menu-new-from-template" class="secondary menu-item-tooltip" type="button">New project…</button>
                 <button id="save-project" class="secondary menu-item-tooltip" type="button">Save program</button>
                 <button id="save-project-as" class="secondary menu-item-tooltip" type="button">Save Program As</button>
                 <button id="load-project" class="secondary menu-item-tooltip" type="button">Load program</button>
                 <button id="set-working-folder" class="secondary menu-item-tooltip" type="button">Set working folder</button>
                 <button id="menu-open-project" class="secondary menu-item-tooltip" type="button">Open project</button>
                 <button id="menu-save-project" class="secondary menu-item-tooltip" type="button">Save project</button>
-                <button id="menu-project-settings" class="secondary menu-item-tooltip" type="button">Project settings…</button>
+                <button id="menu-project-settings" class="secondary menu-item-tooltip" type="button" disabled>Project settings…</button>
                 <button id="menu-close-project" class="secondary menu-item-tooltip" type="button">Close project</button>
-                <h3 class="control-menu-label control-menu-label--section" id="workspace-section-label">Workspace</h3>
-                <button id="menu-save-workspace" class="secondary menu-item-tooltip" type="button">Save Workspace</button>
-                <button id="menu-save-workspace-as" class="secondary menu-item-tooltip" type="button">Save Workspace As...</button>
-                <button id="menu-open-workspace" class="secondary menu-item-tooltip" type="button">Open Workspace...</button>
+                <button id="menu-open-recent" class="secondary menu-open-recent" type="button" aria-haspopup="menu" aria-expanded="false"><span id="menu-recent-label">Open recent</span><span class="menu-open-recent-arrow" aria-hidden="true">▸</span></button>
+                <div id="menu-recent-projects" class="menu-recent-projects menu-recent-flyout" popover="manual" role="menu"></div>
+                <button id="menu-start-window" class="secondary menu-item-tooltip" type="button">Start window…</button>
+                <h3 class="control-menu-label control-menu-label--section" id="workspace-section-label" hidden>Workspace</h3>
+                <button id="menu-save-workspace" class="secondary menu-item-tooltip" type="button" hidden>Save Workspace</button>
+                <button id="menu-save-workspace-as" class="secondary menu-item-tooltip" type="button" hidden>Save Workspace As...</button>
+                <button id="menu-open-workspace" class="secondary menu-item-tooltip" type="button" hidden>Open Workspace...</button>
                 <button id="exit-app" class="secondary menu-item-tooltip" type="button">Kilepes</button>
               </section>
               <section id="sample-programs-group" class="control-menu-group">
@@ -125,12 +131,15 @@
                 <button id="save-crt" class="secondary" type="button">Build CRT</button>
                 <button id="build-project" class="secondary" type="button">Build project</button>
                 <button id="build-info-btn" class="secondary" type="button">Build Info</button>
-                <h3 class="control-menu-label control-menu-label--section" id="versioning-section-label">Versioning</h3>
-                <button id="save-snapshot" class="secondary" type="button">Save snapshot</button>
-                <button id="restore-snapshot" class="secondary" type="button">Restore previous version</button>
-                <button id="snapshot-history" class="secondary" type="button">Snapshot history</button>
-                <h3 class="control-menu-label control-menu-label--section" id="new-project-section-label">New project</h3>
-                <button id="menu-new-from-template" class="secondary menu-item-tooltip" type="button">New project from template…</button>
+                <h3 class="control-menu-label control-menu-label--section" id="menu-program-label">Program</h3>
+                <button id="import-asm" class="secondary" type="button">Kick import</button>
+                <button id="import-kick-project" class="secondary" type="button">Import Kick project…</button>
+                <button id="copy-asm" class="secondary" type="button">ASM export</button>
+                <button id="clear-program" class="secondary" type="button">Program torlese</button>
+                <h3 class="control-menu-label control-menu-label--section" id="versioning-section-label" hidden>Versioning</h3>
+                <button id="save-snapshot" class="secondary" type="button" hidden>Save snapshot</button>
+                <button id="restore-snapshot" class="secondary" type="button" hidden>Restore previous version</button>
+                <button id="snapshot-history" class="secondary" type="button" hidden>Snapshot history</button>
               </section>
               <section class="control-menu-group">
                 <h3 class="control-menu-label" id="menu-settings-label">Beallitasok</h3>
@@ -224,21 +233,16 @@
                   <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" width="15" height="15" aria-hidden="true"><path d="M8 13.5S2 10 2 6a3 3 0 0 1 6-1 3 3 0 0 1 6 1c0 4-6 7.5-6 7.5z"/></svg>
                   <span id="donate-btn-label">Donation</span>
                 </button>
+                <button id="report-bug-btn" class="secondary" type="button">Report Bug</button>
+                <button id="support-btn" class="secondary" type="button">Support</button>
               </section>
               <section class="control-menu-group">
-                <h3 class="control-menu-label control-menu-label--section" id="menu-program-label">Program</h3>
-                <button id="import-asm" class="secondary" type="button">Kick import</button>
-                <button id="import-kick-project" class="secondary" type="button">Import Kick project…</button>
-                <button id="copy-asm" class="secondary" type="button">ASM export</button>
-                <button id="clear-program" class="secondary" type="button">Program torlese</button>
-                <h3 class="control-menu-label control-menu-label--section" id="menu-info-label">Info</h3>
+                <h3 class="control-menu-label" id="menu-info-label">Info</h3>
                 <button id="help-manual-btn" class="secondary" type="button">Manual</button>
-                <button id="about-btn" class="secondary" type="button">About</button>
+                <button id="about-btn" class="secondary" type="button" hidden>About</button>
                 <button id="whats-new-btn" class="secondary" type="button">What's New</button>
                 <button id="knowledge-base-btn" class="secondary" type="button">Knowledge Base</button>
                 <button id="check-update-btn" class="secondary" type="button">Check for Update</button>
-                <button id="report-bug-btn" class="secondary" type="button">Report Bug</button>
-                <button id="support-btn" class="secondary" type="button">Support</button>
               </section>
             </div>
           </details>
@@ -247,8 +251,10 @@
             <span id="support-notify-count" class="support-notify-count">1</span>
           </button>
           <div class="main-tb-sep" aria-hidden="true"></div>
-          <button id="new-project-btn" class="main-tb-btn main-tb-icon-btn" type="button" aria-label="New project from template">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" width="15" height="15" aria-hidden="true"><path d="M1.5 4.5v8.5a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1H8L6.5 3h-4a1 1 0 0 0-1 1.5Z" stroke-linejoin="round"/><path d="M8 7.5v4M6 9.5h4" stroke-linecap="round"/></svg>
+          <button id="new-btn" class="main-tb-btn tools-btn" type="button" popovertarget="new-panel" aria-haspopup="true" aria-expanded="false" aria-label="New file or project">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" width="15" height="15" aria-hidden="true"><path d="M3.5 1.5h6l3 3v10h-9v-13Z" stroke-linejoin="round"/><path d="M8 7v5M5.5 9.5h5" stroke-linecap="round"/></svg>
+            <span id="new-btn-label">New</span>
+            <svg viewBox="0 0 10 10" width="8" height="8" aria-hidden="true"><path d="M2 3.5 5 6.5 8 3.5" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
           <div class="main-tb-sep" aria-hidden="true"></div>
           <button id="tutorial-btn" class="main-tb-btn main-tb-icon-btn" type="button" aria-label="Tutorials">
@@ -256,57 +262,29 @@
             <span id="tutorial-toolbar-label" class="sr-only">Tutorials</span>
           </button>
           <div class="main-tb-sep" aria-hidden="true"></div>
-          <button id="c64-chrrom-btn" class="main-tb-btn main-tb-icon-btn" type="button" aria-label="C64 Character ROM">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" width="15" height="15" aria-hidden="true"><rect x="2" y="2" width="12" height="12" rx="1"/><path d="M5 5h2v6H5M9 5h2M9 8h2M9 11h2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <button id="tools-btn" class="main-tb-btn tools-btn" type="button" popovertarget="tools-panel" aria-haspopup="true" aria-expanded="false" aria-label="Tools: graphics, sound, data and disk editors">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.25" width="15" height="15" aria-hidden="true"><rect x="1.5" y="1.5" width="5" height="5" rx="1"/><rect x="9.5" y="1.5" width="5" height="5" rx="1"/><rect x="1.5" y="9.5" width="5" height="5" rx="1"/><rect x="9.5" y="9.5" width="5" height="5" rx="1"/></svg>
+            <span id="tools-btn-label">Tools</span>
+            <svg viewBox="0 0 10 10" width="8" height="8" aria-hidden="true"><path d="M2 3.5 5 6.5 8 3.5" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
-          <button id="char-editor-btn" class="main-tb-btn main-tb-icon-btn" type="button" aria-label="Character Set Editor">
-            <svg viewBox="0 0 16 16" fill="currentColor" width="15" height="15" aria-hidden="true"><rect x="1" y="1" width="3" height="3" rx="0.3"/><rect x="5" y="1" width="3" height="3" rx="0.3" opacity="0.5"/><rect x="9" y="1" width="3" height="3" rx="0.3"/><rect x="13" y="1" width="3" height="3" rx="0.3" opacity="0.5"/><rect x="1" y="5" width="3" height="3" rx="0.3" opacity="0.5"/><rect x="5" y="5" width="3" height="3" rx="0.3"/><rect x="9" y="5" width="3" height="3" rx="0.3" opacity="0.5"/><rect x="13" y="5" width="3" height="3" rx="0.3"/><rect x="1" y="9" width="3" height="3" rx="0.3"/><rect x="5" y="9" width="3" height="3" rx="0.3" opacity="0.5"/><rect x="9" y="9" width="3" height="3" rx="0.3"/><rect x="13" y="9" width="3" height="3" rx="0.3" opacity="0.5"/><rect x="1" y="13" width="3" height="3" rx="0.3" opacity="0.5"/><rect x="5" y="13" width="3" height="3" rx="0.3"/><rect x="9" y="13" width="3" height="3" rx="0.3" opacity="0.5"/><rect x="13" y="13" width="3" height="3" rx="0.3"/></svg>
-          </button>
-          <button id="charset-canvas-btn" class="main-tb-btn main-tb-icon-btn" type="button" aria-label="Charset Canvas Editor">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.15" width="15" height="15" aria-hidden="true"><rect x="1.5" y="1.5" width="13" height="13" rx="1"/><path d="M1.5 5.8h13M1.5 10.2h13M5.8 1.5v13M10.2 1.5v13"/><path d="M4.2 12.2l4.1-7.9 3.5 7.9" stroke-linejoin="round"/><path d="M6.2 8.6h3.9"/></svg>
-          </button>
-          <button id="map-editor-btn" class="main-tb-btn main-tb-icon-btn" type="button" aria-label="Map Editor">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" width="15" height="15" aria-hidden="true"><rect x="1.5" y="1.5" width="13" height="13" rx="1"/><path d="M1.5 6h13M1.5 10.5h13M6 1.5v13M10.5 1.5v13" stroke-width="0.9"/><rect x="6" y="6" width="4.5" height="4.5" fill="currentColor" stroke="none" opacity="0.7"/></svg>
-          </button>
-          <button id="level-editor-btn" class="main-tb-btn main-tb-icon-btn" type="button" aria-label="Level Editor">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.15" width="15" height="15" aria-hidden="true"><rect x="3.5" y="1" width="9" height="4.2" rx="0.6"/><rect x="3.5" y="5.9" width="9" height="4.2" rx="0.6"/><rect x="3.5" y="10.8" width="9" height="4.2" rx="0.6" opacity="0.55"/><path d="M14.6 4.5v7.5M13.4 10.6l1.2 1.4 1.2-1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
-          <button id="hires-editor-btn" class="main-tb-btn main-tb-icon-btn" type="button" aria-label="Hi-Res Graphics Editor">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" width="15" height="15" aria-hidden="true"><rect x="1.5" y="2.5" width="13" height="11" rx="1"/><path d="M3 11l3-3 2 2 3-4 2 2.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="5.5" cy="5.5" r="1" fill="currentColor" stroke="none"/></svg>
-          </button>
-          <button id="sprite-editor-btn" class="main-tb-btn main-tb-icon-btn" type="button" aria-label="Sprite Editor">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.1" width="15" height="15" aria-hidden="true"><rect x="2" y="1.5" width="12" height="13" rx="1"/><rect x="4" y="3.5" width="3" height="3" fill="currentColor" stroke="none"/><rect x="9" y="3.5" width="3" height="3" fill="currentColor" stroke="none" opacity="0.5"/><rect x="4" y="8.5" width="3" height="3" fill="currentColor" stroke="none" opacity="0.5"/><rect x="9" y="8.5" width="3" height="3" fill="currentColor" stroke="none"/></svg>
-          </button>
-          <button id="sid-editor-btn" class="main-tb-btn main-tb-icon-btn" type="button" aria-label="SID Editor">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" width="15" height="15" aria-hidden="true"><path d="M1.5 8.5h2l1.5-5 2.5 10 2-7 1.5 4h3.5"/></svg>
-          </button>
-          <button id="curve-gen-btn" class="main-tb-btn main-tb-icon-btn" type="button" aria-label="Curve Editor">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" width="15" height="15" aria-hidden="true"><path d="M1.5 8c1.5-4 3.5-4 5 0s3.5 4 5 0 2.5-2 3 0"/></svg>
-          </button>
-          <button id="table-gen-btn" class="main-tb-btn main-tb-icon-btn" type="button" aria-label="Table Generator">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" width="15" height="15" aria-hidden="true"><rect x="1.5" y="2" width="13" height="12" rx="1"/><path d="M1.5 5.5h13M6 2v12M10.5 2v12M1.5 9.7h13"/></svg>
-          </button>
-          <div class="main-tb-sep" aria-hidden="true"></div>
-          <button id="d64-editor-btn" class="main-tb-btn main-tb-icon-btn" type="button" aria-label="D64 Editor">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" width="15" height="15" aria-hidden="true"><circle cx="8" cy="8" r="6.5"/><circle cx="8" cy="8" r="1.6" fill="currentColor" stroke="none"/><path d="M8 1.5v2.1M8 12.4v2.1" stroke-linecap="round"/></svg>
-          </button>
-          <button id="sid-player-btn" class="main-tb-btn main-tb-icon-btn" type="button" aria-label="SID Player" aria-pressed="false">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15" aria-hidden="true"><path d="M6 12V3.5l7-1.5V10.5"/><circle cx="4.3" cy="12" r="1.8"/><circle cx="11.3" cy="10.5" r="1.8"/></svg>
-          </button>
-          <button id="numconv-btn" class="main-tb-btn main-tb-icon-btn" type="button" aria-label="Number converter" aria-pressed="false">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15" aria-hidden="true"><path d="M2 4.5h7M6.5 2 9 4.5 6.5 7"/><path d="M14 11.5H7M9.5 9 7 11.5 9.5 14"/><text x="11" y="6.2" font-size="5" font-family="monospace" fill="currentColor" stroke="none">$</text><text x="1.6" y="13.4" font-size="5" font-family="monospace" fill="currentColor" stroke="none">%</text></svg>
+          <button id="git-btn" class="main-tb-btn tools-btn" type="button" popovertarget="git-panel" aria-haspopup="true" aria-expanded="false" aria-label="Git and version control">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" width="15" height="15" aria-hidden="true"><circle cx="4.5" cy="3.5" r="1.6"/><circle cx="4.5" cy="12.5" r="1.6"/><circle cx="11.5" cy="6" r="1.6"/><path d="M4.5 5.1v5.8M11.5 7.6c0 2.4-2.4 2.9-5.6 4" stroke-linecap="round"/></svg>
+            <span id="git-btn-label">Versioning</span>
+            <svg viewBox="0 0 10 10" width="8" height="8" aria-hidden="true"><path d="M2 3.5 5 6.5 8 3.5" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
           <button id="vice-btn" class="main-tb-btn main-tb-icon-btn" type="button" aria-label="Built-in C64" aria-pressed="false">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15" aria-hidden="true"><rect x="1" y="5" width="14" height="7" rx="1.5"/><path d="M3.5 8h1M6 8h1M8.5 8h1M11 8h1.5M4.5 10h7"/><path d="M4 5l1-2h6l1 2"/></svg>
           </button>
-          <button id="vice-mon-btn" class="main-tb-btn main-tb-icon-btn" type="button" aria-label="VICE Monitor" aria-pressed="false">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15" aria-hidden="true"><rect x="1.5" y="2.5" width="13" height="9" rx="1"/><path d="M5.5 14h5M8 11.5V14"/><path d="M3.8 8.5l1.6-2.4 1.5 1.6 1.8-3 1.4 2.2h2.1"/></svg>
-          </button>
           <div class="main-tb-sep" aria-hidden="true"></div>
-          <button id="expert-mode-tb-btn" class="main-tb-btn main-tb-icon-btn" type="button" aria-label="Expert mode" aria-pressed="false">
+          <div id="view-switch" class="view-switch" role="group" aria-label="View of the assembler file">
+            <button id="view-blocks-btn" class="view-switch-btn" type="button" aria-pressed="false">Blocks</button>
+            <button id="view-source-btn" class="view-switch-btn" type="button" aria-pressed="false">Source</button>
+          </div>
+          <button id="expert-mode-tb-btn" hidden class="main-tb-btn main-tb-icon-btn" type="button" aria-label="Expert mode" aria-pressed="false">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.25" width="15" height="15" aria-hidden="true"><rect x="1.5" y="2.5" width="13" height="11" rx="1.5"/><path d="M4 6l2.5 2.5L4 11" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 11h3" stroke-linecap="round"/></svg>
           </button>
-          <button id="ub-mode-tb-btn" class="main-tb-btn main-tb-icon-btn" type="button" aria-label="UltimateBasic mode" aria-pressed="false" title="UltimateBasic mode"><svg viewBox="0 0 16 16" fill="none" width="15" height="15" aria-hidden="true"><rect x="2" y="1.5" width="12" height="13" rx="1.5" stroke="currentColor" stroke-width="1.15"/><path d="M5 5v4a2 2 0 0 0 4 0V5M10.5 5h1.2a1.3 1.3 0 0 1 0 2.6h-1.2m0 0H12a1.45 1.45 0 0 1 0 2.9h-1.5V5Z" stroke="currentColor" stroke-width="1.05" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <button id="ub-mode-tb-btn" hidden class="main-tb-btn main-tb-icon-btn" type="button" aria-label="UltimateBasic mode" aria-pressed="false" title="UltimateBasic mode"><svg viewBox="0 0 16 16" fill="none" width="15" height="15" aria-hidden="true"><rect x="2" y="1.5" width="12" height="13" rx="1.5" stroke="currentColor" stroke-width="1.15"/><path d="M5 5v4a2 2 0 0 0 4 0V5M10.5 5h1.2a1.3 1.3 0 0 1 0 2.6h-1.2m0 0H12a1.45 1.45 0 0 1 0 2.9h-1.5V5Z" stroke="currentColor" stroke-width="1.05" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <button id="oscar-mode-tb-btn" hidden class="main-tb-btn main-tb-icon-btn" type="button" aria-label="Oscar64 C mode" aria-pressed="false"><svg viewBox="0 0 16 16" fill="none" width="15" height="15" aria-hidden="true"><rect x="2" y="1.5" width="12" height="13" rx="1.5" stroke="currentColor" stroke-width="1.15"/><path d="M9.4 5.4A2.6 2.6 0 1 0 9.4 10.6" stroke="currentColor" stroke-width="1.15" stroke-linecap="round"/><path d="M11.2 6.9v2.2M10.1 8h2.2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg></button>
           <button id="undo-action" class="main-tb-btn main-tb-icon-btn" type="button" aria-label="Undo" disabled>
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.35" width="15" height="15" aria-hidden="true"><path d="M6.5 4 3 7.5 6.5 11" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.5 7.5H9a4 4 0 0 1 4 4v.5" stroke-linecap="round"/></svg>
           </button>
@@ -328,11 +306,11 @@
             <div id="run-mode-menu" class="run-mode-menu" hidden role="menu">
               <button id="run-prg-mode" class="run-mode-item" role="menuitem" data-mode="prg">
                 <svg viewBox="0 0 16 16" fill="currentColor" width="13" height="13" aria-hidden="true"><path d="M3 2.5l10 5.5-10 5.5V2.5z"/></svg>
-                <span id="run-prg-label">Run as PRG</span>
+                <span id="run-prg-label">Run as PRG (VICE)</span>
               </button>
               <button id="run-d64-mode" class="run-mode-item" role="menuitem" data-mode="d64">
                 <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="13" height="13" aria-hidden="true"><circle cx="8" cy="8" r="6"/><circle cx="8" cy="8" r="2"/></svg>
-                <span id="run-d64-label">Run via D64</span>
+                <span id="run-d64-label">Run via D64 (VICE)</span>
               </button>
               <button id="run-ultimate-mode" class="run-mode-item" role="menuitem" data-mode="ultimate">
                 <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="13" height="13" aria-hidden="true"><rect x="3" y="5" width="10" height="7" rx="1"/><path d="M5 5V3M8 5V3M11 5V3M5 12v1M8 12v1M11 12v1M1 7h2M1 9h2M13 7h2M13 9h2"/></svg>
@@ -375,6 +353,9 @@
               <circle cx="8" cy="11.3" r="0.15" fill="currentColor" stroke-width="0.9"/>
             </svg>
           </button>
+          <button id="about-tb-btn" class="main-tb-btn main-tb-icon-btn" type="button" aria-label="About">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" width="15" height="15" aria-hidden="true"><circle cx="8" cy="8" r="6.3"/><path d="M8 7.2v4" stroke-linecap="round"/><circle cx="8" cy="4.9" r=".55" fill="currentColor" stroke="none"/></svg>
+          </button>
         </div>
         <span id="editor-mode-indicator" class="editor-mode-indicator">
           <span class="mode-indicator-shimmer" aria-hidden="true"></span>
@@ -388,6 +369,86 @@
       </div>
     </header>
 
+    <div id="new-panel" class="tools-panel new-panel" popover="auto">
+      <section class="tools-group"><h3 id="new-group-file" class="tools-group-title">New file</h3><div class="new-list">
+        <button id="new-asm-btn" class="new-item" type="button"><span class="tab-lang tab-lang--expert" aria-hidden="true">ASM</span><span id="new-asm-btn-label">Assembly source</span></button>
+        <button id="new-blocks-btn" class="new-item" type="button"><span class="tab-lang tab-lang--block" aria-hidden="true">BLK</span><span id="new-blocks-btn-label">Block program</span></button>
+        <button id="new-ub-btn" class="new-item" type="button"><span class="tab-lang tab-lang--ub" aria-hidden="true">UB</span><span id="new-ub-btn-label">UltimateBasic program</span></button>
+        <button id="new-c-btn" class="new-item" type="button"><span class="tab-lang tab-lang--oscar" aria-hidden="true">C</span><span id="new-c-btn-label">C program (Oscar64)</span></button>
+      </div></section>
+      <section class="tools-group"><h3 id="new-group-project" class="tools-group-title">New project</h3><div class="new-list">
+        <button id="new-project-btn" class="new-item" type="button" aria-label="New project from template">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" width="15" height="15" aria-hidden="true"><path d="M1.5 4.5v8.5a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1H8L6.5 3h-4a1 1 0 0 0-1 1.5Z" stroke-linejoin="round"/><path d="M8 7.5v4M6 9.5h4" stroke-linecap="round"/></svg><span id="new-project-btn-label">From template…</span>
+        </button>
+      </div></section>
+    </div>
+    <div id="git-panel" class="tools-panel new-panel git-panel" popover="auto">
+      <section class="tools-group"><h3 id="git-group-title" class="tools-group-title">Git</h3><div class="new-list">
+        <button id="git-commit" class="new-item" type="button"><span id="git-commit-label">Commit, changes, history…</span></button>
+        <button id="git-pull" class="new-item" type="button"><span id="git-pull-label">Pull</span></button>
+        <button id="git-push" class="new-item" type="button"><span id="git-push-label">Push</span></button>
+      </div></section>
+      <section class="tools-group"><h3 id="git-group-branch" class="tools-group-title">Branches</h3><div class="new-list">
+        <button id="git-branch-new" class="new-item" type="button"><span id="git-branch-new-label">New branch…</span></button>
+        <button id="git-merge" class="new-item" type="button"><span id="git-merge-label">Merge…</span></button>
+        <button id="git-stash" class="new-item" type="button"><span id="git-stash-label">Stash</span></button>
+      </div></section>
+    </div>
+    <div id="tools-panel" class="tools-panel" popover="auto">
+      <section class="tools-group" aria-labelledby="tools-group-graphics"><h3 id="tools-group-graphics" class="tools-group-title">Graphics</h3><div class="tools-grid">
+            <button id="c64-chrrom-btn" class="main-tb-btn main-tb-icon-btn tools-item" type="button" aria-label="C64 Character ROM">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" width="15" height="15" aria-hidden="true"><rect x="2" y="2" width="12" height="12" rx="1"/><path d="M5 5h2v6H5M9 5h2M9 8h2M9 11h2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+            <button id="char-editor-btn" class="main-tb-btn main-tb-icon-btn tools-item" type="button" aria-label="Character Set Editor">
+            <svg viewBox="0 0 16 16" fill="currentColor" width="15" height="15" aria-hidden="true"><rect x="1" y="1" width="3" height="3" rx="0.3"/><rect x="5" y="1" width="3" height="3" rx="0.3" opacity="0.5"/><rect x="9" y="1" width="3" height="3" rx="0.3"/><rect x="13" y="1" width="3" height="3" rx="0.3" opacity="0.5"/><rect x="1" y="5" width="3" height="3" rx="0.3" opacity="0.5"/><rect x="5" y="5" width="3" height="3" rx="0.3"/><rect x="9" y="5" width="3" height="3" rx="0.3" opacity="0.5"/><rect x="13" y="5" width="3" height="3" rx="0.3"/><rect x="1" y="9" width="3" height="3" rx="0.3"/><rect x="5" y="9" width="3" height="3" rx="0.3" opacity="0.5"/><rect x="9" y="9" width="3" height="3" rx="0.3"/><rect x="13" y="9" width="3" height="3" rx="0.3" opacity="0.5"/><rect x="1" y="13" width="3" height="3" rx="0.3" opacity="0.5"/><rect x="5" y="13" width="3" height="3" rx="0.3"/><rect x="9" y="13" width="3" height="3" rx="0.3" opacity="0.5"/><rect x="13" y="13" width="3" height="3" rx="0.3"/></svg>
+          </button>
+            <button id="charset-canvas-btn" class="main-tb-btn main-tb-icon-btn tools-item" type="button" aria-label="Charset Canvas Editor">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.15" width="15" height="15" aria-hidden="true"><rect x="1.5" y="1.5" width="13" height="13" rx="1"/><path d="M1.5 5.8h13M1.5 10.2h13M5.8 1.5v13M10.2 1.5v13"/><path d="M4.2 12.2l4.1-7.9 3.5 7.9" stroke-linejoin="round"/><path d="M6.2 8.6h3.9"/></svg>
+          </button>
+            <button id="map-editor-btn" class="main-tb-btn main-tb-icon-btn tools-item" type="button" aria-label="Map Editor">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" width="15" height="15" aria-hidden="true"><rect x="1.5" y="1.5" width="13" height="13" rx="1"/><path d="M1.5 6h13M1.5 10.5h13M6 1.5v13M10.5 1.5v13" stroke-width="0.9"/><rect x="6" y="6" width="4.5" height="4.5" fill="currentColor" stroke="none" opacity="0.7"/></svg>
+          </button>
+            <button id="level-editor-btn" class="main-tb-btn main-tb-icon-btn tools-item" type="button" aria-label="Level Editor">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.15" width="15" height="15" aria-hidden="true"><rect x="3.5" y="1" width="9" height="4.2" rx="0.6"/><rect x="3.5" y="5.9" width="9" height="4.2" rx="0.6"/><rect x="3.5" y="10.8" width="9" height="4.2" rx="0.6" opacity="0.55"/><path d="M14.6 4.5v7.5M13.4 10.6l1.2 1.4 1.2-1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+            <button id="hires-editor-btn" class="main-tb-btn main-tb-icon-btn tools-item" type="button" aria-label="Hi-Res Graphics Editor">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" width="15" height="15" aria-hidden="true"><rect x="1.5" y="2.5" width="13" height="11" rx="1"/><path d="M3 11l3-3 2 2 3-4 2 2.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="5.5" cy="5.5" r="1" fill="currentColor" stroke="none"/></svg>
+          </button>
+            <button id="sprite-editor-btn" class="main-tb-btn main-tb-icon-btn tools-item" type="button" aria-label="Sprite Editor">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.1" width="15" height="15" aria-hidden="true"><rect x="2" y="1.5" width="12" height="13" rx="1"/><rect x="4" y="3.5" width="3" height="3" fill="currentColor" stroke="none"/><rect x="9" y="3.5" width="3" height="3" fill="currentColor" stroke="none" opacity="0.5"/><rect x="4" y="8.5" width="3" height="3" fill="currentColor" stroke="none" opacity="0.5"/><rect x="9" y="8.5" width="3" height="3" fill="currentColor" stroke="none"/></svg>
+          </button>
+      </div></section>
+      <section class="tools-group" aria-labelledby="tools-group-sound"><h3 id="tools-group-sound" class="tools-group-title">Sound</h3><div class="tools-grid">
+            <button id="sid-editor-btn" class="main-tb-btn main-tb-icon-btn tools-item" type="button" aria-label="SID Editor">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" width="15" height="15" aria-hidden="true"><path d="M1.5 8.5h2l1.5-5 2.5 10 2-7 1.5 4h3.5"/></svg>
+          </button>
+            <button id="sid-player-btn" class="main-tb-btn main-tb-icon-btn tools-item" type="button" aria-label="SID Player" aria-pressed="false">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15" aria-hidden="true"><path d="M6 12V3.5l7-1.5V10.5"/><circle cx="4.3" cy="12" r="1.8"/><circle cx="11.3" cy="10.5" r="1.8"/></svg>
+          </button>
+      </div></section>
+      <section class="tools-group" aria-labelledby="tools-group-data"><h3 id="tools-group-data" class="tools-group-title">Data and disk</h3><div class="tools-grid">
+            <button id="curve-gen-btn" class="main-tb-btn main-tb-icon-btn tools-item" type="button" aria-label="Curve Editor">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" width="15" height="15" aria-hidden="true"><path d="M1.5 8c1.5-4 3.5-4 5 0s3.5 4 5 0 2.5-2 3 0"/></svg>
+          </button>
+            <button id="table-gen-btn" class="main-tb-btn main-tb-icon-btn tools-item" type="button" aria-label="Table Generator">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" width="15" height="15" aria-hidden="true"><rect x="1.5" y="2" width="13" height="12" rx="1"/><path d="M1.5 5.5h13M6 2v12M10.5 2v12M1.5 9.7h13"/></svg>
+          </button>
+            <button id="d64-editor-btn" class="main-tb-btn main-tb-icon-btn tools-item" type="button" aria-label="D64 Editor">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" width="15" height="15" aria-hidden="true"><circle cx="8" cy="8" r="6.5"/><circle cx="8" cy="8" r="1.6" fill="currentColor" stroke="none"/><path d="M8 1.5v2.1M8 12.4v2.1" stroke-linecap="round"/></svg>
+          </button>
+            <button id="numconv-btn" class="main-tb-btn main-tb-icon-btn tools-item" type="button" aria-label="Number converter" aria-pressed="false">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15" aria-hidden="true"><path d="M2 4.5h7M6.5 2 9 4.5 6.5 7"/><path d="M14 11.5H7M9.5 9 7 11.5 9.5 14"/><text x="11" y="6.2" font-size="5" font-family="monospace" fill="currentColor" stroke="none">$</text><text x="1.6" y="13.4" font-size="5" font-family="monospace" fill="currentColor" stroke="none">%</text></svg>
+          </button>
+      </div></section>
+      <section class="tools-group" aria-labelledby="tools-group-machine"><h3 id="tools-group-machine" class="tools-group-title">Machine</h3><div class="tools-grid">
+            <button id="memory-window-btn" class="main-tb-btn main-tb-icon-btn tools-item" type="button" aria-label="C64 memory map" aria-pressed="false">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" width="15" height="15" aria-hidden="true"><rect x="1.5" y="3" width="13" height="10" rx="1"/><path d="M5 3v10M8.5 3v10M11.5 3v10" opacity=".6"/><rect x="1.5" y="3" width="3.5" height="10" fill="currentColor" opacity=".25" stroke="none"/></svg>
+          </button>
+            <button id="vice-mon-btn" class="main-tb-btn main-tb-icon-btn tools-item" type="button" aria-label="VICE Monitor" aria-pressed="false">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15" aria-hidden="true"><rect x="1.5" y="2.5" width="13" height="9" rx="1"/><path d="M5.5 14h5M8 11.5V14"/><path d="M3.8 8.5l1.6-2.4 1.5 1.6 1.8-3 1.4 2.2h2.1"/></svg>
+          </button>
+      </div></section>
+    </div>
     <div class="tab-bar-wrap">
       <button class="tab-scroll-btn tab-scroll-btn--left" id="tab-scroll-left" aria-label="Scroll tabs left" tabindex="-1">&#x2039;</button>
       <div id="tab-bar" class="tab-bar">
@@ -468,6 +529,7 @@
             <div class="panel-heading-row">
               <h2>Program blokkok</h2>
               <div class="panel-heading-actions">
+                <button id="block-project-btn" class="secondary" type="button" aria-label="Project panel" aria-pressed="false"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="11" height="11" aria-hidden="true"><rect x="1" y="2" width="5" height="4" rx="1" fill="currentColor" opacity="0.9"/><rect x="1" y="8" width="5" height="4" rx="1" fill="currentColor" opacity="0.5"/><rect x="8" y="3" width="7" height="1.8" rx="0.7" fill="currentColor" opacity="0.7"/><rect x="8" y="7" width="5" height="1.8" rx="0.7" fill="currentColor" opacity="0.5"/><rect x="8" y="11" width="6" height="1.8" rx="0.7" fill="currentColor" opacity="0.3"/></svg></button>
                 <button id="collapse-all" class="secondary" type="button" aria-label="Osszes osszecsukasa">&#9662;</button>
                 <button id="expand-all" class="secondary" type="button" aria-label="Osszes kinyitasa">&#9656;</button>
                 <button id="block-minimap-btn" class="secondary" type="button" aria-label="Minimap" aria-pressed="false">
@@ -689,7 +751,7 @@ PRINTABLE CHARACTERS
               <button id="expert-project-add-folder-btn" class="expert-project-icon-btn" type="button" aria-label="Add folder">
                 <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><path d="M1 4C1 3.45 1.45 3 2 3H5.5L7 5H12C12.55 5 13 5.45 13 6V11C13 11.55 12.55 12 12 12H2C1.45 12 1 11.55 1 11V4Z" stroke="currentColor" stroke-width="1.2"/><path d="M7 7.5V10.5M5.5 9H8.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
               </button>
-              <button id="expert-project-settings-btn" class="expert-project-icon-btn" type="button" aria-label="Project settings">
+              <button id="expert-project-settings-btn" class="expert-project-icon-btn" type="button" disabled aria-label="Project settings">
                 <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><circle cx="8" cy="8" r="2.2" stroke="currentColor" stroke-width="1.2"/><path d="M8 1.8v1.7M8 12.5v1.7M1.8 8h1.7M12.5 8h1.7M3.6 3.6l1.2 1.2M11.2 11.2l1.2 1.2M3.6 12.4l1.2-1.2M11.2 4.8l1.2-1.2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
               </button>
             </div>
@@ -884,10 +946,107 @@ PRINTABLE CHARACTERS
           <span id="ub-cursor-pos">Ln 1, Col 1</span>
         </div>
       </section>
+      <section class="ub-panel osc-panel ub-show-project ub-show-lines" id="osc-panel" hidden>
+        <div class="ub-toolbar osc-toolbar">
+          <button id="osc-project-btn" class="expert-hl-toggle expert-hl-toggle--on" type="button" aria-label="Project files" aria-pressed="true"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><rect x="1.5" y="2" width="13" height="12" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M5.5 2v12" stroke="currentColor" stroke-width="1.2"/></svg></button>
+          <div class="expert-toolbar-sep"></div>
+          <button id="osc-new-btn" class="expert-hl-toggle" type="button" aria-label="New file"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M3 2h6l4 4v8H3V2Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M8 8v4M6 10h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></button>
+          <button id="osc-open-btn" class="expert-hl-toggle" type="button" aria-label="Open file"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M1.5 4.5V13h11l2-6H4.5l-3 6" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M1.5 4.5V3h4l1.5 1.5h5V7" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg></button>
+          <button id="osc-save-btn" class="expert-hl-toggle" type="button" aria-label="Save (Ctrl+S)"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M3 2h8l3 3v9H3V2Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M5.5 2v3.5h5V2M5.5 14v-4h5v4" stroke="currentColor" stroke-width="1.2"/></svg></button>
+          <button id="osc-save-as-btn" class="expert-hl-toggle" type="button" aria-label="Save as"><svg viewBox="0 0 18 16" fill="none" width="15" height="13" aria-hidden="true"><path d="M2 2h8l2 2v10H2V2Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M14 9v5M11.5 11.5h5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></button>
+          <button id="osc-format-btn" class="expert-hl-toggle" type="button" aria-label="Format source"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><path d="M3 3h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M5 6.5h8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M5 10h8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M2 5.5l1.5 1.5-1.5 1.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 9l1.5 1.5-1.5 1.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <div class="expert-toolbar-sep"></div>
+          <button id="osc-build-btn" class="expert-hl-toggle" type="button" aria-label="Build (Oscar64)"><svg viewBox="0 0 16 16" fill="none" width="14" height="14" aria-hidden="true"><path d="m3 13 6.2-6.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M8.5 3.5 12.5 7.5l1.5-1.5-4-4-1.5 1.5Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg></button>
+          <button id="osc-build-info-btn" class="expert-hl-toggle" type="button" aria-label="Build Info"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2"/><path d="M8 7V12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="8" cy="5" r="0.8" fill="currentColor"/></svg></button>
+          <div class="expert-toolbar-sep"></div>
+          <button id="osc-output-btn" class="expert-hl-toggle expert-hl-toggle--on" type="button" aria-label="Build output" aria-pressed="true"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><rect x="1.5" y="2" width="13" height="12" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 2v12" stroke="currentColor" stroke-width="1.2"/></svg></button>
+          <button id="osc-listing-btn" class="expert-hl-toggle" type="button" aria-label="Disassembler"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><rect x="1" y="2" width="14" height="2" rx="1" fill="currentColor" opacity="0.4"/><rect x="1" y="6" width="9" height="2" rx="1" fill="currentColor"/><rect x="11" y="6" width="4" height="2" rx="1" fill="currentColor" opacity="0.5"/><rect x="1" y="10" width="6" height="2" rx="1" fill="currentColor"/><rect x="8" y="10" width="7" height="2" rx="1" fill="currentColor" opacity="0.5"/><rect x="1" y="14" width="11" height="1" rx="0.5" fill="currentColor" opacity="0.3"/></svg></button>
+          <button id="osc-monitor-btn" class="expert-hl-toggle" type="button" aria-label="Monitor"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><rect x="1" y="1" width="14" height="9" rx="1.5" stroke="currentColor" stroke-width="1.2"/><rect x="3" y="3" width="2" height="2" rx="0.4" fill="currentColor" opacity="0.7"/><rect x="6" y="3" width="2" height="2" rx="0.4" fill="currentColor" opacity="0.7"/><rect x="9" y="3" width="2" height="2" rx="0.4" fill="currentColor" opacity="0.7"/><rect x="3" y="6.5" width="2" height="2" rx="0.4" fill="currentColor" opacity="0.4"/><rect x="6" y="6.5" width="2" height="2" rx="0.4" fill="currentColor" opacity="0.4"/><rect x="9" y="6.5" width="2" height="2" rx="0.4" fill="currentColor" opacity="0.4"/><rect x="6" y="12" width="4" height="1.5" rx="0.5" fill="currentColor" opacity="0.5"/><rect x="4" y="13.5" width="8" height="1" rx="0.5" fill="currentColor" opacity="0.3"/></svg></button>
+          <button id="osc-toolkit-btn" class="expert-hl-toggle" type="button" aria-label="Toolkit"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1" fill="currentColor" opacity="0.9"/><rect x="9" y="1.5" width="5.5" height="5.5" rx="1" fill="currentColor" opacity="0.55"/><rect x="1.5" y="9" width="5.5" height="5.5" rx="1" fill="currentColor" opacity="0.35"/><path d="M9.5 10.5h5M9.5 13h3.5" stroke="var(--hl-number, currentColor)" stroke-width="1.2" stroke-linecap="round"/></svg></button>
+          <button id="osc-hl-btn" class="expert-hl-toggle expert-hl-toggle--on" type="button" aria-label="Syntax highlighting" aria-pressed="true"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M5 4 1.5 8 5 12M11 4l3.5 4L11 12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="m9 3-2 10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></button>
+          <button id="osc-lines-btn" class="expert-hl-toggle expert-hl-toggle--on" type="button" aria-label="Line numbers" aria-pressed="true"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M2.5 4h1v3M2 7h2.5M2 10h2l-2 3h2.5M7 4.5h7M7 8h7M7 11.5h7" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <div class="expert-toolbar-sep"></div>
+          <button id="osc-ac-btn" class="expert-hl-toggle expert-hl-toggle--on" type="button" aria-label="Autocomplete" aria-pressed="true"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M3 11.5V4.5C3 3.67 3.67 3 4.5 3H8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.5 6.5H9.5M4.5 9H7.2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M11 4.5h2M12 3.5v2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="11.5" cy="10.5" r="1.2" stroke="currentColor" stroke-width="1.1"/></svg></button>
+          <button id="osc-cycles-btn" class="expert-hl-toggle expert-hl-toggle--on" type="button" aria-label="Cycle counts" aria-pressed="true"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><circle cx="8" cy="8.6" r="5.6" stroke="currentColor" stroke-width="1.2"/><path d="M8 5.2v3.6l2.4 1.5" stroke="var(--hl-number, currentColor)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M6.4 1.6h3.2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></button>
+          <button id="osc-minimap-btn" class="expert-hl-toggle expert-hl-toggle--on" type="button" aria-label="Minimap" aria-pressed="true"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><rect x="1.5" y="1.5" width="5" height="13" rx="0.6" stroke="currentColor" stroke-width="1.1"/><path d="M3 4h2.5M3 5.8h3.5M3 7.6h2M3 9.4h3M3 11.2h2.5M3 13h1.5" stroke="currentColor" stroke-width="0.85" stroke-linecap="round" opacity="0.75"/><rect x="1.5" y="7" width="5" height="4" fill="currentColor" opacity="0.2"/><path d="M9 4h5.5M9 6h4M9 8h5.5M9 10h3.5M9 12h4.5" stroke="currentColor" stroke-width="0.85" stroke-linecap="round" opacity="0.45"/></svg></button>
+          <div class="expert-toolbar-sep"></div>
+          <button id="osc-find-btn" class="expert-hl-toggle" type="button" aria-label="Find (Ctrl+F)"><svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true"><circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" stroke-width="1.3"/><path d="M10 10L14 14" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></button>
+          <button id="osc-goto-btn" class="expert-hl-toggle" type="button" aria-label="Go to line (Ctrl+G)"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M2 4h5M2 8h3M2 12h5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M8 8h6m-2.3-2.4L14 8l-2.3 2.4" stroke="var(--hl-number, currentColor)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <button id="osc-bm-toggle-btn" class="expert-hl-toggle" type="button" aria-label="Toggle bookmark (Ctrl+F2)"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M4.5 2.2h7v11.6L8 11.2l-3.5 2.6V2.2Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M8 4.6v4M6 6.6h4" stroke="var(--hl-number, currentColor)" stroke-width="1.2" stroke-linecap="round"/></svg></button>
+          <button id="osc-bm-prev-btn" class="expert-hl-toggle" type="button" aria-label="Previous bookmark (Shift+F2)"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M2 2.2h6.5v11.6L5.2 11.2 2 13.8V2.2Z" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"/><path d="M12.5 13V4m-2.3 2.3L12.5 4l2.3 2.3" stroke="var(--hl-number, currentColor)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <button id="osc-bm-next-btn" class="expert-hl-toggle" type="button" aria-label="Next bookmark (F2)"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M2 2.2h6.5v11.6L5.2 11.2 2 13.8V2.2Z" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"/><path d="M12.5 3v9m-2.3-2.3 2.3 2.3 2.3-2.3" stroke="var(--hl-number, currentColor)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <button id="osc-bm-clear-btn" class="expert-hl-toggle" type="button" aria-label="Clear all bookmarks"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M2 2.2h6.5v11.6L5.2 11.2 2 13.8V2.2Z" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"/><path d="m10.5 6 4 4m0-4-4 4" stroke="var(--hl-number, currentColor)" stroke-width="1.2" stroke-linecap="round"/></svg></button>
+          <div class="expert-toolbar-sep"></div>
+          <button id="osc-zoom-out-btn" class="expert-hl-toggle" type="button" aria-label="Zoom out"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.2"/><path d="M5 7h4M10.5 10.5 14 14" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></button>
+          <button id="osc-zoom-in-btn" class="expert-hl-toggle" type="button" aria-label="Zoom in"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.2"/><path d="M5 7h4M7 5v4M10.5 10.5 14 14" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></button>
+          <div class="expert-toolbar-meta">
+            <span id="osc-compiler" class="expert-working-folder"><span class="expert-working-folder__text"></span></span>
+          </div>
+        </div>
+        <div class="ub-editor-layout">
+          <aside id="osc-project-panel" class="ub-project-panel expert-project-panel">
+            <div id="osc-project-view" class="ub-left-view ub-left-view--active">
+              <div class="expert-project-header ub-project-header">
+                <span id="osc-project-name" class="expert-project-name">No project</span>
+                <button id="osc-project-open-btn" class="expert-project-icon-btn" type="button" aria-label="Open project folder"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M1.5 4.5V13h11l2-6H4.5l-3 6" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M1.5 4.5V3h4l1.5 1.5h5V7" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg></button>
+                <button id="osc-project-new-btn" class="expert-project-icon-btn" type="button" aria-label="New project"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><rect x="2" y="2" width="12" height="12" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M8 5v6M5 8h6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></button>
+                <button id="osc-project-add-btn" class="expert-project-icon-btn" type="button" aria-label="New file in project"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M3 2h6l4 4v8H3V2Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M8 8v4M6 10h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></button>
+                <button id="osc-project-add-folder-btn" class="expert-project-icon-btn" type="button" aria-label="New folder"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M1.5 3h4.5l1.5 1.5h7V13h-13V3Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M8 7v4M6 9h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></button>
+                <button id="osc-project-import-btn" class="expert-project-icon-btn" type="button" aria-label="Load project from build script"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M3 2.5h6.5L13 6v7.5H3z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M5.5 8.5 7 10l-1.5 1.5M8.5 11.5H11" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+                <button id="osc-project-settings-btn" class="expert-project-icon-btn" type="button" aria-label="Project settings"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><circle cx="8" cy="8" r="2.2" stroke="currentColor" stroke-width="1.2"/><path d="M8 1.8v1.7M8 12.5v1.7M1.8 8h1.7M12.5 8h1.7M3.6 3.6l1.2 1.2M11.2 11.2l1.2 1.2M3.6 12.4l1.2-1.2M11.2 4.8l1.2-1.2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></button>
+                <button id="osc-project-reveal-btn" class="expert-project-icon-btn" type="button" aria-label="Show the open file in the tree"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><circle cx="8" cy="8" r="4.5" stroke="currentColor" stroke-width="1.2"/><circle cx="8" cy="8" r="1.4" fill="currentColor"/><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></button>
+                <button id="osc-project-refresh-btn" class="expert-project-icon-btn" type="button" aria-label="Refresh"><svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M13 8a5 5 0 1 1-1.5-3.6M13 2.5v2.5h-2.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+              </div>
+              <form id="osc-ask" class="osc-ask" hidden>
+                <label id="osc-ask-label" for="osc-ask-input"></label>
+                <input id="osc-ask-input" type="text" spellcheck="false" autocomplete="off">
+              </form>
+              <div id="osc-project-files" class="ub-project-files expert-project-tree osc-tree" tabindex="0"></div>
+              <div id="osc-symbols-splitter" class="expert-project-splitter ub-symbols-splitter" role="separator" aria-orientation="horizontal" tabindex="0"></div>
+              <div id="osc-project-symbols" class="expert-project-symbols ub-project-symbols"></div>
+            </div>
+          </aside>
+          <div class="osc-editor-col">
+            <div class="ub-editor-wrap osc-editor-wrap">
+              <div id="osc-line-numbers" class="ub-line-numbers" aria-hidden="true"><div id="osc-line-numbers-content" class="ub-line-numbers-content"></div></div>
+              <pre id="osc-highlight" class="ub-highlight osc-highlight" aria-hidden="true"><code id="osc-highlight-code"></code></pre>
+              <textarea id="osc-editor" class="ub-editor osc-editor" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" writingsuggestions="false" wrap="off"></textarea>
+              <canvas id="osc-minimap" class="ub-minimap" aria-hidden="true"></canvas>
+              <div id="osc-find-bar" class="expert-find-bar ub-find-bar osc-find-bar" hidden>
+              <input id="osc-find-input" class="expert-find-input" type="text" placeholder="Find…" autocomplete="off" spellcheck="false">
+              <span id="osc-find-count" class="expert-find-counter"></span>
+              <span class="expert-find-sep"></span>
+              <button id="osc-find-prev" class="expert-find-nav" type="button" aria-label="Previous (Shift+Enter)"><svg viewBox="0 0 16 16" fill="none" width="10" height="10" aria-hidden="true"><path d="M4 10l4-5 4 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+              <button id="osc-find-next" class="expert-find-nav" type="button" aria-label="Next (Enter)"><svg viewBox="0 0 16 16" fill="none" width="10" height="10" aria-hidden="true"><path d="M4 6l4 5 4-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+              <button id="osc-find-close" class="expert-find-nav expert-find-nav--close" type="button" aria-label="Close (Esc)"><svg viewBox="0 0 16 16" fill="none" width="10" height="10" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+            </div>
+            </div>
+          </div>
+          <div id="osc-resizer" class="expert-disasm-resizer ub-disasm-resizer"></div>
+          <div class="ub-right-panels">
+            <aside class="ub-build-panel osc-build-panel">
+              <div class="osc-out-tabs" role="tablist">
+                <button id="osc-out-tab-log" class="osc-out-tab osc-out-tab--active" type="button" data-view="log">Output</button>
+                <button id="osc-out-tab-asm" class="osc-out-tab" type="button" data-view="asm">Listing</button>
+                <button id="osc-out-tab-mon" class="osc-out-tab" type="button" data-view="mon">Monitor</button>
+                <button id="osc-out-tab-map" class="osc-out-tab" type="button" data-view="map">Map</button>
+                <button id="osc-out-tab-tk" class="osc-out-tab" type="button" data-view="tk">Toolkit</button>
+              </div>
+              <ul id="osc-diagnostics" class="osc-diagnostics" hidden></ul>
+              <pre id="osc-output">Ready.</pre>
+              <div id="osc-toolkit-host" class="osc-toolkit-host toolkit-host" hidden></div>
+            </aside>
+          </div>
+        </div>
+        <div class="ub-statusbar">
+          <span id="osc-status">Ready</span>
+          <span id="osc-cursor-pos">Ln 1, Col 1</span>
+        </div>
+      </section>
 
     </main>
 
-    <details class="global-memory-panel">
+    <details class="global-memory-panel" hidden>
       <summary class="global-memory-summary">
         <span class="global-memory-title-group">
           <span class="global-memory-title">Teljes C64 memoria</span>
@@ -1053,6 +1212,40 @@ PRINTABLE CHARACTERS
     </div>
   </dialog>
 
+  <dialog id="start-dialog" class="template-dialog start-dialog" aria-labelledby="start-title">
+    <div class="template-card start-card">
+      <div class="template-hdr">
+        <h2 class="template-title" id="start-title">Visual Assembler Studio</h2>
+        <button id="start-close" class="project-snapshot-xbtn" type="button" aria-label="Close">×</button>
+      </div>
+      <div class="start-body">
+        <section class="start-col start-col--recent">
+          <h3 id="start-recent-label" class="start-col-title">Open recent</h3>
+          <div id="start-recent" class="start-recent"></div>
+        </section>
+        <section class="start-col start-col--actions">
+          <h3 id="start-actions-label" class="start-col-title">Get started</h3>
+          <button id="start-new" class="start-action" type="button">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" width="26" height="26" aria-hidden="true"><path d="M3.5 1.5h6l3 3v10h-9v-13Z" stroke-linejoin="round"/><path d="M8 7v5M5.5 9.5h5" stroke-linecap="round"/></svg>
+            <span><strong id="start-new-label">Create a new project</strong><small id="start-new-desc">From a template</small></span>
+          </button>
+          <button id="start-open" class="start-action" type="button">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" width="26" height="26" aria-hidden="true"><path d="M1.5 4.5v8.5a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1H8L6.5 3h-4a1 1 0 0 0-1 1.5Z" stroke-linejoin="round"/><path d="M8 11.5v-4M6 9.5l2-2 2 2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span><strong id="start-open-label">Open a project</strong><small id="start-open-desc">A .proj file</small></span>
+          </button>
+          <button id="start-folder" class="start-action" type="button">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" width="26" height="26" aria-hidden="true"><path d="M1.5 4.5v8.5a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1H8L6.5 3h-4a1 1 0 0 0-1 1.5Z" stroke-linejoin="round"/><path d="M9.6 8.2a1.9 1.9 0 1 0 0 2.6" stroke-linecap="round"/></svg>
+            <span><strong id="start-folder-label">Open a C folder</strong><small id="start-folder-desc">Oscar64 sources</small></span>
+          </button>
+          <button id="start-continue" class="start-link" type="button">Continue without a project →</button>
+        </section>
+      </div>
+      <div class="template-footer">
+        <label class="start-show"><input id="start-show-on-launch" type="checkbox" checked> <span id="start-show-label">Show at startup</span></label>
+      </div>
+    </div>
+  </dialog>
+
   <dialog id="template-dialog" class="template-dialog" aria-labelledby="template-dialog-title">
     <div class="template-card">
       <div class="template-hdr">
@@ -1060,10 +1253,12 @@ PRINTABLE CHARACTERS
         <button id="template-dialog-close" class="project-snapshot-xbtn" type="button" aria-label="Close">×</button>
       </div>
       <div id="template-kinds" class="template-kinds" role="tablist">
+        <button id="template-kind-ub" class="template-kind" data-template-kind="ub" role="tab" type="button">UltimateBasic</button>
+        <button id="template-kind-c" class="template-kind" data-template-kind="c" role="tab" type="button">C (Oscar64)</button>
         <button id="template-kind-asm" class="template-kind" data-template-kind="asm" role="tab" type="button">Visual Assembler</button>
         <button id="template-kind-acme" class="template-kind" data-template-kind="acme" role="tab" type="button">ACME</button>
-        <button id="template-kind-ub" class="template-kind" data-template-kind="ub" role="tab" type="button">UltimateBasic</button>
       </div>
+      <p id="template-kind-desc" class="template-kind-desc"></p>
       <div class="template-body">
         <div id="template-list" class="template-list"></div>
         <div class="template-detail">
@@ -1146,10 +1341,10 @@ PRINTABLE CHARACTERS
             <label class="ps-field"><span id="ps-startup-label">Startup file</span><select id="ps-startup" class="ps-input"></select></label>
             <div class="ps-field ps-wide"><span id="ps-path-label">Project file</span><code id="ps-path" class="ps-path"></code></div>
             <div class="ps-field ps-wide"><span id="ps-files-label">Files</span><span id="ps-files" class="ps-files"></span></div>
-            <label class="ps-check menu-checkbox-label ps-wide"><input id="ps-no-blocks" type="checkbox"> <span id="ps-no-blocks-label">Expert mode only (no block mode)</span></label>
+            <label class="ps-check menu-checkbox-label ps-wide ps-asm-only"><input id="ps-no-blocks" type="checkbox"> <span id="ps-no-blocks-label">Expert mode only (no block mode)</span></label>
           </div>
         </section>
-        <section class="ps-section">
+        <section class="ps-section ps-asm-only">
           <h3 class="ps-section-label" id="ps-section-build">Assembler</h3>
           <div class="ps-grid">
             <label class="ps-field"><span id="ps-assembler-label">Assembler</span><select id="ps-assembler" class="ps-input"><option value="kick">VMA (Visual Assembler)</option><option value="acme">ACME</option><option value="r65">R65 (KickAssembler)</option></select></label>
@@ -1161,6 +1356,15 @@ PRINTABLE CHARACTERS
           <div class="ps-grid">
             <label class="ps-field ps-wide"><span id="ps-defines-label">Preprocessor symbols (#define)</span><input id="ps-defines" writingsuggestions="false" class="ps-input" type="text" spellcheck="false" autocomplete="off" placeholder="DEBUG, PAL"></label>
             <label class="ps-field ps-wide"><span id="ps-vars-label">Command-line variables (cmdLineVars)</span><textarea id="ps-vars" writingsuggestions="false" class="ps-input ps-textarea" rows="4" spellcheck="false" placeholder="level=3&#10;autojoy=0"></textarea><small id="ps-vars-hint" class="ps-hint">One name=value per line, as KickAssembler's -name=value command-line arguments.</small></label>
+          </div>
+        </section>
+        <section class="ps-section ps-c-only" hidden>
+          <h3 class="ps-section-label" id="ps-section-c">C (Oscar64)</h3>
+          <div class="ps-grid">
+            <label class="ps-field"><span id="ps-c-optimize-label">Optimization</span><select id="ps-c-optimize" class="ps-input"><option value="" id="ps-c-optimize-default">Settings default</option><option value="O0">O0</option><option value="O1">O1</option><option value="O2">O2</option><option value="O3">O3</option><option value="Os">Os</option></select></label>
+            <div class="ps-field"><span id="ps-c-targets-label">Build script</span><span id="ps-c-targets" class="ps-files"></span></div>
+            <label class="ps-field ps-wide"><span id="ps-c-defines-label">Defines (-d)</span><textarea id="ps-c-defines" writingsuggestions="false" class="ps-input ps-textarea" rows="3" spellcheck="false" placeholder="DEBUG&#10;LEVEL=3"></textarea><small id="ps-c-defines-hint" class="ps-hint">One NAME or NAME=value per line, as #define NAME value.</small></label>
+            <label class="ps-field ps-wide"><span id="ps-c-includes-label">Include folders (-i)</span><textarea id="ps-c-includes" writingsuggestions="false" class="ps-input ps-textarea" rows="3" spellcheck="false" placeholder="include&#10;../common"></textarea><small id="ps-c-includes-hint" class="ps-hint">One folder per line, relative to the project folder. The project folder itself is always searched.</small></label>
           </div>
         </section>
         <section class="ps-section ps-vma-only">
@@ -1566,12 +1770,14 @@ PRINTABLE CHARACTERS
         <div class="about-logo">
           <img src="assets/logo-about.png" alt="C64 Visual Assembler" width="200" height="160">
         </div>
-        <h2 class="about-title">C64 Visual Assembler</h2>
-        <p class="about-version" id="about-version">v2.8.6</p>
+        <h2 class="about-title">C64 Visual Assembler <span class="va-studio about-studio" aria-hidden="true">Studio</span></h2>
+        <p class="about-version" id="about-version">v2.9.0</p>
         <p class="about-version" id="about-ub-version"><span id="about-ub-version-label">UltimateBasic:</span> <span id="about-ub-version-value">v?</span></p>
         <p class="about-version" id="about-vma-version"><span id="about-vma-version-label">VMA:</span> <span id="about-vma-version-value">v?</span></p>
         <p class="about-version" id="about-va-sid-version"><span id="about-va-sid-version-label">VA-SID:</span> <span id="about-va-sid-version-value">v?</span></p>
         <p class="about-version" id="about-r65-version"><span id="about-r65-version-label">R65:</span> <span id="about-r65-version-value">v?</span></p>
+        <p class="about-version" id="about-oscar64-version"><span>Oscar64:</span> <span id="about-oscar64-version-value">v?</span></p>
+        <p class="about-version" id="about-acme-version"><span>ACME:</span> <span id="about-acme-version-value">v?</span></p>
       </div>
       <div class="about-columns">
         <div class="about-col about-col-left">
@@ -1597,6 +1803,8 @@ PRINTABLE CHARACTERS
           </div>
           <p class="about-sid-credit" id="about-vice-credit"><span id="about-vice-credit-label">Built-in C64: VICE 3.10 x64sc (WebAssembly). Website:</span> <a href="https://vice-emu.sourceforge.io/" target="_blank" rel="noopener noreferrer">https://vice-emu.sourceforge.io/</a><br><span id="about-vice-credit-license">License:</span> <a href="https://www.gnu.org/licenses/old-licenses/gpl-2.0.html" target="_blank" rel="noopener noreferrer">GNU General Public License v2 or later</a></p>
           <p class="about-sid-credit" id="about-ue2-credit"><span id="about-ue2-credit-label">Ultimate emulator: UE2-C64U-Emulator by Jondalar. GitHub repository:</span> <a href="https://github.com/Jondalar/UE2-C64U-Emulator" target="_blank" rel="noopener noreferrer">https://github.com/Jondalar/UE2-C64U-Emulator</a><br><span id="about-ue2-credit-license">License:</span> <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank" rel="noopener noreferrer">GNU General Public License v3.0</a></p>
+          <p class="about-sid-credit" id="about-oscar64-credit"><span id="about-oscar64-credit-label">C compiler: Oscar64 by Martin Lemke (bundled, v1.32.273). GitHub repository:</span> <a href="https://github.com/drmortalwombat/oscar64" target="_blank" rel="noopener noreferrer">https://github.com/drmortalwombat/oscar64</a><br><span id="about-oscar64-credit-license">License:</span> <a href="https://github.com/drmortalwombat/oscar64/blob/v1.32.273/LICENSE" target="_blank" rel="noopener noreferrer">GNU General Public License v3.0</a></p>
+          <p class="about-sid-credit" id="about-acme-credit"><span id="about-acme-credit-label">Assembler: ACME by Marco Baye (bundled, 0.97). Website:</span> <a href="https://sourceforge.net/projects/acme-crossass/" target="_blank" rel="noopener noreferrer">https://sourceforge.net/projects/acme-crossass/</a><br><span id="about-acme-credit-license">License:</span> <a href="https://www.gnu.org/licenses/old-licenses/gpl-2.0.html" target="_blank" rel="noopener noreferrer">GNU General Public License v2 or later</a></p>
         </div>
       </div>
       <button id="about-close" class="primary" type="button">Close</button>
@@ -1606,22 +1814,34 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.8.6</p>
+      <p class="whats-new-version">v2.9.0</p>
+      <ul class="whats-new-list">
+        <li>
+          <strong>Visual Assembler Studio:</strong> assembly (VMA, ACME, R65), blocks, UltimateBasic and C in one window. Every open file is a tab of one tab bar with a language badge (BLK / ASM / UB / C); an assembly tab switches between <strong>Blocks</strong> and <strong>Source</strong>. A file opens in the editor of its own language.
+        </li>
+        <li>
+          <strong>C with Oscar64:</strong> a C editor with the Oscar64 compiler built in (and ACME too, nothing to install): highlighting, completion of the included headers, formatter, cycle counts, Disassembly / Monitor / Map views, project tree with startup file, projects from <code>build.sh</code> / <code>make.bat</code> / makefile. A C program runs in every Run mode.
+        </li>
+        <li>
+          <strong>Source-level debugging in C and UltimateBasic:</strong> breakpoints on source lines, stepping one C line at a time, a <strong>Variables</strong> panel (C globals, parameters and locals by type; UltimateBasic variables) and a <strong>Call stack</strong>, in the built-in C64 and in the VICE / Ultimate emulator debugger.
+        </li>
+        <li>
+          <strong>Start window, New and Tools menus:</strong> recent projects, new project from a template, open a project or a C folder. <strong>New</strong> opens a file in any language, <strong>Tools</strong> holds the editors in groups (Graphics, Sound, Data and disk, Machine), and a <strong>Git</strong> menu sits on the toolbar.
+        </li>
+        <li>
+          <strong>Projects:</strong> a project has one language and opens all its source files as tabs. The open tabs, the view, the breakpoints and the cursor are kept in <code>&lt;name&gt;.proj.user</code> next to the project (it replaces workspaces). A tab counts as unsaved only when it differs from the saved file. The project panel can be resized.
+        </li>
+        <li>
+          <strong>Memory map in its own window</strong> (Tools → Machine), new templates (Hello World for VMA and ACME, 16- and 64-sprite multiplexers in C and UltimateBasic) and <strong>UltimateBasic 1.6.8</strong> (<code>sprite multicolor</code>, clear errors instead of a crash).
+        </li>
+      </ul>
+      <p class="whats-new-previous">v2.8.6</p>
       <ul class="whats-new-list">
         <li>
           <strong>Detailed wave table steps:</strong> a step of the SID Editor's wave / arpeggio table can have its own length, pulse width and filter (cutoff, resonance, mode, routed voices), under the <strong>…</strong> button of the step, and a table can have 64 steps. The exported 6502 player plays them. Files with such steps need 2.8.6 or later.
         </li>
         <li>
           <strong>Speech in .sid import:</strong> speech and other sounds that step the waveform, pulse width and filter from frame to frame (GoatTracker tables) come in as such steps, so they sound like the original. GoatTracker's hard restart is recognized too.
-        </li>
-      </ul>
-      <p class="whats-new-previous">v2.8.5</p>
-      <ul class="whats-new-list">
-        <li>
-          <strong>Shared SID emulation:</strong> VA SID Core, reSID and the cycle-exact C64 behind the SID Player and the SID Editor now come from one library, <strong>va-sid</strong>, which VA SID Studio uses too, so both apps play every tune the same way. The sound does not change.
-        </li>
-        <li>
-          <strong>About:</strong> the About window shows the VA-SID version next to UltimateBasic, VMA and R65.
         </li>
       </ul>
       <button id="whats-new-close" class="primary" type="button">OK</button>
@@ -1715,6 +1935,12 @@ PRINTABLE CHARACTERS
           <a class="knowledge-base-link" href="#" data-url="https://restore64.dev/">
             <span class="knowledge-base-link-title">Restore64 Disassembler</span>
             <span class="knowledge-base-link-url">restore64.dev</span>
+          </a>
+        </li>
+        <li>
+          <a class="knowledge-base-link" href="#" data-url="https://github.com/drmortalwombat/oscar64">
+            <span class="knowledge-base-link-title">Oscar64 C Compiler</span>
+            <span class="knowledge-base-link-url">github.com/drmortalwombat/oscar64</span>
           </a>
         </li>
         <li>
@@ -3276,9 +3502,6 @@ PRINTABLE CHARACTERS
       <div class="websid-play-header mem-float-hdr">
         <span id="mem-float-title" class="websid-play-title">C64 memory</span>
         <span class="mem-float-badge-slot"></span>
-        <button id="memory-dock-btn" class="memory-dock-btn" type="button" aria-label="Dock">
-          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><rect x="1.5" y="1.5" width="13" height="13" rx="1"/><path d="M1.5 10.5h13M8 4v4.5M5.8 6.3 8 8.5l2.2-2.2"/></svg>
-        </button>
         <button id="memory-float-close" class="websid-play-xbtn" type="button" aria-label="Close">×</button>
       </div>
       <div id="memory-float-body" class="mem-float-body" tabindex="-1" autofocus></div>
@@ -3404,6 +3627,14 @@ PRINTABLE CHARACTERS
             <div class="vm-sec-lbl" id="w64-regs-lbl">Registers</div>
             <div id="w64-regs" class="w64-regs"></div>
           </section>
+          <section class="w64-sec" hidden>
+            <div class="vm-sec-lbl" id="w64-stack-lbl">Call stack</div>
+            <div id="w64-stack" class="w64-vars"></div>
+          </section>
+          <section class="w64-sec" hidden>
+            <div class="vm-sec-lbl" id="w64-vars-lbl">Variables</div>
+            <div id="w64-vars" class="w64-vars"></div>
+          </section>
           <section class="w64-sec w64-sec--grow">
             <div class="vm-sec-lbl" id="w64-disasm-lbl">Disassembly</div>
             <div id="w64-disasm" class="w64-disasm"></div>
@@ -3429,7 +3660,7 @@ PRINTABLE CHARACTERS
   <dialog id="ue2-debug-dialog" class="curve-gen-dialog vm-dialog ud-dialog">
     <div class="cg-card">
       <div class="cg-hdr vm-hdr ud-hdr">
-        <div class="cg-hdr-title"><span id="ud-title" class="cg-title">Ultimate emulator debugger</span></div>
+        <div class="cg-hdr-title"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" width="18" height="18" aria-hidden="true"><circle cx="8" cy="8.5" r="3.2"/><path d="M8 2v2.5M8 12.5V15M2 8.5h2.5M11.5 8.5H14M3.8 4.3l1.8 1.8M10.4 10.9l1.8 1.8M12.2 4.3l-1.8 1.8M5.6 10.9l-1.8 1.8"/></svg><span id="ud-title" class="cg-title">Ultimate emulator debugger</span></div>
         <button id="ud-close" class="cg-xbtn" type="button" aria-label="Close">×</button>
       </div>
       <div class="cg-toolbar">
@@ -3437,6 +3668,8 @@ PRINTABLE CHARACTERS
           <button id="ud-restart" class="cg-tool cg-tool--accent" type="button" aria-label="Build and debug">
             <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 3l8.5 5-8.5 5z" fill="currentColor"/></svg>
           </button>
+        </div>
+        <div class="cg-tool-group">
           <button id="ud-continue" class="cg-tool" type="button" aria-label="Continue (F5)">
             <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2.5" y="3.5" width="2" height="9" fill="currentColor"/><path d="M6.5 3.5l7 4.5-7 4.5z" fill="currentColor"/></svg>
           </button>
@@ -3453,13 +3686,20 @@ PRINTABLE CHARACTERS
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 11V3M5 6l3-3 3 3"/><circle cx="8" cy="13.5" r="1.4" fill="currentColor" stroke="none"/></svg>
           </button>
         </div>
-        <span id="ud-status" class="vm-status"></span>
       </div>
       <div class="ud-body">
         <div class="w64-debug">
           <section class="w64-sec">
             <div class="vm-sec-lbl" id="ud-regs-lbl">Registers</div>
             <div id="ud-regs" class="w64-regs"></div>
+          </section>
+          <section class="w64-sec" hidden>
+            <div class="vm-sec-lbl" id="ud-stack-lbl">Call stack</div>
+            <div id="ud-stack" class="w64-vars"></div>
+          </section>
+          <section class="w64-sec" hidden>
+            <div class="vm-sec-lbl" id="ud-vars-lbl">Variables</div>
+            <div id="ud-vars" class="w64-vars"></div>
           </section>
           <section class="w64-sec w64-sec--grow">
             <div class="vm-sec-lbl" id="ud-disasm-lbl">Disassembly</div>
@@ -3478,6 +3718,7 @@ PRINTABLE CHARACTERS
           </section>
         </div>
       </div>
+      <div class="w64-statusbar"><span id="ud-status" class="vm-status"></span></div>
     </div>
   </dialog>
 
@@ -3992,6 +4233,8 @@ PRINTABLE CHARACTERS
       <div class="hw-settings-tabs" role="tablist" aria-labelledby="hardware-settings-title">
         <button id="hw-settings-tab-general" class="hw-settings-tab" type="button" role="tab" aria-selected="true" aria-controls="hw-settings-general" tabindex="0">Általános</button>
         <button id="hw-settings-tab-files" class="hw-settings-tab" type="button" role="tab" aria-selected="false" aria-controls="hw-settings-files" tabindex="-1">Fájlok és útvonalak</button>
+        <button id="hw-settings-tab-sid" class="hw-settings-tab" type="button" role="tab" aria-selected="false" aria-controls="hw-settings-sid" tabindex="-1">SID</button>
+        <button id="hw-settings-tab-compilers" class="hw-settings-tab" type="button" role="tab" aria-selected="false" aria-controls="hw-settings-compilers" tabindex="-1">Compilers</button>
         <button id="hw-settings-tab-integrations" class="hw-settings-tab" type="button" role="tab" aria-selected="false" aria-controls="hw-settings-integrations" tabindex="-1">Integrations</button>
       </div>
       <div id="hw-settings-general" class="hw-settings-body" role="tabpanel" aria-labelledby="hw-settings-tab-general">
@@ -4041,10 +4284,6 @@ PRINTABLE CHARACTERS
               <input type="checkbox" id="memory-overlays-toggle" checked>
               <span id="memory-overlays-label">Show memory overlays</span>
             </label>
-            <label class="menu-checkbox-label">
-              <input type="checkbox" id="global-memory-panel-toggle" checked>
-              <span id="global-memory-panel-toggle-label">Show memory panel</span>
-            </label>
           </section>
           <section class="hw-settings-section">
             <h3 class="hw-settings-section-label" id="editor-settings-label">Editors</h3>
@@ -4064,54 +4303,6 @@ PRINTABLE CHARACTERS
           </section>
         </div>
         <div class="hw-settings-col">
-          <section class="hw-settings-section">
-            <h3 class="hw-settings-section-label" id="sid-preview-settings-label">SID preview</h3>
-            <label class="field compact-field hw-field">
-              <span id="sid-preview-engine-lbl">SID engine</span>
-              <select id="sid-preview-engine" class="sid-select">
-                <option value="resid">reSID (resid-rs)</option>
-                <option value="va-core">VA SID Core (Rust) v1.3</option>
-              </select>
-            </label>
-            <label class="field compact-field hw-field">
-              <span id="sid-preview-model-lbl">SID chip</span>
-              <select id="sid-preview-model" class="sid-select">
-                <option value="8580">MOS 8580</option>
-                <option value="6581">MOS 6581</option>
-              </select>
-            </label>
-            <label class="menu-checkbox-label">
-              <input type="checkbox" id="sid-digi-boost">
-              <span id="sid-digi-boost-label">8580 digi boost ($D418 samples)</span>
-            </label>
-            <label class="field compact-field hw-field">
-              <span id="sid-lcd-color-lbl">LCD colour</span>
-              <select id="sid-lcd-color" class="sid-select">
-                <option value="green">Green</option>
-                <option value="red">Red</option>
-              </select>
-            </label>
-            <label class="field compact-field hw-field">
-              <span id="sid-player-buffer-lbl">SID Player buffer</span>
-              <select id="sid-player-buffer" class="sid-select">
-                <option value="2048">10 s</option>
-                <option value="4096">15 s</option>
-                <option value="8192">20 s</option>
-                <option value="16384">30 s</option>
-              </select>
-            </label>
-            <p id="sid-player-buffer-note" class="menu-note">A larger buffer stops the crackle while the app is busy: the tune is rendered 10 / 15 / 20 / 30 s ahead.</p>
-            <label class="field compact-field hw-field">
-              <span id="sid-player-fade-lbl">Fade out at the end</span>
-              <select id="sid-player-fade" class="sid-select">
-                <option value="0" id="sid-player-fade-off">Off</option>
-                <option value="5">5 s</option>
-                <option value="10">10 s</option>
-                <option value="15">15 s</option>
-              </select>
-            </label>
-            <p id="sid-player-fade-note" class="menu-note">Many tunes never end, they just loop: the SID Player fades the tune out over its last seconds (the HVSC length, otherwise 3 minutes), then moves on, or stops after the last one.</p>
-          </section>
           <section class="hw-settings-section">
             <h3 class="hw-settings-section-label" id="debugger-choice-section">Debugger</h3>
             <label class="field compact-field hw-field"><span id="debugger-choice-label">Debug button</span>
@@ -4191,6 +4382,94 @@ PRINTABLE CHARACTERS
           </section>
         </div>
       </div>
+      <div id="hw-settings-sid" class="hw-settings-body" role="tabpanel" aria-labelledby="hw-settings-tab-sid" hidden>
+        <div class="hw-settings-col">
+          <section class="hw-settings-section">
+            <h3 class="hw-settings-section-label" id="sid-preview-settings-label">SID preview</h3>
+            <label class="field compact-field hw-field">
+              <span id="sid-preview-engine-lbl">SID engine</span>
+              <select id="sid-preview-engine" class="sid-select">
+                <option value="resid">reSID (resid-rs)</option>
+                <option value="va-core">VA SID Core (Rust) v1.3</option>
+              </select>
+            </label>
+            <label class="field compact-field hw-field">
+              <span id="sid-preview-model-lbl">SID chip</span>
+              <select id="sid-preview-model" class="sid-select">
+                <option value="8580">MOS 8580</option>
+                <option value="6581">MOS 6581</option>
+              </select>
+            </label>
+            <label class="menu-checkbox-label">
+              <input type="checkbox" id="sid-digi-boost">
+              <span id="sid-digi-boost-label">8580 digi boost ($D418 samples)</span>
+            </label>
+            <label class="field compact-field hw-field">
+              <span id="sid-lcd-color-lbl">LCD colour</span>
+              <select id="sid-lcd-color" class="sid-select">
+                <option value="green">Green</option>
+                <option value="red">Red</option>
+              </select>
+            </label>
+          </section>
+        </div>
+        <div class="hw-settings-col">
+          <section class="hw-settings-section">
+            <h3 class="hw-settings-section-label" id="sid-player-settings-label">SID Player</h3>
+            <label class="field compact-field hw-field">
+              <span id="sid-player-buffer-lbl">SID Player buffer</span>
+              <select id="sid-player-buffer" class="sid-select">
+                <option value="2048">10 s</option>
+                <option value="4096">15 s</option>
+                <option value="8192">20 s</option>
+                <option value="16384">30 s</option>
+              </select>
+            </label>
+            <p id="sid-player-buffer-note" class="menu-note">A larger buffer stops the crackle while the app is busy: the tune is rendered 10 / 15 / 20 / 30 s ahead.</p>
+            <label class="field compact-field hw-field">
+              <span id="sid-player-fade-lbl">Fade out at the end</span>
+              <select id="sid-player-fade" class="sid-select">
+                <option value="0" id="sid-player-fade-off">Off</option>
+                <option value="5">5 s</option>
+                <option value="10">10 s</option>
+                <option value="15">15 s</option>
+              </select>
+            </label>
+            <p id="sid-player-fade-note" class="menu-note">Many tunes never end, they just loop: the SID Player fades the tune out over its last seconds (the HVSC length, otherwise 3 minutes), then moves on, or stops after the last one.</p>
+          </section>
+        </div>
+      </div>
+      <div id="hw-settings-compilers" class="hw-settings-body" role="tabpanel" aria-labelledby="hw-settings-tab-compilers" hidden>
+        <div class="hw-settings-col">
+          <p id="hw-compilers-note" class="menu-note">ACME and Oscar64 come with the app. A path set here replaces the bundled compiler.</p>
+          <section class="hw-settings-section">
+            <h3 class="hw-settings-section-label">ACME</h3>
+            <button id="choose-acme" class="secondary" type="button">ACME binaris kiválasztása</button>
+            <label class="field compact-field hw-field"><span id="acme-path-label">ACME executable</span><input id="acme-path" type="text" readonly placeholder="Nincs beállítva"></label>
+            <button id="acme-use-bundled" class="secondary" type="button">Use bundled</button>
+            <p id="acme-tool-status" class="menu-note"></p>
+          </section>
+        </div>
+        <div class="hw-settings-col">
+          <section class="hw-settings-section">
+            <h3 class="hw-settings-section-label">Oscar64</h3>
+            <button id="choose-oscar64" class="secondary" type="button">Choose Oscar64</button>
+            <label class="field compact-field hw-field"><span id="oscar64-path-label">Oscar64 executable</span><input id="oscar64-path" type="text" readonly placeholder="Bundled"></label>
+            <button id="oscar64-use-bundled" class="secondary" type="button">Use bundled</button>
+            <p id="oscar64-tool-status" class="menu-note"></p>
+            <label class="field compact-field hw-field"><span id="osc-optimize-label">Optimization</span><select id="osc-optimize" class="sid-select">
+              <option value="O0">O0</option>
+              <option value="O1">O1</option>
+              <option value="O2" selected>O2</option>
+              <option value="O3">O3</option>
+              <option value="Os">Os</option>
+            </select></label>
+            <p id="osc-optimize-note" class="menu-note">The level of every Oscar64 build; a build script's own -O switch takes precedence.</p>
+            <label class="menu-checkbox-label"><input id="osc-verbose" type="checkbox"> <span id="osc-verbose-label">Verbose compiler output</span></label>
+            <p id="osc-verbose-note" class="menu-note">Output also lists the compiler's steps (-v): the files compiled and included, the passes and the files written.</p>
+          </section>
+        </div>
+      </div>
       <div id="hw-settings-files" class="hw-settings-body" role="tabpanel" aria-labelledby="hw-settings-tab-files" hidden>
         <div class="hw-settings-col">
           <section class="hw-settings-section">
@@ -4227,11 +4506,6 @@ PRINTABLE CHARACTERS
           </section>
         </div>
         <div class="hw-settings-col">
-          <section class="hw-settings-section">
-            <h3 class="hw-settings-section-label">ACME</h3>
-            <button id="choose-acme" class="secondary" type="button">ACME binaris kiválasztása</button>
-            <label class="field compact-field hw-field"><span id="acme-path-label">ACME executable</span><input id="acme-path" type="text" readonly placeholder="Nincs beállítva"></label>
-          </section>
           <section class="hw-settings-section">
             <h3 class="hw-settings-section-label" id="hw-exomizer-section-label">Exomizer</h3>
             <button id="choose-exomizer" class="secondary" type="button">Exomizer kivalasztasa</button>
@@ -4286,10 +4560,11 @@ PRINTABLE CHARACTERS
     </div>
   </div>
 
-  <script src="tauri-bridge.js?v=2.8.6"></script>
-  <script src="i18n.js?v=2.8.6"></script>
-  <script src="tutorial-data.js?v=2.8.6"></script>
-  <script src="app.js?v=2.8.6"></script>
+  <script src="tauri-bridge.js?v=2.9.0"></script>
+  <script src="i18n.js?v=2.9.0"></script>
+  <script src="tutorial-data.js?v=2.9.0"></script>
+  <script src="app.js?v=2.9.0"></script>
+  <script src="oscar64.js?v=2.9.0"></script>
 
 </body>
 
