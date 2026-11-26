@@ -4208,8 +4208,7 @@ async fn open_proj_file(app: AppHandle, initial_dir: Option<String>) -> serde_js
     let mut dialog = app
         .dialog()
         .file()
-        .add_filter("Visual Assembler Project", &["proj", "vas", "json", "c64va"])
-        .add_filter("All files", &["*"]);
+        .add_filter("Visual Assembler Project", &["proj"]);
     if let Some(folder) = working_folder {
         dialog = dialog.set_directory(folder);
     }

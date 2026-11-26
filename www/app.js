@@ -739,6 +739,41 @@ function saveUiSettings() {
   window.electronAPI?.saveUiSettingsGlobal?.(settings);
 }
 
+// Block view: the Expert project panel moves to the workspace's first column; in Expert mode it is
+// back in .expert-body. One state for both views: _expertProjectVisible (#expert-project-btn and
+// #block-project-btn toggle the same panel).
+function _blockProjectSync() {
+  const panel = document.getElementById("expert-project-panel");
+  const ws = document.querySelector(".workspace");
+  const expertBody = document.querySelector("#expert-panel .expert-body");
+  if (!panel || !ws || !expertBody) return;
+  const block = !document.body.classList.contains("expert-mode") && !document.body.classList.contains("ub-mode") && !document.body.classList.contains("oscar-mode");
+  const show = block && _expertProjectVisible;
+  document.body.classList.toggle("block-project-on", show);
+  const btn = document.getElementById("block-project-btn");
+  btn?.setAttribute("aria-pressed", String(_expertProjectVisible));
+  expertProjectBtn?.classList.toggle("expert-hl-toggle--on", _expertProjectVisible);
+  expertProjectBtn?.setAttribute("aria-pressed", String(_expertProjectVisible));
+  if (show) {
+    // after the mnemonic palette, before the program blocks: where it is in the Source view
+    const palette = ws.querySelector(":scope > .palette-panel");
+    if (panel.parentElement !== ws || panel.previousElementSibling !== palette) ws.insertBefore(panel, palette ? palette.nextElementSibling : ws.firstElementChild);
+    panel.hidden = false;
+    _expertRenderProjectTree();
+  } else {
+    if (panel.parentElement !== expertBody) expertBody.insertBefore(panel, expertBody.firstElementChild);
+    panel.hidden = !_expertProjectVisible;
+  }
+}
+document.getElementById("block-project-btn")?.addEventListener("click", () => {
+  _expertProjectVisible = !_expertProjectVisible;
+  _blockProjectSync();
+  if (_expertProjectVisible) _applyExpertProjectSymbolsHeight?.();
+  saveUiSettings();
+});
+new MutationObserver(() => _blockProjectSync()).observe(document.body, { attributes: true, attributeFilter: ["class"] });
+setTimeout(_blockProjectSync, 0);
+
 function _applyWorkspaceColumns() {
   const ws = document.querySelector(".workspace");
   if (!ws) return;
@@ -2254,9 +2289,8 @@ function initPalette() {
   });
   document.getElementById("menu-open-project")?.addEventListener("click", async () => {
     document.querySelector(".control-menu")?.removeAttribute("open");
-    // block mode keeps its own .vas / .json project dialog; every other editor opens a .proj
-    if (!ultimateBasicMode && !expertMode && !globalThis._oscActive?.()) await loadProjectFromFile();
-    else await _studioOpenProject();
+    // a .proj in every editor; a .vas block program is a file (Load program)
+    await _studioOpenProject();
   });
   document.getElementById("menu-start-window")?.addEventListener("click", () => {
     document.querySelector(".control-menu")?.removeAttribute("open");
@@ -3635,6 +3669,7 @@ function applyTranslations() {
   expertPaletteBtn?.setAttribute("title", t("expertPaletteToggle"));
   expertPaletteBtn?.setAttribute("aria-label", t("expertPaletteToggle"));
   expertProjectBtn?.setAttribute("title", t("expertProjectPanel"));
+  document.getElementById("block-project-btn")?.setAttribute("aria-label", t("expertProjectPanel"));
   expertProjectBtn?.setAttribute("aria-label", t("expertProjectPanel"));
   document.getElementById("expert-project-open-btn")?.setAttribute("title", t("projOpenProjectBtn"));
   document.getElementById("expert-project-open-btn")?.setAttribute("aria-label", t("projOpenProjectBtn"));
@@ -9684,7 +9719,7 @@ function _ubRenderProjectFiles() {
       if (startup.contains(event.target) || remove.contains(event.target)) return;
       if (tab) _tabActivate(tab.id);
       else if (isUb) _ubOpenProjectFile(file);
-      else _studioOpenForeign(absPath, "ub");
+      else if (_projFileRole("ub", absPath) === "foreign") _projForeignNote("ub", absPath);
     });
     item.addEventListener("dblclick", event => {
       if (startup.contains(event.target) || remove.contains(event.target) || tab) return;
@@ -9731,7 +9766,7 @@ async function _ubAddFile(intoContainer = null) {
   if (!_ubProjectData) _ubProjectData = { name: "New UltimateBasic project", files: [], startupFile: null, _projPath: null };
   const container = intoContainer || _ubProjectData.files;
   let openedCount = 0;
-  for (const f of res.files) {
+  for (const f of _projFilterAddable("ub", res.files, msg => _ubSetStatus(msg, true))) {
     const isUb = /\.ub$/i.test(f.fileName || f.filePath || "");
     if (isUb && !intoContainer) {
       const read = await window.electronAPI?.readTextFile?.(f.filePath);
@@ -9823,6 +9858,11 @@ async function _ubApplyOpenedProject(project, projPath, { dropBlank = false } = 
     return null;
   };
   const startup = _projFindEntry(_ubProjectData.files, _ubProjectData.startupFile) || (dropBlank ? firstUb(_ubProjectData.files) : null);
+  // every .ub file of the project opens as a tab, the startup file is the active one
+  const allUb = [];
+  const walkUb = (nodes) => (nodes || []).forEach(n => n.type === "folder" ? walkUb(n.children) : (/\.ub$/i.test(n.path || n.name || "") && allUb.push(n)));
+  walkUb(_ubProjectData.files);
+  for (const node of allUb) if (node !== startup) await _ubOpenProjectFile(node);
   const opened = startup ? await _ubOpenProjectFile(startup) : null;
   if (blankId && opened && opened.id !== blankId) {
     const blankIdx = tabs.findIndex(tab => tab.id === blankId && !tab.filePath);
@@ -16461,7 +16501,7 @@ async function _expertAddFileIntoFolder(folderEntry) {
   const res = await window.electronAPI?.chooseProjMember?.();
   if (!res || res.canceled || !res.files?.length) return;
   if (!folderEntry.children) folderEntry.children = [];
-  for (const f of res.files) {
+  for (const f of _projFilterAddable("asm", res.files, msg => _expertSetStatus(msg, "error"))) {
     let relPath = f.filePath;
     if (_expertProjectData._projPath) {
       const projDir = _expertProjectData._projPath.replace(/\\/g, "/").replace(/\/[^/]+$/, "");
@@ -16513,6 +16553,35 @@ function _studioEditorOf(name) {
   if (/\.ub$/.test(n)) return "ub";
   if (/\.(asm|s|a65|inc|vas)$/.test(n)) return "asm";
   return "";
+}
+
+// One language per project (STUDIO-PROJECT-PLAN.md 2.1): the source files a project of a kind may hold.
+// Anything that is not a source file of any language is a data file (any project may hold it).
+const _PROJ_SOURCES = {
+  asm: /\.(asm|s|a65|inc|vas)$/i,
+  ub: /\.ub$/i,
+  c: /\.(c|h|asm|s|a65|inc)$/i,
+};
+// "source" | "asset" | "foreign" (a source file of another language)
+function _projFileRole(kind, path) {
+  const name = String(path || "");
+  if (_PROJ_SOURCES[kind]?.test(name)) return "source";
+  return _studioEditorOf(name) ? "foreign" : "asset";
+}
+// The files that may go into the project; the others are named in a status message.
+function _projFilterAddable(kind, files, setStatus) {
+  const ok = [], refused = [];
+  for (const f of files || []) (_projFileRole(kind, f.fileName || f.filePath) === "foreign" ? refused : ok).push(f);
+  if (refused.length) {
+    const msg = tf("projForeignRefused", { files: refused.map(f => f.fileName || f.filePath).join(", "), kind: t(`projKind_${kind}`) });
+    setStatus?.(msg);
+    showViceToast?.(msg, true);
+  }
+  return ok;
+}
+function _projForeignNote(kind, path) {
+  const name = String(path || "").replace(/\\/g, "/").split("/").pop();
+  showViceToast?.(tf("projForeignFile", { file: name, kind: t(`projKind_${kind}`) }), true);
 }
 
 // Opens a file of another language from a project tree in its own editor; false = not handled here.
@@ -16829,10 +16898,10 @@ async function _studioOpenProject(path = "") {
     if (!res.ok) { showViceToast?.(t("projError") + ": " + res.error, true); return false; }
   }
   const proj = res.project || {};
+  // a block program (.vas / old .json) is a file, not a project: it opens as a tab, the rest stays
   if (proj.app === "c64-visual-assembler" && Array.isArray(proj.program)) {
-    if (!await _studioCloseAll()) return false;
-    _studioRememberProject(res.filePath, proj.name, "blk");
-    await _applyProjectPayload(proj, { sourceFilePath: res.filePath || "" });
+    if (globalThis._oscActive?.()) globalThis._oscLeave?.();
+    await _expertProjectOpenFile({ name: res.filePath.split(/[\/\\]/).pop(), path: res.filePath });
     return true;
   }
   const kind = _studioProjectKind(proj);
@@ -16853,9 +16922,10 @@ async function _studioOpenCFolder(dir = "") {
   }
   const listed = await window.electronAPI?.oscarListDir?.(dir);
   if (listed && !listed.ok) { showViceToast?.(tf("startNotFound", { path: dir }), true); return false; }
-  if (!await _studioCloseAll("c")) return false;
+  if (!await _studioCloseAll()) return false;
   await _oscOpenProject(dir);
   _oscEnter();
+  await _studioDropBlankTab();
   return true;
 }
 
@@ -16887,47 +16957,33 @@ async function _openProjectFromMenu(opened = null) {
   _setAssemblerSyntax(_expertProjectData.assemblerSyntax);
   _expertProjectDirty = false;
 
-  if (expertMode) {
-    // In expert mode: just update the panel as usual
-    _expertRenderProjectTree();
-    // Auto-open startup file if set
-    if (_expertProjectData.startupFile) {
-      const sf = _projFindEntry(_expertProjectData.files, _expertProjectData.startupFile);
-      if (sf) await _expertProjectOpenFile(sf);
-    }
-    _expertSetStatus(t("projOpened") + ": " + _expertProjectData.name, "ok");
-    return;
-  }
-
-  // In block mode: open every file as a tab
-  const files = (_expertProjectData.files || []).filter(f => !f.type || f.type === "file");
-  if (files.length === 0) {
-    _expertSetStatus(t("projOpened") + ": " + _expertProjectData.name, "ok");
-    return;
-  }
-  for (const file of files) {
-    await _expertProjectOpenFile(file);
-  }
-
-  // Remove the initial blank placeholder tab left by _closeAllTabsWithConfirm
-  // (only if at least one real tab was opened)
-  if (tabs.length > 1) {
-    const blankIdx = tabs.findIndex(t =>
-      !t.filePath && (t.program || []).length <= 1 && ((t.program || [])[0]?.isOrgMacro ?? true)
-    );
-    if (blankIdx >= 0) {
-      tabs.splice(blankIdx, 1);
-      // Make sure activeTabId still points to a valid tab
-      if (!tabs.find(t => t.id === activeTabId)) {
-        activeTabId = tabs[0].id;
-        _tabActivate(activeTabId);
-      } else {
-        renderTabBar();
-      }
-    }
-  }
-
+  // Every file of the project opens as a tab (folders too), in Expert and in block mode alike;
+  // the startup file is the active one.
+  _expertRenderProjectTree();
+  await _projOpenAllFiles();
   _expertSetStatus(t("projOpened") + ": " + _expertProjectData.name, "ok");
+}
+
+// The blank placeholder tab left by closing the previous project goes once a project file is open.
+async function _studioDropBlankTab() {
+  if (tabs.length < 2) return;
+  const blankIdx = tabs.findIndex(tab => !tab.filePath && !tab.ubFilePath && tab.editorMode !== "oscar" && !_tabHasContent(tab));
+  if (blankIdx < 0) return;
+  const wasActive = tabs[blankIdx].id === activeTabId;
+  tabs.splice(blankIdx, 1);
+  if (wasActive) await _tabActivate(tabs[0].id);
+  renderTabBar();
+}
+
+async function _projOpenAllFiles() {
+  const flat = [];
+  const walk = (nodes) => (nodes || []).forEach(n => n.type === "folder" ? walk(n.children) : flat.push(n));
+  walk(_expertProjectData?.files);
+  for (const file of flat) await _expertProjectOpenFile(file);
+  await _studioDropBlankTab();
+  const sf = _expertProjectData?.startupFile ? _projFindEntry(_expertProjectData.files, _expertProjectData.startupFile) : null;
+  if (sf) await _expertProjectOpenFile(sf);
+  renderTabBar();
 }
 
 function _projResolveAbsPath(relPath) {
@@ -17246,8 +17302,8 @@ async function _templateCreateProject() {
       return;
     }
   }
-  // one kind of project at a time: the others close (C projects may stay side by side)
-  if (!await _studioCloseAll(tpl.kind === "c" ? "c" : "")) return;
+  // one project at a time: the open one closes
+  if (!await _studioCloseAll()) return;
 
   if (tpl.kind === "c") {
     const proj = JSON.stringify({ app: "oscar64", name: paths.name, startupFile: "main.c", optimize: "O2", defines: [], includeDirs: [] }, null, 2) + "\n";
@@ -17524,7 +17580,7 @@ async function _expertAddProjMember() {
   if (!_expertProjectData) {
     _expertProjectData = { name: "Névtelen projekt", files: [], _projPath: null };
   }
-  for (const f of res.files) {
+  for (const f of _projFilterAddable("asm", res.files, msg => _expertSetStatus(msg, "error"))) {
     // Compute relative path if project has a saved path
     let relPath = f.filePath;
     if (_expertProjectData._projPath) {
@@ -17566,6 +17622,7 @@ async function _expertAddProjFolder() {
 
 async function _expertProjectOpenFile(fileEntry) {
   const absPath = _projResolveAbsPath(fileEntry.path);
+  if (_projHasFile?.(absPath) && _projFileRole("asm", absPath) === "foreign") { _projForeignNote("asm", absPath); return; }
   if (!tabs.some(tb => _normFilePath(tb.filePath) === _normFilePath(absPath)) && await _studioOpenForeign(absPath, "asm")) return;
   const normAbs = _normFilePath(absPath);
   const lowerPath = normAbs.toLowerCase();
@@ -22629,7 +22686,10 @@ function _tabActivate(tabId) {
       _expertSourceText = tab.expertText;
       _expertResetRegionHighlight();
       _expertRefreshProjection(0, 0);
+      // the input handler refreshes the views; showing the tab's text is not an edit
+      const wasDirty = !!tab.dirty;
       expertEditor.dispatchEvent(new Event("input"));
+      tab.dirty = wasDirty;
     } else {
       _expertSyncFromProgram();
     }
@@ -30325,13 +30385,19 @@ async function openProjectSettings() {
 }
 
 // Kick options only for a Kick-compatible VMA project.
+// The Kick-compatible switch belongs to VMA only: ACME is not Kick, R65 is Kick already.
 function _projSettingsSync() {
-  const acme = document.getElementById("ps-assembler")?.value === "acme";
+  const vma = _assemblerNormalize(document.getElementById("ps-assembler")?.value) === "kick";
   const kickBox = document.getElementById("ps-kick");
-  if (kickBox) { kickBox.disabled = acme; if (acme) kickBox.checked = false; }
-  const on = !acme && !!kickBox?.checked;
+  if (kickBox) {
+    kickBox.disabled = !vma;
+    if (!vma) kickBox.checked = false;
+    const row = kickBox.closest(".ps-check");
+    if (row) row.hidden = !vma;
+  }
+  const on = vma && !!kickBox?.checked;
   document.querySelectorAll("#project-settings-dialog .ps-kick-only").forEach(el => { el.hidden = !on; });
-  document.querySelectorAll("#project-settings-dialog .ps-vma-only").forEach(el => { el.hidden = acme || on; });
+  document.querySelectorAll("#project-settings-dialog .ps-vma-only").forEach(el => { el.hidden = !vma || on; });
 }
 
 async function _projSettingsSave() {
@@ -30341,7 +30407,7 @@ async function _projSettingsSave() {
   const name = document.getElementById("ps-name")?.value.trim();
   if (name) data.name = name;
   data.startupFile = document.getElementById("ps-startup")?.value || null;
-  const syntax = document.getElementById("ps-assembler")?.value === "acme" ? "acme" : "kick";
+  const syntax = _assemblerNormalize(document.getElementById("ps-assembler")?.value);
   const kick = syntax === "kick" && !!document.getElementById("ps-kick")?.checked;
   if (kick) data.kick = true; else delete data.kick;
   const defines = String(document.getElementById("ps-defines")?.value || "").split(/[\s,]+/).filter(d => /^[A-Za-z_]\w*$/.test(d));
@@ -31685,8 +31751,6 @@ async function loadProjectFromFile() {
   if (emulatorStatus) {
     emulatorStatus.textContent = `${t("projectLoaded")}: ${result.filePath}`;
   }
-  _studioRememberProject(result.filePath, projectData.name, "blk");
-
   return _applyProjectPayload(projectData, { sourceFilePath: result.filePath || "" });
 }
 

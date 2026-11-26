@@ -412,6 +412,8 @@ function _oscNewFile(text = "#include <stdio.h>\n\nint main(void)\n{\n    printf
 async function _oscOpenPath(path, line = -1) {
   // Studio: an assembler or UltimateBasic file opens in its own editor
   const kind = typeof _studioEditorOf === "function" ? _studioEditorOf(path) : "";
+  // a C project holds assembly too (its own editor); UltimateBasic is another project's language
+  if (kind === "ub" && _osc.root && _oscNorm(path).startsWith(_oscNorm(_osc.root) + "/")) { globalThis._projForeignNote?.("c", path); return false; }
   if (kind === "asm" || kind === "ub") return _studioOpenForeign(path, "c");
   const norm = _oscNorm(path);
   let idx = _osc.files.findIndex((f) => _oscNorm(f.path) === norm);
@@ -1036,6 +1038,11 @@ async function _oscOpenProject(root) {
   }
   _oscRegisterProject();
   if (!_osc.restoring) globalThis._studioRememberProject?.(root, _osc.proj.name || _oscBase(root), "c");
+  // the C sources of the project folder open as tabs (not its subfolders), the startup file is the active one
+  const startupAbs = _osc.proj.startupFile ? _oscNorm(_oscProjAbs(_osc.proj.startupFile)) : "";
+  for (const e of _osc.tree.filter((x) => !x.dir && /\.(c|h)$/i.test(x.name)).slice(0, 24)) {
+    if (_oscNorm(e.path) !== startupAbs) await _oscOpenPath(e.path);
+  }
   if (_osc.proj.startupFile) await _oscOpenPath(_oscProjAbs(_osc.proj.startupFile));
   _oscRenderAll();
   _oscSave();
@@ -1051,6 +1058,8 @@ async function _oscNewProject() {
   const listed = await window.electronAPI?.oscarListDir?.(root);
   if (listed?.ok && listed.entries.length) { _oscStatus(t("oscProjectExists"), true); return; }
   const source = `// ${name} — Oscar64\n#include <stdio.h>\n#include <c64/vic.h>\n\nint main(void)\n{\n    vic.color_border = VCOL_BLACK;\n    vic.color_back = VCOL_BLUE;\n    printf("HELLO FROM OSCAR64\\n");\n    return 0;\n}\n`;
+  // one project at a time: the open one closes (before anything is written)
+  if (typeof _studioCloseAll === "function" && !await _studioCloseAll()) return;
   const res = await window.electronAPI?.saveTextFile?.(main, source);
   if (!res?.ok) { _oscStatus(res?.error || t("oscSaveFailed"), true); return; }
   _osc.root = root;
@@ -1058,6 +1067,7 @@ async function _oscNewProject() {
   _osc.projPath = "";
   await _oscWriteProj();
   await _oscOpenProject(root);
+  _oscEnter();
 }
 
 async function _oscRefreshTree() {
@@ -2362,9 +2372,7 @@ function setupOscar64() {
   // after app.js has applied the saved editor mode
   setTimeout(async () => {
     _osc.restoring = true; // the files come back as tabs, without taking the focus
-    for (const pr of prefs.projects || []) {
-      if (_oscNorm(pr.root) !== _oscNorm(prefs.root)) await _oscLoadProjectMeta(pr.root, pr.projPath);
-    }
+    // one project at a time: only the last C project comes back
     if (prefs.root) {
       _osc.root = prefs.root;
       await _oscOpenProject(prefs.root);
