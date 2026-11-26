@@ -67,8 +67,8 @@
                 <button id="menu-save-project" class="secondary menu-item-tooltip" type="button">Save project</button>
                 <button id="menu-project-settings" class="secondary menu-item-tooltip" type="button" disabled>Project settings…</button>
                 <button id="menu-close-project" class="secondary menu-item-tooltip" type="button">Close project</button>
-                <h3 class="control-menu-label control-menu-label--section" id="menu-recent-label">Recent projects</h3>
-                <div id="menu-recent-projects" class="menu-recent-projects"></div>
+                <button id="menu-open-recent" class="secondary menu-open-recent" type="button" aria-haspopup="menu" aria-expanded="false"><span id="menu-recent-label">Open recent</span><span class="menu-open-recent-arrow" aria-hidden="true">▸</span></button>
+                <div id="menu-recent-projects" class="menu-recent-projects menu-recent-flyout" popover="manual" role="menu"></div>
                 <h3 class="control-menu-label control-menu-label--section" id="workspace-section-label">Workspace</h3>
                 <button id="menu-save-workspace" class="secondary menu-item-tooltip" type="button">Save Workspace</button>
                 <button id="menu-save-workspace-as" class="secondary menu-item-tooltip" type="button">Save Workspace As...</button>
@@ -3599,6 +3599,10 @@ PRINTABLE CHARACTERS
           <section class="w64-sec">
             <div class="vm-sec-lbl" id="w64-regs-lbl">Registers</div>
             <div id="w64-regs" class="w64-regs"></div>
+          </section>
+          <section class="w64-sec" hidden>
+            <div class="vm-sec-lbl" id="w64-vars-lbl">Variables</div>
+            <div id="w64-vars" class="w64-vars"></div>
           </section>
           <section class="w64-sec w64-sec--grow">
             <div class="vm-sec-lbl" id="w64-disasm-lbl">Disassembly</div>

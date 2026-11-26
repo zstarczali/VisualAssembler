@@ -175,6 +175,79 @@ function _oscParseDbj(text) {
   return { entries, symbols };
 }
 
+// .dbj → the debugger's variables: the program's own globals (not the library's), and per function its
+// parameters and locals (Oscar64 gives them fixed addresses: zero page or a static frame), with the types.
+function _oscParseDbjVars(text) {
+  let data;
+  try { data = JSON.parse(String(text || "")); } catch (_) { return null; }
+  const types = {};
+  for (const ty of data?.types || []) types[ty.typeid] = ty;
+  const lib = /[\\/]oscar64[\\/]include[\\/]/i;
+  const own = (v) => (v.references || []).some((r) => r.source && !lib.test(r.source));
+  const item = (v) => ({ name: v.name, address: v.start & 0xFFFF, size: Math.max(0, v.end - v.start), typeid: v.typeid });
+  const globals = (data?.variables || []).filter((v) => Number.isFinite(v.start) && own(v)).map(item);
+  const funcs = (data?.functions || []).filter((f) => Number.isFinite(f.start) && f.variables?.length)
+    .map((f) => ({ name: f.name, start: f.start, end: f.end, vars: f.variables.filter((v) => Number.isFinite(v.start)).map(item) }));
+  return { types, globals, funcs };
+}
+
+// One value of a C type at an address, as text (arrays: the first elements, char arrays also as text).
+function _oscFormatValue(info, typeid, address, peek, depth = 0) {
+  const ty = info?.types?.[typeid];
+  const size = ty?.size || 0;
+  const bytes = peek(address, Math.min(Math.max(size, 1), 64));
+  const le = (n) => { let v = 0; for (let i = n - 1; i >= 0; i--) v = v * 256 + bytes[i]; return v; };
+  const hex = (v, n) => `$${v.toString(16).toUpperCase().padStart(n * 2, "0")}`;
+  switch (ty?.type) {
+    case "uint": case "enum": case "bool": {
+      if (size > 4 || !size) break;
+      const v = le(size);
+      return size === 1 && v >= 32 && v < 127 ? `${v} (${hex(v, 1)} '${String.fromCharCode(v)}')` : `${v} (${hex(v, size)})`;
+    }
+    case "int": {
+      if (size > 4 || !size) break;
+      let v = le(size);
+      if (v >= 2 ** (size * 8 - 1)) v -= 2 ** (size * 8);
+      return `${v} (${hex(le(size), size)})`;
+    }
+    case "float": {
+      if (size !== 4) break;
+      const dv = new DataView(Uint8Array.from(bytes.slice(0, 4)).buffer);
+      return String(+dv.getFloat32(0, true).toPrecision(7));
+    }
+    case "ptr": return hex(le(2), 2);
+    case "array": {
+      const el = info.types[ty.eid];
+      const elSize = el?.size || 1;
+      const count = Math.floor(size / elSize);
+      if (elSize === 1 && (el?.type === "uint" || el?.type === "int")) {
+        const end = bytes.indexOf(0);
+        const str = Array.from(bytes.slice(0, end < 0 ? Math.min(count, 32) : end)).map((b) => (b >= 32 && b < 127 ? String.fromCharCode(b) : ".")).join("");
+        if (end > 0) return `"${str}"`;
+      }
+      if (depth > 1) return `[${count}]`;
+      const shown = Math.min(count, 8);
+      const parts = [];
+      for (let i = 0; i < shown; i++) parts.push(_oscFormatValue(info, ty.eid, (address + i * elSize) & 0xFFFF, peek, depth + 1).replace(/ \(.*\)$/, ""));
+      return `[${parts.join(", ")}${count > shown ? ", …" : ""}]`;
+    }
+    case "struct": case "union": {
+      if (depth > 1) return "{…}";
+      const parts = (ty.members || []).slice(0, 8).map((m) => `${m.name}: ${_oscFormatValue(info, m.typeid, (address + m.offset) & 0xFFFF, peek, depth + 1).replace(/ \(.*\)$/, "")}`);
+      return `{ ${parts.join(", ")}${(ty.members || []).length > 8 ? ", …" : ""} }`;
+    }
+  }
+  return Array.from(bytes.slice(0, Math.min(size || 1, 8))).map((b) => b.toString(16).toUpperCase().padStart(2, "0")).join(" ");
+}
+
+// The debugger's variable rows at a stop: the locals of the function at PC (innermost), then the globals.
+function _oscDebugVarRows(info, pc, peek) {
+  if (!info) return [];
+  const fn = (info.funcs || []).filter((f) => pc >= f.start && pc < f.end).sort((a, b) => (a.end - a.start) - (b.end - b.start))[0];
+  const row = (v, scope) => ({ name: v.name, address: v.address, scope, value: _oscFormatValue(info, v.typeid, v.address, peek) });
+  return [...(fn ? fn.vars.map((v) => row(v, fn.name)) : []), ...(info.globals || []).map((v) => row(v, ""))];
+}
+
 // Static cycles of the C lines of one file: the instructions in the line's address ranges.
 function _oscCycleMap(prg, entries, file) {
   const map = new Map();
@@ -824,7 +897,7 @@ function _oscBuildInfo() {
   } else {
     const load = res.bytes[0] | (res.bytes[1] << 8);
     const size = res.bytes.length - 2;
-    const stats = [[t("buildInfoOrigin"), hex(load)], [t("buildInfoEnd"), hex(load + size - 1)], [t("buildInfoSize"), `${size} bytes`], ["Oscar64", `-${_osc.optimize}`]];
+    const stats = [[t("buildInfoOrigin"), hex(load)], [t("buildInfoEnd"), hex(load + size - 1)], [t("buildInfoSize"), `${size} bytes`], [t("oscOptimize"), `-${_osc.lastOptimize || _osc.optimize || "O2"}`]];
     html += `<div class="build-info-stats">${stats.map(([k, v]) => `<div class="build-info-stat"><span class="build-info-stat-key">${_oscEsc(k)}</span><span class="build-info-stat-val">${_oscEsc(v)}</span></div>`).join("")}</div>`;
     const syms = (res.symbols || []).slice().sort((a, b) => a.address - b.address);
     if (syms.length) {
@@ -1529,7 +1602,7 @@ async function _oscBuild({ quiet = false } = {}) {
       includeDirs,
       defines: [...(_osc.proj.defines || []), ...(topt?.defines || [])],
       // a build script's own -O wins; otherwise Settings → Compilers
-      optimize: topt?.optimize || _osc.optimize || "O2",
+      optimize: (_osc.lastOptimize = topt?.optimize || _osc.optimize || "O2"),
       debug: true,
       native: topt ? topt.native : true,
       extraArgs: topt?.extra || [],
@@ -1547,7 +1620,7 @@ async function _oscBuild({ quiet = false } = {}) {
   if (res?.ok) {
     const bytes = Uint8Array.from(res.bytes || []);
     const { entries, symbols } = _oscParseDbj(res.dbj);
-    _osc.last = { ...res, bytes, symbols, primary: target.path || res.sourceFile };
+    _osc.last = { ...res, bytes, symbols, primary: target.path || res.sourceFile, vars: _oscParseDbjVars(res.dbj) };
     _osc.entries = entries.map((e) => ({ ...e, key: keyOf(e.file), file: tempFile && _oscNorm(e.file) === tempFile ? (target.path || `untitled:${target.file?.id}`) : e.file }));
     const load = bytes[0] | (bytes[1] << 8);
     const warnings = _osc.diags.filter((d) => d.level === "warning").length;
@@ -1627,7 +1700,7 @@ async function _oscBuildForRun() {
 async function _oscDebugSession() {
   const prg = await _oscBuild();
   if (!prg.ok) { showViceToast(prg.error, true); return null; }
-  return { bytes: _osc.last.bytes, entries: _osc.entries, symbols: _osc.last.symbols || [], blockBps: [], blockAt: null, kind: "oscar", primary: _osc.last.primary || "" };
+  return { bytes: _osc.last.bytes, entries: _osc.entries, symbols: _osc.last.symbols || [], blockBps: [], blockAt: null, kind: "oscar", primary: _osc.last.primary || "", vars: _osc.last.vars || null };
 }
 
 function _oscBreakpointAddresses(session) {

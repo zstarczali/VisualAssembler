@@ -13657,6 +13657,12 @@ dialog.dlg-active[open]:not(:modal) > :first-child > :first-child,
 .w64-sec-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .w64-muted { color: var(--secondary); font-family: inherit; }
 .w64-regs { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; }
+.w64-vars { display: grid; max-height: 180px; overflow-y: auto; border: 1px solid var(--panel-border); border-radius: 3px; background: var(--panel-bg); padding: 2px 0; font-family: var(--mono-font, ui-monospace, monospace); font-size: .74rem; }
+.w64-var-scope { padding: 3px 8px 1px; font-size: .68rem; font-weight: 700; color: var(--muted); }
+.w64-var { display: flex; gap: 10px; justify-content: space-between; min-height: 0; height: auto; margin: 0; padding: 1px 8px; border: none; border-radius: 0; background: transparent; color: var(--text); font: inherit; text-align: left; cursor: pointer; box-shadow: none; }
+.w64-var:hover { background: color-mix(in srgb, var(--primary) 14%, transparent); }
+.w64-var-name { flex: none; color: var(--secondary); }
+.w64-var-val { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .w64-reg { display: inline-flex; align-items: center; gap: 4px; color: var(--secondary); }
 .w64-reg .w64-reg-in { width: 52px; height: 24px; text-align: right; font-family: inherit; }
 .w64-flags { display: flex; gap: 2px; }
@@ -14081,6 +14087,11 @@ html[data-theme="c64"] .va-studio { color: #ffffff; text-shadow: none; }
 
 /* Menu → File → Recent projects */
 .menu-recent-projects { display: grid; gap: 2px; }
+.menu-open-recent { display: flex !important; align-items: center; justify-content: space-between !important; gap: 8px; }
+.menu-open-recent[aria-expanded="true"] { background: color-mix(in srgb, var(--primary) 16%, transparent); }
+.menu-open-recent-arrow { opacity: .7; }
+.menu-recent-flyout[popover] { position: fixed; inset: auto; margin: 0; min-width: 220px; max-width: min(420px, 90vw); overflow: visible; padding: 6px; border: 1px solid var(--panel-border); border-radius: 6px; background: var(--panel-strong); color: var(--text); box-shadow: 0 10px 28px rgba(0, 0, 0, .35); }
+.menu-recent-flyout .menu-recent-item { margin: 0 !important; min-height: 34px; height: 34px; width: 100%; }
 .menu-recent-item { display: flex !important; align-items: center; justify-content: flex-start !important; gap: 8px; text-align: left; }
 .menu-recent-item .tab-lang { flex: none; min-width: 30px; text-align: center; }
 .menu-recent-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

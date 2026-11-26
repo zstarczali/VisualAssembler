@@ -771,7 +771,18 @@ document.getElementById("block-project-btn")?.addEventListener("click", () => {
   if (_expertProjectVisible) _applyExpertProjectSymbolsHeight?.();
   saveUiSettings();
 });
-new MutationObserver(() => _blockProjectSync()).observe(document.body, { attributes: true, attributeFilter: ["class"] });
+let _studioViewClass = "";
+new MutationObserver(() => {
+  _blockProjectSync();
+  const view = ["expert-mode", "ub-mode", "oscar-mode"].filter(c => document.body.classList.contains(c)).join(" ");
+  if (view === _studioViewClass) return;
+  _studioViewClass = view;
+  const tab = tabs?.find(t => t.id === activeTabId);
+  if (tab && !tab.dirty && (tab.filePath || tab.ubFilePath) && tab.editorMode !== "oscar") {
+    if (_tabDirtyPending === tab.id) { clearTimeout(_tabDirtyTimer); _tabDirtyTimer = null; _tabDirtyPending = null; }
+    tab.savedSig = _tabSig(tab);
+  }
+}).observe(document.body, { attributes: true, attributeFilter: ["class"] });
 setTimeout(_blockProjectSync, 0);
 
 function _applyWorkspaceColumns() {
@@ -2238,6 +2249,8 @@ function initPalette() {
     if (e.target.closest("#zoom-in, #zoom-out")) return;
     // Don't close when toggling CRT mode
     if (e.target.closest("#crt-toggle")) return;
+    // Open recent only opens its flyout
+    if (e.target.closest("#menu-open-recent")) return;
     // Small delay so the button's own handler can fire first
     setTimeout(() => { controlMenu.removeAttribute("open"); }, 80);
   });
@@ -4654,6 +4667,7 @@ function _applyEditorTranslations() {
   setText("#ud-mem-lbl", t("w64Memory"));
   setText("#ud-bps-lbl", t("w64Breakpoints"));
   setText("#w64-regs-lbl", t("w64Registers"));
+  setText("#w64-vars-lbl", t("w64Variables"));
   setText("#w64-disasm-lbl", t("w64Disassembly"));
   setText("#w64-mem-lbl", t("w64Memory"));
   setText("#w64-bps-lbl", t("w64Breakpoints"));
@@ -7407,14 +7421,16 @@ function _blockModeBlocked(blocks = program) {
   return _blockModeLimitExceeded(blocks) ? "blockModeLimit" : "";
 }
 
-function setExpertMode(on, { keepText = false, switchingToUb = false } = {}) {
+// keepProgram: a tab switch leaves the Source view; the program is already the new tab's (the old
+// tab's text was saved by _tabSaveCurrent), so it is not rebuilt from the editor's text.
+function setExpertMode(on, { keepText = false, switchingToUb = false, keepProgram = false } = {}) {
   if (on && _isBoundUbTab()) {
     showViceToast?.(t("asmUbFileBlocked"), true);
     return;
   }
   if (on && ultimateBasicMode) setUltimateBasicMode(false, { restoreAssemblerMode: false });
   let cursorSourceLine = -1;
-  if (!on && expertMode) {
+  if (!on && expertMode && !keepProgram) {
     // Capture the caret's source line BEFORE syncing / rebuilding, so we can
     // reselect the equivalent block after the switch.
     if (expertEditor) {
@@ -9821,6 +9837,7 @@ function _ubCreateFileTab(path, content) {
   _ubBreakpointLines = [];
   _ubFilePath = path;
   _ubDirty = false;
+  _tabMarkSaved(tab);
   updateWindowTitle(fileName);
   _ubRefreshEditor();
   renderTabBar();
@@ -10006,7 +10023,7 @@ async function _ubSave(forceSaveAs = false) {
   _ubSetFile(result.filePath || _ubFilePath);
   _ubDirty = false;
   const tab = _getActiveTab();
-  if (tab) { tab.ubText = ubEditor.value; tab.dirty = false; }
+  if (tab) { tab.ubText = ubEditor.value; _tabMarkSaved(tab); }
   renderTabBar();
   _ubSetStatus(t("ubSaved"));
   return true;
@@ -10397,6 +10414,50 @@ async function _ubCompileSource(source, sourcePath, label = "startup file", opti
   _ubSetBuildOutput(`${label}\n\n${_ubFormatMap(result.map)}${packedInfo}`);
   _ubSetStatus(`${label}: build successful — ${(result.outputPrg || result.prg).length} PRG bytes${result.outputPrg ? " (Exomizer)" : ""}`);
   return result;
+}
+
+// The debugger's UltimateBasic variables (the compiler's memory map): scalars with their type, arrays.
+function _ubDebugVars(build) {
+  const map = build?.map || {};
+  const out = [];
+  for (const v of map.variables || []) {
+    const address = Number(v?.address);
+    if (v?.name && Number.isFinite(address)) out.push({ name: String(v.name), address: address & 0xFFFF, type: String(v.type || "int") });
+  }
+  for (const a of map.arrays || []) {
+    const address = Number(a?.address);
+    if (a?.name && Number.isFinite(address)) out.push({ name: `${a.name}()`, address: address & 0xFFFF, type: "array", size: Number(a.size) || 0 });
+  }
+  return out;
+}
+
+// One UltimateBasic value: byte ("int"), word, signed integer, 5-byte Commodore float ("single"), arrays as bytes.
+function _ubFormatValue(v, peek) {
+  const hex = (n, w) => `$${n.toString(16).toUpperCase().padStart(w, "0")}`;
+  const t = v.type.replace(/_array$/, "");
+  if (v.type === "array" || /_array$/.test(v.type)) {
+    const n = Math.min(v.size || 8, 8);
+    const b = peek(v.address, n);
+    return `[${Array.from(b).map(x => x.toString(16).toUpperCase().padStart(2, "0")).join(" ")}${(v.size || 0) > n ? " …" : ""}]`;
+  }
+  if (t === "word" || t === "integer") {
+    const b = peek(v.address, 2);
+    const u = b[0] | (b[1] << 8);
+    return `${t === "integer" && u >= 0x8000 ? u - 0x10000 : u} (${hex(u, 4)})`;
+  }
+  if (t === "single") {
+    const b = peek(v.address, 5);
+    if (!b[0]) return "0";
+    const m = (((b[1] | 0x80) * 256 + b[2]) * 256 + b[3]) * 256 + b[4];
+    const val = (m / 2 ** 32) * 2 ** (b[0] - 128) * (b[1] & 0x80 ? -1 : 1);
+    return String(+val.toPrecision(9));
+  }
+  if (t === "string") {
+    const b = peek(v.address, 2);
+    return `→ ${hex(b[0] | (b[1] << 8), 4)}`;
+  }
+  const x = peek(v.address, 1)[0];
+  return `${x} (${hex(x, 2)})`;
 }
 
 function _ubDebuggerSymbols(build) {
@@ -16705,7 +16766,7 @@ function _expertTouchProject() {
 async function _confirmCloseAllTabs() {
   // For each tab that has content, ask user. If user cancels any, stop and return false.
   for (const tab of [...tabs]) {
-    if (_tabHasContent(tab)) {
+    if (_tabNeedsSaveAsk(tab)) {
       const key = tab.filePath ? "tabCloseConfirmUnsaved" : "tabCloseConfirm";
       const msg = tf(key, { name: tab.name });
       if (!await _showConfirm(msg)) return false;
@@ -17042,6 +17103,7 @@ async function _expertNewProject() {
 
 // A megnyitott projekt mentetlen, fájlhoz kötött fülei (a projekten kívüli fülek maradnak)
 async function _expertSaveProjectTabs() {
+  _tabDirtyFlush();
   const originId = activeTabId;
   for (const tab of [...tabs]) {
     if (!tab.dirty || !tab.filePath || !_projHasFile(tab.filePath)) continue;
@@ -22008,7 +22070,7 @@ async function _vcReloadTabsFromDisk(list) {
     if (tab.id !== activeTabId) _tabActivate(tab.id);
     if (!await _vcApplyText(tab, content)) { failed.push(tab.name || full); continue; }
     if (_vcIsUbTab(tab)) { _ubDirty = false; tab.ubText = content; }
-    tab.dirty = false;
+    if (typeof _tabMarkSaved === "function") _tabMarkSaved(tab); else tab.dirty = false;
     _clearProjectSnapshotTimer(tab.id);
   }
   if (activeTabId !== originId && tabs.some(tab => tab.id === originId)) _tabActivate(originId);
@@ -22581,23 +22643,88 @@ async function _migrateProjectSnapshotHistory(tab, oldSnapshotPath) {
   _PROJECT_SNAPSHOT_HISTORY_CACHE.delete(oldSnapshotPath);
 }
 
+// Unsaved state by comparison (STUDIO-PROJECT-PLAN.md 2.5): a tab keeps the signature of the content
+// it was loaded / saved with (savedSig); an edit only schedules a comparison, so a view switch, a tab
+// switch or an internal sync (none of them change the text) never marks a tab, and undoing an edit
+// makes it clean again. A tab without a signature yet falls back to "any edit = unsaved".
+function _tabSigText(tab) {
+  const active = tab.id === activeTabId;
+  const mode = tab.editorMode;
+  if (mode === "ub") return active && ultimateBasicMode && ubEditor ? ubEditor.value : (tab.ubText || "");
+  if (active && expertMode && !ultimateBasicMode) return _expertGetSourceText();
+  if (!active && mode === "expert" && tab.expertText) return tab.expertText;
+  const prog = (active ? program : tab.program) || [];
+  return prog.map(block => { try { return _blockToExpertLine(block); } catch (_) { return JSON.stringify(block); } }).join("\n");
+}
+function _tabSig(tab) {
+  const text = String(_tabSigText(tab) || "").replace(/\r\n/g, "\n").replace(/[ \t]+$/gm, "").replace(/\n+$/, "");
+  let h = 0x811c9dc5;
+  for (let i = 0; i < text.length; i++) h = Math.imul(h ^ text.charCodeAt(i), 0x01000193);
+  return `${text.length}:${(h >>> 0).toString(16)}`;
+}
+// The tab's content as it is now is the saved one; defer: the content is put in place right after
+// the call (signed a timer tick later).
+function _tabMarkSaved(tab, { defer = false } = {}) {
+  if (!tab) return;
+  tab.dirty = false;
+  if (_tabDirtyPending === tab.id) { clearTimeout(_tabDirtyTimer); _tabDirtyTimer = null; _tabDirtyPending = null; }
+  if (!defer) { tab.savedSig = _tabSig(tab); return; }
+  tab.savedSig = null;
+  setTimeout(() => { if (tabs.includes(tab) && !tab.dirty) tab.savedSig = _tabSig(tab); }, 0);
+}
+let _tabDirtyTimer = null;
+let _tabDirtyPending = null;
+function _tabDirtyCheck(tabId) {
+  _tabDirtyTimer = null;
+  _tabDirtyPending = null;
+  const tab = tabs?.find(t => t.id === tabId);
+  if (!tab || tab.editorMode === "oscar") return;
+  // a tab whose signature is still being taken (deferred) is left as it is
+  if (tab.savedSig === null && !tab.dirty) return;
+  const dirty = tab.savedSig == null ? true : _tabSig(tab) !== tab.savedSig;
+  if (tab.id === activeTabId && ultimateBasicMode && tab.editorMode === "ub") _ubDirty = dirty;
+  if (dirty !== !!tab.dirty) {
+    tab.dirty = dirty;
+    renderTabBar();
+  }
+}
+// A pending comparison runs now (before a close / quit question).
+function _tabDirtyFlush() {
+  if (_tabDirtyTimer == null) return;
+  clearTimeout(_tabDirtyTimer);
+  _tabDirtyCheck(_tabDirtyPending);
+}
+// Whether closing the tab loses something: an untitled tab with content, or content that differs from
+// the saved one (compared here, not taken from the flag alone).
+function _tabNeedsSaveAsk(tab) {
+  if (!tab || tab.editorMode === "oscar") return false;
+  _tabDirtyFlush();
+  if (!tab.filePath && !tab.ubFilePath) return _tabHasContent(tab);
+  if (tab.savedSig == null) return !!tab.dirty || (tab.id === activeTabId && ultimateBasicMode && !!_ubDirty);
+  return _tabSig(tab) !== tab.savedSig;
+}
+
 function markTabDirty() {
   const tab = tabs?.find(t => t.id === activeTabId);
   if (!tab) return;
   _vmScheduleAutoReload();
   _historyScheduleObserve();
   _scheduleProjectSnapshot(tab.id);
-  if (tab.dirty) return;
-  tab.dirty = true;
-  renderTabBar();
+  if (_tabDirtyTimer != null && _tabDirtyPending !== tab.id) _tabDirtyFlush();
+  clearTimeout(_tabDirtyTimer);
+  _tabDirtyPending = tab.id;
+  _tabDirtyTimer = setTimeout(() => _tabDirtyCheck(tab.id), 150);
 }
 
 function markTabClean() {
   const tab = tabs?.find(t => t.id === activeTabId);
-  if (!tab || !tab.dirty) return;
-  tab.dirty = false;
-  _clearProjectSnapshotTimer(tab.id);
-  renderTabBar();
+  if (!tab) return;
+  const was = !!tab.dirty;
+  _tabMarkSaved(tab);
+  if (was) {
+    _clearProjectSnapshotTimer(tab.id);
+    renderTabBar();
+  }
 }
 
 function _tabSaveCurrent() {
@@ -22661,7 +22788,7 @@ function _tabActivate(tabId) {
     _expertBreakpointLines = Array.isArray(tab.expertBreakpointLines) ? [...tab.expertBreakpointLines] : [];
     if (ultimateBasicMode) setUltimateBasicMode(false);
     if (tab.editorMode === "expert" && !expertMode) setExpertMode(true, { keepText: !!tab.expertText });
-    else if (tab.editorMode !== "expert" && expertMode) setExpertMode(false);
+    else if (tab.editorMode !== "expert" && expertMode) setExpertMode(false, { keepProgram: true });
   }
 
   // Update file display
@@ -22700,6 +22827,10 @@ function _tabActivate(tabId) {
   renderProgram();
   if (ultimateBasicMode) renderMemoryMap();
   _historySyncCurrent();
+  if (!tab.dirty && (tab.filePath || tab.ubFilePath)) {
+    if (_tabDirtyPending === tab.id) { clearTimeout(_tabDirtyTimer); _tabDirtyTimer = null; _tabDirtyPending = null; }
+    if (tab.savedSig == null) tab.savedSig = _tabSig(tab);
+  }
   if (_expertProjectVisible && _expertProjectData) _expertRenderProjectTree();
 }
 
@@ -22893,6 +23024,7 @@ async function checkForAppUpdate({ silent = false } = {}) {
 async function _updateInstall() {
   const version = _updateInfo?.latestVersion;
   if (_updateBusy || !version || !_updateInfo.updateAvailable) return;
+  _tabDirtyFlush();
   if (tabs.some(tab => tab.dirty) && !await _showConfirm(t("updateUnsavedConfirm"))) return;
 
   const els = _updateEls();
@@ -22958,7 +23090,7 @@ function _tabDrop(tabId) {
 async function _tabClose(tabId) {
   const tab = tabs.find(t => t.id === tabId);
   if (tab?.editorMode === "oscar") return !!(await globalThis._oscCloseById?.(tab.oscId));
-  if (tab && _tabHasContent(tab)) {
+  if (tab && _tabNeedsSaveAsk(tab)) {
     const key = tab.filePath ? "tabCloseConfirmUnsaved" : "tabCloseConfirm";
     const msg = tf(key, { name: tab.name });
     if (!await _showConfirm(msg)) return false;
@@ -23497,14 +23629,45 @@ function _studioRenderMenuRecent() {
     btn.className = "secondary menu-item-tooltip menu-recent-item";
     btn.setAttribute("aria-label", item.path);
     btn.innerHTML = `<span class="tab-lang tab-lang--${cls}" aria-hidden="true">${text}</span><span class="menu-recent-name">${_escHtml(item.name || item.path)}</span>`;
+    btn.setAttribute("role", "menuitem");
     btn.addEventListener("click", async () => {
+      _studioRecentFlyout(false);
       document.querySelector(".control-menu")?.removeAttribute("open");
       await _studioOpenRecent(item);
     });
     host.appendChild(btn);
   }
 }
-document.querySelector(".control-menu")?.addEventListener("toggle", (e) => { if (e.target.open) _studioRenderMenuRecent(); });
+// Open recent: a flyout beside the menu entry (top layer, so the menu panel does not clip it).
+function _studioRecentFlyout(show) {
+  const fly = document.getElementById("menu-recent-projects");
+  const btn = document.getElementById("menu-open-recent");
+  if (!fly || !btn) return;
+  const open = fly.matches(":popover-open");
+  if (show === undefined) show = !open;
+  btn.setAttribute("aria-expanded", String(show));
+  if (!show) { if (open) fly.hidePopover(); return; }
+  _studioRenderMenuRecent();
+  if (!open) fly.showPopover();
+  const r = btn.getBoundingClientRect();
+  const w = fly.offsetWidth, h = fly.offsetHeight;
+  let left = r.right + 4;
+  if (left + w > innerWidth - 8) left = Math.max(8, r.left - w - 4);
+  fly.style.left = `${left}px`;
+  fly.style.top = `${Math.max(8, Math.min(r.top, innerHeight - h - 8))}px`;
+}
+document.getElementById("menu-open-recent")?.addEventListener("click", (e) => { e.stopPropagation(); _studioRecentFlyout(); });
+document.querySelector(".control-menu")?.addEventListener("toggle", (e) => { if (!e.target.open) _studioRecentFlyout(false); });
+document.addEventListener("pointerdown", (e) => {
+  if (!(e.target instanceof Element) || e.target.closest("#menu-recent-projects, #menu-open-recent")) return;
+  _studioRecentFlyout(false);
+}, true);
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "Escape" || !document.getElementById("menu-recent-projects")?.matches(":popover-open")) return;
+  _studioRecentFlyout(false);
+  document.getElementById("menu-open-recent")?.focus();
+  e.stopPropagation();
+}, true);
 
 function _studioShowStart() {
   const dlg = document.getElementById("start-dialog");
@@ -31633,6 +31796,7 @@ async function _applyProjectPayload(projectData, { sourceFilePath = "", keepFile
   tab.filePath = loadedFilePath || null;
   tab.name = importedName || sourceName || tab.name || tab._untitledName || "Untitled";
   tab.dirty = !!importedName;
+  if (!importedName) _tabMarkSaved(tab, { defer: true });
 
   program = JSON.parse(JSON.stringify(loadedProgram));
   userMacros = {};
@@ -32939,7 +33103,8 @@ function _ubMemoryUsage(result = _getActiveTab()?._ubBuildResult || null) {
 
     const internal = map.internal || {};
     const zpEnds = [
-      ...(map.variables || []).map(v => Number(v.address) + 1),
+      // zero-page variables only (a spilled / float variable has a RAM address)
+      ...(map.variables || []).map(v => Number(v.address)).filter(a => a < 0x100).map(a => a + 1),
       internal.plotZp != null ? internal.plotZp + 5 : null,
       internal.lineZp != null ? internal.lineZp + 14 : null,
       internal.rectZp != null ? internal.rectZp + 8 : null,
@@ -59876,7 +60041,7 @@ async function _w64DebugBuild() {
     const build = await _ubCompileTarget(target, { skipExomizer: true });
     if (!build) return null;
     const entries = _w64ParseDbg(build.debug?.dbg).map(e => ({ ...e, file: e.file || sourcePath }));
-    return { bytes: Uint8Array.from(build.prg || []), entries, symbols: _ubDebuggerSymbols(build), blockBps: [], blockAt: null, kind: "ub", primary: sourcePath };
+    return { bytes: Uint8Array.from(build.prg || []), entries, symbols: _ubDebuggerSymbols(build), blockBps: [], blockAt: null, kind: "ub", primary: sourcePath, ubVars: _ubDebugVars(build) };
   }
   if (isProgramEmpty()) { showViceToast(t("nothingToRunAddSomeInstructionsFirst"), true); return null; }
   const acme = _textOnlyAssembler();
@@ -60000,6 +60165,8 @@ async function _w64OnStop() {
   const s = _w64S();
   s.mod._vice_web_monitor_breakpoint_hit_clear();
   clearTimeout(s.resumeTimer);
+  // the next 6502 step of a C line: stopped as after any step, the stop is not shown
+  if (_w64SrcStepNext(s, _w64Reg(0))) { s.stopped = true; return; }
   s.stopped = true;
   s.stopPc = _w64Reg(0);
   if (s.tempBp >= 0 && s.tempBp === s.stopPc) {
@@ -60030,19 +60197,39 @@ function _w64OnResume() {
 function _w64Continue() {
   const s = _w64S();
   if (!s.stopped) return;
+  s.srcStep = null;
   _w64ApplyBreakpoints();
   s.mod._vice_web_monitor_breakpoint_hit_clear();
   s.mod._vice_web_monitor_continue();
 }
+// C (Oscar64) source: a step is a C line, made of 6502 steps (_w64SrcStepNext), not one instruction.
+const _W64_SRC_STEP_MAX = 4000;
 function _w64Step(mode) {
   const s = _w64S();
   if (!s.stopped) return;
   _w64ApplyBreakpoints();
   s.mod._vice_web_monitor_breakpoint_hit_clear();
+  const from = s.session?.kind === "oscar" && mode !== 2 ? _w64SourceAt(s.stopPc) : null;
+  s.srcStep = from ? { mode, key: `${from.key || from.file}:${from.line}`, n: 0, sp: _w64Reg(4) } : null;
   s.mod._vice_web_monitor_step(mode, 1);
+}
+// After a 6502 step of a C-line step: true = keep going (the stop is not shown).
+function _w64SrcStepNext(s, pc) {
+  const st = s.srcStep;
+  if (!st) return false;
+  const src = _w64SourceAt(pc);
+  const hitBp = s.applied.has(pc);
+  if (!hitBp && ++st.n < _W64_SRC_STEP_MAX) {
+    // code without a source line: a called routine (runtime library, deeper stack) is left at once
+    if (!src) { s.mod._vice_web_monitor_step(_w64Reg(4) < st.sp ? 2 : 1, 1); return true; }
+    if (`${src.key || src.file}:${src.line}` === st.key) { s.mod._vice_web_monitor_step(st.mode, 1); return true; }
+  }
+  s.srcStep = null;
+  return false;
 }
 function _w64Break() {
   const s = _w64S();
+  s.srcStep = null;
   if (!s.mod || s.stopped) return;
   if (!s.session) s.session = { adhoc: true, entries: [], symbols: [], labels: new Map(), blockBps: [], kind: "va", primary: "" };
   if (s.mod._vice_web_pause_status()) s.mod._vice_web_resume();
@@ -60130,6 +60317,7 @@ function _w64EndDebugView() {
 
 function _w64RenderDebug() {
   _w64RenderRegisters();
+  _w64RenderVariables();
   _w64RenderDisassembly();
   _w64RenderMemory();
   _w64RenderBreakpoints();
@@ -60144,6 +60332,32 @@ function _w64RenderRegisters() {
     return;
   }
   el.innerHTML = _w64RegsHtml(_w64Reg);
+}
+
+// The variables of the C / UltimateBasic program at the stop (the section only shows for those).
+function _w64VarRows(session, pc, peek) {
+  if (session?.kind === "oscar") return globalThis._oscDebugVarRows?.(session.vars, pc, peek) || [];
+  if (session?.kind === "ub") return (session.ubVars || []).map(v => ({ name: v.name, address: v.address, scope: "", value: _ubFormatValue(v, peek) }));
+  return [];
+}
+function _w64VarsHtml(rows) {
+  if (!rows.length) return `<div class="w64-muted">${_vcEsc(t("w64VarsNone"))}</div>`;
+  let scope = null;
+  return rows.map(r => {
+    const head = r.scope !== scope ? `<div class="w64-var-scope">${_vcEsc(r.scope ? `${r.scope}()` : t("w64VarsGlobal"))}</div>` : "";
+    scope = r.scope;
+    return `${head}<button type="button" class="w64-var" data-addr="${r.address}" aria-label="${_w64Hex(r.address, 4)}"><span class="w64-var-name">${_vcEsc(r.name)}</span><span class="w64-var-val">${_vcEsc(r.value)}</span></button>`;
+  }).join("");
+}
+function _w64RenderVariables() {
+  const el = document.getElementById("w64-vars");
+  const s = _w64S();
+  if (!el) return;
+  const has = s.session?.kind === "oscar" || s.session?.kind === "ub";
+  el.closest(".w64-sec").hidden = !has;
+  if (!has) return;
+  if (!s.stopped || !s.mod) { el.innerHTML = `<div class="w64-muted">${_vcEsc(t("w64Running"))}</div>`; return; }
+  el.innerHTML = _w64VarsHtml(_w64VarRows(s.session, s.stopPc, _w64Peek));
 }
 
 // Register id: 0 PC, 1 A, 2 X, 3 Y, 4 SP, 5 status.
@@ -60463,6 +60677,16 @@ function setupVice() {
     _w64S().manual.delete(Number(btn.dataset.unbp));
     _w64ApplyBreakpoints();
     _w64RenderDebug();
+  });
+  // a variable shows its bytes in the memory view
+  on("w64-vars", "click", (e) => {
+    const btn = e.target.closest(".w64-var");
+    if (!btn) return;
+    const a = Number(btn.dataset.addr) & 0xFFFF;
+    _w64S().memAddr = a;
+    const input = document.getElementById("w64-mem-addr");
+    if (input) input.value = _w64Hex(a, 4);
+    _w64RenderMemory();
   });
   on("w64-mem-form", "submit", (e) => {
     e.preventDefault();

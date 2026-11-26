@@ -4589,7 +4589,7 @@ fn compile_ultimate_basic(
                 "map": {
                     "loadAddress": map.load_addr,
                     "codeSize": map.code_size,
-                    "variables": map.variables.iter().map(|v| serde_json::json!({"name": v.name, "address": v.zp_addr, "type": v.type_str})).collect::<Vec<_>>(),
+                    "variables": map.variables.iter().map(|v| serde_json::json!({"name": v.name, "address": v.addr(), "type": v.type_str})).collect::<Vec<_>>(),
                     "subroutines": map.subroutines.iter().map(|s| serde_json::json!({"name": s.name, "address": s.addr})).collect::<Vec<_>>(),
                     "labels": map.labels.iter().map(|label| serde_json::json!({"name": label.name, "address": label.addr})).collect::<Vec<_>>(),
                     "arrays": map.arrays.iter().map(|a| serde_json::json!({"name": a.name, "address": a.base_addr, "size": a.size})).collect::<Vec<_>>(),

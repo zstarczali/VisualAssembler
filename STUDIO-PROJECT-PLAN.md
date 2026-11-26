@@ -190,6 +190,10 @@ fület. Az eszköztáron az indítófájl neve látszik a Run gomb mellett, katt
 
 ## 3. Lépések
 
+Kész (1. kör): egy nyelv projektenként (felvétel / megnyitás szűrve), egyszerre egy projekt (C-ben is),
+megnyitáskor minden forrás fül mindhárom nyelven, az indítófájl aktív; Open project csak `.proj`, `.vas` = fájl.
+Kész (2. kör): mentetlen jelzés összehasonlításból (1. lépés), bezáráskor csak a valóban módosított fülre kérdez.
+
 Mindegyik lépés után az app működik, a régi projektek megnyílnak.
 
 1. **Dirty hash-sel** (2.5): `savedHash` a fülön, `markTabDirty` → ütemezett összehasonlítás; minden mentés és
