@@ -9794,9 +9794,11 @@ function _ubRenderProjectFiles() {
       if (tab) _tabActivate(tab.id);
       else if (isUb) _ubOpenProjectFile(file);
       else if (_projFileRole("ub", absPath) === "foreign") _projForeignNote("ub", absPath);
+      else if (_studioAssetEditor(absPath)) _studioOpenAsset(absPath);
     });
     item.addEventListener("dblclick", event => {
       if (startup.contains(event.target) || remove.contains(event.target) || tab) return;
+      if (_studioAssetEditor(absPath)) return;
       if (_projOpensInSystem(file.name || file.path, true)) _projOpenInSystem(absPath);
     });
     item.addEventListener("contextmenu", e => _projShowItemMenu(e, { container, entry: file, onMoved: moved, absPath }));
@@ -16600,6 +16602,7 @@ function _expertRenderProjectTree() {
     const systemFile = _projOpensInSystem(file.name || file.path);
     item.addEventListener("click", e => {
       if (e.target === delBtn || delBtn.contains(e.target) || e.target === starBtn || starBtn.contains(e.target)) return;
+      if (_studioAssetEditor(file.name || file.path)) { _studioOpenAsset(_projResolveAbsPath(file.path)); return; }
       // a picture, PDF, PRG …: a double click opens it with the system's program
       if (systemFile && !tabs.some(tb => _normFilePath(tb.filePath) === _normFilePath(_projResolveAbsPath(file.path)))) {
         _expertSetStatus(tf("projDblClickToOpen", { name: file.name || file.path }), "ok");
@@ -16609,6 +16612,7 @@ function _expertRenderProjectTree() {
     });
     item.addEventListener("dblclick", e => {
       if (e.target === delBtn || delBtn.contains(e.target) || e.target === starBtn || starBtn.contains(e.target)) return;
+      if (_studioAssetEditor(file.name || file.path)) return;
       if (systemFile) _projOpenInSystem(_projResolveAbsPath(file.path));
     });
     item.addEventListener("contextmenu", e => _projShowItemMenu(e, { container, entry: file, onMoved: moved, absPath: _projResolveAbsPath(file.path) }));
@@ -16718,6 +16722,38 @@ async function _studioOpenForeign(absPath, current) {
   if (ultimateBasicMode) setUltimateBasicMode(false, { restoreAssemblerMode: false });
   await _expertLoadAsmFromPath(absPath, res.content || "");
   if (!expertMode) setExpertMode(true, { keepText: true });
+  return true;
+}
+
+// A data file one of VA's own editors opens; "" = none.
+//   "hires": a Koala picture (.koa / .koala)
+//   "font":  a charset: .64c / .chr / .fnt, or a .bin of at most 2 KB (+ load address) whose name or
+//            folder says font / char (a raw .bin could be anything: sprites, music, a map …)
+function _studioAssetEditor(name, size = -1) {
+  const n = String(name || "").replace(/\\/g, "/");
+  if (/\.(koa|koala)$/i.test(n)) return "hires";
+  if (/\.(64c|chr|fnt)$/i.test(n)) return "font";
+  const parts = n.split("/");
+  const hint = /font|char/i.test(parts.pop() || "") || /font|char/i.test(parts.pop() || "");
+  if (/\.bin$/i.test(n) && hint && size <= 2050) return "font";
+  return "";
+}
+// Opens such a file in its editor; false = not one of them.
+async function _studioOpenAsset(absPath) {
+  const editor = _studioAssetEditor(absPath);
+  if (!editor) return false;
+  const res = await window.electronAPI?.readBinFile?.(absPath);
+  if (!res?.ok) { showViceToast?.(tf("cannotOpen", { error: res?.error || "?" }), true); return true; }
+  const bytes = Uint8Array.from(res.bytes || []);
+  // a big .bin is not a charset after all: the caller opens it as before
+  if (editor === "font" && _studioAssetEditor(absPath, _vaReadBinWithMeta(bytes).payload.length) !== "font") return false;
+  if (editor === "font") {
+    document.getElementById("char-editor-btn")?.click();
+    _ceLoadBytes(bytes);
+    return true;
+  }
+  document.getElementById("hires-editor-btn")?.click();
+  if (!_hgImportKoala(bytes)) showViceToast?.(t("hgKoalaInvalid"), true);
   return true;
 }
 
@@ -41361,25 +41397,40 @@ function setupCharEditor() {
     if (!file) return;
     const reader = new FileReader();
     reader.onload = function() {
-      if (!_ceData) _ceData = new Uint8Array(256 * 8);
-      _cePushUndo();
-      const parsed = _vaReadBinWithMeta(new Uint8Array(reader.result));
-      const src = parsed.payload;
-      _ceData.fill(0);
-      _ceData.set(src.subarray(0, Math.min(src.length, _ceData.length)));
-      _ceEnsureCharColors();
-      _ceCharColors.fill(14);
-      const charColors = parsed.extras.charColors || parsed.extras.color;
-      if (charColors) _ceCharColors.set(charColors.subarray(0, Math.min(256, charColors.length)));
-      if (parsed.manifest?.kind === "ce-charset" || parsed.manifest?.kind === "cc-charset") _ceApplySerializedState(parsed.manifest.settings);
-      else _ceFg = _ceDefaultColor(_ceSel) & (_ceMulticolor ? 0x07 : 0x0F);
-      _ceBuildColorRows();
-      _ceRefresh();
+      _ceLoadBytes(new Uint8Array(reader.result));
       flash("ce-load-bin", "loaded");
     };
     reader.readAsArrayBuffer(file);
     e.target.value = "";
   });
+}
+
+// A charset file's character data: a 2-byte load address in front of it is dropped. The address
+// is taken for one when the first byte is 0, it is on a 2 KB boundary (where the VIC can see a
+// charset) and the length is 1 or 2 past a multiple of 8 (a whole charset, or one whose trailing
+// zero bytes were not saved, e.g. 513 = $2000 + 64 chars less the last 0).
+function _ceCharsetData(bytes) {
+  const n = bytes.length;
+  const addr = n > 2 ? bytes[0] | (bytes[1] << 8) : -1;
+  return n > 2 && n <= 2050 && bytes[0] === 0 && addr % 0x800 === 0 && (n % 8 === 1 || n % 8 === 2) ? bytes.subarray(2) : bytes;
+}
+// Loads a charset (raw, with a load address, or VA's own .bin with its colours and settings).
+function _ceLoadBytes(bytes) {
+  if (!_ceData) _ceData = new Uint8Array(256 * 8);
+  _cePushUndo();
+  const parsed = _vaReadBinWithMeta(bytes);
+  const own = parsed.manifest?.kind === "ce-charset" || parsed.manifest?.kind === "cc-charset";
+  const src = own ? parsed.payload : _ceCharsetData(parsed.payload);
+  _ceData.fill(0);
+  _ceData.set(src.subarray(0, Math.min(src.length, _ceData.length)));
+  _ceEnsureCharColors();
+  _ceCharColors.fill(14);
+  const charColors = parsed.extras.charColors || parsed.extras.color;
+  if (charColors) _ceCharColors.set(charColors.subarray(0, Math.min(256, charColors.length)));
+  if (own) _ceApplySerializedState(parsed.manifest.settings);
+  else _ceFg = _ceDefaultColor(_ceSel) & (_ceMulticolor ? 0x07 : 0x0F);
+  _ceBuildColorRows();
+  _ceRefresh();
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -60388,14 +60439,16 @@ function _w64Continue() {
   s.mod._vice_web_monitor_breakpoint_hit_clear();
   s.mod._vice_web_monitor_continue();
 }
-// C (Oscar64) source: a step is a C line, made of 6502 steps (_w64SrcStepNext), not one instruction.
+// C (Oscar64) and UltimateBasic source: a step is a source line, made of 6502 steps (_w64SrcStepNext),
+// not one instruction. Assembly steps one instruction, as its lines are.
 const _W64_SRC_STEP_MAX = 4000;
+function _w64SrcStepping(session) { return session?.kind === "oscar" || session?.kind === "ub"; }
 function _w64Step(mode) {
   const s = _w64S();
   if (!s.stopped) return;
   _w64ApplyBreakpoints();
   s.mod._vice_web_monitor_breakpoint_hit_clear();
-  const from = s.session?.kind === "oscar" && mode !== 2 ? _w64SourceAt(s.stopPc) : null;
+  const from = _w64SrcStepping(s.session) && mode !== 2 ? _w64SourceAt(s.stopPc) : null;
   s.srcStep = from ? { mode, key: `${from.key || from.file}:${from.line}`, n: 0, sp: _w64Reg(4) } : null;
   s.mod._vice_web_monitor_step(mode, 1);
 }
@@ -61167,9 +61220,9 @@ function _udContinue() {
   return _udResume(() => window.electronAPI.dbgContinue(_udBreakpoints()));
 }
 function _udStep(mode) {
-  const from = _ud.session?.kind === "oscar" && mode !== 2 ? _w64SourceAt(_ud.pc, _ud.session) : null;
+  const from = _w64SrcStepping(_ud.session) && mode !== 2 ? _w64SourceAt(_ud.pc, _ud.session) : null;
   if (!from) return _udResume(() => window.electronAPI.dbgStep(mode, _udBreakpoints()));
-  // C (Oscar64): a C line, made of 6502 steps; out of code without a source line (runtime library)
+  // C / UltimateBasic: a source line, made of 6502 steps; out of code without a source line (runtime library)
   const key = `${from.key || from.file}:${from.line}`;
   return _udResume(async () => {
     const bps = _udBreakpoints();

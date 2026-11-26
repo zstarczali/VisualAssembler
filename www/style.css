@@ -13980,6 +13980,15 @@ body.oscar-mode.ub-mode .workspace { grid-template-columns: 1fr; gap: 14px; }
 .osc-l-src { color: var(--hl-label); cursor: pointer; }
 .osc-l-src:hover { text-decoration: underline; }
 .osc-l-sep { color: var(--panel-border); }
+.osc-build-panel pre:has(.osc-map-head) { white-space: pre; }
+.osc-map-head { color: var(--hl-label); font-weight: 700; letter-spacing: .06em; }
+.osc-map-size { color: var(--hl-number); }
+.osc-map-sep { color: var(--muted); }
+.osc-map-sec { color: var(--muted); }
+.osc-map-kind--code { color: var(--hl-mnem); }
+.osc-map-kind--data { color: var(--hl-string, var(--secondary)); }
+.osc-map-kind--bss { color: var(--hl-directive, var(--secondary)); }
+.osc-map-kind--mark { color: var(--muted); }
 .osc-status--error { color: var(--error, #f44); }
 .osc-panel .ub-statusbar #osc-cursor-pos { margin-left: auto; }
 /* the grid row must not grow with the tree: the tree and the symbols scroll inside the panel */
@@ -14092,6 +14101,7 @@ html[data-theme="c64"] .va-studio { color: #ffffff; text-shadow: none; }
 .menu-open-recent[aria-expanded="true"] { background: color-mix(in srgb, var(--primary) 16%, transparent); }
 .menu-open-recent-arrow { opacity: .7; }
 .menu-recent-flyout[popover] { position: fixed; inset: auto; margin: 0; min-width: 220px; max-width: min(420px, 90vw); overflow: visible; padding: 6px; border: 1px solid var(--panel-border); border-radius: 6px; background: var(--panel-strong); color: var(--text); box-shadow: 0 10px 28px rgba(0, 0, 0, .35); }
+.menu-recent-flyout:not(:popover-open) { display: none; } /* the display: grid above would keep a closed popover on the page */
 .menu-recent-flyout .menu-recent-item { margin: 0 !important; min-height: 34px; height: 34px; width: 100%; }
 .menu-recent-item { display: flex !important; align-items: center; justify-content: flex-start !important; gap: 8px; text-align: left; }
 .menu-recent-item .tab-lang { flex: none; min-width: 30px; text-align: center; }
