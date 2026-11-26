@@ -61,7 +61,7 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 - [1. A felület áttekintése](#1-a-felület-áttekintése)
   - [Stúdió: egy ablak minden nyelvnek](#stúdió-egy-ablak-minden-nyelvnek)
   - [Induló ablak](#induló-ablak)
-  - [Új, Eszközök és Git menü](#új-eszközök-és-git-menü)
+  - [Új, Eszközök és Verziókezelés menü](#új-eszközök-és-verziókezelés-menü)
 - [2. Blokk paletta](#2-blokk-paletta)
   - [Paraméterek az operandus mezőben](#paraméterek-az-operandus-mezőben)
 - [3. Programterület](#3-programterület)
@@ -174,7 +174,7 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 - **Visual Assembler Studio** — assembly (VMA, ACME, R65), blokkok, UltimateBasic és C egy ablakban. Minden nyitott fájl egy közös fülsáv fülje, nyelvjelvénnyel; az assembly fül **Blokkok** és **Forrás** nézet között vált, és minden fájl a saját nyelvének szerkesztőjében nyílik. Lásd: [Stúdió: egy ablak minden nyelvnek](#stúdió-egy-ablak-minden-nyelvnek).
 - **C az Oscar64-gyel** — C szerkesztő beépített Oscar64 fordítóval (az ACME 0.97 is beépített): kiemelés, kiegészítés a beinclude-olt fejlécekből, formázó, ciklusszámok, Disassembly / Monitor / Map nézet, projektfa indítófájllal, projekt build szkriptből. A C program minden futtatási módban fut. Lásd: [C mód (Oscar64)](#c-mód-oscar64).
 - **Forrásszintű hibakeresés C-ben és UltimateBasicben** — töréspont a forrássoron, léptetés C soronként, **Változók** panel és **Hívási lánc**. Lásd: [Forrásszintű hibakeresés](#forrásszintű-hibakeresés-c-és-ultimatebasic).
-- **Induló ablak, Új / Eszközök / Git menü** — lásd: [Induló ablak](#induló-ablak) és [Új, Eszközök és Git menü](#új-eszközök-és-git-menü).
+- **Induló ablak, Új / Eszközök / Verziókezelés menü** — lásd: [Induló ablak](#induló-ablak) és [Új, Eszközök és Verziókezelés menü](#új-eszközök-és-verziókezelés-menü).
 - **Projektek** — projektenként egy nyelv, minden forrásfájl fülként nyílik, a munkamenet a `<név>.proj.user`-ben (a munkaterületek helyett), mentetlen az, ami eltér a mentett fájltól, átméretezhető projektpanel. Lásd: [Projekt munkamenet (.proj.user)](#projekt-munkamenet-projuser).
 - **Memóriatérkép külön ablakban** (Eszközök → Gép), új sablonok (Hello World VMA-hoz és ACME-hez, 16 és 64 sprite-os multiplexer C-ben, 64 sprite-os UltimateBasicben) és **UltimateBasic 1.6.8** (`sprite multicolor`, összeomlás helyett fordítási hiba).
 
@@ -686,11 +686,11 @@ Induláskor megnyílik az **Induló ablak** (a **Menü → Induló ablak…** is
 
 Ha a **Megjelenítés induláskor** ki van kapcsolva, az ablak nem nyílik meg; helyette az a projekt nyílik meg újra, amely a bezáráskor nyitva volt.
 
-### Új, Eszközök és Git menü
+### Új, Eszközök és Verziókezelés menü
 
 - **Új** — az **Assembly forrás**, **Blokkprogram**, **UltimateBasic program** vagy **C program (Oscar64)** új fület nyit az adott nyelven (ACME és R65 mellett blokkprogram helyett assembly forrást); a **Sablonból…** a sablon dialógust nyitja.
 - **Eszközök** — a szerkesztők és segédeszközök négy csoportban: **Grafika** (C64 karakter ROM, karakterkészlet-szerkesztő, Charset Canvas szerkesztő, Map szerkesztő, Pálya szerkesztő, Hi-Res grafikus szerkesztő, Sprite szerkesztő), **Hang** (SID szerkesztő, SID Player), **Adat és lemez** (Görbe szerkesztő, Táblagenerátor, D64 szerkesztő, Számrendszer-átváltó) és **Gép** (C64 memóriatérkép, VICE Monitor). A **Beépített C64** gombja az eszköztáron maradt.
-- **Git** — a **Pull** és a **Push** azonnal fut; a **Commit, változások, előzmények…**, **Új ág…**, **Merge…** és **Stash** a Verziókezelés ablakot nyitja Git módban. Lásd: [Git](#git).
+- **Verziókezelés** (Git) — a **Pull** és a **Push** azonnal fut; a **Commit, változások, előzmények…**, **Új ág…**, **Merge…** és **Stash** a Verziókezelés ablakot nyitja Git módban. Lásd: [Git](#git).
 - A **Névjegy**nek saját eszköztár-gombja van a Súgó után.
 
 ---
@@ -1274,7 +1274,7 @@ Az a mappa, amelyben van `build.sh`, `make.bat` vagy `makefile`, de nincs Oscar6
 
 ### Fordítás, futtatás és nézetek
 
-A **Build** (Ctrl+B) az Oscar64-gyel fordítja az indítófájlt (vagy a nyitott fájlt); a hibák és figyelmeztetések a **Kimenet** nézetben jelennek meg fájllal és sorral — kattintásra oda ugrik. A **Kimenet** a fordító lépéseit is mutatja (az Oscar64 `-v`-vel fut): a fordított és beolvasott fájlokat, a fázisokat és a kiírt fájlokat. A szerkesztő alatti többi nézet:
+A **Build** (Ctrl+B) az Oscar64-gyel fordítja az indítófájlt (vagy a nyitott fájlt); a hibák és figyelmeztetések a **Kimenet** nézetben jelennek meg fájllal és sorral — kattintásra oda ugrik. Bekapcsolt Beállítások → Fordítók → *Részletes fordítói kimenet* mellett a **Kimenet** a fordító lépéseit is mutatja (az Oscar64 `-v`-vel fut): a fordított és beolvasott fájlokat, a fázisokat és a kiírt fájlokat. A szerkesztő alatti többi nézet:
 
 - **Disassembly** — a fordító saját listája, a C sorok a belőlük készült 6502 kóddal.
 - **Monitor** — a program memóriája hex dumpként.

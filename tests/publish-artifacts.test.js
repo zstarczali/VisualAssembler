@@ -7,14 +7,14 @@ const path = require("node:path");
 const root = path.join(__dirname, "..");
 const workflow = fs.readFileSync(path.join(root, ".github", "workflows", "publish.yml"), "utf8");
 
-test("FTP publishing: installers, the four documents, TLS, target folder, nothing removed, source build validation", () => {
+test("FTP publishing: installers, the documents, TLS, target folder, nothing removed, source build validation", () => {
   execFileSync(process.platform === "win32" ? "python" : "python3", [path.join(__dirname, "publish_artifacts_test.py")], { encoding: "utf8", stdio: "pipe" });
 });
 
 test("the workflow checks out exactly the published documents, which exist in the repository", () => {
   const script = fs.readFileSync(path.join(root, "scripts", "publish-artifacts.py"), "utf8");
   const documents = [...script.match(/DOCUMENTS = \(([\s\S]*?)\n\)/)[1].matchAll(/'([^']+)'/g)].map((m) => m[1]);
-  assert.equal(documents.length, 4);
+  assert.equal(documents.length, 5);
   for (const document of documents) {
     assert.ok(workflow.includes(`            ${document}`), document);
     assert.ok(fs.existsSync(path.join(root, document)), document);

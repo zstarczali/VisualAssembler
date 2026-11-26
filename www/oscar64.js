@@ -38,6 +38,7 @@ const _osc = {
   cycles: true,
   ac: true,
   optimize: "O2",
+  verbose: false,
   output: true,
   project: true,
   fontSize: 14,
@@ -363,7 +364,7 @@ function _oscMonitorText(prg) {
 function _oscSave() {
   try {
     localStorage.setItem(_OSC_STORE, JSON.stringify({
-      active: _osc.active, root: _osc.root, hl: _osc.hl, lines: _osc.lines, cycles: _osc.cycles, ac: _osc.ac, optimize: _osc.optimize,
+      active: _osc.active, root: _osc.root, hl: _osc.hl, lines: _osc.lines, cycles: _osc.cycles, ac: _osc.ac, optimize: _osc.optimize, verbose: _osc.verbose,
       output: _osc.output, project: _osc.project, fontSize: _osc.fontSize, view: _osc.view, outputWidth: _osc.outputWidth, symbolsHeight: _osc.symbolsHeight,
       open: _osc.files.filter((f) => f.path).map((f) => f.path), current: _osc.files[_osc.current]?.path || "",
       expanded: [..._osc.expanded],
@@ -1307,6 +1308,7 @@ function _oscRenderTree() {
   const rows = [];
   const walk = (entries, depth) => {
     for (const e of entries) {
+      if (!e.dir && _OSC_PROJ_FILE.test(e.name)) continue; // the project's own files: not shown, as in the assembly / UB tree
       const n = _oscNorm(e.path);
       const exp = _osc.expanded.has(n);
       const f = open.get(n);
@@ -1725,7 +1727,7 @@ async function _oscBuild({ quiet = false, debug = false } = {}) {
       debug: true,
       native: topt ? topt.native : true,
       // -v: the compiler's steps (files compiled / included, passes, files written) for the Output view
-      verbose: true,
+      verbose: !!_osc.verbose,
       extraArgs: (topt?.extra || []).filter((a) => !/^-v\d?$/.test(a)),
     });
   } catch (error) {
@@ -1970,6 +1972,10 @@ function _oscApplyTranslations() {
   if (optLabel) optLabel.textContent = t("oscOptimize");
   const optNote = _oscEl("osc-optimize-note");
   if (optNote) optNote.textContent = t("oscOptimizeNote");
+  const verboseLabel = _oscEl("osc-verbose-label");
+  if (verboseLabel) verboseLabel.textContent = t("oscVerbose");
+  const verboseNote = _oscEl("osc-verbose-note");
+  if (verboseNote) verboseNote.textContent = t("oscVerboseNote");
   set("osc-zoom-out-btn", "oscZoomOut");
   set("osc-zoom-in-btn", "oscZoomIn");
   set("osc-project-open-btn", "oscOpenProject");
@@ -2333,7 +2339,7 @@ function _oscKeydown(e) {
 function setupOscar64() {
   const prefs = _oscLoadPrefs();
   Object.assign(_osc, {
-    hl: prefs.hl !== false, lines: prefs.lines !== false, cycles: prefs.cycles !== false, ac: prefs.ac !== false, optimize: /^O[0-3s]$/.test(prefs.optimize) ? prefs.optimize : "O2",
+    hl: prefs.hl !== false, lines: prefs.lines !== false, cycles: prefs.cycles !== false, ac: prefs.ac !== false, optimize: /^O[0-3s]$/.test(prefs.optimize) ? prefs.optimize : "O2", verbose: prefs.verbose === true,
     output: prefs.output !== false, project: prefs.project !== false, minimap: prefs.minimap !== false,
     outputWidth: Number(prefs.outputWidth) || 0, symbolsHeight: Number(prefs.symbolsHeight) || 0, fontSize: Number(prefs.fontSize) || 14, view: ["log", "asm", "mon", "map", "tk"].includes(prefs.view) ? prefs.view : "log",
   });
@@ -2392,6 +2398,13 @@ function setupOscar64() {
   if (optSel) optSel.value = _osc.optimize;
   optSel?.addEventListener("change", (e) => {
     _osc.optimize = e.target.value;
+    _oscSave();
+    if (_osc.active) _oscScheduleAuto(0);
+  });
+  const verboseBox = _oscEl("osc-verbose");
+  if (verboseBox) verboseBox.checked = !!_osc.verbose;
+  verboseBox?.addEventListener("change", (e) => {
+    _osc.verbose = e.target.checked;
     _oscSave();
     if (_osc.active) _oscScheduleAuto(0);
   });

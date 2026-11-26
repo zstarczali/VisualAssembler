@@ -1068,8 +1068,8 @@ h1 {
   -webkit-user-select: none;
   gap: 10px;
   width: max-content;
-  min-width: 480px;
-  max-width: min(600px, 90vw);
+  min-width: 540px;
+  max-width: min(680px, 92vw);
   max-height: 80vh;
   overflow-y: auto;
   overflow-x: hidden;
@@ -13322,8 +13322,10 @@ html[data-theme="retro8"] .eyebrow { color: #ffe066; text-transform: uppercase; 
 
 /* ── VICE Monitor (nem modális) ───────────────────────────────────── */
 /* the VICE / UE2 debugger: the same single column as the built-in C64's debug panel */
-.vm-dialog.ud-dialog { width: 400px; max-width: 96vw; }
-.ud-body { padding: 10px 12px; max-height: calc(92vh - 120px); overflow-y: auto; }
+.vm-dialog.ud-dialog { width: 400px; max-width: 96vw; max-height: min(86vh, 900px); }
+.ud-dialog > .cg-card { max-height: min(86vh, 900px); }
+.ud-dialog .cg-hdr, .ud-dialog .cg-toolbar, .ud-dialog .w64-statusbar { flex: none; }
+.ud-body { flex: 1 1 auto; min-height: 0; padding: 10px 12px; overflow-y: auto; }
 .ud-body .w64-debug { flex: none; overflow: visible; }
 .vm-dialog { max-width: 620px; z-index: 9400; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35); border-radius: 8px; }
 .vm-status { font-size: 0.72rem; color: var(--secondary); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -13649,7 +13651,7 @@ dialog.dlg-active[open]:not(:modal) > :first-child > :first-child,
 .w64-sec-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .w64-muted { color: var(--secondary); font-family: inherit; }
 .w64-regs { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; }
-.w64-vars { display: grid; grid-template-columns: minmax(0, 1fr); max-height: 180px; overflow-y: auto; overflow-x: hidden; border: 1px solid var(--panel-border); border-radius: 3px; background: var(--panel-bg); padding: 2px 0; font-family: var(--mono-font, ui-monospace, monospace); font-size: .74rem; }
+.w64-vars { display: grid; grid-template-columns: minmax(0, 1fr); grid-auto-rows: max-content; align-content: start; max-height: 180px; overflow-y: auto; overflow-x: hidden; border: 1px solid var(--panel-border); border-radius: 3px; background: var(--panel-bg); padding: 2px 0; font-family: var(--mono-font, ui-monospace, monospace); font-size: .74rem; }
 .w64-var-scope { padding: 3px 8px 1px; font-size: .68rem; font-weight: 700; color: var(--muted); }
 .w64-var { display: flex; gap: 10px; justify-content: space-between; min-width: 0; min-height: 0; height: auto; margin: 0; padding: 1px 8px; border: none; border-radius: 0; background: transparent; color: var(--text); font: inherit; text-align: left; cursor: pointer; box-shadow: none; }
 .w64-var:hover, .w64-frame:hover { background: color-mix(in srgb, var(--primary) 14%, transparent); }

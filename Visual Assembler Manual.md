@@ -59,7 +59,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 - [1. Interface Overview](#1-interface-overview)
   - [Studio: one window for every language](#studio-one-window-for-every-language)
   - [Start window](#start-window)
-  - [New, Tools and Git menus](#new-tools-and-git-menus)
+  - [New, Tools and Versioning menus](#new-tools-and-versioning-menus)
 - [2. Block Palette](#2-block-palette)
   - [Parameters in the operand field](#parameters-in-the-operand-field)
 - [3. Program Area](#3-program-area)
@@ -172,7 +172,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 - **Visual Assembler Studio** — assembly (VMA, ACME, R65), blocks, UltimateBasic and C in one window. Every open file is a tab of one tab bar with a language badge; an assembly tab switches between **Blocks** and **Source**, and every file opens in the editor of its own language. See [Studio: one window for every language](#studio-one-window-for-every-language).
 - **C with Oscar64** — a C editor with the Oscar64 compiler built in (ACME 0.97 is bundled too): highlighting, completion from the included headers, formatter, cycle counts, Disassembly / Monitor / Map views, project tree with a startup file, projects from build scripts. A C program runs in every Run mode. See [C Mode (Oscar64)](#c-mode-oscar64).
 - **Source-level debugging in C and UltimateBasic** — breakpoints on source lines, stepping one C line at a time, a **Variables** panel and a **Call stack**. See [Source-level debugging](#source-level-debugging-c-and-ultimatebasic).
-- **Start window, New / Tools / Git menus** — see [Start window](#start-window) and [New, Tools and Git menus](#new-tools-and-git-menus).
+- **Start window, New / Tools / Versioning menus** — see [Start window](#start-window) and [New, Tools and Versioning menus](#new-tools-and-versioning-menus).
 - **Projects** — one language per project, all source files open as tabs, the session in `<name>.proj.user` (it replaces workspaces), unsaved means different from the saved file, resizable project panel. See [Project session (.proj.user)](#project-session-projuser).
 - **Memory map window** (Tools → Machine), new templates (Hello World for VMA and ACME, sprite multiplexers with 16 and 64 sprites in C, 64 sprites in UltimateBasic) and **UltimateBasic 1.6.8** (`sprite multicolor`, compile errors instead of a crash).
 
@@ -692,11 +692,11 @@ At startup the **Start window** opens (also **Menu → Start window…**):
 
 With **Show at startup** switched off the window does not open; the app reopens the project that was open when you closed it instead.
 
-### New, Tools and Git menus
+### New, Tools and Versioning menus
 
 - **New** — **Assembly source**, **Block program**, **UltimateBasic program** or **C program (Oscar64)** opens a new tab in that language (with ACME or R65 an assembly source instead of a block program); **From template…** opens the template dialog.
 - **Tools** — the editors and helpers in four groups: **Graphics** (C64 Character ROM, Character Set Editor, Charset Canvas Editor, Map Editor, Level Editor, Hi-Res Graphics Editor, Sprite Editor), **Sound** (SID Editor, SID Player), **Data and disk** (Curve Editor, Table Generator, D64 Editor, Number converter) and **Machine** (C64 memory map, VICE Monitor). The **Built-in C64** keeps its own toolbar button.
-- **Git** — **Pull** and **Push** run at once; **Commit, changes, history…**, **New branch…**, **Merge…** and **Stash** open the Version control dialog in Git mode. See [Git](#git).
+- **Versioning** (Git) — **Pull** and **Push** run at once; **Commit, changes, history…**, **New branch…**, **Merge…** and **Stash** open the Version control dialog in Git mode. See [Git](#git).
 - **About** has its own toolbar button after Help.
 
 ---
@@ -1280,7 +1280,7 @@ A folder with a `build.sh`, `make.bat` or `makefile` but no Oscar64 `.proj` beco
 
 ### Building, running and views
 
-**Build** (Ctrl+B) compiles the startup file (or the open file) with Oscar64; errors and warnings show in **Output** with their file and line — click one to jump there. **Output** also lists the compiler's steps (Oscar64 runs with `-v`): the files compiled and included, the passes and the files written. The other views below the editor:
+**Build** (Ctrl+B) compiles the startup file (or the open file) with Oscar64; errors and warnings show in **Output** with their file and line — click one to jump there. With Settings → Compilers → *Verbose compiler output* on, **Output** also lists the compiler's steps (Oscar64 runs with `-v`): the files compiled and included, the passes and the files written. The other views below the editor:
 
 - **Disassembly** — the compiler's own listing, C lines with the 6502 code made of them.
 - **Monitor** — the memory of the program as a hex dump.

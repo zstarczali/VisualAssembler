@@ -269,7 +269,7 @@
           </button>
           <button id="git-btn" class="main-tb-btn tools-btn" type="button" popovertarget="git-panel" aria-haspopup="true" aria-expanded="false" aria-label="Git and version control">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" width="15" height="15" aria-hidden="true"><circle cx="4.5" cy="3.5" r="1.6"/><circle cx="4.5" cy="12.5" r="1.6"/><circle cx="11.5" cy="6" r="1.6"/><path d="M4.5 5.1v5.8M11.5 7.6c0 2.4-2.4 2.9-5.6 4" stroke-linecap="round"/></svg>
-            <span id="git-btn-label">Git</span>
+            <span id="git-btn-label">Versioning</span>
             <svg viewBox="0 0 10 10" width="8" height="8" aria-hidden="true"><path d="M2 3.5 5 6.5 8 3.5" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
           <button id="vice-btn" class="main-tb-btn main-tb-icon-btn" type="button" aria-label="Built-in C64" aria-pressed="false">
@@ -1935,6 +1935,12 @@ PRINTABLE CHARACTERS
           <a class="knowledge-base-link" href="#" data-url="https://restore64.dev/">
             <span class="knowledge-base-link-title">Restore64 Disassembler</span>
             <span class="knowledge-base-link-url">restore64.dev</span>
+          </a>
+        </li>
+        <li>
+          <a class="knowledge-base-link" href="#" data-url="https://github.com/drmortalwombat/oscar64">
+            <span class="knowledge-base-link-title">Oscar64 C Compiler</span>
+            <span class="knowledge-base-link-url">github.com/drmortalwombat/oscar64</span>
           </a>
         </li>
         <li>
@@ -4459,6 +4465,8 @@ PRINTABLE CHARACTERS
               <option value="Os">Os</option>
             </select></label>
             <p id="osc-optimize-note" class="menu-note">The level of every Oscar64 build; a build script's own -O switch takes precedence.</p>
+            <label class="menu-checkbox-label"><input id="osc-verbose" type="checkbox"> <span id="osc-verbose-label">Verbose compiler output</span></label>
+            <p id="osc-verbose-note" class="menu-note">Output also lists the compiler's steps (-v): the files compiled and included, the passes and the files written.</p>
           </section>
         </div>
       </div>

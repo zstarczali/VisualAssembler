@@ -3826,6 +3826,7 @@ function applyTranslations() {
     setText("#hw-settings-tab-compilers", t("hardwareSettingsCompilersTab"));
     setText("#hw-settings-tab-sid", t("hardwareSettingsSidTab"));
     setText("#tools-btn-label", t("toolsMenu"));
+    setText("#git-btn-label", t("gitMenu"));
     document.getElementById("git-btn")?.setAttribute("aria-label", t("gitMenuHint"));
     document.getElementById("about-tb-btn")?.setAttribute("aria-label", t("aboutTb"));
     setText("#git-commit-label", t("gitCommit"));
@@ -4971,7 +4972,7 @@ function _applyEditorTranslations() {
   const kbTitles = {
     "6502 Opcodes Reference": "kbOpcodes", "C64 KERNAL Functions": "kbKernal", "C64 Memory Map": "kbMemoryMap",
     "C64 Color Codes": "kbColorCodes", "VIC-II Article": "kbVicArticle", "Spritemate — C64 Sprite Editor": "kbSpritemate",
-    "C64 OS Programmer's Guide: Development Environment": "kbC64os", "png2c64 Image Converter": "kbPng2c64", "Restore64 Disassembler": "kbRestore64",
+    "C64 OS Programmer's Guide: Development Environment": "kbC64os", "png2c64 Image Converter": "kbPng2c64", "Restore64 Disassembler": "kbRestore64", "Oscar64 C Compiler": "kbOscar64",
     "VICE Emulator": "hwViceSectionLabel"
   };
   document.querySelectorAll("#knowledge-base-dialog .knowledge-base-link-title").forEach((el) => {
@@ -23815,6 +23816,22 @@ function _studioRecentFlyout(show) {
 }
 document.getElementById("menu-open-recent")?.addEventListener("click", (e) => { e.stopPropagation(); _studioRecentFlyout(); });
 document.querySelector(".control-menu")?.addEventListener("toggle", (e) => { if (!e.target.open) _studioRecentFlyout(false); });
+// Like a submenu: pointing at Open recent opens it, pointing at another menu entry (or scrolling the menu) closes it.
+let _studioRecentHoverTimer = 0;
+document.querySelector(".control-menu")?.addEventListener("pointerover", (e) => {
+  if (!(e.target instanceof Element) || e.target.closest("#menu-recent-projects")) return;
+  clearTimeout(_studioRecentHoverTimer);
+  const onRecent = !!e.target.closest("#menu-open-recent");
+  if (!onRecent && !e.target.closest("button, a, label, select, input")) return;
+  _studioRecentHoverTimer = setTimeout(() => _studioRecentFlyout(onRecent), onRecent ? 150 : 100);
+});
+document.querySelector(".control-menu")?.addEventListener("scroll", () => _studioRecentFlyout(false), true);
+// a dialog opened from the menu, the focus moved on, or another window came forward: the flyout must not stay behind them
+document.addEventListener("focusin", (e) => {
+  if (e.target instanceof Element && e.target.closest("#menu-recent-projects, #menu-open-recent")) return;
+  _studioRecentFlyout(false);
+});
+window.addEventListener("blur", () => _studioRecentFlyout(false));
 document.addEventListener("pointerdown", (e) => {
   if (!(e.target instanceof Element) || e.target.closest("#menu-recent-projects, #menu-open-recent")) return;
   _studioRecentFlyout(false);
