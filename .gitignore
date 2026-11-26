@@ -51,3 +51,7 @@ samples/*.snapshots.json
 # Python bytecode cache
 __pycache__/
 *.pyc
+
+# Bundled tools (scripts/build-tools.mjs)
+/tools/*
+!/tools/README.md

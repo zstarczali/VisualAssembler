@@ -13906,3 +13906,107 @@ html[data-theme="christmas"] .editor-mode-indicator {
   background: #0d5a3e;
   color: #ffffff;
 }
+
+/* ── Oscar64 C mode (#osc-panel, www/oscar64.js) ───────────────────────────── */
+body.oscar-mode .workspace > .palette-panel,
+body.oscar-mode .program-panel,
+body.oscar-mode .output-panel,
+body.oscar-mode .hero-copy,
+body.oscar-mode .ws-resizer,
+body.oscar-mode .tab-bar-wrap,
+body.oscar-mode .expert-panel,
+body.oscar-mode #ub-panel { display: none !important; }
+body.oscar-mode .workspace,
+body.oscar-mode.expert-mode .workspace,
+body.oscar-mode.ub-mode .workspace { grid-template-columns: 1fr; gap: 14px; }
+.osc-panel .ub-editor-layout { grid-template-columns: minmax(0, 1fr) 5px minmax(180px, var(--ub-disasm-width, 380px)); }
+.osc-panel.ub-show-project .ub-editor-layout { grid-template-columns: 220px minmax(0, 1fr) 5px minmax(180px, var(--ub-disasm-width, 380px)); grid-template-areas: "project editor resize output"; }
+.osc-panel.ub-hide-output .ub-editor-layout { grid-template-columns: minmax(0, 1fr); grid-template-areas: "editor"; }
+.osc-panel.ub-hide-output.ub-show-project .ub-editor-layout { grid-template-columns: 220px minmax(0, 1fr); grid-template-areas: "project editor"; }
+.osc-editor-col { grid-area: editor; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+.osc-editor-col .ub-editor-wrap { flex: 1 1 auto; height: auto; }
+.osc-panel .osc-editor { caret-color: var(--text); padding-right: 16px; }
+.osc-panel .osc-highlight { padding-right: 16px; }
+.osc-tabs { display: flex; gap: 2px; min-height: 30px; padding: 3px 6px 0; overflow-x: auto; overflow-y: hidden; border-bottom: 1px solid var(--panel-border); background: var(--ub-chrome-bg, var(--panel-strong)); scrollbar-width: thin; }
+.osc-tab { display: inline-flex; align-items: center; gap: 6px; flex: none; max-width: 220px; padding: 4px 6px 4px 10px; border: 1px solid transparent; border-bottom: 0; border-radius: 2px 2px 0 0; color: var(--muted); font-size: .74rem; cursor: pointer; user-select: none; }
+.osc-tab:hover { color: var(--text); background: color-mix(in srgb, var(--secondary) 12%, transparent); }
+.osc-tab--active { color: var(--text); border-color: var(--panel-border); background: var(--ub-editor-bg, var(--expert-editor-bg, var(--panel-strong))); }
+.osc-tab-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.osc-tab-star { color: var(--accent); font-size: .7rem; }
+.osc-tab-close { width: 18px; height: 18px; min-height: 0; padding: 0; border: 0; border-radius: 2px; background: transparent; color: inherit; font-size: .9rem; line-height: 1; cursor: pointer; opacity: .6; }
+.osc-tab-close:hover { opacity: 1; background: color-mix(in srgb, var(--secondary) 22%, transparent); }
+.osc-highlight .osc-kw { color: var(--hl-mnem); font-weight: 700; }
+.osc-highlight .osc-type { color: var(--hl-directive); }
+.osc-highlight .osc-fn { color: var(--hl-function, var(--hl-label)); }
+.osc-highlight .osc-const { color: var(--hl-label); }
+.osc-highlight .osc-string { color: var(--hl-string); }
+.osc-highlight .osc-number { color: var(--hl-number); }
+.osc-highlight .osc-comment, .osc-build-panel .osc-comment { color: var(--hl-comment); font-style: italic; }
+.osc-highlight .osc-pp { color: var(--hl-macro); }
+.osc-highlight .osc-mnem { color: var(--hl-mnem); text-decoration: underline dotted color-mix(in srgb, var(--hl-mnem) 45%, transparent); }
+.osc-highlight .osc-op, .osc-highlight .osc-punct { color: color-mix(in srgb, var(--text) 78%, transparent); }
+.osc-line--error { background: color-mix(in srgb, var(--error, #f44) 18%, transparent); box-shadow: inset 2px 0 var(--error, #f44); }
+.osc-line--warning { background: color-mix(in srgb, #e0a800 16%, transparent); }
+.osc-line--debug { background: color-mix(in srgb, var(--accent) 22%, transparent); box-shadow: inset 2px 0 var(--accent); }
+.osc-highlight .osc-line { display: inline-block; min-width: 100%; }
+.osc-panel .source-line-number { display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
+.osc-cyc { flex: 0 0 var(--osc-cyc-width, 38px); white-space: nowrap; overflow: visible; margin-right: auto; color: color-mix(in srgb, var(--hl-number) 80%, transparent); font-size: .85em; text-align: left; cursor: pointer; }
+.osc-cyc--warn { color: var(--error, #f44); }
+.osc-tree { padding: 4px 0; overflow: auto; }
+.osc-tree-item { display: flex; align-items: center; gap: 6px; min-height: 24px; padding-right: 8px; cursor: pointer; user-select: none; font-size: .78rem; }
+.osc-tree-item--selected { background: color-mix(in srgb, var(--primary) 18%, transparent); }
+.osc-tree-icon { flex: 0 0 12px; color: var(--muted); text-align: center; }
+.osc-tree-other { opacity: .6; }
+.osc-tree-empty { margin: 12px; color: var(--muted); font-size: .74rem; line-height: 1.45; }
+.osc-ask { display: flex; flex-direction: column; gap: 4px; padding: 8px 10px; border-bottom: 1px solid var(--panel-border); }
+.osc-ask[hidden] { display: none; }
+.osc-ask label { color: var(--muted); font-size: .7rem; }
+.osc-ask input { min-height: 0; height: 28px; padding: 3px 8px; font-size: .78rem; }
+.osc-build-panel { display: flex; flex-direction: column; gap: 8px; }
+.osc-build-panel pre { flex: 1 1 auto; margin: 0; overflow: auto; }
+.osc-build-panel pre:has(.dsm-addr), .osc-build-panel pre:has(.osc-l-src) { white-space: pre; }
+.osc-out-tabs { display: flex; gap: 2px; flex: none; }
+.osc-out-tab { min-height: 0; height: 24px; padding: 0 10px; border: 1px solid var(--panel-border); border-radius: 2px; background: transparent; color: var(--muted); font-size: .72rem; cursor: pointer; }
+.osc-out-tab--active { color: var(--primary); border-color: color-mix(in srgb, var(--primary) 55%, var(--panel-border)); background: color-mix(in srgb, var(--primary) 14%, transparent); }
+.osc-diagnostics { flex: none; max-height: 40%; margin: 0; padding: 0; overflow: auto; list-style: none; font-family: "IBM Plex Mono", monospace; font-size: .74rem; }
+.osc-diagnostics[hidden] { display: none; }
+.osc-diag { padding: 4px 6px; border-left: 2px solid transparent; cursor: pointer; }
+.osc-diag:hover, .osc-diag:focus-visible { background: color-mix(in srgb, var(--secondary) 14%, transparent); outline: none; }
+.osc-diag--error { border-left-color: var(--error, #f44); }
+.osc-diag--warning { border-left-color: #e0a800; }
+.osc-diag-loc { color: var(--muted); }
+.osc-l-src { color: var(--hl-label); cursor: pointer; }
+.osc-l-src:hover { text-decoration: underline; }
+.osc-l-sep { color: var(--panel-border); }
+.osc-status--error { color: var(--error, #f44); }
+.osc-panel .ub-statusbar #osc-cursor-pos { margin-left: auto; }
+/* the grid row must not grow with the tree: the tree and the symbols scroll inside the panel */
+.osc-panel .ub-editor-layout { grid-template-rows: minmax(0, 1fr); }
+.osc-panel .ub-project-panel { min-height: 0; height: 100%; overflow: hidden; }
+.osc-panel .osc-tree { flex: 1 1 auto; min-height: 48px; overflow-y: auto; }
+.osc-panel .osc-symbol { cursor: pointer; }
+@keyframes osc-tree-flash { 0%, 40% { background: color-mix(in srgb, var(--accent) 45%, transparent); } 100% { background: transparent; } }
+.osc-tree-item--flash { animation: osc-tree-flash 1.2s ease-out; }
+
+/* "Studio" after the product line, in a retro script (Pacifico, SIL OFL 1.1, bundled). */
+@font-face {
+  font-family: "Pacifico";
+  src: url("assets/Pacifico-Regular.ttf") format("truetype");
+  font-display: swap;
+}
+.eyebrow-row:has(> .va-studio) { align-items: center; gap: 8px; }
+.va-studio {
+  font-family: "Pacifico", cursive;
+  font-size: 1.15rem;
+  line-height: 1;
+  margin: -10px 0 0;
+  color: #ff7a3d;
+  transform: rotate(-6deg);
+  text-shadow: 0 0 6px color-mix(in srgb, #ff7a3d 40%, transparent);
+  white-space: nowrap;
+  user-select: none;
+}
+html[data-theme="c64"] .va-studio { color: #ffffff; text-shadow: none; }
+/* splash: under the logo's "COMMODORE 64" line */
+/* no room taken: the loader and the lines under it stay where they were */
+.splash-panel .splash-studio { position: relative; top: -92px; height: 0; margin: 0 0 -10px; overflow: visible; pointer-events: none; font-size: 1.7rem; color: #ffb347; }

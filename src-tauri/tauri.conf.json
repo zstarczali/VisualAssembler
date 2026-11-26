@@ -48,7 +48,8 @@
     "resources": {
       "../samples/": "samples/",
       "../templates/*": "templates/",
-      "../docs/*": "docs/"
+      "../docs/*": "docs/",
+      "../tools/": "tools/"
     },
     "macOS": {
       "signingIdentity": "-",

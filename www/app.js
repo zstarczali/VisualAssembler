@@ -1481,14 +1481,19 @@ function initPalette() {
     return true;
   };
   expertModeToggle?.addEventListener("change", () => {
+    if (globalThis._oscActive?.()) _oscSetMode(false);
     if (acmeBlocksBlocked(!expertModeToggle.checked)) return;
     setExpertMode(expertModeToggle.checked);
   });
   expertModeTbBtn?.addEventListener("click", () => {
+    if (globalThis._oscActive?.()) { _oscSetMode(false); if (!expertMode) setExpertMode(true); return; }
     if (acmeBlocksBlocked(expertMode)) return;
     setExpertMode(!expertMode);
   });
-  ubModeTbBtn?.addEventListener("click", () => setUltimateBasicMode(!ultimateBasicMode));
+  ubModeTbBtn?.addEventListener("click", () => {
+    if (globalThis._oscActive?.()) { _oscSetMode(false); if (!ultimateBasicMode) setUltimateBasicMode(true); return; }
+    setUltimateBasicMode(!ultimateBasicMode);
+  });
   document.getElementById("ub-open-btn")?.addEventListener("click", () => _ubOpen(false));
   document.getElementById("ub-save-btn")?.addEventListener("click", () => _ubSave(false));
   document.getElementById("ub-save-as-btn")?.addEventListener("click", () => _ubSave(true));
@@ -2290,6 +2295,7 @@ function initPalette() {
     }
     if ((e.ctrlKey || e.metaKey) && e.key === "s") {
       e.preventDefault();
+      if (globalThis._oscActive?.()) { _oscSaveFile(); return; }
       if (ultimateBasicMode) { _ubSave(); return; }
       saveProjectToFile().then(() => {
         markTabClean();
@@ -2743,7 +2749,7 @@ function _updateEditorModeIndicator() {
   }
   const el = document.getElementById("editor-mode-indicator");
   if (!el) return;
-  const key = ultimateBasicMode ? "editorModeUltimateBasic" : (expertMode ? "editorModeExpert" : "editorModeBlock");
+  const key = globalThis._oscActive?.() ? "editorModeOscar64" : ultimateBasicMode ? "editorModeUltimateBasic" : (expertMode ? "editorModeExpert" : "editorModeBlock");
   const label = document.getElementById("editor-mode-indicator-label");
   if (label) label.textContent = t(key); else el.textContent = t(key);
 }
@@ -3491,6 +3497,7 @@ function handleLanguageChange() {
 }
 
 function applyTranslations() {
+  queueMicrotask(() => globalThis._oscApplyTranslations?.());
   document.title = currentLanguage === "hu" ? "C64 Block Assembler" : "C64 Visual Assembler";
   const setText = (selector, value) => {
     const node = document.querySelector(selector);
@@ -3522,6 +3529,10 @@ function applyTranslations() {
     setText("#about-vice-credit-license", t("aboutLicenseLabel"));
     setText("#about-ue2-credit-label", t("aboutUe2CreditLabel"));
     setText("#about-ue2-credit-license", t("aboutLicenseLabel"));
+    setText("#about-oscar64-credit-label", t("aboutOscar64CreditLabel"));
+    setText("#about-oscar64-credit-license", t("aboutLicenseLabel"));
+    setText("#about-acme-credit-label", t("aboutAcmeCreditLabel"));
+    setText("#about-acme-credit-license", t("aboutLicenseLabel"));
     setText("#about-repo-label", t("aboutRepoLabel"));
     setText("#about-ub-version-label", t("aboutUbVersionLabel"));
     setText("#about-vma-version-label", t("aboutVmaVersionLabel"));
@@ -3688,6 +3699,10 @@ function applyTranslations() {
     setText("#hardware-settings-title", t("hardwareSettingsTitle"));
     setText("#hw-settings-tab-general", t("hardwareSettingsGeneralTab"));
     setText("#hw-settings-tab-files", t("hardwareSettingsFilesTab"));
+    setText("#hw-settings-tab-compilers", t("hardwareSettingsCompilersTab"));
+    setText("#hw-settings-tab-sid", t("hardwareSettingsSidTab"));
+    setText("#sid-player-settings-label", t("sidPlayerSettingsLabel"));
+    setText("#hw-compilers-note", t("hwCompilersNote"));
     setText("#hw-settings-tab-integrations", t("hardwareSettingsIntegrationsTab"));
     _acmeBuildButtonSync();
     setText("#sid-preview-settings-label", t("sidPreviewSettings"));
@@ -7249,6 +7264,7 @@ function _isNoCodeBlock(b) {
   return b.isOrgMacro || b.isRegionMacro || b.isEndRegionMacro || b.isComment || b.isDefineMacro || b.isBlankLine;
 }
 function isProgramEmpty() {
+  if (globalThis._oscActive?.()) return !_oscHasSource();
   // ACME / R65: the source is theirs, not VA blocks (BasicUpstart2, no "* ="); the assembler
   // reports what is wrong with it, here only an empty source (comments only) counts.
   if (expertMode && _textOnlyAssembler()) {
@@ -20014,6 +20030,7 @@ function _acmeDebuggerTargets(prg, sourceLines) {
 }
 
 function _buildDebuggerSidecarPayload(prg, { force = false, layout = null, sourcePath = "" } = {}) {
+  if (globalThis._oscActive?.()) return null;
   // Skip generation unless the user explicitly opted in via the settings toggle.
   // `force` bypasses the setting (used by launch_debugger where RetroDebugger
   // needs the .dbg/.sym files regardless of user preference).
@@ -20085,6 +20102,11 @@ function _debuggerTargets(prg) {
 }
 
 async function runInDebugger() {
+  // Oscar64: the built-in C64 or, with the VA debugger, VICE / the Ultimate emulator (no RetroDebugger files)
+  if (globalThis._oscActive?.() && !(runMode === "ue2" || runMode === "ue2-d64") && !(_debuggerChoice() === "va" && (runMode === "prg" || runMode === "d64"))) {
+    await _w64Debug();
+    return;
+  }
   // The built-in C64 and the Ultimate emulator debug on themselves whatever is chosen:
   // RetroDebugger runs the program in its own emulator.
   if (runMode === "ue2" || runMode === "ue2-d64") {
@@ -23305,6 +23327,7 @@ function _workStepName(path) {
 
 // The source a VA build compiles, for the step line: the project's startup file or the active tab.
 function _workStepSource() {
+  if (globalThis._oscActive?.()) return _oscBase(_oscBuildTarget()?.path) || "main.c";
   const startup = _expertProjectData?.startupFile;
   if (startup) return _workStepName(startup);
   const tab = tabs.find(tb => tb.id === activeTabId);
@@ -25367,6 +25390,7 @@ async function _runBuildWithProgress(messageKey) {
 }
 
 async function buildRunPrgForCurrentMode() {
+  if (globalThis._oscActive?.()) return _oscBuildForRun();
   if (ultimateBasicMode) {
     const target = await _ubBuildTarget();
     if (target.error) return { ok: false, error: target.error };
@@ -32488,6 +32512,7 @@ function _acmeMemoryUsage(preview = _acmePreview?.tabId === activeTabId ? _acmeP
 // The memory panel's usage of a layout (_vmaLayout); without one the editor's live analysis
 // (the panel is drawn again when it is there).
 function getMemoryUsage(layout) {
+  if (globalThis._oscActive?.()) return _oscMemoryUsage();
   if (ultimateBasicMode) return _ubMemoryUsage();
   if (_textOnlyAssembler() && expertMode) return _acmeMemoryUsage();
   if (!layout) {
@@ -59166,7 +59191,7 @@ function _w64OnDialogClose() {
     s.aqLen = 0;
     s.audioCtx?.suspend().catch(() => {});
   }
-  _w64DebugLine = null;
+  _w64DebugLine = null; globalThis._oscClearDebugLine?.();
   if (expertMode) _expertApplyHighlight();
   _w64SyncButtons();
 }
@@ -59280,6 +59305,7 @@ function _w64ParseDbg(text) {
 
 // The build and its source map for a debug session.
 async function _w64DebugBuild() {
+  if (globalThis._oscActive?.()) return _oscDebugSession();
   if (ultimateBasicMode) {
     const target = await _ubBuildTarget();
     if (target.error) { _ubSetStatus(target.error, true); return null; }
@@ -59362,6 +59388,10 @@ function _w64BreakpointAddresses(session = _w64S().session, manual = _w64S().man
   const out = new Set(manual);
   if (!session) return out;
   (session.blockBps || []).forEach(a => out.add(a & 0xFFFF));
+  if (session.kind === "oscar") {
+    _oscBreakpointAddresses(session).forEach(a => out.add(a));
+    return out;
+  }
   const kind = session.kind === "ub" ? "ub" : "expert";
   const key = kind === "ub" ? "ubBreakpointLines" : "expertBreakpointLines";
   const byFile = new Map();
@@ -59428,7 +59458,7 @@ function _w64OnResume() {
   clearTimeout(s.resumeTimer);
   s.resumeTimer = setTimeout(() => {
     if (s.stopped) return;
-    _w64DebugLine = null;
+    _w64DebugLine = null; globalThis._oscClearDebugLine?.();
     if (expertMode) _expertApplyHighlight();
     _w64RenderDebug();
     _w64SyncButtons();
@@ -59460,6 +59490,10 @@ function _w64Break() {
 // The editor follows the CPU: the file of the stop is opened, its line marked.
 async function _w64ShowSource(pc, session = _w64S().session) {
   if (!session) return;
+  if (session.kind === "oscar") {
+    await _oscShowDebugLine(_w64SourceAt(pc, session));
+    return;
+  }
   if (session.blockAt && !expertMode && !ultimateBasicMode) {
     const id = session.blockAt(pc);
     if (id) {
@@ -59470,7 +59504,7 @@ async function _w64ShowSource(pc, session = _w64S().session) {
     return;
   }
   const src = _w64SourceAt(pc, session);
-  if (!src) { _w64DebugLine = null; if (expertMode) _expertApplyHighlight(); return; }
+  if (!src) { _w64DebugLine = null; globalThis._oscClearDebugLine?.(); if (expertMode) _expertApplyHighlight(); return; }
   if (ultimateBasicMode) {
     const active = _normFilePath(_ubFilePath || _getActiveTab()?.filePath || "");
     if (!active || !src.file || _normFilePath(src.file) === active) _ubGotoLine(src.line - 1);
@@ -59528,7 +59562,7 @@ function _w64EndDebugView() {
   const s = _w64S();
   s.tempBp = -1;
   _w64ClearBreakpoints();
-  _w64DebugLine = null;
+  _w64DebugLine = null; globalThis._oscClearDebugLine?.();
   if (expertMode) _expertApplyHighlight();
 }
 
@@ -59999,7 +60033,7 @@ function _udOnEnded() {
   _ud.running = false;
   _ud.stopped = false;
   _ud.snap = null;
-  _w64DebugLine = null;
+  _w64DebugLine = null; globalThis._oscClearDebugLine?.();
   if (expertMode) _expertApplyHighlight();
   _udSetStatus(t("ue2DbgEnded"));
   _udRender();
@@ -60029,7 +60063,7 @@ async function _udResume(action) {
   clearTimeout(_ud.resumeTimer);
   _ud.resumeTimer = setTimeout(() => {
     if (_ud.stopped || !_ud.running) return;
-    _w64DebugLine = null;
+    _w64DebugLine = null; globalThis._oscClearDebugLine?.();
     if (expertMode) _expertApplyHighlight();
     _udSetStatus(t("w64Running"));
     _udRender();

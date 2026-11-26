@@ -18,6 +18,7 @@ use tauri_plugin_opener::OpenerExt;
 mod debugger;
 mod hvsc;
 mod midi_permission;
+mod tools;
 mod tutorials;
 mod ue2emu;
 mod vice_monitor;
@@ -1470,13 +1471,10 @@ fn crunch_with_exomizer(
 #[tauri::command]
 async fn build_acme_prg(app: AppHandle, payload: BuildAcmePayload) -> serde_json::Value {
     let cfg = read_config(&app);
-    let acme_path = cfg["acmePath"].as_str().unwrap_or("").trim().to_string();
-    if acme_path.is_empty() {
+    // the path set in Settings, else the bundled ACME (tools/acme)
+    let Some(acme_path) = tools::tool_path(&app, &cfg, "acme") else {
         return serde_json::json!({ "ok": false, "error": "ACME nincs beállítva. A Beállításokban válaszd ki az acme.exe fájlt." });
-    }
-    if !Path::new(&acme_path).is_file() {
-        return serde_json::json!({ "ok": false, "error": format!("ACME executable not found: {}", acme_path) });
-    }
+    };
     let temp_dir = std::env::temp_dir().join("c64-visual-assembler");
     if let Err(error) = fs::create_dir_all(&temp_dir) {
         return serde_json::json!({ "ok": false, "error": error.to_string() });
@@ -5846,6 +5844,16 @@ pub fn run() {
             choose_ub_working_folder,
             build_exomizer_prg,
             build_acme_prg,
+            tools::get_tools_info,
+            tools::choose_oscar64_executable,
+            tools::clear_tool_path,
+            tools::build_oscar64_prg,
+            tools::oscar_list_dir,
+            tools::oscar_create_dir,
+            tools::oscar_rename_path,
+            tools::oscar_delete_path,
+            tools::oscar_choose_folder,
+            tools::oscar_choose_file,
             build_exomizer_raw,
             launch_vice,
             launch_exomizer,
