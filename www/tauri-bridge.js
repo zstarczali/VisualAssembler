@@ -152,7 +152,7 @@
   ue2DbgStart: (prgBytes, breakpoints) => invoke("ue2_dbg_start", { prgBytes, breakpoints }),
   viceDbgStart: (prgBytes, breakpoints) => invoke("vice_dbg_start", { prgBytes, breakpoints }),
   dbgPoll: () => invoke("dbg_poll"),
-  dbgSnapshot: (memAddress) => invoke("dbg_snapshot", { memAddress }),
+  dbgSnapshot: (memAddress, ranges) => invoke("dbg_snapshot", { memAddress, ranges: ranges || null }),
   dbgContinue: (breakpoints) => invoke("dbg_continue", { breakpoints }),
   dbgStep: (mode, breakpoints) => invoke("dbg_step", { mode, breakpoints }),
   dbgBreak: () => invoke("dbg_break"),

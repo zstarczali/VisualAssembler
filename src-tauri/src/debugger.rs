@@ -321,9 +321,10 @@ pub async fn dbg_poll() -> serde_json::Value {
     debug_reply(result)
 }
 
-/// The registers by name, the code around the PC and the memory view of a stopped CPU.
+/// The registers by name, the code around the PC and the memory view of a stopped CPU; `ranges`
+/// (start, length) are read too (the debugger's variables), at most 64 of at most 256 bytes.
 #[tauri::command]
-pub async fn dbg_snapshot(mem_address: u16) -> serde_json::Value {
+pub async fn dbg_snapshot(mem_address: u16, ranges: Option<Vec<(u16, u16)>>) -> serde_json::Value {
     debug_reply(debug_job(move |session| {
         let monitor = &mut session.monitor;
         let cpu = monitor.bank_id("cpu")?;
@@ -340,7 +341,16 @@ pub async fn dbg_snapshot(mem_address: u16) -> serde_json::Value {
         let code = monitor.read_memory(code_start, code_start.saturating_add(175), cpu)?;
         let memory_base = mem_address & 0xFFF8;
         let memory = monitor.read_memory(memory_base, memory_base.saturating_add(127), cpu)?;
+        let mut extra = Vec::new();
+        for (start, length) in ranges.unwrap_or_default().into_iter().take(64) {
+            if length == 0 {
+                continue;
+            }
+            let end = start.saturating_add(length.min(256) - 1);
+            extra.push(serde_json::json!([start, monitor.read_memory(start, end, cpu)?]));
+        }
         Ok(serde_json::json!({
+            "ranges": extra,
             "registers": registers,
             "codeStart": code_start,
             "code": code,

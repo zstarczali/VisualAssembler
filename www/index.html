@@ -59,6 +59,7 @@
             <div class="control-menu-panel">
               <section class="control-menu-group">
                 <h3 class="control-menu-label" id="menu-file-label">File</h3>
+                <button id="menu-new-from-template" class="secondary menu-item-tooltip" type="button">New project…</button>
                 <button id="save-project" class="secondary menu-item-tooltip" type="button">Save program</button>
                 <button id="save-project-as" class="secondary menu-item-tooltip" type="button">Save Program As</button>
                 <button id="load-project" class="secondary menu-item-tooltip" type="button">Load program</button>
@@ -69,10 +70,11 @@
                 <button id="menu-close-project" class="secondary menu-item-tooltip" type="button">Close project</button>
                 <button id="menu-open-recent" class="secondary menu-open-recent" type="button" aria-haspopup="menu" aria-expanded="false"><span id="menu-recent-label">Open recent</span><span class="menu-open-recent-arrow" aria-hidden="true">▸</span></button>
                 <div id="menu-recent-projects" class="menu-recent-projects menu-recent-flyout" popover="manual" role="menu"></div>
-                <h3 class="control-menu-label control-menu-label--section" id="workspace-section-label">Workspace</h3>
-                <button id="menu-save-workspace" class="secondary menu-item-tooltip" type="button">Save Workspace</button>
-                <button id="menu-save-workspace-as" class="secondary menu-item-tooltip" type="button">Save Workspace As...</button>
-                <button id="menu-open-workspace" class="secondary menu-item-tooltip" type="button">Open Workspace...</button>
+                <button id="menu-start-window" class="secondary menu-item-tooltip" type="button">Start window…</button>
+                <h3 class="control-menu-label control-menu-label--section" id="workspace-section-label" hidden>Workspace</h3>
+                <button id="menu-save-workspace" class="secondary menu-item-tooltip" type="button" hidden>Save Workspace</button>
+                <button id="menu-save-workspace-as" class="secondary menu-item-tooltip" type="button" hidden>Save Workspace As...</button>
+                <button id="menu-open-workspace" class="secondary menu-item-tooltip" type="button" hidden>Open Workspace...</button>
                 <button id="exit-app" class="secondary menu-item-tooltip" type="button">Kilepes</button>
               </section>
               <section id="sample-programs-group" class="control-menu-group">
@@ -133,9 +135,6 @@
                 <button id="save-snapshot" class="secondary" type="button">Save snapshot</button>
                 <button id="restore-snapshot" class="secondary" type="button">Restore previous version</button>
                 <button id="snapshot-history" class="secondary" type="button">Snapshot history</button>
-                <h3 class="control-menu-label control-menu-label--section" id="new-project-section-label">New project</h3>
-                <button id="menu-new-from-template" class="secondary menu-item-tooltip" type="button">New project from template…</button>
-                <button id="menu-start-window" class="secondary menu-item-tooltip" type="button">Start window…</button>
               </section>
               <section class="control-menu-group">
                 <h3 class="control-menu-label" id="menu-settings-label">Beallitasok</h3>
@@ -307,11 +306,11 @@
             <div id="run-mode-menu" class="run-mode-menu" hidden role="menu">
               <button id="run-prg-mode" class="run-mode-item" role="menuitem" data-mode="prg">
                 <svg viewBox="0 0 16 16" fill="currentColor" width="13" height="13" aria-hidden="true"><path d="M3 2.5l10 5.5-10 5.5V2.5z"/></svg>
-                <span id="run-prg-label">Run as PRG</span>
+                <span id="run-prg-label">Run as PRG (VICE)</span>
               </button>
               <button id="run-d64-mode" class="run-mode-item" role="menuitem" data-mode="d64">
                 <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="13" height="13" aria-hidden="true"><circle cx="8" cy="8" r="6"/><circle cx="8" cy="8" r="2"/></svg>
-                <span id="run-d64-label">Run via D64</span>
+                <span id="run-d64-label">Run via D64 (VICE)</span>
               </button>
               <button id="run-ultimate-mode" class="run-mode-item" role="menuitem" data-mode="ultimate">
                 <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="13" height="13" aria-hidden="true"><rect x="3" y="5" width="10" height="7" rx="1"/><path d="M5 5V3M8 5V3M11 5V3M5 12v1M8 12v1M11 12v1M1 7h2M1 9h2M13 7h2M13 9h2"/></svg>
@@ -1761,7 +1760,7 @@ PRINTABLE CHARACTERS
         <div class="about-logo">
           <img src="assets/logo-about.png" alt="C64 Visual Assembler" width="200" height="160">
         </div>
-        <h2 class="about-title">C64 Visual Assembler</h2>
+        <h2 class="about-title">C64 Visual Assembler <span class="va-studio about-studio" aria-hidden="true">Studio</span></h2>
         <p class="about-version" id="about-version">v2.8.6</p>
         <p class="about-version" id="about-ub-version"><span id="about-ub-version-label">UltimateBasic:</span> <span id="about-ub-version-value">v?</span></p>
         <p class="about-version" id="about-vma-version"><span id="about-vma-version-label">VMA:</span> <span id="about-vma-version-value">v?</span></p>
@@ -3601,6 +3600,10 @@ PRINTABLE CHARACTERS
             <div id="w64-regs" class="w64-regs"></div>
           </section>
           <section class="w64-sec" hidden>
+            <div class="vm-sec-lbl" id="w64-stack-lbl">Call stack</div>
+            <div id="w64-stack" class="w64-vars"></div>
+          </section>
+          <section class="w64-sec" hidden>
             <div class="vm-sec-lbl" id="w64-vars-lbl">Variables</div>
             <div id="w64-vars" class="w64-vars"></div>
           </section>
@@ -3660,6 +3663,14 @@ PRINTABLE CHARACTERS
           <section class="w64-sec">
             <div class="vm-sec-lbl" id="ud-regs-lbl">Registers</div>
             <div id="ud-regs" class="w64-regs"></div>
+          </section>
+          <section class="w64-sec" hidden>
+            <div class="vm-sec-lbl" id="ud-stack-lbl">Call stack</div>
+            <div id="ud-stack" class="w64-vars"></div>
+          </section>
+          <section class="w64-sec" hidden>
+            <div class="vm-sec-lbl" id="ud-vars-lbl">Variables</div>
+            <div id="ud-vars" class="w64-vars"></div>
           </section>
           <section class="w64-sec w64-sec--grow">
             <div class="vm-sec-lbl" id="ud-disasm-lbl">Disassembly</div>

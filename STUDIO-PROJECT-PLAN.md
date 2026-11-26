@@ -193,6 +193,7 @@ fület. Az eszköztáron az indítófájl neve látszik a Run gomb mellett, katt
 Kész (1. kör): egy nyelv projektenként (felvétel / megnyitás szűrve), egyszerre egy projekt (C-ben is),
 megnyitáskor minden forrás fül mindhárom nyelven, az indítófájl aktív; Open project csak `.proj`, `.vas` = fájl.
 Kész (2. kör): mentetlen jelzés összehasonlításból (1. lépés), bezáráskor csak a valóban módosított fülre kérdez.
+Kész (3. kör): `<név>.proj.user` munkamenet (2.3), a `.vaws` kivezetve (menüpontok rejtve, nincs automatikus visszanyitás; kikapcsolt Induló ablaknál az utolsó projekt nyílik), egységes Projekt bezárása.
 
 Mindegyik lépés után az app működik, a régi projektek megnyílnak.
 

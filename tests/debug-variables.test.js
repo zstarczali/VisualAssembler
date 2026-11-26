@@ -63,3 +63,48 @@ test("UltimateBasic: byte, signed integer, Commodore float, array", () => {
   assert.equal(fmt({ name: "x", address: 0xC000, type: "single" }), "-2.5");
   assert.equal(fmt({ name: "z", address: 0xC100, type: "array", size: 3 }), "[01 02 03]");
 });
+
+test("VICE / Ultimate emulator: the variables' memory is read as merged ranges with the snapshot", () => {
+  const r = app.run(`(() => {
+    _ud.session = { kind: "ub", ubVars: [
+      { name: "a", address: 2, type: "int" }, { name: "b", address: 3, type: "word" },
+      { name: "x", address: 0xC000, type: "single" }, { name: "t()", address: 0xC005, type: "array", size: 3 },
+    ] };
+    const ranges = _udVarRanges(0);
+    _ud.snap = { ranges: [[2, [7, 0x34, 0x12]], [0xC000, [0x81, 0, 0, 0, 0, 9, 8, 7]]] };
+    return { ranges, rows: _w64VarRows(_ud.session, 0, _udVarPeek).map(x => x.value) };
+  })()`);
+  assert.equal(JSON.stringify(r.ranges), JSON.stringify([[2, 3], [0xC000, 8]]));
+  assert.deepEqual([...r.rows], ["7 ($07)", "4660 ($1234)", "1", "[09 08 07]"]);
+});
+
+test("C: a local shows only within its line range (.dbj enter..leave)", () => {
+  const info = `_oscParseDbjVars(${JSON.stringify(JSON.stringify({ types: [{ typeid: 0, size: 2, type: "int" }], variables: [],
+    functions: [{ name: "main", start: 0x880, end: 0x8D0, variables: [{ name: "i", start: 0x9F88, end: 0x9F8A, enter: 8, leave: 12, typeid: 0 }] }] }))})`;
+  assert.equal(app.run(`_oscDebugVarRows(${info}, 0x890, __peek, 9).length`), 1);
+  assert.equal(app.run(`_oscDebugVarRows(${info}, 0x890, __peek, 7).length`), 0);
+});
+
+test("call stack: the stop, then the JSR sites found on the 6502 stack, named by C function", () => {
+  const frames = app.run(`(() => {
+    // $0880 main: JSR $0900 at $0885; $0900 add: JSR $0A00 at $0904; stop in $0A00
+    const prg = new Uint8Array(2 + 0x200);
+    prg[0] = 0x80; prg[1] = 0x08;
+    const put = (a, ...b) => b.forEach((x, i) => { prg[2 + a - 0x880 + i] = x; });
+    put(0x885, 0x20, 0x00, 0x09);
+    put(0x904, 0x20, 0x00, 0x0A);
+    const stack = new Uint8Array(256);
+    // SP = $F9: pushed data $AA at $FA, then return $0906 (= $0904+2) at $FB/$FC, $0887 at $FD/$FE
+    stack.set([0xAA, 0x06, 0x09, 0x87, 0x08], 0xFA);
+    const session = {
+      kind: "oscar", bytes: prg, entries: [
+        { file: "C:/p/main.c", key: "main.c", line: 5, start: 0x885, end: 0x887 },
+        { file: "C:/p/main.c", key: "main.c", line: 12, start: 0x904, end: 0x906 },
+      ],
+      vars: { fns: [{ name: "main", start: 0x880, end: 0x8A0 }, { name: "add", start: 0x900, end: 0x920 }, { name: "mul", start: 0xA00, end: 0xA20 }] },
+    };
+    return _w64CallStack(session, 0x0A05, 0xF9, (a, n) => a === 0x100 ? stack : new Uint8Array(n))
+      .map(f => \`\${f.name}@\${f.addr.toString(16)}:\${f.src ? f.src.line : "-"}\`);
+  })()`);
+  assert.equal(JSON.stringify(frames), JSON.stringify(["mul()@a05:-", "add()@904:12", "main()@885:5"]));
+});

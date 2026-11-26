@@ -771,6 +771,50 @@ document.getElementById("block-project-btn")?.addEventListener("click", () => {
   if (_expertProjectVisible) _applyExpertProjectSymbolsHeight?.();
   saveUiSettings();
 });
+// The project panel's width: one value for the Blocks, Source, UltimateBasic and C views; the panel's
+// right edge drags it (double click: back to the default), kept in c64va-proj-width.
+const _PROJ_WIDTH_KEY = "c64va-proj-width";
+const _PROJ_WIDTH_MIN = 200; // the header icons and a file name still fit
+function _projWidthSet(px, save = false) {
+  const root = document.documentElement;
+  if (px) px = Math.round(Math.min(560, Math.max(_PROJ_WIDTH_MIN, px)));
+  if (!px) root.style.removeProperty("--proj-w");
+  else root.style.setProperty("--proj-w", `${px}px`);
+  if (save) try { px ? localStorage.setItem(_PROJ_WIDTH_KEY, String(Math.round(px))) : localStorage.removeItem(_PROJ_WIDTH_KEY); } catch (_) {}
+}
+(function _projWidthInit() {
+  const saved = Number(localStorage.getItem(_PROJ_WIDTH_KEY));
+  if (saved > 0) _projWidthSet(saved);
+  for (const panel of document.querySelectorAll(".expert-project-panel")) {
+    const grip = document.createElement("div");
+    grip.className = "proj-width-grip";
+    grip.setAttribute("role", "separator");
+    grip.setAttribute("aria-orientation", "vertical");
+    panel.appendChild(grip);
+    grip.addEventListener("pointerdown", (e) => {
+      if (e.button !== 0) return;
+      e.preventDefault();
+      const startX = e.clientX;
+      // the column's width (in the Blocks view the panel's margin is inside it), not the panel's box
+      const startW = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--proj-w")) || 220;
+      let w = startW;
+      grip.setPointerCapture(e.pointerId);
+      grip.classList.add("is-dragging");
+      document.body.classList.add("proj-width-dragging");
+      const move = (ev) => { w = startW + ev.clientX - startX; _projWidthSet(w); };
+      const up = () => {
+        grip.removeEventListener("pointermove", move);
+        grip.classList.remove("is-dragging");
+        document.body.classList.remove("proj-width-dragging");
+        _projWidthSet(w, true);
+      };
+      grip.addEventListener("pointermove", move);
+      grip.addEventListener("pointerup", up, { once: true });
+      grip.addEventListener("pointercancel", up, { once: true });
+    });
+    grip.addEventListener("dblclick", () => _projWidthSet(0, true));
+  }
+}());
 let _studioViewClass = "";
 new MutationObserver(() => {
   _blockProjectSync();
@@ -3550,7 +3594,7 @@ function applySavedUiSettings() {
         // Silently reopen the last-used workspace (its real, on-disk files) so the
         // app continues where it was closed — but only into the still-untouched
         // startup state, never over anything the user may have already started.
-        if (globalSettings.lastWorkspacePath) _workspaceAutoRestore(globalSettings.lastWorkspacePath);
+        // (the .vaws workspace no longer reopens by itself: the last project does, see _studioContinueLast)
       }
     }).catch(() => {});
   }
@@ -3904,7 +3948,7 @@ function applyTranslations() {
     document.getElementById("save-project")?.setAttribute("aria-label", t("saveProjectTip"));
     setText("#save-project-as", t("saveProgramAs"));
     document.getElementById("save-project-as")?.setAttribute("aria-label", t("saveProgramAsTip"));
-    setText("#menu-new-from-template", t("menuNewFromTemplate"));
+    setText("#menu-new-from-template", t("menuNewProject"));
     document.getElementById("menu-new-from-template")?.setAttribute("aria-label", t("menuNewFromTemplateTip"));
     document.getElementById("new-project-btn")?.setAttribute("aria-label", t("menuNewFromTemplate").replace(/…$/, ""));
     setText("#template-dialog-title", t("templateDialogTitle"));
@@ -4663,11 +4707,14 @@ function _applyEditorTranslations() {
   setText('#w64-reu option[value="0"]', t("w64ReuOff"));
   setText("#ud-title", t(document.getElementById("ue2-debug-dialog")?.dataset.target === "vice" ? "viceDbgTitle" : "ue2DbgTitle"));
   setText("#ud-regs-lbl", t("w64Registers"));
+  setText("#ud-vars-lbl", t("w64Variables"));
   setText("#ud-disasm-lbl", t("w64Disassembly"));
   setText("#ud-mem-lbl", t("w64Memory"));
   setText("#ud-bps-lbl", t("w64Breakpoints"));
   setText("#w64-regs-lbl", t("w64Registers"));
   setText("#w64-vars-lbl", t("w64Variables"));
+  setText("#w64-stack-lbl", t("w64CallStack"));
+  setText("#ud-stack-lbl", t("w64CallStack"));
   setText("#w64-disasm-lbl", t("w64Disassembly"));
   setText("#w64-mem-lbl", t("w64Memory"));
   setText("#w64-bps-lbl", t("w64Breakpoints"));
@@ -9879,8 +9926,10 @@ async function _ubApplyOpenedProject(project, projPath, { dropBlank = false } = 
   const allUb = [];
   const walkUb = (nodes) => (nodes || []).forEach(n => n.type === "folder" ? walkUb(n.children) : (/\.ub$/i.test(n.path || n.name || "") && allUb.push(n)));
   walkUb(_ubProjectData.files);
-  for (const node of allUb) if (node !== startup) await _ubOpenProjectFile(node);
-  const opened = startup ? await _ubOpenProjectFile(startup) : null;
+  // the saved session (.proj.user) first; without it every .ub file
+  const restored = await _projUserRestore("ub", projPath);
+  if (!restored) for (const node of allUb) if (node !== startup) await _ubOpenProjectFile(node);
+  const opened = restored ? _getActiveTab() : startup ? await _ubOpenProjectFile(startup) : null;
   if (blankId && opened && opened.id !== blankId) {
     const blankIdx = tabs.findIndex(tab => tab.id === blankId && !tab.filePath);
     if (blankIdx >= 0) { tabs.splice(blankIdx, 1); renderTabBar(); }
@@ -16806,88 +16855,14 @@ async function _closeAllTabsWithConfirm() {
 }
 
 async function _closeProject() {
-  // C (Oscar64): every C file and project closes (unsaved files asked about), their tabs go
-  if (globalThis._oscActive?.()) {
-    if (!await _oscCloseAll()) return;
-    _oscTabsSync();
-    showViceToast?.(t("projClosed"));
-    return;
-  }
-  if (ultimateBasicMode) {
-    if (!_ubProjectData && tabs.every(tab => !_tabHasContent(tab))) {
-      _ubSetStatus(t("projNoOpen"));
-      return;
-    }
-
-    if (!await _closeAllTabsWithConfirm()) return;
-
-    _ubProjectData = null;
-    _ubProjectDirty = false;
-    _ubFilePath = "";
-    _ubDirty = false;
-    _ubLastResult = null;
-    if (ubEditor) ubEditor.value = "";
-
-    const blank = _getActiveTab();
-    if (blank) {
-      blank.editorMode = "ub";
-      blank.ubText = "";
-      blank.ubFilePath = "";
-      blank.filePath = null;
-      blank.dirty = false;
-    }
-
-    _ubProjectVisible = false;
-    _ubApplyLeftViews(false);
-    _ubRenderProjectFiles();
-    _ubRefreshEditor();
-    _ubSetStatus(t("projClosed"));
-    renderTabBar();
-    renderProgram();
-    renderAsmOutput();
-    return;
-  }
-
-  if (!expertMode) {
-    const activeTab = _getActiveTab();
-    if (!activeTab || !_tabHasContent(activeTab)) {
-      if (emulatorStatus) emulatorStatus.textContent = t("projNoOpen");
-      return;
-    }
-    if (!await _tabClose(activeTab.id)) return;
-    if (emulatorStatus) emulatorStatus.textContent = t("projClosed");
-    renderProgram();
-    renderAsmOutput();
-    return;
-  }
-
-  if (!_expertProjectData && tabs.every(t => !_tabHasContent(t))) {
-    _expertSetStatus(t("projNoOpen"), "ok");
-    return;
-  }
-
-  // Confirm closing project tabs
-  if (!await _closeAllTabsWithConfirm()) return;
-
-  // Clear project data
-  _expertProjectData = null;
-  _expertProjectDirty = false;
-
-  // Hide project panel
-  _expertProjectVisible = false;
-  expertProjectBtn?.classList.remove("expert-hl-toggle--on");
-  expertProjectBtn?.setAttribute("aria-pressed", "false");
-  expertProjectPanel?.setAttribute("hidden", "");
-
-  if (expertMode) {
-    _expertRenderProjectTree();
-    _expertSetStatus(t("projClosed"), "ok");
-  } else {
-    _expertSetStatus(t("projClosed"), "ok");
-  }
-
+  // one project at a time, of any language: its session is written, its tabs close (unsaved ones asked about)
+  const open = !!(_expertProjectData || _ubProjectData || globalThis._oscProjUserTarget?.());
+  if (!open && tabs.every(tab => !_tabHasContent(tab))) { showViceToast?.(t("projNoOpen")); return; }
+  if (!await _studioCloseAll()) return;
+  try { localStorage.removeItem(_STUDIO_OPEN_PROJECT); } catch (_) {}
+  renderTabBar();
   renderProgram();
-  renderAsmOutput();
+  showViceToast?.(t("projClosed"));
 }
 
 // ── Studio: projects ────────────────────────────────────────────────────────
@@ -16904,8 +16879,11 @@ function _studioRecent() {
   } catch (_) { return []; }
 }
 
+// The project left open at exit (the Start window off: it opens again at launch).
+const _STUDIO_OPEN_PROJECT = "c64va-open-project";
 function _studioRememberProject(path, name, kind) {
   if (!path) return;
+  try { localStorage.setItem(_STUDIO_OPEN_PROJECT, JSON.stringify({ path, kind: kind || "asm" })); } catch (_) {}
   const base = String(path).replace(/\\/g, "/").split("/").pop().replace(/\.proj$/i, "");
   const list = _studioRecent().filter(p => _normFilePath(p.path) !== _normFilePath(path));
   list.unshift({ path, name: name || base, kind: kind || "asm" });
@@ -16923,7 +16901,158 @@ function _studioProjectKind(proj) {
 }
 
 // Closes the tabs and projects before another project opens. keep = "c": the C files and projects stay.
+// ── Project session: <name>.proj.user (STUDIO-PROJECT-PLAN.md 2.3) ──────────
+// Next to the .proj: the open tabs (paths relative to the project), the view of each assembly tab
+// (blocks / source), the active tab with its caret line, the breakpoints. Never the content: a tab
+// always reads its file from disk. Written a moment after the tabs change and before a project closes.
+let _projUserRestoring = false;
+let _projUserTimer = null;
+const _projUserWritten = new Map();
+
+function _projUserTarget() {
+  const c = globalThis._oscProjUserTarget?.();
+  if (c) return c;
+  if (_ubProjectData?._projPath) return { kind: "ub", projPath: _ubProjectData._projPath };
+  if (_expertProjectData?._projPath) return { kind: "asm", projPath: _expertProjectData._projPath };
+  return null;
+}
+function _projUserDir(projPath) {
+  return String(projPath || "").replace(/\\/g, "/").replace(/\/[^/]*$/, "");
+}
+function _projUserTabPath(tab) {
+  if (tab.editorMode === "oscar") return globalThis._oscTabPath?.(tab.oscId) || "";
+  return tab.editorMode === "ub" ? (tab.ubFilePath || tab.filePath || "") : (tab.filePath || "");
+}
+function _projUserState(target = _projUserTarget()) {
+  if (!target) return null;
+  const dir = _projUserDir(target.projPath);
+  const rel = (p) => {
+    const n = String(p).replace(/\\/g, "/");
+    return n.toLowerCase().startsWith(dir.toLowerCase() + "/") ? n.slice(dir.length + 1) : n;
+  };
+  const out = [];
+  let active = -1;
+  let caret = -1;
+  for (const tab of tabs) {
+    const path = _projUserTabPath(tab);
+    if (!path || /^untitled:/i.test(path)) continue;
+    const isActive = tab.id === activeTabId;
+    const mode = isActive && tab.editorMode !== "oscar" ? (ultimateBasicMode ? "ub" : expertMode ? "expert" : "block") : tab.editorMode;
+    const entry = { path: rel(path) };
+    if (mode === "expert" || mode === "block") entry.view = mode === "expert" ? "source" : "blocks";
+    const bps = mode === "ub"
+      ? (isActive ? _ubBreakpointLines : tab.ubBreakpointLines)
+      : mode === "expert" ? (isActive ? _expertBreakpointLines : tab.expertBreakpointLines) : null;
+    if (Array.isArray(bps) && bps.length) entry.bps = [...bps].sort((a, b) => a - b);
+    if (isActive) {
+      active = out.length;
+      try { caret = mode === "block" ? -1 : _bmCaretLine(mode === "oscar" ? "oscar" : mode); } catch (_) { caret = -1; }
+    }
+    out.push(entry);
+  }
+  return { app: "va-proj-user", version: 1, active, caret, tabs: out };
+}
+async function _projUserSave() {
+  clearTimeout(_projUserTimer);
+  _projUserTimer = null;
+  if (_projUserRestoring || !window.electronAPI?.saveTextFile) return;
+  const target = _projUserTarget();
+  const state = _projUserState(target);
+  if (!state || !state.tabs.length) return;
+  const path = `${target.projPath}.user`;
+  const text = JSON.stringify(state, null, 2) + "\n";
+  if (_projUserWritten.get(path) === text) return;
+  _projUserWritten.set(path, text);
+  try { await window.electronAPI.saveTextFile(path, text); } catch (_) {}
+}
+function _projUserSchedule() {
+  if (_projUserRestoring) return;
+  clearTimeout(_projUserTimer);
+  _projUserTimer = setTimeout(_projUserSave, 800);
+}
+
+// The saved session of a project that was just opened: its tabs come back instead of "every file";
+// false = no session (or none of its files exist any more).
+async function _projUserRestore(kind, projPath) {
+  if (!projPath || !window.electronAPI?.readTextFile) return false;
+  const read = await window.electronAPI.readTextFile(`${projPath}.user`);
+  if (!read?.ok) return false;
+  let data = null;
+  try { data = JSON.parse(read.content); } catch (_) { return false; }
+  if (data?.app !== "va-proj-user" || !Array.isArray(data.tabs) || !data.tabs.length) return false;
+  _projUserWritten.set(`${projPath}.user`, read.content.replace(/\r\n/g, "\n"));
+  const dir = _projUserDir(projPath);
+  const abs = (p) => (/^([A-Za-z]:)?[\\/]/.test(p) ? p : `${dir}/${p}`).replace(/\\/g, "/");
+  const findNode = (nodes, path) => {
+    const flat = [];
+    const walk = (list) => (list || []).forEach(n => n.type === "folder" ? walk(n.children) : flat.push(n));
+    walk(nodes);
+    return flat.find(n => _normFilePath(_projResolveAbsPathOf(n.path, dir)) === _normFilePath(path)) || null;
+  };
+  const tabOf = (path) => tabs.find(tb => _normFilePath(_projUserTabPath(tb)) === _normFilePath(path)) || null;
+  const opened = [];
+  _projUserRestoring = true;
+  try {
+    for (const entry of data.tabs) {
+      const path = abs(String(entry?.path || ""));
+      let tab = null;
+      if (kind === "c") {
+        if (await globalThis._oscOpenPath?.(path.replace(/\//g, globalThis._oscSep?.(dir) || "/"))) tab = tabOf(path);
+      } else if (kind === "ub") {
+        const node = findNode(_ubProjectData?.files, path);
+        if (node) tab = (await _ubOpenProjectFile(node)) || tabOf(path);
+      } else {
+        const node = findNode(_expertProjectData?.files, path);
+        if (node) { await _expertProjectOpenFile(node); tab = tabOf(path); }
+      }
+      opened.push(tab ? { tab, entry, path } : null);
+    }
+  } finally {
+    _projUserRestoring = false;
+  }
+  const live = opened.filter(Boolean);
+  if (!live.length) return false;
+  await _studioDropBlankTab();
+  const act = opened[data.active] || live[live.length - 1];
+  // the active one first: the views below are set on tabs that are not the live one
+  if (act.tab.editorMode !== "oscar") _tabActivate(act.tab.id);
+  // the view of each assembly tab; a source view needs the file's own text (not one made from blocks)
+  for (const { tab, entry, path } of live) {
+    if (tab.editorMode === "ub") { if (Array.isArray(entry.bps)) tab.ubBreakpointLines = [...entry.bps]; continue; }
+    if (tab.editorMode === "oscar" || !entry.view || tab.id === activeTabId) continue;
+    tab.editorMode = entry.view === "source" ? "expert" : "block";
+    if (tab.editorMode === "expert" && !tab.expertText && /\.(asm|s|a65|inc)$/i.test(path)) {
+      const res = await window.electronAPI.readTextFile(path);
+      if (res?.ok) tab.expertText = res.content.replace(/\r\n/g, "\n");
+    }
+    if (Array.isArray(entry.bps)) tab.expertBreakpointLines = [...entry.bps];
+  }
+  if (act.tab.editorMode === "oscar") globalThis._oscShowFile?.(act.tab.oscId);
+  else {
+    if (act.entry.view === "source" && !expertMode && !ultimateBasicMode) document.getElementById("view-source-btn")?.click();
+    else if (act.entry.view === "blocks" && expertMode && !ultimateBasicMode) document.getElementById("view-blocks-btn")?.click();
+    if (Array.isArray(act.entry.bps)) {
+      if (ultimateBasicMode) { _ubBreakpointLines = [...act.entry.bps]; _ubRefreshEditor(); }
+      else if (expertMode) { _expertBreakpointLines = [...act.entry.bps]; _expertUpdateLineNumbers(); }
+    }
+  }
+  if (Number.isInteger(data.caret) && data.caret >= 0) {
+    const caretKind = act.tab.editorMode === "oscar" ? "oscar" : ultimateBasicMode ? "ub" : expertMode ? "expert" : "";
+    if (caretKind) setTimeout(() => { try { _bmGoto(caretKind, data.caret); } catch (_) {} }, 0);
+  }
+  renderTabBar();
+  return true;
+}
+function _projResolveAbsPathOf(relPath, dir) {
+  if (!relPath) return relPath;
+  if (/^([A-Za-z]:)?[\\/]/.test(relPath)) return relPath.replace(/\\/g, "/");
+  return `${dir}/${String(relPath).replace(/\\/g, "/")}`;
+}
+window.addEventListener("beforeunload", () => { if (_projUserTimer) _projUserSave(); });
+
 async function _studioCloseAll(keep = "") {
+  // the closing project's session is written while its tabs are still there
+  await _projUserSave();
   if (!await _confirmCloseAllTabs()) return false;
   if (keep !== "c" && globalThis._oscCloseAll && !await _oscCloseAll()) return false;
   if (globalThis._oscActive?.() && keep !== "c") _oscSetMode(false);
@@ -17021,7 +17150,7 @@ async function _openProjectFromMenu(opened = null) {
   // Every file of the project opens as a tab (folders too), in Expert and in block mode alike;
   // the startup file is the active one.
   _expertRenderProjectTree();
-  await _projOpenAllFiles();
+  if (!await _projUserRestore("asm", res.filePath)) await _projOpenAllFiles();
   _expertSetStatus(t("projOpened") + ": " + _expertProjectData.name, "ok");
 }
 
@@ -23393,8 +23522,15 @@ async function _workspaceRestoreFromPayload(workspace, workspacePath, { silent =
   return true;
 }
 
+// The Start window decides what opens at launch: with it on, nothing comes back by itself (the
+// projects are picked there); with it off the app continues with the last session.
+function _studioStartWindowOn() {
+  try { return localStorage.getItem("c64va-start-window") !== "off"; } catch (_) { return true; }
+}
+
 async function _workspaceAutoRestore(path) {
   if (!path || !window.electronAPI?.readTextFile) return;
+  if (_studioStartWindowOn()) return;
   // Only ever auto-restore into the pristine, untouched app-launch state —
   // never clobber real work the user may have already started before this
   // async settings fetch resolved.
@@ -23425,6 +23561,7 @@ async function _workspaceOpenViaDialog() {
 
 function renderTabBar() {
   _updateEditorModeIndicator();
+  _projUserSchedule();
   const tabBar = document.getElementById("tab-bar");
   if (!tabBar) return;
   tabBar.innerHTML = "";
@@ -23536,26 +23673,27 @@ document.getElementById("git-merge")?.addEventListener("click", () => _studioGit
 document.getElementById("git-stash")?.addEventListener("click", () => _studioGit("stash"));
 document.getElementById("about-tb-btn")?.addEventListener("click", () => document.getElementById("about-btn")?.click());
 
-// Studio hint bar: the block-mode help line folds away after a few seconds; it comes back when
-// block mode is entered again.
+// Studio hint bar: the block-mode help line shows once per launch (the first time the Blocks view is
+// on screen) and goes after two minutes; it does not come back until the next start.
 (function _initHintBar() {
   const hint = document.querySelector(".hero-copy");
   if (!hint) return;
+  const HINT_MS = 120000;
   let timer = 0;
-  const show = () => {
+  let shown = false;
+  const isBlock = () => !["expert-mode", "ub-mode", "oscar-mode"].some(c => document.body.classList.contains(c));
+  const hide = () => { clearTimeout(timer); hint.classList.add("hero-copy--gone"); };
+  hint.classList.add("hero-copy--gone");
+  const showOnce = () => {
+    if (shown || !isBlock()) return;
+    shown = true;
+    observer.disconnect();
     hint.classList.remove("hero-copy--gone");
-    clearTimeout(timer);
-    timer = setTimeout(() => hint.classList.add("hero-copy--gone"), 9000);
+    timer = setTimeout(hide, HINT_MS);
   };
-  let block = !document.body.classList.contains("expert-mode");
-  new MutationObserver(() => {
-    const now = !document.body.classList.contains("expert-mode") && !document.body.classList.contains("ub-mode") && !document.body.classList.contains("oscar-mode");
-    if (now && !block) show();
-    block = now;
-  }).observe(document.body, { attributes: true, attributeFilter: ["class"] });
-  hint.addEventListener("mouseenter", () => clearTimeout(timer));
-  hint.addEventListener("mouseleave", () => { timer = setTimeout(() => hint.classList.add("hero-copy--gone"), 3000); });
-  show();
+  const observer = new MutationObserver(showOnce);
+  observer.observe(document.body, { attributes: true, attributeFilter: ["class"] });
+  showOnce();
 }());
 
 // Studio start window: recent projects, new project (template dialog), open project / C folder.
@@ -23594,6 +23732,15 @@ function _studioRenderRecent() {
     row.addEventListener("keydown", e => { if (e.key === "Enter") open(); });
     host.appendChild(row);
   }
+}
+
+async function _studioContinueLast() {
+  let last = null;
+  try { last = JSON.parse(localStorage.getItem(_STUDIO_OPEN_PROJECT) || "null"); } catch (_) {}
+  if (!last?.path) return;
+  // only into the untouched launch state
+  if (tabs.length !== 1 || tabs[0].filePath || _tabHasContent(tabs[0]) || _expertProjectData || _ubProjectData) return;
+  await _studioOpenRecent(last);
 }
 
 async function _studioOpenRecent(item) {
@@ -23691,12 +23838,13 @@ function _studioShowStart() {
   document.getElementById("start-show-on-launch")?.addEventListener("change", e => {
     localStorage.setItem("c64va-start-window", e.target.checked ? "on" : "off");
   });
-  if (localStorage.getItem("c64va-start-window") === "off") return;
-  // at startup, once the splash and the welcome / news dialogs are gone
+  // at startup, once the splash and the welcome / news dialogs are gone: the Start window, or (turned
+  // off) the project left open at the last exit, with its session
+  const off = localStorage.getItem("c64va-start-window") === "off";
   const started = Date.now();
   const wait = () => {
     const busy = document.querySelector("dialog[open]") || document.getElementById("splash-screen");
-    if (!busy) { _studioShowStart(); return; }
+    if (!busy) { if (off) _studioContinueLast(); else _studioShowStart(); return; }
     if (Date.now() - started < 120000) setTimeout(wait, 400);
   };
   setTimeout(wait, 1800);
@@ -39355,10 +39503,12 @@ function _tourTargetValueMatches(step, actualValue) {
 
   const actual = String(actualValue ?? "").trim();
   const expected = String(step.targetValue).trim();
-  const allowCaseInsensitiveHex = step.target === "#operand-input" && /^[0-9A-F]+$/i.test(expected);
-
-  if (allowCaseInsensitiveHex) {
-    return actual.toUpperCase() === expected.toUpperCase();
+  // a numeric operand ($D021, #$06, ($FB),Y, D021): letter case and the "$" of a bare hex number do
+  // not matter; text (a TEXT macro's string) still has to match exactly
+  const numeric = /^[#<>(]*\$?[0-9A-F]+\)?(\s*,\s*[XY])?\)?$/i;
+  if (step.target === "#operand-input" && numeric.test(expected) && numeric.test(actual)) {
+    const norm = (v) => v.toUpperCase().replace(/\s+/g, "").replace(/^([#<>(]*)\$/, "$1");
+    return norm(actual) === norm(expected);
   }
 
   return actual === expected;
@@ -60041,7 +60191,8 @@ async function _w64DebugBuild() {
     const build = await _ubCompileTarget(target, { skipExomizer: true });
     if (!build) return null;
     const entries = _w64ParseDbg(build.debug?.dbg).map(e => ({ ...e, file: e.file || sourcePath }));
-    return { bytes: Uint8Array.from(build.prg || []), entries, symbols: _ubDebuggerSymbols(build), blockBps: [], blockAt: null, kind: "ub", primary: sourcePath, ubVars: _ubDebugVars(build) };
+    return { bytes: Uint8Array.from(build.prg || []), entries, symbols: _ubDebuggerSymbols(build), blockBps: [], blockAt: null, kind: "ub", primary: sourcePath, ubVars: _ubDebugVars(build),
+      codeSyms: [...(build?.map?.subroutines || []), ...(build?.map?.labels || [])].filter(e => e?.name && Number.isFinite(Number(e.address))).map(e => ({ name: String(e.name), address: Number(e.address) & 0xFFFF })) };
   }
   if (isProgramEmpty()) { showViceToast(t("nothingToRunAddSomeInstructionsFirst"), true); return null; }
   const acme = _textOnlyAssembler();
@@ -60317,6 +60468,7 @@ function _w64EndDebugView() {
 
 function _w64RenderDebug() {
   _w64RenderRegisters();
+  _w64RenderStack();
   _w64RenderVariables();
   _w64RenderDisassembly();
   _w64RenderMemory();
@@ -60336,7 +60488,7 @@ function _w64RenderRegisters() {
 
 // The variables of the C / UltimateBasic program at the stop (the section only shows for those).
 function _w64VarRows(session, pc, peek) {
-  if (session?.kind === "oscar") return globalThis._oscDebugVarRows?.(session.vars, pc, peek) || [];
+  if (session?.kind === "oscar") return globalThis._oscDebugVarRows?.(session.vars, pc, peek, _w64SourceAt(pc, session)?.line ?? null) || [];
   if (session?.kind === "ub") return (session.ubVars || []).map(v => ({ name: v.name, address: v.address, scope: "", value: _ubFormatValue(v, peek) }));
   return [];
 }
@@ -60358,6 +60510,53 @@ function _w64RenderVariables() {
   if (!has) return;
   if (!s.stopped || !s.mod) { el.innerHTML = `<div class="w64-muted">${_vcEsc(t("w64Running"))}</div>`; return; }
   el.innerHTML = _w64VarsHtml(_w64VarRows(s.session, s.stopPc, _w64Peek));
+}
+
+// Call stack: the stop, then every return address on the 6502 stack that follows a JSR of the program
+// (checked in the built image, so pushed data and ROM frames are left out), innermost first.
+function _w64CallStack(session, pc, sp, peek) {
+  const prg = session?.bytes;
+  if (!prg || prg.length < 3 || pc < 0) return [];
+  const load = prg[0] | (prg[1] << 8);
+  const end = load + prg.length - 2;
+  const code = (a) => (a >= load && a < end ? prg[a - load + 2] : -1);
+  const stack = peek(0x0100, 256);
+  const frames = [{ addr: pc & 0xFFFF, call: false }];
+  for (let s = (sp + 1) & 0xFF; s < 0xFF && frames.length < 24; s++) {
+    const site = ((stack[s] | (stack[s + 1] << 8)) + 1 - 3) & 0xFFFF;
+    if (code(site) === 0x20) { frames.push({ addr: site, call: true }); s++; }
+  }
+  return frames.map(f => ({ ...f, name: _w64FrameName(session, f.addr), src: _w64SourceAt(f.addr, session) }));
+}
+// The routine an address is in: the C function (.dbj ranges), else the nearest code symbol before it.
+function _w64FrameName(session, addr) {
+  if (session.kind === "oscar") {
+    const fn = (session.vars?.fns || []).filter(f => addr >= f.start && addr < f.end).sort((a, b) => (a.end - a.start) - (b.end - b.start))[0];
+    if (fn) return `${fn.name}()`;
+  }
+  const syms = session.kind === "ub" ? session.codeSyms : session.symbols;
+  let best = null;
+  for (const sym of syms || []) {
+    if (Number.isFinite(sym.address) && sym.address <= addr && (!best || sym.address > best.address)) best = sym;
+  }
+  return best ? (best.address === addr ? best.name : `${best.name}+${addr - best.address}`) : _w64Hex(addr, 4);
+}
+function _w64StackHtml(frames) {
+  if (!frames.length) return "";
+  return frames.map((f, i) => {
+    const where = f.src ? `${String(f.src.file || "").replace(/\\/g, "/").split("/").pop()}:${f.src.line}` : _w64Hex(f.addr, 4);
+    return `<button type="button" class="w64-frame${i === 0 ? " w64-frame--top" : ""}" data-addr="${f.addr}" aria-label="${_w64Hex(f.addr, 4)}"><span class="w64-var-name">${_vcEsc(f.name)}</span><span class="w64-var-val">${_vcEsc(where)}</span></button>`;
+  }).join("");
+}
+function _w64RenderStack() {
+  const el = document.getElementById("w64-stack");
+  const s = _w64S();
+  if (!el) return;
+  const has = !!s.session?.entries?.length;
+  el.closest(".w64-sec").hidden = !has;
+  if (!has) return;
+  if (!s.stopped || !s.mod) { el.innerHTML = `<div class="w64-muted">${_vcEsc(t("w64Running"))}</div>`; return; }
+  el.innerHTML = _w64StackHtml(_w64CallStack(s.session, s.stopPc, _w64Reg(4), _w64Peek));
 }
 
 // Register id: 0 PC, 1 A, 2 X, 3 Y, 4 SP, 5 status.
@@ -60678,6 +60877,10 @@ function setupVice() {
     _w64ApplyBreakpoints();
     _w64RenderDebug();
   });
+  on("w64-stack", "click", (e) => {
+    const btn = e.target.closest(".w64-frame");
+    if (btn) _w64ShowSource(Number(btn.dataset.addr), _w64S().session);
+  });
   // a variable shows its bytes in the memory view
   on("w64-vars", "click", (e) => {
     const btn = e.target.closest(".w64-var");
@@ -60784,6 +60987,18 @@ function _udRender() {
     }
   }
   if (mem) mem.innerHTML = snap ? _w64MemHtml(snap.memoryBase, Uint8Array.from(snap.memory)) : "";
+  const stack = document.getElementById("ud-stack");
+  if (stack) {
+    const has = !!_ud.session?.entries?.length;
+    stack.closest(".w64-sec").hidden = !has;
+    if (has) stack.innerHTML = snap ? _w64StackHtml(_w64CallStack(_ud.session, _ud.pc, snap.registers.SP ?? 0xFF, _udVarPeek)) : "";
+  }
+  const vars = document.getElementById("ud-vars");
+  if (vars) {
+    const has = _ud.session?.kind === "oscar" || _ud.session?.kind === "ub";
+    vars.closest(".w64-sec").hidden = !has;
+    if (has) vars.innerHTML = snap ? _w64VarsHtml(_w64VarRows(_ud.session, _ud.pc, _udVarPeek)) : `<div class="w64-muted">${_vcEsc(t(_ud.running ? "w64Running" : "ue2DbgEnded"))}</div>`;
+  }
   _udRenderBreakpoints();
   _udSyncButtons();
 }
@@ -60793,8 +61008,35 @@ function _udRenderBreakpoints() {
   if (el) el.innerHTML = _w64BpsHtml(_w64BreakpointAddresses(_ud.session, _ud.manual), _ud.session, _ud.manual);
 }
 
+// The memory the variable rows read at a PC (a dry run with a recording peek), merged into ranges.
+function _udVarRanges(pc) {
+  const want = [];
+  _w64VarRows(_ud.session, pc, (a, n) => { want.push([a & 0xFFFF, Math.max(1, n)]); return new Uint8Array(n); });
+  want.sort((x, y) => x[0] - y[0]);
+  const out = [];
+  for (const [a, n] of want) {
+    const last = out[out.length - 1];
+    if (last && a <= last[0] + last[1] && a + n - last[0] <= 256) last[1] = Math.max(last[1], a + n - last[0]);
+    else out.push([a, Math.min(n, 256)]);
+  }
+  return out;
+}
+function _udVarPeek(a, n) {
+  const out = new Uint8Array(n);
+  for (const [start, bytes] of _ud.snap?.ranges || []) {
+    for (let i = 0; i < n; i++) {
+      const off = ((a + i) & 0xFFFF) - start;
+      if (off >= 0 && off < bytes.length) out[i] = bytes[off];
+    }
+  }
+  return out;
+}
+
 async function _udRefresh() {
-  const result = await window.electronAPI.dbgSnapshot(_ud.memAddr & 0xFFFF);
+  const hasVars = _ud.session?.kind === "oscar" || _ud.session?.kind === "ub";
+  const ranges = hasVars ? _udVarRanges(_ud.pc) : [];
+  if (_ud.session?.entries?.length) ranges.push([0x0100, 256]); // the stack page: the call stack
+  const result = await window.electronAPI.dbgSnapshot(_ud.memAddr & 0xFFFF, ranges.length ? ranges : null);
   if (!result?.ok) { _udSetStatus(result?.error || "", true); return false; }
   _ud.snap = result.value;
   _ud.pc = result.value.registers.PC ?? _ud.pc;
@@ -60862,8 +61104,28 @@ function _udContinue() {
   return _udResume(() => window.electronAPI.dbgContinue(_udBreakpoints()));
 }
 function _udStep(mode) {
-  return _udResume(() => window.electronAPI.dbgStep(mode, _udBreakpoints()));
+  const from = _ud.session?.kind === "oscar" && mode !== 2 ? _w64SourceAt(_ud.pc, _ud.session) : null;
+  if (!from) return _udResume(() => window.electronAPI.dbgStep(mode, _udBreakpoints()));
+  // C (Oscar64): a C line, made of 6502 steps; out of code without a source line (runtime library)
+  const key = `${from.key || from.file}:${from.line}`;
+  return _udResume(async () => {
+    const bps = _udBreakpoints();
+    const hit = new Set(bps);
+    let result = null;
+    for (let n = 0, m = mode; n < _UD_SRC_STEP_MAX; n++) {
+      result = await window.electronAPI.dbgStep(m, bps);
+      if (!result?.ok) return result;
+      const poll = await window.electronAPI.dbgPoll();
+      const pc = poll?.ok ? poll.value : null;
+      if (pc === null || pc === undefined || hit.has(pc)) break;
+      const src = _w64SourceAt(pc, _ud.session);
+      if (src && `${src.key || src.file}:${src.line}` !== key) break;
+      m = src ? mode : (mode === 0 ? 2 : 1);
+    }
+    return result;
+  });
 }
+const _UD_SRC_STEP_MAX = 1500;
 async function _udBreak() {
   if (!_ud.running || _ud.stopped || _ud.busy) return;
   _ud.busy = true;
@@ -60975,6 +61237,18 @@ function setupUe2Debugger() {
     if (!button) return;
     _ud.manual.delete(Number(button.dataset.unbp));
     _udRender();
+  });
+  on("ud-stack", "click", (e) => {
+    const btn = e.target.closest(".w64-frame");
+    if (btn) _w64ShowSource(Number(btn.dataset.addr), _ud.session);
+  });
+  on("ud-vars", "click", async (e) => {
+    const btn = e.target.closest(".w64-var");
+    if (!btn) return;
+    _ud.memAddr = Number(btn.dataset.addr) & 0xFFFF;
+    const input = document.getElementById("ud-mem-addr");
+    if (input) input.value = _w64Hex(_ud.memAddr, 4);
+    if (_ud.stopped && await _udRefresh()) _udRender();
   });
   on("ud-mem-form", "submit", async (e) => {
     e.preventDefault();

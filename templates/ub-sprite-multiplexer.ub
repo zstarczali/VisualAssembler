@@ -1,0 +1,268 @@
+# @name Sprite multiplexer (64 sprites)
+# @name.hu Sprite multiplexer (64 sprite)
+# @category Graphics
+# @category.hu Grafika
+# @desc 64 multicolour balls on the 8 hardware sprites: eight rows of eight on a turning cylinder. UltimateBasic computes the rows' X positions every frame into a table, a chain of raster interrupts (one asm block) moves the sprites row by row.
+# @desc.hu 64 többszínű labda a 8 hardveres sprite-on: nyolc sor, soronként nyolc, egy forgó hengeren. Az UltimateBasic frame-enként kiszámolja a sorok X pozícióit egy táblába, a raszter megszakítások lánca (egy asm blokk) soronként áthelyezi a sprite-okat.
+# @order 50
+
+# {{PROJECT}}
+
+# Memory used by the interrupts (the arrays live at $C000+):
+#   $CC00  two buffers of 8 rows x 10 bytes: X low bytes of sprites 0-7, $D010, colour order
+#   $CCA0  the buffer the interrupts show (0 or 80)
+#   $CCA1  frame counter, +1 after the last row
+#   $CCA2  the row the next interrupt sets up (8 = end of frame)
+
+# A multicolour ball: black rim (multicolour 0), the sprite colour, a white spot (multicolour 1)
+sprdef 0
+  $00,$14,$00,  $00,$55,$00,  $01,$AA,$40,  $07,$EA,$90,
+  $07,$EA,$90,  $0F,$FA,$A0,  $1F,$FA,$A4,  $1F,$FA,$A4,
+  $1B,$EA,$A4,  $1B,$EA,$A4,  $1A,$AA,$A4,  $1A,$AA,$A4,
+  $1A,$AA,$A4,  $1A,$AA,$A4,  $1A,$AA,$A4,  $0A,$AA,$A0,
+  $06,$AA,$90,  $06,$AA,$90,  $01,$AA,$40,  $00,$55,$00,
+  $00,$14,$00
+end
+
+# |30 * cos(2 pi i / 256)|: the gap between the balls of a row
+var cosv = array(256)
+data cosv: 30, 30, 30, 30, 30, 30, 30, 30, 29, 29, 29, 29, 29, 28, 28, 28, 28, 27, 27, 27, 26, 26, 26, 25, 25, 25, 24, 24, 23, 23, 22, 22
+data cosv: 21, 21, 20, 20, 19, 18, 18, 17, 17, 16, 15, 15, 14, 13, 13, 12, 11, 11, 10, 9, 9, 8, 7, 7, 6, 5, 4, 4, 3, 2, 1, 1
+data cosv: 0, 1, 1, 2, 3, 4, 4, 5, 6, 7, 7, 8, 9, 9, 10, 11, 11, 12, 13, 13, 14, 15, 15, 16, 17, 17, 18, 18, 19, 20, 20, 21
+data cosv: 21, 22, 22, 23, 23, 24, 24, 25, 25, 25, 26, 26, 26, 27, 27, 27, 28, 28, 28, 28, 29, 29, 29, 29, 29, 30, 30, 30, 30, 30, 30, 30
+data cosv: 30, 30, 30, 30, 30, 30, 30, 30, 29, 29, 29, 29, 29, 28, 28, 28, 28, 27, 27, 27, 26, 26, 26, 25, 25, 25, 24, 24, 23, 23, 22, 22
+data cosv: 21, 21, 20, 20, 19, 18, 18, 17, 17, 16, 15, 15, 14, 13, 13, 12, 11, 11, 10, 9, 9, 8, 7, 7, 6, 5, 4, 4, 3, 2, 1, 1
+data cosv: 0, 1, 1, 2, 3, 4, 4, 5, 6, 7, 7, 8, 9, 9, 10, 11, 11, 12, 13, 13, 14, 15, 15, 16, 17, 17, 18, 18, 19, 20, 20, 21
+data cosv: 21, 22, 22, 23, 23, 24, 24, 25, 25, 25, 26, 26, 26, 27, 27, 27, 28, 28, 28, 28, 29, 29, 29, 29, 29, 30, 30, 30, 30, 30, 30, 30
+
+color bg 0
+color border 0
+cls
+print at 9, 24, "PRESS A KEY TO EXIT"
+
+var pg = peek($07F8)
+var i = 0
+for i = 1 to 7
+  poke $07F8 + i, pg
+next
+poke $D01C, $FF      # all multicolour
+poke $D025, 0        # multicolour 0: black rim
+poke $D026, 1        # multicolour 1: white spot
+poke $D017, 0
+poke $D01D, 0
+poke $D015, $FF      # all 8 on
+
+poke $CCA0, 0
+poke $CCA1, 0
+poke $CCA2, 0
+
+var phase = 0
+var buf = 0
+var r = 0
+var ph = 0
+var a = 0
+var hi = 0
+var neg = 0
+var half = 0
+var msb = 0
+var bit = 0
+var f = 0
+var x: word = 0
+var base: word = 0
+
+gosub compute
+poke $CCA0, buf
+
+# the raster interrupt chain: one interrupt per row, 8 lines above it, then one at line 250
+asm {
+    SEI
+    LDA #$7F
+    STA $DC0D          ; CIA1 timer IRQ off
+    LDA $DC0D
+    LDA #<row_irq
+    STA $0314
+    LDA #>row_irq
+    STA $0315
+    LDA $D011
+    AND #$7F
+    STA $D011
+    LDA #44
+    STA $D012
+    LDA #$FF
+    STA $D019
+    LDA #$01
+    STA $D01A          ; raster IRQ on
+    CLI
+    JMP setup_done
+
+row_irq:
+    LDA #$FF
+    STA $D019
+    LDX $CCA2
+    CPX #8
+    BNE set_row
+    JMP frame_end      ; too far for a branch
+set_row:
+    ; the new Y first: it only takes effect once the current row is done
+    LDA row_y,X
+    STA $D001
+    STA $D003
+    STA $D005
+    STA $D007
+    STA $D009
+    STA $D00B
+    STA $D00D
+    STA $D00F
+    ; wait for the gap between the rows (row Y - 3), then X, $D010 and the colours
+    SEC
+    SBC #4
+wait:
+    CMP $D012
+    BCS wait
+    LDA row_off,X
+    CLC
+    ADC $CCA0
+    TAY
+    LDA $CC00,Y
+    STA $D000
+    LDA $CC01,Y
+    STA $D002
+    LDA $CC02,Y
+    STA $D004
+    LDA $CC03,Y
+    STA $D006
+    LDA $CC04,Y
+    STA $D008
+    LDA $CC05,Y
+    STA $D00A
+    LDA $CC06,Y
+    STA $D00C
+    LDA $CC07,Y
+    STA $D00E
+    LDA $CC08,Y
+    STA $D010
+    LDA $CC09,Y
+    BEQ cols_back
+    LDA #8
+    STA $D027
+    LDA #9
+    STA $D028
+    LDA #10
+    STA $D029
+    LDA #11
+    STA $D02A
+    LDA #12
+    STA $D02B
+    LDA #13
+    STA $D02C
+    LDA #14
+    STA $D02D
+    LDA #15
+    STA $D02E
+    JMP next_irq
+cols_back:
+    LDA #15
+    STA $D027
+    LDA #14
+    STA $D028
+    LDA #13
+    STA $D029
+    LDA #12
+    STA $D02A
+    LDA #11
+    STA $D02B
+    LDA #10
+    STA $D02C
+    LDA #9
+    STA $D02D
+    LDA #8
+    STA $D02E
+next_irq:
+    INC $CCA2
+    LDX $CCA2
+    LDA irq_line,X
+    STA $D012
+    JMP $EA81          ; restore the registers, RTI
+
+frame_end:
+    LDA #0
+    STA $CCA2
+    INC $CCA1
+    LDA #44
+    STA $D012
+    JMP $EA31          ; once a frame through the KERNAL: keyboard scan, then RTI
+
+row_y:                 ; 52 + 25 * row
+    $34 $4D $66 $7F $98 $B1 $CA $E3
+row_off:               ; 10 * row
+    $00 $0A $14 $1E $28 $32 $3C $46
+irq_line:              ; row Y - 8, then 250 (end of frame)
+    $2C $45 $5E $77 $90 $A9 $C2 $DB $FA
+
+setup_done:
+}
+
+# every frame: the next phase into the other buffer, shown from the next frame on
+label main_loop
+  phase = phase + 3
+  buf = 80 - buf
+  gosub compute
+  f = peek($CCA1)
+label wait_frame
+  if peek($CCA1) == f then goto wait_frame end
+  poke $CCA0, buf
+  if inkey() == 0 then goto main_loop end
+
+# back to the KERNAL IRQ: raster IRQ off, vector $EA31, CIA1 timer IRQ on
+asm {
+    SEI
+    LDA #$00
+    STA $D01A
+    STA $D015
+    LDA #$31
+    STA $0314
+    LDA #$EA
+    STA $0315
+    LDA #$81
+    STA $DC0D
+    CLI
+}
+bye
+
+# fills the buffer that is not on screen, row by row
+label compute
+  for r = 0 to 7
+    ph = phase + r * 11
+    a = cosv[ph]
+    # cos < 0 between 64 and 191: the row runs the other way; past 128 the colours turn round
+    neg = 0
+    if ph >= 64 then
+      if ph < 192 then neg = 1 end
+    end
+    hi = 0
+    if ph >= 128 then hi = 1 end
+    base = $CC00
+    base = base + buf
+    base = base + r * 10
+    half = (a * 7) shr 1
+    x = 172
+    x = x - half
+    if hi == neg then
+      x = x + a * 7
+    end
+    msb = 0
+    bit = 1
+    for i = 0 to 7
+      poke base + i, x and 255
+      if x > 255 then msb = msb or bit end
+      bit = bit shl 1
+      if hi == neg then
+        x = x - a
+      else
+        x = x + a
+      end
+    next
+    poke base + 8, msb
+    poke base + 9, hi
+  next
+  return

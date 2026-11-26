@@ -184,11 +184,14 @@ function _oscParseDbjVars(text) {
   for (const ty of data?.types || []) types[ty.typeid] = ty;
   const lib = /[\\/]oscar64[\\/]include[\\/]/i;
   const own = (v) => (v.references || []).some((r) => r.source && !lib.test(r.source));
-  const item = (v) => ({ name: v.name, address: v.start & 0xFFFF, size: Math.max(0, v.end - v.start), typeid: v.typeid });
+  const item = (v) => ({ name: v.name, address: v.start & 0xFFFF, size: Math.max(0, v.end - v.start), typeid: v.typeid,
+    enter: Number.isFinite(v.enter) ? v.enter : null, leave: Number.isFinite(v.leave) ? v.leave : null });
   const globals = (data?.variables || []).filter((v) => Number.isFinite(v.start) && own(v)).map(item);
   const funcs = (data?.functions || []).filter((f) => Number.isFinite(f.start) && f.variables?.length)
     .map((f) => ({ name: f.name, start: f.start, end: f.end, vars: f.variables.filter((v) => Number.isFinite(v.start)).map(item) }));
-  return { types, globals, funcs };
+  // every function's code range: the call stack names its frames with them
+  const fns = (data?.functions || []).filter((f) => Number.isFinite(f.start) && Number.isFinite(f.end)).map((f) => ({ name: f.name, start: f.start, end: f.end }));
+  return { types, globals, funcs, fns };
 }
 
 // One value of a C type at an address, as text (arrays: the first elements, char arrays also as text).
@@ -241,11 +244,13 @@ function _oscFormatValue(info, typeid, address, peek, depth = 0) {
 }
 
 // The debugger's variable rows at a stop: the locals of the function at PC (innermost), then the globals.
-function _oscDebugVarRows(info, pc, peek) {
+// line: the C line of the stop; a local whose .dbj line range (enter..leave) does not hold it is out of scope.
+function _oscDebugVarRows(info, pc, peek, line = null) {
   if (!info) return [];
   const fn = (info.funcs || []).filter((f) => pc >= f.start && pc < f.end).sort((a, b) => (a.end - a.start) - (b.end - b.start))[0];
   const row = (v, scope) => ({ name: v.name, address: v.address, scope, value: _oscFormatValue(info, v.typeid, v.address, peek) });
-  return [...(fn ? fn.vars.map((v) => row(v, fn.name)) : []), ...(info.globals || []).map((v) => row(v, ""))];
+  const inScope = (v) => line == null || v.enter == null || v.leave == null || (line >= v.enter && line <= v.leave);
+  return [...(fn ? fn.vars.filter(inScope).map((v) => row(v, fn.name)) : []), ...(info.globals || []).map((v) => row(v, ""))];
 }
 
 // Static cycles of the C lines of one file: the instructions in the line's address ranges.
@@ -1111,14 +1116,26 @@ async function _oscOpenProject(root) {
   }
   _oscRegisterProject();
   if (!_osc.restoring) globalThis._studioRememberProject?.(root, _osc.proj.name || _oscBase(root), "c");
-  // the C sources of the project folder open as tabs (not its subfolders), the startup file is the active one
-  const startupAbs = _osc.proj.startupFile ? _oscNorm(_oscProjAbs(_osc.proj.startupFile)) : "";
-  for (const e of _osc.tree.filter((x) => !x.dir && /\.(c|h)$/i.test(x.name)).slice(0, 24)) {
-    if (_oscNorm(e.path) !== startupAbs) await _oscOpenPath(e.path);
+  // the saved session (.proj.user) first; without it the C sources of the project folder open as tabs
+  // (not its subfolders), the startup file is the active one
+  if (!(await globalThis._projUserRestore?.("c", _oscProjUserTarget().projPath))) {
+    const startupAbs = _osc.proj.startupFile ? _oscNorm(_oscProjAbs(_osc.proj.startupFile)) : "";
+    for (const e of _osc.tree.filter((x) => !x.dir && /\.(c|h)$/i.test(x.name)).slice(0, 24)) {
+      if (_oscNorm(e.path) !== startupAbs) await _oscOpenPath(e.path);
+    }
+    if (_osc.proj.startupFile) await _oscOpenPath(_oscProjAbs(_osc.proj.startupFile));
   }
-  if (_osc.proj.startupFile) await _oscOpenPath(_oscProjAbs(_osc.proj.startupFile));
   _oscRenderAll();
   _oscSave();
+}
+
+// The C project for app.js's session file (<name>.proj.user next to the .proj, or where it will be).
+function _oscProjUserTarget() {
+  if (!_osc.root) return null;
+  return { kind: "c", projPath: _osc.projPath || _oscJoin(_osc.root, `${_oscBase(_osc.root)}.proj`) };
+}
+function _oscTabPath(id) {
+  return _osc.files.find((f) => f.id === id)?.path || "";
 }
 
 async function _oscNewProject() {
@@ -1576,7 +1593,9 @@ let _oscBuildSeq = 0;
 let _oscAutoTimer = 0;
 
 // quiet = the background build after an edit: nothing is saved, the cursor and the panels stay.
-async function _oscBuild({ quiet = false } = {}) {
+// debug: the Debug button's build, -O0: only then does Oscar64 describe the locals in the .dbj (an
+// optimized build keeps them in zero page / registers without debug information).
+async function _oscBuild({ quiet = false, debug = false } = {}) {
   if (!window.electronAPI?.buildOscar64Prg) return { ok: false, error: t("vmaNeedsDesktop") };
   if (!quiet && !(await _oscSaveAll())) return { ok: false, error: t("oscSaveFailed") };
   const target = _oscBuildTarget({ live: quiet });
@@ -1602,7 +1621,7 @@ async function _oscBuild({ quiet = false } = {}) {
       includeDirs,
       defines: [...(_osc.proj.defines || []), ...(topt?.defines || [])],
       // a build script's own -O wins; otherwise Settings → Compilers
-      optimize: (_osc.lastOptimize = topt?.optimize || _osc.optimize || "O2"),
+      optimize: (_osc.lastOptimize = debug ? "O0" : topt?.optimize || _osc.optimize || "O2"),
       debug: true,
       native: topt ? topt.native : true,
       extraArgs: topt?.extra || [],
@@ -1698,7 +1717,9 @@ async function _oscBuildForRun() {
 // ── Debugger source map ─────────────────────────────────────────────────────
 
 async function _oscDebugSession() {
-  const prg = await _oscBuild();
+  let prg = await _oscBuild({ debug: true });
+  // an -O0 build that no longer fits: the optimized one, without the locals
+  if (!prg.ok) prg = await _oscBuild();
   if (!prg.ok) { showViceToast(prg.error, true); return null; }
   return { bytes: _osc.last.bytes, entries: _osc.entries, symbols: _osc.last.symbols || [], blockBps: [], blockAt: null, kind: "oscar", primary: _osc.last.primary || "", vars: _osc.last.vars || null };
 }
@@ -2442,21 +2463,8 @@ function setupOscar64() {
   _oscApplyTranslations();
   _oscRefreshCompilerInfo();
 
-  // after app.js has applied the saved editor mode
-  setTimeout(async () => {
-    _osc.restoring = true; // the files come back as tabs, without taking the focus
-    // one project at a time: only the last C project comes back
-    if (prefs.root) {
-      _osc.root = prefs.root;
-      await _oscOpenProject(prefs.root);
-    }
-    for (const p of prefs.open || []) await _oscOpenPath(p);
-    const cur = _osc.files.findIndex((f) => _oscNorm(f.path) === _oscNorm(prefs.current));
-    if (cur >= 0) _oscActivate(cur);
-    _osc.restoring = false;
-    _oscTabsSync();
-    if (prefs.active) _oscEnter();
-  }, 600);
+  // the last C project comes back with the Studio's own restore (app.js _studioContinueLast, its
+  // tabs from the .proj.user), not from here
 }
 
 if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", setupOscar64);

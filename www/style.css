@@ -1462,7 +1462,8 @@ html[data-theme="commodore77"] .primary {
 
 .workspace {
   display: grid;
-  grid-template-columns: minmax(240px, 300px) minmax(260px, var(--ws-program-fr, 500fr)) 14px minmax(440px, var(--ws-output-fr, 500fr));
+  /* the palette's 14px margin is inside its column: the panel itself is 240-300px, as in the Source view */
+  grid-template-columns: minmax(254px, 314px) minmax(260px, var(--ws-program-fr, 500fr)) 14px minmax(440px, var(--ws-output-fr, 500fr));
   gap: 0;
   align-items: stretch;
 }
@@ -4009,15 +4010,15 @@ body.ub-mode .workspace { grid-template-columns: 1fr; gap: 14px; }
 #ub-update-status { flex-shrink: 0; white-space: nowrap; }
 #ub-lint-btn { flex-shrink: 0; }
 .ub-editor-layout { display: grid; grid-template-columns: minmax(0, 1fr) 5px minmax(180px, var(--ub-disasm-width, 340px)); grid-template-areas: "editor resize output"; flex: 1; min-height: 0; overflow: visible; }
-.ub-panel.ub-show-project:not(.ub-show-commands) .ub-editor-layout,
+.ub-panel.ub-show-project:not(.ub-show-commands) .ub-editor-layout { grid-template-columns: max(200px, var(--proj-w, 220px)) minmax(0, 1fr) 5px minmax(180px, var(--ub-disasm-width, 340px)); }
 .ub-panel.ub-show-commands:not(.ub-show-project) .ub-editor-layout { grid-template-columns: 220px minmax(0, 1fr) 5px minmax(180px, var(--ub-disasm-width, 340px)); }
 .ub-panel.ub-show-project:not(.ub-show-commands) .ub-editor-layout { grid-template-areas: "project editor resize output"; }
 .ub-panel.ub-show-commands:not(.ub-show-project) .ub-editor-layout { grid-template-areas: "commands editor resize output"; }
-.ub-panel.ub-show-project.ub-show-commands .ub-editor-layout { grid-template-columns: 220px 195px minmax(0, 1fr) 5px minmax(180px, var(--ub-disasm-width, 340px)); grid-template-areas: "commands project editor resize output"; }
+.ub-panel.ub-show-project.ub-show-commands .ub-editor-layout { grid-template-columns: 220px max(200px, var(--proj-w, 195px)) minmax(0, 1fr) 5px minmax(180px, var(--ub-disasm-width, 340px)); grid-template-areas: "commands project editor resize output"; }
 .ub-panel.ub-hide-output .ub-editor-layout { grid-template-columns: minmax(0, 1fr); grid-template-areas: "editor"; }
-.ub-panel.ub-hide-output.ub-show-project:not(.ub-show-commands) .ub-editor-layout { grid-template-columns: 220px minmax(0, 1fr); grid-template-areas: "project editor"; }
+.ub-panel.ub-hide-output.ub-show-project:not(.ub-show-commands) .ub-editor-layout { grid-template-columns: max(200px, var(--proj-w, 220px)) minmax(0, 1fr); grid-template-areas: "project editor"; }
 .ub-panel.ub-hide-output.ub-show-commands:not(.ub-show-project) .ub-editor-layout { grid-template-columns: 220px minmax(0, 1fr); grid-template-areas: "commands editor"; }
-.ub-panel.ub-hide-output.ub-show-project.ub-show-commands .ub-editor-layout { grid-template-columns: 220px 195px minmax(0, 1fr); grid-template-areas: "commands project editor"; }
+.ub-panel.ub-hide-output.ub-show-project.ub-show-commands .ub-editor-layout { grid-template-columns: 220px max(200px, var(--proj-w, 195px)) minmax(0, 1fr); grid-template-areas: "commands project editor"; }
 .ub-panel.ub-hide-output .ub-right-panels, .ub-panel.ub-hide-output .ub-disasm-resizer { display: none; }
 .ub-project-panel { grid-area: project; }
 .ub-commands-panel { grid-area: commands; }
@@ -4027,7 +4028,7 @@ body.ub-mode .workspace { grid-template-columns: 1fr; gap: 14px; }
 .ub-panel:not(.ub-show-project) .ub-project-panel { display: none; }
 .ub-panel:not(.ub-show-commands) .ub-commands-panel { display: none; }
 .ub-commands-panel { min-width: 0; width: auto; min-height: 0; height: 100%; max-height: none; display: flex; flex-direction: column; overflow: hidden; border-right: 1px solid var(--panel-border); background: var(--ub-side-bg, var(--panel)); }
-.ub-project-panel.expert-project-panel { min-width: 0; width: auto; max-height: none; overflow: visible; }
+.ub-project-panel.expert-project-panel { min-width: 200px; width: auto; max-height: none; overflow: visible; }
 .ub-left-view { min-height: 0; flex: 1; flex-direction: column; }
 .ub-left-view--active { display: flex; }
 .ub-left-view[hidden] { display: none; }
@@ -4873,7 +4874,7 @@ html[data-theme="commodore77"] .expert-hl mark.hl-find-current {
 
 /* ── Expert Project Panel ────────────────────────────────── */
 .expert-project-panel {
-  width: 220px;
+  width: max(200px, var(--proj-w, 220px));
   flex-shrink: 0;
   border-right: 1px solid var(--panel-border);
   display: flex;
@@ -13660,7 +13661,9 @@ dialog.dlg-active[open]:not(:modal) > :first-child > :first-child,
 .w64-vars { display: grid; max-height: 180px; overflow-y: auto; border: 1px solid var(--panel-border); border-radius: 3px; background: var(--panel-bg); padding: 2px 0; font-family: var(--mono-font, ui-monospace, monospace); font-size: .74rem; }
 .w64-var-scope { padding: 3px 8px 1px; font-size: .68rem; font-weight: 700; color: var(--muted); }
 .w64-var { display: flex; gap: 10px; justify-content: space-between; min-height: 0; height: auto; margin: 0; padding: 1px 8px; border: none; border-radius: 0; background: transparent; color: var(--text); font: inherit; text-align: left; cursor: pointer; box-shadow: none; }
-.w64-var:hover { background: color-mix(in srgb, var(--primary) 14%, transparent); }
+.w64-var:hover, .w64-frame:hover { background: color-mix(in srgb, var(--primary) 14%, transparent); }
+.w64-frame { display: flex; gap: 10px; justify-content: space-between; min-height: 0; height: auto; margin: 0; padding: 1px 8px; border: none; border-radius: 0; background: transparent; color: var(--text); font: inherit; text-align: left; cursor: pointer; box-shadow: none; }
+.w64-frame--top { font-weight: 700; }
 .w64-var-name { flex: none; color: var(--secondary); }
 .w64-var-val { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .w64-reg { display: inline-flex; align-items: center; gap: 4px; color: var(--secondary); }
@@ -13930,9 +13933,9 @@ body.oscar-mode .workspace,
 body.oscar-mode.expert-mode .workspace,
 body.oscar-mode.ub-mode .workspace { grid-template-columns: 1fr; gap: 14px; }
 .osc-panel .ub-editor-layout { grid-template-columns: minmax(0, 1fr) 5px minmax(180px, var(--ub-disasm-width, 380px)); }
-.osc-panel.ub-show-project .ub-editor-layout { grid-template-columns: 220px minmax(0, 1fr) 5px minmax(180px, var(--ub-disasm-width, 380px)); grid-template-areas: "project editor resize output"; }
+.osc-panel.ub-show-project .ub-editor-layout { grid-template-columns: max(200px, var(--proj-w, 220px)) minmax(0, 1fr) 5px minmax(180px, var(--ub-disasm-width, 380px)); grid-template-areas: "project editor resize output"; }
 .osc-panel.ub-hide-output .ub-editor-layout { grid-template-columns: minmax(0, 1fr); grid-template-areas: "editor"; }
-.osc-panel.ub-hide-output.ub-show-project .ub-editor-layout { grid-template-columns: 220px minmax(0, 1fr); grid-template-areas: "project editor"; }
+.osc-panel.ub-hide-output.ub-show-project .ub-editor-layout { grid-template-columns: max(200px, var(--proj-w, 220px)) minmax(0, 1fr); grid-template-areas: "project editor"; }
 .osc-editor-col { grid-area: editor; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
 .osc-editor-col .ub-editor-wrap { flex: 1 1 auto; height: auto; }
 .osc-panel .osc-editor { caret-color: var(--text); padding-right: 16px; }
@@ -14079,8 +14082,8 @@ html[data-theme="c64"] .va-studio { color: #ffffff; text-shadow: none; }
 .template-kind-stars { color: #ffb347; letter-spacing: 1px; margin-right: 4px; }
 .git-panel { width: min(260px, 94vw); }
 /* Studio hint bar: the block-mode help line shows for a few seconds, then folds away */
-.hero-copy { overflow: hidden; max-height: 4em; padding: 4px 10px; border-left: 2px solid var(--accent); border-radius: 2px; background: color-mix(in srgb, var(--accent) 8%, transparent); transition: opacity .6s ease, max-height .6s ease, margin .6s ease, padding .6s ease; }
-.hero-copy.hero-copy--gone { opacity: 0; max-height: 0; margin-top: 0; padding-top: 0; padding-bottom: 0; }
+.hero-copy { position: fixed; left: 50%; bottom: 28px; z-index: 9000; max-width: min(62ch, 90vw); margin: 0; padding: 8px 16px; border: 1px solid var(--panel-border); border-left: 3px solid var(--accent); border-radius: 2px; background: var(--panel-strong); color: var(--text); text-align: center; box-shadow: 0 6px 24px rgba(0, 0, 0, .28); transform: translateX(-50%); transition: opacity .6s ease, transform .6s ease; }
+.hero-copy.hero-copy--gone { opacity: 0; transform: translate(-50%, 12px); pointer-events: none; }
 #osc-output.osc-output--monitor { background: var(--output-bg); color: var(--monitor-text); font-family: 'JetBrains Mono', 'Fira Mono', 'Cascadia Code', 'Consolas', monospace; font-size: 0.78rem; line-height: 1.6; }
 .osc-toolkit-host { flex: 1 1 auto; overflow: auto; }
 .osc-toolkit-host[hidden] { display: none; }
@@ -14099,14 +14102,24 @@ html[data-theme="c64"] .va-studio { color: #ffffff; text-shadow: none; }
 
 /* Block view: the Expert project panel as the workspace's first column (#block-project-btn) */
 body.block-project-on:not(.expert-mode):not(.ub-mode):not(.oscar-mode) .workspace {
-  grid-template-columns: minmax(240px, 300px) 220px minmax(260px, var(--ws-program-fr, 500fr)) 14px minmax(440px, var(--ws-output-fr, 500fr));
+  grid-template-columns: minmax(254px, 314px) calc(max(200px, var(--proj-w, 220px)) + 14px) minmax(260px, var(--ws-program-fr, 500fr)) 14px minmax(440px, var(--ws-output-fr, 500fr));
 }
 .workspace > .expert-project-panel {
   width: auto;
-  min-width: 0;
+  min-width: 200px;
   margin-right: 14px;
   border: 1px solid var(--panel-border);
   border-radius: 2px;
   background: var(--panel);
 }
 #block-project-btn[aria-pressed="true"] { color: var(--primary); border-color: color-mix(in srgb, var(--primary) 55%, var(--panel-border)); }
+
+/* a hidden menu entry stays hidden (the menu buttons are display: flex) */
+.control-menu-panel button[hidden] { display: none !important; }
+
+/* the project panel's width, one for every view (_projWidthInit, c64va-proj-width): its right edge drags */
+.proj-width-grip { position: absolute; top: 0; right: -3px; bottom: 0; width: 6px; z-index: 5; cursor: col-resize; touch-action: none; }
+.proj-width-grip:hover, .proj-width-grip.is-dragging { background: color-mix(in srgb, var(--primary) 45%, transparent); }
+body.proj-width-dragging { cursor: col-resize; user-select: none; }
+/* About: the same "Studio" mark after the title */
+.about-title .about-studio { display: inline-block; margin: 0 0 0 4px; font-size: 1.35rem; font-weight: 400; vertical-align: 2px; }
