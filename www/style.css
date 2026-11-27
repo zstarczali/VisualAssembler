@@ -14033,8 +14033,9 @@ html[data-theme="c64"] .va-studio { color: #ffffff; text-shadow: none; }
 /* Studio: the editors and utilities in one Tools menu (instead of 15 toolbar icons) */
 .tools-btn { gap: 5px; }
 .tools-btn[aria-expanded="true"] { background: color-mix(in srgb, var(--accent) 18%, transparent); }
-.tools-panel { position: fixed; inset: auto; margin: 0; padding: 10px; width: min(560px, 94vw); border: 1px solid var(--panel-border); border-radius: 2px; background: var(--panel); color: var(--text); box-shadow: 0 10px 28px rgba(0,0,0,.35); }
-.tools-panel:popover-open { display: grid; gap: 10px; }
+/* WebKit (macOS): the [popover] UA style can stretch a fixed popover to the window bottom */
+.tools-panel { position: fixed; inset: auto; bottom: auto; height: auto; max-height: calc(100vh - 16px); overflow-y: auto; align-content: start; margin: 0; padding: 10px; width: min(560px, 94vw); border: 1px solid var(--panel-border); border-radius: 2px; background: var(--panel); color: var(--text); box-shadow: 0 10px 28px rgba(0,0,0,.35); }
+.tools-panel:popover-open { display: grid; gap: 10px; align-content: start; }
 .tools-group-title { margin: 0 0 4px; font-size: .66rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 .tools-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: 2px; }
 .tools-panel .tools-item { justify-content: flex-start; width: 100%; height: 30px; padding: 4px 8px; gap: 8px; font-size: .8rem; font-weight: 400; }
@@ -14100,7 +14101,7 @@ html[data-theme="c64"] .va-studio { color: #ffffff; text-shadow: none; }
 .menu-open-recent { display: flex !important; align-items: center; justify-content: space-between !important; gap: 8px; }
 .menu-open-recent[aria-expanded="true"] { background: color-mix(in srgb, var(--primary) 16%, transparent); }
 .menu-open-recent-arrow { opacity: .7; }
-.menu-recent-flyout[popover] { position: fixed; inset: auto; margin: 0; min-width: 220px; max-width: min(420px, 90vw); overflow: visible; padding: 6px; border: 1px solid var(--panel-border); border-radius: 6px; background: var(--panel-strong); color: var(--text); box-shadow: 0 10px 28px rgba(0, 0, 0, .35); }
+.menu-recent-flyout[popover] { position: fixed; inset: auto; bottom: auto; height: auto; align-content: start; margin: 0; min-width: 220px; max-width: min(420px, 90vw); overflow: visible; padding: 6px; border: 1px solid var(--panel-border); border-radius: 6px; background: var(--panel-strong); color: var(--text); box-shadow: 0 10px 28px rgba(0, 0, 0, .35); }
 .menu-recent-flyout:not(:popover-open) { display: none; } /* the display: grid above would keep a closed popover on the page */
 .menu-recent-flyout .menu-recent-item { margin: 0 !important; min-height: 34px; height: 34px; width: 100%; }
 .menu-recent-item { display: flex !important; align-items: center; justify-content: flex-start !important; gap: 8px; text-align: left; }
