@@ -2624,7 +2624,6 @@ function setupOscar64() {
     _acmeAvailabilitySync();
     _oscRefreshCompilerInfo();
   });
-  _oscEl("choose-acme")?.addEventListener("click", () => setTimeout(_oscRefreshCompilerInfo, 400));
   _oscEl("hardware-settings-btn")?.addEventListener("click", () => _oscRefreshCompilerInfo());
   _oscEl("about-btn")?.addEventListener("click", () => _oscRefreshCompilerInfo());
   document.addEventListener("click", (e) => {
