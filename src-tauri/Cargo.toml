@@ -30,7 +30,7 @@ serialport = { version = "4.7", default-features = false }
 sevenz-rust2 = { version = "0.24", default-features = false, features = ["ppmd"] }
 ultimate-basic = { git = "https://github.com/zstarczali/UltimateBasic.git", rev = "d19117667ad516c11377461cc30a978aaf71f0c8" }
 # the VMA compiler: its own repository; for local work on it, a [patch] with path = "../../VMA"
-vma = { git = "https://github.com/zstarczali/VMA.git", rev = "6d8b0b1f6cfde1b6fc4261121bd7535e09358418" }
+vma = { git = "https://github.com/zstarczali/VMA.git", rev = "b5222a12c985cd4a27a6a7b19c3665de83636a85" }
 # the R65 KickAssembler compatible assembler (library, without its editor window); local work: [patch] path = "../../R65"
 r65 = { git = "https://github.com/zstarczali/R65.git", rev = "e28a167f74d18bc0472ddb8d129533eab3c2f607", default-features = false }
 
@@ -45,7 +45,3 @@ opt-level = 1
 
 [profile.dev.package."*"]
 opt-level = 2
-
-# LOCAL ONLY until VMA 2.5.0 is pushed: then bump the vma rev above and drop this patch
-[patch."https://github.com/zstarczali/VMA.git"]
-vma = { path = "../../VMA" }
