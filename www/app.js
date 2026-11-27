@@ -1568,6 +1568,7 @@ function initPalette() {
       if (input) input.value = acmePath;
       saveUiSettings();
       _acmeAvailabilitySync();
+      globalThis._oscRefreshCompilerInfo?.();   // "Use bundled" enabled, status line
     }
   });
 
