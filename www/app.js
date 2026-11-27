@@ -704,6 +704,7 @@ function saveUiSettings() {
     ubOutputVisible: _ubOutputVisible,
     ubAutocompleteEnabled: _ubAutocompleteEnabled,
     ubExplicit: _ubExplicit,
+    ubVerbose: _ubVerbose,
     ubFontSize: _ubFontSize,
     expertMonitorVisible: _expertMonitorVisible,
     expertToolkitVisible: _expertToolkitVisible,
@@ -1609,7 +1610,7 @@ function initPalette() {
   document.getElementById("ub-project-add-btn")?.addEventListener("click", () => _ubAddFile());
   document.getElementById("ub-project-add-folder-btn")?.addEventListener("click", _ubAddProjectFolder);
   document.getElementById("ub-explicit-btn")?.addEventListener("click", _ubToggleExplicit);
-  document.getElementById("ub-verbose-btn")?.addEventListener("click", _ubToggleVerbose);
+  document.getElementById("ub-verbose")?.addEventListener("change", (e) => _ubSetVerbose(e.target.checked));
   document.getElementById("ub-disasm-btn")?.addEventListener("click", _ubToggleDisasm);
   document.getElementById("ub-monitor-btn")?.addEventListener("click", _ubToggleMonitor);
   document.getElementById("ub-toolkit-btn")?.addEventListener("click", _ubToggleToolkit);
@@ -3517,6 +3518,7 @@ function _applyUiSettingsToDOM() {
   if (s.ubOutputVisible !== undefined) _ubOutputVisible = !!s.ubOutputVisible;
   if (s.ubAutocompleteEnabled !== undefined) _ubAutocompleteEnabled = !!s.ubAutocompleteEnabled;
   if (s.ubExplicit !== undefined) _ubExplicit = !!s.ubExplicit;
+  if (s.ubVerbose !== undefined) { _ubVerbose = !!s.ubVerbose; _ubVerboseSync(); }
   if (typeof s.ubFontSize === "number" && Number.isFinite(s.ubFontSize)) {
     _ubFontSize = Math.max(8, Math.min(28, s.ubFontSize));
     _ubApplyFontSize();
@@ -3767,7 +3769,7 @@ function applyTranslations() {
 
   const ubLabels = {
     "ub-open-btn": "ubOpenSource", "ub-save-btn": "ubSaveSource", "ub-save-as-btn": "ubSaveSourceAs", "ub-format-btn": "ubFormatSource",
-    "ub-build-btn": "ubBuild", "ub-output-btn": "ubBuildOutput", "ub-explicit-btn": "ubExplicit", "ub-verbose-btn": "ubVerbose", "ub-disasm-btn": "expertDisasm", "ub-monitor-btn": "monitorOutputLabel", "ub-toolkit-btn": "expertToolkit", "ub-autocomplete-btn": "expertAutocomplete",
+    "ub-build-btn": "ubBuild", "ub-output-btn": "ubBuildOutput", "ub-explicit-btn": "ubExplicit", "ub-disasm-btn": "expertDisasm", "ub-monitor-btn": "monitorOutputLabel", "ub-toolkit-btn": "expertToolkit", "ub-autocomplete-btn": "expertAutocomplete",
     "ub-project-btn": "expertProjectPanel", "ub-help-btn": "ubCommandHelpToggle", "ub-manual-btn": "ubManual", "ub-project-open-btn": "projOpenProjectBtn",
     "ub-project-new-btn": "projNewProjectBtn", "ub-project-save-btn": "projSaveProjectBtn",
     "ub-project-add-btn": "projAddFileBtn", "ub-hl-btn": "ubSyntaxHighlight",
@@ -3863,6 +3865,8 @@ function applyTranslations() {
     setText("#tools-group-machine", t("toolsGroupMachine"));
     setText("#sid-player-settings-label", t("sidPlayerSettingsLabel"));
     setText("#hw-compilers-note", t("hwCompilersNote"));
+    setText("#ub-verbose-label", t("ubVerbose"));
+    setText("#ub-verbose-note", t("ubVerboseNote"));
     setText("#hw-settings-tab-integrations", t("hardwareSettingsIntegrationsTab"));
     _acmeBuildButtonSync();
     setText("#sid-preview-settings-label", t("sidPreviewSettings"));
@@ -9440,7 +9444,8 @@ function _ubToggleMinimap() { _ubMinimapEnabled = !_ubMinimapEnabled; ubPanel.cl
 function _ubToggleProject() { _ubProjectVisible = !_ubProjectVisible; _ubApplyLeftViews(); }
 function _ubToggleCommands() { _ubCommandsVisible = !_ubCommandsVisible; _ubApplyLeftViews(); }
 function _ubToggleExplicit() { _ubExplicit = !_ubExplicit; _ubSetToggle("ub-explicit-btn", _ubExplicit); saveUiSettings(); }
-function _ubToggleVerbose() { _ubVerbose = !_ubVerbose; _ubSetToggle("ub-verbose-btn", _ubVerbose); if (_ubLastResult?.ok) _ubSetBuildOutput(_ubFormatMap(_ubLastResult.map)); }
+function _ubVerboseSync() { const box = document.getElementById("ub-verbose"); if (box) box.checked = _ubVerbose; }
+function _ubSetVerbose(on) { _ubVerbose = !!on; _ubVerboseSync(); saveUiSettings(); if (_ubLastResult?.ok) _ubSetBuildOutput(_ubFormatMap(_ubLastResult.map)); }
 function _ubToggleOutput() { _ubOutputVisible = !_ubOutputVisible; ubPanel?.classList.toggle("ub-hide-output", !_ubOutputVisible); _ubSetToggle("ub-output-btn", _ubOutputVisible); saveUiSettings(); }
 function _ubToggleAutocomplete() { _ubAutocompleteEnabled = !_ubAutocompleteEnabled; _ubSetToggle("ub-autocomplete-btn", _ubAutocompleteEnabled); if (!_ubAutocompleteEnabled) _ubAcHide(); else _ubAcUpdate(); saveUiSettings(); }
 function _ubApplyMachineView() {
