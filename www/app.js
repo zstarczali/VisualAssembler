@@ -77,54 +77,54 @@ const addressingModes = {
 // every user, or set `enabled` to false to disable it completely.
 const CUSTOMER_MESSAGE = {
   enabled: true,
-  id: "studio-290",
+  id: "va-291",
   url: "https://www.c64va.pro/docs.html",
   hu: {
-    eyebrow: "Újdonság a 2.9.0-ban",
+    eyebrow: "Újdonság a 2.9.1-ben",
     title: "Üdvözöl a Visual Assembler",
-    body: `<ul><li><strong>Visual Assembler Studio</strong>: assembly (VMA, ACME, R65), blokkok, UltimateBasic és C egy ablakban, közös fülsávval; minden fájl a saját nyelvének szerkesztőjében nyílik. Az <strong>Induló ablak</strong>ból a legutóbbi projekt, egy új projekt sablonból vagy egy C mappa egy kattintás.</li><li><strong>C az Oscar64-gyel</strong>: beépített fordító, kódkiegészítés, ciklusszámok, Disassembly / Monitor nézet, projekt build szkriptből; a C program minden futtatási módban fut.</li><li><strong>Forrásszintű hibakeresés C-ben és UltimateBasicben</strong>: töréspont a forrássoron, léptetés C soronként, <strong>Változók</strong> és <strong>Hívási lánc</strong> panel.</li><li>Új <strong>Új</strong>, <strong>Eszközök</strong> és <strong>Git</strong> menü, a projekt munkamenete a <code>.proj.user</code> fájlban, külön ablakos memóriatérkép, UltimateBasic 1.6.8.</li></ul>`,
+    body: `<ul><li><strong>MIDI a SID szerkesztőben</strong>: megjegyzi a MIDI eszközt, és legközelebb magától csatlakozik; jobb klikk egy tekerőn vagy a Play / Stop / Record / Undo gombon → <strong>MIDI tanítás</strong>, és a vezérlő tekerője, csúszkája, gombja vagy padja irányítja. A hozzárendelések a beállításokba mentődnek.</li><li><strong>MIDI fájlok</strong>: a dal exportálható <strong>.mid</strong> fájlba, és .mid fájl importálható dallá (sávválasztás, sorok ütemenként, hangszer sávonként).</li><li><strong>Beépített ACME</strong> az Oscar64 mellett, és ACME kapcsolók a Beállításokban (verbose, strict, típusellenőrzés, címke-behúzás). A <strong>Build info</strong> megmutatja a fordítót, a verzióját, a kapcsolókat, a PRG-t és a fordító kimenetét.</li><li><strong>Recent menü törlése</strong>, és a Blokkok gomb le van tiltva, ha a projekt csak Expert módú. <strong>UltimateBasic 1.6.9</strong> (<code>let</code>).</li></ul>`,
     dismiss: "Ne jelenjen meg többé",
     close: "Bezárás"
   },
   en: {
-    eyebrow: "New in 2.9.0",
+    eyebrow: "New in 2.9.1",
     title: "Welcome to Visual Assembler",
-    body: `<ul><li><strong>Visual Assembler Studio</strong>: assembly (VMA, ACME, R65), blocks, UltimateBasic and C in one window with one tab bar; every file opens in the editor of its own language. From the <strong>Start window</strong> the last project, a new project from a template or a C folder is one click away.</li><li><strong>C with Oscar64</strong>: compiler built in, code completion, cycle counts, Disassembly / Monitor views, projects from build scripts; a C program runs in every Run mode.</li><li><strong>Source-level debugging in C and UltimateBasic</strong>: breakpoints on source lines, stepping one C line at a time, <strong>Variables</strong> and <strong>Call stack</strong> panels.</li><li>New <strong>New</strong>, <strong>Tools</strong> and <strong>Git</strong> menus, the project session in <code>.proj.user</code>, the memory map in its own window, UltimateBasic 1.6.8.</li></ul>`,
+    body: `<ul><li><strong>MIDI in the SID Editor</strong>: the MIDI device is remembered and connected by itself next time; right-click a knob or the Play / Stop / Record / Undo buttons → <strong>MIDI Learn</strong>, and your controller's knobs, faders, buttons and pads drive them. The mappings are saved in the settings.</li><li><strong>MIDI files</strong>: export the song as a <strong>.mid</strong> file, and import a .mid file as a song (pick the tracks, rows per beat, an instrument per track).</li><li><strong>ACME built in</strong> next to Oscar64, and ACME switches in Settings (verbose, strict, type checks, label indent). <strong>Build info</strong> shows the compiler, its version, the switches, the PRG and the compiler's output.</li><li><strong>Clear the Recent menu</strong>, and the Blocks button is disabled when a project is Expert mode only. <strong>UltimateBasic 1.6.9</strong> (<code>let</code>).</li></ul>`,
     dismiss: "Don't show again",
     close: "Close"
   },
   es: {
-    eyebrow: "Novedad en la 2.9.0",
+    eyebrow: "Novedad en la 2.9.1",
     title: "Bienvenido a Visual Assembler",
-    body: `<ul><li><strong>Visual Assembler Studio</strong>: ensamblador (VMA, ACME, R65), bloques, UltimateBasic y C en una sola ventana con una barra de pestañas común; cada archivo se abre en el editor de su lenguaje. Desde la <strong>ventana de inicio</strong>, el último proyecto, un proyecto nuevo a partir de una plantilla o una carpeta C están a un clic.</li><li><strong>C con Oscar64</strong>: compilador integrado, autocompletado, recuento de ciclos, vistas Disassembly / Monitor, proyectos a partir de scripts de compilación; un programa C funciona en todos los modos de ejecución.</li><li><strong>Depuración a nivel de código en C y UltimateBasic</strong>: puntos de interrupción en las líneas, paso a paso por líneas de C, paneles <strong>Variables</strong> y <strong>Pila de llamadas</strong>.</li><li>Nuevos menús <strong>Nuevo</strong>, <strong>Herramientas</strong> y <strong>Git</strong>, la sesión del proyecto en <code>.proj.user</code>, el mapa de memoria en su propia ventana, UltimateBasic 1.6.8.</li></ul>`,
+    body: `<ul><li><strong>MIDI en el editor SID</strong>: recuerda el dispositivo MIDI y se conecta solo la próxima vez; clic derecho en un mando o en los botones Play / Stop / Record / Undo → <strong>MIDI Learn</strong>, y los mandos, faders, botones y pads de tu controlador los manejan. Las asignaciones se guardan en la configuración.</li><li><strong>Archivos MIDI</strong>: exporta la canción como archivo <strong>.mid</strong> e importa un archivo .mid como canción (elige las pistas, filas por pulso, un instrumento por pista).</li><li><strong>ACME integrado</strong> junto a Oscar64, y opciones de ACME en Configuración (verbose, strict, comprobación de tipos, sangría de etiquetas). <strong>Build info</strong> muestra el compilador, su versión, las opciones, el PRG y la salida del compilador.</li><li><strong>Borrar el menú Recientes</strong>, y el botón Bloques se desactiva cuando el proyecto es solo modo Experto. <strong>UltimateBasic 1.6.9</strong> (<code>let</code>).</li></ul>`,
     dismiss: "No volver a mostrar",
     close: "Cerrar"
   },
   de: {
-    eyebrow: "Neu in 2.9.0",
+    eyebrow: "Neu in 2.9.1",
     title: "Willkommen bei Visual Assembler",
-    body: `<ul><li><strong>Visual Assembler Studio</strong>: Assembler (VMA, ACME, R65), Blöcke, UltimateBasic und C in einem Fenster mit einer gemeinsamen Tableiste; jede Datei öffnet sich im Editor ihrer Sprache. Im <strong>Startfenster</strong> sind das letzte Projekt, ein neues Projekt aus einer Vorlage oder ein C-Ordner einen Klick entfernt.</li><li><strong>C mit Oscar64</strong>: eingebauter Compiler, Codevervollständigung, Taktzyklen, Ansichten Disassembly / Monitor, Projekte aus Build-Skripten; ein C-Programm läuft in jedem Startmodus.</li><li><strong>Debuggen auf Quelltextebene in C und UltimateBasic</strong>: Haltepunkte auf Quellzeilen, Schritte Zeile für Zeile in C, Bereiche <strong>Variablen</strong> und <strong>Aufrufliste</strong>.</li><li>Neue Menüs <strong>Neu</strong>, <strong>Werkzeuge</strong> und <strong>Git</strong>, die Projektsitzung in <code>.proj.user</code>, die Speicherkarte im eigenen Fenster, UltimateBasic 1.6.8.</li></ul>`,
+    body: `<ul><li><strong>MIDI im SID-Editor</strong>: das MIDI-Gerät wird gemerkt und beim nächsten Mal automatisch verbunden; Rechtsklick auf einen Regler oder die Tasten Play / Stop / Record / Undo → <strong>MIDI Learn</strong>, dann steuern Regler, Fader, Tasten und Pads deines Controllers sie. Die Zuordnungen werden in den Einstellungen gespeichert.</li><li><strong>MIDI-Dateien</strong>: den Song als <strong>.mid</strong>-Datei exportieren und eine .mid-Datei als Song importieren (Spuren wählen, Zeilen pro Schlag, ein Instrument pro Spur).</li><li><strong>ACME eingebaut</strong> neben Oscar64, und ACME-Schalter in den Einstellungen (verbose, strict, Typprüfung, Label-Einrückung). <strong>Build-Info</strong> zeigt Compiler, Version, Schalter, PRG und die Ausgabe des Compilers.</li><li><strong>Recent-Menü leeren</strong>, und die Blöcke-Taste ist gesperrt, wenn ein Projekt nur den Expert-Modus nutzt. <strong>UltimateBasic 1.6.9</strong> (<code>let</code>).</li></ul>`,
     dismiss: "Nicht mehr anzeigen",
     close: "Schließen"
   },
   nl: {
-    eyebrow: "Nieuw in 2.9.0",
+    eyebrow: "Nieuw in 2.9.1",
     title: "Welkom bij Visual Assembler",
-    body: `<ul><li><strong>Visual Assembler Studio</strong>: assembly (VMA, ACME, R65), blokken, UltimateBasic en C in één venster met één tabbalk; elk bestand opent in de editor van zijn eigen taal. Vanuit het <strong>startvenster</strong> zijn het laatste project, een nieuw project uit een sjabloon of een C-map één klik verwijderd.</li><li><strong>C met Oscar64</strong>: ingebouwde compiler, codeaanvulling, cyclustellingen, Disassembly- / Monitor-weergave, projecten uit buildscripts; een C-programma draait in elke uitvoermodus.</li><li><strong>Debuggen op bronniveau in C en UltimateBasic</strong>: breakpoints op bronregels, stappen per C-regel, panelen <strong>Variabelen</strong> en <strong>Aanroepstack</strong>.</li><li>Nieuwe menu's <strong>Nieuw</strong>, <strong>Hulpmiddelen</strong> en <strong>Git</strong>, de projectsessie in <code>.proj.user</code>, de geheugenkaart in een eigen venster, UltimateBasic 1.6.8.</li></ul>`,
+    body: `<ul><li><strong>MIDI in de SID-editor</strong>: het MIDI-apparaat wordt onthouden en de volgende keer vanzelf verbonden; rechtsklik op een knop of op Play / Stop / Record / Undo → <strong>MIDI Learn</strong>, en de knoppen, faders, toetsen en pads van je controller bedienen ze. De koppelingen worden in de instellingen bewaard.</li><li><strong>MIDI-bestanden</strong>: exporteer het nummer als <strong>.mid</strong>-bestand en importeer een .mid-bestand als nummer (kies de sporen, rijen per tel, een instrument per spoor).</li><li><strong>ACME ingebouwd</strong> naast Oscar64, en ACME-opties in Instellingen (verbose, strict, typecontrole, label-inspringing). <strong>Build-info</strong> toont de compiler, de versie, de opties, het PRG en de uitvoer van de compiler.</li><li><strong>Recent-menu wissen</strong>, en de knop Blokken is uitgeschakeld als een project alleen Expert-modus is. <strong>UltimateBasic 1.6.9</strong> (<code>let</code>).</li></ul>`,
     dismiss: "Niet meer weergeven",
     close: "Sluiten"
   },
   pl: {
-    eyebrow: "Nowość w 2.9.0",
+    eyebrow: "Nowość w 2.9.1",
     title: "Witamy w Visual Assembler",
-    body: `<ul><li><strong>Visual Assembler Studio</strong>: asembler (VMA, ACME, R65), bloki, UltimateBasic i C w jednym oknie ze wspólnym paskiem kart; każdy plik otwiera się w edytorze swojego języka. Z <strong>okna startowego</strong> ostatni projekt, nowy projekt z szablonu albo folder C są o jedno kliknięcie.</li><li><strong>C z Oscar64</strong>: wbudowany kompilator, uzupełnianie kodu, liczba cykli, widoki Disassembly / Monitor, projekty ze skryptów budowania; program C działa w każdym trybie uruchamiania.</li><li><strong>Debugowanie na poziomie źródła w C i UltimateBasic</strong>: punkty przerwania na liniach źródła, krokowanie po liniach C, panele <strong>Zmienne</strong> i <strong>Stos wywołań</strong>.</li><li>Nowe menu <strong>Nowy</strong>, <strong>Narzędzia</strong> i <strong>Git</strong>, sesja projektu w <code>.proj.user</code>, mapa pamięci we własnym oknie, UltimateBasic 1.6.8.</li></ul>`,
+    body: `<ul><li><strong>MIDI w edytorze SID</strong>: urządzenie MIDI jest zapamiętywane i następnym razem łączy się samo; kliknij prawym przyciskiem pokrętło lub przyciski Play / Stop / Record / Undo → <strong>MIDI Learn</strong>, a pokrętła, suwaki, przyciski i pady kontrolera będą nimi sterować. Przypisania zapisują się w ustawieniach.</li><li><strong>Pliki MIDI</strong>: eksport utworu do pliku <strong>.mid</strong> i import pliku .mid jako utworu (wybór ścieżek, wierszy na uderzenie, instrument na ścieżkę).</li><li><strong>Wbudowany ACME</strong> obok Oscar64 i przełączniki ACME w Ustawieniach (verbose, strict, sprawdzanie typów, wcięcia etykiet). <strong>Build info</strong> pokazuje kompilator, jego wersję, przełączniki, PRG i wyjście kompilatora.</li><li><strong>Czyszczenie menu Ostatnie</strong>, a przycisk Bloki jest wyłączony, gdy projekt działa tylko w trybie Expert. <strong>UltimateBasic 1.6.9</strong> (<code>let</code>).</li></ul>`,
     dismiss: "Nie pokazuj ponownie",
     close: "Zamknij"
   },
   it: {
-    eyebrow: "Novità nella 2.9.0",
+    eyebrow: "Novità nella 2.9.1",
     title: "Benvenuto in Visual Assembler",
-    body: `<ul><li><strong>Visual Assembler Studio</strong>: assembly (VMA, ACME, R65), blocchi, UltimateBasic e C in un'unica finestra con una barra delle schede comune; ogni file si apre nell'editor del suo linguaggio. Dalla <strong>finestra iniziale</strong> l'ultimo progetto, un nuovo progetto da un modello o una cartella C sono a un clic.</li><li><strong>C con Oscar64</strong>: compilatore integrato, completamento del codice, conteggio dei cicli, viste Disassembly / Monitor, progetti dagli script di build; un programma C funziona in ogni modalità di esecuzione.</li><li><strong>Debug a livello di sorgente in C e UltimateBasic</strong>: breakpoint sulle righe del sorgente, passo per riga di C, pannelli <strong>Variabili</strong> e <strong>Stack delle chiamate</strong>.</li><li>Nuovi menu <strong>Nuovo</strong>, <strong>Strumenti</strong> e <strong>Git</strong>, la sessione del progetto in <code>.proj.user</code>, la mappa di memoria in una finestra propria, UltimateBasic 1.6.8.</li></ul>`,
+    body: `<ul><li><strong>MIDI nell'editor SID</strong>: il dispositivo MIDI viene ricordato e la volta successiva si collega da solo; clic destro su una manopola o sui pulsanti Play / Stop / Record / Undo → <strong>MIDI Learn</strong>, e manopole, fader, pulsanti e pad del controller li comandano. Le assegnazioni vengono salvate nelle impostazioni.</li><li><strong>File MIDI</strong>: esporta il brano come file <strong>.mid</strong> e importa un file .mid come brano (scelta delle tracce, righe per battito, uno strumento per traccia).</li><li><strong>ACME integrato</strong> accanto a Oscar64, e opzioni di ACME nelle Impostazioni (verbose, strict, controllo dei tipi, rientro delle etichette). <strong>Build info</strong> mostra il compilatore, la versione, le opzioni, il PRG e l'output del compilatore.</li><li><strong>Svuota il menu Recenti</strong>, e il pulsante Blocchi è disattivato quando un progetto è solo in modalità Expert. <strong>UltimateBasic 1.6.9</strong> (<code>let</code>).</li></ul>`,
     dismiss: "Non mostrare più",
     close: "Chiudi"
   }
@@ -569,6 +569,8 @@ let assemblerSyntax = "kick";
 // VA-only palette categories: ACME source has no VA macros, structure directives or long branches.
 const _ACME_HIDDEN_CATEGORIES = new Set(["Makrok", "Szerkezet", "HosszuUgrasok"]);
 let acmePath = "";
+let acmeOptions = {};
+let vmaOptions = {};    // Settings → Compilers → VMA: { verbose } (the build report in Build info)   // Settings → Compilers → ACME switches (_acmeArgs)
 let _editorDialogPositions = {};
 // The built-in C64 was called "web64" in earlier versions: its run mode (localStorage, .proj, samples), settings
 // and window position are read under these old names, only the new ("vice") ones are written.
@@ -732,7 +734,11 @@ function saveUiSettings() {
     editorDialogPositions: _editorDialogPositions,
     lastWorkspacePath: _currentWorkspacePath,
     assemblerSyntax,
-    acmePath
+    acmePath,
+    acmeOptions,
+    vmaOptions,
+    // SID editor MIDI: knob / button mappings, the remembered input, automatic connect
+    sidMidi: _sidMidiSettingsGet()
   };
 
   localStorage.setItem("c64-ui-settings", JSON.stringify(settings));
@@ -2859,7 +2865,12 @@ function _updateEditorModeIndicator() {
     viewSwitch.hidden = ultimateBasicMode || !!globalThis._oscActive?.();
     document.getElementById("view-blocks-btn")?.setAttribute("aria-pressed", String(!expertMode));
     const blocksBtn = document.getElementById("view-blocks-btn");
-    if (blocksBtn) blocksBtn.disabled = typeof _textOnlyAssembler === "function" && _textOnlyAssembler();
+    if (blocksBtn) {
+      // ACME / R65 have no block mode; nor has a file of a project set to "Expert mode only"
+      const projOff = typeof _projBlockModeOff === "function" && _projBlockModeOff();
+      blocksBtn.disabled = (typeof _textOnlyAssembler === "function" && _textOnlyAssembler()) || projOff;
+      if (projOff) blocksBtn.title = t("projBlockModeOff"); else blocksBtn.removeAttribute("title");
+    }
     document.getElementById("view-source-btn")?.setAttribute("aria-pressed", String(expertMode));
   }
   // the active tab's language badge follows a mode switch (Block ⇄ Expert)
@@ -3351,6 +3362,12 @@ function _applyUiSettingsToDOM() {
   _acmeBuildButtonSync();
   const acmePathInput = document.getElementById("acme-path");
   if (acmePathInput) acmePathInput.value = acmePath;
+  acmeOptions = s.acmeOptions && typeof s.acmeOptions === "object" ? { ...s.acmeOptions } : {};
+  vmaOptions = s.vmaOptions && typeof s.vmaOptions === "object" ? { ...s.vmaOptions } : {};
+  const vmaVerboseBox = document.getElementById("vma-verbose");
+  if (vmaVerboseBox) vmaVerboseBox.checked = vmaOptions.verbose === true;
+  if (s.sidMidi) _sidMidiSettingsApply(s.sidMidi);
+  _acmeOptionsToDOM();
   _acmeAvailabilitySync();
   _editorDialogPositions =(s.editorDialogPositions && typeof s.editorDialogPositions === "object")
     ? s.editorDialogPositions
@@ -3881,7 +3898,17 @@ function applyTranslations() {
     setText("#choose-acme", t("chooseAcme"));
     setText("#acme-path-label", t("acmeExecutable"));
     const acmePathField = document.getElementById("acme-path");
-    if (acmePathField) acmePathField.placeholder = t("acmeNotConfigured");
+    if (acmePathField) acmePathField.placeholder = t("toolBundledPlaceholder");   // empty = the bundled ACME
+    setText("#acme-verbose-label", t("acmeVerbose"));
+    setText("#acme-strict-label", t("acmeStrict"));
+    setText("#acme-type-check-label", t("acmeTypeCheck"));
+    setText("#acme-no-label-indent-label", t("acmeNoLabelIndent"));
+    setText("#acme-options-note", t("acmeOptionsNote"));
+    setText("#vma-options-note", t("vmaOptionsNote"));
+    setText("#vma-verbose-label", t("vmaVerbose"));
+    Promise.resolve(window.electronAPI?.getVmaVersion?.())
+      .then(v => setText("#vma-tool-status", tf("vmaToolStatus", { version: v || "?" })))
+      .catch(() => {});
     setText("#choose-debugger", t("chooseDebugger"));
     setText("#debugger-exe-label", t("debuggerExecutable"));
     setText("#debugger-params-label", t("debuggerParamsLabel"));
@@ -4574,6 +4601,16 @@ function _applyEditorTranslations() {
   setText("#sid-import-goat", t("sidImportGoat"));
   setText("#sid-new-tune", t("sidNewTune"));
   setText("#sid-import-sid", t("sidImportSid"));
+  setText("#sid-import-midi", t("sidImportMidi"));
+  setText("#sid-import-midi-title", t("sidSmfImportTitle"));
+  setText("#sid-import-midi-rpb-label", t("sidSmfRowsPerBeat"));
+  setText("#sid-import-midi-chips-label", t("sidSmfChips"));
+  setText("#sid-import-midi-inst-label", t("sidSmfInstruments"));
+  setText("#sid-import-midi-inst-track", t("sidSmfInstPerTrack"));
+  setText("#sid-import-midi-inst-current", t("sidSmfInstCurrent"));
+  setText("#sid-import-midi-spread-label", t("sidSmfSpread"));
+  setText("#sid-import-midi-go", t("sidSmfGo"));
+  setText("#sid-import-midi-cancel", t("cancel"));
   setText("#sid-master-vol-lbl", t("sidMasterVolume"));
   setText("#sid-vkbd-inst-lbl", t("sidVkbdInstrumentLabel"));
   setText("#sid-lcd-pos-lbl", t("sidLcdPos"));
@@ -4683,6 +4720,7 @@ function _applyEditorTranslations() {
   setText("#sid-export-asm", t("sidExportAsm"));
   setText("#sid-export-ub", t("sidExportUb"));
   setText("#sid-export-psid", t("sidExportPsid"));
+  setText("#sid-export-midi", t("sidExportMidi"));
   setText("#se-export-ub", t("sidExportUb"));
   setText("#cg-export-demo", t("cgExportDemo"));
   setText("#cg-export-ub", t("sidExportUb"));
@@ -11930,6 +11968,14 @@ async function showBuildInfoDialog() {
         <div class="build-info-section-label">${label} <span class="build-info-count">${lines.length}</span></div>
         <ul class="build-info-list${isError ? " build-info-list--err" : ""}">${lines.map(l => `<li>${_escHtml(l)}</li>`).join("")}</ul>
       </section>`;
+  // name / value pairs without a count: the Build section (_buildInfoBuildFacts)
+  const makeFacts = (label, items) => `
+      <section class="build-info-section">
+        <div class="build-info-section-label">${label}</div>
+        <div class="build-info-grid">${items.map(([k, v]) => `<div class="build-info-item"><span class="build-info-item-key">${_escHtml(k)}</span><span class="build-info-item-val" title="${_escHtml(String(v))}">${_escHtml(String(v))}</span></div>`).join("")}</div>
+      </section>`;
+  // the compiler's own text output (warnings, verbose steps); R65 gives it as text or lines
+  const compilerLog = (log) => (Array.isArray(log) ? log : String(log || "").split(/\r?\n/)).map(String).filter(line => line.trim());
   if (kick && !kick.ok) {
     buildInfoContent.innerHTML = pathHtml + makeList(t("buildInfoErrors"), kick.errors.map(e => e.text), true);
     buildInfoDialog.showModal();
@@ -11942,6 +11988,8 @@ async function showBuildInfoDialog() {
     let prg;
     try { prg = await _textBuild(true, { preview: true }); } catch (e) { prg = { ok: false, error: String(e?.message || e) }; }
     let html = pathHtml;
+    const r65 = _r65Mode();
+    html += makeFacts(t("buildInfoBuild"), await _buildInfoBuildFacts(r65 ? "r65" : "acme", prg));
     const memory = prg?.ok ? _acmePrgMemory(prg.bytes) : null;
     if (!prg?.ok || !memory) {
       const lines = prg?.errors?.length ? prg.errors.map(e => e.text) : [prg?.error || t(_textKey("acmeBuildFirst"))];
@@ -11965,6 +12013,9 @@ async function showBuildInfoDialog() {
         .flatMap(([address, names]) => names.map(name => [name, fmtAddr(address)]));
       html += makeGrid(t("buildInfoLabels"), labels);
       if (!labels.length) html += makeMessageRow(t("buildInfoNoErrors"));
+      // the compiler's own output: warnings, and ACME's steps with the verbose switch
+      const log = compilerLog(r65 ? prg.r65?.log : prg.log);
+      if (log.length) html += makeList(t("buildInfoCompilerOutput"), log, false);
     }
     buildInfoContent.innerHTML = html;
     buildInfoDialog.showModal();
@@ -11983,6 +12034,7 @@ async function showBuildInfoDialog() {
 
     const built = kick ? _kickMapResult(_vmaBuildResult(vma), kick) : _vmaBuildResult(vma);
     const compileErrors = built.ok ? [] : (built.errors || [{ text: built.error }]).map(e => e.text || String(e));
+    infoHtml += makeFacts(t("buildInfoBuild"), await _buildInfoBuildFacts("vma", built, { kick: !!kick }));
 
     // Segments: the contiguous byte ranges, by address
     const ranges = lines.filter(line => line.size > 0).map(line => [line.address, line.address + line.size]).sort((x, y) => x[0] - y[0]);
@@ -12025,6 +12077,9 @@ async function showBuildInfoDialog() {
       infoHtml += makeGrid(t("buildInfoSegments"), segments.map(([x, y]) => [`${fmtAddr(x)}–${fmtAddr(y - 1)}`, `${y - x} bytes`]));
     }
     if (compileErrors.length) infoHtml += makeList(t("buildInfoErrors"), compileErrors, true);
+    // VMA's build report (Settings → Compilers → VMA → Verbose build report)
+    const vmaLog = compilerLog(vma.raw?.log);
+    if (vmaLog.length) infoHtml += makeList(t("buildInfoCompilerOutput"), vmaLog, false);
     if (kick?.messages.length) infoHtml += makeList(t("buildInfoPrint"), kick.messages, false);
     infoHtml += makeGrid(t("buildInfoLabels"), labelList.map(l => [l.name, l.addr]));
     infoHtml += makeGrid(t("buildInfoConsts"), constList.map(c => [c.name, c.val]));
@@ -12038,6 +12093,41 @@ async function showBuildInfoDialog() {
 
   buildInfoContent.innerHTML = pathHtml + infoHtml;
   buildInfoDialog.showModal();
+}
+
+// Build info → Build: which compiler built the program, with what, and what came out.
+// `compiler`: "vma" | "acme" | "r65"; `result`: the build ({ ok, bytes, sysAddress, errors }).
+async function _buildInfoBuildFacts(compiler, result, { kick = false } = {}) {
+  const fmtAddr = a => "$" + (a & 0xFFFF).toString(16).toUpperCase().padStart(4, "0");
+  const onOff = on => t(on ? "buildInfoOn" : "buildInfoOff");
+  const api = window.electronAPI || {};
+  let name = "";
+  try {
+    if (compiler === "acme") {
+      const info = (await api.getToolsInfo?.())?.acme;
+      name = info?.path ? `ACME v${info.version || "?"} (${info.usesBundled ? t("buildInfoBundled") : info.path})` : "ACME";
+    } else if (compiler === "r65") {
+      const v = await api.getR65Version?.();
+      name = `R65${v ? ` v${v}` : ""} (${t("buildInfoBuiltIn")})`;
+    } else {
+      const v = await api.getVmaVersion?.();
+      name = `${kick ? "KickAssembler → " : ""}VMA${v ? ` v${v}` : ""} (${t("buildInfoBuiltIn")})`;
+    }
+  } catch (_) {
+    name = compiler.toUpperCase();
+  }
+  const facts = [[t("buildInfoCompiler"), name]];
+  if (compiler === "acme") facts.push([t("buildInfoSwitches"), _acmeArgs().join(" ") || t("buildInfoNone")]);
+  if (compiler === "vma") facts.push([t("buildInfoSwitches"), _vmaVerbose() ? "verbose" : t("buildInfoNone")]);
+  const errors = result?.errors?.length || (result?.ok ? 0 : 1);
+  facts.push([t("buildInfoResult"), result?.ok ? t("buildInfoOk") : tf("buildInfoFailed", { count: errors })]);
+  const bytes = result?.ok ? result.bytes : null;
+  if (bytes?.length >= 2) facts.push([t("buildInfoPrg"), tf("buildInfoPrgValue", { bytes: bytes.length, address: fmtAddr(bytes[0] | (bytes[1] << 8)) })]);
+  const sys = result?.ok && typeof result.sysAddress === "number" ? result.sysAddress : null;
+  facts.push([t("buildInfoBasicStub"), basicSysToggle?.checked === false ? t("buildInfoOff") : sys !== null ? `SYS ${sys} (${fmtAddr(sys)})` : t("buildInfoOn")]);
+  facts.push([t("buildInfoDebugFiles"), onOff(!!writeDebugSidecarsToggle?.checked)]);
+  facts.push([t("buildInfoExomizer"), onOff(!!runExomizerToggle?.checked)]);
+  return facts;
 }
 
 // The file the Build info describes: the UB source, the Kick project's startup file, the project's
@@ -16482,6 +16572,8 @@ function _expertRenderProjectTree() {
   const treeEl = document.getElementById("expert-project-tree");
   if (!nameEl || !treeEl) return;
   _projUpdateSaveBtn("expert-project-save-btn", !!_expertProjectData, _expertProjectDirty);
+  // the project's "Expert mode only" opens / closes the toolbar's Blocks button
+  _updateEditorModeIndicator();
   // Project settings belong to a project file: off until one is opened or saved
   const hasProjFile = !!_expertProjectData?._projPath;
   const psBtn = document.getElementById("expert-project-settings-btn");
@@ -23836,6 +23928,21 @@ function _studioRenderMenuRecent() {
     });
     host.appendChild(btn);
   }
+  // Clear recent: empties the list (menu and start window); the menu then closes like after any entry.
+  const sep = document.createElement("hr");
+  sep.className = "menu-recent-sep";
+  host.appendChild(sep);
+  const clear = document.createElement("button");
+  clear.type = "button";
+  clear.className = "secondary menu-recent-item menu-recent-clear";
+  clear.setAttribute("role", "menuitem");
+  clear.textContent = t("menuClearRecent");
+  clear.addEventListener("click", () => {
+    localStorage.removeItem(_STUDIO_RECENT);
+    _studioRecentFlyout(false);
+    _studioRenderRecent();
+  });
+  host.appendChild(clear);
 }
 // Open recent: a flyout beside the menu entry (top layer, so the menu panel does not clip it).
 function _studioRecentFlyout(show) {
@@ -26413,12 +26520,12 @@ async function _buildAcmePrg(useCurrentEditor = false, options = null) {
     ? ((typeof tabs !== "undefined" ? tabs.find(tab => tab.id === activeTabId)?.filePath : "")
         || (typeof _expertAsmFilePath === "string" ? _expertAsmFilePath : ""))
     : "";
-  const result = await window.electronAPI.buildAcmePrg(source, `c64-visual-assembler-${Date.now()}.asm`, sourcePath);
+  const result = await window.electronAPI.buildAcmePrg(source, `c64-visual-assembler-${Date.now()}.asm`, sourcePath, _acmeArgs());
   if (!result?.ok) {
     const error = result?.error || "ACME fordítás sikertelen.";
     return { ok: false, error, errors: _acmeParseErrors(error, useExpertSource ? sourceLineOffset : null) };
   }
-  const built = { ok: true, bytes: Uint8Array.from(result.bytes || []), labels: result.labels || "", report: result.report || "", sysAddress, stubGenerated: sourceLineOffset > 0, sourceLineOffset: useExpertSource ? sourceLineOffset : null };
+  const built = { ok: true, bytes: Uint8Array.from(result.bytes || []), labels: result.labels || "", report: result.report || "", log: result.log || "", sysAddress, stubGenerated: sourceLineOffset > 0, sourceLineOffset: useExpertSource ? sourceLineOffset : null };
   if (dumpEntry === null || built.bytes.length < 3) return built;
   if (preview) return { ...built, sysAddress: dumpEntry };
   const loadAddr = built.bytes[0] | (built.bytes[1] << 8);
@@ -26426,6 +26533,38 @@ async function _buildAcmePrg(useCurrentEditor = false, options = null) {
   if (!loader) return { ok: false, error: tf("autostartImageOverlapsStub", { address: formatAddress(loadAddr) }) };
   return { ...built, bytes: loader, sysAddress: 0x080D, imageBytes: built.bytes };
 }
+
+// The ACME switches of Settings → Compilers (UI settings acmeOptions); the Rust side passes only these.
+const _ACME_OPTION_INPUTS = { verbose: "acme-verbose", strict: "acme-strict", typeCheck: "acme-type-check", noLabelIndent: "acme-no-label-indent" };
+function _acmeArgs() {
+  const args = { verbose: "-v2", strict: "--strict", typeCheck: "-Wtype-mismatch", noLabelIndent: "-Wno-label-indent" };
+  const options = typeof acmeOptions === "object" && acmeOptions ? acmeOptions : {};
+  return Object.keys(args).filter(key => options[key] === true).map(key => args[key]);
+}
+function _acmeOptionsToDOM() {
+  for (const [key, id] of Object.entries(_ACME_OPTION_INPUTS)) {
+    const box = document.getElementById(id);
+    if (box) box.checked = acmeOptions[key] === true;
+  }
+}
+for (const [key, id] of Object.entries(_ACME_OPTION_INPUTS)) {
+  document.getElementById(id)?.addEventListener("change", (e) => {
+    acmeOptions = { ...acmeOptions, [key]: e.target.checked };
+    saveUiSettings();
+    // the cached preview was built with the old switches
+    _acmePreview = null;
+    _acmePreviewError = null;
+    _acmeScheduleAutoBuild();
+  });
+}
+
+// Settings → Compilers → VMA → Verbose build report
+document.getElementById("vma-verbose")?.addEventListener("change", (e) => {
+  vmaOptions = { ...vmaOptions, verbose: e.target.checked };
+  saveUiSettings();
+  // the live analysis was made without (or with) the report
+  if (typeof _vmaLiveCache !== "undefined") _vmaLiveCache.clear();
+});
 
 // Lowest "* = address" of an ACME source (null without one).
 function _acmeLowestOrigin(source) {
@@ -30247,11 +30386,16 @@ function _vmaBasicStub() {
 // (null when the line failed: `error`), mnem / mode (an instruction's, from its opcode), block (the
 // block of a Block-mode source), sourceLine (the editor's line; none in an included file), file /
 // fileLine (an included file's) }; labels: name → address. Without the desktop app: not ok, no lines.
+// Settings → Compilers → VMA → Verbose build report: VMA's report (`log`) in Build info → Compiler output.
+function _vmaVerbose() {
+  return typeof vmaOptions === "object" && !!vmaOptions && vmaOptions.verbose === true;
+}
+
 async function _vmaAnalyze(input, basicStub = _vmaBasicStub()) {
   if (!window.electronAPI?.vmaAnalyze) return _vmaNormalize({}, input);
   let r;
   try {
-    r = await window.electronAPI.vmaAnalyze(input.text, input.baseDir || "", basicStub, input.sourcePath || null, input.lineMap || null, input.assets || null);
+    r = await window.electronAPI.vmaAnalyze(input.text, input.baseDir || "", basicStub, input.sourcePath || null, input.lineMap || null, input.assets || null, _vmaVerbose());
   } catch (e) {
     r = { ok: false, error: String(e?.message || e), errors: [], listing: [] };
   }
@@ -49053,6 +49197,7 @@ let _sidVkbdInsertMode = true;
 let _sidMidiAccess = null;
 let _sidMidiInputId = "";
 let _sidMidiHeld = new Set();
+let _sidMidiAuto = false;   // connected by _sidMidiAutoConnect: waits for the remembered device
 var _sidMidiPoly; // no initializer: setupSidEditor loads it before this line runs
 let _sidRecording = null;
 
@@ -49265,7 +49410,9 @@ function _sidClockHz() { return _sidIsNtsc() ? 1022730 : 985248; } // n: 0 = C-0
 function _sidMidiRefreshInputs() {
   const select = document.getElementById("sid-midi-input");
   if (!select || !_sidMidiAccess) return;
-  const old = _sidMidiInputId || select.value;
+  let storedId = "";
+  try { storedId = localStorage.getItem("c64va-sid-midi-input") || ""; } catch (_) {}
+  const old = _sidMidiInputId || (_sidMidiAuto ? storedId : "") || select.value;
   select.innerHTML = '<option value="">' + t("sidMidiNone") + '</option>';
   _sidMidiAccess.inputs.forEach(function(input) {
     const option = document.createElement("option");
@@ -49273,16 +49420,34 @@ function _sidMidiRefreshInputs() {
     option.textContent = input.name || input.manufacturer || input.id;
     select.appendChild(option);
   });
-  const wanted = _sidMidiAccess.inputs.has(old) ? old : (_sidMidiAccess.inputs.keys().next().value || "");
+  // the remembered device (by id, else by name: ids can change between sessions); a manual Connect
+  // falls back to the first input, an automatic one waits for the remembered device
+  let rememberedName = "";
+  try { rememberedName = localStorage.getItem("c64va-sid-midi-input-name") || ""; } catch (_) {}
+  const wanted = _sidMidiPickInput(_sidMidiAccess.inputs, old, rememberedName, !_sidMidiAuto);
   select.value = wanted;
-  _sidMidiSetInput(wanted);
+  // a device that is (still) missing keeps the remembered one: it is picked when it appears
+  _sidMidiSetInput(wanted, { remember: !!wanted || !_sidMidiAuto });
 }
-function _sidMidiSetInput(id) {
+// The input to use: `id` when present, else an input named `name`, else (fallback) the first one.
+function _sidMidiPickInput(inputs, id, name, fallback) {
+  if (id && inputs.has(id)) return id;
+  let byName = "";
+  if (name) inputs.forEach(function(input, key) { if (!byName && (input.name || "") === name) byName = key; });
+  if (byName) return byName;
+  return fallback ? (inputs.keys().next().value || "") : "";
+}
+function _sidMidiSetInput(id, { remember = true } = {}) {
   if (_sidMidiAccess) _sidMidiAccess.inputs.forEach(function(input) { input.onmidimessage = null; });
   _sidMidiInputId = id || "";
   const input = _sidMidiAccess?.inputs.get(_sidMidiInputId);
   if (input) input.onmidimessage = _sidMidiMessage;
-  try { localStorage.setItem("c64va-sid-midi-input", _sidMidiInputId); } catch (_) {}
+  if (!remember) return;
+  try {
+    localStorage.setItem("c64va-sid-midi-input", _sidMidiInputId);
+    if (input) localStorage.setItem("c64va-sid-midi-input-name", input.name || "");
+  } catch (_) {}
+  _sidMidiSettingsPersist();
 }
 let _sidMidiLedTimer = null;
 function _sidMidiFlash() {
@@ -49297,10 +49462,17 @@ function _sidMidiMessage(event) {
   // Clock / active sensing (real-time üzenetek) nem villantja a lámpát
   if (data.length && data[0] < 0xF8) _sidMidiFlash();
   const command = data[0] & 0xf0;
+  // Control Change: a hardware knob / fader on a mapped knob (or MIDI Learn)
+  if (command === 0xB0 && data.length >= 3) {
+    _sidMidiControl(data[0] & 0x0f, data[1], data[2]);
+    return;
+  }
   const midiNote = data[1];
   const velocity = data[2] || 0;
   if (!Number.isFinite(midiNote)) return;
   const note = Math.max(0, Math.min(95, midiNote - 12)); // MIDI C-1 = SID C-0
+  // a pad mapped to a button (Play, Record …) presses it instead of playing
+  if ((command === 0x80 || command === 0x90) && _sidMidiNote(data[0] & 0x0f, midiNote, command === 0x90 && velocity > 0)) return;
   if (command === 0x80 || (command === 0x90 && velocity === 0)) {
     _sidMidiHeld.delete(midiNote);
     _sidRecordPolyRelease(midiNote);
@@ -49320,20 +49492,33 @@ function _sidMidiMessage(event) {
     _sidFlashVirtualKeyboardNotes([note]);
   }
 }
-async function _sidMidiConnect() {
+// Connect: remembered ("c64va-sid-midi-auto"), so the SID editor connects by itself next time
+// (_sidMidiAutoConnect). quiet: the automatic connect, no toasts, only the remembered device.
+async function _sidMidiConnect({ quiet = false } = {}) {
   if (!navigator.requestMIDIAccess) {
-    showViceToast(t("sidMidiUnavailable"), true);
+    if (!quiet) showViceToast(t("sidMidiUnavailable"), true);
     return;
   }
   try {
     _sidMidiAccess = await navigator.requestMIDIAccess();
+    _sidMidiAuto = quiet;
     try { _sidMidiInputId = localStorage.getItem("c64va-sid-midi-input") || ""; } catch (_) {}
     _sidMidiAccess.onstatechange = _sidMidiRefreshInputs;
     _sidMidiRefreshInputs();
-    if (!_sidMidiInputId) showViceToast(t("sidMidiNone"), true);
+    if (!quiet) {
+      try { localStorage.setItem("c64va-sid-midi-auto", "1"); } catch (_) {}
+      _sidMidiSettingsPersist();
+      if (!_sidMidiInputId) showViceToast(t("sidMidiNone"), true);
+    }
   } catch (error) {
-    showViceToast(t("sidMidiDenied") + ": " + (error?.message || error), true);
+    if (!quiet) showViceToast(t("sidMidiDenied") + ": " + (error?.message || error), true);
   }
+}
+// The SID editor's first open: connect again when MIDI was connected before (the device may come later).
+function _sidMidiAutoConnect() {
+  let auto = false;
+  try { auto = localStorage.getItem("c64va-sid-midi-auto") === "1"; } catch (_) {}
+  if (auto && !_sidMidiAccess) _sidMidiConnect({ quiet: true });
 }
 function _sidInsertNoteAtSelection(note, advanceRow) {
   if (_sidRecordNote(note)) return;
@@ -50086,6 +50271,11 @@ function _sidVkbdInstKnobBind() {
   const knob = document.getElementById("sid-vkbd-inst-knob");
   if (!knob || knob._bound) return;
   knob._bound = true;
+  // a MIDI controller steps through the instruments over its whole range
+  _sidMidiKnobRegister(knob, function(pct) {
+    const n = (_sidInsts && _sidInsts.length) || 0;
+    if (n) _sidVkbdSelectInst(Math.round(pct * (n - 1) / 100));
+  });
   let drag = null;
   knob.addEventListener("pointerdown", function(e) {
     drag = { x: e.clientX, y: e.clientY, index: _sidInst | 0 };
@@ -51437,8 +51627,188 @@ function _sidKnobRender(knob, pct) {
   knob.setAttribute("aria-valuenow", String(pct));
 }
 // Drag up / right = louder (200 px for the full range), wheel ±2, keys ±1 / ±10.
+/* ── MIDI controllers on the knobs ──
+   Right click on a knob → MIDI Learn: the next CC message (a hardware knob / fader) is mapped to it,
+   "channel:cc" → knob id, kept in localStorage "c64va-sid-midi-cc". A CC value 0-127 sets the knob
+   0-100 % through the knob's own setter (the same as a drag), only while its dialog is open. */
+// var, no initializer: setupSidPlayer / setupSidEditor register knobs before these lines run
+// (a const / let would throw "before initialization"); _sidMidiKnobsMap() creates the map.
+var _sidMidiKnobs;                 // knob id → { knob, set(pct) }
+var _sidMidiCcMap;                 // "ch:cc" → knob id
+var _sidMidiLearnId;               // the knob waiting for a CC (MIDI Learn)
+function _sidMidiKnobsMap() {
+  if (!_sidMidiKnobs) _sidMidiKnobs = new Map();
+  return _sidMidiKnobs;
+}
+function _sidMidiCcMapGet() {
+  if (_sidMidiCcMap) return _sidMidiCcMap;
+  _sidMidiCcMap = {};
+  try {
+    const saved = JSON.parse(localStorage.getItem("c64va-sid-midi-cc") || "{}");
+    if (saved && typeof saved === "object") {
+      for (const [key, id] of Object.entries(saved)) if (/^(n:)?\d{1,2}:\d{1,3}$/.test(key) && typeof id === "string") _sidMidiCcMap[key] = id;
+    }
+  } catch (_) {}
+  return _sidMidiCcMap;
+}
+function _sidMidiCcSave() {
+  try { localStorage.setItem("c64va-sid-midi-cc", JSON.stringify(_sidMidiCcMapGet())); } catch (_) {}
+  _sidMidiKnobsMap().forEach(function(entry) { _sidMidiKnobMark(entry.knob); });
+  _sidMidiSettingsPersist();
+}
+/* The MIDI settings also go into the UI settings (saveUiSettings → the global settings file), so the
+   mappings and the remembered input survive a new WebView profile; the settings file wins at start
+   (_applyUiSettingsToDOM → _sidMidiSettingsApply). localStorage stays the working copy. */
+function _sidMidiSettingsGet() {
+  const out = { cc: {}, input: "", inputName: "", auto: false };
+  try {
+    const cc = JSON.parse(localStorage.getItem("c64va-sid-midi-cc") || "{}");
+    if (cc && typeof cc === "object" && !Array.isArray(cc)) out.cc = cc;
+    out.input = localStorage.getItem("c64va-sid-midi-input") || "";
+    out.inputName = localStorage.getItem("c64va-sid-midi-input-name") || "";
+    out.auto = localStorage.getItem("c64va-sid-midi-auto") === "1";
+  } catch (_) {}
+  return out;
+}
+function _sidMidiSettingsApply(saved) {
+  if (!saved || typeof saved !== "object" || Array.isArray(saved)) return;
+  const text = function(v) { return typeof v === "string" ? v : ""; };
+  try {
+    const cc = saved.cc && typeof saved.cc === "object" && !Array.isArray(saved.cc) ? saved.cc : {};
+    localStorage.setItem("c64va-sid-midi-cc", JSON.stringify(cc));
+    if (text(saved.input)) localStorage.setItem("c64va-sid-midi-input", text(saved.input));
+    else localStorage.removeItem("c64va-sid-midi-input");
+    if (text(saved.inputName)) localStorage.setItem("c64va-sid-midi-input-name", text(saved.inputName));
+    else localStorage.removeItem("c64va-sid-midi-input-name");
+    if (saved.auto === true) localStorage.setItem("c64va-sid-midi-auto", "1");
+    else localStorage.removeItem("c64va-sid-midi-auto");
+  } catch (_) {}
+  _sidMidiCcMap = null;   // read (and checked) again from the stored copy
+  _sidMidiKnobsMap().forEach(function(entry) { _sidMidiKnobMark(entry.knob); });
+}
+function _sidMidiSettingsPersist() {
+  if (typeof saveUiSettings === "function") try { saveUiSettings(); } catch (_) {}
+}
+// The "ch:cc" a knob is mapped to ("" when none).
+function _sidMidiCcOf(id) {
+  const map = _sidMidiCcMapGet();
+  return Object.keys(map).find(function(key) { return map[key] === id; }) || "";
+}
+// "CC 21 / ch 1" of a "ch:cc" key, "Note 60 / ch 1" of a "n:ch:note" key (a button)
+function _sidMidiCcText(key) {
+  if (key.startsWith("n:")) {
+    const [ch, note] = key.slice(2).split(":").map(Number);
+    return tf("sidMidiNoteName", { note: note, ch: ch + 1 });
+  }
+  const [ch, cc] = key.split(":").map(Number);
+  return tf("sidMidiCcName", { cc: cc, ch: ch + 1 });
+}
+function _sidMidiKnobMark(knob) {
+  const key = _sidMidiCcOf(knob.id);
+  knob.classList.toggle("sid-knob--midi", !!key);
+  knob.classList.toggle("sid-knob--learning", _sidMidiLearnId === knob.id);
+  // the CC number as a small badge on the knob (style.css .sid-knob--midi::after)
+  if (key) knob.dataset.midiCc = key.startsWith("n:") ? "n" + key.split(":")[2] : key.split(":")[1];
+  else delete knob.dataset.midiCc;
+}
+// A knob MIDI controllers can drive: its right-click menu and its mapping mark.
+function _sidMidiKnobRegister(knob, set) {
+  if (!knob?.id || _sidMidiKnobsMap().has(knob.id)) return;
+  _sidMidiKnobsMap().set(knob.id, { knob: knob, set: set });
+  knob.addEventListener("contextmenu", function(e) {
+    e.stopPropagation();
+    _sidMidiKnobMenu(e, knob);
+  });
+  _sidMidiKnobMark(knob);
+}
+/* A button MIDI controllers can press (Play, Stop, Record, Undo …): learned like a knob, from a
+   CC (a transport button: 127 down, 0 up) or a note (a pad). It is clicked once per press, only
+   while it is enabled and its dialog is open. */
+function _sidMidiButtonRegister(button) {
+  if (!button?.id || _sidMidiKnobsMap().has(button.id)) return;
+  const entry = { knob: button, button: true, down: false, set: function(pct) {
+    const down = pct >= 50;
+    if (down && !entry.down && !button.disabled) button.click();
+    entry.down = down;
+  } };
+  _sidMidiKnobsMap().set(button.id, entry);
+  button.addEventListener("contextmenu", function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    _sidMidiKnobMenu(e, button);
+  });
+  // a disabled button (Undo with nothing to undo) gets no events of its own: its parent's do
+  button.parentElement?.addEventListener("contextmenu", function(e) {
+    if (e.target === button || !button.disabled) return;
+    const r = button.getBoundingClientRect();
+    if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) return;
+    e.preventDefault();
+    e.stopPropagation();
+    _sidMidiKnobMenu(e, button);
+  });
+  _sidMidiKnobMark(button);
+}
+function _sidMidiKnobMenu(e, knob) {
+  const key = _sidMidiCcOf(knob.id);
+  const learning = _sidMidiLearnId === knob.id;
+  const count = Object.keys(_sidMidiCcMapGet()).length;
+  _edShowCtxMenu(e, knob.closest("dialog") || document.body, [
+    { label: learning ? t("sidMidiLearnCancel") : t(_sidMidiKnobsMap().get(knob.id)?.button ? "sidMidiLearnButton" : "sidMidiLearn"), run: function() { learning ? _sidMidiLearnStop() : _sidMidiLearnStart(knob); } },
+    { label: key ? tf("sidMidiUnmap", { cc: _sidMidiCcText(key) }) : t("sidMidiUnmapNone"), disabled: !key, run: function() {
+      delete _sidMidiCcMapGet()[key];
+      _sidMidiCcSave();
+    } },
+    { label: t("sidMidiUnmapAll"), disabled: !count, run: function() {
+      _sidMidiCcMap = {};
+      _sidMidiCcSave();
+    } },
+  ]);
+}
+function _sidMidiLearnStart(knob) {
+  _sidMidiLearnId = knob.id;
+  _sidMidiKnobsMap().forEach(function(entry) { _sidMidiKnobMark(entry.knob); });
+  if (!_sidMidiAccess) _sidMidiConnect();
+  showViceToast(t(_sidMidiKnobsMap().get(knob.id)?.button ? "sidMidiLearnButtonHint" : "sidMidiLearnHint"));
+}
+function _sidMidiLearnStop() {
+  _sidMidiLearnId = "";
+  _sidMidiKnobsMap().forEach(function(entry) { _sidMidiKnobMark(entry.knob); });
+}
+// A Control Change message: MIDI Learn takes it, else the mapped knob follows it.
+function _sidMidiControl(channel, cc, value) {
+  _sidMidiMapped(channel + ":" + cc, Math.max(0, Math.min(127, value)) * 100 / 127);
+}
+// A note on / off: a button mapped to it (or learning one) takes it, else it plays (false).
+function _sidMidiNote(channel, note, on) {
+  const key = "n:" + channel + ":" + note;
+  const learning = _sidMidiLearnId && _sidMidiKnobsMap().get(_sidMidiLearnId)?.button;
+  if (!learning && !_sidMidiCcMapGet()[key]) return false;
+  if (learning && !on) return true;   // the release of a note learned earlier
+  _sidMidiMapped(key, on ? 100 : 0);
+  return true;
+}
+function _sidMidiMapped(key, pct) {
+  const map = _sidMidiCcMapGet();
+  if (_sidMidiLearnId) {
+    const id = _sidMidiLearnId;
+    // one controller per knob, one knob per controller
+    Object.keys(map).forEach(function(k) { if (map[k] === id) delete map[k]; });
+    map[key] = id;
+    _sidMidiLearnId = "";
+    _sidMidiCcSave();
+    showViceToast(tf("sidMidiLearned", { cc: _sidMidiCcText(key) }));
+    return;
+  }
+  const entry = _sidMidiKnobsMap().get(map[key]);
+  if (!entry || !entry.knob.isConnected) return;
+  const dialog = entry.knob.closest("dialog");
+  if (dialog && !dialog.open) return;
+  entry.set(pct);
+}
+
 function _sidKnobBind(knob, get, set) {
   if (!knob) return;
+  _sidMidiKnobRegister(knob, set);
   let drag = null;
   knob.addEventListener("pointerdown", function(e) {
     drag = { x: e.clientX, y: e.clientY, value: get() };
@@ -55907,6 +56277,487 @@ async function _sidRunSidImport() {
   }
 }
 
+/* ── Standard MIDI File (.mid) import / export ──────────────────────────────
+ * A plain SMF reader and writer (format 0 / 1, ticks per quarter note). The
+ * export walks the song order the way the player does (speed changes, note
+ * cuts, gate timer) and writes one track per voice; the import quantizes the
+ * notes of the chosen tracks / channels to rows. MIDI note = SID note + 12,
+ * the same mapping as the live MIDI input. */
+const _SID_SMF_VEL = 100;
+
+function _sidSmfError(key) {
+  const err = new Error(key);
+  err.i18nKey = key;
+  return err;
+}
+
+/* Variable-length quantity: 7 bits per byte, high bit set on all but the last. */
+function _sidSmfVlq(n) {
+  n = Math.max(0, Math.min(0x0FFFFFFF, Math.floor(n))) >>> 0;
+  const out = [n & 0x7F];
+  n >>>= 7;
+  while (n) { out.unshift((n & 0x7F) | 0x80); n >>>= 7; }
+  return out;
+}
+
+function _sidSmfMeta(type, data) {
+  return [0xFF, type].concat(_sidSmfVlq(data.length), data);
+}
+
+function _sidSmfText(str) {
+  return Array.from(new TextEncoder().encode(String(str || "")));
+}
+
+function _sidSmfDecode(data) {
+  let s;
+  try { s = new TextDecoder("utf-8", { fatal: true }).decode(data); }
+  catch (_) { s = Array.from(data, function(c) { return String.fromCharCode(c); }).join(""); }
+  return s.replace(/[\u0000-\u001F]+/g, " ").trim();
+}
+
+/* smf = { format, division, tracks: [[{ t: tick, d: [event bytes] }]] }. Each
+   track is sorted by tick; events on the same tick keep their order. */
+function _sidSmfWrite(smf) {
+  const out = [];
+  const u32 = function(n) { out.push((n >>> 24) & 255, (n >>> 16) & 255, (n >>> 8) & 255, n & 255); };
+  const u16 = function(n) { out.push((n >> 8) & 255, n & 255); };
+  out.push(0x4D, 0x54, 0x68, 0x64); u32(6); u16(smf.format); u16(smf.tracks.length); u16(smf.division);
+  smf.tracks.forEach(function(events) {
+    const list = events.map(function(ev, i) { return { t: Math.max(0, Math.round(ev.t)), d: ev.d, i: i }; });
+    list.sort(function(a, b) { return a.t - b.t || a.i - b.i; });
+    const body = [];
+    let last = 0;
+    list.forEach(function(ev) {
+      _sidSmfVlq(ev.t - last).forEach(function(x) { body.push(x); });
+      ev.d.forEach(function(x) { body.push(x & 255); });
+      last = ev.t;
+    });
+    body.push(0, 0xFF, 0x2F, 0);
+    out.push(0x4D, 0x54, 0x72, 0x6B); u32(body.length);
+    for (let k = 0; k < body.length; k++) out.push(body[k]);
+  });
+  return Uint8Array.from(out);
+}
+
+/* One MTrk chunk → { name, events: [{ t, kind: on|off|prog|tempo|timesig, ... }] }.
+   Running status, meta events, SysEx (skipped). A note on with velocity 0 is a note off. */
+function _sidSmfParseTrack(b, p, end) {
+  const events = [];
+  let t = 0, status = 0, name = "";
+  const need = function(n) { if (p + n > end) throw _sidSmfError("sidSmfErrTruncated"); };
+  const vlq = function() {
+    let v = 0;
+    for (let k = 0; k < 4; k++) {
+      need(1);
+      const c = b[p++];
+      v = (v << 7) | (c & 0x7F);
+      if (!(c & 0x80)) return v;
+    }
+    throw _sidSmfError("sidSmfErrTruncated");
+  };
+  while (p < end) {
+    t += vlq();
+    need(1);
+    const c = b[p];
+    if (c === 0xFF) {
+      p++; need(1);
+      const type = b[p++], len = vlq();
+      need(len);
+      const data = b.subarray(p, p + len);
+      p += len;
+      status = 0;
+      if (type === 0x2F) break;
+      if (type === 0x51 && len >= 3) events.push({ t: t, kind: "tempo", us: (data[0] << 16) | (data[1] << 8) | data[2] });
+      else if (type === 0x58 && len >= 2) events.push({ t: t, kind: "timesig", num: data[0], den: 1 << Math.min(6, data[1]) });
+      else if (type === 0x03 && !name) name = _sidSmfDecode(data);
+      continue;
+    }
+    if (c === 0xF0 || c === 0xF7) {
+      p++;
+      const len = vlq();
+      need(len);
+      p += len;
+      status = 0;
+      continue;
+    }
+    if (c & 0x80) { status = c; p++; }
+    if (status < 0x80 || status >= 0xF0) throw _sidSmfError("sidSmfErrTruncated");
+    const hi = status & 0xF0, ch = status & 0x0F, n = hi === 0xC0 || hi === 0xD0 ? 1 : 2;
+    need(n);
+    const d1 = b[p] & 0x7F, d2 = n > 1 ? b[p + 1] & 0x7F : 0;
+    p += n;
+    if (hi === 0x90 && d2) events.push({ t: t, kind: "on", ch: ch, note: d1, vel: d2 });
+    else if (hi === 0x80 || hi === 0x90) events.push({ t: t, kind: "off", ch: ch, note: d1 });
+    else if (hi === 0xC0) events.push({ t: t, kind: "prog", ch: ch, prog: d1 });
+  }
+  return { name: name, events: events };
+}
+
+/* Bytes → { format, division, tracks }. Throws an Error whose i18nKey names the message. */
+function _sidSmfParse(bytes) {
+  const b = bytes instanceof Uint8Array ? bytes : Uint8Array.from(bytes || []);
+  const tag = function(at) { return String.fromCharCode(b[at], b[at + 1], b[at + 2], b[at + 3]); };
+  const u32 = function(at) { return ((b[at] << 24) | (b[at + 1] << 16) | (b[at + 2] << 8) | b[at + 3]) >>> 0; };
+  if (b.length < 14 || tag(0) !== "MThd") throw _sidSmfError("sidSmfErrNotMidi");
+  const hlen = u32(4);
+  if (hlen < 6 || 8 + hlen > b.length) throw _sidSmfError("sidSmfErrTruncated");
+  const format = (b[8] << 8) | b[9], ntrks = (b[10] << 8) | b[11], division = (b[12] << 8) | b[13];
+  if (division & 0x8000) throw _sidSmfError("sidSmfErrSmpte");
+  if (format === 2) throw _sidSmfError("sidSmfErrFormat");
+  if (format > 2 || !division) throw _sidSmfError("sidSmfErrNotMidi");
+  const tracks = [];
+  let p = 8 + hlen;
+  while (tracks.length < ntrks && p + 8 <= b.length) {
+    const id = tag(p), len = u32(p + 4);
+    p += 8;
+    if (id === "MTrk") {
+      if (p + len > b.length) throw _sidSmfError("sidSmfErrTruncated");
+      tracks.push(_sidSmfParseTrack(b, p, p + len));
+    }
+    p += len;
+  }
+  if (ntrks && !tracks.length) throw _sidSmfError("sidSmfErrTruncated");
+  return { format: format, division: division, tracks: tracks };
+}
+
+/* The notes of every (track, channel) pair: [{ track, ch, name, drum, notes: [{ t, end, note, vel }] }].
+   A note on is closed by the first note off of the same key; open notes end at the track's last event. */
+function _sidSmfParts(smf) {
+  const parts = [], byKey = {};
+  smf.tracks.forEach(function(tr, ti) {
+    const open = {};
+    let last = 0;
+    tr.events.forEach(function(ev) {
+      last = Math.max(last, ev.t);
+      if (ev.kind !== "on" && ev.kind !== "off") return;
+      const key = ev.ch + ":" + ev.note;
+      if (ev.kind === "on") {
+        let part = byKey[ti + ":" + ev.ch];
+        if (!part) {
+          part = byKey[ti + ":" + ev.ch] = { track: ti, ch: ev.ch, name: tr.name || "", drum: ev.ch === 9, notes: [] };
+          parts.push(part);
+        }
+        const note = { t: ev.t, end: -1, note: ev.note, vel: ev.vel };
+        (open[key] = open[key] || []).push(note);
+        part.notes.push(note);
+      } else if (open[key] && open[key].length) {
+        open[key].shift().end = ev.t;
+      }
+    });
+    Object.keys(open).forEach(function(key) {
+      open[key].forEach(function(note) { note.end = Math.max(last, note.t); });
+    });
+  });
+  return parts;
+}
+
+/* The tempo map of the whole file (µs per quarter note), sorted; 120 BPM until the first tempo. */
+function _sidSmfTempos(smf) {
+  const list = [];
+  smf.tracks.forEach(function(tr) {
+    tr.events.forEach(function(ev) { if (ev.kind === "tempo" && ev.us > 0) list.push({ t: ev.t, us: ev.us }); });
+  });
+  list.sort(function(a, b) { return a.t - b.t; });
+  if (!list.length || list[0].t > 0) list.unshift({ t: 0, us: 500000 });
+  return list;
+}
+
+/* Frames per row at a tick: the tempo there, split into rowsPerBeat rows. */
+function _sidSmfRowSpeed(tempos, tick, rowsPerBeat, fps) {
+  let us = tempos[0].us;
+  for (let k = 0; k < tempos.length && tempos[k].t <= tick; k++) us = tempos[k].us;
+  return Math.max(1, Math.min(255, Math.round(us / 1e6 / rowsPerBeat * fps)));
+}
+
+/* Ticks → rows: start and end are rounded to the nearest row, a note lasts at least one row. */
+function _sidSmfQuantize(notes, ticksPerRow) {
+  return notes.map(function(n) {
+    const s = Math.round(n.t / ticksPerRow);
+    return { s: s, e: Math.max(s + 1, Math.round(n.end / ticksPerRow)), note: n.note, vel: n.vel };
+  });
+}
+
+/* MIDI note → SID note (0-95): minus 12, notes outside the range moved by octaves. */
+function _sidSmfToSid(midi) {
+  let n = (midi | 0) - 12;
+  while (n < 0) n += 12;
+  while (n > 95) n -= 12;
+  return n;
+}
+
+function _sidSmfPartName(part) {
+  return part.name || tf("sidSmfTrack", { n: part.track + 1 });
+}
+
+function _sidSmfPartLabel(part) {
+  return _sidSmfPartName(part) + " · " + tf("sidSmfChannel", { n: part.ch + 1 }) +
+    (part.drum ? " (" + t("sidSmfDrums") + ")" : "") + " · " + tf("sidSmfNotes", { n: part.notes.length });
+}
+
+/* Default choice: the first parts that are not on the drum channel, as many as there are voices. */
+function _sidSmfDefaultParts(parts, voices) {
+  const out = [];
+  parts.forEach(function(part, i) { if (!part.drum && out.length < voices) out.push(i); });
+  return out;
+}
+
+function _sidSmfTrackInst(name, i) {
+  const ins = _sidNewInst(name);
+  const wave = i % 3;
+  ins.pul = wave === 0; ins.saw = wave === 1; ins.tri = wave === 2;
+  return ins;
+}
+
+/* Builds a tune from the chosen parts (in voice order). opts: { voices, rowsPerBeat, fps,
+   perTrack (one new instrument per part, else every note uses opts.inst of opts.insts),
+   spread (the lower notes of a chord go to voices no part uses) }. In a part the highest
+   note of a chord wins, and a higher note cuts a held one. Null when nothing is left. */
+function _sidSmfBuildTune(smf, parts, opts) {
+  const voices = Math.max(1, opts.voices | 0), rpb = Math.max(1, opts.rowsPerBeat | 0);
+  const tpr = smf.division / rpb;
+  const used = parts.slice(0, voices);
+  const lanes = [], free = [];
+  for (let v = 0; v < voices; v++) { lanes.push([]); if (v >= used.length) free.push(v); }
+  const overlaps = function(lane, s, e) { return lane.some(function(n) { return n.s < e && s < n.e; }); };
+  let dropped = 0;
+  used.forEach(function(part, pi) {
+    const inst = opts.perTrack ? pi : opts.inst | 0;
+    const lane = lanes[pi];
+    const list = _sidSmfQuantize(part.notes, tpr).sort(function(a, b) { return a.s - b.s || b.note - a.note; });
+    list.forEach(function(n) {
+      n.note = _sidSmfToSid(n.note); n.inst = inst;
+      const cur = lane.length ? lane[lane.length - 1] : null;
+      if (!cur || cur.e <= n.s) { lane.push(n); return; }
+      if (n.s > cur.s && n.note > cur.note) { cur.e = n.s; lane.push(n); return; }
+      if (opts.spread) {
+        const v = free.find(function(x) { return !overlaps(lanes[x], n.s, n.e); });
+        if (v !== undefined) { lanes[v].push(n); return; }
+      }
+      dropped++;
+    });
+  });
+  let maxEnd = 0, maxStart = 0, count = 0;
+  lanes.forEach(function(lane) {
+    lane.sort(function(a, b) { return a.s - b.s; });
+    lane.forEach(function(n) { maxEnd = Math.max(maxEnd, n.e); maxStart = Math.max(maxStart, n.s); count++; });
+  });
+  if (!count) return null;
+  // a note-off exactly on the next pattern boundary does not get a pattern of its own
+  const totalRows = Math.ceil(Math.max(maxStart + 1, maxEnd) / _SID_ROWS) * _SID_ROWS;
+  const empty = function() { return { note: null, inst: 0, fx: null, fxval: 0 }; };
+  const cols = lanes.map(function(lane) {
+    const col = [];
+    for (let r = 0; r < totalRows; r++) col.push(empty());
+    lane.forEach(function(n) { col[n.s] = { note: n.note, inst: n.inst, fx: null, fxval: 0 }; });
+    // a note-off where a note ends and no other one starts
+    lane.forEach(function(n) {
+      if (n.e < totalRows && col[n.e].note == null && !col[n.e].fx) col[n.e] = { note: null, inst: 0, fx: "C", fxval: 0 };
+    });
+    return col;
+  });
+  // tempo changes: an F effect one row ahead sets the length of the next rows
+  const tempos = _sidSmfTempos(smf);
+  const speed = _sidSmfRowSpeed(tempos, 0, rpb, opts.fps || 50);
+  let cur = speed, speedSkipped = 0;
+  if (tempos.length > 1) {
+    for (let r = 1; r < totalRows; r++) {
+      const want = _sidSmfRowSpeed(tempos, r * tpr, rpb, opts.fps || 50);
+      if (want === cur) continue;
+      const v = cols.findIndex(function(col) { return !col[r - 1].fx; });
+      if (v < 0) { speedSkipped++; continue; }
+      cols[v][r - 1].fx = "F"; cols[v][r - 1].fxval = want;
+      cur = want;
+    }
+  }
+  const patterns = [], song = [], keys = {};
+  for (let r = 0; r < totalRows && song.length < 255; r += _SID_ROWS) {
+    const pat = cols.map(function(col) { return col.slice(r, r + _SID_ROWS); });
+    const key = JSON.stringify(pat);
+    if (keys[key] === undefined) { keys[key] = patterns.length; patterns.push(pat); }
+    song.push(keys[key]);
+  }
+  const insts = opts.perTrack
+    ? used.map(function(part, i) { return _sidSmfTrackInst(_sidSmfPartName(part), i); })
+    : opts.insts;
+  return { insts: insts, patterns: patterns, song: song, speed: speed, notes: count, dropped: dropped,
+    truncated: totalRows > 255 * _SID_ROWS, speedSkipped: speedSkipped };
+}
+
+/* The song as the player plays it, per voice: [{ t: frame, on, note, inst }]. A row's
+   note starts the note (and ends the one before), C releases the gate, F changes the row
+   length from the next row on, the instrument's gate timer releases the gate that many
+   frames before a row with a new (not legato) note. Wave table gate-off steps are not followed. */
+function _sidSmfVoiceEvents(tune) {
+  const patterns = tune.patterns || [];
+  const voices = patterns[0] ? patterns[0].length : 3;
+  const insts = tune.insts || [];
+  const song = tune.song && tune.song.length ? tune.song : [0];
+  const rows = [];
+  song.forEach(function(idx) {
+    const pat = patterns[idx | 0];
+    for (let r = 0; r < _SID_ROWS; r++) rows.push(pat ? pat.map(function(col) { return col ? col[r] : null; }) : []);
+  });
+  const start = [], len = [], after = [];
+  let spd = Math.max(1, Math.min(255, tune.speed | 0)), f = 0;
+  rows.forEach(function(row) {
+    start.push(f); len.push(spd);
+    row.forEach(function(c) { if (c && c.fx === "F" && c.fxval) spd = c.fxval & 0xFF; });
+    after.push(spd);
+    f += len[len.length - 1];
+  });
+  let notes = 0;
+  const out = [];
+  for (let v = 0; v < voices; v++) {
+    const list = [];
+    let gate = false, played = false, note = 0, inst = 0;
+    const off = function(at) {
+      if (!gate) return;
+      gate = false;
+      const prev = list[list.length - 1];
+      if (prev && prev.on && prev.t >= at) { list.pop(); notes--; return; }
+      list.push({ t: at, on: false, note: note, inst: inst });
+    };
+    rows.forEach(function(row, i) {
+      const c = row[v];
+      if (c && c.note != null) {
+        off(start[i]);
+        note = Math.max(0, Math.min(95, c.note | 0));
+        inst = (c.inst | 0) < insts.length ? c.inst | 0 : 0;
+        list.push({ t: start[i], on: true, note: note, inst: inst });
+        gate = true; played = true; notes++;
+      }
+      if (c && c.fx === "C") off(start[i]);
+      const next = rows[i + 1] ? rows[i + 1][v] : null;
+      const gt = played && insts[inst] ? Math.max(0, Math.min(15, insts[inst].gateTimer | 0)) : 0;
+      if (gt && gt <= len[i] && gt !== after[i] && next && next.note != null && next.fx !== "L") off(start[i] + len[i] - gt);
+    });
+    off(f);
+    out.push(list);
+  }
+  return { voices: out, notes: notes, frames: f };
+}
+
+/* Tune → SMF (format 1): a tempo track, then one track per voice on MIDI channel = voice.
+   One tick is one player frame: the division is the frames of a beat at the song's speed
+   (4 rows per beat, the BPM display), the tempo makes a beat last that many frames. */
+function _sidSmfFromTune(tune) {
+  const fps = tune.fps || 50, speed = Math.max(1, Math.min(255, tune.speed | 0));
+  const ev = _sidSmfVoiceEvents(tune);
+  const division = speed * _SID_ROWS_PER_BEAT;
+  const us = Math.round(division * 1e6 / fps);
+  const head = [];
+  if (tune.title) head.push({ t: 0, d: _sidSmfMeta(0x03, _sidSmfText(tune.title)) });
+  head.push({ t: 0, d: _sidSmfMeta(0x51, [(us >> 16) & 255, (us >> 8) & 255, us & 255]) });
+  head.push({ t: 0, d: _sidSmfMeta(0x58, [4, 2, 24, 8]) });
+  const tracks = [head];
+  ev.voices.forEach(function(list, v) {
+    const first = list.find(function(x) { return x.on; });
+    const ins = first ? (tune.insts || [])[first.inst] : null;
+    const name = ins && ins.name ? ins.name : tf("sidSmfVoiceName", { n: v + 1 });
+    const tr = [{ t: 0, d: _sidSmfMeta(0x03, _sidSmfText(name)) }];
+    let prog = -1;
+    list.forEach(function(x) {
+      if (x.on) {
+        if ((x.inst & 0x7F) !== prog) { prog = x.inst & 0x7F; tr.push({ t: x.t, d: [0xC0 | v, prog] }); }
+        tr.push({ t: x.t, d: [0x90 | v, x.note + 12, _SID_SMF_VEL] });
+      } else {
+        tr.push({ t: x.t, d: [0x80 | v, x.note + 12, 64] });
+      }
+    });
+    tracks.push(tr);
+  });
+  return { format: 1, division: division, tracks: tracks, notes: ev.notes };
+}
+
+function _sidSmfExport() {
+  const title = document.getElementById("sid-tune-title");
+  const smf = _sidSmfFromTune({ patterns: _sidPatterns, song: _sidSong, speed: _sidSpeed, insts: _sidInsts,
+    fps: _sidFps(), title: title ? title.textContent : "" });
+  if (!smf.notes) { showViceToast(t("sidSmfExportEmpty"), true); return; }
+  _saveBinFile(_sidSmfWrite(smf), "tune.mid");
+}
+
+let _sidSmfImportState = null;
+
+function _sidSmfVoicesSel() {
+  const el = document.getElementById("sid-import-midi-chips");
+  return el && el.value === "2" ? 6 : 3;
+}
+
+/* At most as many parts as voices: further boxes are disabled; Import needs one. */
+function _sidSmfLimitParts() {
+  const boxes = Array.from(document.querySelectorAll("#sid-import-midi-parts input[type=checkbox]"));
+  const max = _sidSmfVoicesSel();
+  let on = 0;
+  boxes.forEach(function(box) { if (box.checked && ++on > max) { box.checked = false; on--; } });
+  boxes.forEach(function(box) { box.disabled = !box.checked && on >= max; });
+  const label = document.getElementById("sid-import-midi-parts-label");
+  if (label) label.textContent = tf("sidSmfParts", { n: max });
+  const go = document.getElementById("sid-import-midi-go");
+  if (go) go.disabled = on === 0;
+}
+
+function _sidSmfOpenImport(bytes, fileName) {
+  let smf;
+  try { smf = _sidSmfParse(bytes); }
+  catch (err) { showViceToast(t((err && err.i18nKey) || "sidSmfErrNotMidi"), true); return; }
+  const parts = _sidSmfParts(smf);
+  if (!parts.length) { showViceToast(t("sidSmfNoNotes"), true); return; }
+  const dlg = document.getElementById("sid-import-midi-dialog");
+  if (!dlg) return;
+  const base = String(fileName || "").replace(/\.(mid|midi|smf|kar)$/i, "");
+  _sidSmfImportState = { smf: smf, parts: parts, title: (smf.tracks[0] && smf.tracks[0].name) || base };
+  document.getElementById("sid-import-midi-file").textContent = [base, smf.tracks[0] && smf.tracks[0].name]
+    .filter(function(x, i, all) { return x && all.indexOf(x) === i; }).join(" — ");
+  document.getElementById("sid-import-midi-chips").value = _sidVoiceCount() > 3 ? "2" : "1";
+  document.getElementById("sid-import-midi-status").textContent = "";
+  const list = document.getElementById("sid-import-midi-parts");
+  list.textContent = "";
+  const picked = _sidSmfDefaultParts(parts, _sidSmfVoicesSel());
+  parts.forEach(function(part, i) {
+    const row = document.createElement("label");
+    row.className = "me-check sid-import-midi-part";
+    const box = document.createElement("input");
+    box.type = "checkbox"; box.value = String(i); box.checked = picked.includes(i);
+    box.addEventListener("change", _sidSmfLimitParts);
+    const text = document.createElement("span");
+    text.textContent = _sidSmfPartLabel(part);
+    row.appendChild(box); row.appendChild(text);
+    list.appendChild(row);
+  });
+  _sidSmfLimitParts();
+  dlg.showModal();
+}
+
+function _sidSmfRunImport() {
+  const st = _sidSmfImportState, dlg = document.getElementById("sid-import-midi-dialog");
+  const status = document.getElementById("sid-import-midi-status");
+  if (!st || !dlg) return;
+  const picked = Array.from(document.querySelectorAll("#sid-import-midi-parts input[type=checkbox]"))
+    .filter(function(box) { return box.checked; })
+    .map(function(box) { return st.parts[box.value | 0]; });
+  if (!picked.length) { status.textContent = t("sidSmfNoneSelected"); return; }
+  const res = _sidSmfBuildTune(st.smf, picked, {
+    voices: _sidSmfVoicesSel(),
+    rowsPerBeat: parseInt(document.getElementById("sid-import-midi-rpb").value, 10) || 4,
+    fps: _sidFps(),
+    perTrack: document.getElementById("sid-import-midi-inst").value !== "current",
+    spread: !!document.getElementById("sid-import-midi-spread").checked,
+    inst: _sidInst, insts: _sidInsts,
+  });
+  if (!res) { status.textContent = t("sidSmfNoNotes"); return; }
+  dlg.close();
+  _sidSmfImportState = null;
+  res.vol = _sidVol(); res.vol2 = _sidVol2(); res.ntsc = _sidIsNtsc();
+  _sidApplyImportedTune(res, st.title);
+  let msg = tf("sidSmfImported", { notes: res.notes, pats: res.patterns.length, song: res.song.length, speed: res.speed });
+  if (res.dropped) msg += " " + tf("sidSmfDropped", { n: res.dropped });
+  if (res.speedSkipped) msg += " " + tf("sidSmfSpeedSkipped", { n: res.speedSkipped });
+  if (res.truncated) msg += " " + t("sidSmfTruncated");
+  showViceToast(msg, false, true);
+}
+
+
 function _sidExport(kind) {
   if (kind === "asm") return _sidExportAsmPlayable();
   // BASIC DATA dump (unchanged legacy path)
@@ -57091,6 +57942,7 @@ function _sidCopyExport(kind) {
 function _sidInit() {
   if (_sidInited) return;
   _sidInited = true;
+  _sidMidiAutoConnect();
   _sidInsts = [_sidNewInst()];
   _sidPatterns = [_sidNewPattern()];
   _sidPlayPat = 0;
@@ -57290,6 +58142,12 @@ function setupSidEditor() {
   onId("sid-vkbd-metronome", "click", _sidToggleMetronome);
   onId("sid-pat-del", "click", _sidPatternDelete);
   onId("sid-record", "click", _sidToggleRecord);
+  // transport and undo buttons a MIDI controller's buttons / pads can press (right click → MIDI Learn)
+  ["sid-play", "sid-pause", "sid-stop", "sid-record", "sid-undo", "sid-redo",
+   "sid-roll-play", "sid-roll-stop", "sid-roll-undo", "sid-roll-redo",
+   "sid-vkbd-play", "sid-vkbd-stop", "sid-vkbd-record"].forEach(function(id) {
+    _sidMidiButtonRegister(document.getElementById(id));
+  });
   onId("sid-vkbd-record", "click", _sidToggleRecord);
   onId("sid-chord-preview", "click", _sidPreviewChord);
   onId("sid-arp-preview", "click", _sidPreviewArpeggio);
@@ -57317,7 +58175,16 @@ function setupSidEditor() {
     _sidMidiPoly = !!e.target.checked;
     try { localStorage.setItem("c64va-sid-midi-poly", _sidMidiPoly ? "1" : "0"); } catch (_) {}
   });
-  onId("sid-midi-input", "change", function(e) { _sidMidiSetInput(e.target.value); });
+  onId("sid-midi-input", "change", function(e) {
+    // picking a device by hand is a choice; picking none switches the automatic connect off
+    _sidMidiAuto = false;
+    _sidMidiSetInput(e.target.value);
+    try {
+      if (e.target.value) localStorage.setItem("c64va-sid-midi-auto", "1");
+      else { localStorage.removeItem("c64va-sid-midi-auto"); localStorage.removeItem("c64va-sid-midi-input-name"); }
+    } catch (_) {}
+    _sidMidiSettingsPersist();
+  });
   onId("sid-vkbd-close", "click", function(){
     _sidCloseVirtualKeyboard();
   });
@@ -57417,6 +58284,19 @@ function setupSidEditor() {
   });
   onId("sid-import-sid-go", "click", function(){ _sidRunSidImport(); });
   onId("sid-import-sid-cancel", "click", function(){ document.getElementById("sid-import-sid-dialog")?.close(); });
+  // Standard MIDI File import / export
+  onId("sid-export-midi", "click", function(){ _sidSmfExport(); });
+  const sidMidFile = document.getElementById("sid-mid-file");
+  onId("sid-import-midi", "click", function(){ if (sidMidFile) sidMidFile.click(); });
+  if (sidMidFile) sidMidFile.addEventListener("change", function(e){
+    const file = e.target.files && e.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(){ _sidSmfOpenImport(new Uint8Array(reader.result), file.name); };
+    reader.readAsArrayBuffer(file); e.target.value = "";
+  });
+  onId("sid-import-midi-chips", "change", function(){ _sidSmfLimitParts(); });
+  onId("sid-import-midi-go", "click", function(){ _sidSmfRunImport(); });
+  onId("sid-import-midi-cancel", "click", function(){ document.getElementById("sid-import-midi-dialog")?.close(); });
   if (sidBinFile) sidBinFile.addEventListener("change", function(e){
     const file = e.target.files && e.target.files[0]; if (!file) return;
     const reader = new FileReader();

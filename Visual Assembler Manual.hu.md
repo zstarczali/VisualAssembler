@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**Verzió: 2.9.0**
+**Verzió: 2.9.1**
 
 Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasításblokkok fogd-és-vidd módszerrel történő elrendezésével építed fel, a generált assembly és gépi kód pedig valós időben frissül.
 
@@ -10,6 +10,7 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 
 ## Tartalomjegyzék
 
+- [A 2.9.1 verzió újdonságai](#a-291-verzió-újdonságai)
 - [A 2.9.0 verzió újdonságai](#a-290-verzió-újdonságai)
 - [A 2.8.6 verzió újdonságai](#a-286-verzió-újdonságai)
 - [A 2.8.5 verzió újdonságai](#a-285-verzió-újdonságai)
@@ -166,6 +167,16 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
   - [Curve Editor](#curve-editor)
   - [Táblagenerátor](#táblagenerátor)
   - [Számrendszer-átváltó](#számrendszer-átváltó)
+
+---
+
+## A 2.9.1 verzió újdonságai
+
+- **MIDI vezérlők a SID szerkesztőben** — megjegyzi a MIDI eszközt, és legközelebb magától csatlakozik (akkor is, ha később dugod be). Jobb klikk egy tekerőn → **MIDI tanítás**, és tekerd meg a vezérlő tekerőjét vagy csúszkáját; jobb klikk a **Play, Pause, Stop, Record, Undo vagy Redo** gombon, és nyomd meg a vezérlő gombját vagy padját. A hozzárendelések és az eszköz a beállításokba mentődnek.
+- **MIDI fájlok** — a **Fájlok → MIDI export (.mid)** kiírja a dalt (SID hangonként egy sáv, a dal tempójával); a **MIDI import (.mid)** dallá alakít egy MIDI fájlt: kiválaszthatók a sávok, a sorok ütemenként és sávonként egy hangszer. Az import visszavonható.
+- **Beépített ACME**, mint az Oscar64 (**Beépített használata** a Beállításokban), és ACME kapcsolók a **Beállítások → Fordítók** alatt: részletes kimenet (`-v2`), szigorú mód (`--strict`), típusellenőrzés (`-Wtype-mismatch`), címke-behúzás figyelmeztetés nélkül (`-Wno-label-indent`). A **VMA** rész a beépített assembler verzióját mutatja.
+- **Build info → Build** — a fordító és a verziója, a kapcsolók, az eredmény, a PRG mérete és betöltési címe, a BASIC stub, a debug fájlok és az Exomizer, valamint a fordító saját kimenete.
+- **Recent menü törlése** a Recent menü alján; a **Blokkok** gomb le van tiltva a *csak Expert mód* beállítású projektben. **UltimateBasic 1.6.9**: a `let` ugyanaz, mint a `var`.
 
 ---
 
@@ -1792,6 +1803,8 @@ Ugyanez a fordító parancssorból is fut (VMA 2.1.0-tól): a `vma build game.as
 
 Az ACME 0.97 és az Oscar64 (v1.32.273) az appal érkezik, így az ACME módhoz és a C programokhoz nem kell semmit telepíteni. A **Fordítók** fülön az **ACME kiválasztása** / **Oscar64 kiválasztása** saját futtathatót állít be helyettük, a **Beépített használata** visszavált (a már nem létező útvonal helyett is a beépített fut). Az **Optimalizálás** (O0, O1, O2, O3, Os; alapból O2) minden Oscar64 fordítás szintje; a build szkript saját `-O` kapcsolója erősebb. A Névjegy mindkét verziót mutatja; a licencek a `THIRD_PARTY_NOTICES.md`-ben.
 
+Az **ACME** rész kapcsolói minden ACME fordításra érvényesek: **részletes kimenet** (`-v2`), **szigorú mód** (`--strict`), **típusellenőrzés** (`-Wtype-mismatch`) és **címke-behúzás figyelmeztetés nélkül** (`-Wno-label-indent`). A fordító kimenete és figyelmeztetései a **Build info** ablakban látszanak. A **VMA** rész a beépített VMA verzióját mutatja; a VMA-nak a BASIC stubon kívül nincs kapcsolója (General → Program).
+
 ### VICE emulátor
 
 | Beállítás | Leírás |
@@ -2172,6 +2185,11 @@ Az effektek soronként egyszer frissülnek (megegyezően az exportált lejátsz�
 - A **Record** (piros pont, a tracker eszköztárán és a VA-VK-n) ütemre beírja a játszott hangokat — VA-VK-ról, a számítógép billentyűzetéről vagy MIDI billentyűzetről — a kijelölt voice-ba, a kijelölt sortól, az aktuális tempó szerint. Ha a pattern betelt, az aktuális song-lépés után új, üres pattern jön, és ott folytatódik a felvétel. A Record újbóli megnyomása leállítja.
 - A **Metronóm** (tracker eszköztár és VA-VK) 4 soronként kattan, a 4 ütemes taktus első ütésén hangsúlyosan. A mellette lévő ütemlámpák lejátszás és felvétel közben minden ütésre felvillannak, kikapcsolt kattanással is.
 - **MIDI:** a hangszernév melletti **MIDI** listában válaszd ki a bemenetet, majd nyomd meg a **Connect MIDI** gombot; a hangok az aktuális hangszerrel szólnak (felvétel közben vagy *Insert into tracker* mellett a trackerbe is beíródnak). A gomb melletti lámpa minden beérkező MIDI üzenetre felvillan. Bekapcsolt **Polifon felvétel** mellett a felvétel alatt lenyomva tartott billentyűk külön hangra kerülnek a kijelölt hangtól kezdve, a felengedés note-offot ír; ha minden hang foglalt, a legrégebbi billentyű adja át a hangját.
+- **Megjegyzett MIDI eszköz:** egy sikeres **Connect MIDI** után a SID szerkesztő megjegyzi az eszközt (azonosító, majd név szerint), és a szerkesztő következő megnyitásakor magától, kérdés és üzenet nélkül csatlakozik. Ha az eszköz nincs bedugva, nem választ helyette mást, hanem megvárja, amíg bedugod. A **No MIDI input** választás kikapcsolja az automatikus csatlakozást.
+- **MIDI tekerők:** jobb klikk bármelyik tekerőn (hangszer-paraméter, a dal hangereje, master hangerő, a VA-VK hangszer-tekerője) → **MIDI tanítás (hardveres tekerő)**, majd tekerd meg a vezérlő tekerőjét vagy csúszkáját: ettől kezdve az irányítja (0–127 → 0–100 %). A tekerő sarkában a CC száma látszik; a menüben törölhető egy vagy az összes hozzárendelés.
+- **MIDI gombok:** jobb klikk a Play, Pause, Stop, Record, Undo vagy Redo gombon (eszköztár, piano roll, VA-VK) → **MIDI tanítás (hardveres gomb)**, majd nyomd meg a vezérlő gombját vagy padját: egy transzportgomb (CC) vagy egy pad (hang, ami ezután nem szól) lenyomásonként egyszer megnyomja a gombot, ha az engedélyezett.
+- A hozzárendelések és a megjegyzett eszköz a beállításfájlba is mentődnek, így újratelepítés vagy új webnézet-profil után is megmaradnak.
+- **MIDI import / export:** a **Files → Export MIDI (.mid)** egy 1-es formátumú MIDI fájlt ír: egy tempósáv, majd SID hangonként egy sáv (1–6. csatorna), a dal tempójával; a hang a SID hang + 12. Az **Import MIDI (.mid)** ablakában kiválaszthatók a sávok (legfeljebb 3, két SID-del 6; a 10-es dobcsatorna alapból ki van kapcsolva), a sorok ütemenként, az akkordok szétosztása a szabad hangokra és a hangszer (sávonként egy új vagy az aktuális). A hangok sorokra kerekednek, a tempóváltásokból `F` effekt lesz; az import visszavonható.
 - **Pattern törlése:** a **Pat +** melletti **−** gomb törli az aktuális patternt (ha van benne hang, előbb rákérdez). Az azt használó song-lépések kikerülnek, a többi átszámozódik; legalább egy pattern mindig megmarad.
 - A **master hangerő** tekerőgombja a VA-VK-n van.
 

@@ -56,7 +56,7 @@ test("ACME mode requires a compiler that produces the expected ACME probe bytes"
 
 test("ACME Run sends an autostart source through the configured compiler", async () => {
   let submitted;
-  const ctx = loadFunctions(["_buildAcmePrg", "_acmeVaSyntaxErrors", "_acmeVaMacroBlockErrors", "buildBasicSysStub", "_acmeFirstOrigin", "_acmeParseErrors"], {
+  const ctx = loadFunctions(["_buildAcmePrg", "_acmeArgs", "_acmeVaSyntaxErrors", "_acmeVaMacroBlockErrors", "buildBasicSysStub", "_acmeFirstOrigin", "_acmeParseErrors"], {
     program: [{ isOrgMacro: true, orgAddress: "0801" }],
     _ACME_BLOCK_FLAGS: new Set(["isOrgMacro", "isByteMacro", "isWordMacro", "isFillMacro", "isAlignMacro"]),
     userMacros: {},
@@ -113,7 +113,7 @@ test("ACME Run sends an autostart source through the configured compiler", async
 test("ACME project Run builds the startup file's source, not its blocks", async () => {
   let submitted;
   const original = "* = $c000\nNUM = 16\n!if NUM > 8 {\n    lda #NUM\n}\n    rts";
-  const ctx = loadFunctions(["_buildAcmePrg", "_acmeVaSyntaxErrors", "_acmeVaDirective", "buildBasicSysStub", "_acmeFirstOrigin", "_acmeParseErrors", "_acmeLowestOrigin", "_acmeEntryHint"], {
+  const ctx = loadFunctions(["_buildAcmePrg", "_acmeArgs", "_acmeVaSyntaxErrors", "_acmeVaDirective", "buildBasicSysStub", "_acmeFirstOrigin", "_acmeParseErrors", "_acmeLowestOrigin", "_acmeEntryHint"], {
     program: [], userMacros: {}, expertMode: true,
     _ACME_VA_CLOSERS: new Set(["endregion", "endif", "else", "endm", "endmacro", "endf", "next", "end"]),
     _DIRECTIVE_TO_MNEM: { loop: "LOOP", end: "END", region: "REGION" },
@@ -155,7 +155,7 @@ test("ACME bridge sends the payload shape required by the Tauri command", async 
 test("ACME Expert Run preserves assembler expressions and directives", async () => {
   let submitted;
   const original = "!cpu 6502\n* = $c000\n    lda #$06\n    sta $d020\n    rts\n!16 65535, symbol, -32768\n!wo 14, $4f35\n!word 3000 - 4, a1 AND a2, 2 ^ tz, (3+4)*70, l1 & .j2";
-  const ctx = loadFunctions(["_buildAcmePrg", "_acmeVaSyntaxErrors", "_acmeVaDirective", "buildBasicSysStub", "_acmeFirstOrigin", "_acmeParseErrors", "_acmeLowestOrigin", "_acmeEntryHint"], {
+  const ctx = loadFunctions(["_buildAcmePrg", "_acmeArgs", "_acmeVaSyntaxErrors", "_acmeVaDirective", "buildBasicSysStub", "_acmeFirstOrigin", "_acmeParseErrors", "_acmeLowestOrigin", "_acmeEntryHint"], {
     program: [], userMacros: {}, expertMode: true,
     _ACME_VA_CLOSERS: new Set(["endregion", "endif", "else", "endm", "endmacro", "endf", "next", "end"]),
     _DIRECTIVE_TO_MNEM: { loop: "LOOP", end: "END", region: "REGION" },
@@ -185,7 +185,7 @@ test("ACME Expert Run preserves assembler expressions and directives", async () 
 
 test("ACME Build rejects VMA macros without translating native ACME syntax", async () => {
   let compiled = false;
-  const ctx = loadFunctions(["_buildAcmePrg", "_acmeVaSyntaxErrors", "_acmeVaDirective"], {
+  const ctx = loadFunctions(["_buildAcmePrg", "_acmeArgs", "_acmeVaSyntaxErrors", "_acmeVaDirective"], {
     program: [], userMacros: {}, expertMode: true,
     _ACME_VA_CLOSERS: new Set(["endregion", "endif", "else", "endm", "endmacro", "endf", "next", "end"]),
     _DIRECTIVE_TO_MNEM: { loop: "LOOP", end: "END", region: "REGION" },
@@ -753,7 +753,7 @@ test("ACME memory dump below $0801: no stub shift, start loader around the plain
     toHex: (value, width) => `$${value.toString(16).toUpperCase().padStart(width, "0")}`,
     window: { electronAPI: { buildAcmePrg: async source => { submitted = source; return { ok: true, bytes: Array.from(image) }; } } }
   };
-  const ctx = loadFunctions(["_buildAcmePrg", "_acmeVaSyntaxErrors", "_acmeVaDirective", "buildBasicSysStub", "_acmeFirstOrigin",
+  const ctx = loadFunctions(["_buildAcmePrg", "_acmeArgs", "_acmeVaSyntaxErrors", "_acmeVaDirective", "buildBasicSysStub", "_acmeFirstOrigin",
     "_acmeParseErrors", "_acmeLowestOrigin", "_acmeEntryHint", "_buildRelocatingLoader"], base);
   const run = await ctx._buildAcmePrg();
   assert.equal(run.ok, true);
@@ -794,4 +794,37 @@ test("ACME Disassembly / Monitor panels draw once per build and stay dimmed whil
   render();
   assert.equal(builds, 1);
   assert.ok(!classes.has("is-stale"));
+});
+
+test("ACME Settings switches become ACME command line arguments", () => {
+  const ctx = loadFunctions(["_acmeArgs"], { acmeOptions: { verbose: true, strict: false, typeCheck: true, noLabelIndent: true, bogus: true } });
+  assert.deepEqual(Array.from(ctx._acmeArgs()), ["-v2", "-Wtype-mismatch", "-Wno-label-indent"]);
+  assert.deepEqual(Array.from(loadFunctions(["_acmeArgs"], {})._acmeArgs()), []);
+});
+
+test("Build info → Build: compiler, switches, result, PRG and the build options", async () => {
+  const base = {
+    t: k => k, tf: (k, p) => `${k} ${JSON.stringify(p)}`,
+    basicSysToggle: { checked: true }, writeDebugSidecarsToggle: { checked: true }, runExomizerToggle: { checked: false },
+    acmeOptions: { strict: true },
+    window: { electronAPI: {
+      getVmaVersion: async () => "2.4.0",
+      getToolsInfo: async () => ({ acme: { path: "x/acme.exe", version: "0.97", usesBundled: true } }),
+    } },
+  };
+  const ctx = loadFunctions(["_buildInfoBuildFacts", "_acmeArgs", "_vmaVerbose"], base);
+  const prg = { ok: true, bytes: Uint8Array.from([0x01, 0x08, 0, 0, 0]), sysAddress: 2061 };
+  const vma = Object.fromEntries(await ctx._buildInfoBuildFacts("vma", prg));
+  assert.equal(vma.buildInfoCompiler, "VMA v2.4.0 (buildInfoBuiltIn)");
+  assert.equal(vma.buildInfoResult, "buildInfoOk");
+  assert.equal(vma.buildInfoPrg, 'buildInfoPrgValue {"bytes":5,"address":"$0801"}');
+  assert.equal(vma.buildInfoBasicStub, "SYS 2061 ($080D)");
+  assert.equal(vma.buildInfoDebugFiles, "buildInfoOn");
+  assert.equal(vma.buildInfoExomizer, "buildInfoOff");
+  assert.equal(vma.buildInfoSwitches, "buildInfoNone"); // VMA: "verbose" only with the setting
+  const acme = Object.fromEntries(await ctx._buildInfoBuildFacts("acme", { ok: false, errors: [{}, {}] }));
+  assert.equal(acme.buildInfoCompiler, "ACME v0.97 (buildInfoBundled)");
+  assert.equal(acme.buildInfoSwitches, "--strict");
+  assert.equal(acme.buildInfoResult, 'buildInfoFailed {"count":2}');
+  assert.equal(acme.buildInfoPrg, undefined);
 });

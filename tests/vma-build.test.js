@@ -162,3 +162,31 @@ test("every setWorkStep key is translated", () => {
   }
   assert.deepEqual(missing, []);
 });
+
+// Settings → Compilers → VMA → Verbose build report: the flag goes to vma_analyze, the report
+// (`log`) reaches the analysis, and the setting is saved with the UI settings.
+test("the verbose switch goes to the command and is saved", async () => {
+  const seen = [];
+  const app = appWith(async (...args) => {
+    seen.push(args[6]);
+    return { ok: true, prg: [1, 8, 0x60], listing: [], log: args[6] ? ["VMA 2.5.0", "Entry: $1000"] : undefined };
+  });
+  const quiet = await app.run("_vmaAnalyze(_vmaEditorInput())");
+  assert.equal(seen.pop(), false);
+  assert.equal(quiet.raw.log, undefined);
+
+  app.run("vmaOptions = { verbose: true }");
+  const loud = await app.run("_vmaAnalyze(_vmaEditorInput())");
+  assert.equal(seen.pop(), true);
+  assert.deepEqual(plain(loud.raw.log), ["VMA 2.5.0", "Entry: $1000"]);
+
+  const src = fs.readFileSync(path.join(__dirname, "..", "www", "app.js"), "utf8");
+  assert.match(src, /^\s+vmaOptions,$/m, "saveUiSettings stores vmaOptions");
+  assert.match(src, /vmaOptions = s\.vmaOptions && typeof s\.vmaOptions === "object"/, "_applyUiSettingsToDOM restores it");
+  assert.match(src, /const vmaLog = compilerLog\(vma\.raw\?\.log\);/, "Build info shows the report");
+  const html = fs.readFileSync(path.join(__dirname, "..", "www", "index.html"), "utf8");
+  assert.match(html, /<input id="vma-verbose" type="checkbox">/);
+  for (const lang of ["hu", "en", "es", "de", "nl", "pl", "it"]) {
+    assert.equal(typeof app.run(`translations.${lang}.vmaVerbose`), "string", lang);
+  }
+});

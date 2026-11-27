@@ -390,7 +390,7 @@ dependencies = [
 
 [[package]]
 name = "c64-visual-assembler"
-version = "2.9.0"
+version = "2.9.1"
 dependencies = [
  "base64 0.22.1",
  "emulator_6502",
@@ -4336,7 +4336,7 @@ dependencies = [
  "serde_with",
  "swift-rs",
  "thiserror 2.0.18",
- "toml 0.9.12+spec-1.1.0",
+ "toml 1.1.0+spec-1.1.0",
  "url",
  "urlpattern",
  "uuid",
@@ -4769,8 +4769,8 @@ dependencies = [
 
 [[package]]
 name = "ultimate-basic"
-version = "1.6.8"
-source = "git+https://github.com/zstarczali/UltimateBasic.git?rev=d19117667ad516c11377461cc30a978aaf71f0c8#d19117667ad516c11377461cc30a978aaf71f0c8"
+version = "1.6.9"
+source = "git+https://github.com/zstarczali/UltimateBasic.git?rev=d19117667ad516c11377461cc30a978aaf71f0c8#249872579f9f2ad720de1374932192661ece9ef5"
 dependencies = [
  "winresource",
 ]
@@ -4888,8 +4888,7 @@ checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
 
 [[package]]
 name = "vma"
-version = "2.4.0"
-source = "git+https://github.com/zstarczali/VMA.git?rev=6d8b0b1f6cfde1b6fc4261121bd7535e09358418#6d8b0b1f6cfde1b6fc4261121bd7535e09358418"
+version = "2.5.0"
 dependencies = [
  "embed-resource",
  "regex",

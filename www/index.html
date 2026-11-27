@@ -1407,6 +1407,37 @@ PRINTABLE CHARACTERS
     </div>
   </dialog>
 
+  <dialog id="sid-import-midi-dialog" class="app-confirm-dialog sid-import-sid-dialog sid-import-midi-dialog">
+    <div class="app-confirm-card">
+      <p id="sid-import-midi-title" class="app-confirm-msg sid-import-sid-title">Import MIDI</p>
+      <p id="sid-import-midi-file" class="sid-import-sid-tune"></p>
+      <p id="sid-import-midi-parts-label" class="sid-import-midi-parts-label">Tracks / channels</p>
+      <div id="sid-import-midi-parts" class="sid-import-midi-parts"></div>
+      <div class="sid-import-sid-fields">
+        <label id="sid-import-midi-rpb-label" for="sid-import-midi-rpb">Rows per beat</label>
+        <select id="sid-import-midi-rpb" class="sid-import-sid-num">
+          <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+          <option value="4" selected>4</option><option value="6">6</option><option value="8">8</option>
+        </select>
+        <label id="sid-import-midi-chips-label" for="sid-import-midi-chips">SID chips</label>
+        <select id="sid-import-midi-chips" class="sid-import-sid-num">
+          <option value="1">1</option><option value="2">2</option>
+        </select>
+        <label id="sid-import-midi-inst-label" for="sid-import-midi-inst">Instruments</label>
+        <select id="sid-import-midi-inst" class="sid-import-sid-num">
+          <option id="sid-import-midi-inst-track" value="track" selected>One per track</option>
+          <option id="sid-import-midi-inst-current" value="current">Current instrument</option>
+        </select>
+      </div>
+      <label class="me-check sid-import-midi-check"><input id="sid-import-midi-spread" type="checkbox"><span id="sid-import-midi-spread-label">Spread chords to free voices</span></label>
+      <p id="sid-import-midi-status" class="sid-import-sid-status"></p>
+      <div class="app-confirm-buttons">
+        <button id="sid-import-midi-go" class="primary" type="button">Import</button>
+        <button id="sid-import-midi-cancel" class="secondary" type="button">Cancel</button>
+      </div>
+    </div>
+  </dialog>
+
   <dialog id="sid-import-sid-dialog" class="app-confirm-dialog sid-import-sid-dialog">
     <div class="app-confirm-card">
       <p id="sid-import-sid-title" class="app-confirm-msg sid-import-sid-title">Import .sid</p>
@@ -1813,7 +1844,25 @@ PRINTABLE CHARACTERS
   <dialog id="whats-new-dialog" class="whats-new-dialog">
     <div class="whats-new-card">
       <h2 class="whats-new-title">What's New</h2>
-      <p class="whats-new-version">v2.9.0</p>
+      <p class="whats-new-version">v2.9.1</p>
+      <ul class="whats-new-list">
+        <li>
+          <strong>MIDI controllers in the SID Editor:</strong> the MIDI device is remembered and connected by itself the next time (also when it is plugged in later). Right-click a knob → <strong>MIDI Learn</strong> and turn a knob or fader on your controller; right-click Play, Pause, Stop, Record, Undo or Redo and press a button or pad. The mappings are saved in the settings.
+        </li>
+        <li>
+          <strong>MIDI files:</strong> Files → <strong>Export MIDI (.mid)</strong> writes the song with one track per SID voice and the song's tempo; <strong>Import MIDI (.mid)</strong> turns a MIDI file into a song: pick the tracks, the rows per beat and an instrument per track. The import can be undone.
+        </li>
+        <li>
+          <strong>ACME built in</strong> like Oscar64 (<strong>Use bundled</strong> in Settings), and ACME switches in Settings → Compilers: verbose output, strict mode, type checks, no label-indent warnings. A VMA section shows the built-in assembler's version.
+        </li>
+        <li>
+          <strong>Build info → Build:</strong> the compiler and its version, the switches, the result, the PRG's size and address, the BASIC stub, the debug files and Exomizer, plus the compiler's own output.
+        </li>
+        <li>
+          <strong>Clear recent</strong> at the bottom of the Recent menu; the <strong>Blocks</strong> button is disabled in a project set to Expert mode only. <strong>UltimateBasic 1.6.9</strong>: <code>let</code> works like <code>var</code>.
+        </li>
+      </ul>
+      <p class="whats-new-previous">v2.9.0</p>
       <ul class="whats-new-list">
         <li>
           <strong>Visual Assembler Studio:</strong> assembly (VMA, ACME, R65), blocks, UltimateBasic and C in one window. Every open file is a tab of one tab bar with a language badge (BLK / ASM / UB / C); an assembly tab switches between <strong>Blocks</strong> and <strong>Source</strong>. A file opens in the editor of its own language.
@@ -2918,16 +2967,19 @@ PRINTABLE CHARACTERS
             <button id="sid-inst-unused" type="button">Delete unused instruments</button>
             <button id="sid-import-goat" type="button">Import GoatTracker .sng…</button>
             <button id="sid-import-sid" type="button">Import .sid…</button>
+            <button id="sid-import-midi" type="button">Import MIDI (.mid)…</button>
             <div class="ed-file-sep"></div>
             <button id="sid-export-data" type="button">Export blocks (data only)</button>
             <button id="sid-export-player" type="button">Export blocks + miniplayer</button>
             <button id="sid-export-asm" type="button">Export asm</button>
             <button id="sid-export-ub" type="button">Export to UltimateBasic</button>
             <button id="sid-export-psid" type="button">Export .sid (PSID)…</button>
+            <button id="sid-export-midi" type="button">Export MIDI (.mid)…</button>
           </div>
           <input type="file" id="sid-bin-file" accept=".bin,application/octet-stream" hidden>
           <input type="file" id="sid-sng-file" accept=".sng" hidden>
           <input type="file" id="sid-sid-file" accept=".sid" hidden>
+          <input type="file" id="sid-mid-file" accept=".mid,.midi,.smf,.kar,audio/midi" hidden>
         </div>
         <span class="sid-title">SID EDITOR</span>
         <span id="sid-engine-name" class="sid-engine-name"></span>
@@ -4447,6 +4499,17 @@ PRINTABLE CHARACTERS
             <label class="field compact-field hw-field"><span id="acme-path-label">ACME executable</span><input id="acme-path" type="text" readonly placeholder="Nincs beállítva"></label>
             <button id="acme-use-bundled" class="secondary" type="button">Use bundled</button>
             <p id="acme-tool-status" class="menu-note"></p>
+            <label class="menu-checkbox-label"><input id="acme-verbose" type="checkbox"> <span id="acme-verbose-label">Verbose assembler output</span></label>
+            <label class="menu-checkbox-label"><input id="acme-strict" type="checkbox"> <span id="acme-strict-label">Treat warnings as errors</span></label>
+            <label class="menu-checkbox-label"><input id="acme-type-check" type="checkbox"> <span id="acme-type-check-label">Type checking</span></label>
+            <label class="menu-checkbox-label"><input id="acme-no-label-indent" type="checkbox"> <span id="acme-no-label-indent-label">No warnings about indented labels</span></label>
+            <p id="acme-options-note" class="menu-note">ACME's switches for every ACME build (-v2, --strict, -Wtype-mismatch, -Wno-label-indent). Its output and warnings are in Build info.</p>
+          </section>
+          <section class="hw-settings-section">
+            <h3 class="hw-settings-section-label">VMA</h3>
+            <p id="vma-tool-status" class="menu-note"></p>
+            <label class="menu-checkbox-label"><input id="vma-verbose" type="checkbox"> <span id="vma-verbose-label">Verbose build report</span></label>
+            <p id="vma-options-note" class="menu-note">Built into the app. The verbose report (source lines, symbols, segments, PRG) is shown under Compiler output in Build info. What a VMA build makes is set on General → Program: BASIC SYS stub, debug files (.dbg, .sym, .vs), Run with Exomizer.</p>
           </section>
         </div>
         <div class="hw-settings-col">
