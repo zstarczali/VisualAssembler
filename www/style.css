@@ -11490,6 +11490,22 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 }
 .websid-play-knob svg { display: block; width: 100%; height: 100%; }
 .websid-play-knob:focus-visible { box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 55%, transparent); }
+/* a knob a MIDI controller drives: its CC number as a badge; MIDI Learn waiting: a pulsing ring */
+.sid-knob--midi, .sid-knob--learning { position: relative; }
+.sid-knob--midi::after {
+  content: attr(data-midi-cc);
+  position: absolute; right: -6px; bottom: -4px;
+  min-width: 12px; padding: 0 2px; border-radius: 6px;
+  font: 600 8px/11px var(--font-mono, monospace); text-align: center;
+  color: var(--bg, #000); background: var(--secondary);
+  pointer-events: none;
+}
+.sid-knob--learning { animation: sid-knob-learn 0.9s ease-in-out infinite; }
+@keyframes sid-knob-learn {
+  0%, 100% { box-shadow: 0 0 0 2px color-mix(in srgb, var(--secondary) 25%, transparent); }
+  50% { box-shadow: 0 0 0 3px color-mix(in srgb, var(--secondary) 85%, transparent); }
+}
+@media (prefers-reduced-motion: reduce) { .sid-knob--learning { animation: none; box-shadow: 0 0 0 3px var(--secondary); } }
 .websid-play-knob-track { fill: none; stroke: var(--panel-border); stroke-width: 3.5; stroke-linecap: round; }
 .websid-play-knob-value { fill: none; stroke: var(--primary); stroke-width: 3.5; stroke-linecap: round; }
 .websid-play-knob-body { fill: var(--control-bg); stroke: var(--panel-border); stroke-width: 1; }
@@ -12261,6 +12277,14 @@ body.lv-dragging, body.lv-dragging * { cursor: grabbing !important; }
 .sid-import-sid-num { box-sizing: border-box; width: 100%; height: 28px; min-height: 0; padding: 3px 6px; }
 .sid-import-sid-dialog button:disabled, .sid-import-sid-num:disabled { opacity: 0.5; cursor: default; pointer-events: none; }
 .sid-import-sid-status { margin: 0; font-size: 0.75rem; color: var(--muted); overflow-wrap: anywhere; }
+.sid-import-midi-dialog .sid-import-sid-fields { grid-template-columns: 1fr 170px; }
+.sid-import-midi-parts-label { margin: 0 0 -6px; font-size: 0.82rem; }
+.sid-import-midi-parts { display: flex; flex-direction: column; gap: 4px; max-height: 220px; overflow-y: auto; padding: 6px 8px; border: 1px solid rgba(127, 127, 127, 0.35); border-radius: 6px; font-size: 0.8rem; }
+.sid-import-midi-part, .sid-import-midi-check { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; cursor: pointer; }
+.sid-import-midi-part input:disabled + span { opacity: 0.5; }
+.sid-import-midi-part, .sid-import-midi-check { color: inherit; }
+.sid-import-midi-part > span, .sid-import-midi-check > span { flex: 1; min-width: 0; }
+.sid-import-midi-part input:disabled { cursor: default; opacity: 0.5; }
 /* Server message dialog (register/message.php) */
 .server-message-dialog .app-confirm-card { width: min(520px, calc(100vw - 32px)); }
 .server-message-body { overflow-wrap: anywhere; max-height: 50vh; overflow-y: auto; }
@@ -14108,6 +14132,8 @@ html[data-theme="c64"] .va-studio { color: #ffffff; text-shadow: none; }
 .menu-recent-item .tab-lang { flex: none; min-width: 30px; text-align: center; }
 .menu-recent-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .menu-recent-empty { margin: 2px 4px; font-size: .76rem; color: var(--muted); }
+.menu-recent-sep { margin: 4px 2px; border: 0; border-top: 1px solid var(--panel-border); }
+.menu-recent-clear { color: var(--muted); }
 
 /* Block view: the Expert project panel as the workspace's first column (#block-project-btn) */
 body.block-project-on:not(.expert-mode):not(.ub-mode):not(.oscar-mode) .workspace {

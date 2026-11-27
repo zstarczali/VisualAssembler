@@ -25,6 +25,11 @@ DOCUMENTS = (
     'README.txt',
     'install.txt',
 )
+# UltimateBasic documents (its main branch); the product site links them as downloads/VA/<name>.
+UB_DOCUMENTS = (
+    'MANUAL.pdf',
+    'whatnews.txt',
+)
 SAMPLES = 'samples'
 SAMPLES_ZIP = 'va-samples.zip'
 VERSION = re.compile(r'(?<![\d.])\d+\.\d+\.\d+(?![\d.])')
@@ -83,12 +88,12 @@ def collect_installers(root):
     return files
 
 
-def collect_documents(source):
+def collect_documents(source, documents=DOCUMENTS, origin='The source build commit'):
     files = {}
-    for document in DOCUMENTS:
+    for document in documents:
         path = Path(source) / document
         if path.is_symlink() or not path.is_file():
-            raise ValueError(f'The source build commit has no {document}.')
+            raise ValueError(f'{origin} has no {document}.')
         check_file(path)
         if path.suffix.lower() == '.pdf':
             with path.open('rb') as content:
@@ -125,14 +130,19 @@ def safe_error(error):
     return ' '.join(message.splitlines())[:600]
 
 
-def upload(root, source):
+def upload(root, source, ub_source):
     with tempfile.TemporaryDirectory() as temp:
-        upload_files(root, source, build_samples_zip(source, temp))
+        upload_files(root, source, ub_source, build_samples_zip(source, temp))
 
 
-def upload_files(root, source, samples_zip):
+def upload_files(root, source, ub_source, samples_zip):
     # The documents and the samples go last: they are public at once, so only after every installer has arrived.
-    files = {**collect_installers(root), **collect_documents(source), samples_zip.name: samples_zip}
+    documents = collect_documents(source)
+    ub_documents = collect_documents(ub_source, UB_DOCUMENTS, 'The UltimateBasic checkout')
+    clash = documents.keys() & ub_documents.keys()
+    if clash:
+        raise ValueError(f'Document name used twice: {", ".join(sorted(clash))}')
+    files = {**collect_installers(root), **documents, **ub_documents, samples_zip.name: samples_zip}
     password = os.environ.get('FTP_PASSWORD', '')
     if not password:
         raise ValueError('Set the FTP_PASSWORD repository Actions secret before publishing.')
@@ -170,10 +180,10 @@ if __name__ == '__main__':
     try:
         if sys.argv[1:] == ['--validate-run']:
             validate_run()
-        elif len(sys.argv) == 3:
-            upload(sys.argv[1], sys.argv[2])
+        elif len(sys.argv) == 4:
+            upload(sys.argv[1], sys.argv[2], sys.argv[3])
         else:
-            raise ValueError('Usage: publish-artifacts.py ARTIFACT_DIRECTORY SOURCE_DIRECTORY | --validate-run')
+            raise ValueError('Usage: publish-artifacts.py ARTIFACT_DIRECTORY SOURCE_DIRECTORY UB_DIRECTORY | --validate-run')
     except Exception as error:
         # FTP errors can contain server responses: never print login details.
         if isinstance(error, ValueError):

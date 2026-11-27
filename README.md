@@ -4,7 +4,7 @@
 
 <p align="center">
   <a href="https://www.c64va.pro"><img src="https://img.shields.io/badge/website-c64va.pro-e05d44?style=flat" alt="Website"></a>
-  <a href="https://github.com/zstarczali/VisualAssembler/releases/latest"><img src="https://img.shields.io/badge/version-v2.9.0-4c1" alt="Version"></a>
+  <a href="https://github.com/zstarczali/VisualAssembler/releases/latest"><img src="https://img.shields.io/badge/version-v2.9.1-4c1" alt="Version"></a>
   <a href="https://github.com/zstarczali/VisualAssembler/actions/workflows/build.yml"><img src="https://img.shields.io/github/actions/workflow/status/zstarczali/VisualAssembler/build.yml?branch=main&label=build" alt="Build"></a>
   <a href="https://github.com/zstarczali/VisualAssembler/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="License: MIT"></a>
   <a href="https://www.c64va.pro/register/donate.php"><img src="https://img.shields.io/badge/donate-PayPal-00457C?logo=paypal&logoColor=white" alt="Donate"></a>
@@ -30,9 +30,17 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.9.0**
+**Current version: v2.9.1**
 
 Visual Assembler is free and open source (MIT for original project code; see [third-party licenses](THIRD_PARTY_NOTICES.md)): every feature — editors, builds, hardware runs, languages and themes — works without a registration or serial. At most once a day the app sends an anonymous startup ping (version, OS, UI language, launch count, a random install ID) for the usage statistics; no email, project or source code is sent.
+
+## What's New in v2.9.1
+
+- **MIDI controllers in the SID Editor** — the MIDI device is remembered and connected by itself the next time (also when it is plugged in later). Right-click a knob → **MIDI Learn** and turn a knob or fader on your controller; right-click **Play, Pause, Stop, Record, Undo or Redo** and press a button or pad. The mappings and the device are saved in the settings.
+- **MIDI files** — **Files → Export MIDI (.mid)** writes the song (one track per SID voice, the song's tempo); **Import MIDI (.mid)** turns a MIDI file into a song: pick the tracks, the rows per beat and an instrument per track. The import can be undone.
+- **ACME built in** like Oscar64 (**Use bundled** in Settings), and ACME switches in **Settings → Compilers**: verbose output (`-v2`), strict mode (`--strict`), type checks (`-Wtype-mismatch`), no label-indent warnings (`-Wno-label-indent`). A **VMA** section shows the built-in assembler's version.
+- **Build info → Build** — the compiler and its version, the switches, the result, the PRG's size and load address, the BASIC stub, the debug files and Exomizer, plus the compiler's own output.
+- **Clear recent** at the bottom of the Recent menu; the **Blocks** toolbar button is disabled in a project set to *Expert mode only*. **UltimateBasic 1.6.9**: `let` works like `var`.
 
 ## What's New in v2.9.0
 

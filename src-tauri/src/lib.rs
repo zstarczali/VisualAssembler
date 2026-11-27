@@ -1287,7 +1287,13 @@ struct BuildAcmePayload {
     source: String,
     file_name: Option<String>,
     source_path: Option<String>,
+    /// The ACME switches set in Settings (only the ones in `ACME_USER_ARGS` are passed on).
+    #[serde(default)]
+    args: Vec<String>,
 }
+
+/// The command line switches Settings may add to an ACME build.
+const ACME_USER_ARGS: [&str; 4] = ["-v2", "--strict", "-Wtype-mismatch", "-Wno-label-indent"];
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -1508,6 +1514,7 @@ async fn build_acme_prg(app: AppHandle, payload: BuildAcmePayload) -> serde_json
     if report_supported {
         command.args(["-r", report_path.to_str().unwrap()]);
     }
+    command.args(payload.args.iter().filter(|arg| ACME_USER_ARGS.contains(&arg.as_str())));
     let output = match command.arg(source_path.to_str().unwrap()).output() {
         Ok(output) => output,
         Err(error) => return serde_json::json!({ "ok": false, "error": format!("ACME indítása sikertelen: {}", error) }),
@@ -1517,10 +1524,14 @@ async fn build_acme_prg(app: AppHandle, payload: BuildAcmePayload) -> serde_json
         let fallback = String::from_utf8_lossy(&output.stdout).trim().to_string();
         return serde_json::json!({ "ok": false, "error": if error.is_empty() { fallback } else { error } });
     }
+    // warnings and the -v steps: ACME writes them to stderr / stdout even when the build succeeds
+    let log = [String::from_utf8_lossy(&output.stderr), String::from_utf8_lossy(&output.stdout)]
+        .iter().map(|s| s.trim()).filter(|s| !s.is_empty()).collect::<Vec<_>>().join("\n");
     match fs::read(&output_path) {
         Ok(bytes) => serde_json::json!({
             "ok": true,
             "bytes": bytes,
+            "log": log,
             "filePath": output_path,
             "labels": fs::read_to_string(&labels_path).unwrap_or_default(),
             "report": fs::read_to_string(&report_path).unwrap_or_default()
@@ -4483,17 +4494,26 @@ impl vma::FileProvider for AppFiles<'_> {
 /// With `source_path` the debugger view too (`vma::BuildResult::to_json`; the .dbg names the main
 /// source `source_path`, its lines through `line_map`).
 #[tauri::command]
-fn vma_build(app: AppHandle, source: String, base_dir: Option<String>, basic_stub: Option<bool>, source_path: Option<String>, line_map: Option<Vec<i64>>, raw: Option<bool>) -> serde_json::Value {
-    let options = vma::BuildOptions { basic_stub: basic_stub.unwrap_or(true) };
+fn vma_build(app: AppHandle, source: String, base_dir: Option<String>, basic_stub: Option<bool>, source_path: Option<String>, line_map: Option<Vec<i64>>, raw: Option<bool>, verbose: Option<bool>) -> serde_json::Value {
+    // verbose: the build report (`log`, Settings → Compilers → VMA)
+    let options = vma::BuildOptions { basic_stub: basic_stub.unwrap_or(true), verbose: verbose.unwrap_or(false) };
     let files = AppFiles { app: &app, base_dir, assets: HashMap::new() };
     let error = |e: vma::CompileError| vma::error_json(&e);
     // a Kick project's extra output: the image alone (assembleProgramToPrg)
     if raw == Some(true) {
         return match vma::build_raw(&source, &files) {
-            Ok(built) => serde_json::json!({ "ok": true, "prg": built.prg, "segments": built.segments, "entry": built.entry }),
+            Ok(built) => {
+                let mut answer = serde_json::json!({ "ok": true, "prg": built.prg, "segments": built.segments, "entry": built.entry });
+                if options.verbose {
+                    answer["log"] = serde_json::json!(vma::built_report(&built));
+                }
+                answer
+            }
             Err(e) => error(e),
         };
     }
+    // the report needs the full build
+    let source_path = source_path.or_else(|| options.verbose.then(|| "program.asm".to_string()));
     let Some(source_path) = source_path else {
         return match vma::build_full(&source, &options, &files) {
             Ok(built) => serde_json::json!({ "ok": true, "prg": built.prg, "sysAddress": built.sys_address }),
@@ -4509,8 +4529,8 @@ fn vma_build(app: AppHandle, source: String, base_dir: Option<String>, basic_stu
 /// The live views of a VMA source (`vma::analyze`): the build with the layout and bytes of every
 /// line, also when the build fails.
 #[tauri::command]
-fn vma_analyze(app: AppHandle, source: String, base_dir: Option<String>, basic_stub: Option<bool>, source_path: Option<String>, line_map: Option<Vec<i64>>, assets: Option<HashMap<String, Vec<u8>>>) -> serde_json::Value {
-    let options = vma::BuildOptions { basic_stub: basic_stub.unwrap_or(true) };
+fn vma_analyze(app: AppHandle, source: String, base_dir: Option<String>, basic_stub: Option<bool>, source_path: Option<String>, line_map: Option<Vec<i64>>, assets: Option<HashMap<String, Vec<u8>>>, verbose: Option<bool>) -> serde_json::Value {
+    let options = vma::BuildOptions { basic_stub: basic_stub.unwrap_or(true), verbose: verbose.unwrap_or(false) };
     let files = AppFiles { app: &app, base_dir, assets: assets.unwrap_or_default() };
     vma::analyze(&source, &options, &files, source_path.as_deref().unwrap_or("program.asm"), line_map.as_deref())
 }

@@ -20,7 +20,8 @@ DMG = 'C64 Visual Assembler_2.7.5_aarch64.dmg'
 IMAGE = 'C64 Visual Assembler_2.7.5_amd64.AppImage'
 DEB = 'c64-visual-assembler_2.7.5_amd64.deb'
 RPM = 'C64 Visual Assembler-2.7.5-1.x86_64.rpm'
-DOCS = {'Visual Assembler Manual.pdf', 'Visual Assembler Manual.hu.pdf', 'Oscar64 C Help.pdf', 'README.txt', 'install.txt'}
+DOCS = {'Visual Assembler Manual.pdf', 'Visual Assembler Manual.hu.pdf', 'Oscar64 C Help.pdf', 'README.txt', 'install.txt',
+        'MANUAL.pdf', 'whatnews.txt'}
 ENV = {'FTP_HOST': 'example.test', 'FTP_USERNAME': 'test', 'FTP_PASSWORD': 'test-password', 'FTP_DIRECTORY': '/www/downloads/VA/'}
 
 
@@ -30,11 +31,13 @@ class PublishTests(unittest.TestCase):
         self.addCleanup(temp.cleanup)
         self.root = Path(temp.name) / 'artifacts'
         self.source = Path(temp.name) / 'source'
+        self.ub = Path(temp.name) / 'ub-docs'
         self.root.mkdir()
-        for document in publish.DOCUMENTS:
-            path = self.source / document
-            path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_bytes(b'%PDF-1.7 manual' if document.endswith('.pdf') else b'text')
+        for folder, documents in ((self.source, publish.DOCUMENTS), (self.ub, publish.UB_DOCUMENTS)):
+            for document in documents:
+                path = folder / document
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(b'%PDF-1.7 manual' if document.endswith('.pdf') else b'text')
         for sample in ('samples/demo.asm', 'samples/Kick/nested.asm', 'samples/empty.bin'):
             path = self.source / sample
             path.parent.mkdir(parents=True, exist_ok=True)
@@ -49,7 +52,7 @@ class PublishTests(unittest.TestCase):
     def publish_with(self, ftp):
         with patch.dict(os.environ, ENV), patch.object(publish.ftplib, 'FTP_TLS') as cls:
             cls.return_value.__enter__.return_value = ftp
-            publish.upload(self.root, self.source)
+            publish.upload(self.root, self.source, self.ub)
         return cls
 
     def good_ftp(self):
@@ -73,7 +76,7 @@ class PublishTests(unittest.TestCase):
     def test_run_without_installers_is_refused_before_connecting(self):
         with patch.dict(os.environ, ENV), patch.object(publish.ftplib, 'FTP_TLS') as ftp:
             with self.assertRaisesRegex(ValueError, 'No installers'):
-                publish.upload(self.root, self.source)
+                publish.upload(self.root, self.source, self.ub)
             ftp.assert_not_called()
 
     def test_rejects_duplicate_names(self):
@@ -100,9 +103,26 @@ class PublishTests(unittest.TestCase):
             path.unlink()
             with patch.dict(os.environ, ENV), patch.object(publish.ftplib, 'FTP_TLS') as ftp:
                 with self.assertRaisesRegex(ValueError, 'has no'):
-                    publish.upload(self.root, self.source)
+                    publish.upload(self.root, self.source, self.ub)
                 ftp.assert_not_called()
             path.write_bytes(kept)
+
+    def test_the_ultimatebasic_documents_are_required_before_connecting(self):
+        self.artifact(EXE)
+        for document in publish.UB_DOCUMENTS:
+            path = self.ub / document
+            kept = path.read_bytes()
+            path.unlink()
+            with patch.dict(os.environ, ENV), patch.object(publish.ftplib, 'FTP_TLS') as ftp:
+                with self.assertRaisesRegex(ValueError, 'UltimateBasic checkout has no'):
+                    publish.upload(self.root, self.source, self.ub)
+                ftp.assert_not_called()
+            path.write_bytes(kept)
+
+    def test_the_ultimatebasic_manual_must_be_a_pdf(self):
+        (self.ub / 'MANUAL.pdf').write_bytes(b'<html>')
+        with self.assertRaisesRegex(ValueError, 'MANUAL.pdf is not a PDF'):
+            publish.collect_documents(self.ub, publish.UB_DOCUMENTS, 'The UltimateBasic checkout')
 
     def test_rejects_a_manual_that_is_not_a_pdf_and_an_empty_document(self):
         pdf = self.source / 'docs/Visual Assembler Manual.hu.pdf'
@@ -142,10 +162,10 @@ class PublishTests(unittest.TestCase):
         shutil.rmtree(self.source / 'samples')
         with patch.dict(os.environ, ENV), patch.object(publish.ftplib, 'FTP_TLS') as ftp:
             with self.assertRaisesRegex(ValueError, 'no samples folder'):
-                publish.upload(self.root, self.source)
+                publish.upload(self.root, self.source, self.ub)
             (self.source / 'samples').mkdir()
             with self.assertRaisesRegex(ValueError, 'is empty'):
-                publish.upload(self.root, self.source)
+                publish.upload(self.root, self.source, self.ub)
             ftp.assert_not_called()
 
     def test_never_removes_anything_the_released_version_still_needs_it(self):

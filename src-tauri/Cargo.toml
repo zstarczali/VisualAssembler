@@ -1,6 +1,6 @@
 [package]
 name = "c64-visual-assembler"
-version = "2.9.0"
+version = "2.9.1"
 edition = "2021"
 license = "MIT"
 
@@ -45,3 +45,7 @@ opt-level = 1
 
 [profile.dev.package."*"]
 opt-level = 2
+
+# LOCAL ONLY until VMA 2.5.0 is pushed: then bump the vma rev above and drop this patch
+[patch."https://github.com/zstarczali/VMA.git"]
+vma = { path = "../../VMA" }

@@ -37,6 +37,7 @@ function setup(poly = true, voices = 3) {
     var _sidRecording = { pattern, voice: 0, inst: 0, row: 0, rowMs: 120, held: new Map(), pendingOff: new Set(), chord: null };
     var monoNotes = [];
     function _sidMidiFlash() {}
+    function _sidMidiNote() { return false; }   // no note mapped to a button
     function _sidSetCellText() {}
     function _sidEnsureAudio() {}
     function _sidPlayInst() { played.push(1); }

@@ -25,6 +25,108 @@ const translations = {
     "startContinue": "Folytatás projekt nélkül →",
     "startShowOnLaunch": "Megjelenítés induláskor",
     "startRemoveRecent": "Eltávolítás a listából",
+
+    "menuClearRecent": "Lista törlése",
+
+
+    "sidMidiLearn": "MIDI tanítás (hardveres tekerő)",
+
+
+    "sidMidiLearnCancel": "MIDI tanítás megszakítása",
+
+
+    "sidMidiLearnHint": "Tekerd meg a MIDI vezérlő tekerőjét vagy csúszkáját, amelyet ehhez a tekerőhöz rendelsz.",
+    "sidMidiLearnButton": "MIDI tanítás (hardveres gomb)",
+    "sidMidiLearnButtonHint": "Nyomd meg a MIDI vezérlő gombját vagy padját, amely ezt a gombot nyomja meg.",
+    "sidMidiNoteName": "Hang {note} (csatorna {ch})",
+
+
+    "sidMidiLearned": "Hozzárendelve: {cc}",
+
+
+    "sidMidiCcName": "CC {cc} (csatorna {ch})",
+
+
+    "sidMidiUnmap": "Hozzárendelés törlése: {cc}",
+
+
+    "sidMidiUnmapNone": "Nincs MIDI hozzárendelés",
+
+
+    "sidMidiUnmapAll": "Minden MIDI hozzárendelés törlése",
+
+
+    "buildInfoBuild": "Fordítás",
+
+
+    "buildInfoCompiler": "Fordító",
+
+
+    "buildInfoSwitches": "Kapcsolók",
+
+
+    "buildInfoResult": "Eredmény",
+
+
+    "buildInfoOk": "Sikeres",
+
+
+    "buildInfoFailed": "Sikertelen ({count} hiba)",
+
+
+    "buildInfoPrg": "PRG",
+
+
+    "buildInfoPrgValue": "{bytes} bájt, betöltés {address}",
+
+
+    "buildInfoBasicStub": "BASIC SYS stub",
+
+
+    "buildInfoDebugFiles": "Debug fájlok",
+
+
+    "buildInfoExomizer": "Futtatás Exomizerrel",
+
+
+    "buildInfoOn": "be",
+
+
+    "buildInfoOff": "ki",
+
+
+    "buildInfoNone": "nincs",
+
+
+    "buildInfoBundled": "beépített",
+
+
+    "buildInfoBuiltIn": "beépített",
+
+
+    "buildInfoCompilerOutput": "Fordító kimenete",
+
+
+    "vmaToolStatus": "Beépített VMA v{version}.",
+
+
+    "vmaOptionsNote": "Az alkalmazásba épített fordító. A részletes jelentés (forrássorok, szimbólumok, szegmensek, PRG) a Build info Fordító kimenete részében jelenik meg. Hogy a VMA fordítás mit készít, az Általános → Program részen állítható: BASIC SYS stub, debug fájlok (.dbg, .sym, .vs), futtatás Exomizerrel.",
+    "vmaVerbose": "Részletes fordítási jelentés",
+
+
+    "acmeVerbose": "Részletes assembler kimenet",
+
+
+    "acmeStrict": "Figyelmeztetések hibaként",
+
+
+    "acmeTypeCheck": "Típusellenőrzés",
+
+
+    "acmeNoLabelIndent": "Nincs figyelmeztetés a behúzott címkékre",
+
+
+    "acmeOptionsNote": "Az ACME kapcsolói minden ACME fordításhoz (-v2, --strict, -Wtype-mismatch, -Wno-label-indent). A kimenete és a figyelmeztetései a Fordítás infóban vannak.",
     "startNotFound": "A projekt nem található: {path}",
     "menuStartWindow": "Kezdőablak…",
     "templateNoTemplatesC": "Nincs C sablon.",
@@ -1140,6 +1242,7 @@ const translations = {
     "ubBuild": "UltimateBasic forrás fordítása",
     "ubExplicit": "Explicit típus deklarációk",
     "ubVerbose": "Részletes fordítási kimenet",
+    "ubVerboseNote": "Az UB fordítási kimenet a belső zero page foglalásokat és a kód hexa dumpját is mutatja.",
     "ubFormatSource": "UltimateBasic forrás formázása",
     "ubBuildInfoBuildFirst": "Előbb fordítsd le az UltimateBasic programot.",
     "ubBuildInfoSummary": "UltimateBasic build",
@@ -1189,6 +1292,33 @@ const translations = {
     "vmArea_outside": "A programon kívül",
     "sidExportPsid": ".sid (PSID) export…",
     "sidExportPsidFailed": "A lejátszó fordítása nem sikerült, a .sid nem készült el",
+    "sidImportMidi": "MIDI importálása (.mid)…",
+    "sidExportMidi": "MIDI exportálása (.mid)…",
+    "sidSmfImportTitle": "MIDI importálása",
+    "sidSmfParts": "Sávok / csatornák (legfeljebb {n})",
+    "sidSmfRowsPerBeat": "Sor ütésenként",
+    "sidSmfChips": "SID chipek",
+    "sidSmfInstruments": "Hangszerek",
+    "sidSmfInstPerTrack": "Sávonként egy új",
+    "sidSmfInstCurrent": "Az aktuális hangszer",
+    "sidSmfSpread": "Akkordok szétosztása a szabad szólamokra",
+    "sidSmfGo": "Importálás",
+    "sidSmfTrack": "{n}. sáv",
+    "sidSmfChannel": "{n}. csatorna",
+    "sidSmfDrums": "dob",
+    "sidSmfNotes": "{n} hang",
+    "sidSmfVoiceName": "{n}. szólam",
+    "sidSmfErrNotMidi": "Ez nem szabványos MIDI-fájl (.mid)",
+    "sidSmfErrSmpte": "SMPTE időosztású MIDI-fájl nem támogatott, csak a negyedhangonkénti tick",
+    "sidSmfErrTruncated": "A MIDI-fájl csonka vagy sérült",
+    "sidSmfErrFormat": "A 2-es formátumú MIDI-fájl nem támogatott, csak a 0 és az 1",
+    "sidSmfNoNotes": "A MIDI-fájlban nincs importálható hang",
+    "sidSmfNoneSelected": "Válassz ki legalább egy sávot",
+    "sidSmfImported": "MIDI import: {notes} hang, {pats} pattern, {song} song-lépés, sebesség {speed}.",
+    "sidSmfDropped": "{n} egymást fedő hang kimaradt.",
+    "sidSmfSpeedSkipped": "{n} tempóváltás kimaradt (nem volt szabad effektoszlop).",
+    "sidSmfTruncated": "A dal 255 song-lépésnél véget ér.",
+    "sidSmfExportEmpty": "A dalban nincs hang, a MIDI-fájl nem készült el",
     "tgParamValue": "Érték (0–255)",
     "tgParamSrc": "Forrás címe",
     "tgParamDst": "Cél címe",
@@ -2745,6 +2875,108 @@ const translations = {
     "startContinue": "Continue without a project →",
     "startShowOnLaunch": "Show at startup",
     "startRemoveRecent": "Remove from the list",
+
+    "menuClearRecent": "Clear recent",
+
+
+    "sidMidiLearn": "MIDI Learn (hardware knob)",
+
+
+    "sidMidiLearnCancel": "Cancel MIDI Learn",
+
+
+    "sidMidiLearnHint": "Turn the knob or fader on your MIDI controller that should drive this knob.",
+    "sidMidiLearnButton": "MIDI Learn (hardware button)",
+    "sidMidiLearnButtonHint": "Press the button or pad on your MIDI controller that should press this button.",
+    "sidMidiNoteName": "Note {note} (channel {ch})",
+
+
+    "sidMidiLearned": "Mapped to {cc}",
+
+
+    "sidMidiCcName": "CC {cc} (channel {ch})",
+
+
+    "sidMidiUnmap": "Remove mapping: {cc}",
+
+
+    "sidMidiUnmapNone": "No MIDI mapping",
+
+
+    "sidMidiUnmapAll": "Remove all MIDI mappings",
+
+
+    "buildInfoBuild": "Build",
+
+
+    "buildInfoCompiler": "Compiler",
+
+
+    "buildInfoSwitches": "Switches",
+
+
+    "buildInfoResult": "Result",
+
+
+    "buildInfoOk": "Succeeded",
+
+
+    "buildInfoFailed": "Failed ({count} errors)",
+
+
+    "buildInfoPrg": "PRG",
+
+
+    "buildInfoPrgValue": "{bytes} bytes, loads at {address}",
+
+
+    "buildInfoBasicStub": "BASIC SYS stub",
+
+
+    "buildInfoDebugFiles": "Debug files",
+
+
+    "buildInfoExomizer": "Run with Exomizer",
+
+
+    "buildInfoOn": "on",
+
+
+    "buildInfoOff": "off",
+
+
+    "buildInfoNone": "none",
+
+
+    "buildInfoBundled": "bundled",
+
+
+    "buildInfoBuiltIn": "built in",
+
+
+    "buildInfoCompilerOutput": "Compiler output",
+
+
+    "vmaToolStatus": "Built-in VMA v{version}.",
+
+
+    "vmaOptionsNote": "Built into the app. The verbose report (source lines, symbols, segments, PRG) is shown under Compiler output in Build info. What a VMA build makes is set on General → Program: BASIC SYS stub, debug files (.dbg, .sym, .vs), Run with Exomizer.",
+    "vmaVerbose": "Verbose build report",
+
+
+    "acmeVerbose": "Verbose assembler output",
+
+
+    "acmeStrict": "Treat warnings as errors",
+
+
+    "acmeTypeCheck": "Type checking",
+
+
+    "acmeNoLabelIndent": "No warnings about indented labels",
+
+
+    "acmeOptionsNote": "ACME's switches for every ACME build (-v2, --strict, -Wtype-mismatch, -Wno-label-indent). Its output and warnings are in Build info.",
     "startNotFound": "Project not found: {path}",
     "menuStartWindow": "Start window…",
     "templateNoTemplatesC": "No C templates.",
@@ -3856,6 +4088,7 @@ const translations = {
     "ubBuild": "Build UltimateBasic source",
     "ubExplicit": "Explicit type declarations",
     "ubVerbose": "Verbose build output",
+    "ubVerboseNote": "The UB build output also lists the internal zero page allocations and a hex dump of the code.",
     "ubFormatSource": "Format UltimateBasic source",
     "ubBuildInfoBuildFirst": "Build the UltimateBasic program first.",
     "ubBuildInfoSummary": "UltimateBasic build",
@@ -3905,6 +4138,33 @@ const translations = {
     "vmArea_outside": "Outside the program",
     "sidExportPsid": "Export .sid (PSID)…",
     "sidExportPsidFailed": "The player could not be assembled, no .sid was written",
+    "sidImportMidi": "Import MIDI (.mid)…",
+    "sidExportMidi": "Export MIDI (.mid)…",
+    "sidSmfImportTitle": "Import MIDI",
+    "sidSmfParts": "Tracks / channels (up to {n})",
+    "sidSmfRowsPerBeat": "Rows per beat",
+    "sidSmfChips": "SID chips",
+    "sidSmfInstruments": "Instruments",
+    "sidSmfInstPerTrack": "One per track",
+    "sidSmfInstCurrent": "Current instrument",
+    "sidSmfSpread": "Spread chords to free voices",
+    "sidSmfGo": "Import",
+    "sidSmfTrack": "Track {n}",
+    "sidSmfChannel": "ch {n}",
+    "sidSmfDrums": "drums",
+    "sidSmfNotes": "{n} notes",
+    "sidSmfVoiceName": "Voice {n}",
+    "sidSmfErrNotMidi": "This is not a Standard MIDI File (.mid)",
+    "sidSmfErrSmpte": "SMPTE time division is not supported, only ticks per quarter note",
+    "sidSmfErrTruncated": "The MIDI file is truncated or damaged",
+    "sidSmfErrFormat": "MIDI format 2 is not supported, only formats 0 and 1",
+    "sidSmfNoNotes": "The MIDI file has no notes to import",
+    "sidSmfNoneSelected": "Select at least one track",
+    "sidSmfImported": "MIDI import: {notes} notes, {pats} patterns, {song} song steps, speed {speed}.",
+    "sidSmfDropped": "{n} overlapping notes were dropped.",
+    "sidSmfSpeedSkipped": "{n} tempo changes were skipped (no free effect column).",
+    "sidSmfTruncated": "The song was cut at 255 song steps.",
+    "sidSmfExportEmpty": "The song has no notes, no MIDI file was written",
     "tgParamValue": "Value (0–255)",
     "tgParamSrc": "Source address",
     "tgParamDst": "Destination address",
@@ -5637,6 +5897,108 @@ const translations = {
     "startContinue": "Continuar sin proyecto →",
     "startShowOnLaunch": "Mostrar al iniciar",
     "startRemoveRecent": "Quitar de la lista",
+
+    "menuClearRecent": "Borrar recientes",
+
+
+    "sidMidiLearn": "Aprendizaje MIDI (mando físico)",
+
+
+    "sidMidiLearnCancel": "Cancelar aprendizaje MIDI",
+
+
+    "sidMidiLearnHint": "Gira el mando o el fader de tu controlador MIDI que manejará este mando.",
+    "sidMidiLearnButton": "MIDI Learn (botón físico)",
+    "sidMidiLearnButtonHint": "Pulsa el botón o pad de tu controlador MIDI que pulsará este botón.",
+    "sidMidiNoteName": "Nota {note} (canal {ch})",
+
+
+    "sidMidiLearned": "Asignado a {cc}",
+
+
+    "sidMidiCcName": "CC {cc} (canal {ch})",
+
+
+    "sidMidiUnmap": "Quitar asignación: {cc}",
+
+
+    "sidMidiUnmapNone": "Sin asignación MIDI",
+
+
+    "sidMidiUnmapAll": "Quitar todas las asignaciones MIDI",
+
+
+    "buildInfoBuild": "Compilación",
+
+
+    "buildInfoCompiler": "Compilador",
+
+
+    "buildInfoSwitches": "Modificadores",
+
+
+    "buildInfoResult": "Resultado",
+
+
+    "buildInfoOk": "Correcta",
+
+
+    "buildInfoFailed": "Fallida ({count} errores)",
+
+
+    "buildInfoPrg": "PRG",
+
+
+    "buildInfoPrgValue": "{bytes} bytes, carga en {address}",
+
+
+    "buildInfoBasicStub": "Stub BASIC SYS",
+
+
+    "buildInfoDebugFiles": "Archivos de depuración",
+
+
+    "buildInfoExomizer": "Ejecutar con Exomizer",
+
+
+    "buildInfoOn": "sí",
+
+
+    "buildInfoOff": "no",
+
+
+    "buildInfoNone": "ninguno",
+
+
+    "buildInfoBundled": "incluido",
+
+
+    "buildInfoBuiltIn": "integrado",
+
+
+    "buildInfoCompilerOutput": "Salida del compilador",
+
+
+    "vmaToolStatus": "VMA v{version} integrado.",
+
+
+    "vmaOptionsNote": "Integrado en la aplicación. El informe detallado (líneas, símbolos, segmentos, PRG) aparece en Salida del compilador de la información de compilación. Lo que genera una compilación VMA se ajusta en General → Programa: stub BASIC SYS, archivos de depuración (.dbg, .sym, .vs), ejecutar con Exomizer.",
+    "vmaVerbose": "Informe de compilación detallado",
+
+
+    "acmeVerbose": "Salida detallada del ensamblador",
+
+
+    "acmeStrict": "Tratar las advertencias como errores",
+
+
+    "acmeTypeCheck": "Comprobación de tipos",
+
+
+    "acmeNoLabelIndent": "Sin advertencias por etiquetas sangradas",
+
+
+    "acmeOptionsNote": "Modificadores de ACME para cada compilación ACME (-v2, --strict, -Wtype-mismatch, -Wno-label-indent). Su salida y advertencias están en la información de compilación.",
     "startNotFound": "Proyecto no encontrado: {path}",
     "menuStartWindow": "Ventana de inicio…",
     "templateNoTemplatesC": "No hay plantillas C.",
@@ -6748,6 +7110,7 @@ const translations = {
     "ubBuild": "Compilar fuente UltimateBasic",
     "ubExplicit": "Declaraciones de tipo explícitas",
     "ubVerbose": "Salida de compilación detallada",
+    "ubVerboseNote": "La salida de compilación de UB también muestra las asignaciones internas de página cero y un volcado hexadecimal del código.",
     "ubFormatSource": "Formatear código UltimateBasic",
     "ubBuildInfoBuildFirst": "Primero compila el programa UltimateBasic.",
     "ubBuildInfoSummary": "Compilación UltimateBasic",
@@ -6797,6 +7160,33 @@ const translations = {
     "vmArea_outside": "Fuera del programa",
     "sidExportPsid": "Exportar .sid (PSID)…",
     "sidExportPsidFailed": "No se pudo ensamblar el reproductor, no se creó el .sid",
+    "sidImportMidi": "Importar MIDI (.mid)…",
+    "sidExportMidi": "Exportar MIDI (.mid)…",
+    "sidSmfImportTitle": "Importar MIDI",
+    "sidSmfParts": "Pistas / canales (hasta {n})",
+    "sidSmfRowsPerBeat": "Filas por pulso",
+    "sidSmfChips": "Chips SID",
+    "sidSmfInstruments": "Instrumentos",
+    "sidSmfInstPerTrack": "Uno por pista",
+    "sidSmfInstCurrent": "Instrumento actual",
+    "sidSmfSpread": "Repartir acordes entre voces libres",
+    "sidSmfGo": "Importar",
+    "sidSmfTrack": "Pista {n}",
+    "sidSmfChannel": "canal {n}",
+    "sidSmfDrums": "batería",
+    "sidSmfNotes": "{n} notas",
+    "sidSmfVoiceName": "Voz {n}",
+    "sidSmfErrNotMidi": "No es un archivo MIDI estándar (.mid)",
+    "sidSmfErrSmpte": "La división de tiempo SMPTE no es compatible, solo ticks por negra",
+    "sidSmfErrTruncated": "El archivo MIDI está truncado o dañado",
+    "sidSmfErrFormat": "El formato MIDI 2 no es compatible, solo los formatos 0 y 1",
+    "sidSmfNoNotes": "El archivo MIDI no tiene notas para importar",
+    "sidSmfNoneSelected": "Selecciona al menos una pista",
+    "sidSmfImported": "Importación MIDI: {notes} notas, {pats} patrones, {song} pasos de canción, velocidad {speed}.",
+    "sidSmfDropped": "Se descartaron {n} notas superpuestas.",
+    "sidSmfSpeedSkipped": "Se omitieron {n} cambios de tempo (sin columna de efecto libre).",
+    "sidSmfTruncated": "La canción se cortó en 255 pasos.",
+    "sidSmfExportEmpty": "La canción no tiene notas, no se creó el archivo MIDI",
     "tgParamValue": "Valor (0–255)",
     "tgParamSrc": "Dirección de origen",
     "tgParamDst": "Dirección de destino",
@@ -8529,6 +8919,108 @@ const translations = {
     "startContinue": "Ohne Projekt fortfahren →",
     "startShowOnLaunch": "Beim Start anzeigen",
     "startRemoveRecent": "Aus der Liste entfernen",
+
+    "menuClearRecent": "Liste leeren",
+
+
+    "sidMidiLearn": "MIDI Learn (Hardware-Regler)",
+
+
+    "sidMidiLearnCancel": "MIDI Learn abbrechen",
+
+
+    "sidMidiLearnHint": "Dreh den Regler oder Fader am MIDI-Controller, der diesen Regler steuern soll.",
+    "sidMidiLearnButton": "MIDI Learn (Hardware-Taste)",
+    "sidMidiLearnButtonHint": "Drück die Taste oder das Pad am MIDI-Controller, das diese Schaltfläche auslösen soll.",
+    "sidMidiNoteName": "Note {note} (Kanal {ch})",
+
+
+    "sidMidiLearned": "Zugeordnet: {cc}",
+
+
+    "sidMidiCcName": "CC {cc} (Kanal {ch})",
+
+
+    "sidMidiUnmap": "Zuordnung entfernen: {cc}",
+
+
+    "sidMidiUnmapNone": "Keine MIDI-Zuordnung",
+
+
+    "sidMidiUnmapAll": "Alle MIDI-Zuordnungen entfernen",
+
+
+    "buildInfoBuild": "Build",
+
+
+    "buildInfoCompiler": "Compiler",
+
+
+    "buildInfoSwitches": "Schalter",
+
+
+    "buildInfoResult": "Ergebnis",
+
+
+    "buildInfoOk": "Erfolgreich",
+
+
+    "buildInfoFailed": "Fehlgeschlagen ({count} Fehler)",
+
+
+    "buildInfoPrg": "PRG",
+
+
+    "buildInfoPrgValue": "{bytes} Bytes, lädt nach {address}",
+
+
+    "buildInfoBasicStub": "BASIC-SYS-Stub",
+
+
+    "buildInfoDebugFiles": "Debug-Dateien",
+
+
+    "buildInfoExomizer": "Mit Exomizer ausführen",
+
+
+    "buildInfoOn": "an",
+
+
+    "buildInfoOff": "aus",
+
+
+    "buildInfoNone": "keine",
+
+
+    "buildInfoBundled": "mitgeliefert",
+
+
+    "buildInfoBuiltIn": "eingebaut",
+
+
+    "buildInfoCompilerOutput": "Compiler-Ausgabe",
+
+
+    "vmaToolStatus": "Eingebautes VMA v{version}.",
+
+
+    "vmaOptionsNote": "In die App eingebaut. Der ausführliche Bericht (Quellzeilen, Symbole, Segmente, PRG) steht in den Build-Infos unter Compiler-Ausgabe. Was ein VMA-Build erzeugt, wird unter Allgemein → Programm eingestellt: BASIC-SYS-Stub, Debug-Dateien (.dbg, .sym, .vs), mit Exomizer ausführen.",
+    "vmaVerbose": "Ausführlicher Build-Bericht",
+
+
+    "acmeVerbose": "Ausführliche Assembler-Ausgabe",
+
+
+    "acmeStrict": "Warnungen als Fehler behandeln",
+
+
+    "acmeTypeCheck": "Typprüfung",
+
+
+    "acmeNoLabelIndent": "Keine Warnungen zu eingerückten Labels",
+
+
+    "acmeOptionsNote": "ACME-Schalter für jede ACME-Assemblierung (-v2, --strict, -Wtype-mismatch, -Wno-label-indent). Ausgabe und Warnungen stehen in den Build-Infos.",
     "startNotFound": "Projekt nicht gefunden: {path}",
     "menuStartWindow": "Startfenster…",
     "templateNoTemplatesC": "Keine C-Vorlagen.",
@@ -9640,6 +10132,7 @@ const translations = {
     "ubBuild": "UltimateBasic-Quelle kompilieren",
     "ubExplicit": "Explizite Typdeklarationen",
     "ubVerbose": "Ausführliche Build-Ausgabe",
+    "ubVerboseNote": "Die UB-Build-Ausgabe zeigt auch die internen Zero-Page-Belegungen und einen Hex-Dump des Codes.",
     "ubFormatSource": "UltimateBasic-Quelltext formatieren",
     "ubBuildInfoBuildFirst": "Erstelle zuerst das UltimateBasic-Programm.",
     "ubBuildInfoSummary": "UltimateBasic-Build",
@@ -9689,6 +10182,33 @@ const translations = {
     "vmArea_outside": "Außerhalb des Programms",
     "sidExportPsid": ".sid (PSID) exportieren…",
     "sidExportPsidFailed": "Der Player ließ sich nicht assemblieren, keine .sid erstellt",
+    "sidImportMidi": "MIDI importieren (.mid)…",
+    "sidExportMidi": "MIDI exportieren (.mid)…",
+    "sidSmfImportTitle": "MIDI importieren",
+    "sidSmfParts": "Spuren / Kanäle (bis zu {n})",
+    "sidSmfRowsPerBeat": "Zeilen pro Schlag",
+    "sidSmfChips": "SID-Chips",
+    "sidSmfInstruments": "Instrumente",
+    "sidSmfInstPerTrack": "Eins pro Spur",
+    "sidSmfInstCurrent": "Aktuelles Instrument",
+    "sidSmfSpread": "Akkorde auf freie Stimmen verteilen",
+    "sidSmfGo": "Importieren",
+    "sidSmfTrack": "Spur {n}",
+    "sidSmfChannel": "Kanal {n}",
+    "sidSmfDrums": "Schlagzeug",
+    "sidSmfNotes": "{n} Noten",
+    "sidSmfVoiceName": "Stimme {n}",
+    "sidSmfErrNotMidi": "Das ist keine Standard-MIDI-Datei (.mid)",
+    "sidSmfErrSmpte": "SMPTE-Zeitteilung wird nicht unterstützt, nur Ticks pro Viertelnote",
+    "sidSmfErrTruncated": "Die MIDI-Datei ist unvollständig oder beschädigt",
+    "sidSmfErrFormat": "MIDI-Format 2 wird nicht unterstützt, nur die Formate 0 und 1",
+    "sidSmfNoNotes": "Die MIDI-Datei enthält keine importierbaren Noten",
+    "sidSmfNoneSelected": "Wähle mindestens eine Spur aus",
+    "sidSmfImported": "MIDI-Import: {notes} Noten, {pats} Patterns, {song} Song-Schritte, Tempo {speed}.",
+    "sidSmfDropped": "{n} überlappende Noten wurden ausgelassen.",
+    "sidSmfSpeedSkipped": "{n} Tempowechsel ausgelassen (keine freie Effektspalte).",
+    "sidSmfTruncated": "Der Song wurde nach 255 Schritten abgeschnitten.",
+    "sidSmfExportEmpty": "Der Song enthält keine Noten, keine MIDI-Datei erstellt",
     "tgParamValue": "Wert (0–255)",
     "tgParamSrc": "Quelladresse",
     "tgParamDst": "Zieladresse",
@@ -11421,6 +11941,108 @@ const translations = {
     "startContinue": "Doorgaan zonder project →",
     "startShowOnLaunch": "Tonen bij opstarten",
     "startRemoveRecent": "Uit de lijst verwijderen",
+
+    "menuClearRecent": "Lijst wissen",
+
+
+    "sidMidiLearn": "MIDI Learn (hardwareknop)",
+
+
+    "sidMidiLearnCancel": "MIDI Learn annuleren",
+
+
+    "sidMidiLearnHint": "Draai aan de knop of fader van je MIDI-controller die deze knop moet bedienen.",
+    "sidMidiLearnButton": "MIDI Learn (hardwareknop)",
+    "sidMidiLearnButtonHint": "Druk op de knop of pad van je MIDI-controller die deze knop moet indrukken.",
+    "sidMidiNoteName": "Noot {note} (kanaal {ch})",
+
+
+    "sidMidiLearned": "Gekoppeld aan {cc}",
+
+
+    "sidMidiCcName": "CC {cc} (kanaal {ch})",
+
+
+    "sidMidiUnmap": "Koppeling verwijderen: {cc}",
+
+
+    "sidMidiUnmapNone": "Geen MIDI-koppeling",
+
+
+    "sidMidiUnmapAll": "Alle MIDI-koppelingen verwijderen",
+
+
+    "buildInfoBuild": "Build",
+
+
+    "buildInfoCompiler": "Compiler",
+
+
+    "buildInfoSwitches": "Opties",
+
+
+    "buildInfoResult": "Resultaat",
+
+
+    "buildInfoOk": "Gelukt",
+
+
+    "buildInfoFailed": "Mislukt ({count} fouten)",
+
+
+    "buildInfoPrg": "PRG",
+
+
+    "buildInfoPrgValue": "{bytes} bytes, laadt op {address}",
+
+
+    "buildInfoBasicStub": "BASIC SYS-stub",
+
+
+    "buildInfoDebugFiles": "Debugbestanden",
+
+
+    "buildInfoExomizer": "Uitvoeren met Exomizer",
+
+
+    "buildInfoOn": "aan",
+
+
+    "buildInfoOff": "uit",
+
+
+    "buildInfoNone": "geen",
+
+
+    "buildInfoBundled": "meegeleverd",
+
+
+    "buildInfoBuiltIn": "ingebouwd",
+
+
+    "buildInfoCompilerOutput": "Compileruitvoer",
+
+
+    "vmaToolStatus": "Ingebouwde VMA v{version}.",
+
+
+    "vmaOptionsNote": "Ingebouwd in de app. Het uitgebreide rapport (bronregels, symbolen, segmenten, PRG) staat in Build-info onder Compileruitvoer. Wat een VMA-build maakt, stel je in bij Algemeen → Programma: BASIC SYS-stub, debugbestanden (.dbg, .sym, .vs), uitvoeren met Exomizer.",
+    "vmaVerbose": "Uitgebreid buildrapport",
+
+
+    "acmeVerbose": "Uitgebreide assembleruitvoer",
+
+
+    "acmeStrict": "Waarschuwingen als fouten behandelen",
+
+
+    "acmeTypeCheck": "Typecontrole",
+
+
+    "acmeNoLabelIndent": "Geen waarschuwingen over ingesprongen labels",
+
+
+    "acmeOptionsNote": "ACME-opties voor elke ACME-build (-v2, --strict, -Wtype-mismatch, -Wno-label-indent). De uitvoer en waarschuwingen staan in Build-info.",
     "startNotFound": "Project niet gevonden: {path}",
     "menuStartWindow": "Startvenster…",
     "templateNoTemplatesC": "Geen C-sjablonen.",
@@ -12532,6 +13154,7 @@ const translations = {
     "ubBuild": "UltimateBasic-broncode compileren",
     "ubExplicit": "Expliciete typedeclaraties",
     "ubVerbose": "Gedetailleerde compilatie-uitvoer",
+    "ubVerboseNote": "De UB-compilatie-uitvoer toont ook de interne zero page-toewijzingen en een hexdump van de code.",
     "ubFormatSource": "UltimateBasic-broncode opmaken",
     "ubBuildInfoBuildFirst": "Compileer eerst het UltimateBasic-programma.",
     "ubBuildInfoSummary": "UltimateBasic compilatie",
@@ -12581,6 +13204,33 @@ const translations = {
     "vmArea_outside": "Buiten het programma",
     "sidExportPsid": ".sid (PSID) exporteren…",
     "sidExportPsidFailed": "De speler kon niet worden geassembleerd, er is geen .sid gemaakt",
+    "sidImportMidi": "MIDI importeren (.mid)…",
+    "sidExportMidi": "MIDI exporteren (.mid)…",
+    "sidSmfImportTitle": "MIDI importeren",
+    "sidSmfParts": "Sporen / kanalen (maximaal {n})",
+    "sidSmfRowsPerBeat": "Rijen per tel",
+    "sidSmfChips": "SID-chips",
+    "sidSmfInstruments": "Instrumenten",
+    "sidSmfInstPerTrack": "Eén per spoor",
+    "sidSmfInstCurrent": "Huidig instrument",
+    "sidSmfSpread": "Akkoorden over vrije stemmen verdelen",
+    "sidSmfGo": "Importeren",
+    "sidSmfTrack": "Spoor {n}",
+    "sidSmfChannel": "kanaal {n}",
+    "sidSmfDrums": "drums",
+    "sidSmfNotes": "{n} noten",
+    "sidSmfVoiceName": "Stem {n}",
+    "sidSmfErrNotMidi": "Dit is geen standaard MIDI-bestand (.mid)",
+    "sidSmfErrSmpte": "SMPTE-tijdverdeling wordt niet ondersteund, alleen ticks per kwartnoot",
+    "sidSmfErrTruncated": "Het MIDI-bestand is afgekapt of beschadigd",
+    "sidSmfErrFormat": "MIDI-formaat 2 wordt niet ondersteund, alleen formaat 0 en 1",
+    "sidSmfNoNotes": "Het MIDI-bestand bevat geen noten om te importeren",
+    "sidSmfNoneSelected": "Kies minstens één spoor",
+    "sidSmfImported": "MIDI-import: {notes} noten, {pats} patronen, {song} songstappen, snelheid {speed}.",
+    "sidSmfDropped": "{n} overlappende noten zijn weggelaten.",
+    "sidSmfSpeedSkipped": "{n} tempowisselingen overgeslagen (geen vrije effectkolom).",
+    "sidSmfTruncated": "Het nummer is na 255 songstappen afgekapt.",
+    "sidSmfExportEmpty": "Het nummer bevat geen noten, er is geen MIDI-bestand gemaakt",
     "tgParamValue": "Waarde (0–255)",
     "tgParamSrc": "Bronadres",
     "tgParamDst": "Doeladres",
@@ -14324,6 +14974,108 @@ const translations = {
     "startContinue": "Kontynuuj bez projektu →",
     "startShowOnLaunch": "Pokazuj przy starcie",
     "startRemoveRecent": "Usuń z listy",
+
+    "menuClearRecent": "Wyczyść listę",
+
+
+    "sidMidiLearn": "MIDI Learn (pokrętło sprzętowe)",
+
+
+    "sidMidiLearnCancel": "Anuluj MIDI Learn",
+
+
+    "sidMidiLearnHint": "Przekręć pokrętło lub suwak kontrolera MIDI, które ma sterować tym pokrętłem.",
+    "sidMidiLearnButton": "MIDI Learn (przycisk sprzętowy)",
+    "sidMidiLearnButtonHint": "Naciśnij przycisk lub pad kontrolera MIDI, który ma naciskać ten przycisk.",
+    "sidMidiNoteName": "Nuta {note} (kanał {ch})",
+
+
+    "sidMidiLearned": "Przypisano: {cc}",
+
+
+    "sidMidiCcName": "CC {cc} (kanał {ch})",
+
+
+    "sidMidiUnmap": "Usuń przypisanie: {cc}",
+
+
+    "sidMidiUnmapNone": "Brak przypisania MIDI",
+
+
+    "sidMidiUnmapAll": "Usuń wszystkie przypisania MIDI",
+
+
+    "buildInfoBuild": "Kompilacja",
+
+
+    "buildInfoCompiler": "Kompilator",
+
+
+    "buildInfoSwitches": "Przełączniki",
+
+
+    "buildInfoResult": "Wynik",
+
+
+    "buildInfoOk": "Udana",
+
+
+    "buildInfoFailed": "Nieudana (błędy: {count})",
+
+
+    "buildInfoPrg": "PRG",
+
+
+    "buildInfoPrgValue": "{bytes} bajtów, ładowany pod {address}",
+
+
+    "buildInfoBasicStub": "Stub BASIC SYS",
+
+
+    "buildInfoDebugFiles": "Pliki debugowania",
+
+
+    "buildInfoExomizer": "Uruchom z Exomizerem",
+
+
+    "buildInfoOn": "wł.",
+
+
+    "buildInfoOff": "wył.",
+
+
+    "buildInfoNone": "brak",
+
+
+    "buildInfoBundled": "dołączony",
+
+
+    "buildInfoBuiltIn": "wbudowany",
+
+
+    "buildInfoCompilerOutput": "Wyjście kompilatora",
+
+
+    "vmaToolStatus": "Wbudowany VMA v{version}.",
+
+
+    "vmaOptionsNote": "Wbudowany w aplikację. Szczegółowy raport (wiersze źródła, symbole, segmenty, PRG) jest w informacjach o kompilacji w sekcji Wyjście kompilatora. To, co tworzy kompilacja VMA, ustawia się w Ogólne → Program: stub BASIC SYS, pliki debugowania (.dbg, .sym, .vs), uruchom z Exomizerem.",
+    "vmaVerbose": "Szczegółowy raport kompilacji",
+
+
+    "acmeVerbose": "Szczegółowe wyjście asemblera",
+
+
+    "acmeStrict": "Traktuj ostrzeżenia jako błędy",
+
+
+    "acmeTypeCheck": "Sprawdzanie typów",
+
+
+    "acmeNoLabelIndent": "Bez ostrzeżeń o wciętych etykietach",
+
+
+    "acmeOptionsNote": "Przełączniki ACME dla każdej kompilacji ACME (-v2, --strict, -Wtype-mismatch, -Wno-label-indent). Wyjście i ostrzeżenia są w informacjach o kompilacji.",
     "startNotFound": "Nie znaleziono projektu: {path}",
     "menuStartWindow": "Okno startowe…",
     "templateNoTemplatesC": "Brak szablonów C.",
@@ -15435,6 +16187,7 @@ const translations = {
     "ubBuild": "Zbuduj źródło UltimateBasic",
     "ubExplicit": "Jawne deklaracje typów",
     "ubVerbose": "Szczegółowe wyjście budowania",
+    "ubVerboseNote": "Wyjście budowania UB pokazuje też wewnętrzne przydziały strony zerowej i zrzut szesnastkowy kodu.",
     "ubFormatSource": "Formatuj źródło UltimateBasic",
     "ubBuildInfoBuildFirst": "Najpierw zbuduj program UltimateBasic.",
     "ubBuildInfoSummary": "Budowanie UltimateBasic",
@@ -15484,6 +16237,33 @@ const translations = {
     "vmArea_outside": "Poza programem",
     "sidExportPsid": "Eksportuj .sid (PSID)…",
     "sidExportPsidFailed": "Nie udało się zasemblować odtwarzacza, plik .sid nie powstał",
+    "sidImportMidi": "Importuj MIDI (.mid)…",
+    "sidExportMidi": "Eksportuj MIDI (.mid)…",
+    "sidSmfImportTitle": "Import MIDI",
+    "sidSmfParts": "Ścieżki / kanały (maks. {n})",
+    "sidSmfRowsPerBeat": "Wiersze na miarę",
+    "sidSmfChips": "Układy SID",
+    "sidSmfInstruments": "Instrumenty",
+    "sidSmfInstPerTrack": "Jeden na ścieżkę",
+    "sidSmfInstCurrent": "Bieżący instrument",
+    "sidSmfSpread": "Rozłóż akordy na wolne głosy",
+    "sidSmfGo": "Importuj",
+    "sidSmfTrack": "Ścieżka {n}",
+    "sidSmfChannel": "kanał {n}",
+    "sidSmfDrums": "perkusja",
+    "sidSmfNotes": "{n} nut",
+    "sidSmfVoiceName": "Głos {n}",
+    "sidSmfErrNotMidi": "To nie jest standardowy plik MIDI (.mid)",
+    "sidSmfErrSmpte": "Podział czasu SMPTE nie jest obsługiwany, tylko tiki na ćwierćnutę",
+    "sidSmfErrTruncated": "Plik MIDI jest obcięty lub uszkodzony",
+    "sidSmfErrFormat": "Format MIDI 2 nie jest obsługiwany, tylko formaty 0 i 1",
+    "sidSmfNoNotes": "Plik MIDI nie zawiera nut do zaimportowania",
+    "sidSmfNoneSelected": "Wybierz co najmniej jedną ścieżkę",
+    "sidSmfImported": "Import MIDI: {notes} nut, {pats} patternów, {song} kroków utworu, prędkość {speed}.",
+    "sidSmfDropped": "Pominięto {n} nakładających się nut.",
+    "sidSmfSpeedSkipped": "Pominięto {n} zmian tempa (brak wolnej kolumny efektów).",
+    "sidSmfTruncated": "Utwór obcięto po 255 krokach.",
+    "sidSmfExportEmpty": "Utwór nie zawiera nut, plik MIDI nie powstał",
     "tgParamValue": "Wartość (0–255)",
     "tgParamSrc": "Adres źródłowy",
     "tgParamDst": "Adres docelowy",
@@ -17227,6 +18007,108 @@ const translations = {
     "startContinue": "Continua senza progetto →",
     "startShowOnLaunch": "Mostra all'avvio",
     "startRemoveRecent": "Rimuovi dall'elenco",
+
+    "menuClearRecent": "Cancella elenco",
+
+
+    "sidMidiLearn": "MIDI Learn (manopola hardware)",
+
+
+    "sidMidiLearnCancel": "Annulla MIDI Learn",
+
+
+    "sidMidiLearnHint": "Gira la manopola o il fader del controller MIDI che deve comandare questa manopola.",
+    "sidMidiLearnButton": "MIDI Learn (pulsante hardware)",
+    "sidMidiLearnButtonHint": "Premi il pulsante o il pad del controller MIDI che deve premere questo pulsante.",
+    "sidMidiNoteName": "Nota {note} (canale {ch})",
+
+
+    "sidMidiLearned": "Assegnato a {cc}",
+
+
+    "sidMidiCcName": "CC {cc} (canale {ch})",
+
+
+    "sidMidiUnmap": "Rimuovi assegnazione: {cc}",
+
+
+    "sidMidiUnmapNone": "Nessuna assegnazione MIDI",
+
+
+    "sidMidiUnmapAll": "Rimuovi tutte le assegnazioni MIDI",
+
+
+    "buildInfoBuild": "Build",
+
+
+    "buildInfoCompiler": "Compilatore",
+
+
+    "buildInfoSwitches": "Opzioni",
+
+
+    "buildInfoResult": "Risultato",
+
+
+    "buildInfoOk": "Riuscita",
+
+
+    "buildInfoFailed": "Non riuscita ({count} errori)",
+
+
+    "buildInfoPrg": "PRG",
+
+
+    "buildInfoPrgValue": "{bytes} byte, caricato a {address}",
+
+
+    "buildInfoBasicStub": "Stub BASIC SYS",
+
+
+    "buildInfoDebugFiles": "File di debug",
+
+
+    "buildInfoExomizer": "Esegui con Exomizer",
+
+
+    "buildInfoOn": "sì",
+
+
+    "buildInfoOff": "no",
+
+
+    "buildInfoNone": "nessuna",
+
+
+    "buildInfoBundled": "incluso",
+
+
+    "buildInfoBuiltIn": "integrato",
+
+
+    "buildInfoCompilerOutput": "Output del compilatore",
+
+
+    "vmaToolStatus": "VMA v{version} integrato.",
+
+
+    "vmaOptionsNote": "Integrato nell'app. Il report dettagliato (righe sorgente, simboli, segmenti, PRG) è nelle info di build sotto Output del compilatore. Cosa produce una build VMA si imposta in Generale → Programma: stub BASIC SYS, file di debug (.dbg, .sym, .vs), esegui con Exomizer.",
+    "vmaVerbose": "Report di build dettagliato",
+
+
+    "acmeVerbose": "Output dettagliato dell'assembler",
+
+
+    "acmeStrict": "Tratta gli avvisi come errori",
+
+
+    "acmeTypeCheck": "Controllo dei tipi",
+
+
+    "acmeNoLabelIndent": "Nessun avviso sulle etichette rientrate",
+
+
+    "acmeOptionsNote": "Opzioni di ACME per ogni build ACME (-v2, --strict, -Wtype-mismatch, -Wno-label-indent). Output e avvisi sono nelle info di build.",
     "startNotFound": "Progetto non trovato: {path}",
     "menuStartWindow": "Finestra iniziale…",
     "templateNoTemplatesC": "Nessun modello C.",
@@ -18338,6 +19220,7 @@ const translations = {
     "ubBuild": "Compila sorgente UltimateBasic",
     "ubExplicit": "Dichiarazioni di tipo esplicite",
     "ubVerbose": "Output di compilazione dettagliato",
+    "ubVerboseNote": "L'output di compilazione UB mostra anche le allocazioni interne in pagina zero e un dump esadecimale del codice.",
     "ubFormatSource": "Formatta sorgente UltimateBasic",
     "ubBuildInfoBuildFirst": "Compila prima il programma UltimateBasic.",
     "ubBuildInfoSummary": "Compilazione UltimateBasic",
@@ -18387,6 +19270,33 @@ const translations = {
     "vmArea_outside": "Fuori dal programma",
     "sidExportPsid": "Esporta .sid (PSID)…",
     "sidExportPsidFailed": "Impossibile assemblare il player, nessun .sid creato",
+    "sidImportMidi": "Importa MIDI (.mid)…",
+    "sidExportMidi": "Esporta MIDI (.mid)…",
+    "sidSmfImportTitle": "Importa MIDI",
+    "sidSmfParts": "Tracce / canali (fino a {n})",
+    "sidSmfRowsPerBeat": "Righe per battito",
+    "sidSmfChips": "Chip SID",
+    "sidSmfInstruments": "Strumenti",
+    "sidSmfInstPerTrack": "Uno per traccia",
+    "sidSmfInstCurrent": "Strumento attuale",
+    "sidSmfSpread": "Distribuisci gli accordi sulle voci libere",
+    "sidSmfGo": "Importa",
+    "sidSmfTrack": "Traccia {n}",
+    "sidSmfChannel": "canale {n}",
+    "sidSmfDrums": "batteria",
+    "sidSmfNotes": "{n} note",
+    "sidSmfVoiceName": "Voce {n}",
+    "sidSmfErrNotMidi": "Non è un file MIDI standard (.mid)",
+    "sidSmfErrSmpte": "La divisione temporale SMPTE non è supportata, solo tick per semiminima",
+    "sidSmfErrTruncated": "Il file MIDI è troncato o danneggiato",
+    "sidSmfErrFormat": "Il formato MIDI 2 non è supportato, solo i formati 0 e 1",
+    "sidSmfNoNotes": "Il file MIDI non contiene note da importare",
+    "sidSmfNoneSelected": "Seleziona almeno una traccia",
+    "sidSmfImported": "Importazione MIDI: {notes} note, {pats} pattern, {song} passi del brano, velocità {speed}.",
+    "sidSmfDropped": "{n} note sovrapposte sono state scartate.",
+    "sidSmfSpeedSkipped": "{n} cambi di tempo saltati (nessuna colonna effetti libera).",
+    "sidSmfTruncated": "Il brano è stato tagliato a 255 passi.",
+    "sidSmfExportEmpty": "Il brano non contiene note, nessun file MIDI creato",
     "tgParamValue": "Valore (0–255)",
     "tgParamSrc": "Indirizzo sorgente",
     "tgParamDst": "Indirizzo di destinazione",

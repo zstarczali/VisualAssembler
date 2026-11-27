@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.9.0**
+**Version 2.9.1**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -8,6 +8,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 
 ## Table of Contents
 
+- [Version 2.9.1 Highlights](#version-291-highlights)
 - [Version 2.9.0 Highlights](#version-290-highlights)
 - [Version 2.8.6 Highlights](#version-286-highlights)
 - [Version 2.8.5 Highlights](#version-285-highlights)
@@ -164,6 +165,16 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
   - [Curve Editor](#curve-editor)
   - [Table Generator](#table-generator)
   - [Number Converter](#number-converter)
+
+---
+
+## Version 2.9.1 Highlights
+
+- **MIDI controllers in the SID Editor** — the MIDI device is remembered and connected by itself the next time (also when it is plugged in later). Right-click a knob → **MIDI Learn** and turn a knob or fader on your controller; right-click **Play, Pause, Stop, Record, Undo or Redo** and press a button or pad. The mappings and the device are saved in the settings. See [SID Editor](#sid-editor-3-voice-tracker).
+- **MIDI files** — **Files → Export MIDI (.mid)** writes the song (one track per SID voice, the song's tempo); **Import MIDI (.mid)** turns a MIDI file into a song: pick the tracks, the rows per beat and an instrument per track. The import can be undone.
+- **ACME built in** like Oscar64 (**Use bundled** in Settings), and ACME switches in **Settings → Compilers**: verbose output (`-v2`), strict mode (`--strict`), type checks (`-Wtype-mismatch`), no label-indent warnings (`-Wno-label-indent`). A **VMA** section shows the built-in assembler's version.
+- **Build info → Build** — the compiler and its version, the switches, the result, the PRG's size and load address, the BASIC stub, the debug files and Exomizer, plus the compiler's own output.
+- **Clear recent** at the bottom of the Recent menu; the **Blocks** toolbar button is disabled in a project set to *Expert mode only*. **UltimateBasic 1.6.9**: `let` works like `var`.
 
 ---
 
@@ -362,7 +373,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 - **VMA is open source** — the Visual Macro Assembler compiler lives in its own MIT-licensed repository, [github.com/zstarczali/VMA](https://github.com/zstarczali/VMA) (version 2.0.0), with an English and a Hungarian language manual and a command-line compiler. The About box shows the VMA version and banner next to Ultimate Basic.
 - **Project symbols and constants** — **Project settings** sets VMA symbols (`.define`, for `.if` / `.ifdef`) and constants (`.const`) for the whole project, saved in the `.proj`; error lines stay correct. See [Project panel & tabs](#project-panel--tabs).
 - **Compiling dialog** — a step line under the progress bar names the engine, the file and the PRG size.
-- **Build info** — shows the file it describes; an ACME source gets its own view from the real ACME build (origin, end, size, segments, labels). It no longer closes on an outside click.
+- **Build info** — shows the file it describes; an ACME source gets its own view from the real ACME build (origin, end, size, segments, labels). Its **Build** section (VMA, ACME and R65) names the compiler and its version, the ACME switches, the result, the PRG (size, load address), the BASIC SYS stub, debug files and Exomizer; the compiler's own output (warnings, ACME's verbose steps) is listed under **Compiler output**. It no longer closes on an outside click.
 - **Faster typing** — in ACME mode the Disassembly and Monitor panels are rebuilt once per build and dimmed while the source is newer; big Kick projects re-use their last preprocessing and render the disassembly in chunks.
 - **Project tree** — **Move up** / **Move down** in the right-click menu of files and folders. Kick compatibility is switched in **Project settings**.
 - **Fixes** — saving an `.asm` (Ctrl+S, Menu → Save, before a git commit) writes plain text again, not the VA JSON; version control snapshots keep source files as text; library macros inside a user macro (SET_BORDER, SPRITE_*, JOYSTICK, TEXT …) get their parameters, runtime IF / WHILE / REPEAT labels are unique per call and a `'A'` argument stays a character; draggable dialogs open at their saved place.
@@ -1804,7 +1815,7 @@ The same compiler runs on the command line (VMA 2.1.0 and later): `vma build gam
 
 ### Compilers (ACME, Oscar64)
 
-ACME 0.97 and Oscar64 (v1.32.273) come with the app, so ACME mode and C programs need no installation. On the **Compilers** tab **Choose ACME** / **Choose Oscar64** sets your own executable instead, and **Use bundled** switches back (a path that no longer exists falls back to the bundled one). **Optimization** (O0, O1, O2, O3, Os; O2 by default) is the level of every Oscar64 build; a build script's own `-O` switch takes precedence. The About box shows both versions; the licences are in `THIRD_PARTY_NOTICES.md`.
+ACME 0.97 and Oscar64 (v1.32.273) come with the app, so ACME mode and C programs need no installation. On the **Compilers** tab **Choose ACME** / **Choose Oscar64** sets your own executable instead, and **Use bundled** switches back (a path that no longer exists falls back to the bundled one). **Optimization** (O0, O1, O2, O3, Os; O2 by default) is the level of every Oscar64 build; a build script's own `-O` switch takes precedence. The ACME switches apply to every ACME build: **Verbose assembler output** (`-v2`), **Treat warnings as errors** (`--strict`), **Type checking** (`-Wtype-mismatch`) and **No warnings about indented labels** (`-Wno-label-indent`); ACME's output and warnings appear in **Build info**. VMA is built into the app and has no switches of its own: what a VMA build makes is set on **General → Program** (BASIC SYS stub, debug files, Run with Exomizer); the **VMA** section shows its version. The About box shows both versions; the licences are in `THIRD_PARTY_NOTICES.md`.
 
 ### VICE Emulator
 
@@ -2185,7 +2196,9 @@ Effects update once per row (matching the exported player's timing), run identic
 **Recording, metronome and MIDI:**
 - **Record** (the red dot, in the tracker toolbar and on VA-VK) writes the notes you play — on VA-VK, the computer keyboard or a MIDI keyboard — in time into the selected voice, starting at the selected row, at the current tempo. When the pattern is full, a new empty pattern is added after the current song step and recording goes on there. Press Record again to stop.
 - **Metronome** (tracker toolbar and VA-VK) clicks every 4 rows, accented on the first beat of each 4-beat bar. The beat lamps next to it flash on every beat during playback and recording, even with the click off.
-- **MIDI:** choose the input in the **MIDI** list next to the instrument name and press **Connect MIDI**; notes play the current instrument (and are written into the tracker while recording or with *Insert into tracker*). The lamp next to the button flashes on every incoming MIDI message. With **Poly record** on, the keys held while recording go to voices of their own, from the selected voice on, and a release writes a note-off; when every voice is held, the oldest key gives up its voice.
+- **MIDI:** choose the input in the **MIDI** list next to the instrument name and press **Connect MIDI**; notes play the current instrument (and are written into the tracker while recording or with *Insert into tracker*). The lamp next to the button flashes on every incoming MIDI message. With **Poly record** on, the keys held while recording go to voices of their own, from the selected voice on, and a release writes a note-off; when every voice is held, the oldest key gives up its voice. The connected input is remembered: the next time the SID Editor opens, it connects to it by itself (by its name if its id changed); if it is not plugged in, it is picked up when it appears. Choosing *none* in the list switches this off.
+- **MIDI knobs:** right-click any knob (an instrument parameter, the tune's volume, the master volume, VA-VK's instrument knob) → **MIDI Learn**, then turn a knob or fader on your MIDI controller: from then on that controller turns this knob. A mapped knob shows its CC number; the same menu removes one mapping or all of them. The mappings are kept between sessions.
+- **MIDI buttons:** right-click Play, Pause, Stop, Record, Undo or Redo (on the toolbar, in the piano roll or in VA-VK) → **MIDI Learn (hardware button)**, then press a button or pad on your MIDI controller: a transport button (Control Change) or a pad (a note, which then no longer plays) presses that button, once per press, while it is enabled. The mapping is saved with the knob mappings.
 - **Pattern delete:** the **−** button next to **Pat +** deletes the current pattern (it asks first if the pattern has notes). The song steps that used it are removed and the others renumbered; at least one pattern always remains.
 - The **master volume** knob is on VA-VK.
 
@@ -2199,6 +2212,7 @@ Effects update once per row (matching the exported player's timing), run identic
 | `Export asm (clipboard)` | Copies the full assembly source to the clipboard. |
 | `Import GoatTracker .sng…` | Loads a GoatTracker 2 song in place of the current one — see **GoatTracker import** below. |
 | `Import .sid…` | Converts a PSID / RSID tune into an editable song in place of the current one — see **.sid import** below. |
+| `Import MIDI (.mid)…` | Builds a song from a Standard MIDI File in place of the current one — see **MIDI import / export** below. |
 | `Export to UltimateBasic` | Writes a `tune ... end` block (instruments, order list, pattern rows as text) plus `music play` and inserts it at the cursor of the Ultimate Basic editor; outside UB mode it copies the text to the clipboard. The UltimateBasic compiler builds the player, so `music play` / `music stop` control it. Instrument modulation goes into `imod` / `ifilt` / `igate` / `itab` lines (Ultimate Basic 1.6.2+). |
 
 **GoatTracker import:** **Files → Import GoatTracker .sng…** loads a GoatTracker 2 song (`.sng`, GTS3–GTS5) in place of the current one. The conversion is approximate, because the two trackers work differently:
@@ -2215,6 +2229,10 @@ Effects update once per row (matching the exported player's timing), run identic
 - **Filter and pulse movement:** a filter sweep counts over the whole note, also after the waveform went silent, and it ends where another note restarts the filter. A filter table that falls fast counts by when it gets there, within the player's 127 per frame. A filter LFO bounces between its extremes. An instrument holds the pulse range of all its notes. Pulse and filter still restart at each routed note, so a sweep that runs freely across many notes is only approximated, and pitches that lie between semitones are rounded to the nearest one.
 - **Several SIDs:** a 2SID tune becomes six voices and brings its second SID's address along. A 3SID tune imports its first two SIDs, and a message says so.
 
+**MIDI import / export:** **Files → Export MIDI (.mid)…** saves the song (song order → patterns → rows) as a Standard MIDI File, format 1: a tempo track plus one track per voice (3, or 6 with two SIDs) on MIDI channels 1–6. MIDI note = SID note + 12, as with the MIDI input. Notes start and end the way the player plays them: a new note ends the previous one, a note-off (`C`) and the instrument's gate timer release the gate, `F` changes the row length. One MIDI tick is one player frame and the tempo comes from the speed and PAL / NTSC, so a beat is 4 rows (the BPM display). A track is named after the instrument of its first note (else *Voice N*), and instrument changes become program changes (instrument number = program). Gate-off steps of a wave table are not followed.
+
+**Files → Import MIDI (.mid)…** reads a format 0 or 1 file (division in ticks per quarter note; SMPTE timing is refused). A dialog lists every track / channel with notes: tick up to 3 of them (6 with two SIDs, set in *SID chips*), one per voice in list order; the drum channel 10 is off by default. *Rows per beat* sets the quantize grid (default 4): note starts and ends are rounded to the nearest row, and every note lasts at least a row. Inside one track the highest note of a chord is kept and a higher note cuts a held one; with *Spread chords to free voices* the other notes go to voices that no chosen track uses. A note-off is written where a note ends without the next one starting. The speed comes from the first tempo, later tempo changes become `F` effects one row ahead. *Instruments*: one new instrument per track (pulse, saw, triangle in turn, named after the track) or the current instrument for every note. The result is cut into 32-row patterns (identical ones shared, at most 255 song steps). The import can be undone with **Undo**.
+
 **Player ZP usage:** `$02`–`$1C` (pattern pointers, pattern offset, temp) and `$2F` (current speed), plus `$FB`–`$FD` (tick counter, row index, order-list position). Voice, modulation and filter state lives in `sid_state` after the player code. The ZP bytes conflict if your main code uses them — relocate via Expert mode if needed. With two SIDs the player also uses `$50`–`$67` (the pointers of voices 4–6) and `$68`/`$69` (the current voice's SID registers).
 
 **Known limits:**
@@ -2224,6 +2242,8 @@ Effects update once per row (matching the exported player's timing), run identic
 - A note preview is rendered on the backend before it sounds, so it starts a moment after the key press. Every preview note has its own chip, so notes do not take voices from each other.
 
 ---
+
+**Export MIDI (.mid)…** (Files menu) saves the song as a Standard MIDI File — see **MIDI import / export** above.
 
 **Export .sid (PSID)…** (Files menu) saves the tune with the playable `$C000` player as a standard PSID file — it plays in the SID Player, in VICE's `vsid` and in any other SID player. A tune with two SIDs is saved as PSID v3 with its second SID's address.
 
