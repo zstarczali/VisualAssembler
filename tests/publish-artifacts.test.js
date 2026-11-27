@@ -21,6 +21,15 @@ test("the workflow checks out exactly the published documents, which exist in th
   }
 });
 
+test("the workflow checks out the UltimateBasic documents and passes them to the upload", () => {
+  const script = fs.readFileSync(path.join(root, "scripts", "publish-artifacts.py"), "utf8");
+  const documents = [...script.match(/UB_DOCUMENTS = \(([\s\S]*?)\n\)/)[1].matchAll(/'([^']+)'/g)].map((m) => m[1]);
+  assert.deepEqual(documents, ["MANUAL.pdf", "whatnews.txt"]);
+  assert.ok(workflow.includes("repository: zstarczali/UltimateBasic"));
+  for (const document of documents) assert.ok(workflow.includes(`            ${document}`), document);
+  assert.ok(workflow.includes("publish-artifacts.py publish-artifacts source-build ub-docs"));
+});
+
 test("the workflow checks out the samples folder that goes into va-samples.zip", () => {
   assert.ok(workflow.includes("            samples/\n") || workflow.includes("            samples/\r\n"));
   assert.ok(fs.existsSync(path.join(root, "samples")));

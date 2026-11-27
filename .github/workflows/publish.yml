@@ -55,8 +55,22 @@ jobs:
           sparse-checkout-cone-mode: false
           persist-credentials: false
 
+      # The UltimateBasic manual and release notes: its main branch is the released state
+      # (the commit pinned in Cargo.toml can predate the regenerated PDF).
+      - name: Check out the UltimateBasic documents
+        uses: actions/checkout@v7
+        with:
+          repository: zstarczali/UltimateBasic
+          ref: main
+          path: ub-docs
+          sparse-checkout: |
+            MANUAL.pdf
+            whatnews.txt
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+
       - name: Upload extracted installers, documents and va-samples.zip
-        run: python3 scripts/publish-artifacts.py publish-artifacts source-build
+        run: python3 scripts/publish-artifacts.py publish-artifacts source-build ub-docs
         env:
           FTP_HOST: ftpx.forpsi.com
           FTP_USERNAME: www.c64va.pro
