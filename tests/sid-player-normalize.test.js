@@ -20,8 +20,8 @@ function fnSource(name) {
   }
 }
 
-const NORM = ["_normMeterNew", "_normMeterAdd", "_normLoudness", "_playerNormGain", "_playerNormOutput", "_sidExtFadeOutput", "_playerNormApply"];
-const CONSTS = "const _PLAYER_NORM_TARGET_DB = -18, _PLAYER_NORM_MAX_DB = 12;";
+const NORM = ["_normMeterNew", "_normMeterAdd", "_normLoudness", "_playerNormGain", "_playerNormOutput", "_sidExtFadeOutput", "_playerNormApply", "_sidExtSwitchAt", "_sidExtTuneOut"];
+const CONSTS = "const _PLAYER_NORM_TARGET_DB = -18, _PLAYER_NORM_MAX_DB = 12, _SID_EXT_STOP_FADE_S = 0.04;";
 
 test("the gain: to the target loudness, at most 12 dB, no clipping peaks", () => {
   const context = { Math, Number };
@@ -94,7 +94,7 @@ test("on: the tune starts at its measured level, through the stage in front of t
   const node = context.node();
   assert.equal(node.to.to, master, "through the end-of-tune fade stage");
   assert.ok(played.length >= 4, "the held 2 seconds are played too");
-  assert.ok(played.every((p) => p.output === node));
+  assert.ok(played.every((p) => p.output.to === node), "through the tune's own gain into the Normalize stage");
   // constant 0.1 = -20 dB: raised by 2 dB
   assert.ok(Math.abs(node.gain.value - Math.pow(10, 2 / 20)) < 0.01, String(node.gain.value));
   assert.ok(played[0].at < 0.2, "from the beginning of the tune, not 2 s late");

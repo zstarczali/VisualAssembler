@@ -55,6 +55,7 @@ function setup() {
   };
   vm.createContext(ctx);
   vm.runInContext(`
+    const _SID_EXT_STOP_FADE_S = 0.04;
     var _sidAudio = null, _sidMasterGain = null, _sidMasterVol = 0.6, _sidExtAudio = null, _sidExtGain = null, _sidVizVa = null, _sidVizExt = null;
     const _PLAYER_NORM_TARGET_DB = -18, _PLAYER_NORM_MAX_DB = 12;
     var _playerNormalize = false, _playerNormNode = null, _sidExtFadeNode = null;
@@ -70,7 +71,7 @@ function setup() {
     function showViceToast() {}
     function _sidExtStop() {}
     function _sidExtSetStatus(s) { _sidExtStatus = s; }
-    ${["_sidEnsureAudio", "_sidPlayerAudio", "_sidPlayBuffer", "_sidDecodePcm16", "_sidExternalCoreStop", "_sidExtPlay", "_sidExtPause", "_sidApplyMasterVolume", "_sidVizTap", "_sidVizAnalysers",
+    ${["_sidEnsureAudio", "_sidPlayerAudio", "_sidPlayBuffer", "_sidDecodePcm16", "_sidExternalCoreStop", "_sidExtFadeOutSources", "_sidExtSwitchAt", "_sidExtTuneOut", "_sidExtPlay", "_sidExtPause", "_sidApplyMasterVolume", "_sidVizTap", "_sidVizAnalysers",
       "_normMeterNew", "_normMeterAdd", "_normLoudness", "_playerNormGain", "_playerNormOutput", "_sidExtFadeOutput", "_playerNormApply"].map(fn).join("\n")}
     async ${fn("_vaSidPlayFileBytes")}
     this.api = {
@@ -125,8 +126,8 @@ test("the player's chunks go to the player's own gain, and a tune is on its own 
   renders[0]();
   await tick();
   assert.equal(contexts.length, 1, "no shared context is needed for a tune");
-  // through the normalization and the end-of-tune fade stage, which feed the player's gain
-  assert.equal(api.player().played[0].to.to, api.gain());
+  // through the tune's own gain, the normalization and the end-of-tune fade stage, which feed the player's gain
+  assert.equal(api.player().played[0].to.to.to, api.gain());
 });
 
 test("Pause pressed again continues, as does Play", async () => {
@@ -180,4 +181,63 @@ test("the spectrum hears the player and the editor", async () => {
   assert.equal(api.analysers().length, 1);
   api.editorNote();
   assert.equal(api.analysers().length, 2);
+});
+
+test("switching tunes fades the old one out instead of cutting it mid-wave", () => {
+  const src = fs.readFileSync(path.join(__dirname, "..", "www", fs.existsSync(path.join(__dirname, "..", "www", "sid-editor.js")) ? "sid-editor.js" : "app.js"), "utf8");
+  const fnText = (name) => {
+    const start = src.indexOf(`function ${name}(`);
+    let depth = 0, i = src.indexOf("{", start);
+    for (; i < src.length; i++) { if (src[i] === "{") depth++; else if (src[i] === "}" && --depth === 0) break; }
+    return src.slice(start, i + 1);
+  };
+  const ramps = [];
+  const ac = { state: "running", currentTime: 10 };
+  ac.createGain = () => ({ context: ac, to: null, connect(n) { this.to = n; }, disconnect() { this.to = null; },
+    gain: { cancelScheduledValues(t) { ramps.push(["cancel", t]); }, setValueAtTime(v, t) { ramps.push(["set", v, t]); }, linearRampToValueAtTime(v, t) { ramps.push(["ramp", v, t]); } } });
+  const source = () => ({ stopped: null, reconnected: false, disconnect() { this.reconnected = true; }, connect() { this.reconnected = true; }, stop(t = "now") { this.stopped = t; } });
+  const norm = { context: ac };
+  const ctx = { setTimeout() {}, Array, _sidExtAudio: ac, _sidExtSources: new Set() };
+  vm.createContext(ctx);
+  vm.runInContext(`const _SID_EXT_STOP_FADE_S = 0.04;\n${fnText("_sidExtSwitchAt")}\n${fnText("_sidExtTuneOut")}\n${fnText("_sidExtFadeOutSources")}\nthis.out = _sidExtTuneOut; this.fade = _sidExtFadeOutSources;`, ctx);
+  // a tune plays through a gain of its own, in front of the Normalize stage
+  const state = {};
+  const out = ctx.out(state, norm);
+  assert.equal(out.to, norm);
+  assert.equal(ctx.out(state, norm), out, "one gain for the whole tune");
+  const a = source(), b = source();
+  ctx._sidExtSources.add(a); ctx._sidExtSources.add(b);
+  ctx.fade(state);
+  assert.equal(ctx._sidExtSources.size, 0);
+  assert.equal(state.out, null, "the next buffers get a new gain");
+  // only the tune's gain ramps, the buffers stay where they are (no gap on WebKit)
+  for (const s of [a, b]) { assert.equal(s.reconnected, false); assert.ok(Math.abs(s.stopped - 10.04) < 1e-9); }
+  assert.deepEqual(ramps, [["cancel", 10], ["set", 1, 10], ["ramp", 0, 10.04]]);
+  // paused: the context is suspended and silent, the buffers just stop
+  const c = source();
+  ac.state = "suspended";
+  ctx._sidExtSources.add(c);
+  const paused = {}; ctx.out(paused, norm);
+  ctx.fade(paused);
+  assert.equal(c.stopped, "now");
+});
+
+test("the shared gains change only after the old tune's fade-out", () => {
+  const src = fs.readFileSync(path.join(__dirname, "..", "www", fs.existsSync(path.join(__dirname, "..", "www", "sid-editor.js")) ? "sid-editor.js" : "app.js"), "utf8");
+  const fnText = (name) => {
+    const start = src.indexOf(`function ${name}(`);
+    let depth = 0, i = src.indexOf("{", start);
+    for (; i < src.length; i++) { if (src[i] === "{") depth++; else if (src[i] === "}" && --depth === 0) break; }
+    return src.slice(start, i + 1);
+  };
+  const events = [];
+  const param = { value: 1, cancelScheduledValues(t) { events.push(["cancel", t]); }, setValueAtTime(v, t) { events.push(["set", v, t]); }, setTargetAtTime() {}, linearRampToValueAtTime() {} };
+  const ctx = { _sidExternalCore: { normGain: 3 }, _playerNormalize: true, _playerNormNode: { gain: param, context: { currentTime: 5 } } };
+  vm.createContext(ctx);
+  vm.runInContext(`const _SID_EXT_STOP_FADE_S = 0.04;\n${fnText("_sidExtSwitchAt")}\n${fnText("_playerNormApply")}\nthis.apply = _playerNormApply;`, ctx);
+  ctx.apply(false, 5.04);
+  // nothing before 5.04 is touched: the old tune keeps its level while it fades
+  assert.deepEqual(events, [["cancel", 5.04], ["set", 3, 5.04]]);
+  assert.ok(src.includes("_playerNormApply(false, _sidExtSwitchAt(ac));"));
+  assert.ok(/if \(reset\) \{[\s\S]{0,160}const at = _sidExtSwitchAt\(node\.context\);/.test(src));
 });

@@ -90,7 +90,7 @@ test("the backend renders an external PSID in chunks", async () => {
     clearInterval() {},
   };
   vm.createContext(ctx);
-  vm.runInContext(`const _PLAYER_NORM_TARGET_DB = -18, _PLAYER_NORM_MAX_DB = 12; var _playerNormalize = false, _playerNormNode = null, _sidExtFadeNode = null; ${["_normMeterNew", "_normMeterAdd", "_normLoudness", "_playerNormGain", "_playerNormOutput", "_sidExtFadeOutput", "_playerNormApply"].map(fnSource).join("\n")}; ${fnSource("_sidIsNtsc")}; ${fnSource("_sidFps")}; ${fnSource("_sidExternalCoreStop")}; ${fnSource("_sidEngineLabel")}; ${fnSource("_sidPlayerAheadSeconds")}; ${fnSource("_sidPlayerBufferSize")}; ${fnSource("_vaSidPlayFileBytes")}; this.play = _vaSidPlayFileBytes; this.stop = _sidExternalCoreStop;`, ctx);
+  vm.runInContext(`const _PLAYER_NORM_TARGET_DB = -18, _PLAYER_NORM_MAX_DB = 12; var _playerNormalize = false, _playerNormNode = null, _sidExtFadeNode = null; ${["_normMeterNew", "_normMeterAdd", "_normLoudness", "_playerNormGain", "_playerNormOutput", "_sidExtFadeOutput", "_playerNormApply"].map(fnSource).join("\n")}; ${fnSource("_sidIsNtsc")}; ${fnSource("_sidFps")}; var _sidExtAudio = null, _sidExtGain = null; const _SID_EXT_STOP_FADE_S = 0.04; ${fnSource("_sidExternalCoreStop")}; ${fnSource("_sidExtFadeOutSources")}; ${fnSource("_sidExtSwitchAt")}; ${fnSource("_sidExtTuneOut")}; ${fnSource("_sidEngineLabel")}; ${fnSource("_sidPlayerAheadSeconds")}; ${fnSource("_sidPlayerBufferSize")}; ${fnSource("_vaSidPlayFileBytes")}; this.play = _vaSidPlayFileBytes; this.stop = _sidExternalCoreStop;`, ctx);
   const bytes = new Uint8Array([80, 83, 73, 68]);
   assert.equal(await ctx.play(bytes, "example.sid"), true);
   assert.ok(calls.render.length > 1);
@@ -145,7 +145,7 @@ test("a stereo .sid render is timed by its samples per channel", async () => {
     clearInterval() {},
   };
   vm.createContext(ctx);
-  vm.runInContext(`const _PLAYER_NORM_TARGET_DB = -18, _PLAYER_NORM_MAX_DB = 12; var _playerNormalize = false, _playerNormNode = null, _sidExtFadeNode = null; ${["_normMeterNew", "_normMeterAdd", "_normLoudness", "_playerNormGain", "_playerNormOutput", "_sidExtFadeOutput", "_playerNormApply"].map(fnSource).join("\n")}; ${fnSource("_sidIsNtsc")}; ${fnSource("_sidFps")}; ${fnSource("_sidExternalCoreStop")}; ${fnSource("_sidEngineLabel")}; ${fnSource("_sidPlayerAheadSeconds")}; ${fnSource("_sidPlayerBufferSize")}; ${fnSource("_vaSidPlayFileBytes")}; this.play = _vaSidPlayFileBytes; this.stop = _sidExternalCoreStop;`, ctx);
+  vm.runInContext(`const _PLAYER_NORM_TARGET_DB = -18, _PLAYER_NORM_MAX_DB = 12; var _playerNormalize = false, _playerNormNode = null, _sidExtFadeNode = null; ${["_normMeterNew", "_normMeterAdd", "_normLoudness", "_playerNormGain", "_playerNormOutput", "_sidExtFadeOutput", "_playerNormApply"].map(fnSource).join("\n")}; ${fnSource("_sidIsNtsc")}; ${fnSource("_sidFps")}; var _sidExtAudio = null, _sidExtGain = null; const _SID_EXT_STOP_FADE_S = 0.04; ${fnSource("_sidExternalCoreStop")}; ${fnSource("_sidExtFadeOutSources")}; ${fnSource("_sidExtSwitchAt")}; ${fnSource("_sidExtTuneOut")}; ${fnSource("_sidEngineLabel")}; ${fnSource("_sidPlayerAheadSeconds")}; ${fnSource("_sidPlayerBufferSize")}; ${fnSource("_vaSidPlayFileBytes")}; this.play = _vaSidPlayFileBytes; this.stop = _sidExternalCoreStop;`, ctx);
   assert.equal(await ctx.play(new Uint8Array([80, 83, 73, 68]), "stereo.sid"), true);
   assert.ok(buffers.length > 1);
   assert.equal(buffers[0].channels, 2);
