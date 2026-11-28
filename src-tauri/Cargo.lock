@@ -390,7 +390,7 @@ dependencies = [
 
 [[package]]
 name = "c64-visual-assembler"
-version = "2.9.1"
+version = "2.9.2"
 dependencies = [
  "base64 0.22.1",
  "emulator_6502",
@@ -3267,7 +3267,7 @@ dependencies = [
 [[package]]
 name = "resid-rs"
 version = "1.1.1"
-source = "git+https://github.com/zstarczali/VA-SID.git?rev=58d7206d13e7c5ba4c5e6888110ec78223f93a13#58d7206d13e7c5ba4c5e6888110ec78223f93a13"
+source = "git+https://github.com/zstarczali/VA-SID.git?rev=20c3cfd33669b9565f27352e994cd71688b25c14#20c3cfd33669b9565f27352e994cd71688b25c14"
 dependencies = [
  "bit_field",
 ]
@@ -4860,7 +4860,7 @@ dependencies = [
 [[package]]
 name = "va-sid"
 version = "1.0.0"
-source = "git+https://github.com/zstarczali/VA-SID.git?rev=58d7206d13e7c5ba4c5e6888110ec78223f93a13#58d7206d13e7c5ba4c5e6888110ec78223f93a13"
+source = "git+https://github.com/zstarczali/VA-SID.git?rev=20c3cfd33669b9565f27352e994cd71688b25c14#20c3cfd33669b9565f27352e994cd71688b25c14"
 dependencies = [
  "base64 0.22.1",
  "resid-rs",

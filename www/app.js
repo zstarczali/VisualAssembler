@@ -4708,8 +4708,10 @@ function _applyEditorTranslations() {
   setText('#websid-hvsc-field option[value="all"]', t("sidHvscFieldAll"));
   setText('#websid-hvsc-field option[value="composer"]', t("sidHvscFieldComposer"));
   setAttr("#websid-play-open-list", t("sidPlayerOpenList"));
+  setAttr("#websid-play-song-first", t("sidPlayerFirstSong"));
   setAttr("#websid-play-song-prev", t("sidPlayerPrevSong"));
   setAttr("#websid-play-song-next", t("sidPlayerNextSong"));
+  setAttr("#websid-play-song-last", t("sidPlayerLastSong"));
   setAttr("#websid-play-save-list", t("sidPlayerSaveList"));
   setAttr("#websid-play-seek", t("sidPlayerSeek"));
   setAttr("#websid-play-vol", t("sidPlayerVolume"));
@@ -45867,8 +45869,10 @@ function setupSidPlayer() {
   on("websid-play-shuffle", "click", function() { _sidPlayerSetShuffle(!_sidShuffle); });
   on("websid-play-subtunes", "click", function() { _sidPlayerSetSubtunes(!_sidPlaySubtunes); });
   on("websid-play-normalize", "click", function() { _playerSetNormalize(!_playerNormalize); });
+  on("websid-play-song-first", "click", function() { _sidPlayerSong(-Infinity); });
   on("websid-play-song-prev", "click", function() { _sidPlayerSong(-1); });
   on("websid-play-song-next", "click", function() { _sidPlayerSong(1); });
+  on("websid-play-song-last", "click", function() { _sidPlayerSong(Infinity); });
   on("websid-play-rew", "click", function() { _sidExtSeek(_sidExtElapsedMs() - 10000); });
   on("websid-play-fwd", "click", function() { _sidExtSeek(_sidExtElapsedMs() + 10000); });
   on("websid-play-close", "click", function() { dialog.close(); });
@@ -52283,7 +52287,7 @@ function _sidExtPlay() {
     return;
   }
   if (_sidSearchPlay) _sidSearchRestart();
-  else if (_sidPlaylist.length) _sidPlayerPlayIndex(Math.max(0, _sidPlaylistIndex));
+  else if (_sidPlaylist.length) _sidPlayerPlayIndex(Math.max(0, _sidPlaylistIndex), true);
   else if (_sidExtFile) _sidExtStartFile(_sidExtFile.bytes, _sidExtFile.name, _sidExtFile.song);
 }
 function _sidExtPause() {
@@ -52442,9 +52446,13 @@ async function _sidPlayerAddFiles(fileList, playFirst) {
   }
   if (entries.length) _sidPlayerAdd(entries, playFirst);
 }
-function _sidPlayerPlayIndex(index) {
+// A tune picked again starts from its first subtune (the subtunes may have run on,
+// and the header start song can be a later one);
+// keepSong only when the subtune itself is stepped or the playback resumed.
+function _sidPlayerPlayIndex(index, keepSong) {
   const item = _sidPlaylist[index];
   if (!item) return;
+  if (!keepSong) item.song = 1;
   if (_sidSearchPlay || _sidSearchLoading) {
     _sidSearchPlay = null;
     _sidSearchLoading = null;
@@ -52468,12 +52476,12 @@ function _sidPlayerPrev() {
   }
   // like a CD player: back to the start first, a second press steps back
   const index = _sidExtElapsedMs() > 3000 || _sidPlaylistIndex <= 0 ? _sidPlaylistIndex : _sidPlaylistIndex - 1;
-  _sidPlayerPlayIndex(Math.max(0, index));
+  _sidPlayerPlayIndex(Math.max(0, index), index === _sidPlaylistIndex);
 }
 function _sidValidSong(song, info) {
   return Number.isInteger(song) && song >= 1 && song <= info.songs ? song : info.startSong;
 }
-// Steps the current entry's subtune; a running tune restarts on the new one.
+// Steps the current entry's subtune (±Infinity = the first / last one); a running tune restarts on the new one.
 function _sidPlayerSong(delta) {
   const item = _sidPlayerCurrent();
   if (!item || item.info.songs < 2) return;
@@ -52481,9 +52489,10 @@ function _sidPlayerSong(delta) {
   if (song === item.song) return;
   item.song = song;
   _sidPlayerPersist();
-  if (_sidExtStatus === "stopped") _sidPlayerRenderList();
+  // a tune still starting is "stopped" too: it must restart on the new subtune
+  if (_sidExtStatus === "stopped" && !_sidExtStarting) _sidPlayerRenderList();
   else if (_sidSearchPlay) _sidSearchRestart();
-  else _sidPlayerPlayIndex(_sidPlaylistIndex);
+  else _sidPlayerPlayIndex(_sidPlaylistIndex, true);
 }
 function _sidPlayerNext() {
   if (_sidSearchPlay) { _sidSearchStep(1); return; }
@@ -52566,6 +52575,8 @@ async function _sidSearchPlayEntry(source, entry) {
   const e = { name: _hvscFileName(entry), bytes, lengths: entry.l, hvsc: entry.p };
   const info = _sidPsidInfo(e.bytes);
   if (!info) { showViceToast(tf("sidPlayerNotSid", { name: e.name }), true); return false; }
+  // from the first subtune, like a playlist entry
+  e.song = 1;
   _sidSearchPlay = { source, path: entry.p, item: _sidPlayerItem(e, info) };
   _sidPlayerShow();
   _sidPlayerRenderList();
@@ -52732,7 +52743,7 @@ function _sidPlayerAutoAdvance() {
   if (_sidPlaySubtunes && item && item.song < item.info.songs) {
     item.song++;
     if (_sidSearchPlay) _sidSearchRestart();
-    else _sidPlayerPlayIndex(_sidPlaylistIndex);
+    else _sidPlayerPlayIndex(_sidPlaylistIndex, true);
   } else if (_sidSearchPlay) {
     if (_sidSearchNextEntry()) _sidSearchStep(1);
     else if (_sidPlayerFadeSeconds() > 0) _sidExtStop();
@@ -52843,8 +52854,12 @@ function _sidPlayerRenderList() {
   if (songEl && current) songEl.textContent = current.song + " / " + current.info.songs;
   const songPrev = document.getElementById("websid-play-song-prev");
   if (songPrev) songPrev.disabled = !current || current.song <= 1;
+  const songFirst = document.getElementById("websid-play-song-first");
+  if (songFirst) songFirst.disabled = !current || current.song <= 1;
   const songNext = document.getElementById("websid-play-song-next");
   if (songNext) songNext.disabled = !current || current.song >= current.info.songs;
+  const songLast = document.getElementById("websid-play-song-last");
+  if (songLast) songLast.disabled = !current || current.song >= current.info.songs;
   const hint = document.getElementById("websid-play-drop-hint");
   if (hint) hint.hidden = _sidPlaylist.length > 0;
   const listName = document.getElementById("websid-play-list-name");
@@ -54245,7 +54260,7 @@ async function _vaSidPlayFileBytes(bytes, filename, song = 0) {
   // the core resolves "0 = start song" from the header; show what it plays
   window.electronAPI.sidFileInfo?.(state.sessionId).then(function(info) {
     const item = _sidPlayerCurrent();
-    if (!state.active || !item || item.bytes !== bytes || !info?.song) return;
+    if (song || !state.active || !item || item.bytes !== bytes || !info?.song) return;
     item.song = info.song;
     _sidPlayerRenderList();
   }).catch(function() {});
@@ -54438,8 +54453,8 @@ function _sidWaEngine(td, audio) {
   if (audio) e.tick = 1;
   return e;
 }
-// The engine's volume is 0 until the first note, and on reSID that step is a loud click on the
-// first note (the backend settles the chip on the first frame). The registers the first note
+// The engine's volume is 0 until the first note, and that step is a loud click on the first note
+// with reSID and VA SID Core alike (the backend settles the chip on the first frame). The registers the first note
 // will set, per chip, from a dry run: the frames before it carry them.
 function _sidWaOpeningMixer(td) {
   const e = _sidWaEngine(td, true);
@@ -54466,7 +54481,7 @@ function _sidWaStart(audio) {
   if (audio) _sidEnsureAudio();
   const td = _sidWaTune();
   const e = _sidWaEngine(td, audio);
-  _sidWaPlay = { e: e, audio: !!audio, core: !!audio && _sidUsesNativeCore(), sidCoreSession: audio && _sidUsesNativeCore() ? crypto.randomUUID() : null, coreQueue: Promise.resolve(), events: [], next: 0, timer: null, open: audio && _sidUsesNativeCore() && _sidPreviewEngine === "resid" ? _sidWaOpeningMixer(td) : null };
+  _sidWaPlay = { e: e, audio: !!audio, core: !!audio && _sidUsesNativeCore(), sidCoreSession: audio && _sidUsesNativeCore() ? crypto.randomUUID() : null, coreQueue: Promise.resolve(), events: [], next: 0, timer: null, open: audio && _sidUsesNativeCore() ? _sidWaOpeningMixer(td) : null };
   _sidWaPlay.next = _sidWaClock(_sidWaPlay) + 0.05;
   _sidWaSchedule();
   _sidWaPlay.timer = setInterval(_sidWaSchedule, 20);

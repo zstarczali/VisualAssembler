@@ -1,6 +1,6 @@
 [package]
 name = "c64-visual-assembler"
-version = "2.9.1"
+version = "2.9.2"
 edition = "2021"
 license = "MIT"
 
@@ -13,7 +13,7 @@ tauri-build = { version = "2", features = [] }
 
 [dependencies]
 # the SID emulation shared with VA SID Studio (VA SID Core, reSID, 6510 / CIA / VIC-II, .sid sessions)
-va-sid = { git = "https://github.com/zstarczali/VA-SID.git", rev = "58d7206d13e7c5ba4c5e6888110ec78223f93a13" }
+va-sid = { git = "https://github.com/zstarczali/VA-SID.git", rev = "20c3cfd33669b9565f27352e994cd71688b25c14" }
 tauri = { version = "2", features = [] }
 tauri-plugin-opener = "2"
 tauri-plugin-dialog = "2"

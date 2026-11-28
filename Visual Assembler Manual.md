@@ -1,6 +1,6 @@
 # C64 Visual Assembler — User Manual
 
-**Version 2.9.1**
+**Version 2.9.2**
 
 A visual, block-based 6502 assembler for the Commodore 64. Build programs by dragging and dropping instruction blocks, and see the generated assembly and machine code in real time.
 
@@ -8,6 +8,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 
 ## Table of Contents
 
+- [Version 2.9.2 Highlights](#version-292-highlights)
 - [Version 2.9.1 Highlights](#version-291-highlights)
 - [Version 2.9.0 Highlights](#version-290-highlights)
 - [Version 2.8.6 Highlights](#version-286-highlights)
@@ -165,6 +166,18 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
   - [Curve Editor](#curve-editor)
   - [Table Generator](#table-generator)
   - [Number Converter](#number-converter)
+
+---
+
+## Version 2.9.2 Highlights
+
+- **SID Player subtunes from the start** — A tune with several subtunes starts from its first subtune when you pick it again (in the playlist, with Next / Previous, or as an HVSC result), also when its subtunes had played on or the file names a later start song.
+- **First / Last subtune** — **|‹** and **›|** buttons next to the subtune counter jump to the first and the last subtune of the file.
+- **No click at the start with VA SID Core** — The note previews, Play in the SID Editor and the SID Player no longer click at the start of a tune when VA SID Core is the SID engine; with reSID on the 6581 the SID Player starts without its thump too.
+- **Subtune buttons while a tune starts** — A click in the first moments of a tune restarts it on the new subtune; before, only the number changed and the old subtune played on.
+- **Splash screen** — The logo is 20% larger, the window keeps its size.
+
+See [SID Player](#sid-player).
 
 ---
 
@@ -2252,7 +2265,8 @@ Effects update once per row (matching the exported player's timing), run identic
 The **SID Player** toolbar button opens a floating window that plays `.sid` music files (PSID and RSID), for example tunes from the HVSC collection.
 
 - **Playlist:** add tunes with **Add .sid files…** or by dropping them on the window, and click a tune to play it; **Remove** and **Clear playlist** tidy the list. **Save playlist…** / **Open playlist…** write and read a `.sidpl` file with the tunes embedded. The list, the current tune and whether the window is open are remembered.
-- **Transport:** Play, Pause, Stop, **Previous** / **Next** tune, **Previous / Next subtune** for files with several songs, and a time counter.
+- **Transport:** Play, Pause, Stop, **Previous** / **Next** tune, and a time counter. A file with several songs shows **|‹ ‹ 1 / 3 › ›|**: **‹** / **›** step to the previous / next subtune, **|‹** / **›|** jump to the first / last one; a playing tune restarts on the new subtune at once, also while it is still starting.
+- **Subtunes from the start:** a tune you pick again (in the playlist, with **Previous** / **Next**, or as an HVSC result) starts from its first subtune, even when its subtunes had played on or the file names a later start song.
 - **Seek:** the position bar and **Back / Forward 10 s**; the skipped part runs silently.
 - **Volume:** the knob is shared with the SID Editor's master volume.
 - **Buffer:** **Settings → General → SID preview → SID Player buffer** (10, 15, 20 or 30 s). A larger buffer stops the crackle while the app is busy: the tune is rendered that far ahead, from the next tune on.
