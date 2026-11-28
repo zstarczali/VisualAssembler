@@ -1,6 +1,7 @@
 C64 Visual Assembler - Installation Guide
-Version 2.9.1
+Version 2.9.2
 
+2.9.2: SID Player - a tune picked again starts from its first subtune, First / Last subtune buttons, subtune buttons work while a tune starts; no click at the start with VA SID Core; larger splash logo.
 2.9.1: SID Editor MIDI - remembered device, MIDI Learn for knobs and buttons, .mid import / export; ACME built in with switches in Settings; Build info shows the build; UltimateBasic 1.6.9.
 2.9.0: Visual Assembler Studio - assembly (VMA, ACME, R65), blocks, UltimateBasic and C (Oscar64, compiler built in) in one window with one tab bar; source-level debugging in C and UltimateBasic (variables, call stack, C line stepping); Start window, New / Tools / Git menus; projects keep their session in <name>.proj.user (workspaces retired); memory map in its own window; UltimateBasic 1.6.8
 

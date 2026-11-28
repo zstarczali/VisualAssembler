@@ -467,8 +467,8 @@ test("SID player uses the HVSC subtune length for the seek bar and auto-advance"
     ${["_sidPlayerTuneMs", "_sidPlayerPlayIndex", "_sidPlayerNext", "_sidPlayerLengthMs", "_sidPlayerAutoAdvance"].map(fnSource).join("\n")}
     this.api = { length: _sidPlayerLengthMs, advance: _sidPlayerAutoAdvance, set(list) { _sidPlaylist = list; } };`, ctx);
   ctx.api.set([
-    { id: "a", name: "a", song: 2, info: { songs: 2 }, lengths: [90000, 30000] },
-    { id: "b", name: "b", song: 1, info: { songs: 1 }, lengths: null },
+    { id: "a", name: "a", song: 2, info: { songs: 2, startSong: 1 }, lengths: [90000, 30000] },
+    { id: "b", name: "b", song: 1, info: { songs: 1, startSong: 1 }, lengths: null },
   ]);
   assert.equal(ctx.api.length(), 30000, "subtune 2 of the HVSC lengths");
   ctx.api.advance();
@@ -493,9 +493,9 @@ test("auto-advance plays subtunes in order before the next file, even with shuff
       };
       vm.createContext(ctx);
       vm.runInContext(`const _SID_TUNE_LENGTH_MS = 180000, _SID_STARS_MAX = 5;
-        var _sidPlaylist = [{ id: 'a', name: 'a', song: 1, info: { songs: 3 }, lengths: [10000, 20000, 0] }],
+        var _sidPlaylist = [{ id: 'a', name: 'a', song: 1, info: { songs: 3, startSong: 1 }, lengths: [10000, 20000, 0] }],
           _sidPlaylistIndex = 0, _sidShuffle = ${shuffle}, _sidShuffleHistory = ['a'];
-        ${singleFile ? "" : "_sidPlaylist.push({ id: 'b', name: 'b', song: 1, info: { songs: 1 } });"}
+        ${singleFile ? "" : "_sidPlaylist.push({ id: 'b', name: 'b', song: 1, info: { songs: 1, startSong: 1 } });"}
         function _sidPlayerFadeSeconds() { return 0; }
         ${["_sidPlayerTuneMs", "_sidPlayerPlayIndex", "_sidPlayerNext", "_sidPlayerAutoAdvance"].map(fnSource).join("\n")}
         this.advance = _sidPlayerAutoAdvance;`, ctx);
@@ -542,7 +542,7 @@ test("subtune toggle persists, restores and controls automatic progression", () 
   };
   vm.createContext(ctx);
   vm.runInContext(`var _sidPlaySubtunes = true, _sidShuffle = false, _sidPlaylistName = '',
-    _sidPlaylist = [{ song: 1, info: { songs: 3 } }, { song: 1, info: { songs: 1 } }], _sidPlaylistIndex = 0;
+    _sidPlaylist = [{ song: 1, info: { songs: 3, startSong: 1 } }, { song: 1, info: { songs: 1, startSong: 1 } }], _sidPlaylistIndex = 0;
     const _SID_PLAYER_STORE = 'player', _SID_TUNE_LENGTH_MS = 180000;
     function _sidPlayerFadeSeconds() { return 0; }
     ${["_sidPlayerSetSubtunes", "_sidPlayerPersist", "_sidPlayerRestore", "_sidPlayerAutoAdvance"].map(fnSource).join("\n")}
@@ -776,7 +776,7 @@ test("HVSC results: a click plays without adding to the playlist, playback goes 
   };
   vm.createContext(ctx);
   vm.runInContext(`var _sidSearchPrefetch = null; const _SID_TUNE_LENGTH_MS = 180000, _SID_STARS_MAX = 5;
-    var _sidPlaylist = [{ id: "p", name: "list.sid", bytes: new Uint8Array([9]), song: 1, info: { songs: 1 } }], _sidPlaylistIndex = 0,
+    var _sidPlaylist = [{ id: "p", name: "list.sid", bytes: new Uint8Array([9]), song: 1, info: { songs: 1, startSong: 1 } }], _sidPlaylistIndex = 0,
       _sidShuffle = false, _sidShuffleHistory = [], _sidPlaySubtunes = false, _sidExtStatus = "playing", _sidExtStarting = false,
       _hvscResults = [{ p: "/A/one.sid", l: [1000] }, { p: "/A/two.sid", l: [] }, { p: "/A/three.sid", l: [] }];
     function _sidPlayerFadeSeconds() { return 0; }
@@ -847,7 +847,7 @@ test("end-of-tune fade: full level until the fade, silent at the end; off = no f
 test("with the fade on the last tune stops at its end; with it off it plays on", () => {
   for (const fade of [10, 0]) {
     let stops = 0;
-    const ctx = { _sidExtElapsedMs: () => 200000, _sidPlayerCurrent: () => ({ song: 1, info: { songs: 1 } }), _sidExtStop() { stops++; } };
+    const ctx = { _sidExtElapsedMs: () => 200000, _sidPlayerCurrent: () => ({ song: 1, info: { songs: 1, startSong: 1 } }), _sidExtStop() { stops++; } };
     vm.createContext(ctx);
     vm.runInContext(`const _SID_TUNE_LENGTH_MS = 180000; var _sidPlaylist = [{}], _sidPlaylistIndex = 0, _sidShuffle = false,
       _sidPlaySubtunes = false, _sidSearchPlay = null, _sidSearchLoading = null, _sidExtStatus = "playing", _sidExtStarting = false;
@@ -868,7 +868,7 @@ test("search results: the next one is fetched during the last 30 s, and the step
   vm.createContext(ctx);
   vm.runInContext(`var _sidSearchPrefetch = null, _sidExtStatus = "playing", _sidExtStarting = false, _sidSearchLoading = null,
       _sidPlaySubtunes = true, elapsed = 0,
-      _sidSearchPlay = { source: "hvsc", path: "/a.sid", item: { song: 1, info: { songs: 1 } } },
+      _sidSearchPlay = { source: "hvsc", path: "/a.sid", item: { song: 1, info: { songs: 1, startSong: 1 } } },
       results = [{ p: "/a.sid" }, { p: "/b.sid" }];
     function _sidExtFadeEnd() { return 100000; }
     function _sidExtElapsedMs() { return elapsed; }
@@ -891,4 +891,52 @@ test("search results: the next one is fetched during the last 30 s, and the step
   assert.deepEqual(fetched, ["/b.sid"], "the step takes the prefetched bytes");
   await api.fetch("hvsc", { p: "/b.sid" });
   assert.deepEqual(fetched, ["/b.sid", "/b.sid"], "used once, then fetched again");
+});
+
+test("picking a tune again starts it from its start song, stepping keeps the subtune", () => {
+  const started = [];
+  const ctx = {
+    _sidExtStatus: "playing", _sidExtStarting: false, _sidPlaySubtunes: true,
+    _sidExtElapsedMs: () => 999999,
+    _sidPlayerRenderList() {}, _sidPlayerPersist() {},
+    _sidExtStartFile(bytes, name, song) { started.push([name, song]); },
+  };
+  vm.createContext(ctx);
+  vm.runInContext(`const _SID_TUNE_LENGTH_MS = 180000;
+    var _sidPlaylist = [{ id: 'a', name: 'a', song: 1, info: { songs: 5, startSong: 3 } },
+      { id: 'b', name: 'b', song: 1, info: { songs: 1, startSong: 1 } }],
+      _sidPlaylistIndex = 0, _sidShuffle = false, _sidShuffleHistory = [], _sidSearchPlay = null, _sidSearchLoading = null;
+    function _sidPlayerFadeSeconds() { return 0; }
+    function _sidPlayerCurrent() { return _sidPlaylist[_sidPlaylistIndex]; }
+    ${["_sidPlayerTuneMs", "_sidPlayerPlayIndex", "_sidPlayerNext", "_sidPlayerAutoAdvance"].map(fnSource).join("\n")}
+    this.advance = _sidPlayerAutoAdvance; this.play = _sidPlayerPlayIndex;`, ctx);
+  for (let i = 0; i < 4; i++) ctx.advance();
+  assert.deepEqual(started.at(-1), ["a", 5], "the subtunes ran on");
+  ctx.play(1);
+  ctx.play(0);
+  assert.deepEqual(started.at(-1), ["a", 1], "back on the tune: from subtune 1, not the header start song");
+});
+
+test("the first / last subtune buttons jump to the ends of the file", () => {
+  const started = [];
+  const ctx = { _sidExtStatus: "playing", _sidPlayerRenderList() {}, _sidPlayerPersist() {},
+    _sidExtStartFile(bytes, name, song) { started.push(song); } };
+  vm.createContext(ctx);
+  vm.runInContext(`var _sidPlaylist = [{ id: 'a', name: 'a', song: 4, info: { songs: 9, startSong: 1 } }],
+      _sidPlaylistIndex = 0, _sidShuffle = false, _sidShuffleHistory = [], _sidSearchPlay = null, _sidSearchLoading = null;
+    function _sidPlayerCurrent() { return _sidPlaylist[_sidPlaylistIndex]; }
+    ${["_sidPlayerPlayIndex", "_sidPlayerSong"].map(fnSource).join("\n")}
+    this.song = _sidPlayerSong;`, ctx);
+  ctx.song(Infinity);
+  ctx.song(Infinity);
+  ctx.song(-Infinity);
+  assert.deepEqual(started, [9, 1], "at the end nothing restarts");
+  // a click while the tune is still starting (status "stopped") restarts it too
+  ctx._sidExtStatus = "stopped";
+  ctx._sidExtStarting = true;
+  ctx.song(1);
+  assert.deepEqual(started, [9, 1, 2]);
+  ctx._sidExtStarting = false;
+  ctx.song(1);
+  assert.deepEqual(started, [9, 1, 2], "stopped: only the number changes");
 });

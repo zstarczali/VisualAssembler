@@ -1,6 +1,6 @@
 # C64 Visual Assembler — Felhasználói kézikönyv
 
-**Verzió: 2.9.1**
+**Verzió: 2.9.2**
 
 Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasításblokkok fogd-és-vidd módszerrel történő elrendezésével építed fel, a generált assembly és gépi kód pedig valós időben frissül.
 
@@ -10,6 +10,7 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 
 ## Tartalomjegyzék
 
+- [A 2.9.2 verzió újdonságai](#a-292-verzió-újdonságai)
 - [A 2.9.1 verzió újdonságai](#a-291-verzió-újdonságai)
 - [A 2.9.0 verzió újdonságai](#a-290-verzió-újdonságai)
 - [A 2.8.6 verzió újdonságai](#a-286-verzió-újdonságai)
@@ -167,6 +168,18 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
   - [Curve Editor](#curve-editor)
   - [Táblagenerátor](#táblagenerátor)
   - [Számrendszer-átváltó](#számrendszer-átváltó)
+
+---
+
+## A 2.9.2 verzió újdonságai
+
+- **SID Player: alzenék az elejétől** — A több alzenés dal újbóli választáskor (a listában, Előző / Következő gombbal vagy HVSC-találatként) az első alzenéjétől indul, akkor is, ha az alzenék már továbbléptek, vagy a fájl egy későbbi kezdő alzenét ad meg.
+- **Első / utolsó alzene** — Az alzene-számláló melletti **|‹** és **›|** gomb a fájl első, illetve utolsó alzenéjére ugrik.
+- **Nincs kattanás az elején VA SID Core-ral** — A hang-előnézet, a SID szerkesztő lejátszása és a SID Player nem kattan a dal elején, ha a VA SID Core a SID-motor; reSID 6581-en a SID Player indulásáról is eltűnt a puffanás.
+- **Alzene-gombok induló dalnál** — A dal első pillanataiban kattintva is az új alzenén indul újra; eddig csak a szám változott, és a régi alzene szólt tovább.
+- **Nyitóképernyő** — A logó 20%-kal nagyobb, az ablak mérete nem változott.
+
+Lásd: [SID Player](#sid-player).
 
 ---
 
@@ -2236,7 +2249,8 @@ Az effektek soronként egyszer frissülnek (megegyezően az exportált lejátsz�
 A **SID Player** toolbar gomb egy lebegő ablakot nyit, amely `.sid` zenefájlokat (PSID és RSID) játszik le, például a HVSC gyűjtemény zenéit.
 
 - **Lejátszási lista:** zenét az **Add .sid files…** gombbal vagy az ablakra húzva adhatsz hozzá, és kattintásra lejátszhatod; a **Remove** és a **Clear playlist** rendet tart. A **Save playlist…** / **Open playlist…** egy `.sidpl` fájlba írja és onnan olvassa a listát, a zenékkel együtt. A lista, az aktuális zene és az ablak nyitott állapota megmarad.
-- **Vezérlés:** Play, Pause, Stop, **Previous** / **Next** zene, több dalt tartalmazó fájloknál **Previous / Next subtune**, valamint időszámláló.
+- **Vezérlés:** Play, Pause, Stop, **Previous** / **Next** zene, valamint időszámláló. Több dalt tartalmazó fájlnál **|‹ ‹ 1 / 3 › ›|** látszik: a **‹** / **›** az előző / következő subtune-ra lép, a **|‹** / **›|** az elsőre / utolsóra ugrik; a szóló dal azonnal az új subtune-on indul újra, akkor is, ha még épp indul.
+- **Alzenék az elejétől:** az újra választott dal (a listában, a **Previous** / **Next** gombbal vagy HVSC-találatként) az első subtune-jától indul, akkor is, ha a subtune-ok már továbbléptek, vagy a fájl egy későbbi kezdő subtune-t ad meg.
 - **Tekerés:** a pozíciósáv és a **Back / Forward 10 s**; a kihagyott rész némán fut le.
 - **Hangerő:** a tekerőgomb közös a SID szerkesztő master hangerejével.
 - **Puffer:** **Beállítások → Általános → SID előnézet → SID Player puffer** (10, 15, 20 vagy 30 mp). Nagyobb pufferrel nem recseg a hang, ha az app épp dolgozik: a következő számtól ennyire előre renderelődik.

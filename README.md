@@ -4,7 +4,7 @@
 
 <p align="center">
   <a href="https://www.c64va.pro"><img src="https://img.shields.io/badge/website-c64va.pro-e05d44?style=flat" alt="Website"></a>
-  <a href="https://github.com/zstarczali/VisualAssembler/releases/latest"><img src="https://img.shields.io/badge/version-v2.9.1-4c1" alt="Version"></a>
+  <a href="https://github.com/zstarczali/VisualAssembler/releases/latest"><img src="https://img.shields.io/badge/version-v2.9.2-4c1" alt="Version"></a>
   <a href="https://github.com/zstarczali/VisualAssembler/actions/workflows/build.yml"><img src="https://img.shields.io/github/actions/workflow/status/zstarczali/VisualAssembler/build.yml?branch=main&label=build" alt="Build"></a>
   <a href="https://github.com/zstarczali/VisualAssembler/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="License: MIT"></a>
   <a href="https://www.c64va.pro/register/donate.php"><img src="https://img.shields.io/badge/donate-PayPal-00457C?logo=paypal&logoColor=white" alt="Donate"></a>
@@ -30,9 +30,17 @@
 
 A Tauri 2-based desktop application for visually composing Commodore 64 6502 assembly programs using drag-and-drop blocks. Arrange mnemonics, macros, and labels in a program list and see the generated ASM and monitor output update in real time. Optionally run the program directly in VICE.
 
-**Current version: v2.9.1**
+**Current version: v2.9.2**
 
 Visual Assembler is free and open source (MIT for original project code; see [third-party licenses](THIRD_PARTY_NOTICES.md)): every feature — editors, builds, hardware runs, languages and themes — works without a registration or serial. At most once a day the app sends an anonymous startup ping (version, OS, UI language, launch count, a random install ID) for the usage statistics; no email, project or source code is sent.
+
+## What's New in v2.9.2
+
+- **SID Player subtunes from the start** — A tune with several subtunes starts from its first subtune when you pick it again (in the playlist, with Next / Previous, or as an HVSC result), also when its subtunes had played on or the file names a later start song.
+- **First / Last subtune** — **|‹** and **›|** buttons next to the subtune counter jump to the first and the last subtune of the file.
+- **No click at the start with VA SID Core** — The note previews, Play in the SID Editor and the SID Player no longer click at the start of a tune when VA SID Core is the SID engine; with reSID on the 6581 the SID Player starts without its thump too.
+- **Subtune buttons while a tune starts** — A click in the first moments of a tune restarts it on the new subtune; before, only the number changed and the old subtune played on.
+- **Splash screen** — The logo is 20% larger, the window keeps its size.
 
 ## What's New in v2.9.1
 

@@ -7234,22 +7234,25 @@ html[data-theme="commodore77"] .splash-panel .splash-loader-bar {
   background: #fcee0a;
 }
 html[data-theme="commodore77"] .splash-image {
-  width: min(360px, calc(92vw - 96px));
-  max-height: 300px;
-  margin-top: 4px;
+  width: min(432px, calc(92vw - 96px));
+  max-height: 360px;
+  margin: -26px 0 -30px;
 }
 .splash-image {
   flex: 0 0 auto;
-  width: min(450px, calc(92vw - 64px));
+  width: min(540px, calc(92vw - 64px));
   max-width: 100%;
-  max-height: 340px;
+  max-height: 408px;
+  /* 20% larger than the 340 px it was, the panel unchanged: the empty top and bottom
+     of the logo eat the extra height, the loader and Studio offsets keep their place on it */
+  margin: -34px 0;
   height: auto;
   object-fit: contain;
   display: block;
 }
 .splash-panel .splash-loader {
   position: relative;
-  top: -30px;
+  top: -12px;
   width: 100%;
   height: 5px;
   background: rgba(255, 255, 255, 0.08);
@@ -14045,7 +14048,7 @@ body.oscar-mode.ub-mode .workspace { grid-template-columns: 1fr; gap: 14px; }
 html[data-theme="c64"] .va-studio { color: #ffffff; text-shadow: none; }
 /* splash: under the logo's "COMMODORE 64" line */
 /* no room taken: the loader and the lines under it stay where they were */
-.splash-panel .splash-studio { position: relative; top: -92px; height: 0; margin: 0 0 -10px; overflow: visible; pointer-events: none; font-size: 1.7rem; color: #ffb347; }
+.splash-panel .splash-studio { position: relative; top: -71px; height: 0; margin: 0 0 -10px; overflow: visible; pointer-events: none; font-size: 1.7rem; color: #ffb347; }
 
 /* Studio: one tab bar for every language; the badge names the tab's editor */
 .tab-lang { flex: none; padding: 0 4px; border-radius: 2px; font-size: .6rem; font-weight: 700; letter-spacing: .04em; line-height: 1.5; color: var(--tab-lang, var(--muted)); background: color-mix(in srgb, var(--tab-lang, var(--muted)) 16%, transparent); }

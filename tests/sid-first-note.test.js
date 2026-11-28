@@ -19,7 +19,7 @@ function framesOf(setup, count = 60, engine = "resid") {
     ${setup}
     const td = _sidWaTune();
     const e = _sidWaEngine(td, true);
-    const w = { open: _sidPreviewEngine === "resid" ? _sidWaOpeningMixer(td) : null };
+    const w = { open: _sidWaOpeningMixer(td) };
     const out = [];
     for (let k = 0; k < ${count}; k++) {
       _sidEngFrame(e);
@@ -59,9 +59,11 @@ test("a tune starting on row 0 sends what the engine does", { skip: !app }, () =
   assert.deepEqual(a, b);
 });
 
-test("VA SID Core gets the engine's own frames", { skip: !app }, () => {
-  const { frames } = framesOf(note(0, 4), 60, "va-core");
-  assert.equal(frames[0][0x18] & 15, 0);
+test("VA SID Core opens on the first note's volume too", { skip: !app }, () => {
+  const a = framesOf(note(0, 4)).frames;
+  const b = framesOf(note(0, 4), 60, "va-core").frames;
+  assert.equal(b[0][0x18] & 15, 15);
+  assert.deepEqual(a, b);
 });
 
 test("after the note the volume is the engine's again", { skip: !app }, () => {
@@ -90,9 +92,9 @@ test("with the song volume the chip is on it from the first frame", { skip: !app
   frames.forEach((f, k) => assert.equal(f[0x18] & 15, 11, `frame ${k}`));
 });
 
-test("both apps wire it into the player, for reSID only", () => {
+test("both apps wire it into the player, for reSID and VA SID Core", () => {
   const source = fs.readFileSync(path.join(www, app ? "app.js" : "sid-editor.js"), "utf8");
-  assert.ok(source.includes('open: audio && _sidUsesNativeCore() && _sidPreviewEngine === "resid" ? _sidWaOpeningMixer(td) : null'));
+  assert.ok(source.includes('open: audio && _sidUsesNativeCore() ? _sidWaOpeningMixer(td) : null'));
   assert.ok(source.includes("frames.push(w.open ? _sidWaOpenFrame(w, frame) : frame);"));
   // sanity for vm use in this file
   assert.equal(typeof vm.createContext, "function");

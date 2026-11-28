@@ -1,6 +1,7 @@
 # Linux Installation Guide (Ubuntu / Debian)
-Version 2.9.1
+Version 2.9.2
 
+2.9.2: SID Player - a tune picked again starts from its first subtune, First / Last subtune buttons, subtune buttons work while a tune starts; no click at the start with VA SID Core; larger splash logo.
 2.9.1: SID Editor MIDI - remembered device, MIDI Learn for knobs and buttons, .mid import / export; ACME built in with switches in Settings; Build info shows the build; UltimateBasic 1.6.9.
 2.9.0: Visual Assembler Studio - assembly (VMA, ACME, R65), blocks, UltimateBasic and C (Oscar64, compiler built in) in one window with one tab bar; source-level debugging in C and UltimateBasic (variables, call stack, C line stepping); Start window, New / Tools / Git menus; projects keep their session in <name>.proj.user (workspaces retired); memory map in its own window; UltimateBasic 1.6.8
 
@@ -109,7 +110,7 @@ Built on Ubuntu 22.04, so it runs there and on newer distributions; tested on Ub
 Download the `.deb` package from the releases page and install:
 
 ```bash
-  sudo dpkg -i "c64-visual-assembler_2.9.1_amd64.deb"
+  sudo dpkg -i "c64-visual-assembler_2.9.2_amd64.deb"
 sudo apt-get install -f   # fix any missing dependencies
 ```
 
@@ -228,4 +229,4 @@ The app propagates `DISPLAY`, `WAYLAND_DISPLAY`, `XDG_RUNTIME_DIR`, `DBUS_SESSIO
 - **Blank window, with `Failed to create GBM buffer` in the terminal:** start the application with `WEBKIT_DMABUF_RENDERER_DISABLE_GBM=1`, and if that does not help, with `WEBKIT_DISABLE_DMABUF_RENDERER=1` in front of its command.
 - **No sound, with `GStreamer element ... not found` in the terminal:** the SID Player seems to run, but stays silent. Install the plugins: `sudo apt install gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-alsa gstreamer1.0-pulseaudio`.
 
-**Version:** 2.9.1 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
+**Version:** 2.9.2 | **Support:** https://zstarczali.itch.io/visual-assembler-commodore-64
