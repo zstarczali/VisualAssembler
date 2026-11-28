@@ -175,7 +175,7 @@ Vizuális, blokk-alapú 6502 assembler a Commodore 64-hez. A programot utasítá
 
 - **SID Player: alzenék az elejétől** — A több alzenés dal újbóli választáskor (a listában, Előző / Következő gombbal vagy HVSC-találatként) az első alzenéjétől indul, akkor is, ha az alzenék már továbbléptek, vagy a fájl egy későbbi kezdő alzenét ad meg.
 - **Első / utolsó alzene** — Az alzene-számláló melletti **|‹** és **›|** gomb a fájl első, illetve utolsó alzenéjére ugrik.
-- **Nincs kattanás az elején VA SID Core-ral** — A hang-előnézet, a SID szerkesztő lejátszása és a SID Player nem kattan a dal elején, ha a VA SID Core a SID-motor; reSID 6581-en a SID Player indulásáról is eltűnt a puffanás.
+- **Nincs kattanás az elején VA SID Core-ral** — A hang-előnézet, a SID szerkesztő lejátszása és a SID Player nem kattan a dal elején, ha a VA SID Core a SID-motor; reSID 6581-en a SID Player indulásáról is eltűnt a puffanás. Másik számra váltáskor a régi szám 40 ms alatt elhalkul, nem a hullám közepén szakad meg, ami 6581-en kattant.
 - **Alzene-gombok induló dalnál** — A dal első pillanataiban kattintva is az új alzenén indul újra; eddig csak a szám változott, és a régi alzene szólt tovább.
 - **Nyitóképernyő** — A logó 20%-kal nagyobb, az ablak mérete nem változott.
 

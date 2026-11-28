@@ -173,7 +173,7 @@ A visual, block-based 6502 assembler for the Commodore 64. Build programs by dra
 
 - **SID Player subtunes from the start** — A tune with several subtunes starts from its first subtune when you pick it again (in the playlist, with Next / Previous, or as an HVSC result), also when its subtunes had played on or the file names a later start song.
 - **First / Last subtune** — **|‹** and **›|** buttons next to the subtune counter jump to the first and the last subtune of the file.
-- **No click at the start with VA SID Core** — The note previews, Play in the SID Editor and the SID Player no longer click at the start of a tune when VA SID Core is the SID engine; with reSID on the 6581 the SID Player starts without its thump too.
+- **No click at the start with VA SID Core** — The note previews, Play in the SID Editor and the SID Player no longer click at the start of a tune when VA SID Core is the SID engine; with reSID on the 6581 the SID Player starts without its thump too. Switching to another tune fades the old one out in 40 ms instead of cutting it off mid-wave, which clicked on the 6581.
 - **Subtune buttons while a tune starts** — A click in the first moments of a tune restarts it on the new subtune; before, only the number changed and the old subtune played on.
 - **Splash screen** — The logo is 20% larger, the window keeps its size.
 

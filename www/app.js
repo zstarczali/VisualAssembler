@@ -52299,6 +52299,42 @@ function _sidExtPause() {
   }
   _sidExtSetStatus("paused");
 }
+// A tune cut off mid-wave clicks, the more so on the 6581 with its large DC level. Each tune
+// plays through a gain of its own (state.out, in front of the Normalize stage); stopping it
+// ramps that gain to 0 in _SID_EXT_STOP_FADE_S and stops the buffers then. Nothing is
+// reconnected: WebKit applies a disconnect and a connect in different render quanta, and
+// the gap between them clicked. The shared gains change only after that (_sidExtSwitchAt),
+// and the next tune starts later (80 ms). A paused (suspended) context is silent: a plain stop.
+const _SID_EXT_STOP_FADE_S = 0.04;
+function _sidExtSwitchAt(ac) {
+  return ac.currentTime + _SID_EXT_STOP_FADE_S;
+}
+// The tune's own gain into `output`, made with its first buffer.
+function _sidExtTuneOut(state, output) {
+  if (!state.out || state.out.context !== output.context) {
+    state.out = output.context.createGain();
+    state.out.connect(output);
+  }
+  return state.out;
+}
+function _sidExtFadeOutSources(state) {
+  const ac = _sidExtAudio;
+  const sources = Array.from(_sidExtSources);
+  _sidExtSources.clear();
+  const out = state ? state.out : null;
+  if (state) state.out = null;
+  if (!sources.length) return;
+  if (!ac || ac.state !== "running" || !out || out.context !== ac) {
+    sources.forEach(function(src) { try { src.stop(); } catch (_) {} });
+    return;
+  }
+  const now = ac.currentTime, end = _sidExtSwitchAt(ac);
+  out.gain.cancelScheduledValues(now);
+  out.gain.setValueAtTime(1, now);
+  out.gain.linearRampToValueAtTime(0, end);
+  sources.forEach(function(src) { try { src.stop(end); } catch (_) { try { src.stop(); } catch (__) {} } });
+  setTimeout(function() { try { out.disconnect(); } catch (_) {} }, 250);
+}
 function _sidExtStop() {
   if (_sidExternalCore) _sidExternalCoreStop(true);
   _sidExtSetStatus("stopped");
@@ -54161,8 +54197,7 @@ function _sidExternalCoreStop(keepDialog = false) {
   _sidExternalCore = null;
   state.active = false;
   if (state.timer) clearInterval(state.timer);
-  _sidExtSources.forEach(function(src){ try { src.stop(); } catch (_) {} });
-  _sidExtSources.clear();
+  _sidExtFadeOutSources(state);
   if (state.paused && _sidExtAudio) _sidExtAudio.resume();
   if (!keepDialog) _sidPlayerHideWindow();
   // released at once: a render still in flight finishes on its own session
@@ -54192,7 +54227,7 @@ async function _vaSidPlayFileBytes(bytes, filename, song = 0) {
   };
   _sidExternalCore = state;
   const output = _playerNormOutput(ac);
-  _playerNormApply(false);
+  _playerNormApply(false, _sidExtSwitchAt(ac));
   // the measured gain from here on, gliding (2 s) from the start of the audio it was measured on
   const follow = function(at) {
     const gain = _playerNormGain({ loudness: _normLoudness(state.meter.blocks), peak: state.meter.peak });
@@ -54205,7 +54240,7 @@ async function _vaSidPlayFileBytes(bytes, filename, song = 0) {
     const samples = pcm.length / channels;
     state.nextTime = Math.max(state.nextTime, ac.currentTime + 0.02);
     _channelMonitorQueue(state, state.nextTime, monitor, frameRate);
-    _sidPlayBuffer(pcm, state.nextTime, _sidExtSources, channels, output);
+    _sidPlayBuffer(pcm, state.nextTime, _sidExtSources, channels, _sidExtTuneOut(state, output));
     state.nextTime += samples / ac.sampleRate;
   };
   const pump = async function(force) {
@@ -54282,9 +54317,8 @@ async function _vaSidSeek(state, targetMs) {
     while (state.busy) await state.queue.catch(function() {});
     state.monitor = [];
     if (!state.active) return;
-    _sidExtSources.forEach(function(src){ try { src.stop(); } catch (_) {} });
-    _sidExtSources.clear();
-    _playerNormApply(false);
+    _sidExtFadeOutSources(state);
+    _playerNormApply(false, _sidExtAudio ? _sidExtSwitchAt(_sidExtAudio) : undefined);
     if (targetMs >= state.renderedMs) {
       state.skipMs = Math.round(targetMs - state.renderedMs);
     } else {
@@ -54389,8 +54423,14 @@ function _sidExtFadeUpdate(reset) {
   const node = _sidExtFadeNode;
   if (!node) return;
   const param = node.gain, now = node.context.currentTime;
+  if (reset) {
+    // after the old tune's fade-out, which still runs through this gain
+    const at = _sidExtSwitchAt(node.context);
+    param.cancelScheduledValues(at);
+    param.setValueAtTime(1, at);
+    return;
+  }
   param.cancelScheduledValues(now);
-  if (reset) { param.setValueAtTime(1, now); return; }
   const playing = _sidExtStatus === "playing";
   const elapsed = _sidExtElapsedMs() + 250, end = _sidExtFadeEnd();
   let level = playing ? _sidExtFadeLevel(elapsed, end, _sidPlayerFadeSeconds() * 1000) : 1;
@@ -54400,11 +54440,17 @@ function _sidExtFadeUpdate(reset) {
   param.linearRampToValueAtTime(level, now + 0.25);
 }
 
-function _playerNormApply(smooth) {
+// at: from when (a new tune: after the old one's fade-out, which still runs through this gain)
+function _playerNormApply(smooth, at) {
   const state = _sidExternalCore;
   if (!_playerNormNode || !state) return;
   const value = _playerNormalize ? state.normGain || 1 : 1;
   const param = _playerNormNode.gain, now = _playerNormNode.context.currentTime;
+  if (at !== undefined) {
+    param.cancelScheduledValues(at);
+    param.setValueAtTime(value, at);
+    return;
+  }
   param.cancelScheduledValues(now);
   if (smooth) { param.setValueAtTime(param.value, now); param.setTargetAtTime(value, now, 0.25); }
   else param.setValueAtTime(value, now);
